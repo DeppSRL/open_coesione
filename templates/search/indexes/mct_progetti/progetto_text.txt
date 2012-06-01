@@ -1,0 +1,1 @@
+{{ object.titolo_progetto }}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block container_class %}{% spaceless %}
+    {{ block.super }} two_columns
+{% endspaceless %}{% endblock %}
+
+{% block container %}
+    <article class="row-fluid">
+
+        <!-- LEFT-COL -->
+        <div style="float:left; width:70%; border-right: 1px dotted gray" id="content">
+
+            {% block content %}{% endblock %}
+
+        </div><!-- /LEFT-COL -->
+        <!-- RIGHT-COL -->
+        <aside style="float:right;width:29%" id="sidebar">
+
+            {% block sidebar %}{% endblock %}
+
+        </aside><!-- /RIGHT-COL -->
+    </article>
+{% endblock  %}

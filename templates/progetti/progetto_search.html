@@ -1,0 +1,104 @@
+{% extends 'base_two_columns.html' %}
+{% load highlight %}
+{% load i18n %}
+{% load utils %}
+
+{% block title %}Elenco progetti {% endblock title %}
+
+{% block content %}
+    {% if selected_facets %}
+        <ul class="breadcrumb">
+            {% for facet in selected_facets  %}
+                <li>
+                    <a href="{{ facet.url }}"><i class="icon-remove">X</i></a>
+                    <span style="color:gray;">{% trans facet.field %}</span>:
+                    {{ facet.r_label }}
+                </li>
+                {% if not forloop.last %}
+                    <span class="divider">/</span>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% else %}
+      <p>Puoi trovare l'atto che ti interessa scorrendo la lista degli ultimi pubblicati, qui sotto.
+        Puoi perfezionare la ricerca usando i filtri nella colonna qui a destra, oppure puoi usare il form di
+        ricerca con una parola che pensi sia contenuta nell'atto ,
+        in cima alla colonna qui a destra</p>
+    {% endif %}
+
+
+    {% if n_results %}
+
+      {% comment %}
+      {% include "commons/pagination.html" with base_url=base_url %}
+      {% endcomment %}
+
+      <section>
+        <h3>{% if not query %}Tutti i {% endif %} {{ n_results }} documenti</h3>
+
+        <table class="search-results">
+          <tbody>
+          {% for result in page.object_list %}
+          <tr>
+            <td>{{ result.titolo }}</td>
+          </tr>
+          {% empty %}
+              <p>Nessun risultato trovato.</p>
+          {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      {% comment %}
+      {% include "commons/pagination.html" with base_url=base_url %}
+      {% endcomment %}
+
+    {% else %}
+        {# Show some example queries to run, maybe query syntax, something else? #}
+    {% endif %}
+
+{% endblock %}
+
+{% block sidebar %}
+  <h4>Cerca negli atti</h4>
+  <form method="get" action="{% url oc_progetto_search %}" class="form-search">
+    <input type="text" class="input-medium search-query" name="{{ form.q.html_name }}" value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
+    <button type="submit" class="btn">Cerca</button>
+  </form>
+
+    {% if n_results %}
+        <!-- Begin faceting. -->
+        <h3>Filtra</h3>
+        <div>
+            <dl>
+                {% if facets.fields.tipo_operazione and not facets.fields.tipo_operazione.is_field_selected %}
+                    <dt>Tipo operazione</dt>
+                    {% for t in facets.fields.tipo_operazione.counts %}
+                        {% if t.1 %}
+                            <dd>
+                                {% if not t.2 %}
+                                    <a href="{{ base_url }}&selected_facets=tipo_operazione:{{ t.0|urlencode }}">{{ tipo_operazioni|key:t.0 }}</a> ({{ t.1 }})
+                                {% endif %}
+                            </dd>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </dl>
+            <dl>
+                {% if facets.fields.priorita and not facets.fields.priorita.is_field_selected %}
+                    <dt>Priorità</dt>
+                    {% for t in facets.fields.priorita.counts %}
+                        {% if t.1 %}
+                            <dd>
+                                {% if not t.2 %}
+                                    <a href="{{ base_url }}&selected_facets=priorita:{{ t.0|urlencode }}">{{ t.0 }}</a> ({{ t.1 }})
+                                {% endif %}
+                            </dd>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </dl>
+        </div>
+        <!-- End faceting -->
+    {% endif %}
+{% endblock %}

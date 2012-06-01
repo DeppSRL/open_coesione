@@ -1,0 +1,36 @@
+{% load i18n %}
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8" />
+    <title>Open Coesione - {% block title %}{% endblock %}</title>
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+
+<div id="wrapper"><!-- #wrapper -->
+
+   <header>
+       <div>
+           El header
+       </div>
+   </header>
+
+  <!-- MAIN-SECTION -->
+  <section id="main" class="{% block container_class %}container-fluid{% endblock %}"><!-- #main container for content and sidebar area -->
+  {% block container %}{% endblock %}
+  </section>
+  <!-- /MAIN-SECTION -->
+
+  <!-- FOOTER-NAV -->
+  <footer style="clear:both; padding-top: 2em;" class="navbar navbar-fixed-bottom">
+    <div class="navbar-inner">
+        El footer
+    </div>
+  </footer>
+  <!-- /FOOTER-NAV -->
+
+</div><!-- #wrapper -->
+
+</body>
+</html>
