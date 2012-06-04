@@ -122,10 +122,14 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django_extensions',
+    'django.contrib.gis',
+    'world',
     'south',
     'haystack',
-    'mct_progetti',
+#    'mct_progetti',
 )
+
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

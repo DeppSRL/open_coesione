@@ -11,6 +11,7 @@ sqs = SearchQuerySet().filter(django_ct='mct_progetti.progetto').\
 
 urlpatterns = patterns('',
    # faceted navigation
+
    url(r'^$', ProgettoSearchView(template='progetti/progetto_search.html', searchqueryset=sqs), name='oc_progetto_search'),
 )
 
