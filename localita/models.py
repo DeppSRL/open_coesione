@@ -21,8 +21,15 @@ class Localita(models.Model):
 
     objects = models.GeoManager()
 
+    @property
+    def nome(self):
+        if self.denominazione_ted:
+            return "%s - %s" % (self.denominazione, self.denominazione_ted)
+        else:
+            return "%s" % (self.denominazione)
+
     def __unicode__(self):
-        return "%s (%s)" % (self.denominazione, self.territorio)
+        return self.nome
 
     class Meta:
         verbose_name = u'Località'

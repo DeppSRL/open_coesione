@@ -9,7 +9,7 @@ class RegionListView(TemplateView):
 
         l = Localita.objects.filter(territorio='R')
 
-        djf = Django.Django(geodjango="geom", properties=['denominazione'])
+        djf = Django.Django(geodjango="geom", properties=['nome'])
         geoj = GeoJSON.GeoJSON()
         return HttpResponse(geoj.encode(djf.decode(l)), mimetype='application/json')
 
@@ -22,7 +22,7 @@ class RegionDetailView(TemplateView):
         cod_reg = params['cod_reg']
         l = Localita.objects.filter(cod_reg=cod_reg, territorio='C')
 
-        djf = Django.Django(geodjango="geom", properties=['denominazione', 'denominazione_ted'])
+        djf = Django.Django(geodjango="geom", properties=['nome'])
         geoj = GeoJSON.GeoJSON()
         return HttpResponse(geoj.encode(djf.decode(l)), mimetype='application/json')
 
