@@ -10,8 +10,9 @@
     <script src="{{ STATIC_URL }}leaflet-dist/leaflet.js"></script>
 </head>
 <body>
-<div id="map" style="width: 800px; height: 600px"></div>
+<div id="map" style="width: 800px; height: 800px"></div>
 <script>
+    var region_id = self.document.location.hash.substring(1)
     var map = new L.Map('map');
 
     var defaultStyle = {
@@ -33,17 +34,17 @@
     var osmlayer = new L.TileLayer('https://s3-eu-west-1.amazonaws.com/openpolis-maptiles/sfondo/{z}/{x}/{y}.png', {
         attribution: 'Map tiles by <a href="http://openpolis.it">Openpolis</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://mabbox.com">Mapbox</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'
     });
-    map.setView(new L.LatLng(41.800, 12.52), 8).addLayer(osmlayer);
-
-    var geojsonLayerReg = new L.GeoJSON();
-    map.addLayer(geojsonLayerReg);
+    map.setView(new L.LatLng(41.800, 12.52), 6).addLayer(osmlayer);
 
     var geojsonLayerCom = new L.GeoJSON();
-    $.getJSON("provincia/33.json", function(data) {
-        geojsonLayerCom.addGeoJSON(data)
-        geojsonLayerCom.setStyle(defaultStyle)
-    });
     map.addLayer(geojsonLayerCom);
+
+    var geojsonLayerReg = new L.GeoJSON();
+    $.getJSON("regioni.json", function(data) {
+        geojsonLayerReg.addGeoJSON(data)
+        geojsonLayerReg.setStyle(defaultStyle)
+    });
+    map.addLayer(geojsonLayerReg);
 
     map.on("zoomend", function (e) {
         if (this.getZoom() < 8)
@@ -56,10 +57,10 @@
             this.addLayer(geojsonLayerReg);
         }
 
-        if (this.getZoom() >=8)
+        if (region_id && this.getZoom() >=8)
         {
             this.removeLayer(geojsonLayerReg)
-            $.getJSON("regione/4.json", function(data) {
+            $.getJSON("regione/" +region_id + "/P.json", function(data) {
                 geojsonLayerCom.addGeoJSON(data)
                 geojsonLayerCom.setStyle(defaultStyle)
             });
@@ -116,6 +117,11 @@
         // Create a self-invoking function that passes in the layer
         // and the properties associated with this particular record.
         (function(layer, properties) {
+            // Create a click event
+            layer.on("click", function (e) {
+                self.document.location = "http://localhost:8020/localita/#" + properties.cod_reg;
+                self.document.location.reload()
+            });
             // Create a mouseover event
             layer.on("mouseover", function (e) {
                 // Change the style to the highlighted version
