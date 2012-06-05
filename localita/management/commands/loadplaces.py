@@ -23,6 +23,14 @@ class Command(BaseCommand):
     }
     regione_shp = os.path.abspath(os.path.join(settings.REPO_ROOT, 'dati/reg2011_g/regioni_stats.shp'))
 
+    provincia_mapping = {
+        'cod_reg' :       'COD_REG',
+        'cod_prov' :      'COD_PRO',
+        'denominazione' : 'NOME_PRO',
+        'geom' :          'MULTIPOLYGON',
+    }
+    provincia_shp = os.path.abspath(os.path.join(settings.REPO_ROOT, 'dati/prov2011_g/prov2011_g.shp'))
+
     comune_mapping = {
         'cod_reg' :           'COD_REG',
         'cod_prov' :          'COD_PRO',
@@ -39,6 +47,8 @@ class Command(BaseCommand):
             # use --geolevel=regione
             geolevels = dict((value.lower(), key) for key, value in dict(Localita.TERRITORIO).iteritems())
             geolevel = geolevels[options['geolevel'].lower()]
+
+
             def _set_geolevel(sender, instance, **kwargs):
                 """
                 Signal callback to set the geolevel for a
@@ -48,9 +58,15 @@ class Command(BaseCommand):
 
             pre_save.connect(_set_geolevel, sender=Localita)
 
+
+            # based, on geolevel, define source, mapping and reference system ID
             if geolevel == 'C':
                 shapefile = self.comune_shp
                 mapping = self.comune_mapping
+                source_srs = 23032
+            elif geolevel == 'P':
+                shapefile = self.provincia_shp
+                mapping = self.provincia_mapping
                 source_srs = 23032
             elif geolevel == 'R':
                 shapefile = self.regione_shp
