@@ -22,4 +22,7 @@ urlpatterns = patterns('',
     # world
     url(r'^world/', include('world.urls')),
 
+    # localita
+    url(r'^localita/', include('localita.urls')),
+
 )

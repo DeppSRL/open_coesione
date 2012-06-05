@@ -191,7 +191,7 @@ if __name__ == "__main__":
     try:
         mapfile = os.environ['MAPNIK_MAP_FILE']
     except KeyError:
-        mapfile = home + "comuni_italia.xml"
+        mapfile = home + "sfondo.xml"
     try:
         tile_dir = os.environ['MAPNIK_TILE_DIR']
     except KeyError:
@@ -208,4 +208,4 @@ if __name__ == "__main__":
     
     # Italy
     bbox = (6.62773,35.494,18.5211,47.0926)
-    render_tiles(bbox, mapfile, tile_dir, 4, 10,"Italia")
+    render_tiles(bbox, mapfile, tile_dir, 6, 10,"Italia")

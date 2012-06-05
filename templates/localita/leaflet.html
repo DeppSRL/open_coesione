@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Test tiles</title>
+    <link rel="stylesheet" href="{{ STATIC_URL }}leaflet-dist/leaflet.css" />
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="{{ STATIC_URL }}leaflet-dist/leaflet.ie.css" />
+  <![endif]-->
+    <script src="{{ STATIC_URL }}simplegeo-polymaps/lib/jquery/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}leaflet-dist/leaflet.js"></script>
+</head>
+<body>
+<div id="map" style="width: 800px; height: 600px"></div>
+<script>
+    var map = new L.Map('map');
+
+    var defaultStyle = {
+        color: "#FFF",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.45,
+        fillColor: "#969491"
+    };
+
+    var highlightStyle = {
+        color: '#fff',
+        weight: 3,
+        opacity: 1,
+        fillOpacity: 0.65,
+        fillColor: '#ffffff'
+    };
+
+    var osmlayer = new L.TileLayer('https://s3-eu-west-1.amazonaws.com/openpolis-maptiles/sfondo/{z}/{x}/{y}.png', {
+        attribution: 'Map tiles by <a href="http://openpolis.it">Openpolis</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://mabbox.com">Mapbox</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.',
+    });
+    map.setView(new L.LatLng(41.800, 12.52), 8).addLayer(osmlayer);
+
+    var geojsonLayerReg = new L.GeoJSON();
+    map.addLayer(geojsonLayerReg);
+
+    var geojsonLayerCom = new L.GeoJSON();
+    $.getJSON("regione/12.json", function(data) {
+        geojsonLayerCom.addGeoJSON(data)
+        geojsonLayerCom.setStyle(defaultStyle)
+    });
+    map.addLayer(geojsonLayerCom);
+
+    map.on("zoomend", function (e) {
+        if (this.getZoom() < 8)
+        {
+            this.removeLayer(geojsonLayerCom)
+            $.getJSON("regioni.json", function(data) {
+                geojsonLayerReg.addGeoJSON(data);
+                geojsonLayerReg.setStyle(defaultStyle);
+            });
+            this.addLayer(geojsonLayerReg);
+        }
+
+        if (this.getZoom() >=8)
+        {
+            this.removeLayer(geojsonLayerReg)
+            $.getJSON("regione/4.json", function(data) {
+                geojsonLayerCom.addGeoJSON(data)
+                geojsonLayerCom.setStyle(defaultStyle)
+            });
+            this.addLayer(geojsonLayerCom);
+        }
+    });
+
+    geojsonLayerCom.on("featureparse", function (e){
+        // Load the default style.
+        e.layer.setStyle(defaultStyle);
+        // Create a self-invoking function that passes in the layer
+        // and the properties associated with this particular record.
+        (function(layer, properties) {
+            // Create a mouseover event
+            layer.on("mouseover", function (e) {
+                // Change the style to the highlighted version
+                layer.setStyle(highlightStyle);
+                // Create a popup with a unique ID linked to this record
+                var popup = $("<div></div>", {
+                    id: "popup-denominazione",
+                    css: {
+                        position: "absolute",
+                        bottom: "85px",
+                        left: "50px",
+                        zIndex: 1002,
+                        backgroundColor: "white",
+                        padding: "8px",
+                        border: "1px solid #ccc"
+                    }
+                });
+                // Insert a headline into that popup
+                var hed = $("<div></div>", {
+                    text: properties.denominazione + " - " + properties.denominazione_ted,
+                    css: {fontSize: "16px", marginBottom: "3px"}
+                }).appendTo(popup);
+                // Add the popup to the map
+                popup.appendTo("#map");
+            });
+            // Create a mouseout event that undoes the mouseover changes
+            layer.on("mouseout", function (e) {
+                // Start by reverting the style back
+                layer.setStyle(defaultStyle);
+                // And then destroying the popup
+                $("#popup-denominazione").remove();
+            });
+            // Close the "anonymous" wrapper function, and call it while passing
+            // in the variables necessary to make the events work the way we want.
+        })(e.layer, e.properties);
+    });
+
+    geojsonLayerReg.on("featureparse", function (e){
+        // Load the default style.
+        e.layer.setStyle(defaultStyle);
+        // Create a self-invoking function that passes in the layer
+        // and the properties associated with this particular record.
+        (function(layer, properties) {
+            // Create a mouseover event
+            layer.on("mouseover", function (e) {
+                // Change the style to the highlighted version
+                layer.setStyle(highlightStyle);
+                // Create a popup with a unique ID linked to this record
+                var popup = $("<div></div>", {
+                    id: "popup-denominazione",
+                    css: {
+                        position: "absolute",
+                        bottom: "85px",
+                        left: "50px",
+                        zIndex: 1002,
+                        backgroundColor: "white",
+                        padding: "8px",
+                        border: "1px solid #ccc"
+                    }
+                });
+                // Insert a headline into that popup
+                var hed = $("<div></div>", {
+                    text: properties.denominazione,
+                    css: {fontSize: "16px", marginBottom: "3px"}
+                }).appendTo(popup);
+                // Add the popup to the map
+                popup.appendTo("#map");
+            });
+            // Create a mouseout event that undoes the mouseover changes
+            layer.on("mouseout", function (e) {
+                // Start by reverting the style back
+                layer.setStyle(defaultStyle);
+                // And then destroying the popup
+                $("#popup-denominazione").remove();
+            });
+            // Close the "anonymous" wrapper function, and call it while passing
+            // in the variables necessary to make the events work the way we want.
+        })(e.layer, e.properties);
+    });
+
+</script>
+</body>
+</html>

@@ -1,8 +1,9 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 from django.db import models
 from model_utils import Choices
+
+from localita.models import Localita
 
 class ClassificazioneQSN(models.Model):
     TIPO = Choices(
@@ -261,7 +262,7 @@ class Progetto(models.Model):
     dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_DATE)
     dps_flag_cup = models.CharField(max_length=1, choices=DPS_FLAG_CUP)
 
-    localita_set = models.ManyToManyField('Localita', through='Localizzazione')
+    localita_set = models.ManyToManyField(Localita, through='Localizzazione')
     soggetto_set = models.ManyToManyField('Soggetto')
 
     @property
@@ -279,32 +280,13 @@ class Progetto(models.Model):
         verbose_name_plural = "Progetti"
 
 
-class Localita(models.Model):
-    TERRITORIO = Choices(
-        ('C', 'Comune'),
-        ('P', 'Provincia'),
-        ('R', 'Regione'),
-        ('N', 'Nazionale'),
-        ('E', 'Estero'),
-    )
-    codice = models.CharField(max_length=16, primary_key=True)
-    denominazione = models.CharField(max_length=128)
-    territorio = models.CharField(max_length=1, choices=TERRITORIO)
-
-    def __unicode__(self):
-        return "%s (%s)" % (self.denominazione, self.territorio)
-
-    class Meta:
-        verbose_name = u'Località'
-        verbose_name_plural = u'Località'
-
 class Localizzazione(models.Model):
     DPS_FLAG_CAP = Choices(
         ('0', 'CAP non valido o incoerente con territorio'),
         ('1', 'CAP valido e coerente'),
         ('2', 'CAP mancante o territorio nazionale o estero'),
     )
-    localita = models.ForeignKey('Localita', verbose_name=u'Località', db_column='codice_localita')
+    localita = models.ForeignKey(Localita, verbose_name=u'Località')
     progetto = models.ForeignKey('Progetto', db_column='codice_progetto')
     indirizzo = models.CharField(max_length=255, blank=True, null=True)
     cap = models.CharField(max_length=5, blank=True, null=True)

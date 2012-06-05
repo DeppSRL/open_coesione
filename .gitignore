@@ -5,3 +5,6 @@ log/logfile*
 *.pyc
 */settings_*
 dati
+GIS/tiles
+*.sql
+sitestatic

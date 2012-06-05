@@ -56,7 +56,6 @@ class Command(BaseCommand):
     reader = None
 
     def handle(self, *args, **options):
-        # parse people xml file into an lxml.etree
         self.csv_file = options['csvfile']
 
         # read first csv file

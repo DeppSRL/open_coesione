@@ -9,12 +9,20 @@ function init(){
 	};
 	map = new OpenLayers.Map('map', option);
 	olmapnik = new OpenLayers.Layer.OSM("OpenStreetMap Mapnik", "http://tile.openstreetmap.org/${z}/${x}/${y}.png");
-	olmapquest = new OpenLayers.Layer.OSM(
-	  "Comuni d'Italia", 
-	  "http://localhost:8020/world/tiles/comuni/${z}/${x}/${y}.png",
-	  {'isBaseLayer': false});
+
+    var url = "http://localhost:8020/localita/regione/12.json";
+    vector_layer = new OpenLayers.Layer.Vector()
+    OpenLayers.loadURL(url, {}, null, function (response) {
+        var gformat = new OpenLayers.Format.GeoJSON();
+        gg = '{"type":"FeatureCollection", "features":' +
+            response.responseText + '}';
+        var feats = gformat.read(gg);
+        vector_layer.addFeatures(feats);
+    });
+
+
 	map.addLayer(olmapnik);
-	map.addLayer(olmapquest);	
+	map.addLayer(vector_layer);
 	var ls= new OpenLayers.Control.LayerSwitcher(); 
 	map.addControl(ls); 
 	ls.maximizeControl(); 
