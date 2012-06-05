@@ -31,7 +31,7 @@
     };
 
     var osmlayer = new L.TileLayer('https://s3-eu-west-1.amazonaws.com/openpolis-maptiles/sfondo/{z}/{x}/{y}.png', {
-        attribution: 'Map tiles by <a href="http://openpolis.it">Openpolis</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://mabbox.com">Mapbox</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.',
+        attribution: 'Map tiles by <a href="http://openpolis.it">Openpolis</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://mabbox.com">Mapbox</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'
     });
     map.setView(new L.LatLng(41.800, 12.52), 8).addLayer(osmlayer);
 
@@ -39,7 +39,7 @@
     map.addLayer(geojsonLayerReg);
 
     var geojsonLayerCom = new L.GeoJSON();
-    $.getJSON("regione/12.json", function(data) {
+    $.getJSON("provincia/33.json", function(data) {
         geojsonLayerCom.addGeoJSON(data)
         geojsonLayerCom.setStyle(defaultStyle)
     });
