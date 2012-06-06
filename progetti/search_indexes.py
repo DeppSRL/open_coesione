@@ -2,7 +2,7 @@ import datetime
 from haystack.indexes import *
 from haystack import site
 
-from mct_progetti.models import Progetto
+from progetti.models import Progetto
 
 from django.utils.translation import activate
 from django.conf import settings

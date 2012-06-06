@@ -1,7 +1,7 @@
 from haystack.views import SearchView
 from forms import RangeFacetedSearchForm
 from django.utils.translation import ugettext_lazy as _
-from mct_progetti.models import Progetto, ClassificazioneQSN
+from progetti.models import Progetto, ClassificazioneQSN
 
 class ExtendedFacetedSearchView(SearchView):
     """

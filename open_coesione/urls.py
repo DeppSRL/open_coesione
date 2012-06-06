@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     # progetti
-    url(r'^progetti/', include('mct_progetti.urls')),
+    url(r'^progetti/', include('...progetti.urls')),
 
     # world
     url(r'^world/', include('world.urls')),

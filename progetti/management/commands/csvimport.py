@@ -13,7 +13,7 @@ import csv
 import logging
 
 
-from mct_progetti.models import *
+from progetti.models import *
 
 
 class Command(BaseCommand):

@@ -1,7 +1,7 @@
 [
     {
         "pk": "1", 
-        "model": "mct_progetti.tema", 
+        "model": "progetti.tema",
         "fields": {
             "descrizione": "Competitivit\u00e0 e innovazione per le imprese", 
             "tema_superiore": null, 
@@ -10,7 +10,7 @@
     }, 
     {
         "pk": "2", 
-        "model": "mct_progetti.tema", 
+        "model": "progetti.tema",
         "fields": {
             "descrizione": "Societ\u00e0 dell'informazione e banda larga", 
             "tema_superiore": null, 
@@ -19,7 +19,7 @@
     }, 
     {
         "pk": "3", 
-        "model": "mct_progetti.tema", 
+        "model": "progetti.tema",
         "fields": {
             "descrizione": "Trasporti", 
             "tema_superiore": null, 
@@ -28,7 +28,7 @@
     }, 
     {
         "pk": "4", 
-        "model": "mct_progetti.tema", 
+        "model": "progetti.tema",
         "fields": {
             "descrizione": "Energia", 
             "tema_superiore": null, 
@@ -37,7 +37,7 @@
     }, 
     {
         "pk": "5", 
-        "model": "mct_progetti.tema", 
+        "model": "progetti.tema",
         "fields": {
             "descrizione": "Ambiente", 
             "tema_superiore": null, 
@@ -46,7 +46,7 @@
     }, 
     {
         "pk": "6", 
-        "model": "mct_progetti.tema", 
+        "model": "progetti.tema",
         "fields": {
             "descrizione": "Attrazione culturale e turistica", 
             "tema_superiore": null, 
@@ -55,7 +55,7 @@
     }, 
     {
         "pk": "7", 
-        "model": "mct_progetti.tema", 
+        "model": "progetti.tema",
         "fields": {
             "descrizione": "Rinnovamento urbano e rurale", 
             "tema_superiore": null, 
@@ -64,7 +64,7 @@
     }, 
     {
         "pk": "8", 
-        "model": "mct_progetti.tema", 
+        "model": "progetti.tema",
         "fields": {
             "descrizione": "Occupazione", 
             "tema_superiore": null, 
@@ -73,7 +73,7 @@
     }, 
     {
         "pk": "9", 
-        "model": "mct_progetti.tema", 
+        "model": "progetti.tema",
         "fields": {
             "descrizione": "Servizi di cura infanzia e anziani", 
             "tema_superiore": null, 
@@ -82,7 +82,7 @@
     }, 
     {
         "pk": "10", 
-        "model": "mct_progetti.tema", 
+        "model": "progetti.tema",
         "fields": {
             "descrizione": "Inclusione sociale", 
             "tema_superiore": null, 
@@ -91,7 +91,7 @@
     }, 
     {
         "pk": "11", 
-        "model": "mct_progetti.tema", 
+        "model": "progetti.tema",
         "fields": {
             "descrizione": "Istruzione e formazione", 
             "tema_superiore": null, 
@@ -100,7 +100,7 @@
     }, 
     {
         "pk": "12", 
-        "model": "mct_progetti.tema", 
+        "model": "progetti.tema",
         "fields": {
             "descrizione": "Rafforzamento capacit\u00e0 della PA", 
             "tema_superiore": null, 

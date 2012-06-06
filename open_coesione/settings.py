@@ -126,7 +126,7 @@ INSTALLED_APPS = (
     'world',
     'south',
     'haystack',
-#    'mct_progetti',
+#    'progetti',
     'localita',
 )
 

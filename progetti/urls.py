@@ -1,10 +1,10 @@
 from django.conf.urls import patterns, url
 from haystack.query import SearchQuerySet
 
-from mct_progetti.views import (ProgettoSearchView)
+from progetti.views import (ProgettoSearchView)
 
 ## SearchQuerySet with multiple facets and highlight
-sqs = SearchQuerySet().filter(django_ct='mct_progetti.progetto').\
+sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
       facet('tipo_operazione').\
       facet('priorita').\
       highlight()

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from mct_progetti.models import *
+from progetti.models import *
 
 class LocalizzazioneInline(admin.TabularInline):
     model = Localizzazione
