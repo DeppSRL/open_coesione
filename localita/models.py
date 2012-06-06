@@ -17,7 +17,7 @@ class Localita(models.Model):
     denominazione = models.CharField(max_length=128)
     denominazione_ted = models.CharField(max_length=128, blank=True, null=True)
     territorio = models.CharField(max_length=1, choices=TERRITORIO)
-    geom = models.MultiPolygonField(srid=4326)
+    geom = models.MultiPolygonField(srid=4326, null=True, blank=True)
 
     objects = models.GeoManager()
 

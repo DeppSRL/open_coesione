@@ -153,12 +153,16 @@ class Command(BaseCommand):
                     territorio=Localita.TERRITORIO.P,
                 )
             elif tipo_territorio == 'C':
-                localita = Localita.objects.get(
-                    cod_reg=int(r['CODICE_REGIONE']),
-                    cod_prov=int(r['CODICE_PROVINCIA']),
-                    cod_com="%s%s" % (int(r['CODICE_PROVINCIA']), r['CODICE_COMUNE']),
-                    territorio=Localita.TERRITORIO.C,
-                )
+                try:
+                    localita = Localita.objects.get(
+                        cod_reg=int(r['CODICE_REGIONE']),
+                        cod_prov=int(r['CODICE_PROVINCIA']),
+                        cod_com="%s%s" % (int(r['CODICE_PROVINCIA']), r['CODICE_COMUNE']),
+                        territorio=Localita.TERRITORIO.C,
+                    )
+                except Localita.DoesNotExist as e:
+                    self.logger.warning("%s: %s-%s-%s [%s]" % (r['DENOMINAZIONE_COMUNE'],r['CODICE_REGIONE'],r['CODICE_PROVINCIA'],r['CODICE_COMUNE'],r['COD_LOCALE_PROGETTO']))
+                    continue
             elif tipo_territorio in ('E', 'N'):
                 # territorio estero o nazionale
                 # get_or_create, perché non sono in Localita di default
