@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from decimal import Decimal
-import _mysql_exceptions
 import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import DatabaseError
@@ -337,10 +336,7 @@ class Command(BaseCommand):
                 if created:
                     self.logger.debug("Aggiunto obiettivo: %s" % (programma_asse_obiettivo.codice,))
 
-            except _mysql_exceptions.Warning as e:
-                self.logger.warning("In fetch di programma-asse-obiettivo per codice locale:%s. %s" % (codice_locale, e))
-                continue
-            except (_mysql_exceptions.Error, DatabaseError) as e:
+            except DatabaseError as e:
                 self.logger.error("In fetch di programma-asse-obiettivo per codice locale:%s. %s" % (codice_locale, e))
                 continue
 
@@ -364,7 +360,7 @@ class Command(BaseCommand):
                     tipo_tema=Tema.TIPO.sintetico,
                 )
             except ObjectDoesNotExist as e:
-                self.logger.error("While reading tema sintetico %s in %s. %s" % (r['DPS_TEMA_SINTETICO'].decode('CP-1252'), codice_locale, e))
+                self.logger.error("While reading tema sintetico %s in %s. %s" % (r['DPS_TEMA_SINTETICO'].encode('Windows-1252'), codice_locale, e))
                 continue
 
             try:
@@ -380,11 +376,7 @@ class Command(BaseCommand):
                 if created:
                     self.logger.info("Aggiunto tema: %s" % (tema_prioritario.codice,))
 
-            except _mysql_exceptions.Warning as e:
-                self.logger.warning("In fetch di tema prioritario %s per codice locale:%s. %s" %
-                               (r['COD_TEMA_PRIORITARIO'], codice_locale, e))
-                continue
-            except (_mysql_exceptions.Error, DatabaseError) as e:
+            except DatabaseError as e:
                 self.logger.error("In fetch di tema prioritario %s per codice locale:%s. %s" %
                              (r['COD_TEMA_PRIORITARIO'], codice_locale, e))
                 continue
@@ -402,11 +394,7 @@ class Command(BaseCommand):
                 if created:
                     self.logger.info("Aggiunta intesa: %s" % (intesa,))
 
-            except _mysql_exceptions.Warning as e:
-                self.logger.warning("In fetch di intesa %s per codice locale:%s. %s" %
-                               (r['COD_INTESA'], codice_locale, e))
-                continue
-            except (_mysql_exceptions.Error, DatabaseError) as e:
+            except DatabaseError as e:
                 self.logger.error("In fetch di intesa %s per codice locale:%s. %s" %
                              (r['COD_INTESA'], codice_locale, e))
                 continue
@@ -438,10 +426,7 @@ class Command(BaseCommand):
                     self.logger.info("Aggiunta classificazione azione natura_tipologia: %s" % (natura_tipologia.codice,))
 
 
-            except _mysql_exceptions.Warning as e:
-                self.logger.warning("In fetch di natura-tipologia per codice locale:%s. %s" % (codice_locale, e))
-                continue
-            except (_mysql_exceptions.Error, DatabaseError) as e:
+            except DatabaseError as e:
                 self.logger.error("In fetch di natura-tipologia per codice locale:%s. %s" % (codice_locale, e))
                 continue
 
@@ -484,11 +469,7 @@ class Command(BaseCommand):
                     self.logger.info("Aggiunta classificazione oggetto settore_sottosettore_categoria: %s" %
                                 (settore_sottosettore_categoria.codice,))
 
-            except _mysql_exceptions.Warning as e:
-                self.logger.warning("In fetch di settore-sottosettore-categoria per codice locale:%s. %s" %
-                               (codice_locale, e))
-                continue
-            except (_mysql_exceptions.Error, DatabaseError) as e:
+            except DatabaseError as e:
                 self.logger.error("In fetch di settore-sottosettore-categoria per codice locale:%s. %s" %
                              (codice_locale, e))
                 continue
@@ -575,10 +556,7 @@ class Command(BaseCommand):
                 if created:
                     self.logger.debug("%s: Creazione progetto nuovo: %s" % (c, p.codice_locale))
 
-            except _mysql_exceptions.Warning as e:
-                self.logger.warning("Progetto %s: %s" % (r['COD_LOCALE_PROGETTO'], e))
-                continue
-            except (_mysql_exceptions.Error, DatabaseError) as e:
+            except DatabaseError as e:
                 self.logger.error("Progetto %s: %s" % (r['COD_LOCALE_PROGETTO'], e))
                 continue
 
