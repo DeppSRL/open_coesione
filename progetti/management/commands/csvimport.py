@@ -356,11 +356,11 @@ class Command(BaseCommand):
             # tema
             try:
                 tema_sintetico = Tema.objects.get(
-                    descrizione=r['DPS_TEMA_SINTETICO'].decode('iso-8859-1'),
+                    descrizione=r['DPS_TEMA_SINTETICO'],
                     tipo_tema=Tema.TIPO.sintetico,
                 )
             except ObjectDoesNotExist as e:
-                self.logger.error("While reading tema sintetico %s in %s. %s" % (r['DPS_TEMA_SINTETICO'].encode('Windows-1252'), codice_locale, e))
+                self.logger.error("While reading tema sintetico %s in %s. %s" % (r['DPS_TEMA_SINTETICO'], codice_locale, e))
                 continue
 
             try:
