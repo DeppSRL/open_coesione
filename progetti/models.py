@@ -4,6 +4,7 @@ from django.db import models
 from model_utils import Choices
 
 from localita.models import Localita
+from soggetti.models import Soggetto
 
 class ClassificazioneQSN(models.Model):
     TIPO = Choices(
@@ -32,6 +33,7 @@ class ClassificazioneQSN(models.Model):
     class Meta:
         verbose_name = "Classificazione QSN"
         verbose_name_plural = "Classificazioni QSN"
+        db_table = 'progetti_classificazione_qsn'
 
 
 class ProgrammaAsseObiettivo(models.Model):
@@ -57,6 +59,7 @@ class ProgrammaAsseObiettivo(models.Model):
 
     class Meta:
         verbose_name_plural = "Programmi - Assi - Obiettivi operativi"
+        db_table = 'progetti_programma_asse_obiettivo'
 
 
 class Tema(models.Model):
@@ -127,6 +130,7 @@ class ClassificazioneAzione(models.Model):
 
     class Meta:
         verbose_name_plural = "Classificazioni azioni"
+        db_table = 'progetti_classificazione_azione'
 
 
 class ClassificazioneOggetto(models.Model):
@@ -155,6 +159,7 @@ class ClassificazioneOggetto(models.Model):
 
     class Meta:
         verbose_name_plural = "Classificazioni oggetti"
+        db_table = 'progetti_classificazione_oggetto'
 
 class Progetto(models.Model):
     DPS_FLAG_CUP = Choices(
@@ -263,7 +268,7 @@ class Progetto(models.Model):
     dps_flag_cup = models.CharField(max_length=1, choices=DPS_FLAG_CUP)
 
     localita_set = models.ManyToManyField(Localita, through='Localizzazione')
-    soggetto_set = models.ManyToManyField('Soggetto')
+    soggetto_set = models.ManyToManyField(Soggetto)
 
     @property
     def localita(self):
@@ -285,9 +290,9 @@ class Localizzazione(models.Model):
         ('0', 'CAP non valido o incoerente con territorio'),
         ('1', 'CAP valido e coerente'),
         ('2', 'CAP mancante o territorio nazionale o estero'),
-    )
+                                                           )
     localita = models.ForeignKey(Localita, verbose_name=u'Località')
-    progetto = models.ForeignKey('Progetto', db_column='codice_progetto')
+    progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
     indirizzo = models.CharField(max_length=255, blank=True, null=True)
     cap = models.CharField(max_length=5, blank=True, null=True)
     dps_flag_cap = models.CharField(max_length=1, choices=DPS_FLAG_CAP)
@@ -296,23 +301,4 @@ class Localizzazione(models.Model):
         verbose_name_plural = "Localizzazioni"
 
 
-class Soggetto(models.Model):
-    RUOLO = Choices(
-        ('1', 'programmatore', 'Programmatore'),
-        ('2', 'attuatore', 'Attuatore'),
-        ('3', 'destinatario', 'Destinatario del finanziamento'),
-        ('4', 'realizzatore', 'Realizzatore')
-    )
-    codice_fiscale = models.CharField(max_length=16, primary_key=True)
-    denominazione = models.CharField(max_length=255)
-    ruolo = models.CharField(max_length=1, choices=RUOLO)
 
-    @property
-    def progetti(self):
-        return self.progetto_set.all()
-
-    def __unicode__(self):
-        return "%s" % (self.denominazione, )
-
-    class Meta:
-        verbose_name_plural = "Soggetti"

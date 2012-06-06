@@ -8,3 +8,4 @@ dati
 GIS/tiles
 *.sql
 sitestatic
+*/migrations/*
