@@ -143,31 +143,31 @@ class Command(BaseCommand):
 
             if tipo_territorio == Localita.TERRITORIO.R:
                 localita = Localita.objects.get(
-                    cod_reg=r['CODICE_REGIONE'],
+                    cod_reg=int(r['CODICE_REGIONE']),
                     territorio=Localita.TERRITORIO.R,
                 )
             elif tipo_territorio == 'P':
                 localita = Localita.objects.get(
-                    cod_reg=r['CODICE_REGIONE'],
-                    cod_prov=r['CODICE_PROVINCIA'],
+                    cod_reg=int(r['CODICE_REGIONE']),
+                    cod_prov=int(r['CODICE_PROVINCIA']),
                     territorio=Localita.TERRITORIO.P,
                 )
             elif tipo_territorio == 'C':
                 localita = Localita.objects.get(
-                    cod_reg=r['CODICE_REGIONE'],
-                    cod_prov=r['CODICE_PROVINCIA'],
-                    cod_com=r['CODICE_COMUNE'],
-                    territorio=Localita.TERRITORIO.P,
+                    cod_reg=int(r['CODICE_REGIONE']),
+                    cod_prov=int(r['CODICE_PROVINCIA']),
+                    cod_com="%s%s" % (int(r['CODICE_PROVINCIA']), r['CODICE_COMUNE']),
+                    territorio=Localita.TERRITORIO.C,
                 )
             elif tipo_territorio in ('E', 'N'):
                 # territorio estero o nazionale
                 # get_or_create, perché non sono in Localita di default
                 created = False
-                codice_localita = r['CODICE_REGIONE']
+                codice_localita = int(r['CODICE_REGIONE'])
                 localita, created = Localita.objects.get_or_create(
                     cod_reg=codice_localita,
-                    cod_prov='000',
-                    cod_com='000',
+                    cod_prov=0,
+                    cod_com=0,
                     territorio=tipo_territorio,
                     defaults={
                         'denominazione': r['DENOMINAZIONE_REGIONE']
