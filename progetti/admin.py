@@ -12,10 +12,6 @@ class ProgettoAdmin(admin.ModelAdmin):
     filter_vertical = ('soggetto_set',)
 
 
-class SoggettoAdmin(admin.ModelAdmin):
-    search_fields = ['^denominazione',]
-    list_filter = ('ruolo',)
-
 admin.site.register(Progetto, ProgettoAdmin)
 admin.site.register(ClassificazioneQSN)
 admin.site.register(ClassificazioneAzione)
@@ -23,5 +19,4 @@ admin.site.register(ClassificazioneOggetto)
 admin.site.register(ProgrammaAsseObiettivo)
 admin.site.register(Tema)
 admin.site.register(Intesa)
-admin.site.register(Localita)
-admin.site.register(Soggetto, SoggettoAdmin)
+

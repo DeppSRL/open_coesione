@@ -14,6 +14,7 @@ import logging
 
 
 from progetti.models import *
+from localita.models import Localita
 
 
 class Command(BaseCommand):
@@ -131,7 +132,7 @@ class Command(BaseCommand):
 
         # check whether to remove records
         if options['delete']:
-            Localita.objects.all().delete()
+            Localizzazione.objects.all().delete()
             self.logger.info("Oggetti rimossi")
 
 
@@ -141,67 +142,40 @@ class Command(BaseCommand):
 
             tipo_territorio = r['dps_territorio']
 
-            if tipo_territorio in ('R', 'P', 'C'):
-                # codice regione
-                created = False
-                codice_localita = r['CODICE_REGIONE']
-                regione, created = Localita.objects.get_or_create(
-                    codice=codice_localita,
+            if tipo_territorio == Localita.TERRITORIO.R:
+                localita = Localita.objects.get(
+                    cod_reg=r['CODICE_REGIONE'],
                     territorio=Localita.TERRITORIO.R,
-                    defaults={
-                        'denominazione': r['DENOMINAZIONE_REGIONE']
-                    }
                 )
-                if created:
-                    self.logger.info("Aggiunta regione: %s" % regione.denominazione)
-
-                # codice proincia
-                created = False
-                codice_localita = r['CODICE_PROVINCIA']
-                provincia, created = Localita.objects.get_or_create(
-                    codice='%s.%s' % (regione.codice, codice_localita),
+            elif tipo_territorio == 'P':
+                localita = Localita.objects.get(
+                    cod_reg=r['CODICE_REGIONE'],
+                    cod_prov=r['CODICE_PROVINCIA'],
                     territorio=Localita.TERRITORIO.P,
-                    defaults={
-                        'denominazione': r['DENOMINAZIONE_PROVINCIA']
-                    }
                 )
-                if created:
-                    self.logger.info("Aggiunta provincia: %s" % provincia.denominazione)
-
-                # codice comune
-                created = False
-                codice_localita = r['CODICE_COMUNE']
-                comune, created = Localita.objects.get_or_create(
-                    codice='%s.%s' % (provincia.codice, codice_localita),
-                    territorio=Localita.TERRITORIO.C,
-                    defaults={
-                        'denominazione': r['DENOMINAZIONE_COMUNE']
-                    }
+            elif tipo_territorio == 'C':
+                localita = Localita.objects.get(
+                    cod_reg=r['CODICE_REGIONE'],
+                    cod_prov=r['CODICE_PROVINCIA'],
+                    cod_com=r['CODICE_COMUNE'],
+                    territorio=Localita.TERRITORIO.P,
                 )
-                if created:
-                    self.logger.info("Aggiunto comune: %s" % comune.denominazione)
-
-                if tipo_territorio == 'R':
-                    localita = regione
-                elif tipo_territorio == 'P':
-                    localita = provincia
-                else:
-                    localita = comune
-
             elif tipo_territorio in ('E', 'N'):
                 # territorio estero o nazionale
+                # get_or_create, perché non sono in Localita di default
                 created = False
                 codice_localita = r['CODICE_REGIONE']
                 localita, created = Localita.objects.get_or_create(
-                    codice=codice_localita,
+                    cod_reg=codice_localita,
+                    cod_prov='000',
+                    cod_com='000',
                     territorio=tipo_territorio,
                     defaults={
                         'denominazione': r['DENOMINAZIONE_REGIONE']
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunto territorio: %s" % localita.denominazione)
-
+                    self.logger.info("Aggiunto territorio di tipo %s: %s" % (tipo_territorio, localita.denominazione))
             else:
                 self.logger.warning('Tipo di territorio sconosciuto o errato %s. Skip.' % (tipo_territorio,))
                 continue
@@ -390,7 +364,7 @@ class Command(BaseCommand):
                     tipo_tema=Tema.TIPO.sintetico,
                 )
             except ObjectDoesNotExist as e:
-                self.logger.error("While reading tema sintetico %s in %s. %s" % (r['DPS_TEMA_SINTETICO'].decode('iso-8859-1'), codice_locale, e))
+                self.logger.error("While reading tema sintetico %s in %s. %s" % (r['DPS_TEMA_SINTETICO'].decode('CP-1252'), codice_locale, e))
                 continue
 
             try:
