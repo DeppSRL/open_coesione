@@ -110,7 +110,6 @@ ROOT_URLCONF = 'open_coesione.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'open_coesione.wsgi.application'
 
-TEMPLATE_DIRS = ('/Users/guglielmo/Workspace/open_coesione/templates',)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
