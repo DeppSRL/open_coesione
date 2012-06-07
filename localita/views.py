@@ -1,3 +1,4 @@
+from django.db.models.aggregates import Count
 from localita.models import Localita
 from django.http import HttpResponse
 from django.views.generic.base import TemplateView
@@ -14,9 +15,9 @@ class ProvinceListView(TemplateView):
 
 class RegionListView(TemplateView):
     def render_to_response(self, context, **response_kwargs):
-        l = Localita.objects.filter(territorio='R')
+        l = Localita.objects.annotate(num_projects=Count('progetto')).filter(territorio='R')
 
-        djf = Django.Django(geodjango="geom", properties=['nome', 'cod_reg'])
+        djf = Django.Django(geodjango="geom", properties=['nome', 'cod_reg', 'num_projects'])
         geoj = GeoJSON.GeoJSON()
         return HttpResponse(geoj.encode(djf.decode(l)), mimetype='application/json')
 
