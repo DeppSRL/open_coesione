@@ -2,6 +2,7 @@
 
 from django.contrib.gis.db import models
 from model_utils import Choices
+from progetti.models import Progetto
 
 class Localita(models.Model):
     TERRITORIO = Choices(
@@ -21,12 +22,47 @@ class Localita(models.Model):
 
     objects = models.GeoManager()
 
+    def progetti(self):
+        return self.progetto_set.all()
+
+    @property
+    def n_progetti(self):
+        return self.progetto_set.count()
+
+    @property
+    def progetti_deep(self):
+        """
+        returns all projects related to this or underlying locations
+        (for regions and provinces)
+        """
+        if self.territorio == self.TERRITORIO.R:
+            return Progetto.objects.filter(localizzazione__localita__cod_reg=self.cod_reg)
+        elif self.territorio == self.TERRITORIO.P:
+            return Progetto.objects.filter(localizzazione__localita__cod_reg=self.cod_prov)
+        else:
+            return self.progetti
+
+    @property
+    def n_progetti_deep(self):
+        """
+        returns number of project related to this or underlying locations
+        (for regions and provinces)
+        """
+        if self.territorio == self.TERRITORIO.R:
+            return Progetto.objects.filter(localizzazione__localita__cod_reg=self.cod_reg).count()
+        elif self.territorio == self.TERRITORIO.P:
+            return Progetto.objects.filter(localizzazione__localita__cod_reg=self.cod_prov).count()
+        else:
+            return self.n_progetti
+
     @property
     def nome(self):
         if self.denominazione_ted:
             return "%s - %s" % (self.denominazione, self.denominazione_ted)
         else:
             return "%s" % (self.denominazione)
+
+
 
     def __unicode__(self):
         return self.nome

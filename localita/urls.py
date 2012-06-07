@@ -1,6 +1,8 @@
 from django.conf.urls import patterns, url
 from django.views.generic.base import TemplateView
-from localita.views import RegionDetailView, RegionListView, ProvinceListView, ProvinceDetailView, MunicipalityDetailView
+from localita.views import RegionDetailView, RegionListView, ProvinceListView, \
+                           ProvinceDetailView, MunicipalityDetailView, \
+                           TilesView, PolymapsView
 
 urlpatterns = patterns('',
    url(r'^$', TemplateView.as_view(template_name='localita/leaflet.html')),
@@ -14,4 +16,7 @@ urlpatterns = patterns('',
        ProvinceDetailView.as_view(), name='json_province_details_url'),
    url(r'^comune/(?P<cod_com>[^/]+).json$',
        MunicipalityDetailView.as_view(), name='json_municipality_details_url'),
+   url(r'^polymaps.html$', PolymapsView.as_view(template_name='localita/polymaps.html'), name='localita_polymaps'),
+   url(r'^tiles/(?P<layer_name>[^/]+)/(?P<z>[^/]+)/(?P<x>[^/]+)/(?P<y>[^/]+)\.(?P<extension>.+)$',
+       TilesView.as_view(), name='localita_tiles_url'),
 )

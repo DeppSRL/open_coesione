@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Polymaps</title>
+    <script type="text/javascript" src="{{ STATIC_URL }}simplegeo-polymaps/lib/protovis/protodata.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}simplegeo-polymaps/polymaps.js"></script>
+    <style type="text/css">
+
+        @import url("{{ STATIC_URL }}simplegeo-polymaps/lib/colorbrewer/colorbrewer.css");
+        @import url("{{ STATIC_URL }}simplegeo-polymaps/examples/example.css");
+
+        #map {
+            background: #E6E6E6;
+        }
+
+        .layer path {
+            fill: none;
+            stroke: #aaa;
+            stroke-width: .25px;
+            vector-effect: non-scaling-stroke;
+        }
+
+        #state path {
+            stroke: #fff;
+            stroke-width: 1.5px;
+            vector-effect: non-scaling-stroke;
+        }
+
+        #copy {
+            color: #000;
+            opacity: .5;
+        }
+
+        #copy a {
+            color: #000;
+        }
+
+    </style>
+</head>
+<body id="map">
+<script type="text/javascript">
+var n_projects = {
+ "5":  "130",
+ "6":  "729",
+ "7":  "213",
+ "8":  "141",
+ "9":  "585",
+ "10": "112",
+ "11": "266",
+ "12": "111",
+ "13": "69",
+ "14": "16",
+ "15": "535",
+ "16": "648",
+ "17": "82",
+ "18": "385",
+ "19": "610",
+ "20": "80",
+ "1":  "395",
+ "2":  "48",
+ "3":  "3539",
+ "4":  "110"
+};
+
+var po = org.polymaps;
+
+    // Compute noniles.
+    var quantile = pv.Scale.quantile()
+            .quantiles(9)
+            .domain(pv.values(n_projects))
+            .range(0, 3600);
+
+    var map = po.map()
+            .container(document.getElementById("map").appendChild(po.svg("svg")))
+            .center({lat: 42, lon: 12})
+            .zoom(4)
+            .zoomRange([5, 10])
+            .add(po.interact());
+
+    map.add(po.image()
+            .url(po.url("http://{S}tile.cloudmade.com"
+            + "/1a1b06b230af4efdbb989ea99e9841af" // http://cloudmade.com/register
+            + "/20760/256/{Z}/{X}/{Y}.png")
+            .hosts(["a.", "b.", "c.", ""])));
+
+    map.add(po.geoJson()
+            .url("http://localhost:8050/regioni/{Z}/{X}/{Y}.geojson")
+            .on("load", load)
+            .id("regioni"));
+
+    map.add(po.compass()
+            .pan("none"));
+
+    function load(e) {
+        for (var i = 0; i < e.features.length; i++) {
+            var feature = e.features[i];
+            var d = n_projects[feature.data.properties.cod_reg];
+            feature.element.setAttribute("class", "q" + quantile(d) + "-" + 9);
+            console.log(feature.data.properties.denominazione + " - " + d + " - " + quantile(d))
+            feature.element.appendChild(po.svg("title").appendChild(
+                    document.createTextNode(feature.data.properties.denominazione + ": " + d + "%"))
+                    .parentNode);
+        }
+    }
+
+    map.container().setAttribute("class", "Blues");
+</script>
+    <span id="copy">
+      &copy; 2010
+      <a href="http://www.cloudmade.com/">CloudMade</a>,
+      <a href="http://www.openpolis.it/">Openpolis</a>,
+      <a href="http://creativecommons.org/licenses/by-sa/2.0/">CCBYSA</a>.
+      Colors by <a href="http://colorbrewer.org/">Cynthia Brewer</a>.
+    </span>
+</body>
+</html>

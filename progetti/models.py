@@ -3,8 +3,6 @@
 from django.db import models
 from model_utils import Choices
 
-from localita.models import Localita
-from soggetti.models import Soggetto
 
 class ClassificazioneQSN(models.Model):
     TIPO = Choices(
@@ -267,8 +265,8 @@ class Progetto(models.Model):
     dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_DATE)
     dps_flag_cup = models.CharField(max_length=1, choices=DPS_FLAG_CUP)
 
-    localita_set = models.ManyToManyField(Localita, through='Localizzazione')
-    soggetto_set = models.ManyToManyField(Soggetto)
+    localita_set = models.ManyToManyField('localita.Localita', through='Localizzazione')
+    soggetto_set = models.ManyToManyField('soggetti.Soggetto')
 
     @property
     def localita(self):
@@ -291,7 +289,7 @@ class Localizzazione(models.Model):
         ('1', 'CAP valido e coerente'),
         ('2', 'CAP mancante o territorio nazionale o estero'),
                                                            )
-    localita = models.ForeignKey(Localita, verbose_name=u'Località')
+    localita = models.ForeignKey('localita.Localita', verbose_name=u'Località')
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
     indirizzo = models.CharField(max_length=255, blank=True, null=True)
     cap = models.CharField(max_length=5, blank=True, null=True)
@@ -299,6 +297,5 @@ class Localizzazione(models.Model):
 
     class Meta:
         verbose_name_plural = "Localizzazioni"
-
 
 
