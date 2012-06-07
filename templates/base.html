@@ -23,6 +23,10 @@
   <link href="{{ STATIC_URL }}css/bootstrap-responsive.css" rel="stylesheet">
   {% endif %}
 
+  <!-- scripts -->
+  <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-dropdown.js"></script>
+
   <!-- fav and touch icons -->
   <link rel="shortcut icon" href="static/ico/favicon.ico">
   <link rel="apple-touch-icon-precomposed" sizes="144x144" href="static/ico/apple-touch-icon-144-precomposed.png">
@@ -35,25 +39,42 @@
 
 <div id="wrapper"><!-- #wrapper -->
 
-   <header>
-       <div>
-           El header
-       </div>
-   </header>
+  <!-- HEADER -->
+  <header>
+    <div class="container">
+      <div class="row">
+        <div class="span9">
+          <h1>Open Coesione</h1>
+          <h2>Conosci, segui e costruisci le risorse per lo sviluppo</h2>
+        </div>
+        <div class="span3 text-right">
+          <a href="http://www.europa.eu/"><img height="30" src="{{ STATIC_URL }}img/emblem-europe.svg" alt="Europa"></a>
+          <a href="http://www.italia.gov/"><img height="30" src="{{ STATIC_URL }}img/emblem-italy.svg" alt="Italia"></a>
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+    {% include 'commons/menu.html' %}
+
+  </header><!-- /HEADER -->
+
+
 
   <!-- MAIN-SECTION -->
-  <section id="main" class="{% block container_class %}container-fluid{% endblock %}"><!-- #main container for content and sidebar area -->
-  {% block container %}{% endblock %}
+  <section id="main">
+  {% block content_container %}{% endblock %}
   </section>
-  <!-- /MAIN-SECTION -->
+  <!-- MAIN-SECTION -->
 
-  <!-- FOOTER-NAV -->
-  <footer style="clear:both; padding-top: 2em;" class="navbar navbar-fixed-bottom">
-    <div class="navbar-inner">
-        El footer
-    </div>
+  <!-- FOOTER -->
+  <footer>
+  {% include 'commons/footer.html' %}
   </footer>
-  <!-- /FOOTER-NAV -->
+  <!-- /FOOTER -->
 
 </div><!-- #wrapper -->
 
