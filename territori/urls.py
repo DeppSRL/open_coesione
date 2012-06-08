@@ -1,22 +1,13 @@
 from django.conf.urls import patterns, url
 from django.views.generic.base import TemplateView
-from territori.views import RegionDetailView, RegionListView, ProvinceListView, \
-                           ProvinceDetailView, MunicipalityDetailView, \
-                           TilesView, PolymapsView
+from territori.views import RegioneView, ComuneView, ProvinciaView
 
 urlpatterns = patterns('',
-   url(r'^$', TemplateView.as_view(template_name='territori/leaflet.html')),
-   url(r'^regioni.json$',
-       RegionListView.as_view(), name='json_province_list_url'),
-   url(r'^province.json$',
-       ProvinceListView.as_view(), name='json_region_list_url'),
-   url(r'^regione/(?P<cod_reg>[^/]+)/(?P<type>[^/]).json$',
-       RegionDetailView.as_view(), name='json_region_details_url'),
-   url(r'^provincia/(?P<cod_prov>[^/]+).json$',
-       ProvinceDetailView.as_view(), name='json_province_details_url'),
-   url(r'^comune/(?P<cod_com>[^/]+).json$',
-       MunicipalityDetailView.as_view(), name='json_municipality_details_url'),
-   url(r'^polymaps.html$', PolymapsView.as_view(template_name='territori/polymaps.html'), name='territori_polymaps'),
-   url(r'^tiles/(?P<layer_name>[^/]+)/(?P<z>[^/]+)/(?P<x>[^/]+)/(?P<y>[^/]+)\.(?P<extension>.+)$',
-       TilesView.as_view(), name='territori_tiles_url'),
+   url(r'^regioni/(?P<slug>[^/w-]+)/$',
+       RegioneView.as_view(), name='territori_regione'),
+   url(r'^province/(?P<slug>[^/w-]+)/$',
+       ProvinciaView.as_view(), name='territori_provincia'),
+   url(r'^comuni/(?P<slug>[^/w-]+)/$',
+       ComuneView.as_view(), name='territori_comune'),
+   url(r'^polymaps.html$', TemplateView.as_view(template_name='territori/polymaps.html'), name='territori_polymaps'),
 )

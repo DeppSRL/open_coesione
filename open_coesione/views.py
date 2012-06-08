@@ -1,5 +1,9 @@
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, View
+from django.views.generic.detail import DetailView
 
-class HomeView(TemplateView):
 
+class AggregatoView(object):
+    raise Exception("Class AggregatoView needs to be implemented")
+
+class HomeView(AggregatoView, TemplateView):
     template_name = 'homepage.html'

@@ -25,7 +25,13 @@ urlpatterns = patterns('',
     # progetti
     url(r'^progetti/', include('progetti.urls')),
 
+    # soggetti
+    # url(r'^soggetti/', include('soggetti.urls')),
+
     # territori
     url(r'^territori/', include('territori.urls')),
+
+
+    # feincms
 
 )

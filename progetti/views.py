@@ -1,8 +1,22 @@
 from django.core.urlresolvers import reverse
+from django.views.generic.detail import DetailView
+
 from oc_search.forms import RangeFacetedSearchForm
 from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto
+from open_coesione.views import AggregatoView
+
+
+class ProgettoView(DetailView):
+    raise Exception("Class ProgettoView needs to be implemented")
+
+class TipologiaView(AggregatoView, DetailView):
+    raise Exception("Class TipologiaView needs to be implemented")
+
+class TemaView(AggregatoView, DetailView):
+    raise Exception("Class TemaView needs to be implemented")
+
 
 class ProgettoSearchView(ExtendedFacetedSearchView):
     """

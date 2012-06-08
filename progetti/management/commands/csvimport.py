@@ -78,7 +78,6 @@ class Command(BaseCommand):
             exit(1)
 
 
-
     def handle_rec(self, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
         self.logger.info("Limit: %s" % options['limit'])
