@@ -27,3 +27,6 @@ simplejson
 vectorformats
 psycopg2
 ModestMaps
+
+feincms
+django-mptt

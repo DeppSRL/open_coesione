@@ -127,6 +127,9 @@ INSTALLED_APPS = (
     'localita',
     'soggetti',
 #    'world',
+
+    # FeinCMS
+    'feincms', 'feincms.module.page', 'feincms.module.medialibrary',
 )
 
 
