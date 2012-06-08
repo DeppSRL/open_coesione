@@ -3,6 +3,9 @@ from django.contrib.gis import admin
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
+from open_coesione.views import HomeView
+
+
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -15,6 +18,9 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
+
+    # home
+    url(r'^$', HomeView.as_view(), name='home'),
 
     # progetti
     url(r'^progetti/', include('progetti.urls')),

@@ -1,0 +1,94 @@
+/*!
+ * Bootstrap v2.0.4
+ * FontAwesome v2.0.2
+ */
+
+// CSS Reset
+@import "bootstrap/bootstrap.less";
+
+
+.navbar-full-width {
+  // remove rounded corners
+  .navbar-inner {
+    .border-radius(0);
+  }
+
+  // left alignment and fixed width
+  .nav > li > a {
+    padding-top: 2px;
+    text-align: left;
+
+    width: 100px;
+    font-weight: bold;
+
+    // simulate vertical-divider
+    border-right: 1px solid @white;
+  }
+
+  .nav > li:first-child > a {
+    // simulate vertical-divider
+    border-left: 1px solid @white;
+  }
+}
+
+// text alignments
+.text-left { text-align: left }
+.text-right { text-align: right }
+.text-center { text-align: center }
+.text-block { text-align: block }
+
+// custom list styles
+// http://www.alistapart.com/articles/taminglists/
+// html codes: http://www.ascii.cl/htmlcodes.htm
+.list-hypen {
+  list-style: none;
+  margin-left: 0;
+  li:before {
+    content: "\002D \0020";
+  }
+}
+
+// custom main navbar
+#wrapper > header {
+
+  h2 {
+    font-size: 13px;
+    color: @black;
+    font-weight: normal;
+  }
+
+  nav {
+    background-color: @navbarBackground;
+  }
+
+  .navbar-search input {
+    margin-bottom: 0;
+    margin-top: 4px;
+    padding-top:0 ; padding-bottom: 0;
+    .border-radius(6);
+  }
+}
+
+// main section
+#wrapper > section#main {
+  min-height: 300px;
+}
+
+// footer
+#wrapper > footer {
+  background-color: @grayDarker;
+  color: @white;
+  padding-top: 20px;
+
+  h1 {
+    font-size: 24px;
+  }
+
+  a {
+    color: @white;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}

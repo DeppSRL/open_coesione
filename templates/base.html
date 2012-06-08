@@ -1,34 +1,80 @@
-{% load i18n %}
-<!doctype html>
+<!DOCTYPE html>{% load i18n %}
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
-    <meta charset="utf-8" />
-    <title>Open Coesione - {% block title %}{% endblock %}</title>
+  <meta charset="utf-8">
+  <title>Open Coesione - {% block page_title %}{% endblock %}</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block page_description %}{% endblock %}">
+  <meta name="author" content="">
+
+  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <!-- styles -->
+  {% if DEBUG %}
+  <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/styles.less">
+  <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/styles-responsive.less">
+  <script type="text/javascript" src="{{ STATIC_URL }}js/less-1.3.0.min.js"></script>
+  {% else %}
+  <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet">
+  <link href="{{ STATIC_URL }}css/bootstrap-responsive.css" rel="stylesheet">
+  {% endif %}
+
+  <!-- scripts -->
+  <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-dropdown.js"></script>
+
+  <!-- fav and touch icons -->
+  <link rel="shortcut icon" href="static/ico/favicon.ico">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="static/ico/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="static/ico/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="static/ico/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="static/ico/apple-touch-icon-57-precomposed.png">
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
 
 <div id="wrapper"><!-- #wrapper -->
 
-   <header>
-       <div>
-           El header
-       </div>
-   </header>
+  <!-- HEADER -->
+  <header>
+    <div class="container">
+      <div class="row">
+        <div class="span9">
+          <h1>Open Coesione</h1>
+          <h2>Conosci, segui e costruisci le risorse per lo sviluppo</h2>
+        </div>
+        <div class="span3 text-right">
+          <a href="http://www.europa.eu/"><img height="30" src="{{ STATIC_URL }}img/emblem-europe.svg" alt="Europa"></a>
+          <a href="http://www.italia.gov/"><img height="30" src="{{ STATIC_URL }}img/emblem-italy.svg" alt="Italia"></a>
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+    {% include 'commons/menu.html' %}
+
+  </header><!-- /HEADER -->
+
+
 
   <!-- MAIN-SECTION -->
-  <section id="main" class="{% block container_class %}container-fluid{% endblock %}"><!-- #main container for content and sidebar area -->
-  {% block container %}{% endblock %}
+  <section id="main">
+  {% block content_container %}{% endblock %}
   </section>
-  <!-- /MAIN-SECTION -->
+  <!-- MAIN-SECTION -->
 
-  <!-- FOOTER-NAV -->
-  <footer style="clear:both; padding-top: 2em;" class="navbar navbar-fixed-bottom">
-    <div class="navbar-inner">
-        El footer
-    </div>
+  <!-- FOOTER -->
+  <footer>
+  {% include 'commons/footer.html' %}
   </footer>
-  <!-- /FOOTER-NAV -->
+  <!-- /FOOTER -->
 
 </div><!-- #wrapper -->
 
