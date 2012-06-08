@@ -10,7 +10,7 @@ function init(){
 	map = new OpenLayers.Map('map', option);
 	olmapnik = new OpenLayers.Layer.OSM("OpenStreetMap Mapnik", "http://tile.openstreetmap.org/${z}/${x}/${y}.png");
 
-    var url = "http://localhost:8020/localita/regione/12.json";
+    var url = "http://localhost:8020/territori/regione/12.json";
     vector_layer = new OpenLayers.Layer.Vector()
     OpenLayers.loadURL(url, {}, null, function (response) {
         var gformat = new OpenLayers.Format.GeoJSON();

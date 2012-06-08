@@ -13,7 +13,7 @@ import logging
 
 
 from progetti.models import *
-from localita.models import Localita
+from territori.models import Territorio
 
 
 class Command(BaseCommand):
@@ -141,35 +141,35 @@ class Command(BaseCommand):
 
             tipo_territorio = r['dps_territorio']
 
-            if tipo_territorio == Localita.TERRITORIO.R:
-                localita = Localita.objects.get(
+            if tipo_territorio == Territorio.TERRITORIO.R:
+                territorio = Territorio.objects.get(
                     cod_reg=int(r['CODICE_REGIONE']),
-                    territorio=Localita.TERRITORIO.R,
+                    territorio=Territorio.TERRITORIO.R,
                 )
             elif tipo_territorio == 'P':
-                localita = Localita.objects.get(
+                territorio = Territorio.objects.get(
                     cod_reg=int(r['CODICE_REGIONE']),
                     cod_prov=int(r['CODICE_PROVINCIA']),
-                    territorio=Localita.TERRITORIO.P,
+                    territorio=Territorio.TERRITORIO.P,
                 )
             elif tipo_territorio == 'C':
                 try:
-                    localita = Localita.objects.get(
+                    territorio = Territorio.objects.get(
                         cod_reg=int(r['CODICE_REGIONE']),
                         cod_prov=int(r['CODICE_PROVINCIA']),
                         cod_com="%s%s" % (int(r['CODICE_PROVINCIA']), r['CODICE_COMUNE']),
-                        territorio=Localita.TERRITORIO.C,
+                        territorio=Territorio.TERRITORIO.C,
                     )
-                except Localita.DoesNotExist as e:
+                except Territorio.DoesNotExist as e:
                     self.logger.warning("%s: %s-%s-%s [%s]" % (r['DENOMINAZIONE_COMUNE'],r['CODICE_REGIONE'],r['CODICE_PROVINCIA'],r['CODICE_COMUNE'],r['COD_LOCALE_PROGETTO']))
                     continue
             elif tipo_territorio in ('E', 'N'):
                 # territorio estero o nazionale
-                # get_or_create, perché non sono in Localita di default
+                # get_or_create, perché non sono in Territorio di default
                 created = False
-                codice_localita = int(r['CODICE_REGIONE'])
-                localita, created = Localita.objects.get_or_create(
-                    cod_reg=codice_localita,
+                codice_territorio = int(r['CODICE_REGIONE'])
+                territorio, created = Territorio.objects.get_or_create(
+                    cod_reg=codice_territorio,
                     cod_prov=0,
                     cod_com=0,
                     territorio=tipo_territorio,
@@ -178,7 +178,7 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunto territorio di tipo %s: %s" % (tipo_territorio, localita.denominazione))
+                    self.logger.info("Aggiunto territorio di tipo %s: %s" % (tipo_territorio, territorio.denominazione))
             else:
                 self.logger.warning('Tipo di territorio sconosciuto o errato %s. Skip.' % (tipo_territorio,))
                 continue
@@ -194,7 +194,7 @@ class Command(BaseCommand):
             if progetto:
                 created = False
                 localizzazione, created = progetto.localizzazione_set.get_or_create(
-                    localita=localita,
+                    territorio=territorio,
                     progetto = progetto,
                     defaults={
                         'indirizzo': r['INDIRIZZO'].strip(),

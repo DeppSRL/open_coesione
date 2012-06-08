@@ -3,7 +3,7 @@ from progetti.models import *
 
 class LocalizzazioneInline(admin.TabularInline):
     model = Localizzazione
-    raw_id_fields = ('progetto', 'localita', )
+    raw_id_fields = ('progetto', 'territorio', )
     extra = 0
 
 class ProgettoAdmin(admin.ModelAdmin):

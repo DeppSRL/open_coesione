@@ -265,12 +265,12 @@ class Progetto(models.Model):
     dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_DATE)
     dps_flag_cup = models.CharField(max_length=1, choices=DPS_FLAG_CUP)
 
-    localita_set = models.ManyToManyField('localita.Localita', through='Localizzazione')
+    territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto')
 
     @property
-    def localita(self):
-        return self.localita_set.all()
+    def territori(self):
+        return self.territorio_set.all()
 
     @property
     def soggetti(self):
@@ -289,7 +289,7 @@ class Localizzazione(models.Model):
         ('1', 'CAP valido e coerente'),
         ('2', 'CAP mancante o territorio nazionale o estero'),
                                                            )
-    localita = models.ForeignKey('localita.Localita', verbose_name=u'Località')
+    territorio = models.ForeignKey('territori.Territorio', verbose_name=u'Territorio')
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
     indirizzo = models.CharField(max_length=255, blank=True, null=True)
     cap = models.CharField(max_length=5, blank=True, null=True)

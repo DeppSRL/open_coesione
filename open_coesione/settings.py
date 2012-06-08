@@ -124,12 +124,11 @@ INSTALLED_APPS = (
     'south',
     'haystack',
     'progetti',
-    'localita',
+    'territori',
     'soggetti',
-#    'world',
 
     # FeinCMS
-    'feincms', 'feincms.module.page', 'feincms.module.medialibrary',
+    #'feincms', 'feincms.module.page', 'feincms.module.medialibrary',
 )
 
 
