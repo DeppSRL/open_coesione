@@ -6,6 +6,9 @@
 // CSS Reset
 @import "bootstrap/bootstrap.less";
 
+a {
+  font-weight: @linkWeight;
+}
 
 .navbar-full-width {
   // remove rounded corners
@@ -18,16 +21,28 @@
     padding-top: 2px;
     text-align: left;
 
-    width: 100px;
+    //width: 32%;
+    display: block;
     font-weight: bold;
 
     // simulate vertical-divider
-    border-right: 1px solid @white;
+    //border-right: 1px solid @white;
   }
 
   .nav > li:first-child > a {
     // simulate vertical-divider
-    border-left: 1px solid @white;
+    //border-left: 1px solid @white;
+  }
+}
+
+// custom menu item widths
+// simulate vertical-divider
+.navbar-full-width .nav {
+  //width: 50%;
+  border-left: 1px solid @white;
+  & > li {
+    width: 32%;
+    border-right: 1px solid @white;
   }
 }
 
@@ -61,6 +76,7 @@
     background-color: @navbarBackground;
   }
 
+  // global search
   .navbar-search input {
     margin-bottom: 0;
     margin-top: 4px;
@@ -71,7 +87,45 @@
 
 // main section
 #wrapper > section#main {
+  // for empty pages
   min-height: 300px;
+
+  // container spaces
+  & > div.container, & > div.area {
+    padding-top: 10px; padding-bottom: 10px;
+  }
+
+  // highlight for section's titles
+  section h1 span.title {
+    color: @white;
+    background-color: @greenDark;
+    font-size: 12px;
+    padding: 4px 6px;
+    font-weight: bold;
+  }
+
+  // sections with common colored background
+  & > .area {
+    background-color: @grayLighter;
+
+    // override highlight for section's titles
+    section h1 span.title {
+      color: @white;
+      background-color: @grayDarker;
+    }
+  }
+
+  // global table style in #main container
+  table {
+    .table;
+    .table-bordered;
+
+    td.amount, col.amount {
+      white-space: nowrap;
+      vertical-align: middle;
+      text-align: center;
+    }
+  }
 }
 
 // footer
@@ -91,4 +145,42 @@
   a:hover {
     text-decoration: underline;
   }
+}
+
+
+// BLOCKS
+.block-container {
+  & > .block-green {
+    border-left: 1px solid @white;
+  }
+  .block-green, .block-gray { width: 32%; }
+}
+.block-green, .block-gray {
+
+  height: 150px;
+  width: 150px;
+  float:left;
+
+  text-transform: uppercase;
+
+  > div {
+    padding: 5px;
+  }
+
+  &.pull-right { float: right; }
+}
+
+.block-green {
+  background-color: @green;
+  color: @greenDark;
+
+  &.block-active {
+    background-color: @greenDark;
+    color: @white;
+  }
+}
+
+.block-gray {
+  background-color: @grayLighter;
+  color: @grayDarker;
 }

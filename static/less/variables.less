@@ -9,6 +9,7 @@
 // OVERRIDES
 // -------------------------
 
+
 // Grays
 // -------------------------
 @black:                 #000;
@@ -19,6 +20,18 @@
 @grayLighter:           #eae9e5;
 @white:                 #fff;
 
+// Accent colors
+// -------------------------
+@blue:                  #049cdb;
+@blueDark:              #0064cd;
+@green:                 #afe0d8;
+@greenDark:             #005652;
+@red:                   #9d261d;
+@yellow:                #ffc40d;
+@orange:                #f89406;
+@pink:                  #c3325f;
+@purple:                #7a43b6;
+
 // Scaffolding
 // -------------------------
 @bodyBackground:        @white;
@@ -27,20 +40,41 @@
 
 // Links
 // -------------------------
-@linkColor:             #005652;
+@linkColor:             @greenDark;
 @linkColorHover:        darken(@linkColor, 15%);
+@linkWeight:            bold;
 
 
 // Typography
 // -------------------------
-@sansFontFamily:        "Helvetica Neue", Helvetica, Arial, sans-serif;
+// @import url(http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic);
+// http://www.targetweb.it/font-face-e-google-fonts-come-e-perche-usarli/
+@font-face {
+  font-family: 'PT Sans'; font-weight: normal; font-style: normal;
+  src: url('../font/pt-sans/PT_Sans-Web-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'PT Sans'; font-weight: bold; font-style: normal;
+  src: url('../font/pt-sans/PT_Sans-Web-Bold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'PT Sans'; font-weight: bold; font-style: italic;
+  src: url('../font/pt-sans/PT_Sans-Web-BoldItalic.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'PT Sans'; font-weight: normal; font-style: italic;
+  src: url('../font/pt-sans/PT_Sans-Web-Italic.ttf') format('truetype');
+}
+
+
+@sansFontFamily:        "PT Sans", Helvetica, Arial, sans-serif;
 @serifFontFamily:       Georgia, "Times New Roman", Times, serif;
 @monoFontFamily:        Menlo, Monaco, Consolas, "Courier New", monospace;
 
-@baseFontSize:          13px;
+@baseFontSize:          14px;
 @baseFontFamily:        @sansFontFamily;
 @baseLineHeight:        18px;
-@altFontFamily:         @serifFontFamily;
+@altFontFamily:         @sansFontFamily;
 
 @headingsFontFamily:    inherit; // empty to use BS default, @baseFontFamily
 @headingsFontWeight:    bold;    // instead of browser default, bold

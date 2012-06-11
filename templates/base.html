@@ -1,4 +1,6 @@
-<!DOCTYPE html>{% load i18n %}
+{% load i18n %}
+{% load sekizai_tags %}
+<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
   <meta charset="utf-8">
@@ -14,6 +16,7 @@
   <![endif]-->
 
   <!-- styles -->
+  {% addtoblock "css_link" %}
   {% if DEBUG %}
   <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/styles.less">
   <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/styles-responsive.less">
@@ -22,10 +25,17 @@
   <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet">
   <link href="{{ STATIC_URL }}css/bootstrap-responsive.css" rel="stylesheet">
   {% endif %}
+  {% endaddtoblock %}
+  {% render_block "css_link" %}
 
   <!-- scripts -->
+  {% addtoblock "js_script" %}
   <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-dropdown.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-tab.js"></script>
+  {% endaddtoblock %}
+
+  {% render_block "js_script" %}
 
   <!-- fav and touch icons -->
   <link rel="shortcut icon" href="static/ico/favicon.ico">
@@ -77,6 +87,8 @@
   <!-- /FOOTER -->
 
 </div><!-- #wrapper -->
+
+{% block js_content %}{% endblock %}
 
 </body>
 </html>

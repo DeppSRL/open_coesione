@@ -3,7 +3,7 @@
 log/logfile*
 *.pot
 *.pyc
-*/settings_*
+*/settings_*.py*
 dati
 GIS/tiles
 *.sql
