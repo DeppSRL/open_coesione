@@ -115,38 +115,40 @@
           <div>
             <h5>Costo complessivo dei progetti monitorati*</h5>
 
-            {{ total_cost|intword }}
+            <div class="bar-vertical"></div>
+            <p>{{ total_cost|intword }} <span>di euro</span></p>
           </div>
 
         </div>
 
-        <div class="block-green block-active">
+        <div class="block-green">
 
           <div>
             <h5>Pagamenti effettuati per i progetti monitorati*</h5>
 
-            {{ total_cost_paid|intword }}
+            <div class="bar-vertical" title="{{ cost_payments_ratio }} del totale"><span style="height:{{ cost_payments_ratio }}"></span></div>
+            <p>{{ total_cost_paid|intword }} <span>di euro</span></p>
           </div>
 
         </div>
 
-        <div class="block-green block-active">
+        <div class="block-green">
           <div>
             <h5>Numero dei progetti monitorati*</h5>
 
-            {{ total_projects }}
+            <p>{{ total_projects|intcomma }}</p>
           </div>
 
         </div>
 
       </div>
-      <div class="span6">
+      <div>
 
         <div class="block-gray pull-right">
           <div>
             <h5>Totale risorse stanziate*</h5>
 
-            {{ total_allocated_resources|intword }}
+            <p>{{ total_allocated_resources|intword }} <span>di euro</span></p>
           </div>
         </div>
 
@@ -166,38 +168,55 @@
     <div class="container">
 
       <div class="row" id="statistics">
-        <div class="span3">
-          <h5>Tipologie</h5>
 
-          <p>Le tipologie di progetti e gli importi ad esse dedicati.</p>
+        <div class="span6">
 
-          <div id="main_topics_chart" style="width: 100%; height: 200px"></div>
+          <div class="row">
+            <div class="span3">
+              <h5>Tipologie</h5>
 
-          <table id="main_topics">
-            {% for tema in temi_principali %}
-              <tr>
-                <td><a href="{{ tema.get_absolute_url }}">{{ tema.descrizione|title }}</a></td>
-                <td class="amount"><strong>{{ tema.costo_totale|intcomma }}</strong> euro</td>
-              </tr>
-            {% endfor %}
-          </table>
+              <p>Le tipologie di progetti e gli importi ad esse dedicati.</p>
+            </div>
+
+            <div class="span3">
+              <h5>Temi</h5>
+
+              <p>Le tematiche che riguardano i progetti e gli importi ad esse dedicati.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="span3">
+              <div id="main_types_chart" style="width: 100%; height: 200px"></div>
+
+              <table id="main_types" class="table table-bordered">
+                {% for tipo in tipologie_principali %}
+                  <tr>
+                    <td><a href="{{ tipo.get_absolute_url }}">{{ tipo.tipo|title }}</a></td>
+                    <td class="amount"><strong>{{ tipo.totale|intcomma }}</strong> euro</td>
+                  </tr>
+                {% endfor %}
+              </table>
+            </div>
+
+            <div class="span3">
+
+
+              <div id="main_topics_chart" style="width: 100%; height: 200px"></div>
+
+              <table id="main_topics" class="table table-bordered">
+                {% for tema in temi_principali %}
+                  <tr>
+                    <td><a href="{{ tema.get_absolute_url }}">{{ tema.descrizione|title }}</a></td>
+                    <td class="amount"><strong>{{ tema.costo_totale|intcomma }}</strong> euro</td>
+                  </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </div>
+
         </div>
-        <div class="span3">
-          <h5>Temi</h5>
 
-          <p>Le tematiche che riguardano i progetti e gli importi ad esse dedicati.</p>
-
-          <div id="main_types_chart" style="width: 100%; height: 200px"></div>
-
-          <table id="main_types">
-            {% for classificazione in tipologie_principali %}
-              <tr>
-                <td><a href="{{ classificazione.get_absolute_url }}">{{ classificazione.descrizione|title }}</a></td>
-                <td class="amount"><strong>{{ classificazione.costo_totale|intcomma }}</strong> euro</td>
-              </tr>
-            {% endfor %}
-          </table>
-        </div>
         <div class="span6">
           MAPPA
         </div>
@@ -211,7 +230,7 @@
     <div class="row">
 
       <section class="span6">
-        <h1><span class='title'>Progetto in evidenza</span></h1>
+        <h1 class='title'><span>Progetto in evidenza</span></h1>
 
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
           Integer dolor odio, lobortis ut pulvinar eget, tincidunt ac enim.
@@ -222,13 +241,13 @@
         <p><i class="icon-chevron-right"></i> <a href="#">Vedi gli altri progetti in evidenza</a></p>
       </section>
       <section class="span6">
-        <h1><span class='title'>Progetti con più risorse</span></h1>
+        <h1 class='title'><span>Progetti con più risorse</span></h1>
 
-        <table>
+        <table class="table table-bordered">
           {% for progetto in top_progetti_per_costo %}
           <tr>
-            <td class="span8"><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto|title }}</a></td>
-            <td class="span4 amount"><strong>{{ progetto.costo|intcomma }}</strong> euro</td>
+            <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto|title }}</a></td>
+            <td class="amount"><strong>{{ progetto.costo|intcomma }}</strong> euro</td>
           </tr>
           {% endfor %}
         </table>
@@ -245,9 +264,13 @@
   <div class="container">
     <div class="row">
       <section class="span3">
-        <h1><span class='title'>Soggetti più coinvolti</span></h1>
 
-        <div class="tabbable"> <!-- Only required for left/right tabs -->
+        <div class="tabbable boxed"> <!-- Only required for left/right tabs -->
+
+          <h1 class='title'>
+            <div>Soggetti più coinvolti</div>
+          </h1>
+
           <ul class="nav nav-tabs">
             <li class="active"><a href="#project_receivers" data-toggle="tab">Destinatari</a></li>
             <li><a href="#project_makers" data-toggle="tab">Realizzatori</a></li>
@@ -255,35 +278,39 @@
           <div class="tab-content">
             <div class="tab-pane active" id="project_receivers">
               <ul>
-                <li><a href="#">Nome destinatario</a></li>
-                <li><a href="#">Nome destinatario</a></li>
-                <li><a href="#">Nome destinatario</a></li>
+                <li><a href="#">Nome destinatario 1</a></li>
+                <li><a href="#">Nome destinatario 2</a></li>
+                <li><a href="#">Nome destinatario 3</a></li>
               </ul>
             </div>
             <div class="tab-pane" id="project_makers">
               <ul>
-                <li><a href="#">Nome destinatario</a></li>
-                <li><a href="#">Nome destinatario</a></li>
-                <li><a href="#">Nome destinatario</a></li>
+                <li><a href="#">Nome destinatario 4</a></li>
+                <li><a href="#">Nome destinatario 5</a></li>
+                <li><a href="#">Nome destinatario 6</a></li>
               </ul>
             </div>
           </div>
+
+          <p class="content"><i class="icon-chevron-right"></i> <a href="#">Vedi la lista dei soggetti coinvolti</a></p>
+
+          <hr>
+
+          <form class="form-search content">
+            <h5>Cerca tra i soggetti</h5>
+            <div class="input-append">
+              <input type="text" class="input-medium search-query" placeholder="Inserisci una parola"><button type="submit" class="btn"><i class="icon-search"></i></button>
+            </div>
+          </form>
+
+
+
         </div>
-
-        <p><i class="icon-chevron-right"></i> <a href="#">Vedi la lista dei soggetti coinvolti</a></p>
-
-        <hr>
-
-        <form class="form-search">
-          <div class="input-append">
-            <input type="text" class="input-medium search-query"><button type="submit" class="btn"><i class="icon-search"></i></button>
-          </div>
-        </form>
 
       </section>
 
       <section class="span3">
-        <h1><span class='title'>Ultimi progetti avviati</span></h1>
+        <h1 class='title'><span>Ultimi progetti avviati</span></h1>
 
         <ul class="unstyled">
           {% for progetto in ultimi_progetti_avviati %}
@@ -295,7 +322,7 @@
 
 
       <section class="span3">
-        <h1><span class='title'>Ultimi progetti conclusi</span></h1>
+        <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
 
         <ul class='unstyled'>
           {% for progetto in ultimi_progetti_conclusi %}
@@ -314,7 +341,7 @@
       <div class="row">
 
         <section class="span6">
-          <h1><span class="title">Programmazione</span></h1>
+          <h1 class="title"><span>Programmazione</span></h1>
 
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
             Integer dolor odio, lobortis ut pulvinar eget, tincidunt ac enim.
@@ -325,20 +352,20 @@
           <p><i class="icon-chevron-right"></i> <a href="#">Vedi altro</a></p>
         </section>
         <section class="span6">
-          <h1><span class='title'>Risorse</span></h1>
+          <h1 class='title'><span>Risorse</span></h1>
 
-          <table>
+          <table class="table table-bordered">
             <tr>
-              <td class="span8"><a href="#">Titolo progetto</a></td>
-              <td class="span4"><strong>44.150.200</strong> euro</td>
+              <td><a href="#">Titolo progetto</a></td>
+              <td class="amount"><strong>44.150.200</strong> euro</td>
             </tr>
             <tr>
               <td><a href="#">Titolo progetto</a></td>
-              <td><strong>44.150.200</strong> euro</td>
+              <td class="amount"><strong>44.150.200</strong> euro</td>
             </tr>
             <tr>
               <td><a href="#">Titolo progetto</a></td>
-              <td><strong>44.150.200</strong> euro</td>
+              <td class="amount"><strong>44.150.200</strong> euro</td>
             </tr>
           </table>
 

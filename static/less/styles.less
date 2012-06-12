@@ -11,6 +11,8 @@ a {
 }
 
 .navbar-full-width {
+  margin-bottom: 6px;
+
   // remove rounded corners
   .navbar-inner {
     .border-radius(0);
@@ -20,18 +22,8 @@ a {
   .nav > li > a {
     padding-top: 2px;
     text-align: left;
-
-    //width: 32%;
     display: block;
     font-weight: bold;
-
-    // simulate vertical-divider
-    //border-right: 1px solid @white;
-  }
-
-  .nav > li:first-child > a {
-    // simulate vertical-divider
-    //border-left: 1px solid @white;
   }
 }
 
@@ -43,6 +35,13 @@ a {
   & > li {
     width: 32%;
     border-right: 1px solid @white;
+
+    // mouse hover styles
+    &:hover {
+      background-color: @greenDarker;
+      &.violet { background-color: @violet; }
+      &.brown { background-color: @brown; }
+    }
   }
 }
 
@@ -60,6 +59,46 @@ a {
   margin-left: 0;
   li:before {
     content: "\002D \0020";
+  }
+}
+
+// highlight for section's titles
+section h1.title {
+  span, div {
+    color: @white;
+    background-color: @greenDark;
+    padding: 4px 6px;
+  }
+
+  span {
+    display: -moz-inline-stack;
+    display: inline-block;
+  }
+
+  font-size: 12px;
+  line-height: 20px;
+
+  font-weight: bold;
+  text-transform: uppercase;
+  //display: inline;
+
+  margin-bottom: 8px;
+
+  //.clearfix();
+
+  /*&.title-block {
+    display: block;
+  }*/
+}
+
+// sections with common colored background
+.area {
+  background-color: @grayLighter;
+
+  // override highlight for section's titles
+  h1.title span, h1.title div {
+    color: @white;
+    background-color: @grayDarker;
   }
 }
 
@@ -95,30 +134,10 @@ a {
     padding-top: 10px; padding-bottom: 10px;
   }
 
-  // highlight for section's titles
-  section h1 span.title {
-    color: @white;
-    background-color: @greenDark;
-    font-size: 12px;
-    padding: 4px 6px;
-    font-weight: bold;
-  }
-
-  // sections with common colored background
-  & > .area {
-    background-color: @grayLighter;
-
-    // override highlight for section's titles
-    section h1 span.title {
-      color: @white;
-      background-color: @grayDarker;
-    }
-  }
-
   // global table style in #main container
   table {
-    .table;
-    .table-bordered;
+    //.table;
+    //.table-bordered;
 
     td.amount, col.amount {
       white-space: nowrap;
@@ -157,7 +176,6 @@ a {
 }
 .block-green, .block-gray {
 
-  height: 150px;
   width: 150px;
   float:left;
 
@@ -165,6 +183,25 @@ a {
 
   > div {
     padding: 5px;
+    position: relative;
+    min-height: 150px;
+
+    h5 {
+      font-size: 11px;
+      line-height: 12px;
+      min-height: 50px;
+    }
+
+    p {
+      font-size: 22px;
+      line-height: 24px;
+      font-weight: bold;
+      width: 50%;
+      position: absolute;
+      bottom:0;
+
+      span { white-space: nowrap; }
+    }
   }
 
   &.pull-right { float: right; }
@@ -174,13 +211,76 @@ a {
   background-color: @green;
   color: @greenDark;
 
-  &.block-active {
+  &.block-active, &:hover {
     background-color: @greenDark;
     color: @white;
+
+    .bar-vertical {
+      background-color: @green;
+    }
   }
 }
 
 .block-gray {
   background-color: @grayLighter;
   color: @grayDarker;
+
+  &.block-active, &:hover {
+    #gradient > .vertical( @grayLighter, @brown );
+    //background-color: @grayDarker;
+    color: @white;
+  }
+}
+
+
+.bar-vertical {
+  width: 6px; height: 100px;
+  position:absolute;
+  right:5px; bottom:5px;
+  background-color: #70cabf;
+
+  & > span {
+    position: absolute;
+    bottom:0;
+    width: 100%;
+    #gradient > .vertical(darken(@greenDark, 5%), darken(@greenDark, 15%) );
+  }
+}
+
+
+.tabbable.boxed {
+
+  .content {
+    padding: 10px;
+  }
+
+  background-color: @grayLighter;
+
+  h1.title { margin-bottom: 0; }
+
+  .nav-tabs {
+    margin-bottom: 0;
+
+    & > li {
+      width: 50%;
+      background-color: @green;
+
+      &.active {
+        background-color: @grayLighter;
+      }
+
+      & > a {
+        .border-radius(0);
+        border: 0;
+        padding-left: 0; padding-right: 0; margin: 0;
+        text-align: center;
+        color: @black;
+
+        background-color: transparent;
+        &:hover {
+          background-color: transparent;
+        }
+      }
+    }
+  }
 }
