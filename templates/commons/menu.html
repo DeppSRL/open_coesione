@@ -1,5 +1,6 @@
 {% load list_to_columns %}
 {% list_to_columns lista_regioni as colonne_regioni 3 %}
+
 <nav class="navbar navbar-full-width">
   <h2 class="hidden"><a name="menu"></a>Navigazione del sito</h2>
   <div class="navbar-inner">
@@ -73,13 +74,3 @@
     </div>
   </div>
 </nav>
-
-<script type='text/javascript'>//<![CDATA[
-$(window).load(function(){
-  jQuery('.submenu').hover(function () {
-    jQuery(this).children('ul').removeClass('submenu-hide').addClass('submenu-show');
-  }, function () {
-    jQuery(this).children('ul').removeClass('.submenu-show').addClass('submenu-hide');
-  }).find("a:first").append(" &raquo; ");
-});//]]>
-</script>

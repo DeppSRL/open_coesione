@@ -38,11 +38,11 @@
   {% render_block "js_script" %}
 
   <!-- fav and touch icons -->
-  <link rel="shortcut icon" href="static/ico/favicon.ico">
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="static/ico/apple-touch-icon-144-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="static/ico/apple-touch-icon-114-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="static/ico/apple-touch-icon-72-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" href="static/ico/apple-touch-icon-57-precomposed.png">
+  <link rel="shortcut icon" href="{{ STATIC_URL }}ico/favicon.ico">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ STATIC_URL }}ico/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ STATIC_URL }}ico/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{ STATIC_URL }}ico/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="{{ STATIC_URL }}ico/apple-touch-icon-57-precomposed.png">
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
@@ -69,6 +69,17 @@
     </div>
 
     {% include 'commons/menu.html' %}
+    {% addtoblock "js_script" %}
+      <script type='text/javascript'>//<![CDATA[
+      $(window).load(function(){
+        jQuery('.submenu').hover(function () {
+          jQuery(this).children('ul').removeClass('submenu-hide').addClass('submenu-show');
+        }, function () {
+          jQuery(this).children('ul').removeClass('.submenu-show').addClass('submenu-hide');
+        }).find("a:first").append(" &raquo; ");
+      });//]]>
+      </script>
+    {% endaddtoblock %}
 
   </header><!-- /HEADER -->
 

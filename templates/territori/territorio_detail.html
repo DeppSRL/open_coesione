@@ -1,5 +1,298 @@
 {% extends 'base.html' %}
+{% load humanize %}
+{% load sekizai_tags %}
+
+{% block js_content %}
+  {% addtoblock "js_script" %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
+  {% endaddtoblock %}
+
+  {{ block.super }}
+
+  <script type="text/javascript">
+    var chart; // globally available
+
+    var pie_chart_options = {
+      chart: {
+        renderTo: 'container',
+        plotBackgroundColor: null,
+        plotBorderWidth: null,
+        plotShadow: false
+      },
+      title: {
+        text: ''
+      },
+      tooltip: {
+        formatter: function() {
+          return '<b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +' %';
+        },
+        useHTML: true
+      },
+      plotOptions: {
+        pie: {
+          allowPointSelect: true,
+          cursor: 'pointer',
+          dataLabels: {
+            enabled: false,
+            color: '#000000',
+            connectorColor: '#000000',
+            formatter: function() {
+              return '<b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +' %';
+            }
+          },
+          showInLegend: false
+
+        }
+      },
+      series: []
+    };
+
+    $(document).ready(function() {
+
+
+      // Main topics chart
+      var total = 0;
+      var main_topics_options = pie_chart_options;
+      main_topics_options.chart.renderTo = 'main_topics_chart';
+      var series = {
+        type: 'pie',
+        data: []
+      };
+      // take values
+      $('#main_topics tr').each(function(ix, line){
+        values = $('a, strong', line).map( function(el, item) { return $(item).text(); });
+        sub_total = parseInt(values[1].split('.').join(''))
+        total += sub_total
+        series.data.push([values[0], sub_total ]);
+      });
+      // normalize values
+      $.each(series.data, function(ix, line) {
+        series.data[ix][1] = series.data[ix][1] / total;
+      });
+      main_topics_options.series.push(series);
+      chart = new Highcharts.Chart(main_topics_options);
+      // End Main topics chart
+
+      // Main types chart
+      var total = 0;
+      var main_types_options = pie_chart_options;
+      main_types_options.chart.renderTo = 'main_types_chart';
+      var series = {
+        type: 'pie',
+        data: []
+      };
+      // take values
+      $('#main_types tr').each(function(ix, line){
+        values = $('a, strong', line).map( function(el, item) { return $(item).text(); });
+        sub_total = parseInt(values[1].split('.').join(''))
+        total += sub_total
+        series.data.push([values[0], sub_total ]);
+      });
+      // normalize values
+      $.each(series.data, function(ix, line) {
+        series.data[ix][1] = series.data[ix][1] / total;
+      });
+      main_types_options.series.push(series);
+      chart = new Highcharts.Chart(main_types_options);
+      // End Main topics chart
+
+    });
+  </script>
+{% endblock %}
 
 {% block container %}
-  {{ object }}
+
+  <div class="container">
+
+    <div class="row">
+
+      <div class="span6 block-container">
+
+        <div class="block-green block-active">
+
+          <div>
+            <h5>Costo complessivo dei progetti monitorati*</h5>
+
+            <div class="bar-vertical"></div>
+            <p>{{ total_cost|intword }} <span>di euro</span></p>
+          </div>
+
+        </div>
+
+        <div class="block-green">
+
+          <div>
+            <h5>Pagamenti effettuati per i progetti monitorati*</h5>
+
+            <div class="bar-vertical" title="{{ cost_payments_ratio }} del totale"><span style="height:{{ cost_payments_ratio }}"></span></div>
+            <p>{{ total_cost_paid|intword }} <span>di euro</span></p>
+          </div>
+
+        </div>
+
+        <div class="block-green">
+          <div>
+            <h5>Numero dei progetti monitorati*</h5>
+
+            <p>{{ total_projects|intcomma }}</p>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="area">
+    <div class="container">
+
+      <div class="row" id="statistics">
+
+        <div class="span6">
+
+          <h1 class="title"><span>{{ object }}</span></h1>
+
+          <div class="row">
+            <div class="span3">
+              <h5>Tipologie</h5>
+
+              <p>Le tipologie di progetti e gli importi ad esse dedicati.</p>
+            </div>
+
+            <div class="span3">
+              <h5>Temi</h5>
+
+              <p>Le tematiche che riguardano i progetti e gli importi ad esse dedicati.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="span3">
+              <div id="main_types_chart" style="width: 100%; height: 200px"></div>
+
+              <table id="main_types" class="table table-bordered">
+                {% for tipo in tipologie_principali %}
+                  <tr>
+                    <td><a href="{{ tipo.get_absolute_url }}">{{ tipo.tipo|title }}</a></td>
+                    <td class="amount"><strong>{{ tipo.totale|intcomma }}</strong> euro</td>
+                  </tr>
+                {% endfor %}
+              </table>
+            </div>
+
+            <div class="span3">
+
+
+              <div id="main_topics_chart" style="width: 100%; height: 200px"></div>
+
+              <table id="main_topics" class="table table-bordered">
+                {% for tema in temi_principali %}
+                  <tr>
+                    <td><a href="{{ tema.get_absolute_url }}">{{ tema.descrizione|title }}</a></td>
+                    <td class="amount"><strong>{{ tema.costo_totale|intcomma }}</strong> euro</td>
+                  </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="span6">
+          MAPPA
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div class="row">
+      <section class="span3">
+
+        <div class="tabbable boxed"> <!-- Only required for left/right tabs -->
+
+          <h1 class='title'>
+            <div>Soggetti più coinvolti</div>
+          </h1>
+
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#project_receivers" data-toggle="tab">Destinatari</a></li>
+            <li><a href="#project_makers" data-toggle="tab">Realizzatori</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="project_receivers">
+              <ul>
+                <li><a href="#">Nome destinatario 1</a></li>
+                <li><a href="#">Nome destinatario 2</a></li>
+                <li><a href="#">Nome destinatario 3</a></li>
+              </ul>
+            </div>
+            <div class="tab-pane" id="project_makers">
+              <ul>
+                <li><a href="#">Nome destinatario 4</a></li>
+                <li><a href="#">Nome destinatario 5</a></li>
+                <li><a href="#">Nome destinatario 6</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <p class="content"><i class="icon-chevron-right"></i> <a href="#">Vedi la lista dei soggetti coinvolti</a></p>
+
+          <hr>
+
+          <form class="form-search content">
+            <h5>Cerca tra i soggetti</h5>
+            <div class="input-append">
+              <input type="text" class="input-medium search-query" placeholder="Inserisci una parola"><button type="submit" class="btn"><i class="icon-search"></i></button>
+            </div>
+          </form>
+
+        </div>
+
+      </section>
+
+      <section class="span3">
+        <h1 class='title'><span>Progetti con più costi</span></h1>
+
+        <ul class="spaced">
+          {% for progetto in progetti_piu_costosi %}
+            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
+          {% endfor %}
+        </ul>
+
+      </section>
+
+
+      <section class="span3">
+        <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
+
+        <ul class='spaced'>
+          {% for progetto in ultimi_progetti_conclusi %}
+            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
+          {% endfor %}
+        </ul>
+
+      </section>
+
+      <section class="span3">
+        <h1 class='title'><span>I comuni più finanziati</span></h1>
+
+        <table>
+          {% for territorio in territori_piu_finanziati %}
+          <tr>
+            <td><a href="{{ territorio.get_absolute_url }}">{{ territorio }}</a></td>
+            <td class="amount"><strong>{{ territorio.totale|intcomma }}</strong> euro</td>
+          </tr>
+          {% endfor %}
+        </table>
+
+      </section>
+
+    </div>
+  </div>
+
+
 {% endblock %}
