@@ -1,9 +1,10 @@
+.DS_Store
 .idea
 *.log
 log/logfile*
 *.pot
 *.pyc
-*/settings_*
+*/settings_*.py*
 dati
 media/medialibrary
 GIS/tiles

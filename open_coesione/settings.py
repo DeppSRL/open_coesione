@@ -5,6 +5,14 @@ import os
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 REPO_ROOT = os.path.abspath(os.path.dirname(PROJECT_ROOT))
 
+# Haystack talks with solr
+HAYSTACK_SITECONF = 'open_coesione.search_sites'
+HAYSTACK_SEARCH_ENGINE = ''
+HAYSTACK_SOLR_URL = ''
+
+# GeoDjango needs GDAL
+GDAL_LIBRARY_PATH = ''
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -53,18 +61,18 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(REPO_ROOT, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(REPO_ROOT, 'sitestatic')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -75,6 +83,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    os.path.join(REPO_ROOT, 'static'),
 )
 
 # List of finder classes that know how to find static files in
@@ -86,7 +95,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '5%bv%n+u6rp8*i^ke!aiv7&amp;gvxsak2frkvhludaxvmy47uj7km'
+SECRET_KEY = '<< CHANGE ME >>'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -121,6 +130,8 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django_extensions',
     'django.contrib.gis',
+    'django.contrib.humanize',
+    'sekizai',
     'south',
     'haystack',
     'progetti',
@@ -132,16 +143,13 @@ INSTALLED_APPS = (
     'feincms.module.medialibrary',
 )
 
-# Add request context_processor to default list
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.request",
-    "django.contrib.messages.context_processors.messages",
-    "open_coesione.context_processor.main_settings",
+# context processors and templates directory
+from django.conf.global_settings import TEMPLATE_DIRS, TEMPLATE_CONTEXT_PROCESSORS
+TEMPLATE_DIRS += ( os.path.join(REPO_ROOT, 'templates'), )
+TEMPLATE_CONTEXT_PROCESSORS += (
+    'open_coesione.context_processor.main_settings' ,
+    'django.core.context_processors.request',
+    'sekizai.context_processors.sekizai',
 )
 
 # A sample logging configuration. The only tangible logging

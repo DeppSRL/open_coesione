@@ -30,3 +30,6 @@ ModestMaps
 
 feincms
 django-mptt
+
+django-classy-tags
+django-sekizai

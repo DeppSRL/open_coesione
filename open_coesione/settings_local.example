@@ -1,0 +1,45 @@
+ADMINS = (
+    ('admin', 'admin@example.tld'),
+)
+
+EMAIL_PORT = 1025
+
+# Haystack talks with solr
+HAYSTACK_SEARCH_ENGINE = 'solr'
+HAYSTACK_SOLR_URL = 'http://127.0.0.1:8080/solr/open_coesione'
+
+# GeoDjango needs GDAL
+GDAL_LIBRARY_PATH = '/usr/lib/libgdal1.7.0.so.1'
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',  # Add 'postgresql_psycopg2', 'mysql', $
+        'NAME': 'open_coesione',                      # Or path to database file if using sq$
+        'USER': '',                      # Not used with sqlite3.
+        'PASSWORD': '',                  # Not used with sqlite3.
+        'HOST': '',                      # Set to empty string for localhost. N$
+        'PORT': '',                      # Set to empty string for default. Not$
+    }
+}
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = 'generate-new-secret-key'
+
+# Django TOOLBAR
+INTERNAL_IPS = ('127.0.0.1',)
+#MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+#INSTALLED_APPS += ('debug_toolbar',)
+DEBUG_TOOLBAR_PANELS = (
+    'debug_toolbar.panels.version.VersionDebugPanel',
+    'debug_toolbar.panels.timer.TimerDebugPanel',
+    'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
+    'debug_toolbar.panels.headers.HeaderDebugPanel',
+    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
+    'debug_toolbar.panels.template.TemplateDebugPanel',
+    'debug_toolbar.panels.sql.SQLDebugPanel',
+    'debug_toolbar.panels.signals.SignalDebugPanel',
+    'debug_toolbar.panels.logger.LoggingPanel',
+)
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+}

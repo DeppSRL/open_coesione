@@ -2,6 +2,7 @@
 
 from django.db import models
 from model_utils import Choices
+from open_coesione.managers import ProgettiManager
 
 
 class ClassificazioneQSN(models.Model):
@@ -80,11 +81,21 @@ class Tema(models.Model):
     def progetti(self):
         return self.progetto_set
 
+    def costo_totale(self):
+        return sum(
+            # la somma dei costi totali dei temi figli
+            [sottotema.costo_totale() for sottotema in self.temi_figli.all()],
+            # partendo dal costo dei progetti in questo tema
+            self.progetti.aggregate(total=models.Sum('costo'))['total'] or 0
+        )
+
+
     def __unicode__(self):
-        return self.codice
+        return u'%s %s' % (self.codice, self.descrizione)
 
     class Meta:
         verbose_name_plural = "Temi"
+        ordering = ['codice']
 
 class Intesa(models.Model):
     codice = models.CharField(max_length=8, primary_key=True)
@@ -124,11 +135,12 @@ class ClassificazioneAzione(models.Model):
         return self.progetto_set
 
     def __unicode__(self):
-        return self.codice
+        return u'%s %s' % (self.codice, self.descrizione)
 
     class Meta:
         verbose_name_plural = "Classificazioni azioni"
         db_table = 'progetti_classificazione_azione'
+        ordering = ['codice']
 
 
 class ClassificazioneOggetto(models.Model):
@@ -152,14 +164,29 @@ class ClassificazioneOggetto(models.Model):
     def progetti(self):
         return self.progetto_set
 
+    def costo_totale(self):
+        return sum(
+            # la somma dei costi totali dei temi figli
+            [sottotipologia.costo_totale() for sottotipologia in self.classificazioni_figlie.all()],
+            # partendo dal costo dei progetti in questo tema
+            self.progetti.aggregate(total=models.Sum('costo'))['total'] or 0
+        )
+
     def __unicode__(self):
-        return self.codice
+        return u'%s %s' % (self.codice, self.descrizione)
 
     class Meta:
         verbose_name_plural = "Classificazioni oggetti"
         db_table = 'progetti_classificazione_oggetto'
+        ordering = ['codice']
+
+
+
 
 class Progetto(models.Model):
+
+    objects = ProgettiManager()    # override the default manager
+
     DPS_FLAG_CUP = Choices(
         ('0', 'CUP non valido'),
         ('1', 'CUP valido'),

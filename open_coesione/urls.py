@@ -20,13 +20,13 @@ urlpatterns = patterns('',
     url(r'^$', HomeView.as_view(), name='home'),
 
     # progetti
-    url(r'^progetti/', include('progetti.urls')),
+    #url(r'^progetti/', include('progetti.urls')),
 
     # soggetti
     # url(r'^soggetti/', include('soggetti.urls')),
 
     # territori
-    url(r'^territori/', include('territori.urls')),
+    #url(r'^territori/', include('territori.urls')),
 
 
 
