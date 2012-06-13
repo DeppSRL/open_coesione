@@ -3,7 +3,9 @@ from django.views.generic.detail import DetailView
 from open_coesione.views import AggregatoView
 
 class SoggettiView(AggregatoView, TemplateView):
-    raise Exception("Class SoggettiView needs to be implemented")
+    #raise Exception("Class SoggettiView needs to be implemented")
+    pass
 
 class SoggettoView(DetailView):
-    raise Exception("Class SoggettoView needs to be implemented")
+    #raise Exception("Class SoggettoView needs to be implemented")
+    pass

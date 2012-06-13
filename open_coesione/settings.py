@@ -126,12 +126,23 @@ INSTALLED_APPS = (
     'progetti',
     'territori',
     'soggetti',
-
+    'dynamic-content',
     # FeinCMS
-    #'feincms', 'feincms.module.page', 'feincms.module.medialibrary',
+    'feincms', 'feincms.module.page',
+    'feincms.module.medialibrary',
 )
 
-
+# Add request context_processor to default list
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.request",
+    "django.contrib.messages.context_processors.messages",
+    "open_coesione.context_processor.main_settings",
+)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

@@ -1,0 +1,15 @@
+{% extends 'base_two_columns.html' %}
+{% load feincms_tags %}
+
+{% block js_and_css %}
+    {{ block.super }}
+    {{ feincms_page.content.media }}
+{% endblock %}
+
+{% block content %}
+    {% feincms_render_region feincms_page "main" request %}
+{% endblock %}
+
+{% block sidebar %}
+    {% feincms_render_region feincms_page "sidebar" request %}
+{% endblock %}

@@ -9,13 +9,16 @@ from open_coesione.views import AggregatoView
 
 
 class ProgettoView(DetailView):
-    raise Exception("Class ProgettoView needs to be implemented")
+    # raise Exception("Class ProgettoView needs to be implemented")
+    pass
 
 class TipologiaView(AggregatoView, DetailView):
-    raise Exception("Class TipologiaView needs to be implemented")
+    # raise Exception("Class TipologiaView needs to be implemented")
+    pass
 
 class TemaView(AggregatoView, DetailView):
-    raise Exception("Class TemaView needs to be implemented")
+    # raise Exception("Class TemaView needs to be implemented")
+    pass
 
 
 class ProgettoSearchView(ExtendedFacetedSearchView):
