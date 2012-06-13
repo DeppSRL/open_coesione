@@ -1,0 +1,232 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Highcharts Example</title>
+    <link rel="Stylesheet" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.21.custom.css" type="text/css" />
+    <link rel="Stylesheet" href="{{ STATIC_URL }}css/ui.selectmenu.css" type="text/css" />
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.21.custom.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/ui.selectmenu.js"></script>
+    <script type="text/javascript">
+        var chart;
+        var indicatori;
+        var regioni;
+        var n_theme = 5;
+        var region = 11;
+
+        $(function () {
+            var options = {
+                credits: {href: 'http://www.opencoesione.gov.it', text: 'Open Coesione'},
+                chart: {
+                    renderTo: 'container',
+                    type: 'spline',
+                    marginLeft: 50
+                },
+                title: {
+                    text: 'Test'
+                },
+                legend: {
+                    layout: 'vertical',
+                    backgroundColor: '#FFFFFF',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    floating: true
+                },
+                xAxis: {
+                    showLastLabel: true,
+                    type: 'datetime',
+                    dateTimeLabelFormats: {
+                        month: '%Y',
+                        year: '%Y'
+                    },
+                    min: Date.UTC(1994, 1, 1),
+                    max: Date.UTC(2012, 1, 1)
+                },
+                yAxis: {
+                    title: {
+                        align: 'high',
+                        offset: 0,
+                        text: '%',
+                        rotation: 0,
+                        y: -10
+                    }
+                },
+                categories: [],
+                series_collection: [],
+                series: [],
+                tooltip: { valueDecimals: 2, valueSuffix: '%'  }
+            };
+
+            indicatori = {};
+            $.get("{{ STATIC_URL }}csv/indicatori/" + n_theme + ".csv", function(data) {
+                // Split the lines
+                var lines = data.split('\n');
+                // Iterate over the lines and add categories or series
+                $.each(lines, function(lineNo, line) {
+                    var items = line.split(',');
+
+                    if (lineNo > 0){
+                        id = items[0];
+                        indicatori[id] = { titolo: items[1], sottotitolo: items[2] };
+
+                        // Use Jquery to get select list element
+                        if (id)
+                            $("#indicator-selector")[0].options.add(new Option(indicatori[id].titolo, id));
+                    }
+                });
+
+                // build original chart after having loaded indicatori
+                for (var i0 in indicatori) {
+                    break
+                }
+                get_chart(n_theme, i0, options);
+
+            });
+
+            regioni = {};
+            $.get("{{ STATIC_URL }}csv/regioni.csv", function(data) {
+                // Split the lines
+                var lines = data.split('\n');
+                // Iterate over the lines and add categories or series
+                $.each(lines, function(lineNo, line) {
+                    var items = line.split(',');
+
+                    if (lineNo > 0 && lineNo-1 != region){
+                        id = items[0];
+                        regioni[id] = { denominazione: items[1] };
+
+                        // Use Jquery to get select list element
+                        if (id)
+                            $("#region-selector")[0].options.add(new Option(regioni[id].denominazione, id));
+                    }
+                });
+            });
+
+            // function that reads a theme_indicator.csv file
+            // and builds a chart
+            function get_chart(n_theme, indicator_id, options) {
+                options.series = [];
+                options.categories = [];
+                options.series_collection = [];
+                options.title.text = indicatori[indicator_id].titolo;
+
+                // options.title.text = indicatori[indicator_id].titolo;
+                $.get("{{ STATIC_URL }}csv/temaind/"+n_theme+"_"+indicator_id+".csv", function(data) {
+                    // Split the lines
+                    var lines = data.split('\n');
+
+                    // Iterate over the lines and add categories or series
+                    $.each(lines, function(lineNo, line) {
+                        var items = line.split(',');
+
+                        // header line containes categories
+                        if (lineNo == 0) {
+                            $.each(items, function(itemNo, item) {
+                                if (itemNo > 0) options.categories.push(Date.UTC(parseInt(item),  1, 1));
+                            });
+                        }
+
+                        // the rest of the lines contain data with their name in the first position
+                        else {
+                            //if (lineNo >= 3) return;
+
+                            var series = {
+                                data: []
+                            };
+                            $.each(items, function(itemNo, item) {
+                                if (itemNo == 0) {
+                                    series.name = item;
+                                } else {
+                                    if (!isNaN(parseFloat(item))) {
+                                        series.data.push([options.categories[itemNo-1], parseFloat(item)]);
+                                    }
+                                }
+                            });
+
+                            options.series_collection.push(series)
+
+                        }
+
+                        options.series = [
+                            options.series_collection[20],
+                            options.series_collection[region]
+                        ]
+
+
+                    });
+                    // Create the chart
+                    chart = new Highcharts.Chart(options);
+
+                    if ($('#region-selector').val() != '') {
+                        chart.addSeries(chart.options.series_collection[$('#region-selector').val()-1]);
+                    }
+                    $('#indicator-selector').val(indicator_id)
+
+                });
+
+            }
+
+
+
+            // the region select handler
+            $('#region-selector').change(function() {
+                if (chart.series.length == 3) {
+                    chart.series[2].remove();
+                }
+                if ($(this).val() != '') {
+                    chart.addSeries(chart.options.series_collection[$(this).val()-1]);
+                    chart.redraw();
+                }
+
+            });
+            /*
+            $("#region-selector").selectmenu({
+                style:'dropdown',
+                width:200
+            });
+            */
+
+            $('#region-reset').click(function() {
+                if (chart.series.length == 3) {
+                    chart.series[2].remove();
+                }
+                $('#region-selector').val('');
+            });
+
+            // the indicator select handler
+            $('#indicator-selector').change(function() {
+                var indicator_id = $(this).val();
+                if (indicator_id != '') {
+                    chart.destroy();
+                    get_chart(n_theme, indicator_id, options);
+
+                }
+
+            });
+            /*
+            $("select#indicator-selector").selectmenu({
+                style:'dropdown',
+                width:400
+            });
+            */
+
+        });
+    </script>
+</head>
+<body>
+<script src="{{ STATIC_URL }}js/highcharts.js"></script>
+<script src="{{ STATIC_URL }}js/modules/exporting.js"></script>
+
+<div style="height: 260px; width: 900px; margin: 0 auto">
+    <div id="container" style="min-width: 400px;"></div>
+    <select id="region-selector">
+        <option value="">-- Confronta con una regione --</option>
+    </select>
+    <a id="region-reset" href="#">reset</a>
+    <br/>
+    <select id="indicator-selector"></select>
+</div>
+</body>
+</html>
