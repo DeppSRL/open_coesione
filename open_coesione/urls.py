@@ -6,27 +6,23 @@ from open_coesione.views import HomeView
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'open_coesione.views.home', name='home'),
-    # url(r'^open_coesione/', include('open_coesione.foo.urls')),
-
-    # Uncomment the admin/doc line below to enable admin documentation:
+    # admin documentation and reference
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-    # Uncomment the next line to enable the admin:
+    # admin
     url(r'^admin/', include(admin.site.urls)),
 
     # home
     url(r'^$', HomeView.as_view(), name='home'),
 
     # progetti
-    #url(r'^progetti/', include('progetti.urls')),
+    url(r'^progetti/', include('progetti.urls')),
 
     # soggetti
     # url(r'^soggetti/', include('soggetti.urls')),
 
     # territori
-    #url(r'^territori/', include('territori.urls')),
+    url(r'^territori/', include('territori.urls')),
 
 
 
