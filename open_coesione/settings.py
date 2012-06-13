@@ -131,6 +131,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'django.contrib.gis',
     'django.contrib.humanize',
+    'open_coesione',
     'sekizai',
     'south',
     'haystack',

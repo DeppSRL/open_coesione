@@ -102,7 +102,7 @@
   </script>
 {% endblock %}
 
-{% block content_container %}
+{% block container %}
 
   <div class="container">
 
@@ -243,7 +243,7 @@
       <section class="span6">
         <h1 class='title'><span>Progetti con più risorse</span></h1>
 
-        <table class="table table-bordered">
+        <table class="table">
           {% for progetto in top_progetti_per_costo %}
           <tr>
             <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto|title }}</a></td>
@@ -312,7 +312,7 @@
       <section class="span3">
         <h1 class='title'><span>Ultimi progetti avviati</span></h1>
 
-        <ul class="unstyled">
+        <ul class="spaced">
           {% for progetto in ultimi_progetti_avviati %}
             <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
           {% endfor %}
@@ -324,7 +324,7 @@
       <section class="span3">
         <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
 
-        <ul class='unstyled'>
+        <ul class='spaced'>
           {% for progetto in ultimi_progetti_conclusi %}
             <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
           {% endfor %}

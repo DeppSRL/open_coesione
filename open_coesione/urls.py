@@ -26,7 +26,7 @@ urlpatterns = patterns('',
     # url(r'^soggetti/', include('soggetti.urls')),
 
     # territori
-    #url(r'^territori/', include('territori.urls')),
+    url(r'^territori/', include('territori.urls')),
 
 
 

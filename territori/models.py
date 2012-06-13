@@ -60,15 +60,26 @@ class Territorio(models.Model):
         if self.denominazione_ted:
             return "%s - %s" % (self.denominazione, self.denominazione_ted)
         else:
-            return "%s" % (self.denominazione)
+            return "%s" % self.denominazione
 
 
 
     def __unicode__(self):
         return self.nome
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('territori_%s' % {
+            self.TERRITORIO.R: 'regione',
+            self.TERRITORIO.P: 'provincia',
+            self.TERRITORIO.C: 'comune',
+        }[self.territorio], (), {
+            'slug': self.denominazione
+        })
+
     class Meta:
         verbose_name = u'Località'
         verbose_name_plural = u'Località'
+        ordering = ['denominazione']
 
 

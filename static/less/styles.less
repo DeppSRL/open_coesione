@@ -18,12 +18,48 @@ a {
     .border-radius(0);
   }
 
+  a {
+    color: @black;
+    font-weight: bold;
+  }
+
   // left alignment and fixed width
   .nav > li > a {
     padding-top: 2px;
     text-align: left;
     display: block;
     font-weight: bold;
+  }
+
+  // submenus
+  // http://jsfprimefacesblog.blogspot.it/2012/05/bootstrap-multilevel-dropdown-menu.html
+  .dropdown-menu {
+    background-color: @green;
+
+    // set submenu under main menu
+    .submenu .submenu-show {
+      top: @navbarHeight;
+
+      // columns of submenu
+      & > li {
+
+        width: 500px;
+
+        & > ul {
+          list-style: none;
+          margin:0;
+          width: 33%;
+          float:left;
+        }
+      }
+    }
+  }
+
+  // fix first level width to its container
+  .nav > .dropdown > .dropdown-menu {
+    min-width: auto;
+    right: 0;
+    left: 0;
   }
 }
 
@@ -41,6 +77,11 @@ a {
       background-color: @greenDarker;
       &.violet { background-color: @violet; }
       &.brown { background-color: @brown; }
+    }
+
+    // fix menu width
+    &.dropdown > dropdown-menu {
+      left:0; right:0;
     }
   }
 }
@@ -232,7 +273,7 @@ section h1.title {
   }
 }
 
-
+// block stats
 .bar-vertical {
   width: 6px; height: 100px;
   position:absolute;
@@ -247,7 +288,7 @@ section h1.title {
   }
 }
 
-
+// edit tabbable to show two tabs label hover tab contents container
 .tabbable.boxed {
 
   .content {
@@ -282,5 +323,15 @@ section h1.title {
         }
       }
     }
+  }
+}
+
+// list styles
+ul.spaced {
+  list-style: none;
+  margin:0;
+
+  li {
+    margin-bottom: 10px;
   }
 }

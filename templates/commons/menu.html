@@ -1,3 +1,5 @@
+{% load list_to_columns %}
+{% list_to_columns lista_regioni as colonne_regioni 3 %}
 <nav class="navbar navbar-full-width">
   <h2 class="hidden"><a name="menu"></a>Navigazione del sito</h2>
   <div class="navbar-inner">
@@ -6,19 +8,60 @@
         <li class="active dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Progetti <b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <!-- links -->
+            <li><a href="#">Tipologie</a></li>
+            <li><a href="#">Temi</a>
+            </li>
+            <li class="submenu">
+              <a href="#">Territori</a>
+              <ul class="dropdown-menu">
+                <li class="clearfix">
+                  <ul>
+                    {% for regione in colonne_regioni.0 %}
+                      <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
+                    {% endfor %}
+                  </ul>
+                  <ul>
+                    {% for regione in colonne_regioni.1 %}
+                      <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
+                    {% endfor %}
+                  </ul>
+                  <ul>
+                    {% for regione in colonne_regioni.2 %}
+                      <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </li>
+                <li class="divider"></li>
+                <li>
+                  <form class="form-search content">
+                    <h5>Cerca tra i soggetti</h5>
+                    <div class="input-append">
+                      <input type="text" class="input-medium search-query" placeholder="Inserisci una parola"><button type="submit" class="btn"><i class="icon-search"></i></button>
+                    </div>
+                  </form>
+                </li>
+              </ul>
+            </li>
           </ul>
         </li>
         <li class="dropdown violet">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Soggetti <b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <!-- links -->
+            <li><a href="#">Menu Item</a></li>
+            <li class="submenu">
+              <a href="#">Separated link</a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Sub Menu</a></li>
+              </ul>
+            </li>
           </ul>
         </li>
         <li class="dropdown brown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Risorse <b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <!-- links -->
+            <li><a href="#">Menu Item</a></li>
+            <li><a href="#">Sub Menu</a></li>
+            <li><a href="#">Sub Menu</a></li>
           </ul>
         </li>
 
@@ -30,3 +73,13 @@
     </div>
   </div>
 </nav>
+
+<script type='text/javascript'>//<![CDATA[
+$(window).load(function(){
+  jQuery('.submenu').hover(function () {
+    jQuery(this).children('ul').removeClass('submenu-hide').addClass('submenu-show');
+  }, function () {
+    jQuery(this).children('ul').removeClass('.submenu-show').addClass('submenu-hide');
+  }).find("a:first").append(" &raquo; ");
+});//]]>
+</script>
