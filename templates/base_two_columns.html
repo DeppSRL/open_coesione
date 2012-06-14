@@ -8,16 +8,20 @@
     <article class="row-fluid">
 
         <!-- LEFT-COL -->
-        <div style="float:left; width:70%; border-right: 1px dotted gray" id="content">
+        {% comment %}<div style="float:left; width:70%; border-right: 1px dotted gray" id="content">{% endcomment %}
+        <div class="span8" id="content">
 
             {% block content %}{% endblock %}
 
         </div><!-- /LEFT-COL -->
         <!-- RIGHT-COL -->
-        <aside style="float:right;width:29%" id="sidebar">
+        {% comment %}<aside style="float:right;width:29%" id="sidebar">{% endcomment %}
+        <aside class="span4" id="sidebar">
 
             {% block sidebar %}{% endblock %}
 
         </aside><!-- /RIGHT-COL -->
     </article>
+
+    {% block subcontainer %}{% endblock %}
 {% endblock  %}

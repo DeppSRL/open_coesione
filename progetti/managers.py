@@ -81,3 +81,12 @@ class ProgettiManager(models.Manager):
 
     def totale_risorse_stanziate(self, territorio=None, tema=None, tipo=None):
         return self.totali(territorio, tema, tipo).aggregate(total=models.Sum('fin_totale'))['total']
+
+
+class TemiManager(models.Manager):
+
+    def principali(self):
+        return self.get_query_set().filter(tema_superiore=None)
+
+    def costo_totale(self):
+        return self.get_query_set().annotate(totale=models.Sum('progetto_set__costo'))

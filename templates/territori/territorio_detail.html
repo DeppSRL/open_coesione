@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load humanize %}
 {% load sekizai_tags %}
+{% load template_functions %}
 
 {% block js_content %}
   {% addtoblock "js_script" %}
@@ -151,7 +152,7 @@
 
         <div class="span6">
 
-          <h1 class="title"><span>{{ object }}</span></h1>
+          <h1 class="title"><span>{{ territorio }}</span></h1>
 
           <div class="row">
             <div class="span3">
@@ -190,7 +191,7 @@
                 {% for tema in temi_principali %}
                   <tr>
                     <td><a href="{{ tema.get_absolute_url }}">{{ tema.descrizione|title }}</a></td>
-                    <td class="amount"><strong>{{ tema.costo_totale|intcomma }}</strong> euro</td>
+                    <td class="amount"><strong>{{ tema|args:territorio|call:'costo_totale'|intcomma }}</strong> euro</td>
                   </tr>
                 {% endfor %}
               </table>
@@ -277,19 +278,21 @@
 
       </section>
 
+      {% if territori_piu_finanziati %}
       <section class="span3">
         <h1 class='title'><span>I comuni più finanziati</span></h1>
 
         <table>
-          {% for territorio in territori_piu_finanziati %}
+          {% for territorio_finanziato in territori_piu_finanziati %}
           <tr>
-            <td><a href="{{ territorio.get_absolute_url }}">{{ territorio }}</a></td>
-            <td class="amount"><strong>{{ territorio.totale|intcomma }}</strong> euro</td>
+            <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
+            <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
           </tr>
           {% endfor %}
         </table>
 
       </section>
+      {% endif %}
 
     </div>
   </div>

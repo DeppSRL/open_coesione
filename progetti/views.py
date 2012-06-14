@@ -9,8 +9,18 @@ from open_coesione.views import AggregatoView
 
 
 class ProgettoView(DetailView):
-    # raise Exception("Class ProgettoView needs to be implemented")
-    pass
+    model = Progetto
+    context_object_name = 'progetto'
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(ProgettoView, self).get_context_data(**kwargs)
+        context['durata_progetto'] = self.object.data_fine_prevista - self.object.data_inizio_prevista if self.object.data_fine_prevista and self.object.data_inizio_prevista else ''
+
+        return context
+
+    def get_object(self, queryset=None):
+        return Progetto.objects.get(codice_locale=self.kwargs.get('slug'))
 
 class TipologiaView(AggregatoView, DetailView):
     # raise Exception("Class TipologiaView needs to be implemented")

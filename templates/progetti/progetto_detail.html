@@ -1,0 +1,90 @@
+{% extends 'base_two_columns.html' %}
+
+{% block content %}
+
+  <header>
+    <h2>{{ progetto.codice_locale }}</h2>
+    <h1>{{ progetto.titolo_progetto }}</h1>
+  </header>
+
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+    Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+    Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+  </p>
+
+  <h3>Priorità quadro strategico nazionale (QSN)</h3>
+  <p>
+    {{ progetto.classificazione_qsn.descrizione }}
+  </p>
+
+  <h3>Obiettivo generale QSN</h3>
+  <p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+    Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+  </p>
+
+  <h3>Obiettivo specifico QSN</h3>
+  <p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+    Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+  </p>
+
+{% endblock %}
+
+{% block sidebar %}
+  <section>
+    <h1 class="title"><span>Finanziamento</span></h1>
+  </section>
+
+  <section>
+    <h1 class="title"><span>Soggetti</span></h1>
+  </section>
+
+  <section>
+    <h1 class="title"><span>Tempi</span></h1>
+    <dl>
+      <dd>Inizio</dd>
+      <dt>{{ progetto.data_inizio_prevista }}</dt>
+
+      <dd>Fine</dd>
+      <dt>{{ progetto.data_fine_prevista }}</dt>
+
+      <dd>Durata</dd>
+      <dt>{{ durata_progetto }}</dt>
+
+      <dd>Fine</dd>
+      <dt>{{ progetto.data_fine_prevista }}</dt>
+    </dl>
+  </section>
+
+
+{% endblock %}
+
+{% block subcontainer %}
+  <div class="area">
+    <div class="container">
+      <div class="row">
+        <div class="span6">
+          <h1 class="title"><span>Stesso tema</span></h1>
+        </div>
+        <div class="span6">
+          <h1 class="title"><span>Stesso destinatario</span></h1>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span6">
+          <h1 class="title"><span>Stessa tipologia</span></h1>
+        </div>
+        <div class="span6">
+          <h1 class="title"><span>Stessi realizzatori</span></h1>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
