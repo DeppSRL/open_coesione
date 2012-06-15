@@ -2,7 +2,7 @@
 
 from django.db import models
 from model_utils import Choices
-from open_coesione.managers import ProgettiManager
+from progetti.managers import ProgettiManager, TemiManager
 
 
 class ClassificazioneQSN(models.Model):
@@ -74,6 +74,8 @@ class Tema(models.Model):
     descrizione = models.TextField()
     tipo_tema = models.CharField(max_length=16, choices=TIPO)
 
+    objects = TemiManager()
+
     @property
     def temi_figli(self):
         return self.tema_set
@@ -82,13 +84,35 @@ class Tema(models.Model):
     def progetti(self):
         return self.progetto_set
 
-    def costo_totale(self):
-        return sum(
-            # la somma dei costi totali dei temi figli
-            [sottotema.costo_totale() for sottotema in self.temi_figli.all()],
-            # partendo dal costo dei progetti in questo tema
-            self.progetti.aggregate(total=models.Sum('costo'))['total'] or 0
-        )
+    def is_principale(self):
+        return self.tipo_tema == Tema.TIPO.sintetico
+
+    def costo_totale(self, territorio=None ):
+        if self.is_principale():
+            prefix = 'progetto_set__'
+            query_set = self.temi_figli
+        else:
+            prefix = ''
+            query_set = self.progetti
+
+        if territorio:
+            query_set = query_set.filter( **territorio.get_cod_dict('{0}territorio_set__'.format(prefix) ) )
+
+        return query_set.aggregate(totale=models.Sum('{0}costo'.format(prefix)) )['totale'] or 0.0
+
+#        query_set = self.temi_figli if not territorio \
+#                    else self.temi_figli.filter(**territorio.get_cod_dict('progetto_set__territorio_set__'))
+#        return (
+#            query_set.aggregate(totale=models.Sum('progetto_set__costo'))['totale']
+#            if self.is_principale else self.progetti.aggregate(totale=models.Sum('costo') )['totale']
+#        ) or 0.0
+
+#        return sum(
+#            # la somma dei costi totali dei temi figli
+#            [sottotema.costo_totale() for sottotema in self.temi_figli.all()],
+#            # partendo dal costo dei progetti in questo tema
+#            self.progetti.aggregate(total=models.Sum('costo'))['total'] or 0
+#        )
 
 
     def __unicode__(self):
@@ -180,14 +204,6 @@ class ClassificazioneOggetto(models.Model):
     @property
     def progetti(self):
         return self.progetto_set
-
-    def costo_totale(self):
-        return sum(
-            # la somma dei costi totali dei temi figli
-            [sottotipologia.costo_totale() for sottotipologia in self.classificazioni_figlie.all()],
-            # partendo dal costo dei progetti in questo tema
-            self.progetti.aggregate(total=models.Sum('costo'))['total'] or 0
-        )
 
     def __unicode__(self):
         return u'%s %s' % (self.codice, self.descrizione)
@@ -322,6 +338,13 @@ class Progetto(models.Model):
 
     def __unicode__(self):
         return self.codice_locale
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('progetti_progetto', (), {
+            # TODO il progetto non ha uno slug
+            'slug': self.codice_locale
+        })
 
     class Meta:
         verbose_name_plural = "Progetti"

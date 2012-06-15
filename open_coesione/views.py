@@ -22,7 +22,7 @@ class HomeView(AggregatoView, TemplateView):
         cost_payment_ratio = context['total_cost_paid'] / context['total_cost']
         context['cost_payments_ratio'] = "%d%%" % int(cost_payment_ratio * 100)
 
-        context['temi_principali'] = Tema.objects.filter(tema_superiore=None)
+        context['temi_principali'] = Tema.objects.principali()
 
         tipologie = dict(Progetto.TIPO_OPERAZIONE)
         context['tipologie_principali'] = [

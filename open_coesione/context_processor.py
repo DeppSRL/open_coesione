@@ -1,4 +1,5 @@
 from django.conf import settings
+from territori.models import Territorio
 
 def main_settings(request):
     """
@@ -8,4 +9,6 @@ def main_settings(request):
     return {
         'DEBUG': settings.DEBUG,
         'STATIC_URL': settings.STATIC_URL,
+
+        'lista_regioni': Territorio.objects.filter(territorio= Territorio.TERRITORIO.R),
     }
