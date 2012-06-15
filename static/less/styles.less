@@ -14,9 +14,12 @@ a {
 
 #main {
   h1, h2, h3, h4 { text-transform: uppercase; }
+  header h1 { text-transform: none; }
 }
 
 .bg-gray { background-color: @grayLighter; }
+
+#sidebar { .bg-gray; }
 
 .navbar-full-width {
   margin-bottom: 0;
@@ -129,20 +132,13 @@ section h1.title {
 
   font-weight: bold;
   text-transform: uppercase;
-  //display: inline;
 
   margin-bottom: 8px;
-
-  //.clearfix();
-
-  /*&.title-block {
-    display: block;
-  }*/
 }
 
 // sections with common colored background
 .area {
-  background-color: @grayLighter;
+  .bg-gray;
 
   // override highlight for section's titles
   h1.title span, h1.title div {
@@ -236,11 +232,11 @@ section h1.title {
 // edit tabbable to show two tabs label hover tab contents container
 .tabbable.boxed {
 
+  .bg-gray;
+
   .content {
     padding: 10px;
   }
-
-  background-color: @grayLighter;
 
   h1.title { margin-bottom: 0; }
 
@@ -278,5 +274,23 @@ ul.spaced {
 
   li {
     margin-bottom: 10px;
+  }
+}
+
+
+// Highcharts customizations
+.highcharts-container { overflow: visible !important }
+
+#index_charts {
+  margin-top: 10px; margin-bottom: 10px;
+  h1, h2 { line-height: 20px; }
+  h1 { font-size: 14px; color: @grayDark; margin-top: 10px; margin-bottom: 10px;  }
+  h2 {
+    .bg-gray;
+    font-size: 12px;
+    padding: 4px 10px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    i { font-size: 16px; }
   }
 }

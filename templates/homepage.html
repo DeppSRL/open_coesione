@@ -19,14 +19,15 @@
         renderTo: 'container',
         plotBackgroundColor: null,
         plotBorderWidth: null,
-        plotShadow: false
+        plotShadow: false,
+        backgroundColor: 'transparent'
       },
       title: {
         text: ''
       },
       tooltip: {
         formatter: function() {
-          return '<b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +' %';
+          return '<div class="tooltip_container"><b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +' %</div>';
         },
         useHTML: true
       },
@@ -46,7 +47,8 @@
 
         }
       },
-      series: []
+      series: [],
+      credits: { enabled: false }
     };
 
     $(document).ready(function() {
