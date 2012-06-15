@@ -1,20 +1,51 @@
 # -*- coding: utf-8 -*-
-from decimal import Decimal
-import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import DatabaseError
-from os import path
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
-from optparse import make_option
 
+from os import path
+from optparse import make_option
+from decimal import Decimal
+import re
 import csv
 import logging
-
+import datetime
+import codecs
 
 from progetti.models import *
+from soggetti.models import *
 from territori.models import Territorio
 
+class UTF8Recoder:
+    """
+    Iterator that reads an encoded stream and reencodes the input to UTF-8
+    """
+    def __init__(self, f, encoding):
+        self.reader = codecs.getreader(encoding)(f)
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        return self.reader.next().encode("utf-8")
+
+class UnicodeDictReader:
+    """
+    A CSV reader which will iterate over lines in the CSV file "f",
+    which is encoded in the given encoding.
+    """
+
+    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+        f = UTF8Recoder(f, encoding)
+        self.reader = csv.DictReader(f, dialect=dialect, **kwds)
+
+    def next(self):
+        row = self.reader.next()
+        return dict((k, unicode(s, "utf-8")) for k, s in row.iteritems())
+
+    def __iter__(self):
+        return self
 
 class Command(BaseCommand):
     """
@@ -48,24 +79,41 @@ class Command(BaseCommand):
         make_option('--delete',
                     dest='delete',
                     action='store_true',
-                    help='Delete project records, before importing'),
+                    help='Delete records, before importing new'),
+        make_option('--encoding',
+                    dest='encoding',
+                    default='iso-8859-1',
+                    help='set character encoding of input file')
     )
 
     csv_file = ''
+    encoding = 'iso-8859-1'
     logger = logging.getLogger('csvimport')
-    reader = None
+    unicode_reader = None
 
     def handle(self, *args, **options):
         self.csv_file = options['csvfile']
 
         # read first csv file
         try:
-            self.reader = csv.DictReader(open(self.csv_file, 'U'), delimiter=';', )
+            self.unicode_reader = UnicodeDictReader(open(self.csv_file, 'rb'), delimiter=';', encoding=self.encoding)
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.csv_file)
             exit(1)
         except csv.Error, e:
             self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
+
+        self.encoding = options['encoding']
+
+        verbosity = options['verbosity']
+        if verbosity == '0':
+            self.logger.setLevel(logging.ERROR)
+        elif verbosity == '1':
+            self.logger.setLevel(logging.WARNING)
+        elif verbosity == '2':
+            self.logger.setLevel(logging.INFO)
+        elif verbosity == '3':
+            self.logger.setLevel(logging.DEBUG)
 
         if options['type'] == 'proj':
             self.handle_proj(*args, **options)
@@ -89,7 +137,8 @@ class Command(BaseCommand):
             self.logger.info("Oggetti rimossi")
 
 
-        for c, r in enumerate(self.reader):
+        for r in self.unicode_reader:
+            c = self.unicode_reader.reader.line_num
             if c < int(options['offset']):
                 continue
 
@@ -134,50 +183,58 @@ class Command(BaseCommand):
             self.logger.info("Oggetti rimossi")
 
 
-        for c, r in enumerate(self.reader):
+        for r in self.unicode_reader:
+            c = self.unicode_reader.reader.line_num
             if c < int(options['offset']):
                 continue
 
-            tipo_territorio = r['dps_territorio']
+
+            if int(options['limit']) and\
+               (c - int(options['offset']) > int(options['limit'])):
+                break
+
+            tipo_territorio = r['DPS_TERRITORIO_PROG']
 
             if tipo_territorio == Territorio.TERRITORIO.R:
                 territorio = Territorio.objects.get(
-                    cod_reg=int(r['CODICE_REGIONE']),
+                    cod_reg=int(r['PROG_COD_REGIONE']),
                     territorio=Territorio.TERRITORIO.R,
                 )
             elif tipo_territorio == 'P':
                 territorio = Territorio.objects.get(
-                    cod_reg=int(r['CODICE_REGIONE']),
-                    cod_prov=int(r['CODICE_PROVINCIA']),
+                    cod_reg=int(r['PROG_COD_REGIONE']),
+                    cod_prov=int(r['PROG_COD_PROVINCIA']),
                     territorio=Territorio.TERRITORIO.P,
                 )
             elif tipo_territorio == 'C':
                 try:
                     territorio = Territorio.objects.get(
-                        cod_reg=int(r['CODICE_REGIONE']),
-                        cod_prov=int(r['CODICE_PROVINCIA']),
-                        cod_com="%s%s" % (int(r['CODICE_PROVINCIA']), r['CODICE_COMUNE']),
+                        cod_reg=int(r['PROG_COD_REGIONE']),
+                        cod_prov=int(r['PROG_COD_PROVINCIA']),
+                        cod_com="%s%s" % (int(r['PROG_COD_PROVINCIA']), r['PROG_COD_COMUNE']),
                         territorio=Territorio.TERRITORIO.C,
                     )
                 except Territorio.DoesNotExist as e:
-                    self.logger.warning("%s: %s-%s-%s [%s]" % (r['DENOMINAZIONE_COMUNE'],r['CODICE_REGIONE'],r['CODICE_PROVINCIA'],r['CODICE_COMUNE'],r['COD_LOCALE_PROGETTO']))
+                    self.logger.warning("Comune non trovato. %s: %s-%s-%s [%s]" % (r['PROG_DEN_COMUNE'],r['PROG_DEN_REGIONE'],r['PROG_COD_PROVINCIA'],r['PROG_COD_COMUNE'],r['COD_LOCALE_PROGETTO']))
                     continue
             elif tipo_territorio in ('E', 'N'):
                 # territorio estero o nazionale
                 # get_or_create, perché non sono in Territorio di default
                 created = False
-                codice_territorio = int(r['CODICE_REGIONE'])
+                codice_territorio = int(r['PROG_COD_REGIONE'])
                 territorio, created = Territorio.objects.get_or_create(
                     cod_reg=codice_territorio,
                     cod_prov=0,
                     cod_com=0,
                     territorio=tipo_territorio,
                     defaults={
-                        'denominazione': r['DENOMINAZIONE_REGIONE']
+                        'denominazione': r['PROG_DEN_REGIONE']
                     }
                 )
                 if created:
                     self.logger.info("Aggiunto territorio di tipo %s: %s" % (tipo_territorio, territorio.denominazione))
+                else:
+                    self.logger.debug("Trovato territorio di tipo %s: %s" % (tipo_territorio, territorio.denominazione))
             else:
                 self.logger.warning('Tipo di territorio sconosciuto o errato %s. Skip.' % (tipo_territorio,))
                 continue
@@ -185,10 +242,9 @@ class Command(BaseCommand):
             # codice locale progetto (ID del record)
             try:
                 progetto = Progetto.objects.get(pk=r['COD_LOCALE_PROGETTO'])
-                self.logger.debug("%s - Progetto: %s" % (c, progetto.codice_locale))
             except ObjectDoesNotExist:
                 progetto = None
-                self.logger.warning("%s - Progetto non trovato: %s" % (c, r['COD_LOCALE_PROGETTO']))
+                self.logger.warning("Progetto non trovato: %s" % (r['COD_LOCALE_PROGETTO']))
 
             if progetto:
                 created = False
@@ -196,13 +252,15 @@ class Command(BaseCommand):
                     territorio=territorio,
                     progetto = progetto,
                     defaults={
-                        'indirizzo': r['INDIRIZZO'].strip(),
-                        'cap': r['COD_CAP'].strip(),
-                        'dps_flag_cap': r['dps_flag_cap']
+                        'indirizzo': r['INDIRIZZO_PROG'].strip(),
+                        'cap': r['CAP_PROG'].strip(),
+                        'dps_flag_cap': r['DPS_FLAG_CAP_PROG']
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunta localizzazione progetto: %s" % (localizzazione,))
+                    self.logger.info("%d - Aggiunta localizzazione progetto: %s" % (c, localizzazione,))
+                else:
+                    self.logger.debug("%d - Trovata localizzazione progetto: %s" % (c, localizzazione,))
 
             if int(options['limit']) and\
                (c - int(options['offset']) > int(options['limit'])):
@@ -227,89 +285,97 @@ class Command(BaseCommand):
             self.logger.info("Oggetti rimossi")
 
 
-        for c, r in enumerate(self.reader):
+        for r in self.unicode_reader:
+            c = self.unicode_reader.reader.line_num - 1
             if c < int(options['offset']):
                 continue
+
+            if int(options['limit']) and\
+               (c - int(options['offset']) > int(options['limit'])):
+                break
 
             # codice locale (ID del record)
             codice_locale = r['COD_LOCALE_PROGETTO']
 
-
             # classificazione QSN
-            if r['COD_PRIORITA_QSN'].strip():
+            if r['QSN_COD_PRIORITA'].strip():
                 created = False
-                codice_priorita_qsn = r['COD_PRIORITA_QSN']
-                priorita_qsn, created = ClassificazioneQSN.objects.get_or_create(
-                    codice=codice_priorita_qsn,
+                qsn_codice_priorita = r['QSN_COD_PRIORITA']
+                qsn_priorita, created = ClassificazioneQSN.objects.get_or_create(
+                    codice=qsn_codice_priorita,
                     tipo_classificazione=ClassificazioneQSN.TIPO.priorita,
                     defaults={
-                        'descrizione': r['DESCRIZIONE_PRIORITA_QSN']
+                        'descrizione': r['QSN_DESCRIZIONE_PRIORITA']
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunta priorità QSN: %s" % priorita_qsn.codice)
+                    self.logger.info(u"Aggiunta priorità QSN: %s" % qsn_priorita.codice)
 
                 created = False
-                obiettivo_generale_qsn, created = ClassificazioneQSN.objects.get_or_create(
-                    codice=r['COD_OBIETTIVO_GENERALE_QSN'],
+                qsn_obiettivo_generale, created = ClassificazioneQSN.objects.get_or_create(
+                    codice=r['QSN_COD_OBIETTIVO_GENERALE'],
                     tipo_classificazione=ClassificazioneQSN.TIPO.generale,
                     defaults={
-                        'descrizione': r['DESCR_OBIETTIVO_GENERALE_QSN'],
-                        'classificazione_superiore': priorita_qsn
+                        'descrizione': r['QSN_DESCR_OBIETTIVO_GENERALE'],
+                        'classificazione_superiore': qsn_priorita
                     }
                 )
                 if created:
                     self.logger.info("Aggiunto obiettivo generale QSN: %s (%s)" %
-                                      (obiettivo_generale_qsn.codice, priorita_qsn.codice))
+                                      (qsn_obiettivo_generale.codice, qsn_priorita.codice))
 
                 created = False
-                obiettivo_specifico_qsn, created = ClassificazioneQSN.objects.get_or_create(
-                    codice=r['CODICE_OBIETTIVO_SPECIFICO_QSN'],
+                qsn_obiettivo_specifico, created = ClassificazioneQSN.objects.get_or_create(
+                    codice=r['QSN_CODICE_OBIETTIVO_SPECIFICO'],
                     tipo_classificazione=ClassificazioneQSN.TIPO.specifico,
                     defaults={
-                        'descrizione': r['DESCR_OBIETTIVO_SPECIFICO_QSN'],
-                        'classificazione_superiore': obiettivo_generale_qsn
+                        'descrizione': r['QSN_DESCR_OBIETTIVO_SPECIFICO'],
+                        'classificazione_superiore': qsn_obiettivo_generale
                     }
                 )
                 if created:
                     self.logger.info("Aggiunto obiettivo specifico QSN: %s (%s - %s)" %
-                                      (obiettivo_specifico_qsn.codice, obiettivo_generale_qsn.codice, priorita_qsn.codice))
+                                      (qsn_obiettivo_specifico.codice, qsn_obiettivo_generale.codice, qsn_priorita.codice))
+                else:
+                    self.logger.debug("Trovato obiettivo specifico QSN: %s (%s - %s)" %
+                                     (qsn_obiettivo_specifico.codice, qsn_obiettivo_generale.codice, qsn_priorita.codice))
             else:
-                obiettivo_specifico_qsn = None
+                qsn_obiettivo_specifico = None
 
-            # status
-            stato_fs = r['STATO_FS'] if r['STATO_FS'].strip() else None
-            stato_fsc = r['STATO_FSC'] if r['STATO_FSC'].strip() else None
-            stato_dps = r['DPS_STATO'] if r['DPS_STATO'].strip() else None
 
             # obiettivo sviluppo
-            if r['OBIETTIVO_SVILUPPO'].strip():
+            field = re.sub(' +',' ',r['QSN_AREA_OBIETTIVO_UE'].encode('ascii', 'ignore')).strip()
+            if field :
                 try:
-                    obiettivo_sviluppo = [k for k, v in dict(Progetto.OBIETTIVO_SVILUPPO).iteritems() if v == r['OBIETTIVO_SVILUPPO']][0]
+                    obiettivo_sviluppo = [k for k, v in dict(Progetto.OBIETTIVO_SVILUPPO).iteritems() if v.encode('ascii', 'ignore') == field][0]
+                    self.logger.debug("Trovato obiettivo sviluppo: %s" % obiettivo_sviluppo)
                 except IndexError as e:
-                    self.logger.error("While reading obiettivo sviluppo %s in %s. %s" % (r['OBIETTIVO_SVILUPPO'], codice_locale, e))
+                    self.logger.error("Could not find  obiettivo sviluppo %s in %s." % (field, codice_locale))
                     continue
             else:
                 obiettivo_sviluppo = ''
 
+
             # fondo comunitario
-            if r['FONDO_COMUNITARIO'].strip():
+            if r['QSN_FONDO_COMUNITARIO'].strip():
                 try:
-                    fondo_comunitario = [k for k, v in dict(Progetto.FONDO_COMUNITARIO).iteritems() if v == r['FONDO_COMUNITARIO']][0]
+                    fondo_comunitario = [k for k, v in dict(Progetto.FONDO_COMUNITARIO).iteritems() if v == r['QSN_FONDO_COMUNITARIO']][0]
+                    self.logger.debug("Trovato fondo comunitario: %s" % fondo_comunitario)
                 except IndexError as e:
-                    self.logger.error("While reading fondo comunitario %s in %s. %s" % (r['FONDO_COMUNITARIO'], codice_locale, e))
+                    self.logger.error("While reading fondo comunitario %s in %s. %s" % (r['QSN_FONDO_COMUNITARIO'], codice_locale, e))
                     continue
             else:
                 fondo_comunitario = None
+
 
             # programma, asse, obiettivo
             try:
                 created = False
                 programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
-                    codice=r['COD_PROGRAMMA_FS'],
+                    codice=r['DPS_CODICE_PROGRAMMA'],
                     tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma,
                     defaults={
-                        'descrizione':r['DPS_DESCRIZIONE_PROGRAMMA'].decode('iso-8859-1')
+                        'descrizione':r['DPS_DESCRIZIONE_PROGRAMMA']
                     }
                 )
                 if created:
@@ -317,10 +383,10 @@ class Command(BaseCommand):
 
                 created = False
                 programma_asse, created = ProgrammaAsseObiettivo.objects.get_or_create(
-                    codice="%s/%s" % (r['COD_PROGRAMMA_FS'], r['CODICE_ASSE']),
+                    codice="%s/%s" % (r['DPS_CODICE_PROGRAMMA'], r['PO_CODICE_ASSE']),
                     tipo_classificazione=ProgrammaAsseObiettivo.TIPO.asse,
                     defaults={
-                        'descrizione':r['DENOMINAZIONE_ASSE'],
+                        'descrizione':r['PO_DENOMINAZIONE_ASSE'],
                         'classificazione_superiore': programma
                     }
                 )
@@ -329,39 +395,39 @@ class Command(BaseCommand):
 
                 created = False
                 programma_asse_obiettivo, created = ProgrammaAsseObiettivo.objects.get_or_create(
-                    codice="%s/%s/%s" % (r['COD_PROGRAMMA_FS'], r['CODICE_ASSE'], r['COD_OBIETTIVO_OPERATIVO']),
+                    codice="%s/%s/%s" % (r['DPS_CODICE_PROGRAMMA'], r['PO_CODICE_ASSE'], r['PO_COD_OBIETTIVO_OPERATIVO']),
                     tipo_classificazione=ProgrammaAsseObiettivo.TIPO.obiettivo,
                     defaults={
-                        'descrizione':r['OBIETTIVO_OPERATIVO'],
+                        'descrizione':r['PO_OBIETTIVO_OPERATIVO'],
                         'classificazione_superiore': programma_asse
                     }
                 )
                 if created:
                     self.logger.debug("Aggiunto obiettivo: %s" % (programma_asse_obiettivo.codice,))
+                else:
+                    self.logger.debug("Trovato obiettivo: %s" % (programma_asse_obiettivo.codice,))
+
 
             except DatabaseError as e:
                 self.logger.error("In fetch di programma-asse-obiettivo per codice locale:%s. %s" % (codice_locale, e))
                 continue
 
-            # data ultimo aggiornamento progetto
-            if r['DATA_AGGIORNAMENTO'].strip():
-                data_aggiornamento = datetime.datetime.strptime(r['DATA_AGGIORNAMENTO'], '%m/%Y')
-            else:
-                data_aggiornamento = None
-
-            # tipo operazione
-            if r['COD_TIPO_OPERAZIONE'].strip():
-                tipo_operazione = r['COD_TIPO_OPERAZIONE']
-            else:
-                self.logger.warning("Empty tipo operazione in %s" % (codice_locale,))
-                tipo_operazione = None
-
             # tema
             try:
-                tema_sintetico = Tema.objects.get(
+                created = False
+                tema_sintetico, created = Tema.objects.get_or_create(
                     descrizione=r['DPS_TEMA_SINTETICO'],
                     tipo_tema=Tema.TIPO.sintetico,
+                    defaults={
+                        'codice': 1 + Tema.objects.filter(tema_superiore__isnull=True).count(),
+                    }
                 )
+
+                if created:
+                    self.logger.info("Aggiunto tema sintetico: %s" % (tema_sintetico,))
+                else:
+                    self.logger.debug("Trovato tema sintetico: %s" % (tema_sintetico,))
+
             except ObjectDoesNotExist as e:
                 self.logger.error("While reading tema sintetico %s in %s. %s" % (r['DPS_TEMA_SINTETICO'], codice_locale, e))
                 continue
@@ -369,64 +435,71 @@ class Command(BaseCommand):
             try:
                 created = False
                 tema_prioritario, created = Tema.objects.get_or_create(
-                    codice="%s.%s" % (tema_sintetico.codice, r['COD_TEMA_PRIORITARIO']),
+                    codice="%s.%s" % (tema_sintetico.codice, r['QSN_COD_TEMA_PRIORITARIO_UE']),
                     tipo_tema=Tema.TIPO.prioritario,
                     defaults={
-                        'descrizione': r['DESCR_TEMA_PRIORITARIO'],
+                        'descrizione': r['QSN_DESCR_TEMA_PRIORITARIO_UE'],
                         'tema_superiore': tema_sintetico,
                     }
                 )
                 if created:
                     self.logger.info("Aggiunto tema: %s" % (tema_prioritario.codice,))
+                else:
+                    self.logger.debug("Trovato tema: %s" % (tema_prioritario.codice,))
 
             except DatabaseError as e:
                 self.logger.error("In fetch di tema prioritario %s per codice locale:%s. %s" %
-                             (r['COD_TEMA_PRIORITARIO'], codice_locale, e))
+                             (r['QSN_COD_TEMA_PRIORITARIO_UE'], codice_locale, e))
                 continue
 
 
-            # intesa (strumento attuatore per fondi FSC ex-FAS)
+            # fonte
             try:
                 created = False
-                intesa, created = Intesa.objects.get_or_create(
-                    codice="%s" % (r['COD_INTESA']),
+                fonte, created = Fonte.objects.get_or_create(
+                    codice="%s" % (r['DPS_COD_FONTE']),
                     defaults={
-                        'descrizione': r['DESCRIZIONE_INTESA'],
+                        'descrizione': r['DPS_DESCR_FONTE'],
                         }
                 )
                 if created:
-                    self.logger.info("Aggiunta intesa: %s" % (intesa,))
+                    self.logger.info("Aggiunta fonte: %s" % (fonte,))
+                else:
+                    self.logger.debug("Trovata fonte: %s" % (fonte,))
 
             except DatabaseError as e:
-                self.logger.error("In fetch di intesa %s per codice locale:%s. %s" %
-                             (r['COD_INTESA'], codice_locale, e))
+                self.logger.error("In fetch della fonte %s per codice locale:%s. %s" %
+                             (r['DPS_COD_FONTE'], codice_locale, e))
                 continue
-
 
             # classificazione azione
             try:
                 created = False
                 natura, created = ClassificazioneAzione.objects.get_or_create(
-                    codice=r['COD_NATURA'],
+                    codice=r['CUP_COD_NATURA'],
                     tipo_classificazione=ClassificazioneAzione.TIPO.natura,
                     defaults={
-                        'descrizione':r['DESCR_NATURA']
+                        'descrizione':r['CUP_DESCR_NATURA']
                     }
                 )
                 if created:
                     self.logger.info("Aggiunta classificazione azione natura: %s" % (natura.codice,))
+                else:
+                    self.logger.debug("Trovata classificazione azione natura: %s" % (natura.codice,))
 
                 created = False
                 natura_tipologia, created = ClassificazioneAzione.objects.get_or_create(
-                    codice="%s.%s" % (r['COD_NATURA'], r['COD_TIPOLOGIA']),
+                    codice="%s.%s" % (r['CUP_COD_NATURA'], r['CUP_COD_TIPOLOGIA']),
                     tipo_classificazione=ClassificazioneAzione.TIPO.tipologia,
                     defaults={
-                        'descrizione':r['DESCR_TIPOLOGIA'],
+                        'descrizione':r['CUP_DESCR_TIPOLOGIA'],
                         'classificazione_superiore': natura
                     }
                 )
                 if created:
                     self.logger.info("Aggiunta classificazione azione natura_tipologia: %s" % (natura_tipologia.codice,))
+                else:
+                    self.logger.debug("Trovata classificazione azione natura_tipologia: %s" % (natura_tipologia.codice,))
 
 
             except DatabaseError as e:
@@ -437,10 +510,10 @@ class Command(BaseCommand):
             try:
                 created = False
                 settore, created = ClassificazioneOggetto.objects.get_or_create(
-                    codice=r['COD_SETTORE'],
+                    codice=r['CUP_COD_SETTORE'],
                     tipo_classificazione=ClassificazioneOggetto.TIPO.settore,
                     defaults={
-                        'descrizione':r['DESCR_SETTORE']
+                        'descrizione':r['CUP_DESCR_SETTORE']
                     }
                 )
                 if created:
@@ -448,29 +521,35 @@ class Command(BaseCommand):
 
                 created = False
                 settore_sottosettore, created = ClassificazioneOggetto.objects.get_or_create(
-                    codice="%s.%s" % (r['COD_SETTORE'], r['COD_SOTTOSETTORE']),
+                    codice="%s.%s" % (r['CUP_COD_SETTORE'], r['CUP_COD_SOTTOSETTORE']),
                     tipo_classificazione=ClassificazioneOggetto.TIPO.sottosettore,
                     defaults={
-                        'descrizione':r['DESCR_SOTTOSETTORE'],
+                        'descrizione':r['CUP_DESCR_SOTTOSETTORE'],
                         'classificazione_superiore': settore
                     }
                 )
                 if created:
                     self.logger.info("Aggiunta classificazione oggetto settore_sottosettore: %s" %
                                 (settore_sottosettore.codice,))
+                else:
+                    self.logger.debug("Trovata classificazione oggetto settore_sottosettore: %s" %
+                                     (settore_sottosettore.codice,))
 
                 created = False
                 settore_sottosettore_categoria, created = ClassificazioneOggetto.objects.get_or_create(
-                    codice="%s.%s.%s" % (r['COD_SETTORE'], r['COD_SOTTOSETTORE'], r['COD_CATEGORIA']),
+                    codice="%s.%s.%s" % (r['CUP_COD_SETTORE'], r['CUP_COD_SOTTOSETTORE'], r['CUP_COD_CATEGORIA']),
                     tipo_classificazione=ClassificazioneOggetto.TIPO.categoria,
                     defaults={
-                        'descrizione':r['DESCR_CATEGORIA'],
+                        'descrizione':r['CUP_DESCR_CATEGORIA'],
                         'classificazione_superiore': settore_sottosettore
                     }
                 )
                 if created:
                     self.logger.info("Aggiunta classificazione oggetto settore_sottosettore_categoria: %s" %
                                 (settore_sottosettore_categoria.codice,))
+                else:
+                    self.logger.debug("Trovata classificazione oggetto settore_sottosettore_categoria: %s" %
+                                     (settore_sottosettore_categoria.codice,))
 
             except DatabaseError as e:
                 self.logger.error("In fetch di settore-sottosettore-categoria per codice locale:%s. %s" %
@@ -478,8 +557,8 @@ class Command(BaseCommand):
                 continue
 
             # totale finanziamento
-            fin_totale = Decimal(r['FINANZ_TOTALE'].replace(',','.')) if r['FINANZ_TOTALE'].strip() else None
-            fin_totale_pubblico = Decimal(r['FINANZ_TOTALE_PUBBLICO'].replace(',','.')) if r['FINANZ_TOTALE_PUBBLICO'].strip() else None
+            # fin_totale = Decimal(r['FINANZ_TOTALE'].replace(',','.')) if r['FINANZ_TOTALE'].strip() else None
+            fin_totale_pubblico = Decimal(r['DPS_TOT_FINANZ_PUBBLICO'].replace(',','.')) if r['DPS_TOT_FINANZ_PUBBLICO'].strip() else None
 
             fin_ue = Decimal(r['FINANZ_UE'].replace(',','.')) if r['FINANZ_UE'].strip() else None
             fin_stato_fondo_rotazione = Decimal(r['FINANZ_Stato_Fondo_di_Rotazione'].replace(',','.')) if r['FINANZ_Stato_Fondo_di_Rotazione'].strip() else None
@@ -493,11 +572,11 @@ class Command(BaseCommand):
             fin_privato = Decimal(r['FINANZ_Privato'].replace(',','.')) if r['FINANZ_Privato'].strip() else None
             fin_da_reperire = Decimal(r['FINANZ_Da_reperire'].replace(',','.')) if r['FINANZ_Da_reperire'].strip() else None
 
-            costo = Decimal(r['COSTO'].replace(',','.')) if r['COSTO'].strip() else None
-            costo_ammesso = Decimal(r['COSTO_AMMESSO'].replace(',','.')) if r['COSTO_AMMESSO'].strip() else None
-            pagamento = Decimal(r['PAGAMENTO'].replace(',','.')) if r['PAGAMENTO'].strip() else None
-            pagamento_fsc = Decimal(r['PAGAMENTO_FSC'].replace(',','.')) if r['PAGAMENTO_FSC'].strip() else None
-            pagamento_ammesso = Decimal(r['PAGAMENTO_AMMESSO'].replace(',','.')) if r['PAGAMENTO_AMMESSO'].strip() else None
+            # costo = Decimal(r['COSTO'].replace(',','.')) if r['COSTO'].strip() else None
+            costo_ammesso = Decimal(r['COSTO_RENDICONTABILE_UE'].replace(',','.')) if r['COSTO_RENDICONTABILE_UE'].strip() else None
+            pagamento = Decimal(r['TOT_PAGAMENTI'].replace(',','.')) if r['TOT_PAGAMENTI'].strip() else None
+            # pagamento_fsc = Decimal(r['PAGAMENTO_FSC'].replace(',','.')) if r['PAGAMENTO_FSC'].strip() else None
+            pagamento_ammesso = Decimal(r['TOT_PAGAMENTI_RENDICONTABILI_UE'].replace(',','.')) if r['TOT_PAGAMENTI_RENDICONTABILI_UE'].strip() else None
 
             # date
             data_inizio_prevista = datetime.datetime.strptime(r['DATA_INIZIO_PREVISTA'], '%Y%m%d') if r['DATA_INIZIO_PREVISTA'].strip() else None
@@ -505,28 +584,28 @@ class Command(BaseCommand):
             data_inizio_effettiva = datetime.datetime.strptime(r['DATA_INIZIO_EFFETTIVA'], '%Y%m%d') if r['DATA_INIZIO_EFFETTIVA'].strip() else None
             data_fine_effettiva = datetime.datetime.strptime(r['DATA_FINE_EFFETTIVA'], '%Y%m%d') if r['DATA_FINE_EFFETTIVA'].strip() else None
 
+            # data ultimo aggiornamento progetto
+            data_aggiornamento = datetime.datetime.strptime(r['DATA_AGGIORNAMENTO'], '%m/%Y') if r['DATA_AGGIORNAMENTO'].strip() else None
+            data_inizio_info = int(r['DATA_INIZIO_INFO']) if r['DATA_INIZIO_INFO'].strip() else None
 
             # progetto
             try:
                 p, created = Progetto.objects.get_or_create(
                     codice_locale=codice_locale,
                     defaults={
-                        'classificazione_qsn': obiettivo_specifico_qsn,
-                        'titolo_progetto': r['TITOLO_PROGETTO'],
+                        'classificazione_qsn': qsn_obiettivo_specifico,
+                        'titolo_progetto': r['DPS_TITOLO_PROGETTO'],
                         'cup': r['CUP'],
-                        'stato_fs': stato_fs,
-                        'stato_fsc': stato_fsc,
-                        'stato_dps': stato_dps,
                         'programma_asse_obiettivo': programma_asse_obiettivo,
-                        'data_aggiornamento': data_aggiornamento,
                         'obiettivo_sviluppo': obiettivo_sviluppo,
-                        'tipo_operazione': tipo_operazione,
+#                        'tipo_operazione': tipo_operazione,
                         'fondo_comunitario': fondo_comunitario,
                         'tema': tema_prioritario,
-                        'intesa_istituzionale': intesa,
+#                        'intesa_istituzionale': intesa,
+                        'fonte': fonte,
                         'classificazione_azione': natura_tipologia,
                         'classificazione_oggetto': settore_sottosettore_categoria,
-                        'fin_totale': fin_totale,
+#                        'fin_totale': fin_totale,
                         'fin_totale_pubblico': fin_totale_pubblico,
                         'fin_ue': fin_ue,
                         'fin_stato_fondo_rotazione': fin_stato_fondo_rotazione,
@@ -539,33 +618,33 @@ class Command(BaseCommand):
                         'fin_stato_estero': fin_stato_estero,
                         'fin_privato': fin_privato,
                         'fin_da_reperire': fin_da_reperire,
-                        'costo': costo,
+#                        'costo': costo,
                         'costo_ammesso': costo_ammesso,
                         'pagamento': pagamento,
-                        'pagamento_fsc': pagamento_fsc,
+#                        'pagamento_fsc': pagamento_fsc,
                         'pagamento_ammesso': pagamento_ammesso,
                         'data_inizio_prevista': data_inizio_prevista,
                         'data_fine_prevista': data_fine_prevista,
                         'data_inizio_effettiva': data_inizio_effettiva,
                         'data_fine_effettiva': data_fine_effettiva,
-                        'data_inizio_info': r['DATA_INIZIO_INFO'],
-                        'dps_date': r['DPS_DATE'],
-                        'dps_flag_date_previste': r['DPS_FLAG_DATE_PREVISTE'],
-                        'dps_flag_date_effettive': r['DPS_FLAG_DATE_EFFETTIVE'],
+                        'data_inizio_info': data_inizio_info,
+                        'data_aggiornamento': data_aggiornamento,
+                        'dps_flag_presenza_date': r['DPS_FLAG_PRESENZA_DATE'],
+                        'dps_flag_date_previste': r['DPS_FLAG_COERENZA_DATE_PREV'],
+                        'dps_flag_date_effettive': r['DPS_FLAG_COERENZA_DATE_EFF'],
                         'dps_flag_cup': r['DPS_FLAG_CUP'],
                     }
                 )
 
                 if created:
-                    self.logger.debug("%s: Creazione progetto nuovo: %s" % (c, p.codice_locale))
+                    self.logger.info("%s: Creazione progetto nuovo: %s" % (c, p.codice_locale))
+                else:
+                    self.logger.info("%s: Progetto trovato e non modificato: %s" % (c, p.codice_locale))
+
 
             except DatabaseError as e:
                 self.logger.error("Progetto %s: %s" % (r['COD_LOCALE_PROGETTO'], e))
                 continue
-
-            if int(options['limit']) and \
-               (c - int(options['offset']) > int(options['limit'])):
-                break
 
         self.logger.info("Fine")
 

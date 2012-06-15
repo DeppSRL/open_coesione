@@ -137,9 +137,11 @@ INSTALLED_APPS = (
     'progetti',
     'territori',
     'soggetti',
+    'open_coesione',
     'dynamic-content',
     # FeinCMS
-    'feincms', 'feincms.module.page',
+    'feincms',
+    'feincms.module.page',
     'feincms.module.medialibrary',
 )
 
@@ -181,8 +183,8 @@ LOGGING = {
             'level':'INFO',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': REPO_ROOT + "/log/logfile",
-            'maxBytes': 50000,
-            'backupCount': 2,
+            'maxBytes': 250000,
+            'backupCount': 10,
             'formatter': 'standard',
         },
         'mail_admins': {
