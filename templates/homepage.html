@@ -110,46 +110,40 @@
 
       <div class="span6 block-container">
 
-        <div class="block-green block-active">
+        <div class="block-chart block-active">
 
-          <div>
-            <h5>Costo complessivo dei progetti monitorati*</h5>
+          <strong class="title">Costo complessivo dei progetti monitorati*</strong>
 
-            <div class="bar-vertical"></div>
-            <p>{{ total_cost|intword }} <span>di euro</span></p>
-          </div>
+          <p>{{ total_cost|intword }} <span>di euro</span></p>
 
-        </div>
-
-        <div class="block-green">
-
-          <div>
-            <h5>Pagamenti effettuati per i progetti monitorati*</h5>
-
-            <div class="bar-vertical" title="{{ cost_payments_ratio }} del totale"><span style="height:{{ cost_payments_ratio }}"></span></div>
-            <p>{{ total_cost_paid|intword }} <span>di euro</span></p>
-          </div>
+          <div class="bar-vertical"></div>
 
         </div>
 
-        <div class="block-green">
-          <div>
-            <h5>Numero dei progetti monitorati*</h5>
+        <div class="block-chart" title="{{ cost_payments_ratio }} del totale">
 
-            <p>{{ total_projects|intcomma }}</p>
-          </div>
+          <strong class="title">Pagamenti effettuati per i progetti monitorati*</strong>
+
+          <p>{{ total_cost_paid|intword }} <span>di euro</span></p>
+
+          <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}"></span></div>
+
+        </div>
+
+        <div class="block-chart">
+
+          <strong class="title">Numero dei progetti monitorati*</strong>
+
+          <p>{{ total_projects|intcomma }}</p>
 
         </div>
 
       </div>
       <div>
 
-        <div class="block-gray pull-right">
-          <div>
-            <h5>Totale risorse stanziate*</h5>
-
-            <p>{{ total_allocated_resources|intword }} <span>di euro</span></p>
-          </div>
+        <div class="block-chart block-gray pull-right">
+          <strong class="title">Totale risorse stanziate*</strong>
+          <p>{{ total_allocated_resources|intword }} <span>di euro</span></p>
         </div>
 
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.

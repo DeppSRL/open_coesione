@@ -15,7 +15,21 @@ class ProgettoView(DetailView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(ProgettoView, self).get_context_data(**kwargs)
-        context['durata_progetto'] = self.object.data_fine_prevista - self.object.data_inizio_prevista if self.object.data_fine_prevista and self.object.data_inizio_prevista else ''
+        context['durata_progetto'] = (
+            self.object.data_fine_prevista - self.object.data_inizio_prevista
+            if self.object.data_fine_prevista and self.object.data_inizio_prevista
+            else ''
+        )
+
+        context['stesso_tema'] = Progetto.objects.con_tema(self.object.tema).nei_territori( self.object.territori )
+        context['stesso_tipologia'] = Progetto.objects.del_tipo(self.object.tipo_operazione).nei_territori( self.object.territori )
+        context['stessi_destinatari'] = Progetto.objects.con_tema(self.object.tema).nei_territori( self.object.territori )
+        context['stessi_realizzatori'] = Progetto.objects.con_tema(self.object.tema).nei_territori( self.object.territori )
+
+        # calcolo della percentuale del finanziamento erogato
+        context['percentuale_finanziamento'] = "{0:.0%}".format(
+            float(self.object.pagamento or 0) / float(self.object.fin_totale_pubblico or 0)
+        )
 
         return context
 
