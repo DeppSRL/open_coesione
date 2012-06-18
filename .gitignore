@@ -10,6 +10,5 @@ GIS/tiles
 *.sql
 sitestatic
 */migrations/*
-fabfile
 dati
 splitcsv2.py
