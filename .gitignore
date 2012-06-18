@@ -5,10 +5,11 @@ log/logfile*
 *.pot
 *.pyc
 */settings_*.py*
-dati
 media/medialibrary
 GIS/tiles
 *.sql
 sitestatic
 */migrations/*
 fabfile
+dati
+splitcsv2.py

@@ -1,6 +1,15 @@
 import csv, sys, codecs
-
 import locale
+
+"""
+Splits global CSV file for ISTAT indicators into many different CSV files suitable
+for usage within highcharts js library.
+Files are written in an outer path, and must be copied inside the static/csv path,
+in order to be harvested by the collectstatic command.
+
+TODO:
+This is a temporary solution and the complete flow must be improved.
+"""
 locale.setlocale(locale.LC_ALL, '')
 
 csvfile = 'dati/istat.csv'
