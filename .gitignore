@@ -11,3 +11,4 @@ GIS/tiles
 *.sql
 sitestatic
 */migrations/*
+fabfile
