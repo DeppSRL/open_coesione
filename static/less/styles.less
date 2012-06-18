@@ -6,12 +6,23 @@
 // CSS Reset
 @import "bootstrap/bootstrap.less";
 
+@import "blocks.less";
+
 a {
   font-weight: @linkWeight;
 }
 
+#main {
+  h1, h2, h3, h4 { text-transform: uppercase; }
+  header h1 { text-transform: none; }
+}
+
+.bg-gray { background-color: @grayLighter; }
+
+#sidebar { .bg-gray; }
+
 .navbar-full-width {
-  margin-bottom: 6px;
+  margin-bottom: 0;
 
   // remove rounded corners
   .navbar-inner {
@@ -121,26 +132,35 @@ section h1.title {
 
   font-weight: bold;
   text-transform: uppercase;
-  //display: inline;
 
   margin-bottom: 8px;
-
-  //.clearfix();
-
-  /*&.title-block {
-    display: block;
-  }*/
 }
 
 // sections with common colored background
 .area {
-  background-color: @grayLighter;
+  .bg-gray;
 
   // override highlight for section's titles
   h1.title span, h1.title div {
     color: @white;
     background-color: @grayDarker;
   }
+}
+
+#sidebar {
+  h1.title {
+    div, span {
+      color: @black;
+      background-color: @grayLight;
+    }
+  }
+
+  h2 {
+    font-size: 12px;
+    color: @grayDark;
+    line-height: 14px;
+  }
+
 }
 
 // custom main navbar
@@ -208,94 +228,15 @@ section h1.title {
 }
 
 
-// BLOCKS
-.block-container {
-  & > .block-green {
-    border-left: 1px solid @white;
-  }
-  .block-green, .block-gray { width: 32%; }
-}
-.block-green, .block-gray {
-
-  width: 150px;
-  float:left;
-
-  text-transform: uppercase;
-
-  > div {
-    padding: 5px;
-    position: relative;
-    min-height: 150px;
-
-    h5 {
-      font-size: 11px;
-      line-height: 12px;
-      min-height: 50px;
-    }
-
-    p {
-      font-size: 22px;
-      line-height: 24px;
-      font-weight: bold;
-      width: 50%;
-      position: absolute;
-      bottom:0;
-
-      span { white-space: nowrap; }
-    }
-  }
-
-  &.pull-right { float: right; }
-}
-
-.block-green {
-  background-color: @green;
-  color: @greenDark;
-
-  &.block-active, &:hover {
-    background-color: @greenDark;
-    color: @white;
-
-    .bar-vertical {
-      background-color: @green;
-    }
-  }
-}
-
-.block-gray {
-  background-color: @grayLighter;
-  color: @grayDarker;
-
-  &.block-active, &:hover {
-    #gradient > .vertical( @grayLighter, @brown );
-    //background-color: @grayDarker;
-    color: @white;
-  }
-}
-
-// block stats
-.bar-vertical {
-  width: 6px; height: 100px;
-  position:absolute;
-  right:5px; bottom:5px;
-  background-color: #70cabf;
-
-  & > span {
-    position: absolute;
-    bottom:0;
-    width: 100%;
-    #gradient > .vertical(darken(@greenDark, 5%), darken(@greenDark, 15%) );
-  }
-}
 
 // edit tabbable to show two tabs label hover tab contents container
 .tabbable.boxed {
 
+  .bg-gray;
+
   .content {
     padding: 10px;
   }
-
-  background-color: @grayLighter;
 
   h1.title { margin-bottom: 0; }
 
@@ -333,5 +274,23 @@ ul.spaced {
 
   li {
     margin-bottom: 10px;
+  }
+}
+
+
+// Highcharts customizations
+.highcharts-container { overflow: visible !important }
+
+#index_charts {
+  margin-top: 10px; margin-bottom: 10px;
+  h1, h2 { line-height: 20px; }
+  h1 { font-size: 14px; color: @grayDark; margin-top: 10px; margin-bottom: 10px;  }
+  h2 {
+    .bg-gray;
+    font-size: 12px;
+    padding: 4px 10px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    i { font-size: 16px; }
   }
 }

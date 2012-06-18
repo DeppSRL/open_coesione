@@ -1,0 +1,188 @@
+
+// BLOCKS
+.block-chart {
+  text-transform: uppercase;
+  float:left;
+  position: relative;
+  min-height: 150px;
+
+  &.pull-right { float: right; }
+
+  .title {
+    font-size: 11px;
+    line-height: 12px;
+    min-height: 50px;
+    display: block;
+  }
+
+  p {
+    font-size: 22px;
+    line-height: 24px;
+    font-weight: bold;
+    width: 50%;
+    position: absolute;
+    bottom:0;
+
+    span { white-space: nowrap; }
+  }
+
+  .title, p {
+    padding: 5px;
+  }
+
+  .bar-vertical {
+    width: 6px; height: 100px;
+    position:absolute;
+    right:5px; bottom:5px;
+    background-color: #70cabf;
+
+    & > span {
+      position: absolute;
+      bottom:0;
+      width: 100%;
+      #gradient > .vertical(darken(@greenDark, 5%), darken(@greenDark, 15%) );
+    }
+  }
+}
+
+// blocks coloring
+.block-chart {
+  background-color: @green;
+  color: @greenDark;
+
+  &.block-active, &:hover {
+    background-color: @greenDark;
+    color: @white;
+
+    .bar-vertical {
+      background-color: @green;
+    }
+  }
+}
+
+.block-chart.block-gray {
+  background-color: @grayLighter;
+  color: @grayDarker;
+
+  &.block-active, &:hover {
+    #gradient > .vertical( @grayLighter, @brown );
+    color: @white;
+  }
+}
+
+// three blocks container
+.block-container {
+  .block-chart {
+    width: 32%;
+    border-left: 1px solid @white;
+    min-height: 150px;
+  }
+
+}
+
+#sidebar {
+
+  .block-chart {
+    width: 100px;
+    min-height: 100px;
+    float: none;
+    margin: 25px auto;
+
+    p {
+      width: auto;
+      text-align: center;
+      right: 0;
+      left: 0;
+    }
+
+    .bar-vertical {
+      width: 8px;
+      right:0; bottom:0;
+    }
+  }
+}
+
+
+/*
+.block-green, .block-gray {
+
+  width: 150px;
+  float:left;
+
+  text-transform: uppercase;
+
+  > div {
+    padding: 5px;
+    position: relative;
+    min-height: 150px;
+
+    h5 {
+      font-size: 11px;
+      line-height: 12px;
+      min-height: 50px;
+    }
+
+    p {
+      font-size: 22px;
+      line-height: 24px;
+      font-weight: bold;
+      width: 50%;
+      position: absolute;
+      bottom:0;
+
+      span { white-space: nowrap; }
+    }
+  }
+
+}
+
+.block-green {
+  background-color: @green;
+  color: @greenDark;
+
+  &.block-active, &:hover {
+    background-color: @greenDark;
+    color: @white;
+
+    .bar-vertical {
+      background-color: @green;
+    }
+  }
+}
+
+.block-gray {
+  background-color: @grayLighter;
+  color: @grayDarker;
+
+  &.block-active, &:hover {
+    #gradient > .vertical( @grayLighter, @brown );
+  //background-color: @grayDarker;
+    color: @white;
+  }
+}
+
+// block stats
+.bar-vertical {
+  width: 6px; height: 100px;
+  position:absolute;
+  right:5px; bottom:5px;
+  background-color: #70cabf;
+
+  & > span {
+    position: absolute;
+    bottom:0;
+    width: 100%;
+    #gradient > .vertical(darken(@greenDark, 5%), darken(@greenDark, 15%) );
+  }
+}
+
+
+.block {
+  min-height: 100px;
+  width: 100px;
+  display: inline-block;
+  background-color: @green;
+  color: @black;
+
+}
+*/

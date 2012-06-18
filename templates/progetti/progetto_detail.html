@@ -1,88 +1,261 @@
-{% extends 'base_two_columns.html' %}
+{% extends 'base.html' %}
+{% load humanize %}
+{% load sekizai_tags %}
 
-{% block content %}
+{% block page_title %}Progetto: {{ progetto.titolo_progetto }}{% endblock %}
 
-  <header>
-    <h2>{{ progetto.codice_locale }}</h2>
-    <h1>{{ progetto.titolo_progetto }}</h1>
-  </header>
+{% block js_content %}
+  {% addtoblock "js_script" %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
+  {% endaddtoblock %}
 
-  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-    Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-    Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
-  </p>
+  {{ block.super }}
 
-  <h3>Priorità quadro strategico nazionale (QSN)</h3>
-  <p>
-    {{ progetto.classificazione_qsn.descrizione }}
-  </p>
+  <script type="text/javascript">
+    var chart; // globally available
 
-  <h3>Obiettivo generale QSN</h3>
-  <p>
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-    Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
-  </p>
+    var pie_chart_options = {
+      chart: {
+        renderTo: 'container',
+        plotBackgroundColor: null,
+        plotBorderWidth: null,
+        plotShadow: false,
+        backgroundColor: 'transparent'
+      },
+      title: {
+        text: ''
+      },
+      tooltip: {
+        formatter: function() {
+          return '<b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +' %';
+        },
+        useHTML: true
+      },
+      plotOptions: {
+        pie: {
+          allowPointSelect: true,
+          cursor: 'pointer',
+          dataLabels: {
+            enabled: false,
+            color: '#000000',
+            connectorColor: '#000000',
+            formatter: function() {
+              return '<b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +' %';
+            }
+          },
+          showInLegend: false
 
-  <h3>Obiettivo specifico QSN</h3>
-  <p>
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-    Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
-  </p>
+        }
+      },
+      series: [],
+      credits: { enabled: false }
+    };
 
+    $(document).ready(function() {
+
+
+      // Main topics chart
+      var total = 0;
+      var main_topics_options = pie_chart_options;
+      main_topics_options.chart.renderTo = 'finanziamento_chart';
+      var series = {
+        type: 'pie',
+        data: [
+          ['Finanziamento pubblico', {{ progetto.fin_totale_pubblico|default_if_none:"0" }}],
+          ['Europa', {{ progetto.fin_ue|default_if_none:"0" }}],
+          ['Stato fondo rotazione', {{ progetto.fin_stato_fondo_rotazione|default_if_none:"0" }}],
+          ['Stato FSC', {{ progetto.fin_stato_fsc|default_if_none:"0" }}],
+          ['Stato altri provvedimenti', {{ progetto.fin_stato_altri_provvedimenti|default_if_none:"0" }}],
+          ['Regione', {{ progetto.fin_regione|default_if_none:"0" }}],
+          ['Provincia', {{ progetto.fin_provincia|default_if_none:"0" }}],
+          ['Comune', {{ progetto.fin_comune|default_if_none:"0" }}],
+          ['Altro pubblico', {{ progetto.fin_altro_pubblico|default_if_none:"0" }}],
+          ['Stato estero', {{ progetto.fin_stato_estero|default_if_none:"0" }}],
+          ['Privati', {{ progetto.fin_privato|default_if_none:"0" }}],
+          ['Da reperire', {{ progetto.fin_da_reperire|default_if_none:"0" }}]
+        ]
+      };
+      main_topics_options.series.push(series);
+      chart = new Highcharts.Chart(main_topics_options);
+      // End Main topics chart
+
+    });
+  </script>
 {% endblock %}
 
-{% block sidebar %}
-  <section>
-    <h1 class="title"><span>Finanziamento</span></h1>
-  </section>
+{% block container %}
 
-  <section>
-    <h1 class="title"><span>Soggetti</span></h1>
-  </section>
+  <div class="container">
+    <article class="row">
+      <div class="span6" id="content">
 
-  <section>
-    <h1 class="title"><span>Tempi</span></h1>
-    <dl>
-      <dd>Inizio</dd>
-      <dt>{{ progetto.data_inizio_prevista }}</dt>
+        <header>
+          <h2>{{ progetto.codice_locale }}</h2>
+          <h1>{{ progetto.titolo_progetto }}</h1>
+        </header>
 
-      <dd>Fine</dd>
-      <dt>{{ progetto.data_fine_prevista }}</dt>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+        </p>
 
-      <dd>Durata</dd>
-      <dt>{{ durata_progetto }}</dt>
+        <h3>Priorità quadro strategico nazionale (QSN)</h3>
+        <p>
+          {{ progetto.classificazione_qsn.descrizione }}
+        </p>
 
-      <dd>Fine</dd>
-      <dt>{{ progetto.data_fine_prevista }}</dt>
-    </dl>
-  </section>
+        <h3>Obiettivo generale QSN</h3>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+        </p>
+
+        <h3>Obiettivo specifico QSN</h3>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+        </p>
+
+      </div>
 
 
-{% endblock %}
 
-{% block subcontainer %}
+      <aside id="sidebar" class="span6">
+
+        <section>
+          <div class="row">
+            <h1 class="title span6"><span>Finanziamento</span></h1>
+
+            <div class="span3 text-center">
+              <h2>Costo complessivo*</h2>
+              <p><strong>{{ progetto.fin_totale|intcomma }}</strong> euro</p>
+            </div>
+
+            <div class="span3 text-center">
+              <h2>Pagamenti effettuati*</h2>
+              <p><strong>{{ progetto.pagamento|intcomma }}</strong> euro</p>
+            </div>
+          </div>
+
+          <div class="row" style="height: 150px">
+            <div class="span3">
+              <div id="finanziamento_chart" style="width: 100%; height: 150px"></div>
+            </div>
+
+            <div class="span3">
+              <div class="block-chart" title="{{ percentuale_finanziamento }} del totale">
+
+                <div class="bar-vertical"><span style="height:{{ percentuale_finanziamento }}"></span></div>
+                <p>{{ percentuale_finanziamento }}</p>
+
+              </div>
+            </div>
+
+          </div>
+
+          <div class="row">
+            <div class="span3 text-center">
+              *Dati aggiornati al ....
+            </div>
+          </div>
+
+        </section>
+
+
+        <hr>
+
+        <section>
+          <h1 class="title"><span>Fondi</span></h1>
+        </section>
+
+        <hr>
+
+        <section>
+          <h1 class="title"><span>Soggetti</span></h1>
+        </section>
+
+        <hr>
+
+        <section>
+          <h1 class="title"><span>Tempi</span></h1>
+          <dl>
+            <dt>Inizio</dt>
+            <dd>{{ progetto.data_inizio_prevista }}</dd>
+
+            <dt>Fine</dt>
+            <dd>{{ progetto.data_fine_prevista }}</dd>
+
+            <dt>Durata</dt>
+            <dd>{{ durata_progetto }}</dd>
+
+            <dt>Fine</dt>
+            <dd>{{ progetto.data_fine_prevista }}</dd>
+          </dl>
+        </section>
+      </aside>
+    </article>
+  </div>
+
+
   <div class="area">
     <div class="container">
       <div class="row">
+
+        <h3 class="span12">Altri progetti sul territorio</h3>
+
         <div class="span6">
           <h1 class="title"><span>Stesso tema</span></h1>
+          <table>
+            {% for p in stesso_tema  %}
+              <tr>
+                <td><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                <td class="amount"><strong>{{ p.costo|intcomma }}</strong> euro</td>
+              </tr>
+            {% endfor %}
+          </table>
         </div>
         <div class="span6">
-          <h1 class="title"><span>Stesso destinatario</span></h1>
+          <h1 class="title"><span>Stessi destinatari</span></h1>
+          <table>
+            {% for p in stessi_destinatari  %}
+              <tr>
+                <td><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                <td class="amount"><strong>{{ p.costo|intcomma }}</strong> euro</td>
+              </tr>
+            {% endfor %}
+          </table>
         </div>
       </div>
+
+      <hr>
 
       <div class="row">
         <div class="span6">
           <h1 class="title"><span>Stessa tipologia</span></h1>
+          <table>
+            {% for p in stesso_tipo  %}
+              <tr>
+                <td><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                <td class="amount"><strong>{{ p.costo|intcomma }}</strong> euro</td>
+              </tr>
+            {% endfor %}
+          </table>
         </div>
         <div class="span6">
           <h1 class="title"><span>Stessi realizzatori</span></h1>
+          <table>
+            {% for p in stessi_realizzatori  %}
+              <tr>
+                <td><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                <td class="amount"><strong>{{ p.costo|intcomma }}</strong> euro</td>
+              </tr>
+            {% endfor %}
+          </table>
         </div>
       </div>
     </div>

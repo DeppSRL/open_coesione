@@ -3,9 +3,12 @@
 {% load sekizai_tags %}
 {% load template_functions %}
 
+{% block page_title %}{{ territorio.nome }}{% endblock %}
+
 {% block js_content %}
   {% addtoblock "js_script" %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-collapse.js"></script>
   {% endaddtoblock %}
 
   {{ block.super }}
@@ -18,7 +21,8 @@
         renderTo: 'container',
         plotBackgroundColor: null,
         plotBorderWidth: null,
-        plotShadow: false
+        plotShadow: false,
+        backgroundColor: 'transparent'
       },
       title: {
         text: ''
@@ -45,7 +49,8 @@
 
         }
       },
-      series: []
+      series: [],
+      credits: { enabled:false }
     };
 
     $(document).ready(function() {
@@ -109,34 +114,26 @@
 
       <div class="span6 block-container">
 
-        <div class="block-green block-active">
+        <div class="block-chart block-active">
 
-          <div>
-            <h5>Costo complessivo dei progetti monitorati*</h5>
-
-            <div class="bar-vertical"></div>
-            <p>{{ total_cost|intword }} <span>di euro</span></p>
-          </div>
+          <strong class="title">Costo complessivo dei progetti monitorati*</strong>
+          <p>{{ total_cost|intword }} <span>di euro</span></p>
+          <div class="bar-vertical"></div>
 
         </div>
 
-        <div class="block-green">
+        <div class="block-chart" title="{{ cost_payments_ratio }} del totale">
 
-          <div>
-            <h5>Pagamenti effettuati per i progetti monitorati*</h5>
-
-            <div class="bar-vertical" title="{{ cost_payments_ratio }} del totale"><span style="height:{{ cost_payments_ratio }}"></span></div>
-            <p>{{ total_cost_paid|intword }} <span>di euro</span></p>
-          </div>
+          <strong class="title">Pagamenti effettuati per i progetti monitorati*</strong>
+          <p>{{ total_cost_paid|intword }} <span>di euro</span></p>
+          <div class="bar-vertical" ><span style="height:{{ cost_payments_ratio }}"></span></div>
 
         </div>
 
-        <div class="block-green">
-          <div>
-            <h5>Numero dei progetti monitorati*</h5>
+        <div class="block-chart">
 
-            <p>{{ total_projects|intcomma }}</p>
-          </div>
+          <strong class="title">Numero dei progetti monitorati*</strong>
+          <p>{{ total_projects|intcomma }}</p>
 
         </div>
 
@@ -207,6 +204,72 @@
 
     </div>
   </div>
+
+  <section class="container" id="index_charts">
+    <div class="row">
+      <h1 class="span12">Indicatori sui temi</h1>
+      <div class="span6">
+
+        <h2 data-toggle="collapse" data-target="#ambiente_index">
+          <i class="icon-circle-arrow-down pull-right"></i>
+          Ambiente
+        </h2>
+
+        <div id="ambiente_index" class="collapse in">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</div>
+
+        <h2 data-toggle="collapse" data-target="#occupazione_index">
+          <i class="icon-circle-arrow-down pull-right"></i>
+          Occupazione
+        </h2>
+
+        <div id="occupazione_index" class="collapse">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</div>
+
+        <h2 data-toggle="collapse" data-target="#energia_index">
+          <i class="icon-circle-arrow-down pull-right"></i>
+          Energia
+        </h2>
+
+        <div id="energia_index" class="collapse">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</div>
+
+      </div>
+      <div class="span6">
+
+        <h2 data-toggle="collapse" data-target="#medicina_index">
+          <i class="icon-circle-arrow-down pull-right"></i>
+          Medicina
+        </h2>
+
+        <div id="medicina_index" class="collapse in">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</div>
+
+        <h2 data-toggle="collapse" data-target="#istruzione_index">
+          <i class="icon-circle-arrow-down pull-right"></i>
+          Istruzione
+        </h2>
+
+        <div id="istruzione_index" class="collapse">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</div>
+
+        <h2 data-toggle="collapse" data-target="#altro_index">
+          <i class="icon-circle-arrow-down pull-right"></i>
+          Altro
+        </h2>
+
+        <div id="altro_index" class="collapse">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</div>
+
+      </div>
+    </div>
+  </section>
 
 
   <div class="container">

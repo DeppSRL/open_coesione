@@ -5,8 +5,8 @@
 {% endspaceless %}{% endblock %}
 
 {% block container %}
-    <article class="row-fluid">
-
+    <article class="container">
+      <div class="row">
         <!-- LEFT-COL -->
         {% comment %}<div style="float:left; width:70%; border-right: 1px dotted gray" id="content">{% endcomment %}
         <div class="span8" id="content">
@@ -21,6 +21,7 @@
             {% block sidebar %}{% endblock %}
 
         </aside><!-- /RIGHT-COL -->
+      </div>
     </article>
 
     {% block subcontainer %}{% endblock %}

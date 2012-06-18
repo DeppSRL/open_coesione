@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.db import models
+from django.db.models import Q
 
 class ProgettiQuerySet(models.query.QuerySet):
 
@@ -29,13 +30,22 @@ class ProgettiQuerySet(models.query.QuerySet):
 
     def nel_territorio(self, territorio):
         if territorio.territorio == territorio.TERRITORIO.R:
-            return self.filter(territorio_set__cod_reg=territorio.pk)
+            return self.filter(territorio_set__cod_reg=territorio.cod_reg)
         elif territorio.territorio == territorio.TERRITORIO.P:
-            return self.filter(territorio_set__cod_prov=territorio.pk)
+            return self.filter(territorio_set__cod_prov=territorio.cod_prov)
         elif territorio.territorio == territorio.TERRITORIO.C:
-            return self.filter(territorio_set__cod_com=territorio.pk)
+            return self.filter(territorio_set__cod_com=territorio.cod_com)
         else:
             raise Exception('Territorio non valido %s' % territorio)
+
+    def nei_territori(self, territori):
+        conditions = False # zero
+        for territorio in territori:
+            if not conditions:
+                conditions = models.Q(**territorio.get_cod_dict('territorio_set__'))
+            else:
+                conditions |= models.Q(**territorio.get_cod_dict('territorio_set__'))
+        return self.filter(conditions)
 
     def con_tema(self, tema):
         return self.filter(tema=tema)
@@ -60,6 +70,9 @@ class ProgettiManager(models.Manager):
 
     def nel_territorio(self, territorio):
         return self.totali(territorio=territorio)
+
+    def nei_territori(self, territori):
+        return self.get_query_set().nei_territori(territori)
 
     def del_tipo(self, tipo):
         return self.totali(tipo=tipo)
