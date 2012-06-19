@@ -1,6 +1,3 @@
-import csv, sys, codecs
-import locale
-
 """
 Splits global CSV file for ISTAT indicators into many different CSV files suitable
 for usage within highcharts js library.
@@ -10,6 +7,11 @@ in order to be harvested by the collectstatic command.
 TODO:
 This is a temporary solution and the complete flow must be improved.
 """
+
+import csv, sys
+import locale
+
+
 locale.setlocale(locale.LC_ALL, '')
 
 csvfile = 'dati/istat.csv'
@@ -107,30 +109,29 @@ with open(csvfile, 'rb') as f:
                     writer.writerow(dictrow)
 
 
-        """
-        regions = list(set([(r['ID_RIPARTIZIONE'], r['DESCRIZIONE_RIPARTIZIONE']) for r in theme_rows if r['ID_RIPARTIZIONE'] in [str(k) for k in range(1, 21) + [23]]]))
-        for reg in regions:
-            print "  %s" % reg[1]
-            region_rows = [r for r in theme_rows if r['ID_RIPARTIZIONE']==reg[0]]
-            indicators_codes = list(set([(r['COD_INDICATORE'], r['TITOLO'].decode('latin1').encode('utf-8')) for r in region_rows]))
-            temareg_filename = "dati/istat/temareg/%s_%s.csv" % (n_tema, reg[0])
-            with open(temareg_filename, 'wb') as wf:
-                writer = csv.DictWriter(wf, temareg_fieldnames)
 
-                # write headers
-                headers = {}
-                for n in temareg_fieldnames:
-                    headers[n] = n
-                writer.writerow(headers)
-
-                for i in indicators_codes:
-                    indicator_rows = [r for r in region_rows if r['COD_INDICATORE']==i[0]]
-                    values = [i[1]]
-                    for r in indicator_rows:
-                        if r['VALORE']:
-                            values.append(str(locale.atof(r['VALORE'])))
-                        else:
-                            values.append('')
-                    dictrow = dict(zip(temareg_fieldnames, values))
-                    writer.writerow(dictrow)
-        """
+#        regions = list(set([(r['ID_RIPARTIZIONE'], r['DESCRIZIONE_RIPARTIZIONE']) for r in theme_rows if r['ID_RIPARTIZIONE'] in [str(k) for k in range(1, 21) + [23]]]))
+#        for reg in regions:
+#            print "  %s" % reg[1]
+#            region_rows = [r for r in theme_rows if r['ID_RIPARTIZIONE']==reg[0]]
+#            indicators_codes = list(set([(r['COD_INDICATORE'], r['TITOLO'].decode('latin1').encode('utf-8')) for r in region_rows]))
+#            temareg_filename = "dati/istat/temareg/%s_%s.csv" % (n_tema, reg[0])
+#            with open(temareg_filename, 'wb') as wf:
+#                writer = csv.DictWriter(wf, temareg_fieldnames)
+#
+#                # write headers
+#                headers = {}
+#                for n in temareg_fieldnames:
+#                    headers[n] = n
+#                writer.writerow(headers)
+#
+#                for i in indicators_codes:
+#                    indicator_rows = [r for r in region_rows if r['COD_INDICATORE']==i[0]]
+#                    values = [i[1]]
+#                    for r in indicator_rows:
+#                        if r['VALORE']:
+#                            values.append(str(locale.atof(r['VALORE'])))
+#                        else:
+#                            values.append('')
+#                    dictrow = dict(zip(temareg_fieldnames, values))
+#                    writer.writerow(dictrow)

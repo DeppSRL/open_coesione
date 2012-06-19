@@ -13,7 +13,13 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--geolevel',
                     action='store',
+                    help='regione|provincia|comune',
                     dest='geolevel'),
+        make_option('--encoding',
+            help='text encoding of shape files',
+            default='latin',
+            dest='encoding'
+        ),
     )
 
     regione_mapping = {
@@ -73,9 +79,9 @@ class Command(BaseCommand):
                 mapping = self.regione_mapping
                 source_srs = 900913
             else:
-                raise CommandError("supported geolevels: regione, comune")
+                raise CommandError("supported geolevels: regione, provincia or comune")
 
-            lm = LayerMapping(Territorio, shapefile, mapping, source_srs=source_srs)
+            lm = LayerMapping(Territorio, shapefile, mapping,encoding=options['encoding'], source_srs=source_srs)
             lm.save(verbose=True)
 
         else:
