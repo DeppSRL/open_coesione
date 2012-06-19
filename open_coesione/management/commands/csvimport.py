@@ -281,7 +281,7 @@ class Command(BaseCommand):
             ClassificazioneQSN.objects.all().delete()
             ClassificazioneAzione.objects.all().delete()
             ClassificazioneOggetto.objects.all().delete()
-            Tema.objects.exclude(tipo_tema='sintetico').delete()
+            Tema.objects.all().delete()
             self.logger.info("Oggetti rimossi")
 
 
