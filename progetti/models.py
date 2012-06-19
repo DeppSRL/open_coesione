@@ -48,13 +48,14 @@ class ProgrammaAsseObiettivo(models.Model):
     codice = models.CharField(max_length=32, primary_key=True)
     descrizione = models.TextField()
     tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
+    url_riferimento = models.URLField(max_length=255, blank=True, null=True)
 
     @property
     def progetti(self):
         return self.progetto_set
 
     def __unicode__(self):
-        return self.codice
+        return self.codice + " - " + unicode(self.descrizione)
 
     class Meta:
         verbose_name_plural = "Programmi - Assi - Obiettivi operativi"
@@ -137,6 +138,22 @@ class Intesa(models.Model):
         verbose_name = "Intesa istituzionale"
         verbose_name_plural = "Intese istituzionali"
 
+class Fonte(models.Model):
+    codice = models.CharField(max_length=8, primary_key=True)
+    descrizione = models.TextField()
+
+    @property
+    def progetti(self):
+        return self.progetto_set
+
+
+    def __unicode__(self):
+        return self.codice + " - " + self.descrizione
+
+    class Meta:
+        verbose_name = "Fonte"
+        verbose_name_plural = "Fonti"
+
 
 class ClassificazioneAzione(models.Model):
     TIPO = Choices(
@@ -204,37 +221,37 @@ class Progetto(models.Model):
     objects = ProgettiManager()    # override the default manager
 
     DPS_FLAG_CUP = Choices(
-        ('0', 'CUP non valido'),
-        ('1', 'CUP valido'),
-        ('2', 'CUP presente')
+        ('0', u'CUP non valido'),
+        ('1', u'CUP valido'),
+        ('2', u'CUP presente')
     )
-    DPS_DATE = Choices(
-        ('00', 'Date inizio e fine non presenti'),
-        ('10', 'Data inizio previsto presente'),
-        ('11', 'Date inizio e fine previste, presenti'),
-        ('12', 'Data inizio previsto e date fine prevista ed effettiva, presenti'),
-        ('20', 'Date inizio previsto ed effettivo presenti, date fine assenti'),
-        ('21', 'Date inizio previsto ed effettivo, e data fine prevista presenti'),
-        ('22', 'Tutte le date presenti'),
+    DPS_FLAG_PRESENZA_DATE = Choices(
+        ('00', u'Date inizio e fine non presenti'),
+        ('10', u'Data inizio previsto presente'),
+        ('11', u'Date inizio e fine previste, presenti'),
+        ('12', u'Data inizio previsto e date fine prevista ed effettiva, presenti'),
+        ('20', u'Date inizio previsto ed effettivo presenti, date fine assenti'),
+        ('21', u'Date inizio previsto ed effettivo, e data fine prevista presenti'),
+        ('22', u'Tutte le date presenti'),
     )
-    DPS_FLAG_DATE = Choices(
-        ('0', 'Durata incoerente (fine < inizio)'),
-        ('1', 'Durata coerente (fine > inizio)'),
-        ('2', 'Durata non valutabile (inizio e/o fine mancanti)'),
+    DPS_FLAG_COERENZA_DATE = Choices(
+        ('0', u'Durata incoerente (fine < inizio)'),
+        ('1', u'Durata coerente (fine > inizio)'),
+        ('2', u'Durata non valutabile (inizio e/o fine mancanti)'),
     )
     FONDO_COMUNITARIO = Choices(
-        ('erdf', 'ERDF'),
-        ('esf', 'ESF')
+        ('fesr', 'FESR'),
+        ('fse', 'FSE')
     )
     TIPO_OPERAZIONE = Choices(
-        ('1', 'opere_pubbliche', 'Realizzazione di opere pubbliche'),
-        ('2', 'beni_servizi', 'Acquisizione  di beni e servizi'),
-        ('3', 'finanziamenti', 'Erogazione di finanziamenti e aiuti a imprese e individui'),
+        ('1', 'opere_pubbliche', u'Realizzazione di opere pubbliche'),
+        ('2', 'beni_servizi', u'Acquisizione  di beni e servizi'),
+        ('3', 'finanziamenti', u'Erogazione di finanziamenti e aiuti a imprese e individui'),
     )
     OBIETTIVO_SVILUPPO = Choices(
-        ('COMPETITIVITA', 'competitivita', 'Competitività regionale e occupazione'),
-        ('CONVERGENZA', 'convergenza', 'Convergenza'),
-        ('COOPERAZIONE', 'cooperazione', 'Cooperazione territoriale europea')
+        ('COMPETITIVITA', 'competitivita', u'Competitività regionale e occupazione'),
+        ('CONVERGENZA', 'convergenza', u'Convergenza'),
+        ('COOPERAZIONE', 'cooperazione', u'Cooperazione territoriale europea')
     )
 
     codice_locale = models.CharField(max_length=100, primary_key=True,
@@ -245,15 +262,9 @@ class Progetto(models.Model):
                                             related_name='progetto_set',
                                             db_column='classificazione_qsn')
 
-    stato_fs = models.NullBooleanField(blank=True)
-    stato_fsc = models.NullBooleanField(blank=True)
-    stato_dps = models.NullBooleanField(blank=True)
-
     programma_asse_obiettivo = models.ForeignKey('ProgrammaAsseObiettivo',
                                                  related_name='progetto_set',
                                                  db_column='programma_asse_progetto')
-
-    data_aggiornamento = models.DateField(null=True)
 
     obiettivo_sviluppo = models.CharField(max_length=16,
                                           blank=True, null=True,
@@ -266,9 +277,12 @@ class Progetto(models.Model):
                              related_name='progetto_set',
                              db_column='tema')
 
-    intesa_istituzionale = models.ForeignKey('Intesa',
-                                             related_name='progetto_set',
-                                             db_column='intesa_istituzionale')
+#    intesa_istituzionale = models.ForeignKey('Intesa',
+#                                             related_name='progetto_set',
+#                                             db_column='intesa_istituzionale')
+    fonte = models.ForeignKey('Fonte',
+                              related_name='progetto_set',
+                              db_column='fonte')
 
     classificazione_azione = models.ForeignKey('ClassificazioneAzione',
                                                related_name='progetto_set',
@@ -277,6 +291,7 @@ class Progetto(models.Model):
     classificazione_oggetto = models.ForeignKey('ClassificazioneOggetto',
                                                 related_name='progetto_set',
                                                 db_column='classificazione_oggetto')
+
 
     fin_totale = models.DecimalField(max_digits=14, decimal_places=2, null=True)
     fin_totale_pubblico = models.DecimalField(max_digits=14, decimal_places=2, null=True)
@@ -291,6 +306,7 @@ class Progetto(models.Model):
     fin_stato_estero = models.DecimalField(max_digits=14, decimal_places=2, null=True)
     fin_privato = models.DecimalField(max_digits=14, decimal_places=2, null=True)
     fin_da_reperire = models.DecimalField(max_digits=14, decimal_places=2, null=True)
+
     costo = models.DecimalField(max_digits=14, decimal_places=2, null=True)
     costo_ammesso = models.DecimalField(max_digits=14, decimal_places=2, null=True)
     pagamento = models.DecimalField(max_digits=14, decimal_places=2, null=True)
@@ -301,12 +317,13 @@ class Progetto(models.Model):
     data_fine_prevista = models.DateField(null=True)
     data_inizio_effettiva = models.DateField(null=True)
     data_fine_effettiva = models.DateField(null=True)
-
     data_inizio_info = models.IntegerField(null=True)
-    dps_date = models.CharField(max_length=2, choices=DPS_DATE)
-    dps_flag_date_previste = models.CharField(max_length=1, choices=DPS_FLAG_DATE)
-    dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_DATE)
+    data_aggiornamento = models.DateField(null=True)
+
     dps_flag_cup = models.CharField(max_length=1, choices=DPS_FLAG_CUP)
+    dps_flag_presenza_date = models.CharField(max_length=2, choices=DPS_FLAG_PRESENZA_DATE)
+    dps_flag_date_previste = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE)
+    dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE)
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto')
@@ -344,6 +361,9 @@ class Localizzazione(models.Model):
     indirizzo = models.CharField(max_length=255, blank=True, null=True)
     cap = models.CharField(max_length=5, blank=True, null=True)
     dps_flag_cap = models.CharField(max_length=1, choices=DPS_FLAG_CAP)
+
+    def __unicode__(self):
+        return u"%s %s (%s)" % (self.progetto, self.territorio, self.dps_flag_cap)
 
     class Meta:
         verbose_name_plural = "Localizzazioni"

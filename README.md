@@ -1,4 +1,4 @@
-oc-proto
-========
+open_coesione
+=============
 
-Open Coesione prototype
+Open Coesione private repository

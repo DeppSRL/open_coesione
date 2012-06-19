@@ -1,6 +1,10 @@
 from django.contrib import admin
 from progetti.models import *
 
+class ProgrammaAsseObiettivoAdmin(admin.ModelAdmin):
+    search_fields = ['descrizione',]
+    list_filter = ('tipo_classificazione',)
+
 class LocalizzazioneInline(admin.TabularInline):
     model = Localizzazione
     raw_id_fields = ('progetto', 'territorio', )
@@ -16,7 +20,7 @@ admin.site.register(Progetto, ProgettoAdmin)
 admin.site.register(ClassificazioneQSN)
 admin.site.register(ClassificazioneAzione)
 admin.site.register(ClassificazioneOggetto)
-admin.site.register(ProgrammaAsseObiettivo)
+admin.site.register(ProgrammaAsseObiettivo, ProgrammaAsseObiettivoAdmin)
 admin.site.register(Tema)
-admin.site.register(Intesa)
+admin.site.register(Fonte)
 

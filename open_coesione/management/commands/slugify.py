@@ -30,4 +30,4 @@ class Command(BaseCommand):
                 territorio.save()
                 count += 1
 
-        self.stdout.write("{0} territori has been slugified\n".format(count))
+        self.stdout.write("{0} territori have been slugified\n".format(count))

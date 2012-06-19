@@ -75,7 +75,7 @@ class ProgettoSearchView(ExtendedFacetedSearchView):
         """
         extra = super(ProgettoSearchView, self).extra_context()
         extra['tipo_operazioni'] = dict(Progetto.TIPO_OPERAZIONE)
-        extra['base_url'] = reverse('oc_progetto_search') + '?' + extra['params'].urlencode()
+        extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
 
 
         return extra

@@ -3,7 +3,9 @@
 {% load i18n %}
 {% load utils %}
 
-{% block title %}Elenco progetti {% endblock title %}
+{% block page_title %}Elenco progetti {% endblock page_title %}
+{% block page_description %}Elenco dei progetti, navigabile a faccette, con possibilità di ricerca testuale.{% endblock page_description %}
+
 
 {% block content %}
     {% if selected_facets %}
@@ -20,9 +22,9 @@
             {% endfor %}
         </ul>
     {% else %}
-      <p>Puoi trovare l'atto che ti interessa scorrendo la lista degli ultimi pubblicati, qui sotto.
+      <p>Puoi trovare il progetto scorrendo la lista degli ultimi pubblicati, qui sotto.
         Puoi perfezionare la ricerca usando i filtri nella colonna qui a destra, oppure puoi usare il form di
-        ricerca con una parola che pensi sia contenuta nell'atto ,
+        ricerca con una parola che pensi sia contenuta nel progetto ,
         in cima alla colonna qui a destra</p>
     {% endif %}
 
@@ -61,7 +63,7 @@
 
 {% block sidebar %}
   <h4>Cerca negli atti</h4>
-  <form method="get" action="{% url oc_progetto_search %}" class="form-search">
+  <form method="get" action="{% url progetti_search %}" class="form-search">
     <input type="text" class="input-medium search-query" name="{{ form.q.html_name }}" value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
     <button type="submit" class="btn">Cerca</button>
   </form>

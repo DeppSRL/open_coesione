@@ -83,7 +83,6 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(REPO_ROOT, 'static'),
 )
 
 # List of finder classes that know how to find static files in
@@ -138,9 +137,11 @@ INSTALLED_APPS = (
     'progetti',
     'territori',
     'soggetti',
+    'open_coesione',
     'dynamic-content',
     # FeinCMS
-    'feincms', 'feincms.module.page',
+    'feincms',
+    'feincms.module.page',
     'feincms.module.medialibrary',
 )
 
@@ -182,8 +183,8 @@ LOGGING = {
             'level':'INFO',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': REPO_ROOT + "/log/logfile",
-            'maxBytes': 50000,
-            'backupCount': 2,
+            'maxBytes': 250000,
+            'backupCount': 10,
             'formatter': 'standard',
         },
         'mail_admins': {

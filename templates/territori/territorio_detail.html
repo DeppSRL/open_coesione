@@ -17,48 +17,18 @@
   <script type="text/javascript">
     // creates two piecharts using charts.js function
     var pie_charts = line_charts = {};
-    var first_tema_id = 0;
-    var APP = {
-      regioni: {}
-    };
-    var read_csv = function(txt, skip_first) {
-      skip_first = skip_first || false;
-      var lines = txt.split('\n');
-      var results = {};
-      for (var i=0; lines.length; i++) {
-        if (i==0 && skip_first) continue;
-        var items = lines[0].split(',');
-        results[items.shift()] = items;
-      }
-      return results;
-    }
+
+
     $(document).ready(function() {
-      pie_charts['topics'] = print_pie_chart('#main_topics', 'main_topics_chart' );
-      pie_charts['types'] = print_pie_chart('#main_types', 'main_types_chart' );
 
+        APP.init('{{ STATIC_URL }}');
 
-      //first_tema_id = $('#index_charts .collapse.in').first().data('tema');
-        //show_line_chart('{{ STATIC_URL }}',first_tema_id, {{ territorio.pk }} );
-      //load_regioni('{{ STATIC_URL }}');
-      //first_tema_id = $('#index_charts .collapse.in').first().data('tema');
-      //print_line_chart('{{ STATIC_URL }}', first_tema_id, Object.keys(indicatori_tema)[0], 1)
-      //APP.start( '{{ STATIC_URL }}' );
+        pie_charts['topics'] = APP.print_pie_chart('#main_topics', 'main_topics_chart' );
+        pie_charts['types'] = APP.print_pie_chart('#main_types', 'main_types_chart' );
 
-      //APP.print_chart( $('#index_charts .collapse.in').first().data('tema') );
-
-
-
-
-      $.get('{{ STATIC_URL }}csv/regioni.csv', function(data) {
-        // Split the lines
-        var lines = data.split('\n');
-        // Iterate over the lines and add categories or series
-        $.each(read_csv(data), function(lineNo, line) {
-          APP.regioni[line[0]] = {
-            denominazione: line[1]
-          };
-        });
-      })
+        $('#index_charts .collapse').on('shown', function(e) {
+            APP.print_line_chart( $(e.currentTarget).data('tema'), $(e.currentTarget).attr('id'), {{ territorio.pk }} );
+        }).first().collapse('show');
 
     });
   </script>

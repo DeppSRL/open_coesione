@@ -84,7 +84,7 @@ class ProgettiManager(models.Manager):
         return self.get_query_set().totali(territorio, tema, tipo)
 
     def totale_costi(self, territorio=None, tema=None, tipo=None):
-        return self.totali(territorio, tema, tipo).aggregate(total=models.Sum('fin_totale'))['total']
+        return self.totali(territorio, tema, tipo).aggregate(total=models.Sum('fin_totale_pubblico'))['total']
 
     def totale_costi_pagati(self, territorio=None, tema=None, tipo=None):
         return self.totali(territorio, tema, tipo).aggregate(total=models.Sum('pagamento'))['total']
@@ -93,7 +93,7 @@ class ProgettiManager(models.Manager):
         return self.totali(territorio, tema, tipo).count()
 
     def totale_risorse_stanziate(self, territorio=None, tema=None, tipo=None):
-        return self.totali(territorio, tema, tipo).aggregate(total=models.Sum('fin_totale'))['total']
+        return self.totali(territorio, tema, tipo).aggregate(total=models.Sum('fin_totale_pubblico'))['total']
 
 
 class TemiManager(models.Manager):
