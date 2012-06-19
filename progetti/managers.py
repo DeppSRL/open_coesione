@@ -1,6 +1,5 @@
 from datetime import datetime
 from django.db import models
-from django.db.models import Q
 
 class ProgettiQuerySet(models.query.QuerySet):
 
@@ -99,7 +98,15 @@ class ProgettiManager(models.Manager):
 class TemiManager(models.Manager):
 
     def principali(self):
-        return self.get_query_set().filter(tema_superiore=None)
+        return self.get_query_set().filter(tipo_tema=self.model.TIPO.sintetico)
 
     def costo_totale(self):
-        return self.get_query_set().annotate(totale=models.Sum('progetto_set__costo'))
+        return self.get_query_set().annotate(totale=models.Sum('progetto_set__fin_totale_pubblico'))
+
+class ClassificazioneAzioneManager(models.Manager):
+
+    def tematiche(self):
+        return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.natura)
+
+    def costo_totale(self):
+        return self.get_query_set().annotate(totale=models.Sum('progetto_set__fin_totale_pubblico'))

@@ -2,7 +2,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.views.generic.detail import DetailView
 from open_coesione.views import AggregatoView
-from progetti.models import Progetto, Tema
+from progetti.models import Progetto, Tema, ClassificazioneAzione
 from territori.models import Territorio
 
 
@@ -23,11 +23,7 @@ class TerritorioView(AggregatoView, DetailView):
 
         context['temi_principali'] = Tema.objects.principali()
 
-        #tipologie = dict(Progetto.TIPO_OPERAZIONE)
-        context['tipologie_principali'] = []
-#        ({'tipo': tipologie[str(x['tipo_operazione'])], 'totale': x['total'], 'tipo_operazione': x['tipo_operazione']})
-#        for x in Progetto.objects.nel_territorio(self.object).values('tipo_operazione').annotate(total= models.Sum('costo'))
-#        ]
+        context['tipologie_principali'] = ClassificazioneAzione.objects.tematiche()
 
         context['progetti_piu_costosi'] = Progetto.objects.nel_territorio(self.object).order_by('-fin_totale')[:3]
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().nel_territorio(self.object)[:3]

@@ -222,7 +222,7 @@ class Command(BaseCommand):
                             territorio=Territorio.TERRITORIO.C,
                         )
                         self.logger.debug("Comune '%s' individuato attraverso la denominazione" % r['PROG_DEN_COMUNE'])
-                    except :
+                    except Territorio.DoesNotExist as e:
                         self.logger.warning("Comune non trovato. %s: %s-%s-%s [%s]" % (r['PROG_DEN_COMUNE'],r['PROG_DEN_REGIONE'],r['PROG_COD_PROVINCIA'],r['PROG_COD_COMUNE'],r['COD_LOCALE_PROGETTO']))
                         continue
             elif tipo_territorio in ('E', 'N'):

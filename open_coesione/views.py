@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.views.generic.base import TemplateView
 from django.db import models
-from progetti.models import Progetto, Tema, ClassificazioneOggetto
+from progetti.models import Progetto, Tema, ClassificazioneOggetto, ClassificazioneAzione
 
 
 class AggregatoView(object):
@@ -25,7 +25,7 @@ class HomeView(AggregatoView, TemplateView):
         context['temi_principali'] = Tema.objects.principali()
 
         #tipologie = dict(Progetto.TIPO_OPERAZIONE)
-        context['tipologie_principali'] = []
+        context['tipologie_principali'] = ClassificazioneAzione.objects.tematiche()
 #        [
 #            ({'tipo': tipologie[str(x['tipo_operazione'])], 'totale': x['total'], 'tipo_operazione': x['tipo_operazione']})
 #            for x in Progetto.objects.values('tipo_operazione').annotate(total= models.Sum('fin_totale_pubblico'))

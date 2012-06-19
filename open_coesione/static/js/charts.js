@@ -1,7 +1,8 @@
 var APP = {
     base_url: '/',
     regioni: {},
-    indicatori_tema: {}
+    indicatori_tema: {},
+    charts: {}
 };
 var defaults = {
     credits: {href: 'http://www.opencoesione.gov.it', text: 'Open Coesione'},
@@ -95,7 +96,8 @@ var line_chart_options = {
         renderTo: 'container',
         type: 'spline',
         marginLeft: 50,
-        backgroundColor: defaults.backgroundColor
+        backgroundColor: defaults.backgroundColor,
+        height: 250
     },
     title: {
         text: 'Test'
@@ -162,7 +164,7 @@ APP.print_line_chart = function(topic_id, container, location_id, index_id)
 
 APP._print_line_chart = function(topic_id, container, location_id, index_id, data) {
 
-    var options = jQuery.extend( line_chart_options, {
+    var options = jQuery.extend( true, line_chart_options, {
         series: [],
         categories: [],
         series_collection: [],
@@ -212,7 +214,5 @@ APP._print_line_chart = function(topic_id, container, location_id, index_id, dat
     });
 
     // Create the chart
-    line_charts[topic_id+"_"+location_id+"_"+index_id] = new Highcharts.Chart(options);
-
-    return line_charts[topic_id+"_"+location_id+"_"+index_id];
+    APP.charts[topic_id+"_"+location_id+"_"+index_id] = new Highcharts.Chart(options);
 }
