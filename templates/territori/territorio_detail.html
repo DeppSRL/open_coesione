@@ -9,98 +9,26 @@
   {% addtoblock "js_script" %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-collapse.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>
   {% endaddtoblock %}
 
   {{ block.super }}
 
   <script type="text/javascript">
-    var chart; // globally available
+    // creates two piecharts using charts.js function
+    var pie_charts = line_charts = {};
 
-    var pie_chart_options = {
-      chart: {
-        renderTo: 'container',
-        plotBackgroundColor: null,
-        plotBorderWidth: null,
-        plotShadow: false,
-        backgroundColor: 'transparent'
-      },
-      title: {
-        text: ''
-      },
-      tooltip: {
-        formatter: function() {
-          return '<b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +' %';
-        },
-        useHTML: true
-      },
-      plotOptions: {
-        pie: {
-          allowPointSelect: true,
-          cursor: 'pointer',
-          dataLabels: {
-            enabled: false,
-            color: '#000000',
-            connectorColor: '#000000',
-            formatter: function() {
-              return '<b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +' %';
-            }
-          },
-          showInLegend: false
-
-        }
-      },
-      series: [],
-      credits: { enabled:false }
-    };
 
     $(document).ready(function() {
 
+        APP.init('{{ STATIC_URL }}');
 
-      // Main topics chart
-      var total = 0;
-      var main_topics_options = pie_chart_options;
-      main_topics_options.chart.renderTo = 'main_topics_chart';
-      var series = {
-        type: 'pie',
-        data: []
-      };
-      // take values
-      $('#main_topics tr').each(function(ix, line){
-        values = $('a, strong', line).map( function(el, item) { return $(item).text(); });
-        sub_total = parseInt(values[1].split('.').join(''))
-        total += sub_total
-        series.data.push([values[0], sub_total ]);
-      });
-      // normalize values
-      $.each(series.data, function(ix, line) {
-        series.data[ix][1] = series.data[ix][1] / total;
-      });
-      main_topics_options.series.push(series);
-      chart = new Highcharts.Chart(main_topics_options);
-      // End Main topics chart
+        pie_charts['topics'] = APP.print_pie_chart('#main_topics', 'main_topics_chart' );
+        pie_charts['types'] = APP.print_pie_chart('#main_types', 'main_types_chart' );
 
-      // Main types chart
-      var total = 0;
-      var main_types_options = pie_chart_options;
-      main_types_options.chart.renderTo = 'main_types_chart';
-      var series = {
-        type: 'pie',
-        data: []
-      };
-      // take values
-      $('#main_types tr').each(function(ix, line){
-        values = $('a, strong', line).map( function(el, item) { return $(item).text(); });
-        sub_total = parseInt(values[1].split('.').join(''))
-        total += sub_total
-        series.data.push([values[0], sub_total ]);
-      });
-      // normalize values
-      $.each(series.data, function(ix, line) {
-        series.data[ix][1] = series.data[ix][1] / total;
-      });
-      main_types_options.series.push(series);
-      chart = new Highcharts.Chart(main_types_options);
-      // End Main topics chart
+        $('#index_charts .collapse').on('shown', function(e) {
+            APP.print_line_chart( $(e.currentTarget).data('tema'), $(e.currentTarget).attr('id'), {{ territorio.pk }} );
+        }).first().collapse('show');
 
     });
   </script>
@@ -116,7 +44,7 @@
 
         <div class="block-chart block-active">
 
-          <strong class="title">Costo complessivo dei progetti monitorati*</strong>
+          <strong class="title">Finanziamento pubblico totale dei progetti monitorati*</strong>
           <p>{{ total_cost|intword }} <span>di euro</span></p>
           <div class="bar-vertical"></div>
 
@@ -207,65 +135,16 @@
 
   <section class="container" id="index_charts">
     <div class="row">
-      <h1 class="span12">Indicatori sui temi</h1>
-      <div class="span6">
+      <div class="span12">
+        <h1>Indicatori sui temi</h1>
 
-        <h2 data-toggle="collapse" data-target="#ambiente_index">
+        {% for tema in temi_principali %}
+        <h2 data-toggle="collapse" data-target="#theme_index_{{ tema.codice }}">
           <i class="icon-circle-arrow-down pull-right"></i>
-          Ambiente
+          {{ tema.descrizione }}
         </h2>
-
-        <div id="ambiente_index" class="collapse in">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</div>
-
-        <h2 data-toggle="collapse" data-target="#occupazione_index">
-          <i class="icon-circle-arrow-down pull-right"></i>
-          Occupazione
-        </h2>
-
-        <div id="occupazione_index" class="collapse">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</div>
-
-        <h2 data-toggle="collapse" data-target="#energia_index">
-          <i class="icon-circle-arrow-down pull-right"></i>
-          Energia
-        </h2>
-
-        <div id="energia_index" class="collapse">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</div>
-
-      </div>
-      <div class="span6">
-
-        <h2 data-toggle="collapse" data-target="#medicina_index">
-          <i class="icon-circle-arrow-down pull-right"></i>
-          Medicina
-        </h2>
-
-        <div id="medicina_index" class="collapse in">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</div>
-
-        <h2 data-toggle="collapse" data-target="#istruzione_index">
-          <i class="icon-circle-arrow-down pull-right"></i>
-          Istruzione
-        </h2>
-
-        <div id="istruzione_index" class="collapse">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</div>
-
-        <h2 data-toggle="collapse" data-target="#altro_index">
-          <i class="icon-circle-arrow-down pull-right"></i>
-          Altro
-        </h2>
-
-        <div id="altro_index" class="collapse">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</div>
+        <div id="theme_index_{{ tema.codice }}" class="collapse{% if forloop.first %} in{% endif %}" data-tema="{{ tema.codice }}"></div>
+        {% endfor %}
 
       </div>
     </div>

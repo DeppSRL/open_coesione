@@ -12,3 +12,4 @@ sitestatic
 */migrations/*
 dati
 splitcsv2.py
+django.ini

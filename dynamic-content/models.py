@@ -6,7 +6,7 @@ from feincms.module.page.models import Page
 from feincms.content.richtext.models import RichTextContent
 from feincms.content.medialibrary.v2 import MediaFileContent
 
-Page.register_extensions('changedate', 'datepublisher', 'seo')
+Page.register_extensions('feincms.module.extensions.changedate', 'feincms.module.extensions.datepublisher', 'feincms.module.extensions.seo')
 
 Page.register_templates({
     'title': _('Standard template'),
