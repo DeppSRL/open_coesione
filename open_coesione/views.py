@@ -19,17 +19,17 @@ class HomeView(AggregatoView, TemplateView):
         context['total_projects'] = Progetto.objects.totale_progetti()
         context['total_allocated_resources'] = Progetto.objects.totale_risorse_stanziate()
 
-        cost_payment_ratio = context['total_cost_paid'] / context['total_cost']
+        cost_payment_ratio = context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0
         context['cost_payments_ratio'] = "%d%%" % int(cost_payment_ratio * 100)
 
         context['temi_principali'] = Tema.objects.principali()
 
-        tipologie = dict(Progetto.TIPO_OPERAZIONE)
+        #tipologie = dict(Progetto.TIPO_OPERAZIONE)
         context['tipologie_principali'] = []
-        [
-            ({'tipo': tipologie[str(x['tipo_operazione'])], 'totale': x['total'], 'tipo_operazione': x['tipo_operazione']})
-            for x in Progetto.objects.values('tipo_operazione').annotate(total= models.Sum('fin_totale_pubblico'))
-        ]
+#        [
+#            ({'tipo': tipologie[str(x['tipo_operazione'])], 'totale': x['total'], 'tipo_operazione': x['tipo_operazione']})
+#            for x in Progetto.objects.values('tipo_operazione').annotate(total= models.Sum('fin_totale_pubblico'))
+#        ]
         context['top_progetti_per_costo'] = Progetto.objects.filter(costo__isnull=False).order_by('-fin_totale_pubblico')[:3]
 
         context['ultimi_progetti_avviati'] = Progetto.objects.filter(data_inizio_effettiva__lte=datetime.now()).order_by('-data_inizio_effettiva')[:3]

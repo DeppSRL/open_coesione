@@ -23,11 +23,11 @@ class TerritorioView(AggregatoView, DetailView):
 
         context['temi_principali'] = Tema.objects.principali()
 
-        tipologie = dict(Progetto.TIPO_OPERAZIONE)
-        context['tipologie_principali'] = [
-        ({'tipo': tipologie[str(x['tipo_operazione'])], 'totale': x['total'], 'tipo_operazione': x['tipo_operazione']})
-        for x in Progetto.objects.nel_territorio(self.object).values('tipo_operazione').annotate(total= models.Sum('costo'))
-        ]
+        #tipologie = dict(Progetto.TIPO_OPERAZIONE)
+        context['tipologie_principali'] = []
+#        ({'tipo': tipologie[str(x['tipo_operazione'])], 'totale': x['total'], 'tipo_operazione': x['tipo_operazione']})
+#        for x in Progetto.objects.nel_territorio(self.object).values('tipo_operazione').annotate(total= models.Sum('costo'))
+#        ]
 
         context['progetti_piu_costosi'] = Progetto.objects.nel_territorio(self.object).order_by('-fin_totale')[:3]
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().nel_territorio(self.object)[:3]
