@@ -166,6 +166,11 @@ section h1.title {
 // custom main navbar
 #wrapper > header {
 
+  .row {
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+
   h2 {
     font-size: 13px;
     color: @black;
@@ -182,6 +187,25 @@ section h1.title {
     margin-top: 4px;
     padding-top:0 ; padding-bottom: 0;
     .border-radius(6);
+  }
+
+  // europa and italy flags
+  a.flag {
+    display: block;
+    text-indent: -99999px;
+    float:right;
+    &.flag-ita {
+      width: 43px;
+      height: 45px;
+      background: url('../img/header/flag-ita.png') no-repeat right;
+      &:hover { background-position: 0 0; }
+    }
+    &.flag-ue {
+      width: 63px;
+      height: 42px;
+      background: url('../img/header/flag-ue.png') no-repeat right;
+      &:hover { background-position: 0 0; }
+    }
   }
 }
 
@@ -281,7 +305,7 @@ ul.spaced {
 // Highcharts customizations
 .highcharts-container { overflow: visible !important }
 
-#index_charts {
+#charts_accordion {
   margin-top: 10px; margin-bottom: 10px;
   h1, h2 { line-height: 20px; }
   h1 { font-size: 14px; color: @grayDark; margin-top: 10px; margin-bottom: 10px;  }
