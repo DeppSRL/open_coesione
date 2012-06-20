@@ -2,7 +2,7 @@
 
 from django.db import models
 from model_utils import Choices
-from progetti.managers import ProgettiManager, TemiManager
+from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager
 
 
 class ClassificazioneQSN(models.Model):
@@ -98,21 +98,7 @@ class Tema(models.Model):
         if territorio:
             query_set = query_set.filter( **territorio.get_cod_dict('{0}territorio_set__'.format(prefix) ) )
 
-        return query_set.aggregate(totale=models.Sum('{0}costo'.format(prefix)) )['totale'] or 0.0
-
-#        query_set = self.temi_figli if not territorio \
-#                    else self.temi_figli.filter(**territorio.get_cod_dict('progetto_set__territorio_set__'))
-#        return (
-#            query_set.aggregate(totale=models.Sum('progetto_set__costo'))['totale']
-#            if self.is_principale else self.progetti.aggregate(totale=models.Sum('costo') )['totale']
-#        ) or 0.0
-
-#        return sum(
-#            # la somma dei costi totali dei temi figli
-#            [sottotema.costo_totale() for sottotema in self.temi_figli.all()],
-#            # partendo dal costo dei progetti in questo tema
-#            self.progetti.aggregate(total=models.Sum('costo'))['total'] or 0
-#        )
+        return query_set.aggregate(totale=models.Sum('{0}fin_totale_pubblico'.format(prefix)) )['totale'] or 0.0
 
 
     def __unicode__(self):
@@ -156,6 +142,9 @@ class Fonte(models.Model):
 
 
 class ClassificazioneAzione(models.Model):
+
+    objects = ClassificazioneAzioneManager()
+
     TIPO = Choices(
         ('natura', 'Natura'),
         ('tipologia', 'Tipologia'),
@@ -174,6 +163,22 @@ class ClassificazioneAzione(models.Model):
     @property
     def progetti(self):
         return self.progetto_set
+
+    def is_natura(self):
+        return self.tipo_classificazione == ClassificazioneAzione.TIPO.natura
+
+    def costo_totale(self, territorio=None ):
+        if self.is_natura():
+            prefix = 'progetto_set__'
+            query_set = self.classificazioni_figlie
+        else:
+            prefix = ''
+            query_set = self.progetti
+
+        if territorio:
+            query_set = query_set.filter( **territorio.get_cod_dict('{0}territorio_set__'.format(prefix) ) )
+
+        return query_set.aggregate(totale=models.Sum('{0}fin_totale_pubblico'.format(prefix)) )['totale'] or 0.0
 
     def __unicode__(self):
         return u'%s %s' % (self.codice, self.descrizione)

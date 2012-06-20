@@ -54,6 +54,10 @@ class Territorio(models.Model):
         else:
             return self.progetti
 
+    @property
+    def code(self):
+        return self.get_cod_dict().values()[0]
+
     def get_cod_dict(self, prefix=''):
         """
         return a dict with {prefix}cod_{type} key initialized with correct value
