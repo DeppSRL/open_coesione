@@ -14,13 +14,24 @@ import locale
 
 locale.setlocale(locale.LC_ALL, '')
 
+indicatori_ammessi = []
+with open('dati/temi_indicatori.csv') as file_indicatori:
+    reader = csv.DictReader(file_indicatori, delimiter=';')
+    try:
+        for row in reader:
+            if not row['IID'] == '000':
+                indicatori_ammessi.append(row['IID'])
+    except csv.Error, e:
+        sys.exit('file %s, line %d: %s' % ('dati/temi_indicatori.csv', reader.line_num, e))
+
 csvfile = 'dati/istat.csv'
 with open(csvfile, 'rb') as f:
     reader = csv.DictReader(f, delimiter=';')
     rows = []
     try:
         for row in reader:
-            rows.append(row)
+            if row['COD_INDICATORE'] in indicatori_ammessi:
+                rows.append(row)
             #if reader.line_num > 50000:
             #    break
     except csv.Error, e:
@@ -99,7 +110,7 @@ with open(csvfile, 'rb') as f:
                 regions.sort(cmp=lambda x,y: cmp(int(x[0]), int(y[0])))
                 for reg in regions:
                     region_rows = [r for r in indicators_rows if r['ID_RIPARTIZIONE']==reg[0]]
-                    values = [reg[1]]
+                    values = [reg[1].decode('latin1').encode('utf-8')]
                     for r in region_rows:
                         if r['VALORE']:
                             values.append(str(locale.atof(r['VALORE'])))
