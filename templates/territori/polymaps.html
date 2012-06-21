@@ -118,7 +118,7 @@
             .hosts(["a.", "b.", "c.", ""])));
 
     map.add(po.geoJson()
-            .url("http://localhost:8025/regioni/{Z}/{X}/{Y}.geojson")
+            .url("{{ TILESTACHE_URL }}/oc-regions/{Z}/{X}/{Y}.geojson")
             .on("load", load)
             .id("regioni"));
 
