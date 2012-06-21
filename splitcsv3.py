@@ -17,6 +17,9 @@ DESCRIZIONE_ASSE_QCS;
  VALORE;
  DESCRIZIONE_TEMA_SINTETICO
 """
+import cStringIO
+import codecs
+
 __author__ = 'daniele'
 
 
@@ -27,7 +30,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 csvfile = 'dati/istat.csv'
 csvfile_encoding = 'latin'
-index_ignore_file = ''
+indexes_allowed_file = 'dati/temi_indicatori.csv'
 
 regioni_id_range = range(1,21) + [23]
 temi_db_mapping = {
@@ -52,7 +55,8 @@ db = {
     'temi': {},
     'indici': {},
     'valori': {},
-    'anni': []
+    'anni': [],
+    'indici_per_tema': {}
 }
 hits = copy.deepcopy(db)
 
@@ -77,25 +81,33 @@ def read_topic(line):
     return id
 
 def read_index_value(line):
-    id = int(line['COD_INDICATORE'])
+    id = line['COD_INDICATORE'].strip()
     year = int(line['ANNO_RIFERIMENTO'])
 
     if not id in db['indici']:
         db['indici'][id] = {
             'titolo': unicode(line['TITOLO'], csvfile_encoding),
-            'sottotitolo': unicode(line['SOTTOTITOLO'], csvfile_encoding),
+            'sottotitolo': unicode(line['SOTTOTITOLO'], csvfile_encoding)
         }
         hits['indici'][id] = 0
 
-    return id, year, (locale.atof(line['VALORE']) if line['VALORE'] else 0.0)
+    return id, year, (locale.atof(line['VALORE']) if line['VALORE'] else None)
 
 def main():
+    # take allowed indexes
+    allowed_indexes = [line['IID'] for line in csv.DictReader( open(indexes_allowed_file, 'r'), delimiter=';' ) if not line['IID'] == '000']
+
+
     # open file
     file = open(csvfile, 'rb')
     # make a csv reader
     reader = csv.DictReader(file, delimiter=';' )
     # parse data
     for row in reader:
+        # skip not allowed index
+        if not row['COD_INDICATORE'].strip() in allowed_indexes:
+            continue
+
         # read location
         regione_id = read_location(row)
 
@@ -115,6 +127,16 @@ def main():
 
         hits['indici'][index_id] += 1
 
+        # link this index with topic
+        if not tema_id in db['indici_per_tema']:
+            db['indici_per_tema'][tema_id] = []
+
+        if not index_id in db['indici_per_tema'][tema_id]:
+            db['indici_per_tema'][tema_id].append(index_id)
+
+        if not year in db['anni']:
+            db['anni'].append(year)
+
         if not index_id in db['valori']:
             # initialize db for this index
             db['valori'][index_id] = {}
@@ -125,3 +147,103 @@ def main():
 
         # add index value to db
         db['valori'][index_id][regione_id][year] = value
+
+class UnicodeWriter:
+    """
+    A CSV writer which will write rows to CSV file "f",
+    which is encoded in the given encoding.
+    """
+
+    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+        # Redirect output to a queue
+        self.queue = cStringIO.StringIO()
+        self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
+        self.stream = f
+        self.encoder = codecs.getincrementalencoder(encoding)()
+
+    def writerow(self, row):
+        self.writer.writerow([s.encode("utf-8") for s in row])
+        # Fetch UTF-8 output from the queue ...
+        data = self.queue.getvalue()
+        data = data.decode("utf-8")
+        # ... and reencode it into the target encoding
+        data = self.encoder.encode(data)
+        # write to the target stream
+        self.stream.write(data)
+        # empty queue
+        self.queue.truncate(0)
+
+    def writerows(self, rows):
+        for row in rows:
+            self.writerow(row)
+
+
+def write():
+    years = db['anni']
+    temaind_fieldnames = ['Regione'] + [str(y) for y in years]
+    #temareg_fieldnames = ['Indicatore'] + years
+
+    temi_fieldnames =       ['ID', 'Denominazione tema sintetico']
+    indicatori_fieldnames = ['ID', 'Titolo', 'Sottotitolo']
+    regioni_fieldnames =    ['ID', 'Denominazione regione']
+
+    print "scrittura regioni"
+    with open("dati/istat/regioni.csv", 'wb') as wf:
+        # init writer
+        writer = UnicodeWriter(wf)
+        # write headers
+        writer.writerow(regioni_fieldnames)
+        # iterate on sorted locations by id
+        for loc_id in sorted(db['regioni']):
+            print "  %s" % db['regioni'][loc_id]
+            writer.writerow( [ str(loc_id), db['regioni'][loc_id] ] )
+
+    print " "
+
+    print "scrittura temi"
+    with open("dati/istat/temi.csv", 'wb') as wf:
+        # init writer
+        writer = UnicodeWriter(wf)
+        # write headers
+        writer.writerow(temi_fieldnames)
+        # iterate on sorted locations by id
+        for topic_id in sorted(db['temi']):
+            print "  %s" % db['temi'][topic_id]
+            writer.writerow( [ str(topic_id), db['temi'][topic_id] ] )
+
+    print " "
+
+    print "loop costruzione file csv distinti"
+    for topic_id in sorted(db['indici_per_tema']):
+        print " TEMA: %s" % db['temi'][topic_id]
+
+        with open("dati/istat/indicatori/%s.csv" % topic_id, 'wb') as wf:
+            writer = UnicodeWriter(wf)
+
+            # write headers
+            writer.writerow(indicatori_fieldnames)
+
+            # write index in this topic
+            for index_id in sorted(db['indici_per_tema'][topic_id]):
+                index = db['indici'][index_id]
+                print "  %s, %s" % ( index['titolo'], index['sottotitolo'] )
+                writer.writerow( [ index_id , index['titolo'], index['sottotitolo'] ] )
+
+                ind_writer = UnicodeWriter(open("dati/istat/temaind/%s_%s.csv" % ( topic_id, index_id ), 'wb'))
+
+                # write headers
+                ind_writer.writerow(temaind_fieldnames)
+
+                for location_id in sorted(db['valori'][index_id]):
+
+                    values = [ db['regioni'][location_id], ]
+                    # collect values
+                    for year in db['valori'][index_id][location_id]:
+                        val = db['valori'][index_id][location_id][year]
+                        values.append( str(val) if val else '' )
+
+                    ind_writer.writerow( values )
+
+
+
+
