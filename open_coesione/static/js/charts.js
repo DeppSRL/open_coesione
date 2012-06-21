@@ -53,20 +53,23 @@ APP.init = function(base_url) {
         url: this.base_url +"csv/regioni.csv",
         async: false
     }).done(function(data) {
-            $.each( data.split('\n'), function(lineNo,line) {
-                if (lineNo == 0 || !line ) return;
-                var items = line.split(',');
-                APP.regioni[ items[0] ] = { denominazione: items[1] };
-            })
-        });
+        $.each( data.split('\n'), function(lineNo,line) {
+            if (lineNo == 0 || !line.trim() ) return;
+            var items = line.split(',');
+            APP.regioni[ items[0] ] = { denominazione: items[1] };
+        })
+    });
 };
 
 APP.print_pie_chart = function( source, destination )
 {
     // Main topics chart
     var total = 0;
-    var main_topics_options = pie_chart_options;
-    main_topics_options.chart.renderTo = destination;
+    var main_topics_options = $.extend(true, pie_chart_options, {
+        chart: {
+            renderTo: destination
+        }
+    });
     var series = {
         type: 'pie',
         data: []
@@ -213,6 +216,7 @@ APP._print_line_chart = function(topic_id, container, location_id, index_id, dat
         ];
     });
 
+    console.log(options);
     // Create the chart
     APP.charts[topic_id+"_"+location_id+"_"+index_id] = new Highcharts.Chart(options);
 }

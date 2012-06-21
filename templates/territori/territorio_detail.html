@@ -27,9 +27,9 @@
         pie_charts['types'] = APP.print_pie_chart('#main_types', 'main_types_chart' );
 
         $('#index_charts .collapse').on('show', function(e) {
-          var chart_container = $('div',$(e.currentTarget)).first();
-            APP.print_line_chart( chart_container.data('tema'), chart_container.attr('id'), {{ territorio.code }} );
-        }).height('auto').first().collapse('show');
+            var chart_container = $(e.currentTarget);
+            APP.print_line_chart( chart_container.data('tema'), chart_container.attr('id') + "_chart", {{ territorio.code }} );
+        }).first().collapse('show');
 
     });
   </script>
@@ -136,20 +136,22 @@
 
   <section class="container">
     <div class="row">
-      <div class="span12">
+      <div class="span12" id="charts_accordion">
         <h1>Indicatori sui temi</h1>
 
         <div class="accordion" id="index_charts">
           {% for tema in temi_principali %}
             <div class="accordion-group">
               <div class="accordion-heading">
-                <a class="accordion-toggle" data-toggle="collapse" data-parent="#index_charts" href="#theme_index_{{ tema.codice }}">
-                  <i class="icon-circle-arrow-down pull-right"></i>
-                  {{ tema.descrizione }}
-                </a>
+                <h2 class="accordion-toggle" data-toggle="collapse" data-parent="#index_charts">
+                  <a href="#theme_index_{{ tema.codice }}">
+                    <i class="icon-circle-arrow-down pull-right"></i>
+                    {{ tema.descrizione }}
+                  </a>
+                </h2>
               </div>
-              <div class="accordion-body collapse{% if forloop.first %} in{% endif %}">
-                <div id="theme_index_{{ tema.codice }}" data-tema="{{ tema.codice }}"></div>
+              <div id="theme_index_{{ tema.codice }}" data-tema="{{ tema.codice }}" class="accordion-body collapse{% if forloop.first %} in{% endif %}">
+                <div class="accordion-inner" id="theme_index_{{ tema.codice }}_chart" style="height:270px;"></div>
               </div>
             </div>
 {#          <h2 data-toggle="collapse" data-target="#theme_index_{{ tema.codice }}">#}
@@ -161,6 +163,7 @@
 {#          </div>#}
           {% endfor %}
         </div>
+
       </div>
     </div>
   </section>
