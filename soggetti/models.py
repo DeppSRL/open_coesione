@@ -12,6 +12,7 @@ class Soggetto(models.Model):
     codice_fiscale = models.CharField(max_length=16, primary_key=True)
     denominazione = models.CharField(max_length=255)
     ruolo = models.CharField(max_length=1, choices=RUOLO)
+    slug = models.CharField(max_length=128, blank=True, null=True)
 
     @property
     def progetti(self):
