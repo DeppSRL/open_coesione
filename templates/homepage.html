@@ -206,9 +206,14 @@
         $('#selectors #regioni').click(function(){
             map.remove(layers['province']);
             map.add(layers['regioni']);
-            map.remove(po.compass());
+
+            d3.select("#map .compass").remove();
             map.add(po.compass()
                     .pan("none"));
+
+            d3.select("#legenda").remove();
+            draw_legend("#map svg", "regioni");
+
             $(this).addClass("selected");
             $('#selectors #province').removeClass("selected");
             return false;
@@ -216,9 +221,14 @@
         $('#selectors #province').click(function(){
             map.remove(layers['regioni']);
             map.add(layers['province']);
-            map.remove(po.compass());
+
+            d3.select("#map .compass").remove();
             map.add(po.compass()
                     .pan("none"));
+
+            d3.select("#legenda").remove();
+            draw_legend("#map svg", "province");
+
             $(this).addClass("selected");
             $('#selectors #regioni').removeClass("selected");
             return false;
