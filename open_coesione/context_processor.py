@@ -9,6 +9,6 @@ def main_settings(request):
     return {
         'DEBUG': settings.DEBUG,
         'STATIC_URL': settings.STATIC_URL,
-
+        'TILESTACHE_URL': settings.TILESTACHE_URL,
         'lista_regioni': Territorio.objects.filter(territorio= Territorio.TERRITORIO.R),
     }

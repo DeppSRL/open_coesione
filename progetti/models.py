@@ -72,6 +72,7 @@ class Tema(models.Model):
                                        db_column='tema_superiore', null=True, blank=True)
     codice = models.CharField(max_length=16, primary_key=True)
     descrizione = models.TextField()
+    short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_tema = models.CharField(max_length=16, choices=TIPO)
 
     objects = TemiManager()
@@ -154,6 +155,7 @@ class ClassificazioneAzione(models.Model):
                                                   db_column='classificazione_superiore', null=True, blank=True)
     codice = models.CharField(max_length=8, primary_key=True)
     descrizione = models.TextField()
+    short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_classificazione = models.CharField(max_length=16, choices=TIPO)
 
     @property
@@ -263,6 +265,8 @@ class Progetto(models.Model):
                                      db_column='cod_locale_progetto')
     cup = models.CharField(max_length=15)
     titolo_progetto = models.TextField()
+    descrizione = models.TextField(blank=True, null=True)
+    slug = models.CharField(max_length=128, blank=True, null=True)
     classificazione_qsn = models.ForeignKey('ClassificazioneQSN',
                                             related_name='progetto_set',
                                             db_column='classificazione_qsn')

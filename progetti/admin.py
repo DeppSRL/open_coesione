@@ -15,12 +15,14 @@ class ProgettoAdmin(admin.ModelAdmin):
     search_fields = ['^codice_locale',]
     filter_vertical = ('soggetto_set',)
 
+class TemaAdmin(admin.ModelAdmin):
+    list_filter = ('tipo_tema',)
 
 admin.site.register(Progetto, ProgettoAdmin)
 admin.site.register(ClassificazioneQSN)
 admin.site.register(ClassificazioneAzione)
 admin.site.register(ClassificazioneOggetto)
 admin.site.register(ProgrammaAsseObiettivo, ProgrammaAsseObiettivoAdmin)
-admin.site.register(Tema)
+admin.site.register(Tema, TemaAdmin)
 admin.site.register(Fonte)
 

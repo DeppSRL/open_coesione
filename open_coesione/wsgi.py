@@ -13,9 +13,7 @@ middleware here, or combine a Django application with an application of another
 framework.
 
 """
-import os, sys
-
-sys.path.append('/home/virtualenvs/open_coesione/lib/python2.6/site-packages')
+import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "open_coesione.settings_local")
 
 # This application object is used by any WSGI server configured to use this
