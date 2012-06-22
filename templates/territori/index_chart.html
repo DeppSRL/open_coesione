@@ -2,167 +2,27 @@
 <head>
   <script type="text/javascript" src="/static/js/jquery-1.7.2.min.js"></script>
   <script type="text/javascript" src="/static/js/highcharts.src.js"></script>
+  <script type="text/javascript" src="/static/js/charts.js"></script>
 </head>
 <body>
 
   <h1>Indicatori per il tema {{ tema.descrizione }} [{{ tema.codice }}] in {{ territorio }} [{{ territorio.cod_reg }}]</h1>
 
-  <div id="index_chart_{{ temi_principali.0.pk }}" data-themecode="{{ temi_principali.0.pk.codice }}" style="height: 270px;"></div>
-  <div id="topic_chart"></div>
+  <div id="topic_chart" data-topic="{{ tema.codice }}" data-location="{{ territorio.cod_reg }}"></div>
+  <select id="region-selector">
+    <option value="">-- Confronta con una regione --</option>
+  </select>
+  <a id="region-reset" href="#">reset</a>
+  <br/>
+  <select id="indicator-selector"></select>
 
   <script type="text/javascript">
 
-    var base_url = '/static/',
-        cache = {
-          regioni: {},
-          temi: {},
-          indicatori: {},
-          series: {}
-        };
 
-    var read_csv = function(csvtext, skip_first, separator) {
-      separator = separator || ',';
-      // split text in lines
-      var lines = csvtext.split(/\n/);
-      // remove last empty line
-      lines.pop(lines.length-1);
-      // remove first line if not required
-      (skip_first || false) && (lines.shift());
-      // prepare results
-      var results = {};
-      for( var line=0; line< lines.length; line++) {
-        // split line to cells
-        var items = lines[line].split(separator);
-        // take the first for key
-        var key = items.shift().trim();
-        // add this line to results
-        results[ key ] = items.length == 1 ?
-            items[0].trim() :
-            $.map(items, $.trim);
-      }
-      return results;
-    }
-
-    var read_indexes = function(csvtext) {
-      var indexes = {};
-      $.each(read_csv(csvtext, true), function(index, line) {
-        cache['indicatori'][ index ] = []
-      });
-      return indexes;
-    }
-
-    var load_topic = function( topic_id, callback ) {
-      if ( !(topic_id in cache['indicatori'] ))  {
-
-        $.when( $.get(base_url + 'csv/indicatori/' + topic_id + '.csv') ).done(function(csvtext) {
-          cache['indicatori'][topic_id] = {};
-          $.each( read_csv(csvtext, true), function(index_id, values) {
-            cache['indicatori'][topic_id][index_id] = {
-              titolo: values[0],
-              sottotitolo: values[1]
-            }
-          });
-          callback(cache['indicatori'][topic_id])
-        });
-
-      }
-      else {
-        callback(cache['indicatori'][topic_id]);
-      }
-
-    };
-
-    var read_values = function(values, years)
-    {
-      var results = [];
-      for ( var i=0; i< years.length; i++ ) {
-        var value = parseFloat(values[i]);
-        // skip empty
-        if ( isNaN(value) ) continue;
-        // add index data
-        results.push([ Date.UTC(years[i], 1, 1), value ]);
-      }
-      return results;
-    };
 
     $(document).ready(function() {
 
-      $.when(
-          $.get(base_url + 'csv/regioni.csv'),
-          $.get(base_url + 'csv/temi.csv')
-      )
-      .done(function(regioni, temi) {
-
-          cache['regioni']  = read_csv(regioni[0],true);
-          cache['temi']     = read_csv(temi[0],true);
-
-          var topic_id = Object.keys(cache['temi'])[0];
-          var index_id = 0;
-
-          load_topic(topic_id, function( indexes ) {
-            // take first index or selected
-            index_id = index_id == 0 ? Object.keys(indexes)[0] : index_id;
-            // load data
-            $.when( $.get(base_url + 'csv/temaind/' + topic_id + '_' + index_id + '.csv'))
-            .done(function(csvtext) {
-              // prepare cache
-              cache['series'][index_id] = [];
-              var years = [];
-              // parse data
-              $.each( read_csv(csvtext), function(location, values) {
-                if ( location == 'Regione' ) {
-                  // headers
-                  years = values;
-                }
-                else {
-                  // location data-set
-                  cache['series'][index_id].push({
-                    name: location,
-                    data: read_values( values, years )
-                  });
-                }
-              });
-
-              var options = {
-                chart: {
-                  renderTo: 'topic_chart',
-                  type: 'spline'
-                },
-                title: {
-                  text: cache['indicatori'][topic_id][index_id].titolo
-                },
-                subtitle: {
-                  text: cache['indicatori'][topic_id][index_id].sottotitolo
-                },
-                series: cache['series'][index_id],
-                xAxis: {
-                  showLastLabel: true,
-                  type: 'datetime',
-                  dateTimeLabelFormats: {
-                    month: '%Y',
-                    year: '%Y'
-                  },
-                  min: Date.UTC(1994, 1, 1),
-                  max: Date.UTC(2012, 1, 1)
-                },
-                yAxis: {
-                  title: {
-                    align: 'high',
-                    offset: 0,
-                    text: '%',
-                    rotation: 0,
-                    y: -10
-                  }
-                }
-              }
-
-                  console.log('chart',topic_id, index_id,cache['indicatori'][topic_id][index_id].titolo, options);
-              // create chart
-              new Highcharts.Chart(options);
-            });
-          });
-
-      });
+      print_line_chart('#topic_chart');
 
     });
   </script>

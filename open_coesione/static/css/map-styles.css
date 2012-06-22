@@ -1,6 +1,7 @@
 #map {
     clear: both;
     background: #E6E6E6;
+    height: 750px;
 }
 
 .layer path {

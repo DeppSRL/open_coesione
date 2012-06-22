@@ -15,20 +15,31 @@
   {{ block.super }}
 
   <script type="text/javascript">
-    // creates two piecharts using charts.js function
-    var pie_charts = {};
-
 
     $(document).ready(function() {
 
-        APP.init('{{ STATIC_URL }}');
+        APP.base_url = '{{ STATIC_URL }}' ;
 
-        pie_charts['topics'] = APP.print_pie_chart('#main_topics', 'main_topics_chart' );
-        pie_charts['types'] = APP.print_pie_chart('#main_types', 'main_types_chart' );
+        print_pie_chart('#main_topics', 'main_topics_chart' );
+        print_pie_chart('#main_types', 'main_types_chart' );
 
-        $('#index_charts .collapse').on('show', function(e) {
-            var chart_container = $(e.currentTarget);
-            APP.print_line_chart( chart_container.data('tema'), chart_container.attr('id') + "_chart", {{ territorio.code }} );
+        $('#index_charts .collapse')
+            .on('show', function(e) {
+                !$.isEmptyObject(APP.chart) && APP.chart.destroy();
+                var $chart_container = $(e.currentTarget).css('height','auto');
+                var $selectors = $('#topic_chart').next('form');
+                //console.log($chart_container,'topic', $chart_container.data('topic'), 'location', $chart_container.data('location') );
+                $('#topic_chart')
+                    .data('topic', $chart_container.data('topic'))
+                    .data('location', $chart_container.data('location'))
+                    .appendTo( $chart_container.children().first() )
+                    .after( $selectors )
+                ;
+            })
+            .on('shown', function(e) {
+
+                print_line_chart('#topic_chart');
+
         }).first().collapse('show');
 
     });
@@ -143,15 +154,26 @@
           {% for tema in temi_principali %}
             <div class="accordion-group">
               <div class="accordion-heading">
-                <h2 class="accordion-toggle" data-toggle="collapse" data-parent="#index_charts">
-                  <a href="#theme_index_{{ tema.codice }}">
+                <h2 class="accordion-toggle" data-toggle="collapse" data-parent="#index_charts" data-target="#theme_index_{{ tema.codice }}">
+
                     <i class="icon-circle-arrow-down pull-right"></i>
                     {{ tema.descrizione }}
-                  </a>
+
                 </h2>
               </div>
-              <div id="theme_index_{{ tema.codice }}" data-tema="{{ tema.codice }}" class="accordion-body collapse{% if forloop.first %} in{% endif %}">
-                <div class="accordion-inner" id="theme_index_{{ tema.codice }}_chart" style="height:270px;"></div>
+              <div id="theme_index_{{ tema.codice }}" data-topic="{{ tema.codice }}" data-location="{{ territorio.cod_reg }}" class="accordion-body collapse{% if forloop.first %} in{% endif %}">
+                <div class="accordion-inner">{% if forloop.first %}
+                  <div id="topic_chart" style="height:270px;"></div>
+                  <form action="#">
+                    <div class="input-append text-center">
+                      <select id="region-selector" class="span3">
+                        <option value=""> -- Confronta con una regione -- </option>
+                      </select><a id="region-reset" class="btn add-on" href="#">reset</a>
+
+                      <select id="indicator-selector" class="span5"></select>
+                    </div>
+                  </form>
+                {% endif %}</div>
               </div>
             </div>
 {#          <h2 data-toggle="collapse" data-target="#theme_index_{{ tema.codice }}">#}

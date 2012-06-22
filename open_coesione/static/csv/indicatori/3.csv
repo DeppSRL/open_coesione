@@ -1,31 +1,10 @@
 ID,Titolo,Sottotitolo
-184,Tasso di disoccupazione di lunga durata (femmine),Quota di persone in cerca di occupazione da oltre 12 mesi sul totale delle forze lavoro (%)
-175,Tasso di disoccupazione (maschi),Persone in cerca di occupazione in età 15 anni e oltre sulle forze di lavoro nella corrispondente classe di età (%)
-178,Tasso di occupazione (femmine),Persone occupate in età 15-64 anni sulla popolazione nella corrispondente classe di età (%)
-181,Tasso di occupazione 55-64 anni (maschi),Persone occupate in età 55-64 anni sulla popolazione nella corrispondente classe di età (%)
-203,Tasso di attività totale della popolazione (femmine),Tasso di attività della popolazione in età 15-64 anni
 063,Occupati che partecipano ad attività formative e di istruzione,Adulti occupati nella classe d'età 25-64 anni che partecipano ad attività formative e di istruzione per 100 adulti occupati nella classe di età corrispondente (%)
-174,Tasso di disoccupazione giovanile (femmine),Donne disoccupate in età 15-24 in percentuale delle forze di lavoro nella corrispondente classe di età
-177,Tasso di occupazione (maschi),Persone occupate in età 15-64 anni sulla popolazione nella corrispondente classe di età (%)
-183,Tasso di disoccupazione di lunga durata (maschi),Quota di persone in cerca di occupazione da oltre 12 mesi sul totale delle forze lavoro (%)
-179,Incidenza della disoccupazione di lunga durata (maschi),Quota di persone in cerca di occupazione da oltre 12 mesi sul totale delle persone in cerca di occupazione (%)
-012,Tasso di disoccupazione,Persone in cerca di occupazione in età 15 anni e oltre sulle forze di lavoro nella corrispondente classe di età (%)
-013,Tasso di occupazione,Persone occupate in età 15-64 anni sulla popolazione nella corrispondente classe di età (%)
-182,Tasso di occupazione 55-64 anni (femmine),Persone occupate in età 55-64 anni sulla popolazione nella corrispondente classe di età (%)
-061,Differenza tra tasso di attività maschile e femminile,Differenza assoluta fra tasso di attività maschile e tasso di attività femminile  in età 15-64 anni (%)
-188,Non occupati che partecipano ad attività formative e di istruzione (femmine),Adulti inoccupati (disoccupati+non forze di lavoro) nella classe d'età 25-64 anni che partecipano ad attività formative e di istruzione per 100 adulti inoccupati nella classe d'età corrispondente
-015,Tasso di disoccupazione giovanile,Persone in cerca di occupazione in età 15-24 anni su forze di lavoro della corrispondente classe di età (%)
-016,Incidenza della disoccupazione di lunga durata,Quota di persone in cerca di occupazione da oltre 12 mesi sul totale delle persone in cerca di occupazione (%)
-057,Differenza tra tasso di occupazione maschile e femminile,Differenza assoluta fra tasso di occupazione maschile e tasso di occupazione femminile in età 15-64 anni (%)
-017,Tasso di disoccupazione di lunga durata,Quota di persone in cerca di occupazione da oltre 12 mesi sulle forze di lavoro (%)
-050,Tasso di occupazione regolare,Occupati interni regolari sulla popolazione residente media in età 15-64 anni (%)
-186,Occupati che partecipano ad attività formative e di istruzione (femmine),Adulti occupati nella classe d'età 25-64 anni che partecipano ad attività formative e di istruzione per 100 adulti occupati nella classe di età corrispondente (%)
-108,Partecipazione della popolazione al mercato del lavoro,Forze di lavoro in età 15-64 anni sul totale della popolazione in età 15-64 anni (%)
-230,Tasso di disoccupazione giovanile (maschi),Maschi disoccupati in età 15-24 in percentuale delle forze di lavoro nella corrispondente classe di età
 067,Non occupati che partecipano ad attività formative e di istruzione,Adulti inoccupati (disoccupati e non forze di lavoro) nella classe d'età 25-64 anni che partecipano ad attività formative e di istruzione per 100 adulti inoccupati nella classe d'età corrispondente (%
-014,Tasso di occupazione 55-64 anni,Persone occupate in età 55-64 anni sulla popolazione nella corrispondente classe di età (%)
-185,Occupati che partecipano ad attività formative e di istruzione (maschi),Adulti occupati nella classe d'età 25-64 anni che partecipano ad attività formative e di istruzione per 100 adulti occupati nella classe di età corrispondente (%)
-180,Incidenza della disoccupazione di lunga durata (femmine),Quota di persone in cerca di occupazione da oltre 12 mesi sul totale delle persone in cerca di occupazione (%)
-213,Tasso di attività totale della popolazione (maschi),Tasso di attività della popolazione in età 15-64 anni
-187,Non occupati che partecipano ad attività formative e di istruzione (maschi),Adulti inoccupati (disoccupati+non forze di lavoro) nella classe d'età 25-64 anni che partecipano ad attività formative e di istruzione per 100 adulti inoccupati nella classe d'età corrispondente
-176,Tasso di disoccupazione (femmine),Persone in cerca di occupazione in età 15 anni e oltre sulle forze di lavoro nella corrispondente classe di età (%)
+077,Livello di istruzione della popolazione 15-19 anni,Quota della popolazione di 15-19 anni in possesso almeno della licenza media inferiore (%)
+099,Adulti che partecipano all'apprendimento permanente,Percentuale della popolazione 25-64 anni che frequenta un corso di studio o di formazione professionale
+102,Giovani che abbandonano prematuramente gli studi,Popolazione 18-24 anni con al più la licenza media e che non frequenta altri corsi scolastici o svolge attività formative superiori ai 2 anni (%)
+106,Studenti con scarse competenze in lettura,Percentuale di 15-enni con un livello basso di competenza (al massimo primo livello) nell'area della lettura
+110,Studenti con scarse competenze in matematica,Percentuale di 15-enni con un livello basso di competenza (al massimo primo livello) nell'area della matematica
+111,Studenti con elevate competenze in lettura,Percentuale di 15-enni con un livello elevato di competenza (almeno il quarto livello) nell'area della lettura
+112,Studenti con elevate competenze in matematica,Percentuale di 15-enni con un livello elevato di competenza (almeno il quarto livello) nell'area della matematica

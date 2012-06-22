@@ -1,9 +1,5 @@
 ID,Titolo,Sottotitolo
-131,Intensità energetica dell'industria,(migliaia di tonnellate equivalenti di petrolio per milioni di euro di valore aggiunto prodotto dall'industria)
-080,Energia prodotta da fonti rinnovabili,GWh di energia prodotta da fonti rinnovabili su GWh prodotti in totale
-081,Potenza efficiente lorda delle fonti rinnovabili,Mw di potenza efficiente lorda delle fonti rinnovabili su Mw di potenza efficiente lorda totale (in %)
-231,Grado di insoddisfazione dell'utenza per l'erogazione di gas,
-086,Consumi di energia elettrica coperti da fonti rinnovabili (escluso idrico),Produzione lorda di energia elettrica da fonti rinnovabili (escluso idrico)  in percentuale dei consumi interni lordi di energia elettrica
-082,Popolazione regionale servita da gas metano,Popolazione regionale che risiede in comuni serviti da gas metano (%)
-085,Consumi di energia elettrica coperti da fonti rinnovabili,Produzione lorda di energia elettrica da fonti rinnovabili in percentuale dei consumi interni lordi di energia elettrica
-060,Interruzioni del servizio elettrico,Frequenza delle interruzioni accidentali lunghe del servizio elettrico (numero medio per utente)
+142,Diffusione dei servizi per l'infanzia,"Percentuale di Comuni che hanno attivato servizi per l'infanzia (asilo nido, micronidi o servizi integrativi e innovativi) sul totale dei Comuni della regione"
+143,Presa in carico ponderata dell'utenza dei servizi per l'infanzia,"Bambini tra zero e 3 anni che hanno usufruito dei servizi per l'infanzia (asilo nido, micronidi, o servizi integrativi e innovativi) di cui il 70% in asili nido, sul totale della popolazione 0-3 anni"
+144,Presa in carico degli anziani per il servizio di assistenza domiciliare integrata,Anziani trattati in assistenza domiciliare integrata (ADI) rispetto al totale della popolazione anziana (65 anni e oltre) (%)
+145,Incidenza del costo dell'ADI sul totale della spesa sanitaria,Incidenza percentuale del costo dell'ADI sul totale della spesa sanitaria regionale  (%)

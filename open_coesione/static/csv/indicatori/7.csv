@@ -1,15 +1,6 @@
 ID,Titolo,Sottotitolo
-118,Indice del traffico merci su strada,Tonnellate di merci in ingresso ed in uscita su strada per abitante
-170,Indice del traffico merci su ferrovia,Tonnellate di merci in ingresso ed in uscita per ferrovia per 100 abitanti
-212,Indice di utilizzazione del trasporto ferroviario (1) (femmine),Frequenza di utilizzazione dei treni (%)
-172,Grado di soddisfazione del servizio di trasporto ferroviario,Media delle persone che si dichiarano soddisfatte delle sette diverse caratteristiche del servizio rilevate sul totale degli utenti del servizio (%)
-047,Indice di utilizzazione del trasporto ferroviario (2),"Lavoratori, scolari e studenti di 3 anni e più che utilizzano il treno abitualmente per recarsi a lavoro, asilo o scuola sul totale (%)"
-020,Tonnellate di merci in ingresso ed in uscita per ferrovia sul totale delle modalità,Tonnellate di merci in ingresso ed in uscita per ferrovia sul totale delle modalità
-119,Indice del traffico delle merci in navigazione di cabotaggio,Tonnellate di merci in ingresso ed in uscita in navigazione di cabotaggio per 100 abitanti
-026,Tonnellate di merci in ingresso ed in uscita su strada sul totale delle modalità,Tonnellate di merci in ingresso ed in uscita su strada sul totale delle modalità
-022,Tonnellate di merci in ingresso ed in uscita in navigazione di cabotaggio sul totale delle modalità,Tonnellate di merci in ingresso ed in uscita in navigazione di cabotaggio sul totale delle modalità
-209,Grado di soddisfazione del servizio di trasporto ferroviario (maschi),Grado di soddisfazione dell'utenza per i servizi di trasporto ferroviario
-044,Indice del traffico aereo,Passeggeri sbarcati e imbarcati per via aerea per 100 abitanti
-211,Indice di utilizzazione del trasporto ferroviario (1) (maschi),Frequenza di utilizzazione dei treni (%)
-210,Grado di soddisfazione del servizio di trasporto ferroviario (femmine),Grado di soddisfazione dell'utenza per i servizi di trasporto ferroviario
-046,Indice di utilizzazione del trasporto ferroviario (1),Persone che hanno utilizzato il mezzo di trasporto almeno una volta nell'anno sul totale della popolazione di 14 anni e oltre (%)
+018,Indice di domanda culturale degli istituti statali (media per istituto),Numero di visitatori degli istituti statali di antichità e d'arte per istituto statale (valori in migliaia)
+024,Grado di promozione dell'offerta culturale degli istituti statali,Visitatori paganti su visitatori non paganti degli istituti statali di antichità e di arte con ingresso a pagamento (%)
+030,Indice di domanda culturale (circuiti museali),Numero di visitatori dei circuiti museali sul totale istituti statali di antichità e d'arte appartenenti ai circuiti (valori in migliaia)
+032,Incidenza dei biglietti venduti nei circuiti museali,Numero di biglietti dei circuiti museali sul totale dei biglietti degli istituti statali di antichità e d'arte (%)
+165,Turismo nei mesi non estivi,Giornate di presenza (italiani e stranieri) nel complesso degli esercizi ricettivi nei mesi non estivi per abitante
