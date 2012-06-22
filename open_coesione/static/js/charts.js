@@ -55,7 +55,10 @@ var pie_chart_options = {
         }
     },
     series: [],
-    credits: defaults.credits
+    credits: defaults.credits,
+    colors: [
+        "#ECE7DF", "#CAC7C3", "#979491", "#686462", "#2E2B2A", "#777777", "#AAAAAA", "#BBBBBB", "#CCCCCC", "#DDDDDD", "#EEEEEE"
+    ]
 };
 
 var print_pie_chart = function( source, destination )

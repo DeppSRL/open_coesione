@@ -7,6 +7,9 @@
 @import "bootstrap/bootstrap.less";
 
 @import "blocks.less";
+@import "navbar.less";
+
+body { background-image: url('../img/site-bg.png'); background-repeat: repeat; }
 
 a {
   font-weight: @linkWeight;
@@ -21,81 +24,6 @@ a {
 
 #sidebar { .bg-gray; }
 
-.navbar-full-width {
-  margin-bottom: 0;
-
-  // remove rounded corners
-  .navbar-inner {
-    .border-radius(0);
-  }
-
-  a {
-    color: @black;
-    font-weight: bold;
-  }
-
-  // left alignment and fixed width
-  .nav > li > a {
-    padding-top: 2px;
-    text-align: left;
-    display: block;
-    font-weight: bold;
-  }
-
-  // submenus
-  // http://jsfprimefacesblog.blogspot.it/2012/05/bootstrap-multilevel-dropdown-menu.html
-  .dropdown-menu {
-    background-color: @green;
-
-    // set submenu under main menu
-    .submenu .submenu-show {
-      top: @navbarHeight;
-
-      // columns of submenu
-      & > li {
-
-        width: 500px;
-
-        & > ul {
-          list-style: none;
-          margin:0;
-          width: 33%;
-          float:left;
-        }
-      }
-    }
-  }
-
-  // fix first level width to its container
-  .nav > .dropdown > .dropdown-menu {
-    min-width: auto;
-    right: 0;
-    left: 0;
-  }
-}
-
-// custom menu item widths
-// simulate vertical-divider
-.navbar-full-width .nav {
-  //width: 50%;
-  border-left: 1px solid @white;
-  & > li {
-    width: 32%;
-    border-right: 1px solid @white;
-
-    // mouse hover styles
-    &:hover {
-      background-color: @greenDarker;
-      &.violet { background-color: @violet; }
-      &.brown { background-color: @brown; }
-    }
-
-    // fix menu width
-    &.dropdown > dropdown-menu {
-      left:0; right:0;
-    }
-  }
-}
 
 // text alignments
 .text-left { text-align: left }
@@ -136,6 +64,8 @@ section h1.title {
   margin-bottom: 8px;
 }
 
+// background color for containers
+#wrapper > * > * { background-color: @bodyBackground; &.area { .bg-gray; } }
 // sections with common colored background
 .area {
   .bg-gray;
