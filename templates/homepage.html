@@ -6,9 +6,9 @@
 
 {% block css_header %}
     {{ block.super }}
-    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}simplegeo-polymaps/examples/example.css">
-    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}simplegeo-polymaps/lib/colorbrewer/colorbrewer.css">
-    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/map-styles.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}simplegeo-polymaps/examples/example.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}simplegeo-polymaps/lib/colorbrewer/colorbrewer.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/map-styles.css">
 {% endblock %}
 
 {% block js_content %}
@@ -40,33 +40,6 @@
             return x1 + x2;
         }
 
-        // draw a legend
-        function drawLegend(element, qMin, qMax) {
-            // create a new group with the specific base color and add the lower value
-            d3.select(element)
-                    .append(po.svg("g"))
-                    .attr("id", "legenda").attr("class", "TODO")
-                    .append("text")
-                    .attr("x", "20").attr("y", "40").text("Min: " + Math.round(qMin*100)/100);
-
-            // add the various blocks of the legenda
-            d3.select(element).select("#legenda").selectAll("rect")
-                    .data(d3.range(0, 8))
-                    .enter()
-                    .append("rect")
-                    .attr("width", "20").attr("height", "20").attr("y", "0")
-                    .attr("class", function (d, i) {
-                        return "q" + i + "-9";
-                    })
-                    .attr("x", function (d, i) {
-                        return (i + 1) * 20;
-                    });
-
-            // add a text element
-            d3.select(element).select("#legenda").append("text")
-                    .attr("x", "140").attr("y", "40").text("Max: " + Math.round(qMax*100)/100)
-        }
-
         // variables taken from django views
         var data = {{ data|safe }}
         var ext = {{ extent }};
@@ -76,16 +49,16 @@
         // polymaps object
         var po = org.polymaps;
 
-        // Compute noniles.
+        // Compute quintiles.
         var quantiles = {}
         quantiles['regioni'] = pv.Scale.quantile()
-                .quantiles(9)
+                .quantiles(5)
                 .domain(pv.values(data['regioni']['costo']))
-                .range(0, 8);
+                .range(0, 4);
         quantiles['province'] = pv.Scale.quantile()
-                .quantiles(9)
+                .quantiles(5)
                 .domain(pv.values(data['province']['costo']))
-                .range(0, 8);
+                .range(0, 4);
 
         var map = po.map()
                 .container(document.getElementById("map").appendChild(po.svg("svg")))
@@ -132,52 +105,56 @@
                 .pan("none"));
 
         // Insert legend
-        var legend = d3.select("#map svg")
-             .insert("svg:g", ".compass")
-             .attr("id", "legenda").attr("class", "TODO")
-             .attr("transform", "translate(400,30)");
+        function draw_legend(element, territorio) {
+            var legend = d3.select(element)
+                    .insert("svg:g", ".compass")
+                    .attr("id", "legenda").attr("class", "TODO")
+                    .attr("transform", "translate(400,30)");
 
 
-        legend.append("svg:rect")
-                .attr("x", "-20").attr("y", "-20")
-                .attr("width", "120").attr("height", "160")
-                .attr("class", "back")
+            legend.append("svg:rect")
+                    .attr("x", "-20").attr("y", "-20")
+                    .attr("width", "120").attr("height", "110")
+                    .attr("class", "back")
 
 
-        legend.append("svg:text")
-                .attr("x", "0")
-                .attr("y", "0")
-                .attr("font-size", "11")
-                .text("Milioni di €")
+            legend.append("svg:text")
+                    .attr("x", "0")
+                    .attr("y", "0")
+                    .attr("font-size", "11")
+                    .text("Milioni di €")
 
-        // add the various blocks of the legenda
-        legend.selectAll("circle")
-                .data(d3.range(0, 9))
-                .enter()
-                .append("svg:circle")
-                  .attr("r", "6").attr("cx", "0")
-                  .attr("class", function (d, i) {
-                    return "q" + i + "-9";
-                  })
-                  .attr("cy", function (d, i) {
-                    return (i + 1) * 14;
-                  })
+            // add the various blocks of the legenda
+            legend.selectAll("circle")
+                    .data(d3.range(0, 5))
+                    .enter()
+                    .append("svg:circle")
+                    .attr("r", "6").attr("cx", "0")
+                    .attr("class", function (d, i) {
+                        return "q" + i + "-5";
+                    })
+                    .attr("cy", function (d, i) {
+                        return (i + 1) * 14;
+                    })
 
-        legend.selectAll("text.quantiles")
-                .data(d3.range(0, 9))
-                .enter()
-                .append("svg:text")
-                .attr("class", "quantiles")
-                .attr("font-size", "11")
-                .attr("x", "10")
-                .attr("y", function (d, i) {
-                    return (i + 1) * 14 + 4;
-                })
-                .text(function (d, i) {
-                    return (quantiles['regioni'].quantiles()[i] / 1000000).toFixed(2) + " - " +
-                           (quantiles['regioni'].quantiles()[i+1] / 1000000).toFixed(2);
-                });
+            legend.selectAll("text.quantiles")
+                    .data(d3.range(0, 5))
+                    .enter()
+                    .append("svg:text")
+                    .attr("class", "quantiles")
+                    .attr("font-size", "11")
+                    .attr("x", "10")
+                    .attr("y", function (d, i) {
+                        return (i + 1) * 14 + 4;
+                    })
+                    .text(function (d, i) {
+                        return (quantiles[territorio].quantiles()[i] / 1000000).toFixed(2) + " - " +
+                                (quantiles[territorio].quantiles()[i+1] / 1000000).toFixed(2);
+                    });
 
+        }
+
+        draw_legend("#map svg", "regioni");
 
         function load_regioni(e) {
             console.log(e);
@@ -185,7 +162,7 @@
                 var feature = e.features[i];
                 var d = data['regioni']['costo'][feature.data.properties.cod_reg];
                 var id = feature.data.properties.id;
-                feature.element.setAttribute("class", "q" + quantiles['regioni'](d) + "-" + 9);
+                feature.element.setAttribute("class", "q" + quantiles['regioni'](d) + "-" + 5);
                 feature.element.appendChild(po.svg("title").appendChild(
                         document.createTextNode(feature.data.properties.denominazione + ": " + addCommas(d.toFixed(0)) + " €"))
                         .parentNode);
@@ -207,7 +184,7 @@
                 var feature = e.features[i];
                 var d = data['province']['costo'][feature.data.properties.cod_prov];
                 var id = feature.data.properties.id;
-                feature.element.setAttribute("class", "q" + quantiles['province'](d) + "-" + 9);
+                feature.element.setAttribute("class", "q" + quantiles['province'](d) + "-" + 5);
                 feature.element.appendChild(po.svg("title").appendChild(
                         document.createTextNode(feature.data.properties.denominazione + ": " + addCommas(d.toFixed(0)) + " €"))
                         .parentNode);
