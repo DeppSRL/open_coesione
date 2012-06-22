@@ -304,6 +304,21 @@ ul.spaced {
 
 // Highcharts customizations
 .highcharts-container { overflow: visible !important }
+.highcharts-tooltip {
+  .tooltip-box {
+    background-color: @white;
+    border: 2px solid @grayDarker;
+    max-width: 250px;
+    padding: 5px;
+    z-index: 999;
+    position: relative;
+
+    .border-radius(5px);
+    .clearfix();
+
+    white-space: normal;
+  }
+}
 
 #charts_accordion {
   margin-top: 10px; margin-bottom: 10px;
@@ -314,7 +329,7 @@ ul.spaced {
     font-size: 12px;
     padding: 4px 10px;
     cursor: pointer;
-    margin-bottom: 4px;
+    /*margin-bottom: 4px;*/
     i { font-size: 16px; }
   }
 }
