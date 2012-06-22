@@ -15,7 +15,9 @@
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
 
-  <!-- styles -->
+  {% block css_header %}{% endblock %}
+
+    <!-- styles -->
   {% addtoblock "css_link" %}
   {% if DEBUG %}
   <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/styles.less">
@@ -37,7 +39,39 @@
 
   {% render_block "js_script" %}
 
-  <!-- fav and touch icons -->
+    <style type="text/css">
+        #map {
+            background: #E6E6E6;
+        }
+
+        .layer path {
+            fill: none;
+            stroke: #aaa;
+            stroke-width: .25px;
+            vector-effect: non-scaling-stroke;
+        }
+
+        #regioni path {
+            stroke: #fff;
+            stroke-width: 1.5px;
+            vector-effect: scaling-stroke;
+        }
+
+        #copy {
+            position: relative;
+            color: #000;
+            opacity: .5;
+        }
+
+        #copy a {
+            color: #000;
+        }
+
+    </style>
+
+
+
+    <!-- fav and touch icons -->
   <link rel="shortcut icon" href="{{ STATIC_URL }}ico/favicon.ico">
   <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ STATIC_URL }}ico/apple-touch-icon-144-precomposed.png">
   <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ STATIC_URL }}ico/apple-touch-icon-114-precomposed.png">

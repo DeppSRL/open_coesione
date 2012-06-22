@@ -33,7 +33,8 @@
 
         .container {
             display: block;
-            width: 950px;
+            width: 400px;
+            height: 400px;
             margin: auto;
         }
 
@@ -96,6 +97,7 @@
         "4":  110
     };
 
+    ext = [{lon: 6.8013571012438598, lat: 45.466944703267707}, {lon: 7.9395416755310491, lat: 45.987564971072757}]
     var po = org.polymaps;
 
     // Compute noniles.
@@ -106,19 +108,26 @@
 
     var map = po.map()
             .container(document.getElementById("map").appendChild(po.svg("svg")))
-            .center({lat: 42, lon: 12})
-            .zoom(4)
-            .zoomRange([5, 10])
+            .extent(ext).zoomBy(-0.3)
+            .zoomRange([5, 13])
             .add(po.interact());
 
+    /*
     map.add(po.image()
             .url(po.url("http://{S}tile.cloudmade.com"
             + "/1a1b06b230af4efdbb989ea99e9841af" // http://cloudmade.com/register
             + "/20760/256/{Z}/{X}/{Y}.png")
             .hosts(["a.", "b.", "c.", ""])));
+    */
+
+    map.add(po.image()
+            .url(po.url("{{ TILESTACHE_URL }}/osm-proxy/{Z}/{X}/{Y}.png")
+            .hosts(["a.", "b.", "c.", ""]))
+            )
+
 
     map.add(po.geoJson()
-            .url("{{ TILESTACHE_URL }}/oc-regions/{Z}/{X}/{Y}.geojson")
+            .url("{{ TILESTACHE_URL }}/oc-provinces/{Z}/{X}/{Y}.geojson")
             .on("load", load)
             .id("regioni"));
 

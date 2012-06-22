@@ -1,0 +1,49 @@
+#map {
+    clear: both;
+    background: #E6E6E6;
+}
+
+.layer path {
+    fill: none;
+    stroke: #aaa;
+    stroke-width: .25px;
+    vector-effect: non-scaling-stroke;
+}
+
+#regioni path {
+    stroke: #fff;
+    stroke-width: 1.5px;
+    vector-effect: scaling-stroke;
+}
+
+#province path {
+    stroke: #fff;
+    stroke-width: 1.5px;
+    vector-effect: scaling-stroke;
+}
+
+#legenda .back {
+    fill: #999;
+    fill-opacity: .3;
+    stroke: #eee;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+}
+
+#selectors {
+    float: right;
+    margin-bottom: 0.2em;
+}
+#selectors .selected {
+    background-color: rgba(70, 162, 127, 0.54);
+}
+
+#copy {
+    position: relative;
+    color: #000;
+    opacity: .5;
+}
+
+#copy a {
+    color: #000;
+}
