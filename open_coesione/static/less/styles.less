@@ -9,7 +9,6 @@
 @import "blocks.less";
 @import "navbar.less";
 
-body { background-image: url('../img/site-bg.png'); background-repeat: repeat; }
 
 a {
   font-weight: @linkWeight;
@@ -22,7 +21,7 @@ a {
 
 .bg-gray { background-color: @grayLighter; }
 
-#sidebar { .bg-gray; }
+#sidebar { .bg-gray; p small { color: @grayDark; } }
 
 
 // text alignments
@@ -43,7 +42,7 @@ a {
 }
 
 // highlight for section's titles
-section h1.title {
+section h1.title, section h2.title {
   span, div {
     color: @white;
     background-color: @greenDark;
@@ -65,7 +64,14 @@ section h1.title {
 }
 
 // background color for containers
-#wrapper > * > * { background-color: @bodyBackground; &.area { .bg-gray; } }
+#wrapper {
+  background-image: url('../img/site-bg.png'); background-repeat: repeat;
+}
+#wrapper > * > * {
+  background-color: @bodyBackground;
+  &.area { .bg-gray; }
+}
+#wrapper > footer > * { background-color: transparent; }
 // sections with common colored background
 .area {
   .bg-gray;
@@ -89,6 +95,10 @@ section h1.title {
     font-size: 12px;
     color: @grayDark;
     line-height: 14px;
+  }
+
+  section {
+    margin: 10px 0 20px 0;
   }
 
 }
@@ -262,4 +272,25 @@ ul.spaced {
     /*margin-bottom: 4px;*/
     i { font-size: 16px; }
   }
+}
+
+dl.data {
+
+  padding-left: 25px;
+
+  dt, dd {
+    display: block;
+    margin-left:0;
+  }
+
+  dt {
+    color: @grayDark;
+    text-transform: uppercase;
+  }
+
+  dd {
+    color: @black;
+    margin-bottom: 10px;
+  }
+
 }

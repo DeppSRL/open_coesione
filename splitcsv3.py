@@ -247,3 +247,10 @@ def write():
 
 
 
+if __name__ == '__main__':
+
+    print "** Read CSV istat.csv **"
+    main()
+    print "** Split in files.. **"
+    write()
+    print "** THE END ***"

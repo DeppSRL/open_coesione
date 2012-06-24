@@ -19,7 +19,7 @@ class TerritorioView(AggregatoView, DetailView):
         context['total_cost_paid'] = Progetto.objects.totale_costi_pagati(territorio=self.object)
         context['total_projects'] = Progetto.objects.totale_progetti(territorio=self.object)
         context['total_allocated_resources'] = Progetto.objects.totale_risorse_stanziate(territorio=self.object)
-        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'])
+        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
 
         context['temi_principali'] = Tema.objects.principali()
 
@@ -34,6 +34,8 @@ class TerritorioView(AggregatoView, DetailView):
                 .annotate(totale=models.Sum('progetto__costo'))\
                 .filter(totale__isnull=False, territorio= Territorio.TERRITORIO.C, **self.object.get_cod_dict())\
                 .order_by('-totale')[:3]
+
+        context['map'] = self.get_map_context( self.object )
 
         return context
 

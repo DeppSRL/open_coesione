@@ -27,7 +27,7 @@ var pie_chart_options = {
     title: { text: '' },
     tooltip: {
         formatter: function() {
-            return '<div class="tooltip-box"><b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +' %</div>';
+            return '<div class="tooltip-box"><b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +'<small>%</small></div>';
         },
         useHTML: true,
         backgroundColor: 'transparent',
@@ -47,7 +47,7 @@ var pie_chart_options = {
                 color: '#000000',
                 connectorColor: '#000000',
                 formatter: function() {
-                    return '<b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +' %';
+                    return '<b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +'<small>%</small>';
                 }
             },
             showInLegend: false
@@ -55,7 +55,7 @@ var pie_chart_options = {
         }
     },
     series: [],
-    credits: defaults.credits,
+    credits: { enabled: false },
     colors: [
         "#ECE7DF", "#CAC7C3", "#979491", "#686462", "#2E2B2A", "#777777", "#AAAAAA", "#BBBBBB", "#CCCCCC", "#DDDDDD", "#EEEEEE"
     ]

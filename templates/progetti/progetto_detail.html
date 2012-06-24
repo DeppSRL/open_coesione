@@ -7,6 +7,7 @@
 {% block js_content %}
   {% addtoblock "js_script" %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/maps.js"></script>
   {% endaddtoblock %}
 
   {{ block.super }}
@@ -94,6 +95,22 @@
           <h1>{{ progetto.titolo_progetto }}</h1>
         </header>
 
+        <ul class="unstyled">
+          <li>
+            <a href="{{ progetto.tema.get_absolute_url }}">
+              <strong>{{ progetto.tema.tema_superiore.short_label|upper }}</strong>
+              -
+              <i>{{ progetto.tema.descrizione|upper }}</i>
+            </a>
+          </li>
+          <li>
+            <a href="{{ progetto.classificazione_azione.get_absolute_url }}">
+              <strong>{{ progetto.classificazione_azione.classificazione_superiore.short_label|upper }}</strong>
+              - {{ progetto.classificazione_azione.descrizione|upper }}
+            </a>
+          </li>
+        </ul>
+
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
           Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
           Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
@@ -102,6 +119,62 @@
           Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
         </p>
 
+        <section class="row">
+          <h1 class="span6 title">
+            <span>Soggetti</span>
+          </h1>
+
+
+          <div class="span3">
+            <dl class="data">
+              <dt>Programmatore</dt>
+              <dd><a href="{{ progetto.programmatore.get_absolute_url }}">{{ progetto.programmatore }}</a></dd>
+
+              <dt>Destinatario</dt>
+              <dd><a href="{{ progetto.destinatario.get_absolute_url }}">{{ progetto.destinatario }}</a></dd>
+            </dl>
+          </div>
+          <div class="span3">
+            <dl class="data">
+              <dt>Attuatore</dt>
+              <dd><a href="{{ progetto.programmatore.get_absolute_url }}">{{ progetto.programmatore }}</a></dd>
+
+              <dt>Realizzatore</dt>
+              <dd><a href="{{ progetto.realizzatore.get_absolute_url }}">{{ progetto.realizzatore }}</a></dd>
+            </dl>
+
+          </div>
+
+        </section>
+
+        <section class="row">
+          <div class="span3">
+            <h1 class="title">
+              <span>Tempi</span>
+            </h1>
+
+            <dl class="data">
+              <dt>Inizio</dt>
+              <dd>{{ progetto.data_inizio_prevista }}</dd>
+
+              <dt>Fine</dt>
+              <dd>{{ progetto.data_fine_prevista }}</dd>
+
+              <dt>Durata</dt>
+              <dd>{{ durata_progetto }}</dd>
+
+              <dt>Fine</dt>
+              <dd>{{ progetto.data_fine_prevista }}</dd>
+            </dl>
+
+          </div>
+          <div class="span3">
+            <h1 class="title">
+              <div>Località</div>
+            </h1>
+          </div>
+        </section>
+
         <h3>Priorità quadro strategico nazionale (QSN)</h3>
         <p>
           {{ progetto.classificazione_qsn.descrizione }}
@@ -109,16 +182,12 @@
 
         <h3>Obiettivo generale QSN</h3>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+          {{ progetto.classificazione_qsn.classificazione_superiore.descrizione }}
         </p>
 
         <h3>Obiettivo specifico QSN</h3>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+          {{ progetto.classificazione_qsn.descrizione }}
         </p>
 
       </div>
@@ -129,16 +198,16 @@
 
         <section>
           <div class="row">
-            <h1 class="title span6"><span>Finanziamento</span></h1>
+            <h1 class="title span6"><span>Finanziamento pubblico</span></h1>
 
             <div class="span3 text-center">
-              <h2>Costo complessivo*</h2>
-              <p><strong>{{ progetto.fin_totale|intcomma }}</strong> euro</p>
+              <h2>Finanziamento complessivo*</h2>
+              <p><strong>{{ total_cost|intcomma }}</strong> euro</p>
             </div>
 
             <div class="span3 text-center">
               <h2>Pagamenti effettuati*</h2>
-              <p><strong>{{ progetto.pagamento|intcomma }}</strong> euro</p>
+              <p><strong>{{ total_cost_paid|intcomma }}</strong> euro</p>
             </div>
           </div>
 
@@ -148,55 +217,57 @@
             </div>
 
             <div class="span3">
-              <div class="block-chart" title="{{ percentuale_finanziamento }} del totale">
+              <div class="block-chart" title="{{ cost_payments_ratio }} del totale">
 
-                <div class="bar-vertical"><span style="height:{{ percentuale_finanziamento }}"></span></div>
-                <p>{{ percentuale_finanziamento }}</p>
+                <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}"></span></div>
+                <p>{{ cost_payments_ratio }}</p>
 
               </div>
             </div>
 
-          </div>
+            <p class="span6 text-center">
+              <small>*Dati aggiornati al 31.12.2011 e relativi alla competenza del finanziamento pubblico</small></p>
 
-          <div class="row">
-            <div class="span3 text-center">
-              *Dati aggiornati al ....
-            </div>
           </div>
 
         </section>
 
-
-        <hr>
-
         <section>
-          <h1 class="title"><span>Fondi</span></h1>
-        </section>
 
-        <hr>
-
-        <section>
-          <h1 class="title"><span>Soggetti</span></h1>
-        </section>
-
-        <hr>
-
-        <section>
-          <h1 class="title"><span>Tempi</span></h1>
-          <dl>
-            <dt>Inizio</dt>
-            <dd>{{ progetto.data_inizio_prevista }}</dd>
-
-            <dt>Fine</dt>
-            <dd>{{ progetto.data_fine_prevista }}</dd>
-
-            <dt>Durata</dt>
-            <dd>{{ durata_progetto }}</dd>
-
-            <dt>Fine</dt>
-            <dd>{{ progetto.data_fine_prevista }}</dd>
+          <dl class="data">
+            <dd><a href="{{ progetto.fonte.get_absolute_url }}">{{ progetto.fonte.descrizione }}</a></dd>
+            <dt>Strumento attuativo</dt>
+            <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
+            <dt>Asse</dt>
+            <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
+            <dt>Obiettivo</dt>
+            <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
           </dl>
+
         </section>
+
+        <hr>
+
+        <section>
+          <h1 class="title"><span>Altre risorse</span></h1>
+
+          <table class="table">
+            <tr>
+              <td>Stati Esteri</td>
+              <td class="amount"><span>{{ progetto.fin_stato_estero|intcomma }}</span> euro</td>
+            </tr>
+            <tr>
+              <td>Privati</td>
+              <td class="amount"><span>{{ progetto.fin_privato|intcomma }}</span> euro</td>
+            </tr>
+            <tr>
+              <td>Da reperire</td>
+              <td class="amount"><span>{{ progetto.fin_da_reperire|intcomma }}</span> euro</td>
+            </tr>
+          </table>
+
+        </section>
+
       </aside>
     </article>
   </div>
@@ -213,8 +284,8 @@
           <table>
             {% for p in stesso_tema  %}
               <tr>
-                <td><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
-                <td class="amount"><strong>{{ p.costo|intcomma }}</strong> euro</td>
+                <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
               </tr>
             {% endfor %}
           </table>
@@ -224,8 +295,8 @@
           <table>
             {% for p in stessi_destinatari  %}
               <tr>
-                <td><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
-                <td class="amount"><strong>{{ p.costo|intcomma }}</strong> euro</td>
+                <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
               </tr>
             {% endfor %}
           </table>
@@ -240,8 +311,8 @@
           <table>
             {% for p in stesso_tipo  %}
               <tr>
-                <td><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
-                <td class="amount"><strong>{{ p.costo|intcomma }}</strong> euro</td>
+                <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
               </tr>
             {% endfor %}
           </table>
@@ -251,8 +322,8 @@
           <table>
             {% for p in stessi_realizzatori  %}
               <tr>
-                <td><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
-                <td class="amount"><strong>{{ p.costo|intcomma }}</strong> euro</td>
+                <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
               </tr>
             {% endfor %}
           </table>
