@@ -30,19 +30,18 @@
 
 
     {% if n_results %}
+      {% autopaginate page.object_list %}
 
-      {% comment %}
-      {% include "commons/pagination.html" with base_url=base_url %}
-      {% endcomment %}
+      {% paginate %}
 
       <section>
-        <h3>{% if not query %}Tutti i {% endif %} {{ n_results }} documenti</h3>
+        <h3>{% if not query %}Tutti i {% endif %} {{ n_results }} risultati</h3>
 
         <table class="search-results">
           <tbody>
           {% for result in page.object_list %}
           <tr>
-            <td>{{ result.titolo }}</td>
+            <td>{{ result.rendered|safe }}</td>
           </tr>
           {% empty %}
               <p>Nessun risultato trovato.</p>
@@ -51,9 +50,7 @@
         </table>
       </section>
 
-      {% comment %}
-      {% include "commons/pagination.html" with base_url=base_url %}
-      {% endcomment %}
+      {% paginate %}
 
     {% else %}
         {# Show some example queries to run, maybe query syntax, something else? #}
@@ -73,13 +70,14 @@
         <h3>Filtra</h3>
         <div>
             <dl>
-                {% if facets.fields.tipo_operazione and not facets.fields.tipo_operazione.is_field_selected %}
+                {% if facets.fields.natura and not facets.fields.natura.is_field_selected %}
                     <dt>Tipo operazione</dt>
-                    {% for t in facets.fields.tipo_operazione.counts %}
+                    {% for t in facets.fields.natura.counts %}
                         {% if t.1 %}
                             <dd>
                                 {% if not t.2 %}
-                                    <a href="{{ base_url }}&selected_facets=tipo_operazione:{{ t.0|urlencode }}">{{ tipo_operazioni|key:t.0 }}</a> ({{ t.1 }})
+                                    <a href="{{ base_url }}&selected_facets=natura:{{ t.0|urlencode }}"
+                                       title="{{ natura.descrizione|key:t.0 }}">{{ natura.short_label|key:t.0 }}</a> ({{ t.1 }})
                                 {% endif %}
                             </dd>
                         {% endif %}
@@ -87,13 +85,14 @@
                 {% endif %}
             </dl>
             <dl>
-                {% if facets.fields.priorita and not facets.fields.priorita.is_field_selected %}
-                    <dt>Priorità</dt>
-                    {% for t in facets.fields.priorita.counts %}
+                {% if facets.fields.tema and not facets.fields.tema.is_field_selected %}
+                    <dt>Tema</dt>
+                    {% for t in facets.fields.tema.counts %}
                         {% if t.1 %}
                             <dd>
                                 {% if not t.2 %}
-                                    <a href="{{ base_url }}&selected_facets=priorita:{{ t.0|urlencode }}">{{ t.0 }}</a> ({{ t.1 }})
+                                    <a href="{{ base_url }}&selected_facets=tema:{{ t.0|urlencode }}"
+                                       title="{{ tema.descrizione|key:t.0 }}">{{ tema.short_label|key:t.0 }}</a> ({{ t.1 }})
                                 {% endif %}
                             </dd>
                         {% endif %}

@@ -5,8 +5,8 @@ from progetti.views import ProgettoSearchView, ProgettoView, TipologiaView, Tema
 
 ## SearchQuerySet with multiple facets and highlight
 sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
-      facet('tipo_operazione').\
-      facet('priorita').\
+      facet('natura').\
+      facet('tema').\
       highlight()
 
 urlpatterns = patterns('',

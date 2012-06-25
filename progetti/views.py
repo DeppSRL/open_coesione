@@ -4,8 +4,9 @@ from django.views.generic.detail import DetailView
 from oc_search.forms import RangeFacetedSearchForm
 from oc_search.views import ExtendedFacetedSearchView
 
-from models import Progetto
+from models import Progetto, ClassificazioneAzione, ClassificazioneQSN
 from open_coesione.views import AggregatoView
+from progetti.models import Tema
 
 
 class ProgettoView(DetailView):
@@ -34,7 +35,7 @@ class ProgettoView(DetailView):
         return context
 
     def get_object(self, queryset=None):
-        return Progetto.objects.get(codice_locale=self.kwargs.get('slug'))
+        return Progetto.objects.get(slug=self.kwargs.get('slug'))
 
 class TipologiaView(AggregatoView, DetailView):
     # raise Exception("Class TipologiaView needs to be implemented")
@@ -51,7 +52,6 @@ class ProgettoSearchView(ExtendedFacetedSearchView):
     This view allows faceted search and navigation of a progetto.
 
     It extends an extended version of the basic FacetedSearchView,
-    and can be customized whenever
 
     """
     __name__ = 'ProgettoSearchView'
@@ -74,8 +74,30 @@ class ProgettoSearchView(ExtendedFacetedSearchView):
         Add extra content here, when needed
         """
         extra = super(ProgettoSearchView, self).extra_context()
-        extra['tipo_operazioni'] = dict(Progetto.TIPO_OPERAZIONE)
-        extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
 
+        # definizione struttura dati per  visualizzazione faccette natura
+        extra['natura'] = {
+            'descrizione': dict(
+                (c.codice, c.descrizione)
+                for c in ClassificazioneAzione.objects.filter(tipo_classificazione='natura')
+            ),
+            'short_label': dict(
+                (c.codice, c.short_label)
+                for c in ClassificazioneAzione.objects.filter(tipo_classificazione='natura')
+            )
+        }
+
+        # definizione struttura dati per  visualizzazione faccette tema
+        extra['tema'] = {
+            'descrizione': dict(
+                (c.codice, c.descrizione)
+                for c in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)
+            ),
+            'short_label': dict(
+                (c.codice, c.short_label)
+                    for c in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)
+            )
+        }
+        extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
 
         return extra

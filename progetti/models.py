@@ -278,7 +278,7 @@ class Progetto(models.Model):
     obiettivo_sviluppo = models.CharField(max_length=16,
                                           blank=True, null=True,
                                           choices=OBIETTIVO_SVILUPPO)
-    tipo_operazione = models.IntegerField(null=True, choices=TIPO_OPERAZIONE)
+    tipo_operazione = models.IntegerField(blank=True, null=True, choices=TIPO_OPERAZIONE)
     fondo_comunitario = models.CharField(max_length=4,
                                          blank=True, null=True,
                                          choices=FONDO_COMUNITARIO)
@@ -302,32 +302,32 @@ class Progetto(models.Model):
                                                 db_column='classificazione_oggetto')
 
 
-    fin_totale = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    fin_totale_pubblico = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    fin_ue = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    fin_stato_fondo_rotazione = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    fin_stato_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    fin_stato_altri_provvedimenti = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    fin_regione = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    fin_provincia = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    fin_comune = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    fin_altro_pubblico = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    fin_stato_estero = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    fin_privato = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    fin_da_reperire = models.DecimalField(max_digits=14, decimal_places=2, null=True)
+    fin_totale = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_totale_pubblico = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_ue = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_stato_fondo_rotazione = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_stato_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_stato_altri_provvedimenti = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_regione = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_provincia = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_comune = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_altro_pubblico = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_stato_estero = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_privato = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_da_reperire = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
 
-    costo = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    costo_ammesso = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    pagamento = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    pagamento_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True)
-    pagamento_ammesso = models.DecimalField(max_digits=14, decimal_places=2, null=True)
+    costo = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    costo_ammesso = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    pagamento = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    pagamento_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    pagamento_ammesso = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
 
-    data_inizio_prevista = models.DateField(null=True)
-    data_fine_prevista = models.DateField(null=True)
-    data_inizio_effettiva = models.DateField(null=True)
-    data_fine_effettiva = models.DateField(null=True)
-    data_inizio_info = models.IntegerField(null=True)
-    data_aggiornamento = models.DateField(null=True)
+    data_inizio_prevista = models.DateField(null=True, blank=True)
+    data_fine_prevista = models.DateField(null=True, blank=True)
+    data_inizio_effettiva = models.DateField(null=True, blank=True)
+    data_fine_effettiva = models.DateField(null=True, blank=True)
+    data_inizio_info = models.IntegerField(null=True, blank=True)
+    data_aggiornamento = models.DateField(null=True, blank=True)
 
     dps_flag_cup = models.CharField(max_length=1, choices=DPS_FLAG_CUP)
     dps_flag_presenza_date = models.CharField(max_length=2, choices=DPS_FLAG_PRESENZA_DATE)
@@ -335,7 +335,7 @@ class Progetto(models.Model):
     dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE)
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
-    soggetto_set = models.ManyToManyField('soggetti.Soggetto')
+    soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True)
 
     @property
     def territori(self):

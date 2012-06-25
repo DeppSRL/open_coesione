@@ -149,7 +149,6 @@ class ExtendedFacetedSearchView(SearchView):
 
         return facets
 
-
     def extra_context(self):
         """
 

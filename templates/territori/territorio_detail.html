@@ -112,7 +112,7 @@
               <table id="main_types" class="table table-bordered">
                 {% for tipologia in tipologie_principali %}
                   <tr>
-                    <td><a href="{{ tipologia.get_absolute_url }}">{{ tipologia.descrizione }}</a></td>
+                    <td><a href="{{ tipologia.get_absolute_url }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a></td>
                     <td class="amount"><strong>{{ tipologia|args:territorio|call:'costo_totale'|intcomma }}</strong> euro</td>
                   </tr>
                 {% endfor %}
@@ -127,7 +127,7 @@
               <table id="main_topics" class="table table-bordered">
                 {% for tema in temi_principali %}
                   <tr>
-                    <td><a href="{{ tipologia.get_absolute_url }}">{{ tema.descrizione }}</a></td>
+                    <td><a href="{{ tipologia.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a></td>
                     <td class="amount"><strong>{{ tema|args:territorio|call:'costo_totale'|intcomma }}</strong> euro</td>
                   </tr>
                 {% endfor %}

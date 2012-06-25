@@ -94,31 +94,23 @@
           <h1>{{ progetto.titolo_progetto }}</h1>
         </header>
 
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+        <p>
+          {{ progetto.descrizione }}
         </p>
 
         <h3>Priorità quadro strategico nazionale (QSN)</h3>
         <p>
-          {{ progetto.classificazione_qsn.descrizione }}
+          {{ progetto.classificazione_qsn.classificazione_superiore.classificazione_superiore.descrizione }}
         </p>
 
         <h3>Obiettivo generale QSN</h3>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+            {{ progetto.classificazione_qsn.classificazione_superiore.descrizione }}
         </p>
 
         <h3>Obiettivo specifico QSN</h3>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+            {{ progetto.classificazione_qsn.descrizione }}
         </p>
 
       </div>
@@ -133,7 +125,7 @@
 
             <div class="span3 text-center">
               <h2>Costo complessivo*</h2>
-              <p><strong>{{ progetto.fin_totale|intcomma }}</strong> euro</p>
+              <p><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</p>
             </div>
 
             <div class="span3 text-center">
@@ -160,7 +152,7 @@
 
           <div class="row">
             <div class="span3 text-center">
-              *Dati aggiornati al ....
+              *Dati aggiornati al {{ progetto.data_aggiornamento }}
             </div>
           </div>
 
