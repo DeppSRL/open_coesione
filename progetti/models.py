@@ -85,11 +85,12 @@ class Tema(models.Model):
     def progetti(self):
         return self.progetto_set
 
-    def is_principale(self):
+    @property
+    def is_root(self):
         return self.tipo_tema == Tema.TIPO.sintetico
 
     def costo_totale(self, territorio=None ):
-        if self.is_principale():
+        if self.is_root:
             prefix = 'progetto_set__'
             query_set = self.temi_figli
         else:
@@ -101,13 +102,19 @@ class Tema(models.Model):
 
         return query_set.aggregate(totale=models.Sum('{0}fin_totale_pubblico'.format(prefix)) )['totale'] or 0.0
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('progetti_tema', (), {
+            # TODO please give me a slug
+            'slug' : self.codice.replace('.','-')
+        })
 
     def __unicode__(self):
         return u'%s %s' % (self.codice, self.descrizione)
 
     class Meta:
         verbose_name_plural = "Temi"
-        ordering = ['codice']
+        ordering = ['short_label','codice']
 
 class Intesa(models.Model):
     codice = models.CharField(max_length=8, primary_key=True)
@@ -166,11 +173,12 @@ class ClassificazioneAzione(models.Model):
     def progetti(self):
         return self.progetto_set
 
-    def is_natura(self):
+    @property
+    def is_root(self):
         return self.tipo_classificazione == ClassificazioneAzione.TIPO.natura
 
     def costo_totale(self, territorio=None ):
-        if self.is_natura():
+        if self.is_root:
             prefix = 'progetto_set__'
             query_set = self.classificazioni_figlie
         else:
@@ -188,7 +196,7 @@ class ClassificazioneAzione(models.Model):
     class Meta:
         verbose_name_plural = "Classificazioni azioni"
         db_table = 'progetti_classificazione_azione'
-        ordering = ['codice']
+        ordering = ['short_label','codice']
 
 
 class ClassificazioneOggetto(models.Model):
@@ -351,8 +359,7 @@ class Progetto(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('progetti_progetto', (), {
-            # TODO il progetto non ha uno slug
-            'slug': self.codice_locale
+            'slug': self.slug
         })
 
     class Meta:

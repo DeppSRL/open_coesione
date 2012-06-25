@@ -7,8 +7,110 @@ from django.utils import simplejson
 
 
 class AggregatoView(object):
-    # raise Exception("Class AggregatoView needs to be implemented")
-    pass
+
+
+    def get_map_context(self, territorio=None, **options):
+
+        extent = territorio.geom.extent if territorio else Territorio.objects.filter(territorio='R').extent()
+
+        data = {}
+
+        zoom = options.get('zoom', 6)
+        zoomrange = options.get('zoomrange', [6, 7])
+        poi = options.get('poi', False)
+
+        if territorio:
+            if territorio.territorio == Territorio.TERRITORIO.R:
+                zoom = 8
+                zoomrange =[8,9]
+                data = {
+                    'comuni': {
+                        'numero': dict(
+                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_reg=territorio.cod_reg ).annotate(s=Count('progetto')).values('cod_com','s')
+                        ),
+                        'costo': dict(
+                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_reg=territorio.cod_reg ).annotate(s=Count('progetto__fin_totale_pubblico')).values('cod_com','s')
+                        ),
+                        'pagamento': dict(
+                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_reg=territorio.cod_reg ).annotate(s=Count('progetto__pagamento')).values('cod_com','s')
+                        )
+                    },
+                    'province': {
+                        'numero': dict(
+                            (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Count('progetto'))['s'])
+                                for t in Territorio.objects.filter(territorio='P', cod_reg=territorio.cod_reg)
+                        ),
+                        'costo': dict(
+                            (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Sum('progetto__fin_totale_pubblico'))['s'])
+                                for t in Territorio.objects.filter(territorio='P', cod_reg=territorio.cod_reg)
+                        ),
+                        'pagamento': dict(
+                            (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Sum('progetto__pagamento'))['s'])
+                                for t in Territorio.objects.filter(territorio='P', cod_reg=territorio.cod_reg)
+                        )
+                    }
+                }
+            elif territorio.territorio == Territorio.TERRITORIO.P:
+                zoom = 10
+                zoomrange =[10,11]
+                data = {
+                    'comuni': {
+                        'numero': dict(
+                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_prov=territorio.cod_prov ).annotate(s=Count('progetto')).values('cod_com','s')
+                        ),
+                        'costo': dict(
+                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_prov=territorio.cod_prov ).annotate(s=Count('progetto__fin_totale_pubblico')).values('cod_com','s')
+                        ),
+                        'pagamento': dict(
+                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_prov=territorio.cod_prov ).annotate(s=Count('progetto__pagamento')).values('cod_com','s')
+                        )
+                    },
+                }
+            elif territorio.territorio == Territorio.TERRITORIO.C:
+                zoom = 5
+                zoomrange =[5]
+                poi = territorio.geom.centroid.coords
+                extent = Territorio.objects.filter(territorio='R').extent()
+        else:
+            data = {
+                'regioni': {
+                    'numero': dict(
+                        (t.cod_reg, Territorio.objects.filter(cod_reg=t.cod_reg).aggregate(s=Count('progetto'))['s'])
+                            for t in Territorio.objects.filter(territorio='R')
+                    ),
+                    'costo': dict(
+                        (t.cod_reg, Territorio.objects.filter(cod_reg=t.cod_reg).aggregate(s=Sum('progetto__fin_totale_pubblico'))['s'])
+                            for t in Territorio.objects.filter(territorio='R')
+                    ),
+                    'pagamento': dict(
+                        (t.cod_reg, Territorio.objects.filter(cod_reg=t.cod_reg).aggregate(s=Sum('progetto__pagamento'))['s'])
+                            for t in Territorio.objects.filter(territorio='R')
+                    )
+                },
+                'province': {
+                    'numero': dict(
+                        (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Count('progetto'))['s'])
+                            for t in Territorio.objects.filter(territorio='P')
+                    ),
+                    'costo': dict(
+                        (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Sum('progetto__fin_totale_pubblico'))['s'])
+                            for t in Territorio.objects.filter(territorio='P')
+                    ),
+                    'pagamento': dict(
+                        (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Sum('progetto__pagamento'))['s'])
+                            for t in Territorio.objects.filter(territorio='P')
+                    )
+                }
+            }
+
+        return {
+            'extent' : "[{{lon: {0}, lat: {1}}},{{lon: {2}, lat: {3}}}]".format( *extent ),
+            'zoomlev' : zoom,
+            'zoomrange' : simplejson.dumps( zoomrange ),
+            'data' : simplejson.dumps( data ),
+            'poi' : simplejson.dumps( poi ),
+        }
+
 
 class HomeView(AggregatoView, TemplateView):
     template_name = 'homepage.html'
@@ -26,53 +128,51 @@ class HomeView(AggregatoView, TemplateView):
 
         context['temi_principali'] = Tema.objects.principali()
 
-        #tipologie = dict(Progetto.TIPO_OPERAZIONE)
         context['tipologie_principali'] = ClassificazioneAzione.objects.tematiche()
-#        [
-#            ({'tipo': tipologie[str(x['tipo_operazione'])], 'totale': x['total'], 'tipo_operazione': x['tipo_operazione']})
-#            for x in Progetto.objects.values('tipo_operazione').annotate(total= models.Sum('fin_totale_pubblico'))
-#        ]
+
         context['top_progetti_per_costo'] = Progetto.objects.filter(costo__isnull=False).order_by('-fin_totale_pubblico')[:3]
 
         context['ultimi_progetti_avviati'] = Progetto.objects.filter(data_inizio_effettiva__lte=datetime.now()).order_by('-data_inizio_effettiva')[:3]
         context['ultimi_progetti_conclusi'] = Progetto.objects.filter(data_fine_effettiva__lte=datetime.now()).order_by('-data_fine_effettiva')[:3]
 
-        italy_extent = Territorio.objects.filter(territorio='R').extent()
-        context['extent'] = "[{lon: %s, lat: %s},{lon: %s, lat: %s}]" % \
-            (italy_extent[0], italy_extent[1], italy_extent[2], italy_extent[3])
-        context['zoomlev'] = 6
-        context['zoomrange'] = simplejson.dumps([6, 7])
+        context['map'] = self.get_map_context()
 
-        data = {
-            'regioni': {
-                'numero': dict(
-                    (t.cod_reg, Territorio.objects.filter(cod_reg=t.cod_reg).aggregate(s=Count('progetto'))['s'])
-                        for t in Territorio.objects.filter(territorio='R')
-                ),
-                'costo': dict(
-                    (t.cod_reg, Territorio.objects.filter(cod_reg=t.cod_reg).aggregate(s=Sum('progetto__fin_totale_pubblico'))['s'])
-                        for t in Territorio.objects.filter(territorio='R')
-                ),
-                'pagamento': dict(
-                    (t.cod_reg, Territorio.objects.filter(cod_reg=t.cod_reg).aggregate(s=Sum('progetto__costo'))['s'])
-                        for t in Territorio.objects.filter(territorio='R')
-                )
-            },
-            'province': {
-                'numero': dict(
-                    (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Count('progetto'))['s'])
-                        for t in Territorio.objects.filter(territorio='P')
-                ),
-                'costo': dict(
-                    (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Sum('progetto__fin_totale_pubblico'))['s'])
-                        for t in Territorio.objects.filter(territorio='P')
-                ),
-                'pagamento': dict(
-                    (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Sum('progetto__costo'))['s'])
-                        for t in Territorio.objects.filter(territorio='P')
-                )
-            }
-        }
-        context['data'] = simplejson.dumps(data)
+#        italy_extent = Territorio.objects.filter(territorio='R').extent()
+#        context['extent'] = "[{lon: %s, lat: %s},{lon: %s, lat: %s}]" % \
+#            (italy_extent[0], italy_extent[1], italy_extent[2], italy_extent[3])
+#        context['zoomlev'] = 6
+#        context['zoomrange'] = simplejson.dumps([6, 7])
+#
+#        data = {
+#            'regioni': {
+#                'numero': dict(
+#                    (t.cod_reg, Territorio.objects.filter(cod_reg=t.cod_reg).aggregate(s=Count('progetto'))['s'])
+#                        for t in Territorio.objects.filter(territorio='R')
+#                ),
+#                'costo': dict(
+#                    (t.cod_reg, Territorio.objects.filter(cod_reg=t.cod_reg).aggregate(s=Sum('progetto__fin_totale_pubblico'))['s'])
+#                        for t in Territorio.objects.filter(territorio='R')
+#                ),
+#                'pagamento': dict(
+#                    (t.cod_reg, Territorio.objects.filter(cod_reg=t.cod_reg).aggregate(s=Sum('progetto__pagamento'))['s'])
+#                        for t in Territorio.objects.filter(territorio='R')
+#                )
+#            },
+#            'province': {
+#                'numero': dict(
+#                    (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Count('progetto'))['s'])
+#                        for t in Territorio.objects.filter(territorio='P')
+#                ),
+#                'costo': dict(
+#                    (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Sum('progetto__fin_totale_pubblico'))['s'])
+#                        for t in Territorio.objects.filter(territorio='P')
+#                ),
+#                'pagamento': dict(
+#                    (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Sum('progetto__pagamento'))['s'])
+#                        for t in Territorio.objects.filter(territorio='P')
+#                )
+#            }
+#        }
+#        context['data'] = simplejson.dumps(data)
         return context
 

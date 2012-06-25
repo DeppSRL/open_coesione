@@ -19,7 +19,7 @@
 
     <!-- styles -->
   {% addtoblock "css_link" %}
-  {% if DEBUG %}
+  {% if TEMPLATE_DEBUG %}
   <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/styles.less">
   <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/styles-responsive.less">
   <script type="text/javascript" src="{{ STATIC_URL }}js/less-1.3.0.min.js"></script>

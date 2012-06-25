@@ -1,7 +1,7 @@
 #map {
     clear: both;
     background: #E6E6E6;
-    height: 750px;
+    height: 700px;
 }
 
 .layer path {
@@ -9,6 +9,10 @@
     stroke: #aaa;
     stroke-width: .25px;
     vector-effect: non-scaling-stroke;
+}
+
+circle.poi {
+    fill: #9d261d;
 }
 
 #regioni path {
