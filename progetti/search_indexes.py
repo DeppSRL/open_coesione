@@ -15,8 +15,11 @@ class ProgettoIndex(SearchIndex):
     # faceting fields
     natura = FacetCharField( )
     tema = FacetCharField( )
+    data_inizio = FacetDateField(model_attr='data_inizio_effettiva')
+    costo = FacetFloatField(model_attr='fin_totale_pubblico')
 
-    # search result format is pre-rendered during index phase
+
+# search result format is pre-rendered during index phase
     rendered = CharField(use_template=True, indexed=False)
 
     def prepare_natura(self, obj):

@@ -1,3 +1,5 @@
+from django.core import paginator
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.views.generic.detail import DetailView
 
@@ -154,5 +156,20 @@ class ProgettoSearchView(ExtendedFacetedSearchView):
             )
         }
         extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
+
+
+        paginator = Paginator(self.results, 10)
+        page = self.request.GET.get('page')
+        try:
+            page_obj = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            page_obj = paginator.page(paginator.num_pages)
+
+        extra['paginator'] = paginator
+        extra['page_obj'] = page_obj
 
         return extra

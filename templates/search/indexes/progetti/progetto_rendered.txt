@@ -1,1 +1,7 @@
-<a href="{% url progetti_progetto slug=object.slug %}">{{ object.titolo_progetto }}</a>
+<a href="{% url progetti_progetto slug=object.slug %}">{{ object.titolo_progetto }}</a><br/>
+Costo complessivo: {{ object.fin_totale_pubblico }}<br/>
+Pagamenti effettuati: {{ object.pagamento }}<br/>
+Natura: {{ object.classificazione_azione.classificazione_superiore }}<br/>
+Tema: {{ object.tema.tema_superiore }}
+<br/><br/>
+
