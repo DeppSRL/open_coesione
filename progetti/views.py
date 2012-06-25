@@ -1,3 +1,4 @@
+from datetime import date
 from django.core.urlresolvers import reverse
 from django.views.generic.detail import DetailView
 
@@ -7,6 +8,7 @@ from oc_search.views import ExtendedFacetedSearchView
 from models import Progetto
 from open_coesione.views import AggregatoView
 from progetti.models import Tema, ClassificazioneAzione
+from soggetti.models import Soggetto
 from territori.models import Territorio
 from django.db.models import Sum, Count
 
@@ -23,11 +25,15 @@ class ProgettoView(DetailView):
             if self.object.data_fine_prevista and self.object.data_inizio_prevista
             else ''
         )
+        context['giorni_alla_fine'] = (
+            self.object.data_fine_prevista - date.today()
+            if self.object.data_fine_prevista  else ''
+            )
 
-        context['stesso_tema'] = Progetto.objects.con_tema(self.object.tema).nei_territori( self.object.territori )[:1]
-        context['stesso_tipologia'] = Progetto.objects.del_tipo(self.object.tipo_operazione).nei_territori( self.object.territori )[:1]
-        context['stessi_destinatari'] = Progetto.objects.con_tema(self.object.tema).nei_territori( self.object.territori )[:1]
-        context['stessi_realizzatori'] = Progetto.objects.con_tema(self.object.tema).nei_territori( self.object.territori )[:1]
+        context['stesso_tema'] = Progetto.objects.exclude(codice_locale=self.object.codice_locale).con_tema(self.object.tema).nei_territori( self.object.territori )[:1]
+        context['stesso_tipologia'] = Progetto.objects.exclude(codice_locale=self.object.codice_locale).del_tipo(self.object.tipo_operazione).nei_territori( self.object.territori )[:1]
+        context['stessi_destinatari'] = Progetto.objects.exclude(codice_locale=self.object.codice_locale).con_tema(self.object.tema).nei_territori( self.object.territori )[:1]
+        context['stessi_realizzatori'] = Progetto.objects.exclude(codice_locale=self.object.codice_locale).con_tema(self.object.tema).nei_territori( self.object.territori )[:1]
 
         context['total_cost'] = float(self.object.fin_totale_pubblico) if self.object.fin_totale_pubblico else 0.0
         context['total_cost_paid'] = float(self.object.pagamento) if self.object.pagamento else 0.0
@@ -40,8 +46,48 @@ class ProgettoView(DetailView):
 #        return Progetto.objects.get(codice_locale=self.kwargs.get('slug'))
 
 class TipologiaView(AggregatoView, DetailView):
-    # raise Exception("Class TipologiaView needs to be implemented")
-    pass
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(TipologiaView, self).get_context_data(**kwargs)
+
+        context['total_cost'] = Progetto.objects.totale_costi(classificazione=self.object)
+        context['total_cost_paid'] = Progetto.objects.totale_costi_pagati(classificazione=self.object)
+        context['total_projects'] = Progetto.objects.totale_progetti(classificazione=self.object)
+        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
+
+        #context['temi_principali'] = Tema.objects.principali()
+        context['tipologia'] = self.object
+
+        #context['temi'] = ClassificazioneAzione.objects.tematiche()
+
+        context['numero_soggetti'] = Soggetto.objects.count()
+
+        context['map'] = self.get_map_context()
+
+        context['map']['data'] = {
+            'regioni': {
+                'numero': {},
+                'costo': {},
+                'pagamento' : {},
+                }
+        }
+
+        for regione in Territorio.objects.regioni():
+
+            stats = Progetto.objects.con_natura(self.object).aggregate(
+                numero=Count('codice_locale'),
+                costo=Sum('fin_totale_pubblico'),
+                pagamento=Sum('pagamento'),
+            )
+
+            for key in stats:
+                context['map']['data']['regioni'][key][regione.cod_reg] = float(stats[key]) if key != 'numero' else int(stats[key])
+
+        return context
+
+    def get_object(self, queryset=None):
+        # TODO we need a slug for ClassificazioneAzione..
+        return ClassificazioneAzione.objects.get(codice=self.kwargs.get('slug').replace('-','.'))
 
 class TemaView(AggregatoView, DetailView):
 
@@ -54,9 +100,12 @@ class TemaView(AggregatoView, DetailView):
         context['total_projects'] = Progetto.objects.totale_progetti(tema=self.object)
         context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
 
-        context['temi_principali'] = Tema.objects.principali()
+        #context['temi_principali'] = Tema.objects.principali()
+        context['tema'] = self.object
 
         context['tipologie_principali'] = ClassificazioneAzione.objects.tematiche()
+
+        context['numero_soggetti'] = Soggetto.objects.count()
 
         context['map'] = self.get_map_context()
 
@@ -78,21 +127,6 @@ class TemaView(AggregatoView, DetailView):
 
             for key in stats:
                 context['map']['data']['regioni'][key][regione.cod_reg] = float(stats[key]) if key != 'numero' else int(stats[key])
-#            'regioni' : {
-#                'numero': dict(
-#                    (t.cod_reg, Territorio.objects.filter(cod_reg=t.cod_reg).aggregate(s=Count('progetto'))['s'])
-#                        for t in Territorio.objects.filter(territorio='R')
-#                ),
-#                'costo': dict(
-#                    (t.cod_reg, Territorio.objects.filter(cod_reg=t.cod_reg).aggregate(s=Sum('progetto__fin_totale_pubblico'))['s'])
-#                        for t in Territorio.objects.filter(territorio='R')
-#                ),
-#                'pagamento': dict(
-#                    (t.cod_reg, Territorio.objects.filter(cod_reg=t.cod_reg).aggregate(s=Sum('progetto__pagamento'))['s'])
-#                        for t in Territorio.objects.filter(territorio='R')
-#                )
-#            }
-#        }
 
         return context
 

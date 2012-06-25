@@ -1,0 +1,97 @@
+{% extends 'base_two_columns.html' %}
+{% load sekizai_tags %}
+
+{% block js_content %}
+
+  {{ block.super }}
+
+{% addtoblock "js_script" %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>
+{% endaddtoblock %}
+
+  <script type="text/javascript">
+
+  $(document).ready(function() {
+
+    print_pie_chart('#chart_table', 'chart' );
+
+  });
+  </script>
+{% endblock %}
+
+{% block content %}
+
+  <div class="flat_content">
+
+    <h1>Fonti di finanziamento</h1>
+
+    <p>
+      In Italia le politiche regionali di coesione – finanziate sia dai :
+    </p>
+
+    <ul class="spaced">
+      <li><a href="/fers-fse/">Fondi europei</a> – ai quali è associato un co-finanziamento nazionale</li>
+      <li><a href="/fsc/">Fondi nazionali</a> – sono organizzate con un livello centrale di indirizzo e coordinamento e livelli più articolati di cooperazione demandate sia ad amministrazioni centrali di settore, sia alle amministrazioni regionali.</li>
+    </ul>
+
+    <p>
+      Le politiche regionali di coesione agiscono, pur con grande differenza d’intensità, in tutto il Paese.
+    </p>
+
+    <p>
+      Complessivamente, le risorse finanziarie attualmente disponibili per il ciclo di programmazione 2007-2013 sono oltre 102 miliardi di euro.
+    </p>
+
+  </div>
+
+  <h3>Risorse finanziarie disponibili 2007-2013 ( dato di fine 2011 )</h3>
+
+  <div id="chart" style="width: 100%; height: 300px"></div>
+
+  <table class="table" id="chart_table">
+    <tbody>
+    <tr>
+      <td><a href="#">FAS-FSC  Fondi nazionali per interventi su Infrastrutture, sostegno all’occupazione e sostegno alla competitività del Paese</a></td>
+      <td class="amount"><strong>18.746.000</strong> euro</td>
+    </tr>
+    <tr>
+      <td><a href="#">FAS-FSC 2007-2013 Obiettivi di servizio</a></td>
+      <td class="amount"><strong>1.044.000</strong> euro</td>
+    </tr>
+    <tr>
+      <td><a href="#">FAS-FSC 2007-2013 tramite PAR</a></td>
+      <td class="amount"><strong>22.979.000</strong> euro</td>
+    </tr>
+    <tr>
+      <td><a href="#">Cofinanziamento nazionale ai programmi operativi dei Fondi strutturali</a></td>
+      <td class="amount"><strong>31.934.000</strong> euro</td>
+    </tr>
+    <tr>
+      <td><a href="#">Fondi strutturali comunitari 2007-2013 (POR, PON, POIN)</a></td>
+      <td class="amount"><strong>27.965.000</strong> euro</td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+      <td class="text-right">Totale:</td>
+      <td class="amount"><strong>102.668.000</strong> euro</td>
+    </tr>
+    </tfoot>
+  </table>
+
+{% endblock %}
+
+{% block sidebar %}
+
+  <div class="flat_content">
+    <br><br>
+    <h4>Apprfondisci:</h4>
+
+    <ul class="spaced">
+      <li><a href="/fers-fsa/">Fondi europei</a></li>
+      <li><a href="/fsc/">Fondi nazionali</a></li>
+    </ul>
+  </div>
+
+{% endblock %}

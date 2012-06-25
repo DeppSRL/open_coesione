@@ -6,11 +6,32 @@
   <div class="navbar-inner">
     <div class="container">
       <ul class="nav span6">
-        <li class="active dropdown">
+        <li class="dropdown{% if progetto or tema or tipologia or territorio   %} active{% endif %}">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Progetti <b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <li><a href="#">Tipologie</a></li>
-            <li><a href="#">Temi</a>
+            <li class="submenu">
+              <a href="#">Tipologie</a>
+              <ul class="dropdown-menu" style="width: 160px;">
+                <li class="clearfix">
+                  <ul>
+                    {% for tipologia in tipologie_principali %}
+                      <li><a href="{{ tipologia.get_absolute_url }}">{{ tipologia.short_label }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li class="submenu">
+              <a href="#">Temi</a>
+              <ul class="dropdown-menu" style="width: 160px;">
+                <li class="clearfix">
+                  <ul>
+                    {% for temi in temi_principali %}
+                      <li><a href="{{ temi.get_absolute_url }}">{{ temi.short_label }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </li>
+              </ul>
             </li>
             <li class="submenu">
               <a href="#">Territori</a>
@@ -35,9 +56,9 @@
                 <li class="divider"></li>
                 <li>
                   <form class="form-search content">
-                    <h5>Cerca per CAP</h5>
+                    <h5>Cerca per Comune o per CAP</h5>
                     <div class="input-append">
-                      <input type="text" class="input-medium search-query" placeholder="Inserisci il CAP"><button type="submit" class="btn add-in"><i class="icon-search"></i></button>
+                      <input type="text" class="input-large search-query" placeholder="Inserisci il comune o il CAP"><button type="submit" class="btn add-in"><i class="icon-search"></i></button>
                     </div>
                   </form>
                 </li>
@@ -45,7 +66,7 @@
             </li>
           </ul>
         </li>
-        <li class="dropdown violet">
+        <li class="dropdown violet{% if soggetto %} active{% endif %}">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Soggetti <b class="caret"></b></a>
           <ul class="dropdown-menu">
             <li><a href="#">Programmatore</a></li>
@@ -54,10 +75,10 @@
             <li><a href="#">Realizzatore</a></li>
           </ul>
         </li>
-        <li class="dropdown brown">
+        <li class="dropdown brown{% if risorsa %} active{% endif %}">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Risorse <b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <li><a href="#">Fonti di finanziamento</a></li>
+            <li><a href="/fonti-di-finanziamento/">Fonti di finanziamento</a></li>
             <li><a href="#">Piano di azione coesione</a></li>
           </ul>
         </li>

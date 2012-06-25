@@ -29,8 +29,8 @@
 
     $(document).ready(function() {
 
-      print_pie_chart('#main_topics', 'main_topics_chart' );
-      print_pie_chart('#main_types', 'main_types_chart' );
+      $('#main_topics').length && print_pie_chart('#main_topics', 'main_topics_chart' );
+      $('#main_types').length && print_pie_chart('#main_types', 'main_types_chart' );
 
       var tiles_url = "http://{S}tile.cloudmade.com"
           + "/1a1b06b230af4efdbb989ea99e9841af" // http://cloudmade.com/register
@@ -41,7 +41,6 @@
       mapfactory.build('map', {{ map.extent }}, {{ map.zoomlev|default:"null" }}, {{ map.zoomrange|default:"null" }});
 
       if ( mappoi ) {
-        //console.log(mappoi);
         mapfactory.add_point( mappoi );
       }
       else {
@@ -92,6 +91,10 @@
 
           <div class="bar-vertical"></div>
 
+          <div style="position: absolute; bottom: -16px; left: 5px; color: black; font-size: 10px; text-transform: none;">
+            *Dati aggiornati al 31.12.2011
+          </div>
+
         </div>
 
         <div class="block-chart" title="{{ cost_payments_ratio }} del totale" data-dataset="pagamento">
@@ -122,11 +125,13 @@
           <p>{{ total_allocated_resources|intword }} <span>di euro</span></p>
         </div>
 
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Integer dolor odio, lobortis ut pulvinar eget, tincidunt ac enim.
-          Vivamus libero nisi, viverra at scelerisque nec, laoreet in nibh.
-          Proin ornare urna ut velit condimentum mollis.
-          Maecenas egestas lorem vitae eros vestibulum posuere.</p>
+        <p id="claim">“Per promuovere lo sviluppo economico,
+          la coesione e la solidarietà sociale, per rimuovere gli squilibri economici e sociali,
+          per favorire l'effettivo esercizio dei diritti della persona,
+          o per provvedere a scopi diversi dal normale esercizio delle loro funzioni,
+          lo Stato destina risorse aggiuntive ed effettua interventi speciali in favore di determinati
+          Comuni, Province, Città metropolitane e Regioni.” <br>
+          <i>Dall’art. 119 della Costituzione della Repubblica Italiana</i></p>
 
           {% endblock %}
 
@@ -144,18 +149,40 @@
         <div class="span6">
 
           <div class="row">
+
+            {% if territorio %}
+              <div class="span6">
+              <h1 class="title black" style="margin-bottom: 0;"><span>{{ territorio }}</span></h1>
+              <p><a href="{% url progetti_search %}" style="text-transform: none;padding-left: 25px;">Vai a tutti i progetti</a></p>
+              </div>
+            {% endif %}
+
+            {% if tema %}
+              <div class="span6">
+                <h1 class="title black" style="margin-bottom: 0;"><span>{{ tema.short_label }}</span></h1>
+                <p><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}" style="text-transform: none;padding-left: 25px;">Vai a tutti i progetti</a></p>
+              </div>
+            {% endif %}
+
+            {% if tipologia %}
+              <div class="span6">
+                <h1 class="title black" style="margin-bottom: 0;"><span>{{ tipologia.short_label }}</span></h1>
+                <p><a href="{% url progetti_search %}?q=&selected_facets=tipologia:{{ tipologia.codice }}" style="text-transform: none;padding-left: 25px;">Vai a tutti i progetti</a></p>
+              </div>
+            {% endif %}
+
             {% if tipologie_principali %}
-            <div class="span3">
-              <h5>Tipologie</h5>
+            <div class="span3{% if tema or tipologia %} offset3{% endif %}">
+              <h4>Tipologie</h4>
 
               <p>Le tipologie di progetti e gli importi ad esse dedicati.</p>
 
               <div id="main_types_chart" style="width: 100%; height: 200px"></div>
 
-              <table id="main_types" class="table table-bordered">
+              <table id="main_types" class="table">
                 {% for tipologia in tipologie_principali %}
                   <tr>
-                    <td><a href="{{ tipologia.get_absolute_url }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a></td>
+                    <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a></td>
                     {% if territorio %}
                     <td class="amount"><strong>{{ tipologia|args:territorio|call:'costo_totale'|intcomma }}</strong> euro</td>
                     {% else %}
@@ -168,18 +195,18 @@
             </div>
             {% endif %}
 
-            {% if temi_principali %}
+            {% if temi_principali and not tema and not tipologia %}
             <div class="span3">
-              <h5>Temi</h5>
+              <h4>Temi</h4>
 
               <p>Le tematiche che riguardano i progetti e gli importi ad esse dedicati.</p>
 
               <div id="main_topics_chart" style="width: 100%; height: 200px"></div>
 
-              <table id="main_topics" class="table table-bordered">
+              <table id="main_topics" class="table">
                 {% for tema in temi_principali %}
                   <tr>
-                    <td><a href="{{ tema.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a></td>
+                    <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a></td>
                     {% if territorio %}
                       <td class="amount"><strong>{{ tema|args:territorio|call:'costo_totale'|intcomma }}</strong> euro</td>
                     {% else %}
@@ -210,13 +237,13 @@
             {% endif %}
           </div>
           <div id="map"{% if territorio.territorio == 'C' %} style=" height: 400px; "{% endif %}></div>
-          <span id="copy">
-            &copy; 2010
-            <a href="http://www.cloudmade.com/">CloudMade</a>,
-            <a href="http://www.openpolis.it/">Openpolis</a>,
-            <a href="http://creativecommons.org/licenses/by-sa/2.0/">CCBYSA</a>.
-            Colors by <a href="http://colorbrewer.org/">Cynthia Brewer</a>.
-          </span>
+{#          <span id="copy">#}
+{#            &copy; 2010#}
+{#            <a href="http://www.cloudmade.com/">CloudMade</a>,#}
+{#            <a href="http://www.openpolis.it/">Openpolis</a>,#}
+{#            <a href="http://creativecommons.org/licenses/by-sa/2.0/">CCBYSA</a>.#}
+{#            Colors by <a href="http://colorbrewer.org/">Cynthia Brewer</a>.#}
+{#          </span>#}
 
         </div>
       </div>

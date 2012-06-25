@@ -62,7 +62,6 @@
       var series = {
         type: 'pie',
         data: [
-          ['Finanziamento pubblico', {{ progetto.fin_totale_pubblico|default_if_none:"0" }}],
           ['Europa', {{ progetto.fin_ue|default_if_none:"0" }}],
           ['Stato fondo rotazione', {{ progetto.fin_stato_fondo_rotazione|default_if_none:"0" }}],
           ['Stato FSC', {{ progetto.fin_stato_fsc|default_if_none:"0" }}],
@@ -70,10 +69,7 @@
           ['Regione', {{ progetto.fin_regione|default_if_none:"0" }}],
           ['Provincia', {{ progetto.fin_provincia|default_if_none:"0" }}],
           ['Comune', {{ progetto.fin_comune|default_if_none:"0" }}],
-          ['Altro pubblico', {{ progetto.fin_altro_pubblico|default_if_none:"0" }}],
-          ['Stato estero', {{ progetto.fin_stato_estero|default_if_none:"0" }}],
-          ['Privati', {{ progetto.fin_privato|default_if_none:"0" }}],
-          ['Da reperire', {{ progetto.fin_da_reperire|default_if_none:"0" }}]
+          ['Altro pubblico', {{ progetto.fin_altro_pubblico|default_if_none:"0" }}]
         ]
       };
       main_topics_options.series.push(series);
@@ -90,34 +86,33 @@
     <article class="row">
       <div class="span6" id="content">
 
-        <header>
-          <h2>{{ progetto.codice_locale }}</h2>
-          <h1>{{ progetto.titolo_progetto }}</h1>
-        </header>
+        <div class="flat_content">
+          <header>
+            <h2>CUP N. {{ progetto.codice_locale }}</h2>
+            <h1>{{ progetto.titolo_progetto }}</h1>
+          </header>
 
-        <ul class="unstyled">
-          <li>
-            <a href="{{ progetto.tema.get_absolute_url }}">
-              <strong>{{ progetto.tema.tema_superiore.short_label|upper }}</strong>
-              -
-              <i>{{ progetto.tema.descrizione|upper }}</i>
-            </a>
-          </li>
-          <li>
-            <a href="{{ progetto.classificazione_azione.get_absolute_url }}">
-              <strong>{{ progetto.classificazione_azione.classificazione_superiore.short_label|upper }}</strong>
-              - {{ progetto.classificazione_azione.descrizione|upper }}
-            </a>
-          </li>
-        </ul>
+          <ul class="spaced">
+            <li>
+              <a href="{{ progetto.tema.get_absolute_url }}">
+                {{ progetto.tema.tema_superiore.short_label|upper }}
+              </a> -
+              {{ progetto.tema.descrizione|upper }}
+            </li>
+            <li>
+              <a href="{{ progetto.classificazione_azione.get_absolute_url }}">
+                {{ progetto.classificazione_azione.classificazione_superiore.short_label|upper }}
+              </a> -
+              {{ progetto.classificazione_azione.descrizione|upper }}
+            </li>
+          </ul>
 
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
-        </p>
+          {% if progetto.descrizione %}
+            <p>
+              {{ progetto.descrizione }}
+            </p>
+          {% endif %}
+        </div>
 
         <section class="row">
           <h1 class="span6 title">
@@ -127,20 +122,36 @@
 
           <div class="span3">
             <dl class="data">
-              <dt>Programmatore</dt>
-              <dd><a href="{{ progetto.programmatore.get_absolute_url }}">{{ progetto.programmatore }}</a></dd>
+              {% for programmatore in progetto.programmatori %}
+                {% if forloop.first %}
+                <dt>Programmatore</dt>
+                {% endif %}
+              <dd><a href="{{ programmatore.get_absolute_url }}">{{ programmatore }}</a></dd>
+              {% endfor %}
 
-              <dt>Destinatario</dt>
-              <dd><a href="{{ progetto.destinatario.get_absolute_url }}">{{ progetto.destinatario }}</a></dd>
+              {% for destinatario in progetto.destinatarii %}
+                {% if forloop.first %}
+                  <dt>Destinatario</dt>
+                {% endif %}
+              <dd><a href="{{ destinatario.get_absolute_url }}">{{ destinatario }}</a></dd>
+              {% endfor %}
             </dl>
           </div>
           <div class="span3">
             <dl class="data">
-              <dt>Attuatore</dt>
-              <dd><a href="{{ progetto.programmatore.get_absolute_url }}">{{ progetto.programmatore }}</a></dd>
+              {% for attuatore in progetto.attuatori %}
+                {% if forloop.first %}
+                  <dt>Attuatore</dt>
+                {% endif %}
+              <dd><a href="{{ attuatore.get_absolute_url }}">{{ attuatore }}</a></dd>
+              {% endfor %}
 
-              <dt>Realizzatore</dt>
-              <dd><a href="{{ progetto.realizzatore.get_absolute_url }}">{{ progetto.realizzatore }}</a></dd>
+              {% for realizzatore in progetto.realizzatori %}
+                {% if forloop.first %}
+                  <dt>Realizzatore</dt>
+                {% endif %}
+              <dd><a href="{{ realizzatore.get_absolute_url }}">{{ realizzatore }}</a></dd>
+              {% endfor %}
             </dl>
 
           </div>
@@ -163,8 +174,10 @@
               <dt>Durata</dt>
               <dd>{{ durata_progetto }}</dd>
 
-              <dt>Fine</dt>
-              <dd>{{ progetto.data_fine_prevista }}</dd>
+              {% if giorni_alla_fine > 0 %}
+              <dt>Giorni rimanenti</dt>
+              <dd>{{ giorni_alla_fine }}</dd>
+              {% endif %}
             </dl>
 
           </div>
@@ -175,20 +188,22 @@
           </div>
         </section>
 
-        <h3>Priorità quadro strategico nazionale (QSN)</h3>
-        <p>
-          {{ progetto.classificazione_qsn.descrizione }}
-        </p>
+        <div class="flat_content">
+          <h3>Priorità</h3>
+          <p>
+            {{ progetto.classificazione_qsn.descrizione }}
+          </p>
 
-        <h3>Obiettivo generale QSN</h3>
-        <p>
-          {{ progetto.classificazione_qsn.classificazione_superiore.descrizione }}
-        </p>
+          <h3>Obiettivo generale</h3>
+          <p>
+            {{ progetto.classificazione_qsn.classificazione_superiore.descrizione }}
+          </p>
 
-        <h3>Obiettivo specifico QSN</h3>
-        <p>
-          {{ progetto.classificazione_qsn.descrizione }}
-        </p>
+          <h3>Obiettivo specifico</h3>
+          <p>
+            {{ progetto.classificazione_qsn.classificazione_superiore.classificazione_superiore.descrizione }}
+          </p>
+        </div>
 
       </div>
 
@@ -226,25 +241,36 @@
             </div>
 
             <p class="span6 text-center">
-              <small>*Dati aggiornati al 31.12.2011 e relativi alla competenza del finanziamento pubblico</small></p>
+              <small>*Dati aggiornati al {{ progetto.data_aggiornamento }} e relativi alla competenza del finanziamento pubblico</small></p>
 
           </div>
 
         </section>
 
+        {% if progetto.fondo_comunitario == 'fse' or progetto.fondo_comunitario == 'fers' %}
         <section>
 
           <dl class="data">
-            <dd><a href="{{ progetto.fonte.get_absolute_url }}">{{ progetto.fonte.descrizione }}</a></dd>
-            <dt>Strumento attuativo</dt>
-            <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
+            <dt>
+              {% if progetto.fondo_comunitario == 'fse' %}
+                Fondo Strutturale Europeo (FSE)
+              {% else %}
+                Fondo Europeo di Sviluppo Regionale (FERS)
+                {% endif %}
+            </dt>
+            <dd>{{ progetto.fonte.descrizione }}</dd>
+            <dt>Programma</dt>
+            <dd>{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}</dd>
             <dt>Asse</dt>
-            <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
+            <dd>{{ progetto.programma_asse_obiettivo.classificazione_superiore.descrizione }}</dd>
             <dt>Obiettivo</dt>
             <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
           </dl>
 
         </section>
+        {% endif %}
+
+        {% if progetto.fin_stato_estero or progetto.fin_privato or progetto.fin_da_reperire %}
 
         <hr>
 
@@ -252,21 +278,29 @@
           <h1 class="title"><span>Altre risorse</span></h1>
 
           <table class="table">
+            {% if progetto.fin_stato_estero %}
             <tr>
-              <td>Stati Esteri</td>
+              <th>Stati Esteri</th>
               <td class="amount"><span>{{ progetto.fin_stato_estero|intcomma }}</span> euro</td>
             </tr>
+            {% endif %}
+            {% if progetto.fin_privato %}
             <tr>
-              <td>Privati</td>
+              <th>Privati</th>
               <td class="amount"><span>{{ progetto.fin_privato|intcomma }}</span> euro</td>
             </tr>
+            {% endif %}
+            {% if progetto.fin_da_reperire %}
             <tr>
-              <td>Da reperire</td>
+              <th>Da reperire</th>
               <td class="amount"><span>{{ progetto.fin_da_reperire|intcomma }}</span> euro</td>
             </tr>
+            {% endif %}
           </table>
 
         </section>
+
+      {% endif %}
 
       </aside>
     </article>

@@ -14,7 +14,7 @@
 
 // left alignment and fixed width
   .nav > li > a {
-    padding-top: 2px;
+    padding-top: 5px;
     text-align: left;
     display: block;
   }
@@ -25,7 +25,7 @@
 
   // set submenu under main menu
     .submenu .submenu-show {
-      top: @navbarHeight;
+      top: @navbarHeight - 5;
       padding: 0 10px;
 
       .btn { margin: 0; }
@@ -65,7 +65,7 @@
     border-right: 1px solid @white;
 
     // mouse hover styles
-    &:hover {
+    &:hover, &.active {
       background-color: @greenDarker;
       &.violet { background-color: @violet; }
       &.brown { background-color: @brown; }

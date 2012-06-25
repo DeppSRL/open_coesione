@@ -10,152 +10,173 @@
   {{ block.super }}
 
   <div class="container">
-
     <div class="row">
+      <section class="span3">
 
-      <section class="span6">
-        <h1 class='title'><span>Progetto in evidenza</span></h1>
+        <h1 class='title'><span>Soggetti</span></h1>
 
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Integer dolor odio, lobortis ut pulvinar eget, tincidunt ac enim.
-          Vivamus libero nisi, viverra at scelerisque nec, laoreet in nibh.
-          Proin ornare urna ut velit condimentum mollis.
-          Maecenas egestas lorem vitae eros vestibulum posuere.</p>
+        <p>
+          I soggetti coinvolti nei progetti sono <strong>{{ numero_soggetti }}</strong> divisi tra programmatori, attuatori, realizzatori
+          e destinatari.
+          Di ogni soggetto vengono indicati tutti i progetti e i finanziamenti ricevuti.
+        </p>
 
-        <p><i class="icon-chevron-right"></i> <a href="#">Vedi gli altri progetti in evidenza</a></p>
+        <hr>
+
+        <form class="form-search content">
+          <h5>Cerca tra i soggetti</h5>
+          <div class="input-append">
+            <input type="text" class="input-medium search-query" placeholder="Inserisci una parola"><button type="submit" class="btn"><i class="icon-search"></i></button>
+          </div>
+        </form>
+
       </section>
-      <section class="span6">
-        <h1 class='title'><span>Progetti con più risorse</span></h1>
+
+      <section class="span3">
+        <h1 class='title'><span>Progetti con più finanziamenti</span></h1>
 
         <table class="table">
           {% for progetto in top_progetti_per_costo %}
-          <tr>
-            <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto|title }}</a></td>
-            <td class="amount"><strong>{{ progetto.costo|intcomma }}</strong> euro</td>
-          </tr>
+            <tr>
+              <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto|title }}</a></td>
+              <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
+            </tr>
           {% endfor %}
         </table>
-
-        <p><i class="icon-chevron-right"></i> <a href="#">Vedi gli altri progetti con più risorse</a></p>
       </section>
 
-    </div>
+      <section class="span6">
 
+        <h1 class="title"><span>Partecipa e racconta i progetti</span></h1>
+
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+        Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.Lorem ipsum dolor sit amet, consectetur
+        adipiscing elit.
+        Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+        Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.Lorem ipsum dolor sit amet, consectetur
+        adipiscing elit.
+        Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
+        Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+      </section>
+
+      {#      <section class="span3">#}
+      {#        <h1 class='title'><span>Ultimi progetti avviati</span></h1>#}
+      {##}
+      {#        <ul class="spaced">#}
+      {#          {% for progetto in ultimi_progetti_avviati %}#}
+      {#            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>#}
+      {#          {% endfor %}#}
+      {#        </ul>#}
+      {##}
+      {#      </section>#}
+      {##}
+      {##}
+      {#      <section class="span3">#}
+      {#        <h1 class='title'><span>Ultimi progetti conclusi</span></h1>#}
+      {##}
+      {#        <ul class='spaced'>#}
+      {#          {% for progetto in ultimi_progetti_conclusi %}#}
+      {#            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>#}
+      {#          {% endfor %}#}
+      {#        </ul>#}
+      {##}
+      {#      </section>#}
+
+    </div>
   </div>
 
   <div class="container">
+
     <div class="row">
-      <section class="span3">
 
-        <div class="tabbable boxed"> <!-- Only required for left/right tabs -->
+      <section class="span6">
 
-          <h1 class='title'>
-            <div>Soggetti più coinvolti</div>
-          </h1>
+        <div class="left_space">
+          <h1 class='title'><span>Risorse stanziate</span></h1>
 
-          <ul class="nav nav-tabs">
-            <li class="active"><a href="#project_receivers" data-toggle="tab">Destinatari</a></li>
-            <li><a href="#project_makers" data-toggle="tab">Realizzatori</a></li>
-          </ul>
-          <div class="tab-content">
-            <div class="tab-pane active" id="project_receivers">
-              <ul>
-                <li><a href="#">Nome destinatario 1</a></li>
-                <li><a href="#">Nome destinatario 2</a></li>
-                <li><a href="#">Nome destinatario 3</a></li>
-              </ul>
-            </div>
-            <div class="tab-pane" id="project_makers">
-              <ul>
-                <li><a href="#">Nome destinatario 4</a></li>
-                <li><a href="#">Nome destinatario 5</a></li>
-                <li><a href="#">Nome destinatario 6</a></li>
-              </ul>
-            </div>
-          </div>
+          <p>
+            Sia per l’Unione europea, sia per lo Stato italiano hanno tra
+            i propri obiettivi quello  di garantire al meglio eguaglianza di
+            opportunità e di qualità della vita nei diversi territori.
+            Si tratta di un obiettivo ambizioso che rende indispensabile un’azione aggiuntiva
+            e un sostegno speciale per quei territori e comunità che per le ragioni
+            più diverse divergono dalle traiettorie migliori. Risorse dedicate alle politiche
+            di coesione territoriale che agiscono, pur con grande differenza d’intensità,
+            in tutto il Paese.  Comprendono fonti europee, sostenute da un co-finanziamento nazionale,
+            che costituiscono il Fondo europeo per lo sviluppo regionale (FESR)
+            e il Fondo sociale europeo (FSE) e fonti nazionali che costituiscono il Fondo per lo sviluppo e la coesione (FSC).
+          </p>
 
-          <p class="content"><i class="icon-chevron-right"></i> <a href="#">Vedi la lista dei soggetti coinvolti</a></p>
-
-          <hr>
-
-          <form class="form-search content">
-            <h5>Cerca tra i soggetti</h5>
-            <div class="input-append">
-              <input type="text" class="input-medium search-query" placeholder="Inserisci una parola"><button type="submit" class="btn"><i class="icon-search"></i></button>
-            </div>
-          </form>
-
-
-
+          <p><i class="icon-chevron-right"></i> <a href="/fonti-di-finanziamento/">Approfondisci</a></p>
         </div>
-
       </section>
+      <section class="span6">
 
-      <section class="span3">
-        <h1 class='title'><span>Ultimi progetti avviati</span></h1>
-
-        <ul class="spaced">
-          {% for progetto in ultimi_progetti_avviati %}
-            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
-          {% endfor %}
+        <h1 class='title'><span>Piano di Azione Coesione</span></h1>
+        <p>
+          A partire dal 2011 il Governo ha varato un Piano di Azione Coesione
+          per l’accelerazione e la riqualificazione nell’impiego delle risorse programmate
+          per il periodo 2007-2013, concentrando gli interventi su un numero limitato di priorità,
+          fra cui:
+        </p>
+        <ul>
+          <li>Scuola</li>
+          <li>Sicurezza e Giustizia</li>
+          <li>Mobilità</li>
+          <li>Cura degli anziani e dell’infanzia</li>
         </ul>
 
-      </section>
-
-
-      <section class="span3">
-        <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
-
-        <ul class='spaced'>
-          {% for progetto in ultimi_progetti_conclusi %}
-            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
-          {% endfor %}
-        </ul>
+        <p><i class="icon-chevron-right"></i> <a href="/pac/">Approfondisci</a></p>
 
       </section>
 
     </div>
+
   </div>
 
 
-  <div class="area">
-    <div class="container">
-      <div class="row">
-
-        <section class="span6">
-          <h1 class="title"><span>Programmazione</span></h1>
-
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            Integer dolor odio, lobortis ut pulvinar eget, tincidunt ac enim.
-            Vivamus libero nisi, viverra at scelerisque nec, laoreet in nibh.
-            Proin ornare urna ut velit condimentum mollis.
-            Maecenas egestas lorem vitae eros vestibulum posuere.</p>
-
-          <p><i class="icon-chevron-right"></i> <a href="#">Vedi altro</a></p>
-        </section>
-        <section class="span6">
-          <h1 class='title'><span>Risorse</span></h1>
-
-          <table class="table table-bordered">
-            <tr>
-              <td><a href="#">Titolo progetto</a></td>
-              <td class="amount"><strong>44.150.200</strong> euro</td>
-            </tr>
-            <tr>
-              <td><a href="#">Titolo progetto</a></td>
-              <td class="amount"><strong>44.150.200</strong> euro</td>
-            </tr>
-            <tr>
-              <td><a href="#">Titolo progetto</a></td>
-              <td class="amount"><strong>44.150.200</strong> euro</td>
-            </tr>
-          </table>
-
-          <p><i class="icon-chevron-right"></i> <a href="#">Vedi altro</a></p>
-        </section>
-
-      </div>
-    </div>
-  </div>
+{#  <div class="area">#}
+{#    <div class="container">#}
+{#      <div class="row">#}
+{##}
+{#        <section class="span6">#}
+{#          <h1 class="title"><span>Programmazione</span></h1>#}
+{##}
+{#          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.#}
+{#            Integer dolor odio, lobortis ut pulvinar eget, tincidunt ac enim.#}
+{#            Vivamus libero nisi, viverra at scelerisque nec, laoreet in nibh.#}
+{#            Proin ornare urna ut velit condimentum mollis.#}
+{#            Maecenas egestas lorem vitae eros vestibulum posuere.</p>#}
+{##}
+{#          <p><i class="icon-chevron-right"></i> <a href="#">Vedi altro</a></p>#}
+{#        </section>#}
+{#        <section class="span6">#}
+{#          <h1 class='title'><span>Risorse</span></h1>#}
+{##}
+{#          <table class="table table-bordered">#}
+{#            <tr>#}
+{#              <td><a href="#">Titolo progetto</a></td>#}
+{#              <td class="amount"><strong>44.150.200</strong> euro</td>#}
+{#            </tr>#}
+{#            <tr>#}
+{#              <td><a href="#">Titolo progetto</a></td>#}
+{#              <td class="amount"><strong>44.150.200</strong> euro</td>#}
+{#            </tr>#}
+{#            <tr>#}
+{#              <td><a href="#">Titolo progetto</a></td>#}
+{#              <td class="amount"><strong>44.150.200</strong> euro</td>#}
+{#            </tr>#}
+{#          </table>#}
+{##}
+{#          <p><i class="icon-chevron-right"></i> <a href="#">Vedi altro</a></p>#}
+{#        </section>#}
+{##}
+{#      </div>#}
+{#    </div>#}
+{#  </div>#}
 
 {% endblock %}

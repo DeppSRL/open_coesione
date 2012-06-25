@@ -25,15 +25,21 @@ class TerritorioView(AggregatoView, DetailView):
 
         context['tipologie_principali'] = ClassificazioneAzione.objects.tematiche()
 
-        context['progetti_piu_costosi'] = Progetto.objects.nel_territorio(self.object).order_by('-fin_totale')[:3]
+        context['top_progetti_per_costo'] = Progetto.objects.nel_territorio(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:3]
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().nel_territorio(self.object)[:3]
 
+        context['territori_piu_finanziati_pro_capite'] = Territorio.objects\
+            .filter( territorio=Territorio.TERRITORIO.C ,**self.object.get_cod_dict() )\
+            .exclude(pk=self.object.pk)\
+            .annotate( totale=models.Sum('progetto__fin_totale_pubblico') )\
+            .filter( totale__isnull=False )\
+            .order_by('-totale')[:3]
         # sotto territori del territorio richiesto
-        context['territori_piu_finanziati'] = Territorio.objects\
-                .exclude(pk=self.object.pk)\
-                .annotate(totale=models.Sum('progetto__costo'))\
-                .filter(totale__isnull=False, territorio= Territorio.TERRITORIO.C, **self.object.get_cod_dict())\
-                .order_by('-totale')[:3]
+#        context['territori_piu_finanziati'] = Territorio.objects\
+#                .exclude(pk=self.object.pk)\
+#                .filter(totale__isnull=False, territorio= Territorio.TERRITORIO.C, **self.object.get_cod_dict())\
+#                .annotate(totale=models.Sum('progetto__costo'))\
+#                .order_by('-fin_totale_pubblico')[:3]
 
         context['map'] = self.get_map_context( self.object )
 

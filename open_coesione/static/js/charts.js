@@ -77,7 +77,13 @@ var print_pie_chart = function( source, destination )
 
     // take values
     $(source +' tr').each(function(ix, line){
+        if ( ! ($(line).parent().is('table') || $(line).parent().is('tbody') ) ) {
+            return;
+        }
         var values = $('a, strong', line).map( function(el, item) { return $(item).text(); });
+        if (values.length == 0) {
+            values = $('td', line).map( function(el, item) { return $(item).text(); });
+        }
         var sub_total = parseInt(values[1].split('.').join(''));
         total += sub_total;
         series.data.push([values[0], sub_total ]);

@@ -190,6 +190,12 @@ class ClassificazioneAzione(models.Model):
 
         return query_set.aggregate(totale=models.Sum('{0}fin_totale_pubblico'.format(prefix)) )['totale'] or 0.0
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('progetti_tipologia', (), {
+            'slug' : self.codice
+        })
+
     def __unicode__(self):
         return u'%s %s' % (self.codice, self.descrizione)
 

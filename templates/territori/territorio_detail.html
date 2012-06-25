@@ -195,59 +195,37 @@
     <div class="row">
       <section class="span3">
 
-        <div class="tabbable boxed"> <!-- Only required for left/right tabs -->
+        <h1 class='title'><span>Soggetti</span></h1>
 
-          <h1 class='title'>
-            <div>Soggetti più coinvolti</div>
-          </h1>
+        <p>
+          I soggetti coinvolti nei progetti sono <strong>{{ numero_soggetti }}</strong> divisi tra programmatori, attuatori, realizzatori
+          e destinatari.
+          Di ogni soggetto vengono indicati tutti i progetti e i finanziamenti ricevuti.
+        </p>
 
-          <ul class="nav nav-tabs">
-            <li class="active"><a href="#project_receivers" data-toggle="tab">Destinatari</a></li>
-            <li><a href="#project_makers" data-toggle="tab">Realizzatori</a></li>
-          </ul>
-          <div class="tab-content">
-            <div class="tab-pane active" id="project_receivers">
-              <ul>
-                <li><a href="#">Nome destinatario 1</a></li>
-                <li><a href="#">Nome destinatario 2</a></li>
-                <li><a href="#">Nome destinatario 3</a></li>
-              </ul>
-            </div>
-            <div class="tab-pane" id="project_makers">
-              <ul>
-                <li><a href="#">Nome destinatario 4</a></li>
-                <li><a href="#">Nome destinatario 5</a></li>
-                <li><a href="#">Nome destinatario 6</a></li>
-              </ul>
-            </div>
+        <hr>
+
+        <form class="form-search content">
+          <h5>Cerca tra i soggetti</h5>
+          <div class="input-append">
+            <input type="text" class="input-medium search-query" placeholder="Inserisci una parola"><button type="submit" class="btn"><i class="icon-search"></i></button>
           </div>
-
-          <p class="content"><i class="icon-chevron-right"></i> <a href="#">Vedi la lista dei soggetti coinvolti</a></p>
-
-          <hr>
-
-          <form class="form-search content">
-            <h5>Cerca tra i soggetti</h5>
-            <div class="input-append">
-              <input type="text" class="input-medium search-query" placeholder="Inserisci una parola"><button type="submit" class="btn"><i class="icon-search"></i></button>
-            </div>
-          </form>
-
-        </div>
+        </form>
 
       </section>
 
       <section class="span3">
-        <h1 class='title'><span>Progetti con più costi</span></h1>
+        <h1 class='title'><span>Progetti con più finanziamenti</span></h1>
 
-        <ul class="spaced">
-          {% for progetto in progetti_piu_costosi %}
-            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
+        <table class="table">
+          {% for progetto in top_progetti_per_costo %}
+            <tr>
+              <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto|title }}</a></td>
+              <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
+            </tr>
           {% endfor %}
-        </ul>
-
+        </table>
       </section>
-
 
       <section class="span3">
         <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
@@ -260,12 +238,12 @@
 
       </section>
 
-      {% if territori_piu_finanziati %}
+      {% if territori_piu_finanziati_pro_capite %}
       <section class="span3">
-        <h1 class='title'><span>I comuni più finanziati</span></h1>
+        <h1 class='title'><span>I territori più finanziati (pro capite)</span></h1>
 
-        <table>
-          {% for territorio_finanziato in territori_piu_finanziati %}
+        <table class="table">
+          {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
           <tr>
             <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
             <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
