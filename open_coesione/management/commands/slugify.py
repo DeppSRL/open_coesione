@@ -143,7 +143,7 @@ class Command(BaseCommand):
                 instance.short_label = row['SLUG']
                 instance.save()
 
-                self.logger("- seek '{0}': '{1}'".format( row[ key_slug ], instance if instance else 'NOT FOUND' ))
+                self.logger.debug("- seek '{0}': '{1}'".format( row[ 'SLUG' ], instance if instance else 'NOT FOUND' ))
 
 
-        self.logger("{0} {1} have been slugified\n".format(reader.line_num,options['model']))
+        self.logger.debug("{0} {1} have been slugified\n".format(reader.line_num,options['type']))
