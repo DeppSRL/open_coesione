@@ -20,7 +20,7 @@ var MAP;
 
     var instance; // [Singleton]
 
-    MAP = function MAP(db, geogson_url, tiles_url, d3, polymaps, protovis) {
+    MAP = function MAP(db, geojson_url, tiles_url, d3, polymaps, protovis) {
 
         if (instance) {
             return instance; // [Singleton]
@@ -30,7 +30,7 @@ var MAP;
 
         // all the functionality
         this.db = db;
-        this.geogson_url = geogson_url;
+        this.geojson_url = geojson_url;
         this.tiles_url = tiles_url;
         this.po = polymaps;
         this.pv = protovis;
@@ -122,7 +122,7 @@ var MAP;
                     }
                     //feature.element.removeChild(feature.element.children[0]);
                 }
-                feature.element.setAttribute("class", "q" + this.quantiles[this.new_name][this.new_dataset](d) + "-" + 9);
+                feature.element.setAttribute("class", "q" + this.quantiles[this.new_name][this.new_dataset](d) + "-" + 5);
                 feature.element.appendChild(this.po.svg("title").appendChild(
                     document.createTextNode(feature.data.properties.denominazione + ": " + addCommas(d.toFixed(0)) + " " + this.currency_mapping[this.new_dataset]))
                     .parentNode);
@@ -144,10 +144,10 @@ var MAP;
             name = name || 'regioni';
             dataset = dataset || 'costo';
 
-            console.log('add layer', name, dataset, '~ currently', this.new_name, this.new_dataset, (this.new_name == name) && (this.new_dataset == dataset));
+            // console.log('add layer', name, dataset, '~ currently', this.new_name, this.new_dataset, (this.new_name == name) && (this.new_dataset == dataset));
 
             if ( (this.new_name == name) && (this.new_dataset == dataset) ) {
-                console.log('already show');
+                // console.log('already show');
                 return ;
             }
 
@@ -159,9 +159,9 @@ var MAP;
             }
             if ( ! (dataset in this.quantiles[name]) ) {
                 this.quantiles[name][dataset] = this.pv.Scale.quantile()
-                    .quantiles(9)
+                    .quantiles(5)
                     .domain(pv.values( this.db[name][dataset]))
-                    .range(0, 8);
+                    .range(0, 4);
             }
 
 //            if ( ! (name in this.layers) ) {
@@ -171,7 +171,7 @@ var MAP;
             if ( ! (name in this.layers)) {
                 //this.layers[name][dataset] = this.po.geoJson()
                 this.layers[name] = this.po.geoJson()
-                    .url(this.geogson_url +"/"+ this.path_mapping[name] +"/{Z}/{X}/{Y}.geojson")
+                    .url(this.geojson_url +"/"+ this.path_mapping[name] +"/{Z}/{X}/{Y}.geojson")
                     //.on("load", this._load_layer(name, dataset) )
                     .on("load", this.onLayerShow.bind(this) )
                     .id(name);
@@ -197,12 +197,13 @@ var MAP;
                     // remove last
                     this.map.remove( this.last_layer );
                 }
-                this.map.remove(this.po.compass());
             }
 
+            d3.select('#map .compass').remove();
             this.map.add(this.po.compass()
                 .pan("none"));
 
+            d3.select('#legenda').remove();
             this.build_legend(name, dataset);
 
 //            this.last_layer = this.layers[name][dataset];
@@ -210,33 +211,8 @@ var MAP;
 
         };
 
-        this._load_layer = function( name, dataset ) {
-
-            return function( geojson ) {
-
-                console.log('load',arguments)
-
-                for (var i = 0; i < geojson.features.length; i++) {
-                    var feature = geojson.features[i];
-                    var d = this.db[name][dataset][feature.data.properties[ this.property_mapping[name] ]];
-                    var id = feature.data.properties.id;
-                    feature.element.setAttribute("class", "q" + this.quantiles[name][dataset](d) + "-" + 9);
-                    feature.element.appendChild(this.po.svg("title").appendChild(
-                        document.createTextNode(feature.data.properties.denominazione + ": " + addCommas(d.toFixed(0)) + " " + this.currency_mapping[dataset]))
-                        .parentNode);
-
-                    feature.element.setAttribute("ref", feature.data.properties.id);
-                }
-            }.bind(this);
-        };
-
-
 
         this.build_legend = function(name, dataset) {
-
-            if ( this.legend ) {
-                this.legend.remove();
-            }
 
             var title = this.legend_titles[dataset];
             var level_text_func = this.legend_quantile_func[dataset].bind(this.quantiles[name]);
@@ -245,37 +221,35 @@ var MAP;
             this.legend = this.d3.select("#map svg")
                 .insert("svg:g", ".compass")
                 .attr("id", "legenda").attr("class", "TODO")
-                .attr("transform", "translate(400,30)");
+                .attr("transform", "translate(450,30)");
 
             this.legend.append("svg:rect")
                 .attr("x", "-20").attr("y", "-20")
-                .attr("width", "120").attr("height", "160")
-                .attr("class", "back")
+                .attr("width", "120").attr("height", "120")
+                .attr("class", "back");
 
 
             this.legend.append("svg:text")
                 .attr("x", "0")
                 .attr("y", "0")
                 .attr("font-size", "11")
-                .text(
-                title
-            )
+                .text(title);
 
-// add the various blocks of the legenda
+            // add the various blocks of the legenda
             this.legend.selectAll("circle")
-                .data(this.d3.range(0, 9))
+                .data(this.d3.range(0, 5))
                 .enter()
                 .append("svg:circle")
                 .attr("r", "6").attr("cx", "0")
                 .attr("class", function (d, i) {
-                    return "q" + i + "-9";
+                    return "q" + i + "-5";
                 })
                 .attr("cy", function (d, i) {
                     return (i + 1) * 14;
-                })
+                });
 
             this.legend.selectAll("text.quantiles")
-                .data(this.d3.range(0, 9))
+                .data(this.d3.range(0, 5))
                 .enter()
                 .append("svg:text")
                 .attr("class", "quantiles")
