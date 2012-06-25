@@ -188,22 +188,20 @@
           </div>
         </section>
 
-        <div class="flat_content">
-          <h3>Priorità</h3>
-          <p>
-            {{ progetto.classificazione_qsn.descrizione }}
-          </p>
+        <h3>Priorità</h3>
+        <p>
+          {{ progetto.classificazione_qsn.classificazione_superiore.classificazione_superiore.descrizione }}
+        </p>
 
-          <h3>Obiettivo generale</h3>
-          <p>
-            {{ progetto.classificazione_qsn.classificazione_superiore.descrizione }}
-          </p>
+        <h3>Obiettivo generale QSN</h3>
+        <p>
+          {{ progetto.classificazione_qsn.classificazione_superiore.descrizione }}
+        </p>
 
-          <h3>Obiettivo specifico</h3>
-          <p>
-            {{ progetto.classificazione_qsn.classificazione_superiore.classificazione_superiore.descrizione }}
-          </p>
-        </div>
+        <h3>Obiettivo specifico QSN</h3>
+        <p>
+          {{ progetto.classificazione_qsn.descrizione }}
+        </p>
 
       </div>
 
@@ -241,7 +239,9 @@
             </div>
 
             <p class="span6 text-center">
-              <small>*Dati aggiornati al {{ progetto.data_aggiornamento }} e relativi alla competenza del finanziamento pubblico</small></p>
+              <small>*Dati aggiornati al {{ progetto.data_aggiornamento }} e relativi alla competenza del finanziamento pubblico</small>
+            </p>
+
 
           </div>
 

@@ -11,9 +11,16 @@ class ExtendedFacetedSearchView(SearchView):
     __name__ = 'ExtendedFacetedSearchView'
 
     ## simplified date-ranges definitions
-    THREEDAYS = '[NOW/DAY-3DAYS TO NOW/DAY]'
-    ONEMONTH  = '[NOW/DAY-30DAYS TO NOW/DAY]'
+    SIXMONTHS = '[NOW/DAY-180DAYS TO NOW/DAY]'
     ONEYEAR   = '[NOW/DAY-365DAYS TO NOW/DAY]'
+    TWOYEARS  = '[NOW/DAY-730DAYS TO NOW/DAY]'
+
+    COST_RANGES = {
+        '0TO1K':      '[* TO 1000]',
+        '1KTO10K':    '[1001 TO 10000]',
+        '10KTO100K':  '[10001 TO 100000]',
+        '100KTOINF':  '[100001 TO *]',
+    }
 
     def __init__(self, *args, **kwargs):
         # Needed to switch out the default form class.
@@ -80,12 +87,22 @@ class ExtendedFacetedSearchView(SearchView):
                 r_label = dict(Progetto.TIPO_OPERAZIONE)[label]
 
             # TODO: use an associative array
-            if label == self.THREEDAYS:
-                r_label = _('last three days')
-            elif label == self.ONEMONTH:
-                r_label = _('last month')
+            if label == self.SIXMONTHS:
+                r_label = 'ultimi sei mesi'
             elif label == self.ONEYEAR:
-                r_label = _('last year')
+                r_label = 'ultimo anno'
+            elif label == self.TWOYEARS:
+                r_label = 'ultimi due anni'
+
+            elif label == self.COST_RANGES['0TO1K']:
+                r_label = 'da 0 a 1,000&euro;'
+            elif label == self.COST_RANGES['1KTO10K']:
+                r_label = 'da 1,000 a 10,000&euro;'
+            elif label == self.COST_RANGES['10KTO100K']:
+                r_label = 'da 10,000 a 100,000&euro;'
+            elif label == self.COST_RANGES['100KTOINF']:
+                r_label = 'oltre 100,000&euro;'
+
 
             sf = {'field': field, 'label': label, 'r_label': r_label, 'url': url}
             extended_selected_facets.append(sf)
@@ -100,52 +117,48 @@ class ExtendedFacetedSearchView(SearchView):
         facet_counts_queries = self.results.facet_counts().get('queries', {})
 
         facets = {'is_selected': False}
-        if "pub_date:%s" % self.THREEDAYS in facet_counts_queries:
-            facets['threedays'] = {
-                'key': "pub_date:%s" % self.THREEDAYS,
-                'count': facet_counts_queries["pub_date:%s" % self.THREEDAYS]
+        if "data_inizio:%s" % self.SIXMONTHS in facet_counts_queries:
+            facets['sixmonths'] = {
+                'key': "data_inizio:%s" % self.SIXMONTHS,
+                'count': facet_counts_queries["data_inizio:%s" % self.SIXMONTHS]
             }
-            if facets['threedays']['key'] in selected_facets:
+            if facets['sixmonths']['key'] in selected_facets:
                 facets['is_selected'] = True
 
-        if "pub_date:%s" % self.ONEMONTH in facet_counts_queries:
-            facets['onemonth'] = {
-                'key': "pub_date:%s" % self.ONEMONTH,
-                'count': facet_counts_queries["pub_date:%s" % self.ONEMONTH]
-            }
-            if facets['onemonth']['key'] in selected_facets:
-                facets['is_selected'] = True
-
-        if "pub_date:%s" % self.ONEYEAR in facet_counts_queries:
+        if "data_inizio:%s" % self.ONEYEAR in facet_counts_queries:
             facets['oneyear'] = {
-                'key': "pub_date:%s" % self.ONEYEAR,
-                'count': facet_counts_queries["pub_date:%s" % self.ONEYEAR]
+                'key': "data_inizio:%s" % self.ONEYEAR,
+                'count': facet_counts_queries["data_inizio:%s" % self.ONEYEAR]
             }
             if facets['oneyear']['key'] in selected_facets:
                 facets['is_selected'] = True
-        if "votation_date:%s" % self.THREEDAYS in facet_counts_queries:
-            facets['threedays'] = {
-                'key': "votation_date:%s" % self.THREEDAYS,
-                'count': facet_counts_queries["votation_date:%s" % self.THREEDAYS]
+
+        if "data_inizio:%s" % self.TWOYEARS in facet_counts_queries:
+            facets['twoyears'] = {
+                'key': "data_inizio:%s" % self.TWOYEARS,
+                'count': facet_counts_queries["data_inizio:%s" % self.TWOYEARS]
             }
-            if facets['threedays']['key'] in selected_facets:
+            if facets['twoyears']['key'] in selected_facets:
                 facets['is_selected'] = True
 
-        if "votation_date:%s" % self.ONEMONTH in facet_counts_queries:
-            facets['onemonth'] = {
-                'key': "votation_date:%s" % self.ONEMONTH,
-                'count': facet_counts_queries["votation_date:%s" % self.ONEMONTH]
-            }
-            if facets['onemonth']['key'] in selected_facets:
-                facets['is_selected'] = True
+        return facets
 
-        if "votation_date:%s" % self.ONEYEAR in facet_counts_queries:
-            facets['oneyear'] = {
-                'key': "votation_date:%s" % self.ONEYEAR,
-                'count': facet_counts_queries["votation_date:%s" % self.ONEYEAR]
-            }
-            if facets['oneyear']['key'] in selected_facets:
-                facets['is_selected'] = True
+    def _get_custom_facet_queries_cost(self):
+        """
+
+        """
+        selected_facets = self.request.GET.getlist('selected_facets')
+        facet_counts_queries = self.results.facet_counts().get('queries', {})
+
+        facets = {'is_selected': False}
+        for r in ('0TO1K', '1KTO10K', '10KTO100K', '100KTOINF'):
+            if "costo:%s" % self.COST_RANGES[r] in facet_counts_queries:
+                facets['costrange_'+r] = {
+                    'key': "costo:%s" % self.COST_RANGES[r],
+                    'count': facet_counts_queries["costo:%s" % self.COST_RANGES[r]]
+                }
+                if facets['costrange_'+r]['key'] in selected_facets:
+                    facets['is_selected'] = True
 
         return facets
 
@@ -162,6 +175,7 @@ class ExtendedFacetedSearchView(SearchView):
         extra['selected_facets'] = self._get_extended_selected_facets()
         extra['facets'] = self._get_extended_facets_fields()
         extra['facet_queries_date'] = self._get_custom_facet_queries_date()
+        extra['facet_queries_cost'] = self._get_custom_facet_queries_cost()
 
         # make get array as mutable QueryDict
         params = self.request.GET.copy()

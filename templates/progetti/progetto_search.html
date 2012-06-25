@@ -2,47 +2,31 @@
 {% load highlight %}
 {% load i18n %}
 {% load utils %}
+{% load digg_paginator %}
 
 {% block page_title %}Elenco progetti {% endblock page_title %}
 {% block page_description %}Elenco dei progetti, navigabile a faccette, con possibilità di ricerca testuale.{% endblock page_description %}
 
+{% block css_header %}
+    {{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/digg_paginator.css">
+{% endblock %}
 
 {% block content %}
-    {% if selected_facets %}
-        <ul class="breadcrumb">
-            {% for facet in selected_facets  %}
-                <li>
-                    <a href="{{ facet.url }}"><i class="icon-remove">X</i></a>
-                    <span style="color:gray;">{% trans facet.field %}</span>:
-                    {{ facet.r_label }}
-                </li>
-                {% if not forloop.last %}
-                    <span class="divider">/</span>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    {% else %}
-      <p>Puoi trovare il progetto scorrendo la lista degli ultimi pubblicati, qui sotto.
-        Puoi perfezionare la ricerca usando i filtri nella colonna qui a destra, oppure puoi usare il form di
-        ricerca con una parola che pensi sia contenuta nel progetto ,
-        in cima alla colonna qui a destra</p>
-    {% endif %}
-
-
+    {%  comment %}
+    Blocco dei risultati
+    {%  endcomment %}
     {% if n_results %}
+        {% digg_paginator %}
 
-      {% comment %}
-      {% include "commons/pagination.html" with base_url=base_url %}
-      {% endcomment %}
-
-      <section>
-        <h3>{% if not query %}Tutti i {% endif %} {{ n_results }} documenti</h3>
+        <section style="clear: both;">
+        <h3>{% if not query %}Tutti i {% endif %} {{ n_results }} risultati</h3>
 
         <table class="search-results">
           <tbody>
-          {% for result in page.object_list %}
+          {% for result in page_obj.object_list %}
           <tr>
-            <td>{{ result.titolo }}</td>
+            <td>{{ result.rendered|safe }}</td>
           </tr>
           {% empty %}
               <p>Nessun risultato trovato.</p>
@@ -51,9 +35,8 @@
         </table>
       </section>
 
-      {% comment %}
-      {% include "commons/pagination.html" with base_url=base_url %}
-      {% endcomment %}
+      {% digg_paginator %}
+
 
     {% else %}
         {# Show some example queries to run, maybe query syntax, something else? #}
@@ -62,24 +45,67 @@
 {% endblock %}
 
 {% block sidebar %}
-  <h4>Cerca negli atti</h4>
-  <form method="get" action="{% url progetti_search %}" class="form-search">
-    <input type="text" class="input-medium search-query" name="{{ form.q.html_name }}" value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
-    <button type="submit" class="btn">Cerca</button>
-  </form>
+
+    <h4>Cerca negli atti</h4>
+    <form method="get" action="{% url progetti_search %}" class="form-search">
+      <input type="text" class="input-medium search-query" name="{{ form.q.html_name }}" value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
+      <button type="submit" class="btn">Cerca</button>
+    </form>
+
 
     {% if n_results %}
         <!-- Begin faceting. -->
-        <h3>Filtra</h3>
+
+        {% if selected_facets %}
+            <h3>Modifica i filtri</h3>
+            {% for facet in selected_facets  %}
+                {% if facet.field == 'natura' and facets.fields.natura.is_field_selected %}
+                    <dt>Natura operazione</dt>
+                    <dd>
+                        <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
+                        {{ natura.short_label|key:facet.r_label|safe }}
+                    </dd>
+                {%  endif %}
+                {% if facet.field == 'tema' and facets.fields.tema.is_field_selected %}
+                    <dt>Tema</dt>
+                    <dd>
+                        <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
+                        {{ tema.short_label|key:facet.r_label|safe }}
+                    </dd>
+                {% endif %}
+                {% if facet.field == 'data_inizio' and facet_queries_date.is_selected %}
+                    <dt>Data inizio</dt>
+                    <dd>
+                        <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
+                        {{ facet.r_label|safe }}
+                    </dd>
+                {% endif %}
+                {% if facet.field == 'costo' and facet_queries_cost.is_selected %}
+                    <dt>Data inizio</dt>
+                    <dd>
+                        <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
+                        {{ facet.r_label|safe }}
+                    </dd>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <h3>Filtra</h3>
+            <p>Puoi trovare il progetto scorrendo la lista degli ultimi pubblicati, qui sotto.
+                Puoi perfezionare la ricerca usando i filtri nella colonna qui a destra, oppure puoi usare il form di
+                ricerca con una parola che pensi sia contenuta nel progetto,
+                in cima alla colonna qui a destra</p>
+        {% endif %}
+
         <div>
             <dl>
-                {% if facets.fields.tipo_operazione and not facets.fields.tipo_operazione.is_field_selected %}
-                    <dt>Tipo operazione</dt>
-                    {% for t in facets.fields.tipo_operazione.counts %}
+                {% if facets.fields.natura and not facets.fields.natura.is_field_selected %}
+                    <dt>Natura operazione</dt>
+                    {% for t in facets.fields.natura.counts %}
                         {% if t.1 %}
                             <dd>
                                 {% if not t.2 %}
-                                    <a href="{{ base_url }}&selected_facets=tipo_operazione:{{ t.0|urlencode }}">{{ tipo_operazioni|key:t.0 }}</a> ({{ t.1 }})
+                                    <a href="{{ base_url }}&selected_facets=natura:{{ t.0|urlencode }}"
+                                       title="{{ natura.descrizione|key:t.0 }}">{{ natura.short_label|key:t.0 }}</a> ({{ t.1 }})
                                 {% endif %}
                             </dd>
                         {% endif %}
@@ -87,19 +113,83 @@
                 {% endif %}
             </dl>
             <dl>
-                {% if facets.fields.priorita and not facets.fields.priorita.is_field_selected %}
-                    <dt>Priorità</dt>
-                    {% for t in facets.fields.priorita.counts %}
+                {% if facets.fields.tema and not facets.fields.tema.is_field_selected %}
+                    <dt>Tema</dt>
+                    {% for t in facets.fields.tema.counts %}
                         {% if t.1 %}
                             <dd>
                                 {% if not t.2 %}
-                                    <a href="{{ base_url }}&selected_facets=priorita:{{ t.0|urlencode }}">{{ t.0 }}</a> ({{ t.1 }})
+                                    <a href="{{ base_url }}&selected_facets=tema:{{ t.0|urlencode }}"
+                                       title="{{ tema.descrizione|key:t.0 }}">{{ tema.short_label|key:t.0 }}</a> ({{ t.1 }})
                                 {% endif %}
                             </dd>
                         {% endif %}
                     {% endfor %}
                 {% endif %}
             </dl>
+            <dl>
+                {% if not facet_queries_date.is_selected %}
+                    <dt>Data inizio</dt>
+                    {% if facet_queries_date.sixmonths.count %}
+                        <dd>
+                            <a href="{{ base_url }}&selected_facets={{ facet_queries_date.sixmonths.key }}">
+                                Ultimi sei mesi
+                            </a> ({{ facet_queries_date.sixmonths.count }})
+                        </dd>
+                    {% endif %}
+                    {% if facet_queries_date.oneyear.count %}
+                        <dd>
+                            <a href="{{ base_url }}&selected_facets={{ facet_queries_date.oneyear.key }}">
+                                Ultimo anno
+                            </a> ({{ facet_queries_date.oneyear.count }})
+                        </dd>
+                    {% endif %}
+                    {% if facet_queries_date.twoyears.count %}
+                        <dd>
+                            <a href="{{ base_url }}&selected_facets={{ facet_queries_date.twoyears.key }}">
+                                Ultimi due anni
+                            </a> ({{ facet_queries_date.twoyears.count }})
+                        </dd>
+                    {% endif %}
+                {% endif %}
+            </dl>
+
+            <dl>
+                {% if not facet_queries_cost.is_selected %}
+                    <dt>Costo</dt>
+                    {% if facet_queries_cost.costrange_0TO1K.count %}
+                        <dd>
+                            <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_0TO1K.key }}">
+                                da 0 a 1000 &euro;
+                            </a> ({{ facet_queries_cost.costrange_0TO1K.count }})
+                        </dd>
+                    {% endif %}
+
+                    {% if facet_queries_cost.costrange_1KTO10K.count %}
+                        <dd>
+                            <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_1KTO10K.key }}">
+                                da 1,000 a 10,000 &euro;
+                            </a> ({{ facet_queries_cost.costrange_1KTO10K.count }})
+                        </dd>
+                    {% endif %}
+
+                    {% if facet_queries_cost.costrange_10KTO100K.count %}
+                        <dd>
+                            <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_10KTO100K.key }}">
+                                da 10,000 a 100,000 &euro;
+                            </a> ({{ facet_queries_cost.costrange_10KTO100K.count }})
+                        </dd>
+                    {% endif %}
+                    {% if facet_queries_cost.costrange_100KTOINF.count %}
+                        <dd>
+                            <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_100KTOINF.key }}">
+                                oltre 100,000 &euro;
+                            </a> ({{ facet_queries_cost.costrange_100KTOINF.count }})
+                        </dd>
+                    {% endif %}
+                {% endif %}
+            </dl>
+
         </div>
         <!-- End faceting -->
     {% endif %}

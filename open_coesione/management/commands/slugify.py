@@ -29,19 +29,23 @@ from django.db import transaction
 from django.template.defaultfilters import slugify
 from progetti.models import Tema, ClassificazioneAzione, Progetto
 from territori.models import Territorio
+from progetti.models import Progetto
+from soggetti.models import Soggetto
+
+import logging
 
 class Command(BaseCommand):
     help = "Create slugs for Territori"
-    allowed_models = ['location','topic','nature','project']
+    logger = logging.getLogger('csvimport')
 
     option_list = BaseCommand.option_list + (
-        make_option('--model',
-            default='location',
-            help='Model to slugify [{0}]'.format('|'.join(allowed_models))),
-
+        make_option('--type',
+                    dest='type',
+                    default='proj',
+                    help='Type of import: proj|loc|rec|nature|topic'),
         make_option('--file',
             default='dati/{0}_mapping.csv',
-            help='Model to slugify [location|topic|nature]'),
+            help='CSV file containing mapping for short_labels [dati/topic_mapping.csv|dati/nature_mapping.csv]'),
 
         make_option('--reset',
             default=False,
@@ -51,97 +55,95 @@ class Command(BaseCommand):
 
     @transaction.commit_on_success
     def handle(self, *args, **options):
-
-        models = [ options['model'], ] if not options['model'] == 'all' else self.allowed_models
-
-        for model in models:
-
-            options['model'] = model
-
-            if options['reset']:
-
-                self.handle_reset( *args,**options )
-
-            else:
-
-                self.handle_slugs( *args,**options )
-
-
-
-    def handle_reset(self, *args, **options):
-
-        if options['model'] == 'location':
-
-            Territorio.objects.update(slug='')
-
-        if options['model'] == 'topic':
-
-            Tema.objects.update(short_label='')
-
-        if options['model'] == 'nature':
-
-            ClassificazioneAzione.objects.update(short_label='')
-
-        if options['model'] == 'project':
-
-            Progetto.objects.update(slug='')
-
-        print "Slug for '{0}' has been cleaned".format(options['model'])
-
-    def handle_slugs(self, *args, **options):
-
-        count = 0
-        key_db, key_slug = 'DB', 'SLUG'
-
-        if options['model'] == 'location':
-
-            for territorio in Territorio.objects.all():
-                print "{1} - Slugify {0}".format(territorio, count)
-                # skipping already populated
-                if territorio.slug:
-                    continue
-                territorio.slug = slugify(territorio.denominazione)
-                territorio.save()
-                count += 1
-
-        elif options['model'] == 'project':
-
-            for progetto in Progetto.objects.all():
-                print "{1} - Slugify {0}".format(progetto, count)
-                # skipping already populated
-                if progetto.slug:
-                    continue
-                progetto.slug = slugify(progetto.codice_locale)
-                progetto.save()
-                count += 1
-
+        if options['type'] == 'proj':
+            self.handle_proj(*args, **options)
+        elif options['type'] == 'loc':
+            self.handle_loc(*args, **options)
+        elif options['type'] == 'rec':
+            self.handle_rec(*args, **options)
+        elif options['type'] in ['nature', 'topic']:
+            self.handle_short_labels(*args, **options)
         else:
-            print options['file']
-            with open( options['file'].format(options['model']), 'rb' ) as f:
+            self.logger.error("Wrong type %s. Select among proj, loc, rec, nature, topic" % options['type'])
+            exit(1)
 
-                reader = csv.DictReader(f, delimiter=',')
+    def handle_proj(self, *args, **options):
+        if options['reset']:
+            Progetto.objects.update(slug=None)
+            self.logger.info("progetti slugs have been reset. now exiting")
+            return
 
-                model = {
-                    'topic': Tema,
-                    'nature': ClassificazioneAzione
-                }[ options['model'] ]
+        progetti = Progetto.objects.filter(slug__isnull=True)
+        self.logger.info("{0} progetti will be slugified".format(progetti.count()))
+        for n, progetto in enumerate(progetti):
+            progetto.slug = slugify("{0}".format(progetto.codice_locale))
+            progetto.save()
+            if n%100 == 0:
+                self.logger.debug(n)
 
-                for row in reader:
-
-                    print "* try to retrieve '{0}' from {1}s".format(row[ key_db ], options['model'])
-
-                    instance = [
-                        # takes all objects with this descrizione
-                        x for x in model.objects.filter( descrizione = row[ key_db ] )
-                        # and filter by is_root property
-                        if x.is_root
-                    ][0] # we wants only one instance...
-
-                    instance.short_label = row[ key_slug ]
-                    instance.save()
-
-                    print "- seek '{0}': '{1}'".format( row[ key_slug ], instance if instance else 'NOT FOUND' )
-                    count += 1
+        self.logger.info("done!")
 
 
-        print "{0} {1} have been slugified\n".format(count,options['model'])
+    def handle_loc(self, *args, **options):
+        if options['reset']:
+            Territorio.objects.update(slug=None)
+            self.logger.info("territori slugs have been reset. now exiting")
+            return
+
+        territori = Territorio.objects.filter(slug__isnull=True)
+        self.logger.info("{0} territori will be slugified".format(territori.count()))
+        for n, territorio in enumerate(territori):
+            territorio.slug = slugify("{0}".format(territorio.codice_locale))
+            territorio.save()
+            if n%100 == 0:
+                self.logger.debug(n)
+
+        self.logger.info("done!")
+
+
+
+    def handle_rec(self, *args, **options):
+        if options['reset']:
+            Soggetto.objects.update(slug=None)
+            self.logger.info("soggetti slugs have been reset. now exiting")
+            return
+
+        soggetti = Soggetto.objects.filter(slug__isnull=True)
+        self.logger.info("{0} soggetti will be slugified".format(soggetti.count()))
+        for n, soggetto in enumerate(soggetti):
+            soggetto.slug = slugify("{0}".format(soggetto.codice_locale))
+            soggetto.save()
+            if n%100 == 0:
+                self.logger.debug(n)
+
+        self.logger.info("done!")
+
+
+    def handle_short_labels(self, *args, **options):
+        with open( options['file'].format(options['type']), 'rb' ) as f:
+
+            reader = csv.DictReader(f, delimiter=',')
+
+            model = {
+                'topic': Tema,
+                'nature': ClassificazioneAzione
+            }[ options['type'] ]
+
+            for row in reader:
+
+                self.logger.debug("* try to retrieve '{0}' from {1}s".format(row['DB'], options['type']))
+
+                instance = [
+                    # takes all objects with this descrizione
+                    x for x in model.objects.filter( descrizione = row['DB'] )
+                    # and filter by is_root property
+                    if x.is_root
+                ][0] # we wants only one instance...
+
+                instance.short_label = row['SLUG']
+                instance.save()
+
+                self.logger("- seek '{0}': '{1}'".format( row[ key_slug ], instance if instance else 'NOT FOUND' ))
+
+
+        self.logger("{0} {1} have been slugified\n".format(reader.line_num,options['model']))

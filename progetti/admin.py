@@ -15,13 +15,25 @@ class ProgettoAdmin(admin.ModelAdmin):
     search_fields = ['^codice_locale',]
     filter_vertical = ('soggetto_set',)
 
+    # modify fields list, for superuser
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+
+        if not request.user.is_superuser:
+            self.fields = ('codice_locale', 'cup', 'titolo_progetto', 'descrizione', )
+            self.readonly_fields = ('codice_locale', 'cup', 'titolo_progetto')
+
+        return super(ProgettoAdmin, self).change_view(request, object_id)
+
 class TemaAdmin(admin.ModelAdmin):
     list_filter = ('tipo_tema',)
 
+class ClassificazioneAdmin(admin.ModelAdmin):
+    list_filter = ('tipo_classificazione',)
+
 admin.site.register(Progetto, ProgettoAdmin)
-admin.site.register(ClassificazioneQSN)
-admin.site.register(ClassificazioneAzione)
-admin.site.register(ClassificazioneOggetto)
+admin.site.register(ClassificazioneQSN, ClassificazioneAdmin)
+admin.site.register(ClassificazioneAzione, ClassificazioneAdmin)
+admin.site.register(ClassificazioneOggetto, ClassificazioneAdmin)
 admin.site.register(ProgrammaAsseObiettivo, ProgrammaAsseObiettivoAdmin)
 admin.site.register(Tema, TemaAdmin)
 admin.site.register(Fonte)

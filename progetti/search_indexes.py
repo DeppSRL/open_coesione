@@ -7,23 +7,26 @@ from progetti.models import Progetto
 from django.utils.translation import activate
 from django.conf import settings
 
-class ProgettoIndex(RealTimeSearchIndex):
+# user RealTimeSearchIndex once online
+
+class ProgettoIndex(SearchIndex):
     text = CharField(document=True, use_template=True)
 
     # faceting fields
-    tipo_operazione = FacetCharField( )
-    priorita = FacetCharField( )
+    natura = FacetCharField( )
+    tema = FacetCharField( )
+    data_inizio = FacetDateField(model_attr='data_inizio_effettiva')
+    costo = FacetFloatField(model_attr='fin_totale_pubblico')
 
-    # stored fields, used not to touch DB
-    # while showing results
-    # url = CharField(indexed=False, stored=True)
-    titolo = CharField(indexed=False, stored=True, model_attr='titolo_progetto')
 
-    def prepare_tipo_operazione(self, obj):
-        return obj.tipo_operazione
+# search result format is pre-rendered during index phase
+    rendered = CharField(use_template=True, indexed=False)
 
-    def prepare_priorita(self, obj):
-        return obj.classificazione_qsn.codice.split('.')[0]
+    def prepare_natura(self, obj):
+        return obj.classificazione_azione.codice.split('.')[0]
+
+    def prepare_tema(self, obj):
+        return obj.tema.codice.split('.')[0]
 
 
 site.register(Progetto, ProgettoIndex)
