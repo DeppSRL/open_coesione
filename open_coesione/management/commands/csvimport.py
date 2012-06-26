@@ -128,46 +128,80 @@ class Command(BaseCommand):
 
     def handle_rec(self, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
+        self.logger.info("Encoding: %s" % self.encoding)
         self.logger.info("Limit: %s" % options['limit'])
         self.logger.info("Offset: %s" % options['offset'])
 
         # check whether to remove records
         if options['delete']:
             Soggetto.objects.all().delete()
+            FormaGiuridica.objects.all().delete()
             self.logger.info("Oggetti rimossi")
 
 
         for r in self.unicode_reader:
-            c = self.unicode_reader.reader.line_num
+            c = self.unicode_reader.reader.line_num - 1
             if c < int(options['offset']):
                 continue
+
+            if int(options['limit']) and\
+               (c - int(options['offset']) > int(options['limit'])):
+                break
 
             # codice locale progetto (ID del record)
             try:
                 progetto = Progetto.objects.get(pk=r['COD_LOCALE_PROGETTO'])
                 self.logger.debug("%s - Progetto: %s" % (c, progetto.codice_locale))
             except ObjectDoesNotExist:
-                progetto = None
-                self.logger.warning("%s - Progetto non trovato: %s" % (c, r['COD_LOCALE_PROGETTO']))
+                self.logger.warning("%s - Progetto non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
+                continue
 
-            if progetto:
-                created = False
-                soggetto, created = Soggetto.objects.get_or_create(
-                    codice_fiscale=r['DPS_CODICE_FISCALE_SOG'],
-                    defaults={
-                        'denominazione': r['DPS_DENOMINAZIONE_SOG'].strip(),
-                        'ruolo': r['COD_RUOLO_SOG']
+            # lookup o creazione forma giuridica
+            created = False
+            forma_giuridica, created = FormaGiuridica.objects.get_or_create(
+                codice=r['DPS_FORMA_GIURIDICA_SOGG'],
+                defaults={
+                    'denominazione': r['DPS_DESCR_FORMA_GIURIDICA_SOGG'],
                     }
-                )
-                if created:
-                    self.logger.info("Aggiunto soggetto: %s" % (soggetto.denominazione,))
+            )
+            if created:
+                self.logger.info(u"Aggiunta forma giuridica: %s (%s)" %
+                                 (forma_giuridica, forma_giuridica.codice))
+            else:
+                self.logger.debug(u"Trovata forma giuridica: %s (%s)" %
+                                  (forma_giuridica, forma_giuridica.codice))
 
-                progetto.soggetto_set.add(soggetto)
+            # localizzazione
+            try:
+                territorio = Territorio.objects.get_from_istat_code(r['COD_ISTAT_SEDE_SOGG'])
+            except ObjectDoesNotExist:
+                territorio = None
 
+            rappresentante_legale = r['RAPPR_LEGALE_SOGG'].strip() if r['RAPPR_LEGALE_SOGG'].strip() else None
+            indirizzo = r['INDIRIZZO_SOGG'].strip() if r['INDIRIZZO_SOGG'].strip() else None
+            cap = r['CAP_SOGG'].strip() if r['CAP_SOGG'].strip() else None
 
-            if int(options['limit']) and\
-               (c - int(options['offset']) > int(options['limit'])):
-                break
+            # creazione soggetto
+            created = False
+            soggetto, created = Soggetto.objects.get_or_create(
+                denominazione = r['DPS_DENOMINAZIONE_SOGG'].strip(),
+                defaults={
+                    'codice_fiscale': r['DPS_CODICE_FISCALE_SOGG'],
+                    'ruolo': r['SOGG_COD_RUOLO'],
+                    'forma_giuridica': forma_giuridica,
+                    'rappresentante_legale': rappresentante_legale,
+                    'indirizzo': indirizzo,
+                    'cap': cap,
+                    'territorio': territorio,
+                }
+            )
+            if created:
+                self.logger.info(u"%s: Aggiunto soggetto: %s" % (c, soggetto.denominazione,))
+            else:
+                self.logger.debug(u"%s: Soggetto trovato e non modificato: %s" % (c, soggetto.denominazione))
+
+            progetto.soggetto_set.add(soggetto)
+
 
         self.logger.info("Fine")
 

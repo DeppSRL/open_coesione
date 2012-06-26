@@ -3,6 +3,7 @@
 from model_utils import Choices
 from progetti.models import Progetto
 from django.contrib.gis.db import models
+import struct
 
 class TerritoriManager(models.GeoManager):
 
@@ -14,6 +15,25 @@ class TerritoriManager(models.GeoManager):
 
     def comuni(self):
         return self.get_query_set().filter(territorio= Territorio.TERRITORIO.C )
+
+    def get_from_istat_code(self, istat_code):
+        """
+        get single record from Territorio, starting from ISTAT code
+        ISTAT code has the form RRRPPPCCC, where
+         - RRR is the regional code, zero padded
+         - PPP is the provincial code, zero padded
+         - CCC is the municipal code, zero padded
+
+        if a record in Territorio is not found, then the ObjectDoesNotExist exception is thrown
+        """
+        if istat_code is None:
+            return None
+
+        if len(istat_code) != 9:
+            return None
+
+        (cod_reg, cod_prov, cod_com) = struct.unpack('3s3s3s', istat_code)
+        return self.get_query_set().get(cod_reg=int(cod_reg), cod_prov=int(cod_prov), cod_com=str(int(cod_prov))+cod_com)
 
 class Territorio(models.Model):
     TERRITORIO = Choices(
