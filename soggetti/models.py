@@ -44,5 +44,11 @@ class Soggetto(models.Model):
     def __unicode__(self):
         return u"%s" % (self.denominazione, )
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('soggetti_soggetto', (), {
+            'pk': self.pk
+        })
+
     class Meta:
         verbose_name_plural = "Soggetti"

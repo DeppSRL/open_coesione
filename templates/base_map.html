@@ -153,7 +153,7 @@
             {% if territorio %}
               <div class="span6">
               <h1 class="title black" style="margin-bottom: 0;"><span>{{ territorio }}</span></h1>
-              <p><a href="{% url progetti_search %}" style="text-transform: none;padding-left: 25px;">Vai a tutti i progetti</a></p>
+              <p><a href="{% url progetti_search %}?q=&selected_facets=regions:{{ territorio.cod_reg }}" style="text-transform: none;padding-left: 25px;">Vai a tutti i progetti</a></p>
               </div>
             {% endif %}
 
@@ -182,12 +182,14 @@
               <table id="main_types" class="table">
                 {% for tipologia in tipologie_principali %}
                   <tr>
-                    <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a></td>
-                    {% if territorio %}
-                    <td class="amount"><strong>{{ tipologia|args:territorio|call:'costo_totale'|intcomma }}</strong> euro</td>
-                    {% else %}
-                    <td class="amount"><strong>{{ tipologia.costo_totale|intcomma }}</strong> euro</td>
-                    {% endif %}
+                      {% if territorio %}
+                          <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.object.codice }}&selected_facets=regions:{{ territorio.cod_reg }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                      {%  elif tema %}
+                          <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.object.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                      {%  else %}
+                          <td><a href="{{ tipologia.object.get_absolute_url }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a></td>
+                      {% endif %}
+                    <td class="amount"><strong>{{ tipologia.data.costo|default:"0"|intcomma }}</strong> euro</td>
                   </tr>
                 {% endfor %}
               </table>
@@ -195,7 +197,7 @@
             </div>
             {% endif %}
 
-            {% if temi_principali and not tema and not tipologia %}
+            {% if temi_principali %}
             <div class="span3">
               <h4>Temi</h4>
 
@@ -206,12 +208,14 @@
               <table id="main_topics" class="table">
                 {% for tema in temi_principali %}
                   <tr>
-                    <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a></td>
-                    {% if territorio %}
-                      <td class="amount"><strong>{{ tema|args:territorio|call:'costo_totale'|intcomma }}</strong> euro</td>
-                    {% else %}
-                      <td class="amount"><strong>{{ tema.costo_totale|intcomma }}</strong> euro</td>
-                    {% endif %}
+                      {% if territorio %}
+                          <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.object.codice }}&selected_facets=regions:{{ territorio.cod_reg }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
+                      {%  elif tipologia %}
+                          <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.object.codice }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
+                      {%  else %}
+                          <td><a href="{{ tema.object.get_absolute_url }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a></td>
+                      {% endif %}
+                    <td class="amount"><strong>{{ tema.data.costo|default:"0"|intcomma }}</strong> euro</td>
 
                   </tr>
                 {% endfor %}
@@ -241,7 +245,7 @@
               <form class="form-search content">
                   <div class="input-append">
                       Cerca
-                      <input type="text" class="input-medium search-query" placeholder="Inserisci un territorio"><button type="submit" class="btn"><i class="icon-search"></i></button>
+                      <input type="text" class="input-medium search-query" placeholder="Inserisci un comune"><button type="submit" class="btn"><i class="icon-search"></i></button>
                   </div>
               </form>
           </div>

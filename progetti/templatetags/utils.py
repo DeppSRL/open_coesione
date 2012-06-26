@@ -4,9 +4,9 @@ register = template.Library()
 
 def key(d, key_name):
     try:
-        value = d[key_name]
+        value = d[str(key_name)]
     except KeyError:
         from django.conf import settings
-        value = settings.TEMPLATE_STRING_IF_INVALID
+        value = "(%s)"%key_name
     return value
 key = register.filter('key', key)

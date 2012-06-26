@@ -3,6 +3,7 @@
 from django.db import models
 from model_utils import Choices
 from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager
+from soggetti.models import Soggetto
 
 
 class ClassificazioneQSN(models.Model):
@@ -74,6 +75,7 @@ class Tema(models.Model):
     descrizione = models.TextField()
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_tema = models.CharField(max_length=16, choices=TIPO)
+    slug = models.CharField(max_length=64, blank=True, null=True)
 
     objects = TemiManager()
 
@@ -105,8 +107,7 @@ class Tema(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('progetti_tema', (), {
-            # TODO please give me a slug
-            'slug' : self.codice.replace('.','-')
+            'slug' : self.slug
         })
 
     def __unicode__(self):
@@ -164,6 +165,7 @@ class ClassificazioneAzione(models.Model):
     descrizione = models.TextField()
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_classificazione = models.CharField(max_length=16, choices=TIPO)
+    slug = models.CharField(max_length=64, blank=True, null=True)
 
     @property
     def classificazioni_figlie(self):
@@ -193,7 +195,7 @@ class ClassificazioneAzione(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('progetti_tipologia', (), {
-            'slug' : self.codice
+            'slug' : self.slug
         })
 
     def __unicode__(self):
@@ -358,6 +360,22 @@ class Progetto(models.Model):
     @property
     def soggetti(self):
         return self.soggetto_set.all()
+
+    @property
+    def programmatori(self):
+        return self.soggetto_set.filter(ruolo=Soggetto.RUOLO.programmatore)
+
+    @property
+    def destinatari(self):
+        return self.soggetto_set.filter(ruolo=Soggetto.RUOLO.destinatario)
+
+    @property
+    def attuatori(self):
+        return self.soggetto_set.filter(ruolo=Soggetto.RUOLO.attuatore)
+
+    @property
+    def destinatari(self):
+        return self.soggetto_set.filter(ruolo=Soggetto.RUOLO.destinatario)
 
     def __unicode__(self):
         return self.codice_locale

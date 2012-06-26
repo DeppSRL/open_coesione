@@ -17,9 +17,9 @@ class ProgettoIndex(SearchIndex):
     tema = FacetCharField( )
     data_inizio = FacetDateField(model_attr='data_inizio_effettiva')
     costo = FacetFloatField(model_attr='fin_totale_pubblico')
+    regions = MultiValueField(indexed=True, stored=True, faceted=True)
 
-
-# search result format is pre-rendered during index phase
+    # search result format is pre-rendered during index phase
     rendered = CharField(use_template=True, indexed=False)
 
     def prepare_natura(self, obj):
@@ -27,6 +27,9 @@ class ProgettoIndex(SearchIndex):
 
     def prepare_tema(self, obj):
         return obj.tema.codice.split('.')[0]
+
+    def prepare_regions(self, obj):
+        return [t.cod_reg for t in list(obj.territori)]
 
 
 site.register(Progetto, ProgettoIndex)

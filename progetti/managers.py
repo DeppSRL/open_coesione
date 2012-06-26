@@ -50,13 +50,16 @@ class ProgettiQuerySet(models.query.QuerySet):
         return self.filter(conditions)
 
     def con_tema(self, tema):
-        return self.filter(tema=tema)
+        if tema.is_root:
+            return self.filter(tema__tema_superiore=tema)
+        else:
+            return self.filter(tema=tema)
 
     def del_tipo(self, tipologia):
         return self.filter(tipo_operazione=tipologia)
 
     def con_natura(self, natura):
-        return self.filter(classificazione_azione__classificazione_superiore__tipo_classificazione= natura.tipo_classificazione)
+        return self.filter(classificazione_azione__classificazione_superiore=natura)
 
 
 

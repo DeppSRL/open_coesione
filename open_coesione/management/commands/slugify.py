@@ -141,6 +141,7 @@ class Command(BaseCommand):
                 ][0] # we wants only one instance...
 
                 instance.short_label = row['SLUG']
+                instance.slug = slugify("{0}".format(row['SLUG']))
                 instance.save()
 
                 self.logger.debug("- seek '{0}': '{1}'".format( row[ 'SLUG' ], instance if instance else 'NOT FOUND' ))
