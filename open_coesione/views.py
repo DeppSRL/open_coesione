@@ -1,6 +1,8 @@
 from datetime import datetime
+import os
 from django.views.generic.base import TemplateView
 from django.db.models import Count, Sum
+from open_coesione.settings import PROJECT_ROOT
 from progetti.models import Progetto, Tema, ClassificazioneOggetto, ClassificazioneAzione
 from soggetti.models import Soggetto
 from territori.models import Territorio
@@ -156,6 +158,23 @@ class HomeView(AggregatoView, TemplateView):
                           pagamento=Sum('progetto_set__pagamento'))
             } for natura in ClassificazioneAzione.objects.tematiche()
         ]
+
+        return context
+
+class FondiView(TemplateView):
+    template_name = 'flat/fonti_finanziamento.html'
+
+    def get_context_data(self, **kwargs):
+
+        context = super(FondiView, self).get_context_data(**kwargs)
+
+        import csv
+
+        context['fers_data_comp'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fers.csv')))
+        context['fse_data_comp'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fse.csv')))
+
+        context['fers_data_conv'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fers.csv')))
+        context['fse_data_conv'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse.csv')))
 
         return context
 

@@ -386,6 +386,11 @@ class Progetto(models.Model):
             'slug': self.slug
         })
 
+    def percentuale_pagamenti(self):
+        if not self.fin_totale_pubblico:
+            return 0.0
+        return (float(self.pagamento) or 0.0) / (float(self.fin_totale_pubblico) or 0.0) * 100.0
+
     class Meta:
         verbose_name_plural = "Progetti"
 

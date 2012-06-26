@@ -5,7 +5,17 @@
 {% block page_title %}Progetto: {{ progetto.titolo_progetto }}{% endblock %}
 
 {% block js_content %}
+  {% addtoblock "css_link" %}
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}simplegeo-polymaps/examples/example.css">
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}simplegeo-polymaps/lib/colorbrewer/colorbrewer.css">
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/map-styles.css">
+  {% endaddtoblock %}
   {% addtoblock "js_script" %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/d3.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}simplegeo-polymaps/lib/protovis/protodata.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}simplegeo-polymaps/polymaps.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}simplegeo-polymaps/lib/jquery/jquery.svg.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}simplegeo-polymaps/lib/jquery/jquery.svgdom.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/maps.js"></script>
   {% endaddtoblock %}
@@ -76,6 +86,14 @@
       chart = new Highcharts.Chart(main_topics_options);
       // End Main topics chart
 
+
+      var tiles_url = "http://{S}tile.cloudmade.com"
+          + "/1a1b06b230af4efdbb989ea99e9841af" // http://cloudmade.com/register
+          + "/20760/256/{Z}/{X}/{Y}.png";
+      var mapfactory = new MAP( {}, '{{ TILESTACHE_URL }}', tiles_url , d3, org.polymaps, pv);
+
+      mapfactory.build('map', {{ map.extent }}, {{ map.zoomlev|default:"null" }}, {{ map.zoomrange|default:"null" }});
+      mapfactory.add_point({{ map.poi|safe }})
     });
   </script>
 {% endblock %}
@@ -166,15 +184,20 @@
 
             <dl class="data">
               <dt>Inizio</dt>
-              <dd>{{ progetto.data_inizio_prevista }}</dd>
+              <dd>{{ progetto.data_inizio_effettiva|default:"Dato non disponibile" }}</dd>
 
-              <dt>Fine</dt>
-              <dd>{{ progetto.data_fine_prevista }}</dd>
+              <dt>Fine prevista</dt>
+              <dd>{{ progetto.data_fine_prevista|default:"Dato non disponibile" }}</dd>
 
+              <dt>Fine effettiva</dt>
+              <dd>{{ progetto.data_fine_effettiva|default:"Dato non disponibile" }}</dd>
+
+              {% if durata_progetto %}
               <dt>Durata</dt>
               <dd>{{ durata_progetto }}</dd>
+              {% endif %}
 
-              {% if giorni_alla_fine > 0 %}
+              {% if giorni_alla_fine %}
               <dt>Giorni rimanenti</dt>
               <dd>{{ giorni_alla_fine }}</dd>
               {% endif %}
@@ -185,6 +208,12 @@
             <h1 class="title">
               <div>Località</div>
             </h1>
+            {% if progetto.territori %}
+              <a href="{{ progetto.territori.0.get_absolute_url }}">
+                Comune di {{ progetto.territori.0 }}
+              </a>
+            {% endif %}
+            <div id="map" style="height:250px; width: 100%;"></div>
           </div>
         </section>
 
