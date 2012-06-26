@@ -23,20 +23,20 @@ class AggregatoView(object):
         if territorio:
             if territorio.territorio == Territorio.TERRITORIO.R:
                 zoom = 8
-                zoomrange =[8,9]
+                zoomrange =[8,10]
                 data = {
-                    'comuni': {
+                    "comuni-r-%s"%territorio.cod_reg: {
                         'numero': dict(
                             (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_reg=territorio.cod_reg ).annotate(s=Count('progetto')).values('cod_com','s')
                         ),
                         'costo': dict(
-                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_reg=territorio.cod_reg ).annotate(s=Count('progetto__fin_totale_pubblico')).values('cod_com','s')
+                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_reg=territorio.cod_reg ).annotate(s=Sum('progetto__fin_totale_pubblico')).values('cod_com','s')
                         ),
                         'pagamento': dict(
-                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_reg=territorio.cod_reg ).annotate(s=Count('progetto__pagamento')).values('cod_com','s')
+                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_reg=territorio.cod_reg ).annotate(s=Sum('progetto__pagamento')).values('cod_com','s')
                         )
                     },
-                    'province': {
+                    "province-r-%s"%territorio.cod_reg: {
                         'numero': dict(
                             (t.cod_prov, Territorio.objects.filter(cod_prov=t.cod_prov).aggregate(s=Count('progetto'))['s'])
                                 for t in Territorio.objects.filter(territorio='P', cod_reg=territorio.cod_reg)
@@ -55,7 +55,7 @@ class AggregatoView(object):
                 zoom = 10
                 zoomrange =[10,11]
                 data = {
-                    'comuni': {
+                    'comuni-p-%s'%territorio.cod_prov: {
                         'numero': dict(
                             (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_prov=territorio.cod_prov ).annotate(s=Count('progetto')).values('cod_com','s')
                         ),
