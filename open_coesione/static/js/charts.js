@@ -12,7 +12,7 @@ var APP = {
 };
 
 var defaults = {
-    credits: {href: 'http://www.opencoesione.gov.it', text: 'Open Coesione'},
+    credits: { text: 'Fonte: DPS-ISTAT', href:'http://www.istat.it/it/archivio/16777/' },
     backgroundColor: 'transparent'
 };
 
@@ -34,7 +34,7 @@ var pie_chart_options = {
         borderWidth: 0,
         shadow: false,
         style: {
-            width: '100px',
+            width: '150px',
             'min-height': '20px'
         }
     },
@@ -124,6 +124,7 @@ var line_chart_options = {
             rotation: 0,
             y: -10
         }
+
     },
     tooltip: { valueDecimals: 2, valueSuffix: '%', xDateFormat: '%Y' },
     credits: defaults.credits

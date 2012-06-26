@@ -166,15 +166,20 @@
 
             <dl class="data">
               <dt>Inizio</dt>
-              <dd>{{ progetto.data_inizio_prevista }}</dd>
+              <dd>{{ progetto.data_inizio_effettiva|default:"Dato non disponibile" }}</dd>
 
-              <dt>Fine</dt>
-              <dd>{{ progetto.data_fine_prevista }}</dd>
+              <dt>Fine prevista</dt>
+              <dd>{{ progetto.data_fine_prevista|default:"Dato non disponibile" }}</dd>
 
+              <dt>Fine effettiva</dt>
+              <dd>{{ progetto.data_fine_effettiva|default:"Dato non disponibile" }}</dd>
+
+              {% if durata_progetto %}
               <dt>Durata</dt>
               <dd>{{ durata_progetto }}</dd>
+              {% endif %}
 
-              {% if giorni_alla_fine > 0 %}
+              {% if giorni_alla_fine %}
               <dt>Giorni rimanenti</dt>
               <dd>{{ giorni_alla_fine }}</dd>
               {% endif %}

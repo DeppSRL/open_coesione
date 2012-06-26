@@ -11,10 +11,353 @@
 {% endaddtoblock %}
 
   <script type="text/javascript">
-
+    var table_series = {};
+    var totale_globale = 6324890;
   $(document).ready(function() {
 
+
     print_pie_chart('#chart_table', 'chart' );
+
+    var line_options = {
+      chart: {
+        renderTo: 'chart_competitivita',
+        type: 'spline',
+        backgroundColor: 'transparent'
+      },
+      title: {
+        text: 'Andamento percentuale dei pagamenti rispetto ai contributi comunitari'
+      },
+      subtitle: {
+        //text: 'Il grafico mostra'
+      },
+      xAxis: {
+        showLastLabel: false,
+        type: 'datetime',
+        dateTimeLabelFormats: {
+          year: '%Y'
+        },
+        min: Date.UTC(2006, 1, 1),
+        max: Date.UTC(2012, 1, 1)
+      },
+      yAxis: {
+        title: {
+          text: '% pagamenti'
+        },
+        min: 0
+      },
+      series: [],
+      credits: {
+        href: 'http://www.dps.tesoro.it/',
+        text: 'Fonte: DPS'
+      },
+      tooltip: { valueDecimals: 2, valueSuffix: '%', xDateFormat: '%Y' }
+    };
+
+
+
+    var contributi_totali = [0,0];
+    var contributi_annuali = [];
+    var headers = [];
+    var total_global = 6324890;
+
+    $('.chart_table').each(function(table_index, table) {
+      var totals = [];
+      // read years
+      if (table_index == 0)
+        $('thead th',table).each(function(ix,el){
+          if (ix <= 2 ) return;
+          headers.push( $(el).text().split('.').join() );
+        });
+
+      // read totals by years
+      var current = 0.0;
+      $('tfoot td', table).each(function(ix,el){
+        if ( ix <= 1 ) return;
+        if ( ix == 2 ) {
+          contributi_totali[table_index] = parseInt($(el).text());
+          return;
+        }
+        var value = parseInt($(el).text());
+        current += value;
+//        if ( !contributi_annuali[ix-3] ) { contributi_annuali[ix-3] = 0; }
+//        contributi_annuali[ix-3] += value;
+        totals.push( (current / contributi_totali[table_index]) * 100 );
+      });
+
+      table_series[$(table).attr('id')] = {
+        'headers' : headers,
+        'totals' : totals,
+        'name': $('caption', table).text()
+      };
+    });
+
+    var series = [];
+
+    // mostra i totali delle tabelle
+    $.each(table_series, function(key, stats){
+      var data = [];
+
+      $.each(stats['headers'], function(i, year){
+        data.push( [ Date.UTC(year,1,1) , stats['totals'][i] ]  );
+      });
+
+      series.push({
+        name: stats['name'],
+        data: data
+      });
+    });
+
+    //aggiungi i contributi totali
+//    var total_contributi_annuali = 0;
+//    var contributi_data = [];
+//    $.each(headers, function(i, year){
+//      total_contributi_annuali += contributi_annuali[i];
+//      contributi_data.push( [ Date.UTC(year,1,1) , (total_contributi_annuali/totale_globale) * 100 ]  );
+//    });
+//    line_options.series.push({
+//      name: 'Totali',
+//      data : contributi_data
+//    });
+
+    new Highcharts.Chart($.extend(true, {}, line_options, {
+      chart: {
+        renderTo: 'chart_competitivita',
+        type: 'spline'
+      },
+      title: {
+        text: 'Andamento percentuale dei pagamenti rispetto ai contributi comunitari'
+      },
+      subtitle: {
+        text: '' //"L'ammotare complessivo dei contributi comunitari è di 6,324.890.000 di euro, di cui 3.044.405.000 euro <br> per il FERS e 3.180.485.000 euro per l'FSE"
+      },
+      series: series
+    }));
+
+    var regioni = [];
+    var regioni_data = [];
+    var regioni_cc = [];
+
+    $('#chart_fse_table tbody tr').each( function(i, row){
+      if ( i == 0 ) return;
+
+      var value = 0;
+      $('td', row).each(function(ix,el){
+        if ( ix == 0 ) {
+          regioni.push( $(el).text() );
+          return;
+        }
+        if ( ix == 1 ) {
+          return;
+        }
+        if ( ix == 2 ) {
+          regioni_cc.push(parseInt($(el).text()));
+        }
+        else {
+          value += parseInt($(el).text());
+        }
+      });
+      regioni_data.push(value);
+
+    });
+
+    var column_chart_options = {
+      chart: {
+        renderTo: 'chart_fse_competitivita',
+        type : 'column',
+        backgroundColor: 'transparent'
+      },
+      title: {
+        text: 'Stacked column chart'
+      },
+      xAxis: {
+        categories: regioni,
+        labels: {
+          rotation: -45,
+          align: 'right',
+          style: {
+            font: 'normal 13px Verdana, sans-serif'
+          }
+        }
+      },
+      yAxis: {
+        min: 0,
+        title: {
+          text: 'Milioni di €'
+        },
+        labels:{
+          formatter: function() {
+            return this.value / 1000;
+          }
+        },
+        stackLabels: {
+          enabled: false,
+          style: {
+            fontWeight: 'bold',
+            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+          }
+        }
+      },
+      plotOptions: {
+        column: {
+          borderWidth: 0,
+          stacking: 'normal',
+          dataLabels: {
+            enabled: false,
+            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+          }
+        }
+      },
+      tooltip: {
+        formatter: function() {
+          return '<b>'+ this.x +'</b><br/>'+
+              this.series.name +': '+ this.y +'<br/>'+
+              'Contributo Comunitario: '+ this.point.stackTotal;
+        }
+      },
+      series: [{
+        name: 'Da spendere',
+        data: [],
+        stack: 'cc'
+      }, {
+        name: 'Spesi',
+        data: [],
+        stack: 'cc'
+      }],
+      credits: {
+        href: 'http://www.dps.tesoro.it/',
+        text: 'Fonte: DPS'
+      }
+    };
+
+
+    new Highcharts.Chart($.extend(true, {}, column_chart_options, {
+      chart: {
+        renderTo: 'chart_fse_competitivita',
+        type : 'column'
+      },
+      title: {
+        text: 'Fondo FSE: confronto della spesa tra le regioni al 31.12.2011'
+      },
+      series: [{
+        data: $.map(regioni_cc, function(i,v){
+          return i - regioni_data[v]
+        } )
+      }, {
+        data: regioni_data
+      }]
+    }));
+
+    regioni_data = [];
+    regioni_cc = [];
+
+    $('#chart_fers_table tbody tr').each( function(i, row){
+      var value = 0;
+      $('td', row).each(function(ix,el){
+        if ( ix == 0 ) {
+          regioni.push( $(el).text() );
+          return;
+        }
+        if ( ix == 1 ) {
+          return;
+        }
+        if ( ix == 2 ) {
+          regioni_cc.push(parseInt($(el).text()));
+        }
+        else {
+          value += parseInt($(el).text());
+        }
+      });
+      regioni_data.push(value);
+
+    });
+
+    new Highcharts.Chart($.extend(true, {}, column_chart_options, {
+      chart: {
+        renderTo: 'chart_fers_competitivita',
+        type : 'column'
+      },
+      title: {
+        text: 'Fondo FESR: confronto della spesa tra le regioni al 31.12.2011'
+      },
+      series: [{
+        data: $.map(regioni_cc, function(i,v){
+          return i - regioni_data[v]
+        } )
+      }, {
+        data: regioni_data
+      }]
+    }));
+
+    // -----------------------
+
+//    contributi_totali = [0,0];
+//    headers = [];
+//    total_global = 21632960;
+//    var table_series_conv = {};
+//    var series_conv = [];
+//
+//    $('.chart_table_conv').each(function(table_index, table) {
+//      var totals = [];
+//      // read years
+//      if (table_index == 0)
+//        $('thead th',table).each(function(ix,el){
+//          if (ix <= 2 ) return;
+//          headers.push( $(el).text().split('.').join() );
+//        });
+//
+//      // read totals by years
+//      var current = 0.0;
+//      $('tfoot td', table).each(function(ix,el){
+//        if ( ix <= 1 ) return;
+//        if ( ix == 2 ) {
+//          contributi_totali[table_index] = parseInt($(el).text());
+//          return;
+//        }
+//        var value = parseInt($(el).text());
+//        current += value;
+//        totals.push( (current / contributi_totali[table_index]) * 100 );
+//      });
+//
+//      table_series_conv[$(table).attr('id')] = {
+//        'headers' : headers,
+//        'totals' : totals,
+//        'name': $('caption', table).text()
+//      };
+//    });
+//
+//
+//
+//    // mostra i totali delle tabelle
+//    $.each(table_series_conv, function(key, stats){
+//      var data = [];
+//
+//      $.each(stats['headers'], function(i, year){
+//        data.push( [ Date.UTC(year,1,1) , stats['totals'][i] ]  );
+//      });
+//
+//      series_conv.push({
+//        name: stats['name'],
+//        data: data
+//      });
+//    });
+//
+//    new Highcharts.Chart($.extend(true, {}, line_options, {
+//      chart: {
+//        renderTo: 'chart_convergenza',
+//        type: 'spline'
+//      },
+//      title: {
+//        text: 'Andamento percentuale dei pagamenti rispetto ai contributi comunitari'
+//      },
+//      subtitle: {
+//        //text: 'Il grafico mostra'
+//      },
+//      series: series_conv,
+//      xAxis: {
+//        categories: regioni
+//      }
+//    }));
+
 
   });
   </script>
@@ -23,17 +366,17 @@
 {% block content %}
 
   <div class="flat_content">
-
     <h1>Fonti di finanziamento</h1>
 
     <p>
-      In Italia le politiche regionali di coesione – finanziate sia dai :
+      In Italia le politiche regionali di coesione sono finanziate sia da
+      <strong>fondi europei</strong>, ai quali è associato un co-finanziamento nazionale,
+      sia da <strong>fondi nazionali</strong>.
     </p>
 
-    <ul class="spaced">
-      <li><a href="/fers-fse/">Fondi europei</a> – ai quali è associato un co-finanziamento nazionale</li>
-      <li><a href="/fsc/">Fondi nazionali</a> – sono organizzate con un livello centrale di indirizzo e coordinamento e livelli più articolati di cooperazione demandate sia ad amministrazioni centrali di settore, sia alle amministrazioni regionali.</li>
-    </ul>
+    <p>
+      Sono organizzate con un livello centrale di indirizzo e coordinamento e livelli più articolati di cooperazione demandate sia ad amministrazioni centrali di settore, sia alle amministrazioni regionali.
+    </p>
 
     <p>
       Le politiche regionali di coesione agiscono, pur con grande differenza d’intensità, in tutto il Paese.
@@ -42,43 +385,91 @@
     <p>
       Complessivamente, le risorse finanziarie attualmente disponibili per il ciclo di programmazione 2007-2013 sono oltre 102 miliardi di euro.
     </p>
-
   </div>
 
-  <h3>Risorse finanziarie disponibili 2007-2013 ( dato di fine 2011 )</h3>
+  <div class="tabbable boxed"> <!-- Only required for left/right tabs -->
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#fondi-europei" data-toggle="tab">Fondi Europei</a></li>
+      <li><a href="#fondi-nazionali" data-toggle="tab">Fondi Nazionali</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active area" id="fondi-europei">
 
-  <div id="chart" style="width: 100%; height: 300px"></div>
+        <p>Il governo dei fondi europei coinvolge il livello europeo, quello nazionale e quello regionale. La gestione operativa è affidate alle amministrazioni nazionali: sia le amministrazioni centrali, attraverso i Ministeri, sia le amministrazioni locali attraverso le Regioni.</p>
 
-  <table class="table" id="chart_table">
-    <tbody>
-    <tr>
-      <td><a href="#">FAS-FSC  Fondi nazionali per interventi su Infrastrutture, sostegno all’occupazione e sostegno alla competitività del Paese</a></td>
-      <td class="amount"><strong>18.746.000</strong> euro</td>
-    </tr>
-    <tr>
-      <td><a href="#">FAS-FSC 2007-2013 Obiettivi di servizio</a></td>
-      <td class="amount"><strong>1.044.000</strong> euro</td>
-    </tr>
-    <tr>
-      <td><a href="#">FAS-FSC 2007-2013 tramite PAR</a></td>
-      <td class="amount"><strong>22.979.000</strong> euro</td>
-    </tr>
-    <tr>
-      <td><a href="#">Cofinanziamento nazionale ai programmi operativi dei Fondi strutturali</a></td>
-      <td class="amount"><strong>31.934.000</strong> euro</td>
-    </tr>
-    <tr>
-      <td><a href="#">Fondi strutturali comunitari 2007-2013 (POR, PON, POIN)</a></td>
-      <td class="amount"><strong>27.965.000</strong> euro</td>
-    </tr>
-    </tbody>
-    <tfoot>
-    <tr>
-      <td class="text-right">Totale:</td>
-      <td class="amount"><strong>102.668.000</strong> euro</td>
-    </tr>
-    </tfoot>
-  </table>
+        <p>Il Ministro per la Coesione Territoriale, attraverso il <a href="http://www.dps.tesoro.it">Dipartimento per le Politiche di Sviluppo e la Coesione economica (DPS)</a>, provvede al costante monitoraggio della spesa dei fondi prevista dai piani operativi, nazionali e regionali, e periodicamente interviene per definanziare interventi con criticità di attuazione, o che risultano obsoleti dato il cambiamento del contesto economico e sociale, o che si rivelano inefficaci sulla base di valutazioni oggettive.</p>
+
+        <p>La riprogrammazione della spesa, in termini di riqualificazione e accelerazione, viene effettuata in collaborazione con le Regioni e i Ministeri responsabili della gestione dei fondi volta per volta coinvolti e in coordinamento con la Commissione Europea. E’ stato recentemente varato  Il <a href="/pac/">Piano di Azione Coesione</a> : un impegno a spendere meglio e più rapidamente i fondi comunitari co-finanziati destinati all’Italia del Sud.</p>
+
+        <p>La politica di coesione europea stabilisce delle linee-guida che nel nostro Paese sono raccolte in un <a
+            href="http://www.dps.tesoro.it/qsn/ml.asp">Quadro strategico nazionale</a>, proposta per la politica regionale di sviluppo 2007-2013 sintetizzata in un documento di riferimento che definisce le priorità strategiche nell’impiego dei fondi Ue nell’arco temporale di ogni ciclo di programmazione.</p>
+
+        <p>Gli strumenti finanziari disponibili in Italia, con diversa intensità a seconda dei territori, sono il Fondo europeo per lo sviluppo (FESR) e  Il Fondo sociale europeo (FSE).</p>
+
+        <p>Il Fondo europeo per lo sviluppo sostiene programmi in materia di sviluppo regionale, di potenziamento della competitività, di investimenti nella ricerca e nello sviluppo sostenibile.</p>
+
+        <p>Il Fondo sociale europeo è invece modellato sulla strategia europea per l’occupazione e si concentra sull’inclusione sociale e su un accesso al mercato del lavoro che sia privo di discriminazioni di genere.</p>
+
+        <p>I programmi possono essere attuati su scala nazionale, regionale o interregionale. Quando sono di livello nazionale si chiamano PON, programmi operativi nazionali, e in questo caso l’Autorità di gestione (cioè l’amministrazione incaricata di gestire i fondi assegnati al programma) è un’amministrazione centrale nazionale. Quando sono di livello regionale, i programmi sono denominati POR (programmi operativi regionali) e l’Autorità di gestione è affidata alle Regioni. Nel caso in cui i programmi coinvolgano più Regioni, il loro acronimo diventa POIN, programmi operativi inter-regionali. Si sceglie il livello inter-regionale, piuttosto che quello regionale, quando lo scopo è quello di agire su economie di scala o di scopo. La gestione dei POIN è congiunta: viene affidata alle Regioni con la partecipazione di centri di competenza nazionale o di amministrazioni centrali.</p>
+
+        <p>Sul <a href="http://www.dps.tesoro.it/qsn/qsn_programmioperativi.asp">sito del DPS</a> sono disponibili tutti i programmi operativi</p>
+
+        <br>
+
+        <h2 class="title"><span>Area Competitività regionale e occupazione</span></h2>
+
+        <p>
+          Tutte le regioni ad eccezione di quelle dell’area Convergenza. In queste aree i progetti sono volti alla competitività e all’attrattività, nonché all’occupazione a livello regionale.  In Italia: tutte le Regioni del Centro-Nord, più Abruzzo, Molise e Sardegna. Le fonti di finanziamento disponibili sono il Fondo europeo di sviluppo regionale, Fondo sociale europeo
+        </p>
+
+        <div id="chart_competitivita" style="height: 250px; width: 100%;"></div>
+        <hr>
+        <div id="chart_fse_competitivita" style="height: 400px; width: 100%;"></div>
+        <hr>
+        <div id="chart_fers_competitivita" style="height: 400px; width: 100%;"></div>
+
+        <h2 class="title"><span>Convergenza</span></h2>
+        {#    <div id="chart_convergenza" style="height: 250px; width: 100%;"></div>#}
+
+        {% include 'commons/table_found.html' with table_name="Fondo FSE" table_id="chart_fse_table" table_class="chart_table hidden" table_rows=fse_data_comp %}
+        {% include 'commons/table_found.html' with table_name="Fondo FESR" table_id="chart_fers_table" table_class="chart_table hidden" table_rows=fers_data_comp %}
+        {% include 'commons/table_found.html' with table_name="Fondo FSE" table_id="chart_fse_table_conv" table_class="chart_table_conv hidden" table_rows=fse_data_conv %}
+        {% include 'commons/table_found.html' with table_name="Fondo FESR" table_id="chart_fers_table_conv" table_class="chart_table_conv hidden" table_rows=fers_data_conv %}
+
+
+      </div>
+      <div class="tab-pane area" id="fondi-nazionali">
+
+        <p>Il senso della politica nazionale della coesione territoriale è fissato nell’articolo 119 della Carta costituzionale  recita: “per promuovere lo sviluppo economico, la coesione e la solidarietà sociale, per rimuovere gli squilibri economici e sociali, per favorire l’effettivo esercizio dei diritti della persona, lo Stato destina risorse aggiuntive ed effettua interventi speciali in favore di determinati Comuni, Province, Città metropolitane e Regioni”.  Per dare attuazione al dettato costituzionale lo strumento-principe è il
+          <strong>Fondo per lo Sviluppo e la Coesione (FSC)</strong>. , che sostituisce il precedente <strong>Fondo per le aree sottoutilizzate (FAS)</strong>.</p>
+
+        <p>Il Fondo è volto a garantire unità programmatica e finanziaria all’insieme degli interventi aggiuntivi a finanziamento nazionale, che sono rivolti al riequilibrio economico e sociale tra le diverse aree del Paese. Il fondo si articola in un arco temporale di sette anni, coincidente con la programmazione dei fondi strutturali dell’Unione europea per garantire l’unitarietà e la complementarietà delle procedure di attivazione delle relative risorse con quelle previste per i fondi strutturali dell’UE.</p>
+
+        <p>Il Fondo per lo sviluppo e la coesione è disciplinato e descritto nel documento di indirizzo strategico deliberato dal CIPE su proposta del Ministro per la Coesione territoriale, d’intesa con i Ministri dell’economia e della finanza e dello sviluppo economico, una volta sentiti gli altri Ministri interessati. Gli interventi da finanziare sono proposti per l’approvazione al CIPE, sempre d’intesa con i Ministri con competenza sull’economia, nonché con le amministrazioni comunali, regionali o provinciali, sempre in coerenza con il documento di indirizzo.</p>
+
+        <p>Le risorse del FAS-FSC sono destinate all’attuazione della programmazione unitaria 2007-2013 attraverso diverse modalità attuative:</p>
+
+        <ul>
+          <li>
+            programmi attuativi regionali (PAR) nelle regioni del Centro-Nord,
+          </li>
+          <li>
+            interventi su infrastrutture da realizzare tramite intese istituzionali
+          </li>
+        </ul>
+        <p>
+          Specifiche risorse sono inoltre riservate al meccanismo premiale e al sostegno tecnico dell’iniziativa degli
+          <a href="http://www.dps.tesoro.it/obiettivi_servizio/">Obiettivi di servizio</a> per il Mezzogiorno prevista dal QSN 2007-2013
+        </p>
+
+        <p>
+          Tra il 2008 e 2009. il FSC è stato utilizzato anche per alimentare tre Fondi nazionali per interventi su Infrastrutture, Sostegno all’occupazione e Sostegno alla competitività del Paese non originariamente previsti tra gli strumenti di attuazione nel QSN 2007-2011. Il CIPE ha recentemente approvato una serie di delibere a sostegno della programmazione nazionale e regionale del Fondo Sviluppo e Coesione, confermando l’impegno preso dal Governo Monti con gli Enti locali e restituendo certezza sul finanziamento effettivo di larga parte delle opere che avevano sofferto dei tagli al Fondo apportati con le manovre finanziarie dell’estate 2011. Per effetto delle ultime delibere il Fondo è tornato a svolgere un ruolo molto importante per il finanziamento di interventi infrastrutturali, per la messa in sicurezza di edifici scolastici, per l’attività di contrasto al rischio di dissesto idro-geologico e per interventi a favore delle imprese.
+        </p>
+
+      </div>
+    </div>
+  </div>
+
 
 {% endblock %}
 
@@ -86,12 +477,63 @@
 
   <div class="flat_content">
     <br><br>
-    <h4>Apprfondisci:</h4>
+    <h3>Risorse finanziarie disponibili 2007-2013 ( dato di fine 2011 )</h3>
 
-    <ul class="spaced">
-      <li><a href="/fers-fsa/">Fondi europei</a></li>
-      <li><a href="/fsc/">Fondi nazionali</a></li>
-    </ul>
+    <table class="table" id="chart_table">
+      <tbody>
+      <tr>
+        <td><a href="#">FAS-FSC  Fondi nazionali per interventi su Infrastrutture, sostegno all’occupazione e sostegno alla competitività del Paese</a></td>
+        <td class="amount"><strong>18.746.000.000</strong> euro</td>
+      </tr>
+      <tr>
+        <td><a href="#">FAS-FSC 2007-2013 Obiettivi di servizio</a></td>
+        <td class="amount"><strong>1.044.000.000</strong> euro</td>
+      </tr>
+      <tr>
+        <td><a href="#">FAS-FSC 2007-2013 tramite PAR</a></td>
+        <td class="amount"><strong>22.979.000.000</strong> euro</td>
+      </tr>
+      <tr>
+        <td><a href="#">Cofinanziamento nazionale ai programmi operativi dei Fondi strutturali</a></td>
+        <td class="amount"><strong>31.934.000.000</strong> euro</td>
+      </tr>
+      <tr>
+        <td><a href="#">Fondi strutturali comunitari 2007-2013 (POR, PON, POIN)</a></td>
+        <td class="amount"><strong>27.965.000.000</strong> euro</td>
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <td class="text-right">Totale:</td>
+        <td class="amount"><strong>102.668.000.000</strong> euro</td>
+      </tr>
+      </tfoot>
+    </table>
+
+    <h4>Ripartizione percentuale delle risorse finanziarie disponibili 2007-2013</h4>
+
+    <div id="chart" style="width: 100%; height: 200px"></div>
+
+    <h4>Che cos’è il FESR</h4>
+    <p>Fondo europeo per lo sviluppo regionale. Viene utilizzato per finanziare i programmi operativi nazionali e regionali in tutti i territori: complessivamente XX programmi del ciclo attuale sono finanziati con il FESR. Sostiene programmi in materia di sviluppo regionale, di potenziamento della competitività, di investimenti nella ricerca e nello sviluppo sostenibile.</p>
+
+    <h4>Che cos’è il FSE</h4>
+    <p>Fondo sociale europeo. Destinato a sostenere l’occupazione negli Stati membri e per promuovere la coesione economica e sociale. Viene utilizzato per finanziare complessivamente XX programmi del ciclo attuale. È modellato sulla strategia europea per l’occupazione e si concentra sull’inclusione sociale e su un accesso al mercato del lavoro privo di discriminazioni di genere.</p>
+
+    <h4>Programmi operativi</h4>
+    <p>I fondi europei (insieme al co-finanziamento nazionale) assegnati ai territori vengono impegnati attraverso programmi operativi. Nell’attuale ciclo di programmazione 2007-2013 i programmi operativi che impiegano FESR e FSE sono 66.</p>
+
+    <h4>Che cosa sono i PON</h4>
+    <p>Programmi operativi nazionali, hanno come Autorità di gestione (cioè l’amministrazione incaricata di gestire i fondi assegnati al programma) un’amministrazione centrale nazionale, per esempio un Ministero.</p>
+
+    <h4>Che cosa sono i POR</h4>
+    <p>Programmi operativi regionali, hanno come Autorità di una Regione.</p>
+
+    <h4>Che cosa sono i POIN</h4>
+    <p>Programmi operativi inter-regionali. Si sceglie il livello inter-regionale, piuttosto che quello regionale, quando lo scopo è quello di agire su economie di scala o di scopo. La gestione dei POIN è congiunta: viene affidata alle Regioni con la partecipazione di centri di competenza nazionale o di amministrazioni centrali.</p>
+    <p>Che cosa è la Cooperazione territoriale europea:</p>
+    <p>Sono programmi intesi a rafforzare la cooperazione transfrontaliera, transnazionale ed interregionale, promuovendo la ricerca di soluzioni congiunte a problemi comuni tra le autorità confinanti. L'azione è finanziata dal Fondo europeo di sviluppo regionale.</p>
+
   </div>
 
 {% endblock %}
