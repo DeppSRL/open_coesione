@@ -123,7 +123,7 @@ var the_last;
 
             for (var i = 0; i < geojson.features.length; i++) {
                 var feature = geojson.features[i];
-                console.log(feature.data);
+                //console.log(feature.data);
                 var d = this.db[this.new_name][this.new_dataset][feature.data.properties[ this.property_mapping(this.new_name) ]] || 0.0;
                 var id = feature.data.properties.id;
                 // resetting
@@ -149,7 +149,7 @@ var the_last;
                 // #TODO change me
                 $(feature.element).addClass('popoverable').popover({
                     placement: function(el) {
-                        console.log('element',el);
+                        //console.log('element',el);
                         $(el).css({
                             'top' : $(el).height() /2,
                             'left' : $(el).width() /2

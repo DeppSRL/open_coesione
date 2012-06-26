@@ -23,13 +23,19 @@ class ProgettoView(DetailView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(ProgettoView, self).get_context_data(**kwargs)
-        context['durata_progetto'] = (
-            self.object.data_fine_prevista - self.object.data_inizio_prevista
-            if self.object.data_fine_prevista and self.object.data_inizio_prevista
-            else ''
-        )
+        if self.object.data_fine_effettiva and self.object.data_inizio_effettiva:
+            context['durata_progetto'] = (self.object.data_fine_effettiva - self.object.data_inizio_effettiva).days
+        elif self.object.data_fine_prevista and self.object.data_inizio_prevista:
+            context['durata_progetto'] = (self.object.data_fine_prevista - self.object.data_inizio_prevista).days
+        else:
+            context['durata_progetto'] = ''
+#        context['durata_progetto'] = (
+#            self.object.data_fine_prevista - self.object.data_inizio_prevista
+#            if self.object.data_fine_prevista and self.object.data_inizio_prevista
+#            else ''
+#        )
         context['giorni_alla_fine'] = (
-            self.object.data_fine_prevista - date.today()
+            (self.object.data_fine_prevista - date.today()).days
             if self.object.data_fine_prevista  else ''
             )
 

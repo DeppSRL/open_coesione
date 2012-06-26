@@ -308,7 +308,7 @@ var print_line_chart = function(container) {
         }
         var location_id = $(this).val();
         if (location_id != '') {
-            console.log('add serie', filter_series(APP.series[$('#indicator-selector').val()], [parseInt(location_id)] )[0])
+            //console.log('add serie', filter_series(APP.series[$('#indicator-selector').val()], [parseInt(location_id)] )[0])
             APP.chart.addSeries( filter_series(APP.series[$('#indicator-selector').val()], [parseInt(location_id)] )[0] );
             APP.chart.redraw();
         }

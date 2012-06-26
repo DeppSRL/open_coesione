@@ -183,7 +183,10 @@
             </h1>
 
             <dl class="data">
-              <dt>Inizio</dt>
+              <dt>Inizio previsto</dt>
+              <dd>{{ progetto.data_inizio_prevista|default:"Dato non disponibile" }}</dd>
+
+              <dt>Inizio effettivo</dt>
               <dd>{{ progetto.data_inizio_effettiva|default:"Dato non disponibile" }}</dd>
 
               <dt>Fine prevista</dt>
@@ -194,12 +197,12 @@
 
               {% if durata_progetto %}
               <dt>Durata</dt>
-              <dd>{{ durata_progetto }}</dd>
+              <dd>{{ durata_progetto }} giorni</dd>
               {% endif %}
 
               {% if giorni_alla_fine %}
               <dt>Giorni rimanenti</dt>
-              <dd>{{ giorni_alla_fine }}</dd>
+              <dd>{{ giorni_alla_fine }} giorni</dd>
               {% endif %}
             </dl>
 
@@ -276,7 +279,7 @@
 
         </section>
 
-        {% if progetto.fondo_comunitario == 'fse' or progetto.fondo_comunitario == 'fers' %}
+        {% if progetto.fondo_comunitario == 'fse' or progetto.fondo_comunitario == 'fesr' %}
         <section>
 
           <dl class="data">
@@ -284,7 +287,7 @@
               {% if progetto.fondo_comunitario == 'fse' %}
                 Fondo Strutturale Europeo (FSE)
               {% else %}
-                Fondo Europeo di Sviluppo Regionale (FERS)
+                Fondo Europeo di Sviluppo Regionale (FESR)
                 {% endif %}
             </dt>
             <dd>{{ progetto.fonte.descrizione }}</dd>
