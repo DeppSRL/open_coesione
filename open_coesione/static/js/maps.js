@@ -13,6 +13,11 @@ function addCommas(nStr)
     return x1 + x2;
 }
 
+if (typeof String.prototype.startsWith != 'function') {
+    String.prototype.startsWith = function (str){
+        return this.indexOf(str) == 0;
+    };
+}
 
 var MAP;
 
@@ -50,11 +55,6 @@ var MAP;
             'pagamento': "€",
             'numero' : 'progetti'
         };
-        this.path_mapping = {
-            'regioni' : 'oc-regions',
-            'province' : 'oc-provinces',
-            'comuni' : 'oc-comuni'
-        };
         this.legend_quantile_func = {
             'costo' : function (d, i) {
                 return (this['costo'].quantiles()[i] / 1000000).toFixed(2) + " - " + (this['costo'].quantiles()[i+1] / 1000000).toFixed(2);
@@ -66,11 +66,22 @@ var MAP;
                 return this['numero'].quantiles()[i] + " - " + this['numero'].quantiles()[i+1];
             }
         };
-        this.property_mapping = {
-            'regioni' : 'cod_reg',
-            'province' : 'cod_prov',
-            'comuni' : 'cod_com'
+        this.property_mapping = function(name) {
+            if (name=='regioni') return 'cod_reg';
+            if (name.startsWith('province')) return 'cod_prov';
+            if (name.startsWith('comuni')) return 'cod_com';
         };
+        this.sort_unique = function(arr) {
+            arr = arr.sort(function (a, b) { return a*1 - b*1; });
+            var ret = [arr[0]];
+            for (var i = 1; i < arr.length; i++) { // start loop at 1 as element 0 can never be a duplicate
+                if (arr[i-1] !== arr[i]) {
+                    ret.push(arr[i]);
+                }
+            }
+            return ret;
+        };
+
 
 
         // rewrite the contructor [Singleton]
@@ -109,11 +120,9 @@ var MAP;
 
         this.onLayerShow = function( geojson ) {
 
-            //console.log(geojson.type,arguments);
-
             for (var i = 0; i < geojson.features.length; i++) {
                 var feature = geojson.features[i];
-                var d = this.db[this.new_name][this.new_dataset][feature.data.properties[ this.property_mapping[this.new_name] ]] || 0.0;
+                var d = this.db[this.new_name][this.new_dataset][feature.data.properties[ this.property_mapping(this.new_name) ]] || 0.0;
                 var id = feature.data.properties.id;
                 // resetting
                 if ( feature.element.hasChildNodes() ) {
@@ -160,7 +169,7 @@ var MAP;
             if ( ! (dataset in this.quantiles[name]) ) {
                 this.quantiles[name][dataset] = this.pv.Scale.quantile()
                     .quantiles(5)
-                    .domain(pv.values( this.db[name][dataset]))
+                    .domain(this.sort_unique(pv.values(this.db[name][dataset])))
                     .range(0, 4);
             }
 
@@ -171,7 +180,7 @@ var MAP;
             if ( ! (name in this.layers)) {
                 //this.layers[name][dataset] = this.po.geoJson()
                 this.layers[name] = this.po.geoJson()
-                    .url(this.geojson_url +"/"+ this.path_mapping[name] +"/{Z}/{X}/{Y}.geojson")
+                    .url(this.geojson_url +"/"+ "oc-" + name +"/{Z}/{X}/{Y}.geojson")
                     //.on("load", this._load_layer(name, dataset) )
                     .on("load", this.onLayerShow.bind(this) )
                     .id(name);

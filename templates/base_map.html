@@ -223,9 +223,9 @@
 
           <div id="selectors" class="btn-group">
             {% if territorio.territorio == 'R' %}
-              <a href="#" id="province" class="btn active">province</a><a href="#" id="comuni" class="btn">comuni</a>
+              <a href="#" id="province-r-{{ territorio.cod_reg }}" class="btn">province</a><a href="#" id="comuni-r-{{ territorio.cod_reg }}" class="btn active">comuni</a>
             {% elif territorio.territorio == 'P' %}
-              <a href="#" id="comuni" class="btn active">comuni</a>
+              <a href="#" id="comuni-p-{{ territorio.cod_prov }}" class="btn active">comuni</a>
             {% elif territorio.territorio == 'C' %}
               <a href="#" id="comuni" class="btn active">{{ territorio }}</a>
             {% else %}
@@ -233,7 +233,16 @@
             {% endif %}
           </div>
           <div id="map"{% if territorio.territorio == 'C' %} style=" height: 400px; "{% endif %}></div>
-{#          <span id="copy">#}
+          <div id="map-search">
+              <form class="form-search content">
+                  <div class="input-append">
+                      Cerca
+                      <input type="text" class="input-medium search-query" placeholder="Inserisci un territorio"><button type="submit" class="btn"><i class="icon-search"></i></button>
+                  </div>
+              </form>
+          </div>
+
+            {#          <span id="copy">#}
 {#            &copy; 2010#}
 {#            <a href="http://www.cloudmade.com/">CloudMade</a>,#}
 {#            <a href="http://www.openpolis.it/">Openpolis</a>,#}
