@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.aggregates import Count, Sum
 from django.template.defaultfilters import slugify
 from django.views.generic.detail import DetailView
 from open_coesione.views import AggregatoView
@@ -21,9 +22,29 @@ class TerritorioView(AggregatoView, DetailView):
         context['total_allocated_resources'] = Progetto.objects.totale_risorse_stanziate(territorio=self.object)
         context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
 
-        context['temi_principali'] = Tema.objects.principali()
+        context['temi_principali'] = [
+            {
+            'object': tema,
+            'data': Tema.objects.\
+                filter(tema_superiore=tema).\
+                filter(**self.object.get_cod_dict(prefix='progetto_set__territorio_set__')).\
+                aggregate(numero=Count('progetto_set'),
+                          costo=Sum('progetto_set__fin_totale_pubblico'),
+                          pagamento=Sum('progetto_set__pagamento'))
+            } for tema in Tema.objects.principali()
+        ]
 
-        context['tipologie_principali'] = ClassificazioneAzione.objects.tematiche()
+        context['tipologie_principali'] = [
+            {
+            'object': natura,
+            'data': ClassificazioneAzione.objects.\
+                filter(classificazione_superiore=natura).\
+                filter(**self.object.get_cod_dict(prefix='progetto_set__territorio_set__')).\
+                aggregate(numero=Count('progetto_set'),
+                          costo=Sum('progetto_set__fin_totale_pubblico'),
+                          pagamento=Sum('progetto_set__pagamento'))
+            } for natura in ClassificazioneAzione.objects.tematiche()
+        ]
 
         context['top_progetti_per_costo'] = Progetto.objects.nel_territorio(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().nel_territorio(self.object)[:5]

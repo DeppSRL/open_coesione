@@ -14,7 +14,7 @@
               <ul class="dropdown-menu" style="width: 160px;">
                 <li class="clearfix">
                   <ul>
-                    {% for tipologia in tipologie_principali %}
+                    {% for tipologia in lista_tipologie_principali %}
                       <li><a href="{{ tipologia.get_absolute_url }}">{{ tipologia.short_label }}</a></li>
                     {% endfor %}
                   </ul>
@@ -26,7 +26,7 @@
               <ul class="dropdown-menu" style="width: 160px;">
                 <li class="clearfix">
                   <ul>
-                    {% for temi in temi_principali %}
+                    {% for temi in lista_temi_principali %}
                       <li><a href="{{ temi.get_absolute_url }}">{{ temi.short_label }}</a></li>
                     {% endfor %}
                   </ul>
@@ -85,9 +85,9 @@
 
       </ul>
 
-      <form class="navbar-search pull-right">
-        <input type="text" class="search-query" placeholder="Search">
-      </form>
+        <form method="get" action="{% url progetti_search %}" class="navbar-search pull-right">
+            <input type="text" class="input-medium search-query" name="q" value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Cerca tra i progetti" />
+        </form>
     </div>
   </div>
 </nav>

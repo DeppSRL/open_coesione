@@ -22,6 +22,6 @@ def main_settings(request):
         'STATIC_URL': settings.STATIC_URL,
         'TILESTACHE_URL': settings.TILESTACHE_URL,
         'lista_regioni': Territorio.objects.filter(territorio= Territorio.TERRITORIO.R),
-        'tipologie_principali': nature,
-        'temi_principali': Tema.objects.principali()
+        'lista_tipologie_principali': nature,
+        'lista_temi_principali': Tema.objects.principali()
     }

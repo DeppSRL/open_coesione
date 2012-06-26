@@ -7,6 +7,6 @@ urlpatterns = patterns('',
    url(r'^$', SoggettiView.as_view(), name='soggetti_soggetti'),
 
    # dettaglio soggetto
-   url(r'^(?P<slug>[\w-]+)$', SoggettoView.as_view(), name='soggetti_soggetto'),
+   url(r'^(?P<pk>[\w-]+)$', SoggettoView.as_view(), name='soggetti_soggetto'),
 )
 

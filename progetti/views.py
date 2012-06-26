@@ -71,10 +71,18 @@ class TipologiaView(AggregatoView, DetailView):
         context['total_projects'] = Progetto.objects.totale_progetti(classificazione=self.object)
         context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
 
-        #context['temi_principali'] = Tema.objects.principali()
         context['tipologia'] = self.object
-
-        #context['temi'] = ClassificazioneAzione.objects.tematiche()
+        context['temi_principali'] = [
+            {
+            'object': tema,
+            'data': Tema.objects.\
+                filter(tema_superiore=tema).\
+                filter(progetto_set__classificazione_azione__classificazione_superiore=self.object).\
+                aggregate(numero=Count('progetto_set'),
+                          costo=Sum('progetto_set__fin_totale_pubblico'),
+                          pagamento=Sum('progetto_set__pagamento'))
+            } for tema in Tema.objects.principali()
+        ]
 
         context['numero_soggetti'] = Soggetto.objects.count()
 
@@ -102,8 +110,7 @@ class TipologiaView(AggregatoView, DetailView):
         return context
 
     def get_object(self, queryset=None):
-        # TODO we need a slug for ClassificazioneAzione..
-        return ClassificazioneAzione.objects.get(codice=self.kwargs.get('slug').replace('-','.'))
+        return ClassificazioneAzione.objects.get(slug=self.kwargs.get('slug'))
 
 class TemaView(AggregatoView, DetailView):
 
@@ -116,10 +123,22 @@ class TemaView(AggregatoView, DetailView):
         context['total_projects'] = Progetto.objects.totale_progetti(tema=self.object)
         context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
 
-        #context['temi_principali'] = Tema.objects.principali()
         context['tema'] = self.object
 
-        context['tipologie_principali'] = ClassificazioneAzione.objects.tematiche()
+        # estrae l'aggregato di numero, costi e pagamenti progetti per
+        # tutte le nature (tipologie principali)
+        # a tema fissato
+        context['tipologie_principali'] = [
+            {
+                'object': natura,
+                'data': ClassificazioneAzione.objects.\
+                          filter(classificazione_superiore=natura).\
+                          filter(progetto_set__tema__tema_superiore=self.object).\
+                          aggregate(numero=Count('progetto_set'),
+                                    costo=Sum('progetto_set__fin_totale_pubblico'),
+                                    pagamento=Sum('progetto_set__pagamento'))
+            } for natura in ClassificazioneAzione.objects.tematiche()
+        ]
 
         context['numero_soggetti'] = Soggetto.objects.count()
 
@@ -147,8 +166,7 @@ class TemaView(AggregatoView, DetailView):
         return context
 
     def get_object(self, queryset=None):
-        # TODO we need a slug for Tema..
-        return Tema.objects.get(codice=self.kwargs.get('slug').replace('-','.'))
+        return Tema.objects.get(slug=self.kwargs.get('slug'))
 
 
 class ProgettoSearchView(ExtendedFacetedSearchView):
@@ -179,6 +197,13 @@ class ProgettoSearchView(ExtendedFacetedSearchView):
         Add extra content here, when needed
         """
         extra = super(ProgettoSearchView, self).extra_context()
+
+        extra['regione'] = {
+            'denominazione': dict(
+                (str(r.cod_reg), r.denominazione)
+                for r in Territorio.objects.filter(territorio=Territorio.TERRITORIO.R)
+            )
+        }
 
         # definizione struttura dati per  visualizzazione faccette natura
         extra['natura'] = {

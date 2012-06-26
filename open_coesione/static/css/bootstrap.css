@@ -3767,6 +3767,174 @@ input[type="submit"].btn.btn-mini {
   background-color: #fff;
   cursor: default;
 }
+.tooltip {
+  position: absolute;
+  z-index: 1020;
+  display: block;
+  visibility: visible;
+  padding: 5px;
+  font-size: 11px;
+  opacity: 0;
+  filter: alpha(opacity=0);
+}
+.tooltip.in {
+  opacity: 0.8;
+  filter: alpha(opacity=80);
+}
+.tooltip.top {
+  margin-top: -2px;
+}
+.tooltip.right {
+  margin-left: 2px;
+}
+.tooltip.bottom {
+  margin-top: 2px;
+}
+.tooltip.left {
+  margin-left: -2px;
+}
+.tooltip.top .tooltip-arrow {
+  bottom: 0;
+  left: 50%;
+  margin-left: -5px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #000000;
+}
+.tooltip.left .tooltip-arrow {
+  top: 50%;
+  right: 0;
+  margin-top: -5px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid #000000;
+}
+.tooltip.bottom .tooltip-arrow {
+  top: 0;
+  left: 50%;
+  margin-left: -5px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #000000;
+}
+.tooltip.right .tooltip-arrow {
+  top: 50%;
+  left: 0;
+  margin-top: -5px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 5px solid #000000;
+}
+.tooltip-inner {
+  max-width: 200px;
+  padding: 3px 8px;
+  color: #ffffff;
+  text-align: center;
+  text-decoration: none;
+  background-color: #000000;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.tooltip-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.popover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1010;
+  display: none;
+  padding: 5px;
+}
+.popover.top {
+  margin-top: -5px;
+}
+.popover.right {
+  margin-left: 5px;
+}
+.popover.bottom {
+  margin-top: 5px;
+}
+.popover.left {
+  margin-left: -5px;
+}
+.popover.top .arrow {
+  bottom: 0;
+  left: 50%;
+  margin-left: -5px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #000000;
+}
+.popover.right .arrow {
+  top: 50%;
+  left: 0;
+  margin-top: -5px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 5px solid #000000;
+}
+.popover.bottom .arrow {
+  top: 0;
+  left: 50%;
+  margin-left: -5px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #000000;
+}
+.popover.left .arrow {
+  top: 50%;
+  right: 0;
+  margin-top: -5px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid #000000;
+}
+.popover .arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.popover-inner {
+  padding: 3px;
+  width: 280px;
+  overflow: hidden;
+  background: #000000;
+  background: rgba(0, 0, 0, 0.8);
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+}
+.popover-title {
+  padding: 9px 15px;
+  line-height: 1;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #eee;
+  -webkit-border-radius: 3px 3px 0 0;
+  -moz-border-radius: 3px 3px 0 0;
+  border-radius: 3px 3px 0 0;
+}
+.popover-content {
+  padding: 14px;
+  background-color: #ffffff;
+  -webkit-border-radius: 0 0 3px 3px;
+  -moz-border-radius: 0 0 3px 3px;
+  border-radius: 0 0 3px 3px;
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding-box;
+  background-clip: padding-box;
+}
+.popover-content p,
+.popover-content ul,
+.popover-content ol {
+  margin-bottom: 0;
+}
 .thumbnails {
   margin-left: -20px;
   list-style: none;
@@ -4059,22 +4227,37 @@ a.thumbnail:hover {
   border-left: 1px solid #ffffff;
   min-height: 150px;
 }
-#sidebar .block-chart {
+#sidebar .block-chart,
+.block-chart.block {
   width: 100px;
   min-height: 100px;
   float: none;
   margin: 25px auto;
 }
-#sidebar .block-chart p {
+#sidebar .block-chart p,
+.block-chart.block p {
   width: auto;
   text-align: center;
   right: 0;
   left: 0;
 }
-#sidebar .block-chart .bar-vertical {
+#sidebar .block-chart .bar-vertical,
+.block-chart.block .bar-vertical {
   width: 8px;
   right: 0;
   bottom: 0;
+}
+.block-chart.block {
+  margin: 0 15px 0 0;
+  float: left ;
+  padding-left: 4px;
+}
+.block-description {
+  margin-left: 130px;
+}
+.block-description h3 {
+  line-height: 20px;
+  font-size: 16px;
 }
 /*
 .block-green, .block-gray {
@@ -4321,18 +4504,23 @@ section h2.title span {
 #main .area {
   background-color: #f7f6f1;
 }
-#main .area h1.title {
+#main .area h1.title,
+#main .area h2.title {
   margin-top: 10px;
 }
 #main .area h1.title span,
-#main .area h1.title div {
+#main .area h2.title span,
+#main .area h1.title div,
+#main .area h2.title div {
   color: #ffffff;
   background-color: #5b5955;
 }
-#main .area h1.title span {
+#main .area h1.title span,
+#main .area h2.title span {
   padding: 5px 25px;
 }
-#main .area h1.title.black span {
+#main .area h1.title.black span,
+#main .area h2.title.black span {
   background-color: #000000;
   font-size: 22px;
 }
@@ -4433,10 +4621,10 @@ section h2.title span {
 #wrapper > footer a:hover {
   text-decoration: underline;
 }
-.tabbable.boxed {
-  background-color: #f7f6f1;
-}
 .tabbable.boxed .content {
+  padding: 10px;
+}
+.tabbable.boxed .tab-content .tab-pane {
   padding: 10px;
 }
 .tabbable.boxed h1.title {
@@ -4446,22 +4634,19 @@ section h2.title span {
   margin-bottom: 0;
 }
 .tabbable.boxed .nav-tabs  > li {
-  width: 50%;
-  background-color: #afe0d8;
+  width: 30%;
+  text-transform: uppercase;
+  background-color: #f7f6f1;
 }
-.tabbable.boxed .nav-tabs  > li.active {
-  background-color: #eae9e5;
+.tabbable.boxed .nav-tabs  > li.active a {
+  color: #000000;
 }
 .tabbable.boxed .nav-tabs  > li  > a {
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0;
-  border: 0;
-  padding-left: 0;
-  padding-right: 0;
-  margin: 0;
   text-align: center;
-  color: #000000;
+  color: #008678;
   background-color: transparent;
 }
 .tabbable.boxed .nav-tabs  > li  > a:hover {
@@ -4562,4 +4747,7 @@ dl.data dd {
 }
 #map-search form {
   margin-bottom: 0;
+}
+.search-results td li {
+  font-size: 16px;
 }

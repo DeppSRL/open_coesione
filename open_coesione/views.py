@@ -62,10 +62,10 @@ class AggregatoView(object):
                             (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_prov=territorio.cod_prov ).annotate(s=Count('progetto')).values('cod_com','s')
                         ),
                         'costo': dict(
-                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_prov=territorio.cod_prov ).annotate(s=Count('progetto__fin_totale_pubblico')).values('cod_com','s')
+                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_prov=territorio.cod_prov ).annotate(s=Sum('progetto__fin_totale_pubblico')).values('cod_com','s')
                         ),
                         'pagamento': dict(
-                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_prov=territorio.cod_prov ).annotate(s=Count('progetto__pagamento')).values('cod_com','s')
+                            (t['cod_com'], t['s']) for t in Territorio.objects.filter(territorio='C', cod_prov=territorio.cod_prov ).annotate(s=Sum('progetto__pagamento')).values('cod_com','s')
                         )
                     },
                 }
@@ -137,6 +137,27 @@ class HomeView(AggregatoView, TemplateView):
         context['numero_soggetti'] = Soggetto.objects.count()
 
         context['map'] = self.get_map_context()
+        context['temi_principali'] = [
+            {
+            'object': tema,
+            'data': Tema.objects.\
+                filter(tema_superiore=tema).\
+                aggregate(numero=Count('progetto_set'),
+                          costo=Sum('progetto_set__fin_totale_pubblico'),
+                          pagamento=Sum('progetto_set__pagamento'))
+            } for tema in Tema.objects.principali()
+        ]
+
+        context['tipologie_principali'] = [
+            {
+            'object': natura,
+            'data': ClassificazioneAzione.objects.\
+                filter(classificazione_superiore=natura).\
+                aggregate(numero=Count('progetto_set'),
+                          costo=Sum('progetto_set__fin_totale_pubblico'),
+                          pagamento=Sum('progetto_set__pagamento'))
+            } for natura in ClassificazioneAzione.objects.tematiche()
+        ]
 
         return context
 

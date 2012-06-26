@@ -162,7 +162,7 @@ var the_last;
                             (this.db[this.new_name]['costo'][feature.data.properties[ this.property_mapping(this.new_name) ]] || 0.0).toFixed(0)) +
                         '<br>Pagamenti effettuati: ' + addCommas(
                             (this.db[this.new_name]['pagamento'][feature.data.properties[ this.property_mapping(this.new_name) ]] || 0.0).toFixed(0)) +
-                        '<br>Numero di progetto: ' + this.db[this.new_name]['numero'][feature.data.properties[ this.property_mapping(this.new_name) ]] +
+                        '<br>Numero di progetti: ' + this.db[this.new_name]['numero'][feature.data.properties[ this.property_mapping(this.new_name) ]] +
                         '',
                     trigger:'manual',
                     delay: { show: 500, hide: 100 }
