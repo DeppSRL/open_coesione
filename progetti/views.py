@@ -3,6 +3,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from django.core.urlresolvers import reverse
 from django.views.generic.detail import DetailView
+from django.utils import simplejson
 
 from oc_search.forms import RangeFacetedSearchForm
 from oc_search.views import ExtendedFacetedSearchView
@@ -41,6 +42,13 @@ class ProgettoView(DetailView):
         context['total_cost_paid'] = float(self.object.pagamento) if self.object.pagamento else 0.0
         # calcolo della percentuale del finanziamento erogato
         context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
+
+        primo_territorio = self.object.territori[0] or None
+
+        context['map'] = {
+            'extent': "[{{lon: {0}, lat: {1}}},{{lon: {2}, lat: {3}}}]".format( *Territorio.objects.filter(territorio='R').extent() ),
+            'poi': simplejson.dumps( primo_territorio.geom.centroid.coords if primo_territorio else False )
+        }
 
         return context
 

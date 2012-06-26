@@ -80,29 +80,38 @@
 
 }
 
-#sidebar {
 
-  .block-chart {
-    width: 100px;
-    min-height: 100px;
-    float: none;
-    margin: 25px auto;
 
-    p {
-      width: auto;
-      text-align: center;
-      right: 0;
-      left: 0;
-    }
+#sidebar .block-chart, .block-chart.block {
+  width: 100px;
+  min-height: 100px;
+  float: none;
+  margin: 25px auto;
 
-    .bar-vertical {
-      width: 8px;
-      right:0; bottom:0;
-    }
+  p {
+    width: auto;
+    text-align: center;
+    right: 0;
+    left: 0;
+  }
+
+  .bar-vertical {
+    width: 8px;
+    right:0; bottom:0;
   }
 }
 
+.block-chart.block {
+  margin: 0 15px 0 0;
+  float: left ;
+  padding-left: 4px;
+}
 
+
+.block-description {
+  margin-left: 130px;
+  h3 { line-height: 20px; font-size: 16px; }
+}
 /*
 .block-green, .block-gray {
 

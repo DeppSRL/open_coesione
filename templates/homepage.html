@@ -38,7 +38,7 @@
         <table class="table">
           {% for progetto in top_progetti_per_costo %}
             <tr>
-              <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto|title }}</a></td>
+              <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></td>
               <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
             </tr>
           {% endfor %}
@@ -49,18 +49,19 @@
 
         <h1 class="title"><span>Partecipa e racconta i progetti</span></h1>
 
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-          Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.</p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-        Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-        Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.Lorem ipsum dolor sit amet, consectetur
-        adipiscing elit.
-        Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-        Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.Lorem ipsum dolor sit amet, consectetur
-        adipiscing elit.
-        Donec euismod pulvinar eros vitae lacinia. Aliquam erat volutpat.
-        Nullam quis lectus hendrerit quam dapibus vehicula at ut metus.
+        <p><img src="{{ STATIC_URL }}img/icona_home.png">La partecipazione  delle comunità  interessate é fondamentale perché si possano esercitare le
+          dovute forme di controllo e pressione per contribuire a un cambiamento di passo
+          nell’attuazione delle politiche di sviluppo e della coesione.
+        </p>
+        <p>
+          Per questo invitiamo tutti i soggetti coinvolti a <a href="/contatti/">inviarci</a> i "racconti" dei progetti che li hanno visti protagonisti.
+          Inoltre da settembre sarà possibile per tutti i cittadini:
+        </p>
+        <ul>
+          <li>monitorare i progetti di un territorio o riferiti a una tematica</li>
+          <li>commentare e condividere ogni singolo progetto</li>
+        </ul>
+
       </section>
 
       {#      <section class="span3">#}

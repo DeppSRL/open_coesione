@@ -20,6 +20,7 @@ if (typeof String.prototype.startsWith != 'function') {
 }
 
 var MAP;
+var the_last;
 
 (function () {
 
@@ -122,6 +123,7 @@ var MAP;
 
             for (var i = 0; i < geojson.features.length; i++) {
                 var feature = geojson.features[i];
+                console.log(feature.data);
                 var d = this.db[this.new_name][this.new_dataset][feature.data.properties[ this.property_mapping(this.new_name) ]] || 0.0;
                 var id = feature.data.properties.id;
                 // resetting
@@ -137,6 +139,38 @@ var MAP;
                     .parentNode);
 
                 feature.element.setAttribute("ref", feature.data.properties.id);
+
+                the_last = feature.element;
+
+                $(feature.element).click(function(e){
+                    $('.popoverable').popover('hide');
+                    $(this).popover('toggle');
+                });
+                // #TODO change me
+                $(feature.element).addClass('popoverable').popover({
+                    placement: function(el) {
+                        console.log('element',el);
+                        $(el).css({
+                            'top' : $(el).height() /2,
+                            'left' : $(el).width() /2
+                        });
+                        return 'top';
+                    },
+                    title: '<a href="/territori/'+this.new_name.split('-')[0]+'/'+ feature.data.properties.denominazione.toLowerCase() +'/">'+ feature.data.properties.denominazione +'</a>',
+                    content: '' +
+                        '<br>Finanziamento pubblico: ' + addCommas(
+                            (this.db[this.new_name]['costo'][feature.data.properties[ this.property_mapping(this.new_name) ]] || 0.0).toFixed(0)) +
+                        '<br>Pagamenti effettuati: ' + addCommas(
+                            (this.db[this.new_name]['pagamento'][feature.data.properties[ this.property_mapping(this.new_name) ]] || 0.0).toFixed(0)) +
+                        '<br>Numero di progetto: ' + this.db[this.new_name]['numero'][feature.data.properties[ this.property_mapping(this.new_name) ]] +
+                        '',
+                    trigger:'manual',
+                    delay: { show: 500, hide: 100 }
+                });
+
+//                $(feature.element).hover(function(){
+//                    $(this).popover('show')
+//                });
             }
         };
 

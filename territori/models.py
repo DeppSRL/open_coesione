@@ -122,6 +122,8 @@ class Territorio(models.Model):
             self.TERRITORIO.R: 'regione',
             self.TERRITORIO.P: 'provincia',
             self.TERRITORIO.C: 'comune',
+            self.TERRITORIO.N: 'nazionale',
+            self.TERRITORIO.E: 'estero',
         }[self.territorio]), (), {
             'slug': self.slug
         })

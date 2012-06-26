@@ -20,9 +20,9 @@
         {% digg_paginator %}
 
         <section style="clear: both;">
-        <h3>{% if not query %}Tutti i {% endif %} {{ n_results }} risultati</h3>
+        <h3>{% if not query %}Tutti i {{ n_results }}{% else %}{{ n_results }} progetti trovati{% endif %}</h3>
 
-        <table class="search-results">
+        <table class="search-results table">
           <tbody>
           {% for result in page_obj.object_list %}
           <tr>
@@ -45,7 +45,7 @@
 {% endblock %}
 
 {% block sidebar %}
-
+  <div class="flat_content">
     <h4>Cerca negli atti</h4>
     <form method="get" action="{% url progetti_search %}" class="form-search">
       <input type="text" class="input-medium search-query" name="{{ form.q.html_name }}" value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
@@ -193,4 +193,5 @@
         </div>
         <!-- End faceting -->
     {% endif %}
+  </div>
 {% endblock %}
