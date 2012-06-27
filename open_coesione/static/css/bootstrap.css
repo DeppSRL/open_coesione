@@ -4492,6 +4492,26 @@ section h2.title span {
   display: -moz-inline-stack;
   display: inline-block;
 }
+#progetto section h1.title span,
+#progetto section h2.title span,
+#progetto section h1.title div,
+#progetto section h2.title div {
+  color: #000000;
+  background-color: #eae7df;
+  padding: 4px 6px;
+}
+#progetto section.row {
+  margin-left: -20px;
+}
+#progetto section.row div.span3 {
+  width: 260px;
+}
+#progetto section.row dl.data {
+  padding-left: 0;
+}
+#progetto h1#map-header {
+  margin-bottom: 0;
+}
 #wrapper > * > * {
   background-color: #ffffff;
 }
@@ -4541,6 +4561,7 @@ section h2.title span {
   margin: 10px 0 20px 0;
 }
 #wrapper > header {
+  padding-top: 1em;
   background-image: url('../img/site-bg.png');
   background-repeat: repeat;
 }

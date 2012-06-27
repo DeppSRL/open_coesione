@@ -105,7 +105,7 @@
 {% block container %}
 
   <div class="container">
-    <article class="row">
+    <article id="progetto" class="row">
       <div class="span6" id="content">
 
         <div class="flat_content">
@@ -212,14 +212,16 @@
 
           </div>
           <div class="span3">
-            <h1 class="title">
-              <div>Località</div>
+            <h1 class="title" id="map-header">
+              <div>
+                  Località
+                {% if progetto.territori %}
+                  <a href="{{ progetto.territori.0.get_absolute_url }}">
+                    {{ progetto.territori.0 }}
+                  </a>
+                {% endif %}
+              </div>
             </h1>
-            {% if progetto.territori %}
-              <a href="{{ progetto.territori.0.get_absolute_url }}">
-                Comune di {{ progetto.territori.0 }}
-              </a>
-            {% endif %}
             <div id="map" style="height:250px; width: 100%;"></div>
           </div>
         </section>
