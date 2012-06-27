@@ -60,7 +60,7 @@ USE_L10N = True
 USE_TZ = True
 
 # Much easier than using floatformat:0 in templates
-USE_THOUSAND_SEPARATOR = True
+USE_THOUSAND_SEPARATOR = False
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"

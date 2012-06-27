@@ -39,7 +39,7 @@
           {% for progetto in top_progetti_per_costo %}
             <tr>
               <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></td>
-              <td class="amount"><strong>{{ progetto.fin_totale_pubblico|floatformat:0 }}</strong> euro</td>
+              <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
             </tr>
           {% endfor %}
         </table>
