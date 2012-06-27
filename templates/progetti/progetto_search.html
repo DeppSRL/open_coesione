@@ -182,7 +182,7 @@
                     {% if facet_queries_cost.costrange_0TO1K.count %}
                         <dd>
                             <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_0TO1K.key }}">
-                                da 0 a 1000 &euro;
+                                da 0 a 1.000 &euro;
                             </a> ({{ facet_queries_cost.costrange_0TO1K.count }})
                         </dd>
                     {% endif %}
@@ -190,7 +190,7 @@
                     {% if facet_queries_cost.costrange_1KTO10K.count %}
                         <dd>
                             <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_1KTO10K.key }}">
-                                da 1,000 a 10,000 &euro;
+                                da 1.000 a 10.000 &euro;
                             </a> ({{ facet_queries_cost.costrange_1KTO10K.count }})
                         </dd>
                     {% endif %}
@@ -198,14 +198,14 @@
                     {% if facet_queries_cost.costrange_10KTO100K.count %}
                         <dd>
                             <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_10KTO100K.key }}">
-                                da 10,000 a 100,000 &euro;
+                                da 10.000 a 100.000 &euro;
                             </a> ({{ facet_queries_cost.costrange_10KTO100K.count }})
                         </dd>
                     {% endif %}
                     {% if facet_queries_cost.costrange_100KTOINF.count %}
                         <dd>
                             <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_100KTOINF.key }}">
-                                oltre 100,000 &euro;
+                                oltre 100.000 &euro;
                             </a> ({{ facet_queries_cost.costrange_100KTOINF.count }})
                         </dd>
                     {% endif %}

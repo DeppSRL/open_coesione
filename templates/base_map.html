@@ -113,7 +113,7 @@
 
           <strong class="title">Numero dei progetti monitorati*</strong>
 
-          <p>{{ total_projects|intcomma }}</p>
+          <p>{{ total_projects|floatformat:0 }}</p>
 
         </div>
 
@@ -189,7 +189,7 @@
                       {%  else %}
                           <td><a href="{{ tipologia.object.get_absolute_url }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a></td>
                       {% endif %}
-                    <td class="amount"><strong>{{ tipologia.data.costo|default:"0"|intcomma }}</strong> euro</td>
+                    <td class="amount"><strong>{{ tipologia.data.costo|default:"0"|floatformat:0 }}</strong> euro</td>
                   </tr>
                 {% endfor %}
               </table>
@@ -213,7 +213,7 @@
                       {%  else %}
                           <td><a href="{{ tema.object.get_absolute_url }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a></td>
                       {% endif %}
-                    <td class="amount"><strong>{{ tema.data.costo|default:"0"|intcomma }}</strong> euro</td>
+                    <td class="amount"><strong>{{ tema.data.costo|default:"0"|floatformat:0 }}</strong> euro</td>
 
                   </tr>
                 {% endfor %}

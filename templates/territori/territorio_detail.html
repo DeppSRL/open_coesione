@@ -82,7 +82,7 @@
           {% for progetto in top_progetti_per_costo %}
             <tr>
               <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></td>
-              <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
+              <td class="amount"><strong>{{ progetto.fin_totale_pubblico|floatformat:0 }}</strong> euro</td>
             </tr>
           {% endfor %}
         </table>
@@ -107,7 +107,7 @@
             {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
               <tr>
                 <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
-                <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
+                <td class="amount"><strong>{{ territorio_finanziato.totale|floatformat:0 }}</strong> euro</td>
               </tr>
             {% endfor %}
           </table>

@@ -95,13 +95,13 @@ class ExtendedFacetedSearchView(SearchView):
                 r_label = 'ultimi due anni'
 
             elif label == self.COST_RANGES['0TO1K']:
-                r_label = 'da 0 a 1,000&euro;'
+                r_label = 'da 0 a 1.000&euro;'
             elif label == self.COST_RANGES['1KTO10K']:
-                r_label = 'da 1,000 a 10,000&euro;'
+                r_label = 'da 1.000 a 10.000&euro;'
             elif label == self.COST_RANGES['10KTO100K']:
-                r_label = 'da 10,000 a 100,000&euro;'
+                r_label = 'da 10.000 a 100.000&euro;'
             elif label == self.COST_RANGES['100KTOINF']:
-                r_label = 'oltre 100,000&euro;'
+                r_label = 'oltre 100.000&euro;'
 
 
             sf = {'field': field, 'label': label, 'r_label': r_label, 'url': url}
