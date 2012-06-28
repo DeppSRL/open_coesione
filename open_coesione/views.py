@@ -1,3 +1,6 @@
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
 from datetime import datetime
 import os
 from django.views.generic.base import TemplateView
@@ -9,8 +12,16 @@ from territori.models import Territorio
 from django.utils import simplejson
 
 
-class AggregatoView(object):
+class AccessControlView(object):
+    """
+    Define access control for the view
+    """
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(AccessControlView, self).dispatch(*args, **kwargs)
 
+
+class AggregatoView(AccessControlView):
 
     def get_map_context(self, territorio=None, **options):
 
@@ -161,7 +172,7 @@ class HomeView(AggregatoView, TemplateView):
 
         return context
 
-class FondiView(TemplateView):
+class FondiView(AccessControlView, TemplateView):
     template_name = 'flat/fonti_finanziamento.html'
 
     def get_context_data(self, **kwargs):

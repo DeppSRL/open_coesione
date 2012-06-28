@@ -41,6 +41,9 @@ urlpatterns = patterns('',
 
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html')),
     url(r'^pac/', FondiView.as_view(template_name='flat/pac.html')),
+
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login'),
+    url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),
 )
 
 if settings.DEBUG:

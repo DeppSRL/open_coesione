@@ -9,14 +9,14 @@ from oc_search.forms import RangeFacetedSearchForm
 from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto, ClassificazioneAzione, ClassificazioneQSN
-from open_coesione.views import AggregatoView
+from open_coesione.views import AggregatoView, AccessControlView
 from progetti.models import Tema, ClassificazioneAzione
 from soggetti.models import Soggetto
 from territori.models import Territorio
 from django.db.models import Sum, Count
 
 
-class ProgettoView(DetailView):
+class ProgettoView(AccessControlView, DetailView):
     model = Progetto
     context_object_name = 'progetto'
 
@@ -169,7 +169,7 @@ class TemaView(AggregatoView, DetailView):
         return Tema.objects.get(slug=self.kwargs.get('slug'))
 
 
-class ProgettoSearchView(ExtendedFacetedSearchView):
+class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView):
     """
 
     This view allows faceted search and navigation of a progetto.
