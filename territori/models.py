@@ -48,7 +48,7 @@ class Territorio(models.Model):
     cod_com = models.IntegerField(default=0, blank=True, null=True)
     denominazione = models.CharField(max_length=128)
     denominazione_ted = models.CharField(max_length=128, blank=True, null=True)
-    slug = models.SlugField(max_length=128, default='')
+    slug = models.SlugField(max_length=128, null=True, blank=True)
     territorio = models.CharField(max_length=1, choices=TERRITORIO)
     geom = models.MultiPolygonField(srid=4326, null=True, blank=True)
 

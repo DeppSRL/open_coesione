@@ -76,7 +76,7 @@ class Command(BaseCommand):
         progetti = Progetto.objects.filter(slug__isnull=True)
         self.logger.info("{0} progetti will be slugified".format(progetti.count()))
         for n, progetto in enumerate(progetti):
-            progetto.slug = slugify("{0}".format(progetto.codice_locale))
+            progetto.slug = slugify(u"{0}".format(progetto.codice_locale))
             progetto.save()
             if n%100 == 0:
                 self.logger.debug(n)
@@ -93,7 +93,7 @@ class Command(BaseCommand):
         territori = Territorio.objects.filter(slug__isnull=True)
         self.logger.info("{0} territori will be slugified".format(territori.count()))
         for n, territorio in enumerate(territori):
-            territorio.slug = slugify("{0}".format(territorio.codice_locale))
+            territorio.slug = slugify(u"{0}-{1}".format(territorio.denominazione, territorio.get_territorio_display() ))
             territorio.save()
             if n%100 == 0:
                 self.logger.debug(n)
@@ -111,7 +111,7 @@ class Command(BaseCommand):
         soggetti = Soggetto.objects.filter(slug__isnull=True)
         self.logger.info("{0} soggetti will be slugified".format(soggetti.count()))
         for n, soggetto in enumerate(soggetti):
-            soggetto.slug = slugify("{0}".format(soggetto.codice_locale))
+            soggetto.slug = slugify(u"{0}-{1}".format(soggetto.denominazione, soggetto.codice_fiscale.strip() ))
             soggetto.save()
             if n%100 == 0:
                 self.logger.debug(n)
