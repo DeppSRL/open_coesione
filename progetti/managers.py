@@ -9,7 +9,7 @@ class ProgettiQuerySet(models.query.QuerySet):
     def avviati(self, date=datetime.now() ):
         return self.filter(data_inizio_effettiva__lte=date).order_by('-data_inizio_effettiva')
 
-    def totali(self, territorio=None, tema=None, tipo=None, classificazione=None):
+    def totali(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None):
 
         query_set = self
 
@@ -24,6 +24,9 @@ class ProgettiQuerySet(models.query.QuerySet):
 
         if classificazione:
             query_set = self.con_natura( classificazione )
+
+        if soggetto:
+            query_set = self.del_soggetto( soggetto )
 
 #        if not query_set:
 #            raise Exception('Richiesta non valida')
@@ -61,6 +64,9 @@ class ProgettiQuerySet(models.query.QuerySet):
     def con_natura(self, natura):
         return self.filter(classificazione_azione__classificazione_superiore=natura)
 
+    def del_soggetto(self, soggetto):
+        return self.filter(soggetto_set__pk=soggetto.pk)
+
 
 
 class ProgettiManager(models.Manager):
@@ -93,17 +99,20 @@ class ProgettiManager(models.Manager):
     def con_natura(self, classificazione):
         return self.totali(classificazione=classificazione)
 
-    def totali(self, territorio=None, tema=None, tipo=None,classificazione=None):
-        return self.get_query_set().totali(territorio, tema, tipo, classificazione)
+    def del_soggetto(self, soggetto):
+        return self.totali(soggetto=soggetto)
 
-    def totale_costi(self, territorio=None, tema=None, tipo=None,classificazione=None):
-        return self.totali(territorio, tema, tipo,classificazione).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0
+    def totali(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
+        return self.get_query_set().totali(territorio, tema, tipo, classificazione, soggetto)
 
-    def totale_costi_pagati(self, territorio=None, tema=None, tipo=None,classificazione=None):
-        return self.totali(territorio, tema, tipo,classificazione).aggregate(total=models.Sum('pagamento'))['total'] or 0.0
+    def totale_costi(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
+        return self.totali(territorio, tema, tipo,classificazione, soggetto).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0
 
-    def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None):
-        return self.totali(territorio, tema, tipo,classificazione).count()
+    def totale_costi_pagati(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
+        return self.totali(territorio, tema, tipo,classificazione, soggetto).aggregate(total=models.Sum('pagamento'))['total'] or 0.0
+
+    def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
+        return self.totali(territorio, tema, tipo,classificazione, soggetto).count()
 
     def totale_risorse_stanziate(self, territorio=None, tema=None, tipo=None,classificazione=None):
         return self.totali(territorio, tema, tipo,classificazione).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0

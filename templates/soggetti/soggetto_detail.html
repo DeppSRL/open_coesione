@@ -1,0 +1,47 @@
+{% extends 'base_map.html' %}
+{% load humanize %}
+
+{% block container %}
+  {{ block.super }}
+
+  <div class="container">
+    <div class="row">
+      <section class="span6">
+        <h1 class='title'><span>Progetti con più fondi</span></h1>
+        <table class="table">
+          {% for progetto in top_progetti %}
+            <tr>
+              <th><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></th>
+              <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
+            </tr>
+          {% endfor %}
+        </table>
+
+      </section>
+      <section class="span6">
+        <h1 class='title'><span>I soggetti con cui lavora di più</span></h1>
+        <table class="table">
+          {% for partner in top_collaboratori %}
+            <tr>
+              <th><a href="{{ partner.soggetto.get_absolute_url }}">{{ partner.soggetto.denominazione }}</a></th>
+              <td class="amount"><strong>{{ partner.numero }}</strong> progetti</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </section>
+
+    </div>
+
+    <section class="row">
+      <h1 class='title'><span>I comuni con più progetti</span></h1>
+      <table class="table">
+        {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
+          <tr>
+            <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
+            <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </section>
+  </div>
+{% endblock %}
