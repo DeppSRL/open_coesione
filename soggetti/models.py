@@ -28,7 +28,7 @@ class Soggetto(models.Model):
     codice_fiscale = models.CharField(max_length=16)
     denominazione = models.CharField(max_length=255)
     ruolo = models.CharField(max_length=1, choices=RUOLO)
-    slug = models.CharField(max_length=128, blank=True, null=True)
+    slug = models.CharField(max_length=300, blank=True, null=True)
     forma_giuridica = models.ForeignKey(FormaGiuridica,
                                         related_name='forma_giuridica_set',
                                         db_column='forma_giuridica')
@@ -47,7 +47,7 @@ class Soggetto(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('soggetti_soggetto', (), {
-            'pk': self.pk
+            'slug': self.slug
         })
 
     class Meta:

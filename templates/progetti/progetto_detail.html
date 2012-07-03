@@ -116,13 +116,13 @@
 
           <ul class="spaced">
             <li>
-              <a href="{{ progetto.tema.get_absolute_url }}">
+              <a href="{{ progetto.tema.tema_superiore.get_absolute_url }}">
                 {{ progetto.tema.tema_superiore.short_label|upper }}
               </a> -
               {{ progetto.tema.descrizione|upper }}
             </li>
             <li>
-              <a href="{{ progetto.classificazione_azione.get_absolute_url }}">
+              <a href="{{ progetto.classificazione_azione.classificazione_superiore.get_absolute_url }}">
                 {{ progetto.classificazione_azione.classificazione_superiore.short_label|upper }}
               </a> -
               {{ progetto.classificazione_azione.descrizione|upper }}

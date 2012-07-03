@@ -1,4 +1,6 @@
+import csv
 from datetime import date
+import os
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from django.core.urlresolvers import reverse
@@ -9,6 +11,7 @@ from oc_search.forms import RangeFacetedSearchForm
 from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto, ClassificazioneAzione, ClassificazioneQSN
+from open_coesione.settings import REPO_ROOT
 from open_coesione.views import AggregatoView, AccessControlView
 from progetti.models import Tema, ClassificazioneAzione
 from soggetti.models import Soggetto
@@ -162,6 +165,8 @@ class TemaView(AggregatoView, DetailView):
 
             for key in stats:
                 context['map']['data']['regioni'][key][regione.cod_reg] = float(stats[key]) if key != 'numero' else int(stats[key])
+
+        context['lista_indici_tema'] = csv.DictReader(open(os.path.join(REPO_ROOT, 'open_coesione/static/csv/indicatori/{0}.csv'.format(self.object.codice))))
 
         return context
 

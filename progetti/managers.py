@@ -28,7 +28,7 @@ class ProgettiQuerySet(models.query.QuerySet):
 #        if not query_set:
 #            raise Exception('Richiesta non valida')
 
-        return query_set
+        return query_set.distinct()
 
     def nel_territorio(self, territorio):
         if territorio.territorio == territorio.TERRITORIO.R:
