@@ -238,7 +238,6 @@ var print_chart = function(topic_id, index_id, location_ids) {
                 }
             });
 
-
             var options = $.extend(true, {}, line_chart_options, {
                 title: { text: APP.indicatori[topic_id][index_id].titolo },
                 subtitle: { text: APP.indicatori[topic_id][index_id].sottotitolo },
@@ -251,7 +250,7 @@ var print_chart = function(topic_id, index_id, location_ids) {
         });
 };
 
-var print_line_chart = function(container) {
+var print_line_chart = function(container, regions_limit) {
     $.when(
         $.get(APP.base_url + 'csv/regioni.csv'),
         $.get(APP.base_url + 'csv/temi.csv')
@@ -268,16 +267,18 @@ var print_line_chart = function(container) {
             APP.location_ids.push(get_location_id('Italia'));
             // add default location
             $( container ).data('location') && APP.location_ids.push( parseInt( $( container ).data('location')) );
-            var index_id = 0;
+            var index_id = $( container).attr('data-index') || 0;
 
             load_topic(topic_id, function( indexes ) {
                 // take first index or selected
                 index_id = index_id == 0 ? Object.keys(indexes)[0] : index_id;
 
                 // add indexes to select field
-                var $selector = $("#indicator-selector").empty()[0];
-                for (var idx in indexes) {
-                    $selector.options.add(new Option(APP.indicatori[topic_id][idx].titolo, idx));
+                if ( $("#indicator-selector").length) {
+                    var $selector = $("#indicator-selector").empty()[0];
+                    for (var idx in indexes) {
+                        $selector.options.add(new Option(APP.indicatori[topic_id][idx].titolo, idx));
+                    }
                 }
 
                 // add location to select field
@@ -296,20 +297,23 @@ var print_line_chart = function(container) {
                 print_chart(topic_id, index_id, APP.location_ids );
 
                 // set index to select field
-                $('#indicator-selector').val(index_id);
+                $("#indicator-selector").length && $('#indicator-selector').val(index_id);
             });
 
         });
 
+    regions_limit = regions_limit || 3;
+
     // the region select handler
     $('#region-selector').change(function() {
-        if (APP.chart.series.length == 3) {
-            APP.chart.series[2].remove();
+        if (APP.chart.series.length == regions_limit) {
+            APP.chart.series[regions_limit-1].remove();
         }
         var location_id = $(this).val();
         if (location_id != '') {
             //console.log('add serie', filter_series(APP.series[$('#indicator-selector').val()], [parseInt(location_id)] )[0])
-            APP.chart.addSeries( filter_series(APP.series[$('#indicator-selector').val()], [parseInt(location_id)] )[0] );
+            console.log(location_id);
+            APP.chart.addSeries( filter_series(APP.series[$( container).attr('data-index') || $('#indicator-selector').val()], [parseInt(location_id)] )[0] );
             APP.chart.redraw();
         }
 
