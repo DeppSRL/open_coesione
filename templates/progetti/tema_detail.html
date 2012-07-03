@@ -1,3 +1,90 @@
 {% extends 'base_map.html' %}
+{% load sekizai_tags %}
 
 {% block top_content %}{% endblock %}
+
+{% block js_content %}
+  {% addtoblock "js_script" %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-collapse.js"></script>
+    {#    --- already imported in base_map.html ---    #}
+    {#    <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.src.js"></script>#}
+    {#    <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>#}
+  {% endaddtoblock %}
+
+  {{ block.super }}
+
+  <script type="text/javascript">
+
+    $(document).ready(function() {
+
+      APP.base_url = '{{ STATIC_URL }}' ;
+
+//        print_pie_chart('#main_topics', 'main_topics_chart' );
+//        print_pie_chart('#main_types', 'main_types_chart' );
+
+      $('#index_charts .collapse')
+          .on('show', function(e) {
+            !$.isEmptyObject(APP.chart) && APP.chart.destroy();
+            var $chart_container = $(e.currentTarget).css('height','auto');
+            var $selectors = $('#topic_chart').next('form');
+            //console.log($chart_container,'topic', $chart_container.data('topic'), 'location', $chart_container.data('location') );
+            $('#topic_chart')
+                .data('topic', $chart_container.data('topic'))
+                .attr('data-index', $chart_container.attr('data-index'))
+                .data('location', $chart_container.data('location'))
+                .appendTo( $chart_container.children().first() )
+                .after( $selectors )
+            ;
+          })
+          .on('shown', function(e) {
+
+            print_line_chart('#topic_chart', 1, {{ lista_regioni|length }} + 1);
+
+          }).first().collapse('show');
+
+    });
+  </script>
+{% endblock %}
+
+{% block container %}
+  {{ block.super }}
+
+  <section class="container">
+    <div class="row">
+      <div class="span12" id="charts_accordion">
+        <h1>Indicatori sul tema: {{ tema.short_label }}</h1>
+
+        <div class="accordion" id="index_charts">
+          {% for indice in lista_indici_tema %}
+            <div class="accordion-group">
+              <div class="accordion-heading">
+                <h2 class="accordion-toggle" data-toggle="collapse" data-parent="#index_charts" data-target="#index_{{ indice.ID }}">
+
+                  <i class="icon-circle-arrow-down pull-right"></i>
+                  {{ indice.Titolo }}
+
+                </h2>
+              </div>
+              <div id="index_{{ indice.ID }}" data-topic="{{ tema.codice }}" data-index="{{ indice.ID }}" class="accordion-body collapse{% if forloop.first %} in{% endif %}">
+                <div class="accordion-inner">{% if forloop.first %}
+                  <div id="topic_chart" style="height:270px;"></div>
+                  <form action="#">
+                    <div class="input-append text-center">
+                      <select id="region-selector" class="span3" multiple="multiple">
+                        <option value=""> -- Confronta le regioni -- </option>
+                      </select><a id="region-reset" class="btn add-on" href="#">reset</a>
+
+{#                      <select id="indicator-selector" class="span5"></select>#}
+                    </div>
+                  </form>
+                {% endif %}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

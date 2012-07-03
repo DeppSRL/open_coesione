@@ -20,7 +20,7 @@ urlpatterns = patterns('',
     url(r'^progetti/', include('progetti.urls')),
 
     # soggetti
-    # url(r'^soggetti/', include('soggetti.urls')),
+    url(r'^soggetti/', include('soggetti.urls')),
 
     # territori
     url(r'^territori/', include('territori.urls')),
