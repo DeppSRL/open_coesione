@@ -38,7 +38,7 @@
           })
           .on('shown', function(e) {
 
-            print_line_chart('#topic_chart', {{ lista_regioni|length }});
+            print_line_chart('#topic_chart', 1, {{ lista_regioni|length }} + 1);
 
           }).first().collapse('show');
 
@@ -61,7 +61,7 @@
                 <h2 class="accordion-toggle" data-toggle="collapse" data-parent="#index_charts" data-target="#index_{{ indice.ID }}">
 
                   <i class="icon-circle-arrow-down pull-right"></i>
-                  {{ indice.Titolo }} (finanziamento pubblico pro-capite xxx - media nazionale yyy )
+                  {{ indice.Titolo }}
 
                 </h2>
               </div>

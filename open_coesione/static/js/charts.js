@@ -250,7 +250,7 @@ var print_chart = function(topic_id, index_id, location_ids) {
         });
 };
 
-var print_line_chart = function(container, regions_limit) {
+var print_line_chart = function(container, min_regions, max_regions) {
     $.when(
         $.get(APP.base_url + 'csv/regioni.csv'),
         $.get(APP.base_url + 'csv/temi.csv')
@@ -302,28 +302,50 @@ var print_line_chart = function(container, regions_limit) {
 
         });
 
-    regions_limit = regions_limit || 3;
+    min_regions = min_regions || 2;
+    max_regions = max_regions || 3;
 
     // the region select handler
-    $('#region-selector').change(function() {
-        if (APP.chart.series.length == regions_limit) {
-            APP.chart.series[regions_limit-1].remove();
+    $('#region-selector').unbind('change').change(function() {
+//        console.log('region selected',arguments);
+        if (APP.chart.series.length == max_regions) {
+            APP.chart.series[max_regions-1].remove();
         }
         var location_id = $(this).val();
-        if (location_id != '') {
-            //console.log('add serie', filter_series(APP.series[$('#indicator-selector').val()], [parseInt(location_id)] )[0])
-            console.log(location_id);
-            APP.chart.addSeries( filter_series(APP.series[$( container).attr('data-index') || $('#indicator-selector').val()], [parseInt(location_id)] )[0] );
-            APP.chart.redraw();
+        var serie = APP.chart.series.filter(function(el){ return location_id == get_location_id(el.name) });
+        if (location_id != '' ) {
+            if (serie.length > 0) {
+//                console.log('check', serie, serie[0].visible);
+                if( serie[0].visible ) {
+//                    console.log('hide',serie);
+                    serie[0].hide();
+                }
+                else {
+//                    console.log('show',serie);
+                    serie[0].show();
+                }
+            }
+            else {
+//                console.log('create serie',filter_series(APP.series[$( container).attr('data-index') || $('#indicator-selector').val()], [parseInt(location_id)] ));
+                APP.chart.addSeries(
+                    filter_series(APP.series[$( container).attr('data-index') || $('#indicator-selector').val()], [parseInt(location_id)] )[0],
+                    true // APP.chart.redraw();
+                );
+            }
+
         }
 
     });
 
     $('#region-reset').click(function() {
-        if (APP.chart.series.length == 3) {
-            APP.chart.series[2].remove();
+//        console.log('reset',min_regions,max_regions,APP.chart.series.length);
+        var elements_count = APP.chart.series.length;
+        while( elements_count > min_regions ) {
+//            console.log('removing',elements_count, APP.chart.series.pop().remove() );
+            elements_count--;
         }
-        $('#region-selector').val('');
+
+        $('#region-selector').attr('multiple') || $('#region-selector').val('');
         return false;
     });
 
