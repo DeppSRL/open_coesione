@@ -10,154 +10,82 @@
     <script src="{{ STATIC_URL }}leaflet-dist/leaflet.js"></script>
 </head>
 <body>
-<div id="map" style="width: 800px; height: 800px"></div>
+<div id="map" style="width: 600px; height: 600px"></div>
 <script>
-    var prov_id = self.document.location.hash.substring(1)
-    var map = new L.Map('map');
 
-    var defaultStyle = {
-        color: "#FFF",
-        weight: 1,
-        opacity: 1,
-        fillOpacity: 0.45,
-        fillColor: "#969491"
-    };
+    L.Control.Legend = L.Control.extend({
+        options: {
+            position: 'topright'
+        },
 
-    var highlightStyle = {
-        color: '#fff',
-        weight: 3,
-        opacity: 1,
-        fillOpacity: 0.65,
-        fillColor: '#ffffff'
-    };
+        initialize: function (options) {
+            L.Util.setOptions(this, options);
+        },
 
-    var osmlayer = new L.TileLayer('https://s3-eu-west-1.amazonaws.com/openpolis-maptiles/sfondo/{z}/{x}/{y}.png', {
-        attribution: 'Map tiles by <a href="http://openpolis.it">Openpolis</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://mabbox.com">Mapbox</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'
-    });
-    map.setView(new L.LatLng(41.800, 12.52), 6).addLayer(osmlayer);
+        onAdd: function (map) {
+            this._container = L.DomUtil.create('div', 'leaflet-control-legend');
+            this._container.innerHTML = "La legenda, in <b>html</b>.";
+            L.DomEvent.disableClickPropagation(this._container);
 
-    var geojsonLayerCom = new L.GeoJSON();
-    map.addLayer(geojsonLayerCom);
-
-    var geojsonLayerReg = new L.GeoJSON();
-    $.getJSON("province.json", function(data) {
-        geojsonLayerReg.addGeoJSON(data)
-        geojsonLayerReg.setStyle(defaultStyle)
-    });
-    map.addLayer(geojsonLayerReg);
-
-    map.on("zoomend", function (e) {
-        if (this.getZoom() < 8)
-        {
-            this.removeLayer(geojsonLayerCom)
-            $.getJSON("province.json", function(data) {
-                geojsonLayerReg.addGeoJSON(data);
-                geojsonLayerReg.setStyle(defaultStyle);
-            });
-            this.addLayer(geojsonLayerReg);
+            return this._container;
         }
 
-        if (prov_id && this.getZoom() >=8)
-        {
-            this.removeLayer(geojsonLayerReg)
-            $.getJSON("provincia/" +prov_id + ".json", function(data) {
-                geojsonLayerCom.addGeoJSON(data)
-                geojsonLayerCom.setStyle(defaultStyle)
-            });
-            this.addLayer(geojsonLayerCom);
+    });
+
+    L.Map.mergeOptions({
+        legendControl: true
+    });
+
+    L.Map.addInitHook(function () {
+        if (this.options.legendControl) {
+            this.legendControl = (new L.Control.Legend()).addTo(this);
         }
     });
 
-    geojsonLayerCom.on("featureparse", function (e){
-        // Load the default style.
-        e.layer.setStyle(defaultStyle);
-        // Create a self-invoking function that passes in the layer
-        // and the properties associated with this particular record.
-        (function(layer, properties) {
-            // Create a mouseover event
-            layer.on("mouseover", function (e) {
-                // Change the style to the highlighted version
-                layer.setStyle(highlightStyle);
-                // Create a popup with a unique ID linked to this record
-                var popup = $("<div></div>", {
-                    id: "popup-denominazione",
-                    css: {
-                        position: "absolute",
-                        bottom: "85px",
-                        left: "50px",
-                        zIndex: 1002,
-                        backgroundColor: "white",
-                        padding: "8px",
-                        border: "1px solid #ccc"
-                    }
-                });
-                // Insert a headline into that popup
-                var hed = $("<div></div>", {
-                    text: properties.nome + ':' + properties.n_progetti_deep,
-                    css: {fontSize: "16px", marginBottom: "3px"}
-                }).appendTo(popup);
-                // Add the popup to the map
-                popup.appendTo("#map");
-            });
-            // Create a mouseout event that undoes the mouseover changes
-            layer.on("mouseout", function (e) {
-                // Start by reverting the style back
-                layer.setStyle(defaultStyle);
-                // And then destroying the popup
-                $("#popup-denominazione").remove();
-            });
-            // Close the "anonymous" wrapper function, and call it while passing
-            // in the variables necessary to make the events work the way we want.
-        })(e.layer, e.properties);
+
+    var map = new L.Map('map', {
+        minZoom: 5,
+        maxZoom: 10,
+        scrollWheelZoom: false,
+        attributionControl: false
     });
 
-    geojsonLayerReg.on("featureparse", function (e){
-        // Load the default style.
-        e.layer.setStyle(defaultStyle);
-        // Create a self-invoking function that passes in the layer
-        // and the properties associated with this particular record.
-        (function(layer, properties) {
-            // Create a click event
-            layer.on("click", function (e) {
-                self.document.location = "http://localhost:8020/territori/#" + properties.cod_prov;
-                self.document.location.reload()
-            });
-            // Create a mouseover event
-            layer.on("mouseover", function (e) {
-                // Change the style to the highlighted version
-                layer.setStyle(highlightStyle);
-                // Create a popup with a unique ID linked to this record
-                var popup = $("<div></div>", {
-                    id: "popup-denominazione",
-                    css: {
-                        position: "absolute",
-                        bottom: "85px",
-                        left: "50px",
-                        zIndex: 1002,
-                        backgroundColor: "white",
-                        padding: "8px",
-                        border: "1px solid #ccc"
-                    }
-                });
-                // Insert a headline into that popup
-                var hed = $("<div></div>", {
-                    text: properties.nome + ':' + properties.n_progetti_deep,
-                    css: {fontSize: "16px", marginBottom: "3px"}
-                }).appendTo(popup);
-                // Add the popup to the map
-                popup.appendTo("#map");
-            });
-            // Create a mouseout event that undoes the mouseover changes
-            layer.on("mouseout", function (e) {
-                // Start by reverting the style back
-                layer.setStyle(defaultStyle);
-                // And then destroying the popup
-                $("#popup-denominazione").remove();
-            });
-            // Close the "anonymous" wrapper function, and call it while passing
-            // in the variables necessary to make the events work the way we want.
-        })(e.layer, e.properties);
-    });
+    var territori = new L.TileLayer('http://localhost:8099/{{ layer_name }}/{z}/{x}/{y}.png');
+
+    map.setView(new L.LatLng(42.12, 12.21), 5)
+
+    {%  comment %}
+
+    var southWest = new L.LatLng({{ extent.southwest.lat }},{{ extent.southwest.lng }}),
+        northEast = new L.LatLng({{ extent.northeast.lat }},{{ extent.northeast.lng }}),
+        bounds = new L.LatLngBounds(southWest, northEast);
+    map.fitBounds(bounds);
+    {%  endcomment %}
+
+    map.addLayer(territori);
+    map.on('click', onMapClick);
+
+    var popup = new L.Popup();
+    function onMapClick(e) {
+        var latlngStr = '(' + e.latlng.lat.toFixed(3) + ', ' + e.latlng.lng.toFixed(3) + ')';
+        var info_url = 'http://localhost:8020/territori/info/' +
+            '{{ layer_type }}/' +
+            e.latlng.lat.toFixed(3) + "/" +
+            e.latlng.lng.toFixed(3) + "/"
+        jQuery.get(info_url, function(data) {
+            popup.setLatLng(e.latlng);
+            popup.setContent(
+                "<b>Territorio</b>: " + data.territorio.denominazione + "<br/>" +
+                "<b>n progetti</b>: " + data.territorio.n_progetti + "<br/>" +
+                "<b>costo</b>: " + data.territorio.costo + "<br/>" +
+                "<b>pagamento</b>: " + data.territorio.pagamento
+
+            );
+            map.openPopup(popup);
+        });
+
+    }
+
 
 </script>
 </body>

@@ -1,10 +1,184 @@
 from django.db import models
 from django.db.models.aggregates import Count, Sum
 from django.template.defaultfilters import slugify
+from django.http import HttpResponse, Http404
+from django.contrib.gis.geos import Point
+from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from open_coesione.views import AggregatoView
+from open_coesione.data_classification import DataClassifier
 from progetti.models import Progetto, Tema, ClassificazioneAzione
 from territori.models import Territorio
+import json
+
+
+class JSONResponseMixin(object):
+    response_class = HttpResponse
+
+    def render_to_response(self, context, **response_kwargs):
+        """
+        Returns a JSON response, transforming 'context' to make the payload.
+        """
+        response_kwargs['content_type'] = 'application/json'
+        return self.response_class(
+            json.dumps(context),
+            **response_kwargs
+        )
+
+class InfoView(JSONResponseMixin, TemplateView):
+    """
+    Returns the following info for a given point and location type:
+    - denominazione
+    - number, cost and payment for projects under that location (deep)
+    Info are returned as JSON.
+
+    This class can be used for an AJAX get request
+    """
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(InfoView, self).get_context_data(**kwargs)
+        tipo = context['params']['tipo']
+        lat = float(context['params']['lat'])
+        lon = float(context['params']['lng'])
+        pnt = Point(lon, lat)
+        territorio = Territorio.objects.get(geom__intersects=pnt, territorio=tipo)
+        context['territorio'] = {
+            'denominazione': territorio.denominazione,
+            'n_progetti': territorio.progetti_deep.count(),
+            'costo': float(territorio.progetti_deep.aggregate(s = Sum('fin_totale_pubblico'))['s']),
+            'pagamento': float(territorio.progetti_deep.aggregate(s = Sum('pagamento'))['s']),
+            }
+        return context
+
+
+class LeafletView(TemplateView):
+    template_name='territori/leaflet.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LeafletView, self).get_context_data(**kwargs)
+        context['layer_name'] = context['params']['layer']
+        context['layer_type'] = context['layer_name'][0:1].upper()
+
+        bounds = {}
+
+        return context
+
+class TilesConfigView(TemplateView):
+    template_name = 'territori/tiles.cfg'
+
+    def get_context_data(self, **kwargs):
+        context = super(TilesConfigView, self).get_context_data(**kwargs)
+        context['tematizzazioni'] = ('totale_costi', 'totale_costi_pagati', 'totale_progetti')
+        context['regioni'] = Territorio.objects.filter(territorio='R')
+        context['province'] = Territorio.objects.filter(territorio='P')
+
+        return context
+
+class MapnickView(TemplateView):
+    """
+    Base class for rendering xml Mapnick files
+    """
+    territori_name = 'Territori'
+    template_name = 'territori/mapnick.xml'
+    queryset = Territorio.objects.all()
+    filter = None
+
+    # Class-colors mapping
+    colors = {
+        'c0': '#eae7df',
+        'c1': '#c9c7c3',
+        'c2': '#969491',
+        'c3': '#676462',
+        'c4': '#2d2b2a',
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super(MapnickView, self).get_context_data(**kwargs)
+        context['territori_name'] = self.territori_name
+        context['codice_field'] = self.codice_field
+        context['srs'] = self.srs
+        context['shp_file'] = self.shp_file
+
+        self.refine_context(context)
+
+        # compute all costi, to be used in classification
+        # 'n_progetti': t.progetti_deep.count(),
+        # 'pagamenti': t.progetti_deep.aggregate(s=Sum('pagamento'))['s']
+
+        if 'tematizzazione' in self.request.GET:
+            tematizzazione = self.request.GET['tematizzazione']
+        else:
+            tematizzazione = 'totale_costi'
+        if tematizzazione not in ('totale_costi', 'totale_costi_pagati', 'totale_progetti'):
+            raise Http404
+
+        data = {}
+        for t in self.queryset:
+            data[t.codice] = float(getattr(Progetto.objects, tematizzazione)(territorio=t))
+
+        # DataClassifier instance
+        self.dc = DataClassifier(data.values(), classifier_args={'k': 5}, colors_map=self.colors)
+
+        # return codice and colore, for each territorio
+        # to be easily used in the view
+        context['territori'] = []
+        for t in self.queryset:
+            colore = self.dc.get_color(data[t.codice])
+
+            context['territori'].append({
+                'codice': t.codice,
+                'colore': colore,
+            })
+
+        return context
+
+    def refine_context(self, context):
+        pass
+
+
+class MapnickRegioniView(MapnickView):
+    territori_name = 'regioni'
+    codice_field = 'COD_REG'
+    srs = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over"
+    shp_file = '/Users/guglielmo/Workspace/open_coesione/dati/reg2011_g/regioni_stats.shp'
+    queryset = Territorio.objects.filter(territorio='R')
+
+    def refine_context(self, context):
+        pass
+
+
+class MapnickProvinceView(MapnickView):
+    territori_name = 'province'
+    codice_field = 'COD_PRO'
+    srs = "+proj=utm +zone=32 +ellps=intl +units=m +no_defs"
+    shp_file = '/Users/guglielmo/Workspace/open_coesione/dati/prov2011_g/prov2011_g.shp'
+
+    def refine_context(self, context):
+        if 'cod_reg' in context['params']:
+            cod_reg = context['params']['cod_reg']
+            self.queryset = Territorio.objects.filter(territorio='P', cod_reg=cod_reg)
+            self.territori_name = 'province-r-%s' % cod_reg
+        else:
+            self.queryset = Territorio.objects.filter(territorio='P')
+
+
+class MapnickComuniView(MapnickView):
+    territori_name = 'comuni'
+    codice_field = 'PRO_COM'
+    srs = "+proj=utm +zone=32 +ellps=intl +units=m +no_defs"
+    shp_file = '/Users/guglielmo/Workspace/open_coesione/dati/com2011_g/com2011_g.shp'
+
+    def refine_context(self, context):
+        if 'cod_reg' in context['params']:
+            cod_reg = context['params']['cod_reg']
+            self.queryset = Territorio.objects.filter(territorio='C', cod_reg=cod_reg)
+            self.territori_name = 'comuni-r-%s' % cod_reg
+        elif 'cod_prov' in context['params']:
+            cod_prov = context['params']['cod_prov']
+            self.queryset = Territorio.objects.filter(territorio='C', cod_reg=cod_prov)
+            self.territori_name = 'comuni-p-%s' % cod_prov
+        else:
+            raise Exception("a region or a province must be specified for this view")
 
 
 class TerritorioView(AggregatoView, DetailView):
