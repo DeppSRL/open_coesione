@@ -17,6 +17,7 @@
     <script type="text/javascript" src="{{ STATIC_URL }}simplegeo-polymaps/lib/jquery/jquery.svg.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}simplegeo-polymaps/lib/jquery/jquery.svgdom.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/maps.js"></script>
   {% endaddtoblock %}
 
@@ -69,27 +70,7 @@
     $(document).ready(function() {
 
 
-      // Main topics chart
-      var total = 0;
-      var main_topics_options = pie_chart_options;
-      main_topics_options.chart.renderTo = 'finanziamento_chart';
-      var series = {
-        type: 'pie',
-        data: [
-          ['Europa', {{ progetto.fin_ue|default_if_none:"0" }}],
-          ['Stato fondo rotazione', {{ progetto.fin_stato_fondo_rotazione|default_if_none:"0" }}],
-          ['Stato FSC', {{ progetto.fin_stato_fsc|default_if_none:"0" }}],
-          ['Stato altri provvedimenti', {{ progetto.fin_stato_altri_provvedimenti|default_if_none:"0" }}],
-          ['Regione', {{ progetto.fin_regione|default_if_none:"0" }}],
-          ['Provincia', {{ progetto.fin_provincia|default_if_none:"0" }}],
-          ['Comune', {{ progetto.fin_comune|default_if_none:"0" }}],
-          ['Altro pubblico', {{ progetto.fin_altro_pubblico|default_if_none:"0" }}]
-        ]
-      };
-      main_topics_options.series.push(series);
-      chart = new Highcharts.Chart(main_topics_options);
-      // End Main topics chart
-
+      print_pie_chart('#finanziamento_chart_table', 'finanziamento_chart' );
 
       var tiles_url = "http://{S}tile.cloudmade.com"
           + "/1a1b06b230af4efdbb989ea99e9841af" // http://cloudmade.com/register
@@ -97,7 +78,11 @@
       var mapfactory = new MAP( {}, '{{ TILESTACHE_URL }}', tiles_url , d3, org.polymaps, pv);
 
       mapfactory.build('map', {{ map.extent }}, {{ map.zoomlev|default:"null" }}, {{ map.zoomrange|default:"null" }});
-      mapfactory.add_point({{ map.poi|safe }})
+
+      var poi_list = {{ map.pois|safe }};
+      for ( var poi in poi_list ) {
+        mapfactory.add_point( poi_list[poi] );
+      }
     });
   </script>
 {% endblock %}
@@ -109,7 +94,7 @@
       <div class="span6" id="content">
 
         <header>
-          <h2>CUP N. {{ progetto.codice_locale }}</h2>
+          <h2>CODICE: {{ progetto.codice_locale }}</h2>
           <h1>{{ progetto.titolo_progetto }}</h1>
         </header>
 
@@ -197,15 +182,20 @@
               <dt>Fine effettiva</dt>
               <dd>{{ progetto.data_fine_effettiva|default:"Dato non disponibile" }}</dd>
 
-              {% if durata_progetto %}
-              <dt>Durata</dt>
-              <dd>{{ durata_progetto }} giorni</dd>
+              {% if durata_progetto_prevista %}
+                <dt>Durata prevista</dt>
+                <dd>{{ durata_progetto_prevista }} giorni</dd>
               {% endif %}
 
-              {% if giorni_alla_fine %}
-              <dt>Giorni rimanenti</dt>
-              <dd>{{ giorni_alla_fine }} giorni</dd>
+              {% if durata_progetto_effettiva %}
+                <dt>Durata effettiva</dt>
+                <dd>{{ durata_progetto_effettiva }} giorni</dd>
               {% endif %}
+
+{#              {% if giorni_alla_fine %}#}
+{#              <dt>Giorni rimanenti</dt>#}
+{#              <dd>{{ giorni_alla_fine }} giorni</dd>#}
+{#              {% endif %}#}
             </dl>
 
           </div>
@@ -213,11 +203,11 @@
             <h1 class="title" id="map-header">
               <div>
                   Località
-                {% if progetto.territori %}
-                  <a href="{{ progetto.territori.0.get_absolute_url }}">
-                    {{ progetto.territori.0 }}
+                {% for territorio in progetto.territori %}
+                  <a href="{{ territorio.get_absolute_url }}">
+                    {{ territorio.denominazione }}
                   </a>
-                {% endif %}
+                {% endfor %}
               </div>
             </h1>
             <div id="map" style="height:250px; width: 100%;"></div>
@@ -238,6 +228,8 @@
         <p>
           {{ progetto.classificazione_qsn.descrizione }}
         </p>
+
+        <p>Aggiornamento: <strong>{{ progetto.data_aggiornamento|date:"m.Y" }}</strong></p>
 
       </div>
 
@@ -277,9 +269,34 @@
             <p class="span6 text-center">
               <small>*Dati aggiornati al {{ progetto.data_aggiornamento }} e relativi alla competenza del finanziamento pubblico</small>
             </p>
-
-
           </div>
+
+          <table class="table" id="finanziamento_chart_table">
+            {% if progetto.fin_ue %}
+            <tr><th>Europa</th><td class="amount"><strong>{{ progetto.fin_ue|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+            {% endif %}
+            {% if progetto.fin_stato_fondo_rotazione %}
+            <tr><th>Co-finanziamento nazionale</th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+            {% endif %}
+            {% if progetto.fin_stato_fsc %}
+            <tr><th>Stato FSC</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+            {% endif %}
+            {% if progetto.fin_stato_altri_provvedimenti %}
+            <tr><th>Stato altri provvedimenti</th><td class="amount"><strong>{{ progetto.fin_stato_altri_provvedimenti|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+            {% endif %}
+            {% if progetto.fin_regione %}
+            <tr><th>Regione</th><td class="amount"><strong>{{ progetto.fin_regione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+            {% endif %}
+            {% if progetto.fin_provincia %}
+            <tr><th>Provincia</th><td class="amount"><strong>{{ progetto.fin_provincia|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+            {% endif %}
+            {% if progetto.fin_comune %}
+            <tr><th>Comune</th><td class="amount"><strong>{{ progetto.fin_comune|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+            {% endif %}
+            {% if progetto.fin_altro_pubblico %}
+            <tr><th>Altro pubblico</th><td class="amount"><strong>{{ progetto.fin_altro_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+            {% endif %}
+          </table>
 
         </section>
 
@@ -296,7 +313,11 @@
             </dt>
             <dd>{{ progetto.fonte.descrizione }}</dd>
             <dt>Programma</dt>
-            <dd>{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}</dd>
+            <dd>
+              <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}">
+                {{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}
+              </a>
+            </dd>
             <dt>Asse</dt>
             <dd>{{ progetto.programma_asse_obiettivo.classificazione_superiore.descrizione }}</dd>
             <dt>Obiettivo</dt>

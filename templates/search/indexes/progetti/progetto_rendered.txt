@@ -1,3 +1,12 @@
+{% comment %}
+from django.template import loader, Context
+t = loader.get_template("search/indexes/progetti/progetto_rendered.txt")
+/Users/guglielmo/.virtualenvs/open_coesione/lib/python2.6/site-packages/django/template/defaulttags.py:1235: DeprecationWarning: The syntax for the url template tag is changing. Load the `url` tag from the `future` tag library to start using the new behavior.
+  category=DeprecationWarning)
+c = Context({'object': Progetto.objects.get(slug='1mpia-1-fesr06_por_campania-2011-433')})
+t.render(c)
+{% endcomment %}
+
 {% load humanize %}
 <div class="block-chart block" title="{{ object.percentuale_pagamenti|floatformat:0|default:"0" }}% del totale">
   <strong>Pagamenti effettuati</strong>
@@ -10,7 +19,7 @@
 
 <ul class="unstyled">
   <li>Finanziamento pubblico: <strong>{{ object.fin_totale_pubblico|default:"0.0"|intcomma:0 }}</strong> euro</li>
-  <li>Pagamenti effettuati: <strong>{{ object.pagamento|default:"0.0"|floatformat:0 }}</strong> euro</li>
+  <li>Pagamenti effettuati: <strong>{{ object.pagamento|default:"0.0"|intcomma:0 }}</strong> euro</li>
 </ul>
 <p>Comune: <a href="{{ object.territori.0.get_absolute_url   }}">{{ object.territori.0 }}</a> - Tema: <a href="{{ object.tema.tema_superiore.get_absolute_url }}">{{ object.tema.tema_superiore.short_label }}</a> - Natura: <a href="{{ object.classificazione_azione.classificazione_superiore.get_absolute_url }}">{{ object.classificazione_azione.classificazione_superiore.short_label }}</a></p>
 
