@@ -86,6 +86,7 @@ class AggregatoView(AccessControlView):
                 poi = territorio.geom.centroid.coords
                 extent = Territorio.objects.filter(territorio='R').extent()
         else:
+            """
             data = {
                 'regioni': {
                     'numero': dict(
@@ -116,6 +117,7 @@ class AggregatoView(AccessControlView):
                     )
                 }
             }
+            """
 
         return {
             'extent' : "[{{lon: {0}, lat: {1}}},{{lon: {2}, lat: {3}}}]".format( *extent ),
