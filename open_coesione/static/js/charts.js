@@ -312,7 +312,7 @@ var print_line_chart = function(container, min_regions, max_regions) {
             APP.chart.series[max_regions-1].remove();
         }
         var location_id = $(this).val();
-        var serie = APP.chart.series.filter(function(el){ return location_id == get_location_id(el.name) });
+        var serie = APP.chart.series.filter(function(el){ return location_id == get_location_id(el.name); });
         if (location_id != '' ) {
             if (serie.length > 0) {
 //                console.log('check', serie, serie[0].visible);
@@ -345,7 +345,7 @@ var print_line_chart = function(container, min_regions, max_regions) {
             elements_count--;
         }
 
-        $('#region-selector').attr('multiple') || $('#region-selector').val('');
+        $('#region-selector').val('');
         return false;
     });
 
