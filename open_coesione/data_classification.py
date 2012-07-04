@@ -24,5 +24,23 @@ class DataClassifier:
         else:
             return self.colors_map[self.get_class(value)]
 
-    def get_bins(self):
-        return self.dc.bins
+    def get_bins_ranges(self):
+        """
+        returns bins ranges in a dictionaries array:
+        start, end
+        """
+        ranges = []
+        for n, b in enumerate(self.dc.bins):
+
+            if n is 0:
+                bin_start = 0
+            else:
+                bin_start = self.dc.bins[n-1]
+            bin_end = b
+
+            ranges.append({
+                'start': bin_start,
+                'end': bin_end
+            })
+
+        return ranges

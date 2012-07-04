@@ -24,7 +24,7 @@
 
         onAdd: function (map) {
             this._container = L.DomUtil.create('div', 'leaflet-control-legend');
-            this._container.innerHTML = "La legenda, in <b>html</b>.";
+            this._container.innerHTML = '{% spaceless %}{{ legend_html|safe }}{%  endspaceless %}';
             L.DomEvent.disableClickPropagation(this._container);
 
             return this._container;

@@ -1,3 +1,4 @@
+from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models.aggregates import Count, Sum
 from django.template.defaultfilters import slugify
@@ -10,6 +11,9 @@ from open_coesione.data_classification import DataClassifier
 from progetti.models import Progetto, Tema, ClassificazioneAzione
 from territori.models import Territorio
 import json
+from lxml import etree
+import re
+import urllib
 
 
 class JSONResponseMixin(object):
@@ -82,7 +86,6 @@ class LeafletView(TemplateView):
             }
         }
         context['bounds'] = bounds
-        print "bounds: %s" % bounds
 
         # compute layer name from request.path and tematizzatione query string
         if 'tematizzazione' in self.request.GET:
@@ -99,6 +102,13 @@ class LeafletView(TemplateView):
         # layer type may be R, P or C
         context['layer_type'] = path.split("/")[-1:][0][0:1].upper()
 
+        # read legend html directly from mapnik xml (which should be cached at this point)
+        mapnik_xml_path = "%s.xml?tematizzazione=%s" % (re.sub(r'leaflet', 'mapnick', path), tematizzazione)
+        mapnik_xml_url = "http://%s%s" % (Site.objects.get_current(), mapnik_xml_path)
+        mapnik_xml = urllib.urlopen(mapnik_xml_url)
+        tree = etree.parse(mapnik_xml, parser=etree.XMLParser())
+        context['legend_html'] = tree.getroot()[0].text
+        print context['legend_html']
         return context
 
 class TilesConfigView(TemplateView):
@@ -156,7 +166,9 @@ class MapnickView(TemplateView):
 
         # DataClassifier instance
         self.dc = DataClassifier(data.values(), classifier_args={'k': 5}, colors_map=self.colors)
-        context['classification_bins'] = self.dc.get_bins
+        context['classification_bins'] = self.dc.get_bins_ranges()
+
+
 
         # return codice and colore, for each territorio
         # to be easily used in the view
