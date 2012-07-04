@@ -106,10 +106,10 @@ class ProgettiManager(models.Manager):
         return self.get_query_set().totali(territorio, tema, tipo, classificazione, soggetto)
 
     def totale_costi(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
-        return self.totali(territorio, tema, tipo,classificazione, soggetto).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0
+        return float(self.totali(territorio, tema, tipo,classificazione, soggetto).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0)
 
     def totale_costi_pagati(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
-        return self.totali(territorio, tema, tipo,classificazione, soggetto).aggregate(total=models.Sum('pagamento'))['total'] or 0.0
+        return float(self.totali(territorio, tema, tipo,classificazione, soggetto).aggregate(total=models.Sum('pagamento'))['total'] or 0.0)
 
     def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
         return self.totali(territorio, tema, tipo,classificazione, soggetto).count()

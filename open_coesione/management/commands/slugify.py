@@ -111,7 +111,11 @@ class Command(BaseCommand):
         soggetti = Soggetto.objects.filter(slug__isnull=True)
         self.logger.info("{0} soggetti will be slugified".format(soggetti.count()))
         for n, soggetto in enumerate(soggetti):
-            soggetto.slug = slugify(u"{0}-{1}".format(soggetto.denominazione, soggetto.codice_fiscale.strip() ))
+            if soggetto.codice_fiscale.strip() == '':
+                soggetto.slug = slugify(u"{0}".format(soggetto.denominazione ))
+            else:
+                soggetto.slug = slugify(u"{0}-{1}".format(soggetto.denominazione, soggetto.codice_fiscale.strip() ))
+
             soggetto.save()
             if n%100 == 0:
                 self.logger.debug(n)
