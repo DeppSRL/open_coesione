@@ -26,21 +26,20 @@ class ProgettoView(AccessControlView, DetailView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(ProgettoView, self).get_context_data(**kwargs)
+
+        context['durata_progetto_effettiva'] = ''
+        context['durata_progetto_prevista'] = ''
         if self.object.data_fine_effettiva and self.object.data_inizio_effettiva:
-            context['durata_progetto'] = (self.object.data_fine_effettiva - self.object.data_inizio_effettiva).days
-        elif self.object.data_fine_prevista and self.object.data_inizio_prevista:
-            context['durata_progetto'] = (self.object.data_fine_prevista - self.object.data_inizio_prevista).days
-        else:
-            context['durata_progetto'] = ''
-#        context['durata_progetto'] = (
-#            self.object.data_fine_prevista - self.object.data_inizio_prevista
-#            if self.object.data_fine_prevista and self.object.data_inizio_prevista
-#            else ''
-#        )
-        context['giorni_alla_fine'] = (
-            (self.object.data_fine_prevista - date.today()).days
-            if self.object.data_fine_prevista  else ''
-            )
+            context['durata_progetto_effettiva'] = (self.object.data_fine_effettiva - self.object.data_inizio_effettiva).days
+        if self.object.data_fine_prevista and self.object.data_inizio_prevista:
+            context['durata_progetto_prevista'] = (self.object.data_fine_prevista - self.object.data_inizio_prevista).days
+
+#        context['giorni_alla_fine'] = (
+#            (date.today() - self.object.data_fine_prevista).days
+#            if self.object.data_fine_prevista else ''
+#            )
+#        if context['giorni_alla_fine'] and context['giorni_alla_fine'] < 0:
+#            context['giorni_alla_fine'] = ''
 
         context['stesso_tema'] = Progetto.objects.exclude(codice_locale=self.object.codice_locale).con_tema(self.object.tema).nei_territori( self.object.territori )[:1]
         context['stesso_tipologia'] = Progetto.objects.exclude(codice_locale=self.object.codice_locale).del_tipo(self.object.tipo_operazione).nei_territori( self.object.territori )[:1]
@@ -56,7 +55,8 @@ class ProgettoView(AccessControlView, DetailView):
 
         context['map'] = {
             'extent': "[{{lon: {0}, lat: {1}}},{{lon: {2}, lat: {3}}}]".format( *Territorio.objects.filter(territorio='R').extent() ),
-            'poi': simplejson.dumps( primo_territorio.geom.centroid.coords if primo_territorio else False )
+            'poi': simplejson.dumps( primo_territorio.geom.centroid.coords if primo_territorio else False ),
+            'pois' : simplejson.dumps( [t.geom.centroid.coords for t in self.object.territori] ),
         }
 
         return context
