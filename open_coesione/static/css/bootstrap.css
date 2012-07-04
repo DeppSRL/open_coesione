@@ -4544,6 +4544,11 @@ section h2.title span {
   background-color: #000000;
   font-size: 22px;
 }
+#main .area h1.title.violet span,
+#main .area h2.title.violet span {
+  background-color: #630f4d;
+  font-size: 22px;
+}
 #main .area h4 {
   text-transform: none;
 }
