@@ -23,3 +23,6 @@ class DataClassifier:
             raise Exception("colors map not specified")
         else:
             return self.colors_map[self.get_class(value)]
+
+    def get_bins(self):
+        return self.dc.bins

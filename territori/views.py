@@ -92,6 +92,7 @@ class LeafletView(TemplateView):
         if tematizzazione not in ('totale_costi', 'totale_costi_pagati', 'totale_progetti'):
             raise Http404
 
+
         path = self.request.path
         context['layer_name'] = "_".join(path.split("/")[3:]) + "_" + tematizzazione
 
@@ -155,6 +156,7 @@ class MapnickView(TemplateView):
 
         # DataClassifier instance
         self.dc = DataClassifier(data.values(), classifier_args={'k': 5}, colors_map=self.colors)
+        context['classification_bins'] = self.dc.get_bins
 
         # return codice and colore, for each territorio
         # to be easily used in the view
