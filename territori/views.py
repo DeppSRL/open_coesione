@@ -56,10 +56,47 @@ class LeafletView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(LeafletView, self).get_context_data(**kwargs)
-        context['layer_name'] = context['params']['layer']
-        context['layer_type'] = context['layer_name'][0:1].upper()
 
-        bounds = {}
+        # fetch Geometry object to look at
+        # - nation
+        # - region
+        # - province
+        if 'cod_reg' in context['params']:
+            codice = context['params']['cod_reg']
+            area = Territorio.objects.get(territorio=Territorio.TERRITORIO.R, cod_reg=codice).geom
+        elif 'cod_prov' in context['params']:
+            codice = context['params']['cod_prov']
+            area = Territorio.objects.get(territorio=Territorio.TERRITORIO.R, cod_prov=codice).geom
+        else:
+            area = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).collect()
+
+        # compute bounds, to use inside the maps
+        bounds = {
+            'southwest': {
+                'lng': str(area.extent[0]),
+                'lat': str(area.extent[1])
+            },
+            'northeast': {
+                'lng': str(area.extent[2]),
+                'lat': str(area.extent[3])
+            }
+        }
+        context['bounds'] = bounds
+        print "bounds: %s" % bounds
+
+        # compute layer name from request.path and tematizzatione query string
+        if 'tematizzazione' in self.request.GET:
+            tematizzazione = self.request.GET['tematizzazione']
+        else:
+            tematizzazione = 'totale_costi'
+        if tematizzazione not in ('totale_costi', 'totale_costi_pagati', 'totale_progetti'):
+            raise Http404
+
+        path = self.request.path
+        context['layer_name'] = "_".join(path.split("/")[3:]) + "_" + tematizzazione
+
+        # layer type may be R, P or C
+        context['layer_type'] = path.split("/")[-1:][0][0:1].upper()
 
         return context
 
@@ -157,7 +194,7 @@ class MapnickProvinceView(MapnickView):
         if 'cod_reg' in context['params']:
             cod_reg = context['params']['cod_reg']
             self.queryset = Territorio.objects.filter(territorio='P', cod_reg=cod_reg)
-            self.territori_name = 'province-r-%s' % cod_reg
+            self.territori_name = 'regioni_%s_province' % cod_reg
         else:
             self.queryset = Territorio.objects.filter(territorio='P')
 
@@ -172,11 +209,11 @@ class MapnickComuniView(MapnickView):
         if 'cod_reg' in context['params']:
             cod_reg = context['params']['cod_reg']
             self.queryset = Territorio.objects.filter(territorio='C', cod_reg=cod_reg)
-            self.territori_name = 'comuni-r-%s' % cod_reg
+            self.territori_name = 'regioni_%s_comuni' % cod_reg
         elif 'cod_prov' in context['params']:
             cod_prov = context['params']['cod_prov']
             self.queryset = Territorio.objects.filter(territorio='C', cod_reg=cod_prov)
-            self.territori_name = 'comuni-p-%s' % cod_prov
+            self.territori_name = 'province_%s_comuni' % cod_prov
         else:
             raise Exception("a region or a province must be specified for this view")
 

@@ -52,15 +52,11 @@
 
     var territori = new L.TileLayer('http://localhost:8099/{{ layer_name }}/{z}/{x}/{y}.png');
 
-    map.setView(new L.LatLng(42.12, 12.21), 5)
 
-    {%  comment %}
-
-    var southWest = new L.LatLng({{ extent.southwest.lat }},{{ extent.southwest.lng }}),
-        northEast = new L.LatLng({{ extent.northeast.lat }},{{ extent.northeast.lng }}),
+    var southWest = new L.LatLng({{ bounds.southwest.lat }},{{ bounds.southwest.lng }}),
+        northEast = new L.LatLng({{ bounds.northeast.lat }},{{ bounds.northeast.lng }}),
         bounds = new L.LatLngBounds(southWest, northEast);
     map.fitBounds(bounds);
-    {%  endcomment %}
 
     map.addLayer(territori);
     map.on('click', onMapClick);
