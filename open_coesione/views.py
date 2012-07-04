@@ -172,7 +172,13 @@ class HomeView(AggregatoView, TemplateView):
 
         return context
 
-class FondiView(AccessControlView, TemplateView):
+class RisorseView(AccessControlView, TemplateView):
+    def get_context_data(self, **kwargs):
+        context = super(RisorseView, self).get_context_data(**kwargs)
+        context['risorsa'] = True
+        return  context
+
+class FondiView(RisorseView):
     template_name = 'flat/fonti_finanziamento.html'
 
     def get_context_data(self, **kwargs):

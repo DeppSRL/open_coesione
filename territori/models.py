@@ -43,13 +43,13 @@ class Territorio(models.Model):
         ('N', 'Nazionale'),
         ('E', 'Estero'),
     )
-    cod_reg = models.IntegerField(default=0, blank=True, null=True)
-    cod_prov = models.IntegerField(default=0, blank=True, null=True)
-    cod_com = models.IntegerField(default=0, blank=True, null=True)
+    cod_reg = models.IntegerField(default=0, blank=True, null=True, db_index=True)
+    cod_prov = models.IntegerField(default=0, blank=True, null=True, db_index=True)
+    cod_com = models.IntegerField(default=0, blank=True, null=True, db_index=True)
     denominazione = models.CharField(max_length=128)
     denominazione_ted = models.CharField(max_length=128, blank=True, null=True)
     slug = models.SlugField(max_length=256, null=True, blank=True)
-    territorio = models.CharField(max_length=1, choices=TERRITORIO)
+    territorio = models.CharField(max_length=1, choices=TERRITORIO, db_index=True)
     geom = models.MultiPolygonField(srid=4326, null=True, blank=True)
 
     objects = TerritoriManager()

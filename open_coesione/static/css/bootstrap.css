@@ -4358,6 +4358,9 @@ a.thumbnail:hover {
   text-align: left;
   display: block;
 }
+.navbar-full-width .dropdown-menu {
+  min-width: 180px;
+}
 .navbar-full-width .dropdown-menu .submenu .submenu-show {
   top: 25px;
   padding: 0 10px;
@@ -4372,13 +4375,9 @@ a.thumbnail:hover {
 .navbar-full-width .dropdown-menu .submenu .submenu-show a {
   font-weight: normal;
 }
-.navbar-full-width .dropdown-menu .submenu .submenu-show  > li {
-  width: 500px;
-}
 .navbar-full-width .dropdown-menu .submenu .submenu-show  > li  > ul {
   list-style: none;
   margin: 0;
-  width: 30%;
   float: left;
 }
 .navbar-full-width .nav > .dropdown > .dropdown-menu {

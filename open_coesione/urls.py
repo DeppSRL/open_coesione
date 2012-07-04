@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib.gis import admin
 from django.conf import settings
 from django.views.generic.base import TemplateView
-from open_coesione.views import HomeView, FondiView
+from open_coesione.views import HomeView, FondiView, RisorseView
 
 admin.autodiscover()
 
@@ -40,7 +40,7 @@ urlpatterns = patterns('',
     url(r'^open-data/', TemplateView.as_view(template_name='flat/open_data.html')),
 
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html')),
-    url(r'^pac/', FondiView.as_view(template_name='flat/pac.html')),
+    url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),
 
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login'),
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),
