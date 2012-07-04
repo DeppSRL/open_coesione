@@ -38,9 +38,11 @@ class ProgettoView(AccessControlView, DetailView):
 #            else ''
 #        )
         context['giorni_alla_fine'] = (
-            (self.object.data_fine_prevista - date.today()).days
-            if self.object.data_fine_prevista  else ''
+            (date.today() - self.object.data_fine_prevista).days
+            if self.object.data_fine_prevista else ''
             )
+        if context['giorni_alla_fine'] and context['giorni_alla_fine'] < 0:
+            context['giorni_alla_fine'] = ''
 
         context['stesso_tema'] = Progetto.objects.exclude(codice_locale=self.object.codice_locale).con_tema(self.object.tema).nei_territori( self.object.territori )[:1]
         context['stesso_tipologia'] = Progetto.objects.exclude(codice_locale=self.object.codice_locale).del_tipo(self.object.tipo_operazione).nei_territori( self.object.territori )[:1]

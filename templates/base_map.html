@@ -87,21 +87,21 @@
 
         <div class="block-chart block-active" data-dataset="costo">
 
-          <strong class="title">Finanziamento pubblico dei progetti monitorati*</strong>
+          <strong class="title">Finanziamenti monitorati</strong>
 
           <p>{{ total_cost|intword }} <span>di euro</span></p>
 
           <div class="bar-vertical"></div>
 
-          <div style="position: absolute; bottom: -16px; left: 5px; color: black; font-size: 10px; text-transform: none;">
-            *Dati aggiornati al 31.12.2011
-          </div>
+{#          <div style="position: absolute; bottom: -16px; left: 5px; color: black; font-size: 10px; text-transform: none;">#}
+{#            *Dati aggiornati al 31.12.2011#}
+{#          </div>#}
 
         </div>
 
         <div class="block-chart" title="{{ cost_payments_ratio }} del totale" data-dataset="pagamento">
 
-          <strong class="title">Pagamenti effettuati per i progetti monitorati*</strong>
+          <strong class="title">Pagamenti monitorati</strong>
 
           <p>{{ total_cost_paid|intword }} <span>di euro</span></p>
 
@@ -111,19 +111,19 @@
 
         <div class="block-chart" data-dataset="numero">
 
-          <strong class="title">Numero dei progetti monitorati*</strong>
+          <strong class="title">Progetti monitorati</strong>
 
-          <p>{{ total_projects }}</p>
+          <p>{{ total_projects|intcomma }}</p>
 
         </div>
 
       </div>
-      <div>
+      <div style="width:50%; float:left;">
 
         {% block top_content %}
 
         <a class="block-chart block-gray pull-right" href="/fonti-di-finanziamento/">
-          <strong class="title">Totale risorse stanziate*</strong>
+          <strong class="title">Risorse totali 2007-2013*</strong>
           <p>102.668 milioni <span>di euro</span></p>
         </a>
 
@@ -189,7 +189,7 @@
             <div class="span3{% if tema or tipologia %} offset3{% endif %}">
               <h4>Natura dell'intervento</h4>
 
-              <div id="main_types_chart" style="width: 100%; height: 200px"></div>
+              <div id="main_types_chart" style="width: 100%; height: 250px"></div>
 
               <table id="main_types" class="table">
                 {% for tipologia in tipologie_principali %}
@@ -213,7 +213,7 @@
             <div class="span3">
               <h4>Temi</h4>
 
-              <div id="main_topics_chart" style="width: 100%; height: 200px"></div>
+              <div id="main_topics_chart" style="width: 100%; height: 250px"></div>
 
               <table id="main_topics" class="table">
                 {% for tema in temi_principali %}
