@@ -186,7 +186,7 @@ class Command(BaseCommand):
             soggetto, created = Soggetto.objects.get_or_create(
                 denominazione = r['DPS_DENOMINAZIONE_SOGG'].strip(),
                 defaults={
-                    'codice_fiscale': r['DPS_CODICE_FISCALE_SOGG'],
+                    'codice_fiscale': r['DPS_CODICE_FISCALE_SOGG'].strip(),
                     'ruolo': r['SOGG_COD_RUOLO'],
                     'forma_giuridica': forma_giuridica,
                     'rappresentante_legale': rappresentante_legale,
