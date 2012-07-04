@@ -50,7 +50,7 @@ class SoggettoView(AggregatoView, DetailView):
 
         # calcolo dei collaboratori con cui si spartiscono piu' soldi
         collaboratori = {}
-        for soggetti in [x.soggetti  for x in self.object.progetti]:
+        for soggetti in [x.soggetti for x in self.object.progetti]:
             for s in soggetti:
                 if s == self.object:
                     continue
@@ -76,7 +76,12 @@ class SoggettoView(AggregatoView, DetailView):
             .order_by('-totale')[:5]
 
 
-        context['map'] = self.get_map_context( )
+        #context['map'] = self.get_map_context( )
+
+        context['lista_finanziamenti_per_regione'] = [
+            (regione,float(Progetto.objects.nel_territorio( regione ).filter(soggetto_set__pk=self.object.pk).aggregate(totale=Sum('fin_totale_pubblico'))['totale'] or 0))
+            for regione in Territorio.objects.regioni()
+        ]
 
 
         return context

@@ -37,40 +37,44 @@
       var tiles_url = "http://{S}tile.cloudmade.com"
           + "/1a1b06b230af4efdbb989ea99e9841af" // http://cloudmade.com/register
           + "/20760/256/{Z}/{X}/{Y}.png";
-      var mapfactory = new MAP( {{ map.data|safe }}, '{{ TILESTACHE_URL }}', tiles_url , d3, org.polymaps, pv);
-      var mappoi = {{ map.poi|safe }};
 
-      mapfactory.build('map', {{ map.extent }}, {{ map.zoomlev|default:"null" }}, {{ map.zoomrange|default:"null" }});
+      {% if map.data %}
+        var mapfactory = new MAP( {{ map.data|safe }}, '{{ TILESTACHE_URL }}', tiles_url , d3, org.polymaps, pv);
+        var mappoi = {{ map.poi|safe }};
 
-      if ( mappoi ) {
-        mapfactory.add_point( mappoi );
-      }
-      else {
-        mapfactory.add_layer( $('#selectors .active').prop('id'), $('#map-layer-selector .block-chart.block-active').data('dataset') );
+        mapfactory.build('map', {{ map.extent }}, {{ map.zoomlev|default:"null" }}, {{ map.zoomrange|default:"null" }});
+
+        if ( mappoi ) {
+          mapfactory.add_point( mappoi );
+        }
+        else {
+          mapfactory.add_layer( $('#selectors .active').prop('id'), $('#map-layer-selector .block-chart.block-active').data('dataset') );
 
 
-        $('#selectors .btn').click(function() {
+          $('#selectors .btn').click(function() {
 
-          $('#selectors .btn.active').removeClass('active');
+            $('#selectors .btn.active').removeClass('active');
 
-          mapfactory.add_layer($(this).prop('id'), $('#map-layer-selector .block-chart.block-active').data('dataset'));
+            mapfactory.add_layer($(this).prop('id'), $('#map-layer-selector .block-chart.block-active').data('dataset'));
 
-          $(this).addClass("active");
+            $(this).addClass("active");
 
-          return false;
-        });
+            return false;
+          });
 
-        $('#map-layer-selector .block-chart').click(function(){
+          $('#map-layer-selector .block-chart').click(function(){
 
-          $('#map-layer-selector .block-chart.block-active').removeClass('block-active');
-          // add layer
-          mapfactory.add_layer(  $('#selectors .active').prop('id') ,$(this).data('dataset') );
+            $('#map-layer-selector .block-chart.block-active').removeClass('block-active');
+            // add layer
+            mapfactory.add_layer(  $('#selectors .active').prop('id') ,$(this).data('dataset') );
 
-          $(this).addClass('block-active');
+            $(this).addClass('block-active');
 
-          return false;
-        })
-      }
+            return false;
+          })
+        }
+      {% endif %}
+
 
     });
   </script>
@@ -148,6 +152,18 @@
 
       <div class="row" id="statistics">
 
+        {% if soggetto %}
+          <div class="span12">
+            <h1 class="title violet" style="margin-bottom: 0;"><span>{{ soggetto.denominazione }}</span></h1>
+
+
+            {% if soggetto.forma_giuridica %}<p>{{ soggetto.forma_giuridica }}</p>{% endif %}
+            {% if soggetto.indirizzo %}<p>{{ soggetto.indirizzo }}</p>{% endif %}
+            {% if soggetto.rappresentante_legale %}<p>Rappresentante legale: {{ soggetto.rappresentante_legale }}</p>{% endif %}
+            {% if soggetto.codice_fiscale and soggetto.codice_fiscale != ' ' %}<p>CF.: {{ soggetto.codice_fiscale }}</p>{% endif %}
+          </div>
+        {% endif %}
+
         <div class="span6">
 
           <div class="row">
@@ -161,27 +177,15 @@
 
             {% if tema %}
               <div class="span6">
-                <h1 class="title black" style="margin-bottom: 0;"><span>{{ tema.short_label }}</span></h1>
+                <h1 class="title black" style="margin-bottom: 0;"><span>Tema: {{ tema.short_label }}</span></h1>
                 <p><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}" style="text-transform: none;padding-left: 25px;">Vai a tutti i progetti</a></p>
               </div>
             {% endif %}
 
             {% if tipologia %}
               <div class="span6">
-                <h1 class="title black" style="margin-bottom: 0;"><span>{{ tipologia.short_label }}</span></h1>
+                <h1 class="title black" style="margin-bottom: 0;"><span>Natura: {{ tipologia.short_label }}</span></h1>
                 <p><a href="{% url progetti_search %}?q=&selected_facets=tipologia:{{ tipologia.codice }}" style="text-transform: none;padding-left: 25px;">Vai a tutti i progetti</a></p>
-              </div>
-            {% endif %}
-
-            {% if soggetto %}
-              <div class="span6">
-                <h1 class="title violet" style="margin-bottom: 0;"><span>{{ soggetto.denominazione }}</span></h1>
-
-
-                {% if soggetto.forma_giuridica %}<p>{{ soggetto.forma_giuridica }}</p>{% endif %}
-                {% if soggetto.indirizzo %}<p>{{ soggetto.indirizzo }}</p>{% endif %}
-                {% if soggetto.rappresentante_legale %}<p>Rappresentante legale: {{ soggetto.rappresentante_legale }}</p>{% endif %}
-                {% if soggetto.codice_fiscale and soggetto.codice_fiscale != ' ' %}<p>CF.: {{ soggetto.codice_fiscale }}</p>{% endif %}
               </div>
             {% endif %}
 
@@ -238,6 +242,7 @@
         </div>
 
         <div class="span6">
+          {% block map %}
 
           <div id="selectors" class="btn-group">
             {% if territorio.territorio == 'R' %}
@@ -259,6 +264,7 @@
                   </div>
               </form>
           </div>
+          {% endblock %}
 
             {#          <span id="copy">#}
 {#            &copy; 2010#}
