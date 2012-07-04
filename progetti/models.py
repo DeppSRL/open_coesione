@@ -403,7 +403,7 @@ class Localizzazione(models.Model):
                                                            )
     territorio = models.ForeignKey('territori.Territorio', verbose_name=u'Territorio')
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
-    indirizzo = models.CharField(max_length=255, blank=True, null=True)
+    indirizzo = models.CharField(max_length=512, blank=True, null=True)
     cap = models.CharField(max_length=5, blank=True, null=True)
     dps_flag_cap = models.CharField(max_length=1, choices=DPS_FLAG_CAP)
 
