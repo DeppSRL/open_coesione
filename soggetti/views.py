@@ -12,6 +12,7 @@ class SoggettiView(AggregatoView, TemplateView):
 
 class SoggettoView(AggregatoView, DetailView):
     model = Soggetto
+    context_object_name = 'soggetto'
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
@@ -67,6 +68,13 @@ class SoggettoView(AggregatoView, DetailView):
 
         # calcolo dei progetti con piu' fondi
         context['top_progetti'] = self.object.progetti.order_by('-fin_totale_pubblico')[:5]
+
+        # calcolo dei comuni un cui questo soggetto ha operato di piu'
+        context['territori_piu_finanziati_pro_capite'] = Territorio.objects.comuni()\
+            .filter(progetto__soggetto_set__pk=self.object.pk)\
+            .annotate(totale=Sum('progetto__fin_totale_pubblico'))\
+            .order_by('-totale')[:5]
+
 
         context['map'] = self.get_map_context( )
 

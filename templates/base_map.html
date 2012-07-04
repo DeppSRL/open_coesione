@@ -173,6 +173,18 @@
               </div>
             {% endif %}
 
+            {% if soggetto %}
+              <div class="span6">
+                <h1 class="title violet" style="margin-bottom: 0;"><span>{{ soggetto.denominazione }}</span></h1>
+
+
+                {% if soggetto.forma_giuridica %}<p>{{ soggetto.forma_giuridica }}</p>{% endif %}
+                {% if soggetto.indirizzo %}<p>{{ soggetto.indirizzo }}</p>{% endif %}
+                {% if soggetto.rappresentante_legale %}<p>Rappresentante legale: {{ soggetto.rappresentante_legale }}</p>{% endif %}
+                {% if soggetto.codice_fiscale and soggetto.codice_fiscale != ' ' %}<p>CF.: {{ soggetto.codice_fiscale }}</p>{% endif %}
+              </div>
+            {% endif %}
+
             {% if tipologie_principali %}
             <div class="span3{% if tema or tipologia %} offset3{% endif %}">
               <h4>Natura dell'intervento</h4>

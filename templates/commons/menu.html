@@ -11,7 +11,7 @@
           <ul class="dropdown-menu">
             <li class="submenu">
               <a href="#">Natura</a>
-              <ul class="dropdown-menu" style="width: 160px;">
+              <ul class="dropdown-menu">
                 <li class="clearfix">
                   <ul>
                     {% for tipologia in lista_tipologie_principali %}
@@ -23,7 +23,7 @@
             </li>
             <li class="submenu">
               <a href="#">Temi</a>
-              <ul class="dropdown-menu" style="width: 160px;">
+              <ul class="dropdown-menu">
                 <li class="clearfix">
                   <ul>
                     {% for temi in lista_temi_principali %}
@@ -36,18 +36,18 @@
             <li class="submenu">
               <a href="#">Territori</a>
               <ul class="dropdown-menu">
-                <li class="clearfix">
-                  <ul>
+                <li class="clearfix" style="width:500px;">
+                  <ul style="width:30%">
                     {% for regione in colonne_regioni.0 %}
                       <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
                     {% endfor %}
                   </ul>
-                  <ul>
+                  <ul style="width:30%">
                     {% for regione in colonne_regioni.1 %}
                       <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
                     {% endfor %}
                   </ul>
-                  <ul>
+                  <ul style="width:40%">
                     {% for regione in colonne_regioni.2 %}
                       <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
                     {% endfor %}

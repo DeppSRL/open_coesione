@@ -108,41 +108,39 @@
     <article id="progetto" class="row">
       <div class="span6" id="content">
 
-        <div class="flat_content">
-          <header>
-            <h2>CUP N. {{ progetto.codice_locale }}</h2>
-            <h1>{{ progetto.titolo_progetto }}</h1>
-          </header>
+        <header>
+          <h2>CUP N. {{ progetto.codice_locale }}</h2>
+          <h1>{{ progetto.titolo_progetto }}</h1>
+        </header>
 
-          <ul class="spaced">
-            <li>
-              <a href="{{ progetto.tema.tema_superiore.get_absolute_url }}">
-                {{ progetto.tema.tema_superiore.short_label|upper }}
-              </a> -
-              {{ progetto.tema.descrizione|upper }}
-            </li>
-            <li>
-              <a href="{{ progetto.classificazione_azione.classificazione_superiore.get_absolute_url }}">
-                {{ progetto.classificazione_azione.classificazione_superiore.short_label|upper }}
-              </a> -
-              {{ progetto.classificazione_azione.descrizione|upper }}
-            </li>
-          </ul>
+        <ul class="spaced">
+          <li>
+            <a href="{{ progetto.tema.tema_superiore.get_absolute_url }}">
+              {{ progetto.tema.tema_superiore.short_label|upper }}
+            </a> -
+            {{ progetto.tema.descrizione|upper }}
+          </li>
+          <li>
+            <a href="{{ progetto.classificazione_azione.classificazione_superiore.get_absolute_url }}">
+              {{ progetto.classificazione_azione.classificazione_superiore.short_label|upper }}
+            </a> -
+            {{ progetto.classificazione_azione.descrizione|upper }}
+          </li>
+        </ul>
 
-          {% if progetto.descrizione %}
-            <p>
-              {{ progetto.descrizione }}
-            </p>
-          {% endif %}
-        </div>
+        {% if progetto.descrizione %}
+          <p>
+            {{ progetto.descrizione }}
+          </p>
+        {% endif %}
 
-        <section class="row">
-          <h1 class="span6 title">
+        <section class="row-fluid">
+          <h1 class="title">
             <span>Soggetti</span>
           </h1>
 
 
-          <div class="span3">
+          <div class="span6">
             <dl class="data">
               {% for programmatore in progetto.programmatori %}
                 {% if forloop.first %}
@@ -159,7 +157,7 @@
               {% endfor %}
             </dl>
           </div>
-          <div class="span3">
+          <div class="span6">
             <dl class="data">
               {% for attuatore in progetto.attuatori %}
                 {% if forloop.first %}
@@ -180,8 +178,8 @@
 
         </section>
 
-        <section class="row">
-          <div class="span3">
+        <section class="row-fluid">
+          <div class="span6">
             <h1 class="title">
               <span>Tempi</span>
             </h1>
@@ -211,7 +209,7 @@
             </dl>
 
           </div>
-          <div class="span3">
+          <div class="span6">
             <h1 class="title" id="map-header">
               <div>
                   Località

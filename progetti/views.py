@@ -65,6 +65,8 @@ class ProgettoView(AccessControlView, DetailView):
 #       return Progetto.objects.get(slug=self.kwargs.get('slug'))
 
 class TipologiaView(AggregatoView, DetailView):
+    context_object_name = 'tipologia'
+
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(TipologiaView, self).get_context_data(**kwargs)
@@ -74,7 +76,6 @@ class TipologiaView(AggregatoView, DetailView):
         context['total_projects'] = Progetto.objects.totale_progetti(classificazione=self.object)
         context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
 
-        context['tipologia'] = self.object
         context['temi_principali'] = [
             {
             'object': tema,
@@ -116,6 +117,7 @@ class TipologiaView(AggregatoView, DetailView):
         return ClassificazioneAzione.objects.get(slug=self.kwargs.get('slug'))
 
 class TemaView(AggregatoView, DetailView):
+    context_object_name = 'tema'
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
@@ -125,8 +127,6 @@ class TemaView(AggregatoView, DetailView):
         context['total_cost_paid'] = Progetto.objects.totale_costi_pagati(tema=self.object)
         context['total_projects'] = Progetto.objects.totale_progetti(tema=self.object)
         context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
-
-        context['tema'] = self.object
 
         # estrae l'aggregato di numero, costi e pagamenti progetti per
         # tutte le nature (tipologie principali)

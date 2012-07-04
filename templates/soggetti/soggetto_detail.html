@@ -1,6 +1,9 @@
 {% extends 'base_map.html' %}
 {% load humanize %}
 
+{% block page_title %}Soggetto: {{ soggetto.denominazione }}{% endblock %}
+{% block page_description %}Informazioni sui progetti in cui partecipa {{ soggetto.denominazione }}{% endblock %}
+
 {% block container %}
   {{ block.super }}
 
@@ -33,15 +36,17 @@
     </div>
 
     <section class="row">
-      <h1 class='title'><span>I comuni con più progetti</span></h1>
-      <table class="table">
-        {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
-          <tr>
-            <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
-            <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
-          </tr>
-        {% endfor %}
-      </table>
+      <div class="span4">
+        <h1 class='title'><span>I comuni con più progetti</span></h1>
+        <table class="table">
+          {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
+            <tr>
+              <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
+              <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
     </section>
   </div>
 {% endblock %}
