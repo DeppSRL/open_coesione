@@ -1,12 +1,3 @@
-"""
-from django.template import loader, Context
-t = loader.get_template("search/indexes/progetti/progetto_rendered.txt")
-/Users/guglielmo/.virtualenvs/open_coesione/lib/python2.6/site-packages/django/template/defaulttags.py:1235: DeprecationWarning: The syntax for the url template tag is changing. Load the `url` tag from the `future` tag library to start using the new behavior.
-  category=DeprecationWarning)
-c = Context({'object': Progetto.objects.get(slug='1mpia-1-fesr06_por_campania-2011-433')})
-t.render(c)
-"""
-
 {% load humanize %}
 <div class="block-chart block" title="{{ object.percentuale_pagamenti|floatformat:0|default:"0" }}% del totale">
   <strong>Pagamenti effettuati</strong>
