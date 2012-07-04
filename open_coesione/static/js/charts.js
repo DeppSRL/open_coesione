@@ -84,6 +84,9 @@ var print_pie_chart = function( source, destination )
         if (values.length == 0) {
             values = $('td', line).map( function(el, item) { return $(item).text(); });
         }
+        if ( values.length !== 2) {
+            values = $('th, strong', line).map( function(el, item) { return $(item).text(); });
+        }
         var sub_total = parseInt(values[1].split('.').join(''));
         total += sub_total;
         series.data.push([values[0], sub_total ]);
