@@ -19,7 +19,7 @@ t.render(c)
 
 <ul class="unstyled">
   <li>Finanziamento pubblico: <strong>{{ object.fin_totale_pubblico|default:"0.0"|intcomma:0 }}</strong> euro</li>
-  <li>Pagamenti effettuati: <strong>{{ object.pagamento|default:"0.0"|floatformat:0 }}</strong> euro</li>
+  <li>Pagamenti effettuati: <strong>{{ object.pagamento|default:"0.0"|intcomma:0 }}</strong> euro</li>
 </ul>
 <p>Comune: <a href="{{ object.territori.0.get_absolute_url   }}">{{ object.territori.0 }}</a> - Tema: <a href="{{ object.tema.tema_superiore.get_absolute_url }}">{{ object.tema.tema_superiore.short_label }}</a> - Natura: <a href="{{ object.classificazione_azione.classificazione_superiore.get_absolute_url }}">{{ object.classificazione_azione.classificazione_superiore.short_label }}</a></p>
 
