@@ -53,7 +53,7 @@ class Command(BaseCommand):
             help='Remove all slugs'),
     )
 
-    @transaction.commit_on_success
+#    @transaction.commit_on_success
     def handle(self, *args, **options):
         if options['type'] == 'proj':
             self.handle_proj(*args, **options)
