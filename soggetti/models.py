@@ -33,8 +33,8 @@ class Soggetto(models.Model):
                                         related_name='forma_giuridica_set',
                                         db_column='forma_giuridica')
     territorio = models.ForeignKey('territori.Territorio', null=True)
-    rappresentante_legale = models.CharField(max_length=128, null=True, blank=True)
-    indirizzo = models.CharField(max_length=128, null=True, blank=True)
+    rappresentante_legale = models.CharField(max_length=300, null=True, blank=True)
+    indirizzo = models.CharField(max_length=300, null=True, blank=True)
     cap = models.CharField(max_length=5, null=True, blank=True)
 
     @property
