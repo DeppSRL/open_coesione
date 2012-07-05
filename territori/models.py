@@ -58,6 +58,15 @@ class Territorio(models.Model):
         return self.progetto_set.all()
 
     @property
+    def codice(self):
+        if self.territorio == 'C':
+            return self.cod_com
+        elif self.territorio == 'P':
+            return self.cod_prov
+        else:
+            return self.cod_reg
+
+    @property
     def n_progetti(self):
         return self.progetto_set.count()
 
@@ -70,9 +79,9 @@ class Territorio(models.Model):
         if self.territorio == self.TERRITORIO.R:
             return Progetto.objects.filter(localizzazione__territorio__cod_reg=self.cod_reg)
         elif self.territorio == self.TERRITORIO.P:
-            return Progetto.objects.filter(localizzazione__territorio__cod_reg=self.cod_prov)
+            return Progetto.objects.filter(localizzazione__territorio__cod_prov=self.cod_prov)
         else:
-            return self.progetti
+            return Progetto.objects.filter(localizzazione__territorio__cod_com=self.cod_com)
 
     @property
     def code(self):
