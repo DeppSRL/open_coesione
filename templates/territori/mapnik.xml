@@ -1,0 +1,48 @@
+{%  load humanize %}<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Map[]>
+<Map srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over"
+     background-color="#dedede">
+    <!--
+    <ul id="legend">{% for bin in classification_bins %}
+        <li class="c{{ forloop.counter0 }}">{{ bin.start|floatformat:0|intcomma }} - {{ bin.end|floatformat:0|intcomma }}</li>
+    {% endfor %}</ul>
+    -->
+    <Style name="countries" filter-mode="first">
+        <Rule>
+            <PolygonSymbolizer fill="#efefef" />
+        </Rule>
+    </Style>
+    <Style name="countries-outline" filter-mode="first">
+        <Rule>
+            <LineSymbolizer stroke="#ffffff" stroke-width="2" stroke-linejoin="round" />
+        </Rule>
+    </Style>
+    <Layer name="countries"
+           srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
+        <StyleName>countries-outline</StyleName>
+        <StyleName>countries</StyleName>
+        <Datasource>
+            <Parameter name="file"><![CDATA[/Users/guglielmo/Documents/MapBox/project/regioni/layers/countries/82945364-10m-admin-0-countries.shp]]></Parameter>
+            <Parameter name="type"><![CDATA[shape]]></Parameter>
+        </Datasource>
+    </Layer>
+
+    <Style name="{{ territori_name }}" filter-mode="first">
+        {% for t in territori %}
+            <Rule>
+                <Filter>([{{ codice_field }}] = {{ t.codice }})</Filter>
+                <LineSymbolizer stroke="#ffffff" stroke-width="1.5" />
+                <PolygonSymbolizer fill="{{ t.colore }}" fill-opacity="1" />
+            </Rule>
+        {% endfor %}
+    </Style>
+    <Layer name="{{ territori_name }}"
+           srs="{{ srs }}">
+        <StyleName>{{ territori_name }}</StyleName>
+        <Datasource>
+            <Parameter name="file"><![CDATA[{{ shp_file }}]]></Parameter>
+            <Parameter name="type"><![CDATA[shape]]></Parameter>
+        </Datasource>
+    </Layer>
+
+</Map>
