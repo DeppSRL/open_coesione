@@ -43,15 +43,32 @@
       #gradient > .vertical(darken(@greenDark, 5%), darken(@greenDark, 15%) );
     }
   }
+
+  .caret {
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 20px solid @greenDark;
+    position: absolute;
+    bottom: -20px; left: 40%;
+    opacity: 1;
+  }
 }
 
 // blocks coloring
 .block-chart {
-  background-color: @green;
+  //background-color: @green;
+  .box-shadow(0 0 6px @grayDark);
+  text-shadow: 0 1px 0 @white;
+  #gradient > .vertical( @white, @green );
   color: @greenDark;
+  cursor: pointer;
 
   &.block-active, &:hover {
-    background-color: @greenDark;
+    //background-color: @greenDark;
+    text-shadow: 0 1px 0 @grayDark;
+    #gradient > .vertical( @green, @greenDark );
     color: @white;
 
     .bar-vertical {
@@ -61,8 +78,10 @@
 }
 
 .block-chart.block-gray {
-  background-color: @grayLighter;
-  color: @grayDarker;
+  //background-color: @grayLighter;
+  #gradient > .vertical( @white, @gray );
+  color: @brown;
+  text-decoration: none;
 
   &.block-active, &:hover {
     #gradient > .vertical( @grayLighter, @brown );

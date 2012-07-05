@@ -119,46 +119,47 @@
           </p>
         {% endif %}
 
-        <section class="row-fluid">
+        <section>
           <h1 class="title">
             <span>Soggetti</span>
           </h1>
 
+          <div class="row-fluid">
+            <div class="span6">
+              <dl class="data">
+                {% for programmatore in progetto.programmatori %}
+                  {% if forloop.first %}
+                  <dt>Programmatore</dt>
+                  {% endif %}
+                <dd><a href="{{ programmatore.get_absolute_url }}">{{ programmatore }}</a></dd>
+                {% endfor %}
 
-          <div class="span6">
-            <dl class="data">
-              {% for programmatore in progetto.programmatori %}
-                {% if forloop.first %}
-                <dt>Programmatore</dt>
-                {% endif %}
-              <dd><a href="{{ programmatore.get_absolute_url }}">{{ programmatore }}</a></dd>
-              {% endfor %}
+                {% for destinatario in progetto.destinatarii %}
+                  {% if forloop.first %}
+                    <dt>Destinatario</dt>
+                  {% endif %}
+                <dd><a href="{{ destinatario.get_absolute_url }}">{{ destinatario }}</a></dd>
+                {% endfor %}
+              </dl>
+            </div>
+            <div class="span6">
+              <dl class="data">
+                {% for attuatore in progetto.attuatori %}
+                  {% if forloop.first %}
+                    <dt>Attuatore</dt>
+                  {% endif %}
+                <dd><a href="{{ attuatore.get_absolute_url }}">{{ attuatore }}</a></dd>
+                {% endfor %}
 
-              {% for destinatario in progetto.destinatarii %}
-                {% if forloop.first %}
-                  <dt>Destinatario</dt>
-                {% endif %}
-              <dd><a href="{{ destinatario.get_absolute_url }}">{{ destinatario }}</a></dd>
-              {% endfor %}
-            </dl>
-          </div>
-          <div class="span6">
-            <dl class="data">
-              {% for attuatore in progetto.attuatori %}
-                {% if forloop.first %}
-                  <dt>Attuatore</dt>
-                {% endif %}
-              <dd><a href="{{ attuatore.get_absolute_url }}">{{ attuatore }}</a></dd>
-              {% endfor %}
+                {% for realizzatore in progetto.realizzatori %}
+                  {% if forloop.first %}
+                    <dt>Realizzatore</dt>
+                  {% endif %}
+                <dd><a href="{{ realizzatore.get_absolute_url }}">{{ realizzatore }}</a></dd>
+                {% endfor %}
+              </dl>
 
-              {% for realizzatore in progetto.realizzatori %}
-                {% if forloop.first %}
-                  <dt>Realizzatore</dt>
-                {% endif %}
-              <dd><a href="{{ realizzatore.get_absolute_url }}">{{ realizzatore }}</a></dd>
-              {% endfor %}
-            </dl>
-
+            </div>
           </div>
 
         </section>

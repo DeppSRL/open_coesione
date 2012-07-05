@@ -13,8 +13,7 @@
 {% endaddtoblock %}
 
   <script type="text/javascript">
-    var table_series = {};
-    var totale_globale = 6324890;
+
   $(document).ready(function() {
 
 
@@ -27,7 +26,7 @@
         backgroundColor: 'transparent'
       },
       title: {
-        text: 'Andamento percentuale dei pagamenti rispetto ai contributi comunitari'
+        text: ''
       },
       subtitle: {
         //text: 'Il grafico mostra'
@@ -56,111 +55,66 @@
     };
 
 
+    function print_spline_chart(container, source) {
 
-    var contributi_totali = [0,0];
-    var contributi_annuali = [];
-    var headers = [];
-    var total_global = 6324890;
+      var categories = [];
+      var years = [];
+      var base_name = '';
+      var series = [];
 
-    $('.chart_table').each(function(table_index, table) {
-      var totals = [];
-      // read years
-      if (table_index == 0)
-        $('thead th',table).each(function(ix,el){
-          if (ix <= 2 ) return;
-          headers.push( $(el).text().split('.').join() );
-        });
+      $('tr', source).each( function(i, row){
 
-      // read totals by years
-      var current = 0.0;
-      $('tfoot td', table).each(function(ix,el){
-        if ( ix <= 1 ) return;
-        if ( ix == 2 ) {
-          contributi_totali[table_index] = parseInt($(el).text());
-          return;
-        }
-        var value = parseInt($(el).text());
-        current += value;
-//        if ( !contributi_annuali[ix-3] ) { contributi_annuali[ix-3] = 0; }
-//        contributi_annuali[ix-3] += value;
-        totals.push( (current / contributi_totali[table_index]) * 100 );
-      });
+        var values = $(row).children().map( function(j, cell) { return $(cell).text(); }) ;
+        values = $.makeArray(values);
 
-      table_series[$(table).attr('id')] = {
-        'headers' : headers,
-        'totals' : totals,
-        'name': $('caption', table).text()
-      };
-    });
-
-    var series = [];
-
-    // mostra i totali delle tabelle
-    $.each(table_series, function(key, stats){
-      var data = [];
-
-      $.each(stats['headers'], function(i, year){
-        data.push( [ Date.UTC(year,1,1) , stats['totals'][i] ]  );
-      });
-
-      series.push({
-        name: stats['name'],
-        data: data
-      });
-    });
-
-    //aggiungi i contributi totali
-//    var total_contributi_annuali = 0;
-//    var contributi_data = [];
-//    $.each(headers, function(i, year){
-//      total_contributi_annuali += contributi_annuali[i];
-//      contributi_data.push( [ Date.UTC(year,1,1) , (total_contributi_annuali/totale_globale) * 100 ]  );
-//    });
-//    line_options.series.push({
-//      name: 'Totali',
-//      data : contributi_data
-//    });
-
-    new Highcharts.Chart($.extend(true, {}, line_options, {
-      chart: {
-        renderTo: 'chart_competitivita',
-        type: 'spline'
-      },
-      title: {
-        text: 'Andamento percentuale dei pagamenti rispetto ai contributi comunitari'
-      },
-      subtitle: {
-        text: '' //"L'ammotare complessivo dei contributi comunitari è di 6,324.890.000 di euro, di cui 3.044.405.000 euro <br> per il FERS e 3.180.485.000 euro per l'FSE"
-      },
-      series: series
-    }));
-
-    var regioni = [];
-    var regioni_data = [];
-    var regioni_cc = [];
-
-    $('#chart_fse_table tbody tr').each( function(i, row){
-      if ( i == 0 ) return;
-
-      var value = 0;
-      $('td', row).each(function(ix,el){
-        if ( ix == 0 ) {
-          regioni.push( $(el).text() );
-          return;
-        }
-        if ( ix == 1 ) {
-          return;
-        }
-        if ( ix == 2 ) {
-          regioni_cc.push(parseInt($(el).text()));
+        if ( i == 0 ) {
+          // remember base name
+          base_name = values.shift();
+          // remove other headers
+          values.shift(); values.shift();
+          // add years
+          years = values;
         }
         else {
-          value += parseInt($(el).text());
+          var fondo = base_name + ' ' + values.shift();
+          // remove other value
+          values.shift();
+          // collect total (index is shifted by 1 to exclude head line)
+          var totale = values.shift();
+          // collect values
+          var current_value = 0;
+          var data = [];
+          $.each(values,function(j,value) {
+            current_value += parseInt(value);
+            data.push( [Date.UTC(years[j],1,1), (current_value / totale) * 100] );
+          });
+          //console.log(fondo, values, data);
+
+          series.push({
+            name: fondo,
+            data: data
+          });
+
         }
       });
-      regioni_data.push(value);
 
-    });
+
+      return new Highcharts.Chart($.extend(true, {}, line_options, {
+        chart: {
+          renderTo: container,
+          type: 'spline'
+        },
+        title: {
+          text: $('caption', source).text()
+        },
+        series: series
+      }));
+
+    }
+
+    print_spline_chart('chart_convergenza','#chart_fesr_fse_table_conv');
+    print_spline_chart('chart_competitivita','#chart_fesr_fse_table_comp');
+
 
     var column_chart_options = {
       chart: {
@@ -172,7 +126,7 @@
         text: 'Stacked column chart'
       },
       xAxis: {
-        categories: regioni,
+        categories: [],
         labels: {
           rotation: -45,
           align: 'right',
@@ -232,134 +186,62 @@
     };
 
 
-    new Highcharts.Chart($.extend(true, {}, column_chart_options, {
-      chart: {
-        renderTo: 'chart_fse_competitivita',
-        type : 'column'
-      },
-      title: {
-        text: 'Fondo FSE: confronto della spesa tra le regioni al 31.12.2011'
-      },
-      series: [{
-        data: $.map(regioni_cc, function(i,v){
-          return i - regioni_data[v]
-        } )
-      }, {
-        data: regioni_data
-      }]
-    }));
-
-    regioni_data = [];
-    regioni_cc = [];
-
-    $('#chart_fers_table tbody tr').each( function(i, row){
-      var value = 0;
-      $('td', row).each(function(ix,el){
-        if ( ix == 0 ) {
-          regioni.push( $(el).text() );
-          return;
-        }
-        if ( ix == 1 ) {
-          return;
-        }
-        if ( ix == 2 ) {
-          regioni_cc.push(parseInt($(el).text()));
-        }
-        else {
-          value += parseInt($(el).text());
-        }
-      });
-      regioni_data.push(value);
-
-    });
-
-    new Highcharts.Chart($.extend(true, {}, column_chart_options, {
-      chart: {
-        renderTo: 'chart_fers_competitivita',
-        type : 'column'
-      },
-      title: {
-        text: 'Fondo FESR: confronto della spesa tra le regioni al 31.12.2011'
-      },
-      series: [{
-        data: $.map(regioni_cc, function(i,v){
-          return i - regioni_data[v]
-        } )
-      }, {
-        data: regioni_data
-      }]
-    }));
 
     // -----------------------
 
-//    contributi_totali = [0,0];
-//    headers = [];
-//    total_global = 21632960;
-//    var table_series_conv = {};
-//    var series_conv = [];
-//
-//    $('.chart_table_conv').each(function(table_index, table) {
-//      var totals = [];
-//      // read years
-//      if (table_index == 0)
-//        $('thead th',table).each(function(ix,el){
-//          if (ix <= 2 ) return;
-//          headers.push( $(el).text().split('.').join() );
-//        });
-//
-//      // read totals by years
-//      var current = 0.0;
-//      $('tfoot td', table).each(function(ix,el){
-//        if ( ix <= 1 ) return;
-//        if ( ix == 2 ) {
-//          contributi_totali[table_index] = parseInt($(el).text());
-//          return;
-//        }
-//        var value = parseInt($(el).text());
-//        current += value;
-//        totals.push( (current / contributi_totali[table_index]) * 100 );
-//      });
-//
-//      table_series_conv[$(table).attr('id')] = {
-//        'headers' : headers,
-//        'totals' : totals,
-//        'name': $('caption', table).text()
-//      };
-//    });
-//
-//
-//
-//    // mostra i totali delle tabelle
-//    $.each(table_series_conv, function(key, stats){
-//      var data = [];
-//
-//      $.each(stats['headers'], function(i, year){
-//        data.push( [ Date.UTC(year,1,1) , stats['totals'][i] ]  );
-//      });
-//
-//      series_conv.push({
-//        name: stats['name'],
-//        data: data
-//      });
-//    });
-//
-//    new Highcharts.Chart($.extend(true, {}, line_options, {
-//      chart: {
-//        renderTo: 'chart_convergenza',
-//        type: 'spline'
-//      },
-//      title: {
-//        text: 'Andamento percentuale dei pagamenti rispetto ai contributi comunitari'
-//      },
-//      subtitle: {
-//        //text: 'Il grafico mostra'
-//      },
-//      series: series_conv,
-//      xAxis: {
-//        categories: regioni
-//      }
-//    }));
+    function print_column_chart(container, source) {
 
+      var categories = [];
+      var series_da_spendere = [];
+      var series_spesi = [];
+
+      $('tr', source).each( function(i, row){
+
+        var values = $(i == 0 ? 'th' : 'td', row).map( function(j, cell) { return $(cell).text(); }) ;
+        values = $.makeArray(values);
+
+        if ( i == 0 ) {
+          return;
+        }
+        else {
+          var nome = values.shift();
+          if ( nome == 'Totale' ) { return ; }
+          var costo_pubblico = parseInt(values.shift());
+          var contributo_comunitario = parseInt(values.shift());
+          var somma = 0; $.each(values,function(j, parziale) { somma += parseInt(parziale); });
+
+          categories.push(nome);
+          series_da_spendere.push( contributo_comunitario - somma );
+          series_spesi.push( somma );
+        }
+      });
+
+      return new Highcharts.Chart($.extend(true, {}, column_chart_options, {
+        chart: {
+          renderTo: container,
+          type : 'column'
+        },
+        title: {
+          text: $('caption', source).text()
+        },
+        xAxis: {
+          categories: categories
+        },
+        series: [
+          { data: series_da_spendere },
+          { data: series_spesi }
+        ]
+      }));
+    }
+
+    print_column_chart('chart_fesr_competitivita','#chart_fesr_table');
+    print_column_chart('chart_fse_competitivita','#chart_fse_table');
+
+
+    print_column_chart('chart_convergenza_fse_regioni', '#chart_fse_table_conv_regioni');
+    print_column_chart('chart_convergenza_fse_temi', '#chart_fse_table_conv_temi');
+    print_column_chart('chart_convergenza_fesr_regioni', '#chart_fesr_table_conv_regioni');
+    print_column_chart('chart_convergenza_fesr_temi', '#chart_fesr_table_conv_temi');
 
   });
   </script>
@@ -393,6 +275,7 @@
     <ul class="nav nav-tabs">
       <li class="active"><a href="#fondi-europei" data-toggle="tab">Fondi Europei</a></li>
       <li><a href="#fondi-nazionali" data-toggle="tab">Fondi Nazionali</a></li>
+      <li><a href="#altri-interventi" data-toggle="tab">Fondi precedenti al 2007</a></li>
     </ul>
     <div class="tab-content">
       <div class="tab-pane active area" id="fondi-europei">
@@ -418,25 +301,34 @@
 
         <br>
 
-        <h2 class="title"><span>Area Competitività regionale e occupazione</span></h2>
-
+        <h2 class="title"><span>Area Convergenza</span></h2>
         <p>
           Tutte le regioni ad eccezione di quelle dell’area Convergenza. In queste aree i progetti sono volti alla competitività e all’attrattività, nonché all’occupazione a livello regionale.  In Italia: tutte le Regioni del Centro-Nord, più Abruzzo, Molise e Sardegna. Le fonti di finanziamento disponibili sono il Fondo europeo di sviluppo regionale, Fondo sociale europeo
         </p>
+        <div id="chart_convergenza" style="height: 250px; width: 100%;"></div>
+        {% include 'commons/table_found.html' with table_name="Andamento percentuale dei pagamenti rispetto ai contributi comunitari" table_id="chart_fesr_fse_table_conv" table_class="chart_table hidden" table_rows=convergenza_fesr_fse %}
+        <hr>
+        <div id="chart_convergenza_fse_regioni" style="height: 400px; width: 100%;"></div>
+        {% include 'commons/table_found.html' with table_name="Fondo FSE: confronto della spesa tra le regioni al 31.12.2011" table_id="chart_fse_table_conv_regioni" table_class="chart_table hidden" table_rows=fse_data_conv_regioni %}
+        <hr>
+        <div id="chart_convergenza_fse_temi" style="height: 400px; width: 100%;"></div>
+        {% include 'commons/table_found.html' with table_name="Fondo FSE: confronto della spesa per i temi al 31.12.2011" table_id="chart_fse_table_conv_temi" table_class="chart_table hidden" table_rows=fse_data_conv_temi %}
+        <hr>
+        <div id="chart_convergenza_fesr_regioni" style="height: 400px; width: 100%;"></div>
+        {% include 'commons/table_found.html' with table_name="Fondo FESR: confronto della spesa tra le regioni al 31.12.2011" table_id="chart_fesr_table_conv_regioni" table_class="chart_table hidden" table_rows=fesr_data_conv_regioni %}
+        <hr>
+        <div id="chart_convergenza_fesr_temi" style="height: 400px; width: 100%;"></div>
+        {% include 'commons/table_found.html' with table_name="Fondo FESR: confronto della spesa per i temi al 31.12.2011" table_id="chart_fesr_table_conv_temi" table_class="chart_table hidden" table_rows=fesr_data_conv_temi %}
 
+        <h2 class="title"><span>Area Competitività regionale e occupazione</span></h2>
         <div id="chart_competitivita" style="height: 250px; width: 100%;"></div>
+        {% include 'commons/table_found.html' with table_name="Andamento percentuale dei pagamenti rispetto ai contributi comunitari" table_id="chart_fesr_fse_table_comp" table_class="chart_table hidden" table_rows=competitivita_fesr_fse %}
         <hr>
         <div id="chart_fse_competitivita" style="height: 400px; width: 100%;"></div>
+        {% include 'commons/table_found.html' with table_name="Fondo FSE: confronto della spesa tra le regioni al 31.12.2011" table_id="chart_fse_table" table_class="chart_table hidden" table_rows=fse_data_comp %}
         <hr>
-        <div id="chart_fers_competitivita" style="height: 400px; width: 100%;"></div>
-
-        <h2 class="title"><span>Convergenza</span></h2>
-        {#    <div id="chart_convergenza" style="height: 250px; width: 100%;"></div>#}
-
-        {% include 'commons/table_found.html' with table_name="Fondo FSE" table_id="chart_fse_table" table_class="chart_table hidden" table_rows=fse_data_comp %}
-        {% include 'commons/table_found.html' with table_name="Fondo FESR" table_id="chart_fers_table" table_class="chart_table hidden" table_rows=fers_data_comp %}
-        {% include 'commons/table_found.html' with table_name="Fondo FSE" table_id="chart_fse_table_conv" table_class="chart_table_conv hidden" table_rows=fse_data_conv %}
-        {% include 'commons/table_found.html' with table_name="Fondo FESR" table_id="chart_fers_table_conv" table_class="chart_table_conv hidden" table_rows=fers_data_conv %}
+        <div id="chart_fesr_competitivita" style="height: 400px; width: 100%;"></div>
+        {% include 'commons/table_found.html' with table_name="Fondo FESR: confronto della spesa tra le regioni al 31.12.2011" table_id="chart_fesr_table" table_class="chart_table hidden" table_rows=fesr_data_comp %}
 
 
       </div>
@@ -468,6 +360,28 @@
           Tra il 2008 e 2009. il FSC è stato utilizzato anche per alimentare tre Fondi nazionali per interventi su Infrastrutture, Sostegno all’occupazione e Sostegno alla competitività del Paese non originariamente previsti tra gli strumenti di attuazione nel QSN 2007-2011. Il CIPE ha recentemente approvato una serie di delibere a sostegno della programmazione nazionale e regionale del Fondo Sviluppo e Coesione, confermando l’impegno preso dal Governo Monti con gli Enti locali e restituendo certezza sul finanziamento effettivo di larga parte delle opere che avevano sofferto dei tagli al Fondo apportati con le manovre finanziarie dell’estate 2011. Per effetto delle ultime delibere il Fondo è tornato a svolgere un ruolo molto importante per il finanziamento di interventi infrastrutturali, per la messa in sicurezza di edifici scolastici, per l’attività di contrasto al rischio di dissesto idro-geologico e per interventi a favore delle imprese.
         </p>
 
+        <p>
+          <strong>Qui i grafici dei fondi CIPE quando saranno disponibili</strong>
+        </p>
+
+      </div>
+      <div class="tab-pane area" id="altri-interventi">
+        <p>
+          L’attuale realizzazione di interventi della politica territoriale di coesione non riguarda solo quanto definito per il ciclo 2007-2013,
+          bensì anche la continuazione d’interventi definiti e l’impiego di risorse assegnate precedentemente.
+        </p>
+
+        <p>
+          In particolare, è ancora in corso di attuazione una parte di interventi a valere sulle risorse del fondo
+          aree sottoutilizzate (FAS) assegnato a amministrazioni centrali e regionali prima del 2007 e di interventi a
+          valere su risorse relative al ciclo di programmazione comunitaria 2000-2006 formalmente conclusosi nel 2009.
+        </p>
+
+        <p>
+          In quest’ultimo caso si tratta di risorse, oggi totalmente nazionali, che sono state riconosciute come disponibili alla chiusura dei
+          programmi comunitari che hanno incluso contabilmente anche progetti il cui finanziamento era avvenuto su fonti finanziarie
+          diverse e che hanno quindi ‘liberato’ fondi per nuovi progetti, in larga parte già individuati negli ultimi anni e quindi in corso di attuazione.
+        </p>
       </div>
     </div>
   </div>
@@ -516,12 +430,6 @@
 
     <div id="chart" style="width: 100%; height: 200px"></div>
 
-    <h4>Che cos’è il FESR</h4>
-    <p>Fondo europeo per lo sviluppo regionale. Viene utilizzato per finanziare i programmi operativi nazionali e regionali in tutti i territori: complessivamente XX programmi del ciclo attuale sono finanziati con il FESR. Sostiene programmi in materia di sviluppo regionale, di potenziamento della competitività, di investimenti nella ricerca e nello sviluppo sostenibile.</p>
-
-    <h4>Che cos’è il FSE</h4>
-    <p>Fondo sociale europeo. Destinato a sostenere l’occupazione negli Stati membri e per promuovere la coesione economica e sociale. Viene utilizzato per finanziare complessivamente XX programmi del ciclo attuale. È modellato sulla strategia europea per l’occupazione e si concentra sull’inclusione sociale e su un accesso al mercato del lavoro privo di discriminazioni di genere.</p>
-
     <h4>Programmi operativi</h4>
     <p>I fondi europei (insieme al co-finanziamento nazionale) assegnati ai territori vengono impegnati attraverso programmi operativi. Nell’attuale ciclo di programmazione 2007-2013 i programmi operativi che impiegano FESR e FSE sono 66.</p>
 
@@ -533,6 +441,12 @@
 
     <h4>Che cosa sono i POIN</h4>
     <p>Programmi operativi inter-regionali. Si sceglie il livello inter-regionale, piuttosto che quello regionale, quando lo scopo è quello di agire su economie di scala o di scopo. La gestione dei POIN è congiunta: viene affidata alle Regioni con la partecipazione di centri di competenza nazionale o di amministrazioni centrali.</p>
+
+    <h4>Che cos’è il FESR</h4>
+    <p>Fondo europeo per lo sviluppo regionale. Viene utilizzato per finanziare i programmi operativi nazionali e regionali in tutti i territori: complessivamente XX programmi del ciclo attuale sono finanziati con il FESR. Sostiene programmi in materia di sviluppo regionale, di potenziamento della competitività, di investimenti nella ricerca e nello sviluppo sostenibile.</p>
+
+    <h4>Che cos’è il FSE</h4>
+    <p>Fondo sociale europeo. Destinato a sostenere l’occupazione negli Stati membri e per promuovere la coesione economica e sociale. Viene utilizzato per finanziare complessivamente XX programmi del ciclo attuale. È modellato sulla strategia europea per l’occupazione e si concentra sull’inclusione sociale e su un accesso al mercato del lavoro privo di discriminazioni di genere.</p>
 
     <h4>Che cosa è la Cooperazione territoriale europea:</h4>
     <p>Sono programmi intesi a rafforzare la cooperazione transfrontaliera, transnazionale ed interregionale, promuovendo la ricerca di soluzioni congiunte a problemi comuni tra le autorità confinanti. L'azione è finanziata dal Fondo europeo di sviluppo regionale.</p>
