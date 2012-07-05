@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.gis import admin
 from django.conf import settings
+from django.views.decorators.cache import cache_page
 from django.views.generic.base import TemplateView
 from open_coesione.views import HomeView, FondiView, RisorseView
 
@@ -14,7 +15,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     # home
-    url(r'^$', HomeView.as_view(), name='home'),
+    url(r'^$', cache_page(60)(HomeView.as_view()), name='home'),
 
     # progetti
     url(r'^progetti/', include('progetti.urls')),
