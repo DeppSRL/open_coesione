@@ -19,9 +19,9 @@ class ChartView(TemplateView):
 
 urlpatterns = patterns('',
     url(r'^regioni/(?P<slug>[-\w]+)/$',
-       cache_page()(RegioneView.as_view()), name='territori_regione'),
+       cache_page(key_prefix='regione')(RegioneView.as_view()), name='territori_regione'),
     url(r'^province/(?P<slug>[-\w]+)/$',
-       cache_page()(ProvinciaView.as_view()), name='territori_provincia'),
+       cache_page(key_prefix='provincia')(ProvinciaView.as_view()), name='territori_provincia'),
     url(r'^comuni/(?P<slug>[-\w]+)/$',
        ComuneView.as_view(), name='territori_comune'),
     url(r'^info/(?P<tipo>[\w]+)/(?P<lat>[-\d\.]+)/(?P<lng>[-\d\.]+)/$',

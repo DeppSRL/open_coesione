@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     # home
-    url(r'^$', cache_page()(HomeView.as_view()), name='home'),
+    url(r'^$', cache_page(key_prefix='home')(HomeView.as_view()), name='home'),
 
     # progetti
     url(r'^progetti/', include('progetti.urls')),
