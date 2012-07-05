@@ -97,6 +97,8 @@
 
           <div class="bar-vertical"></div>
 
+          <div class="caret"></div>
+
 {#          <div style="position: absolute; bottom: -16px; left: 5px; color: black; font-size: 10px; text-transform: none;">#}
 {#            *Dati aggiornati al 31.12.2011#}
 {#          </div>#}
@@ -109,7 +111,9 @@
 
           <p>{{ total_cost_paid|intword }} <span>di euro</span></p>
 
-          <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}"></span></div>
+          <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}">{{ cost_payments_ratio }}</span></div>
+
+          <i class="icon-undo"></i>
 
         </div>
 
@@ -118,6 +122,8 @@
           <strong class="title">Progetti monitorati</strong>
 
           <p>{{ total_projects|intcomma }}</p>
+
+          <i class="icon-undo"></i>
 
         </div>
 
@@ -129,6 +135,7 @@
         <a class="block-chart block-gray pull-right" href="/fonti-di-finanziamento/">
           <strong class="title">Risorse totali 2007-2013*</strong>
           <p>102.668 milioni <span>di euro</span></p>
+          <i class="icon-share-alt"></i>
         </a>
 
         <p id="claim">“Per promuovere lo sviluppo economico,
@@ -155,12 +162,13 @@
         {% if soggetto %}
           <div class="span12">
             <h1 class="title violet" style="margin-bottom: 0;"><span>{{ soggetto.denominazione }}</span></h1>
-
-
-            {% if soggetto.forma_giuridica %}<p>{{ soggetto.forma_giuridica }}</p>{% endif %}
-            {% if soggetto.indirizzo %}<p>{{ soggetto.indirizzo }}</p>{% endif %}
-            {% if soggetto.rappresentante_legale %}<p>Rappresentante legale: {{ soggetto.rappresentante_legale }}</p>{% endif %}
-            {% if soggetto.codice_fiscale and soggetto.codice_fiscale != ' ' %}<p>CF.: {{ soggetto.codice_fiscale }}</p>{% endif %}
+            <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="#">Tutti i progetti</a></p>
+            <ul class="unstyled">
+            {% if soggetto.forma_giuridica %}<li>{{ soggetto.forma_giuridica }}</li>{% endif %}
+            {% if soggetto.indirizzo %}<li>{{ soggetto.indirizzo }}</li>{% endif %}
+            {% if soggetto.rappresentante_legale %}<li>Rappresentante legale: {{ soggetto.rappresentante_legale }}</li>{% endif %}
+            {% if soggetto.codice_fiscale.strip %}<li>CF.: {{ soggetto.codice_fiscale }}</li>{% endif %}
+            </ul>
           </div>
         {% endif %}
 
@@ -171,21 +179,21 @@
             {% if territorio %}
               <div class="span6">
               <h1 class="title black" style="margin-bottom: 0;"><span>{{ territorio.get_territorio_display }} {% if territorio.territorio != 'R' %}di {% endif %}{{ territorio }}</span></h1>
-              <p><a href="{% url progetti_search %}?q=&selected_facets=regions:{{ territorio.cod_reg }}" style="text-transform: none;padding-left: 25px;">Vai a tutti i progetti</a></p>
+              <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=regions:{{ territorio.cod_reg }}">Vai a tutti i progetti</a></p>
               </div>
             {% endif %}
 
             {% if tema %}
               <div class="span6">
                 <h1 class="title black" style="margin-bottom: 0;"><span>Tema: {{ tema.short_label }}</span></h1>
-                <p><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}" style="text-transform: none;padding-left: 25px;">Vai a tutti i progetti</a></p>
+                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}">Vai a tutti i progetti</a></p>
               </div>
             {% endif %}
 
             {% if tipologia %}
               <div class="span6">
                 <h1 class="title black" style="margin-bottom: 0;"><span>Natura: {{ tipologia.short_label }}</span></h1>
-                <p><a href="{% url progetti_search %}?q=&selected_facets=tipologia:{{ tipologia.codice }}" style="text-transform: none;padding-left: 25px;">Vai a tutti i progetti</a></p>
+                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=tipologia:{{ tipologia.codice }}">Vai a tutti i progetti</a></p>
               </div>
             {% endif %}
 

@@ -1,9 +1,12 @@
 import numpy as np
-from pysal.esda import mapclassify as mc
 
 class DataClassifier:
 
-    def __init__(self, data, classifier_class=mc.Fisher_Jenks, classifier_args=None, colors_map=None):
+    def __init__(self, data, classifier_class=None, classifier_args=None, colors_map=None):
+        if not classifier_class:
+            from pysal.esda import mapclassify as mc
+            classifier_class = mc.Fisher_Jenks
+
         self.classifier_class = classifier_class
         self.classifier_args = classifier_args
         self.colors_map = colors_map
