@@ -111,7 +111,9 @@
 
           <p>{{ total_cost_paid|intword }} <span>di euro</span></p>
 
-          <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}"></span></div>
+          <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}">{{ cost_payments_ratio }}</span></div>
+
+          <i class="icon-undo"></i>
 
         </div>
 
@@ -120,6 +122,8 @@
           <strong class="title">Progetti monitorati</strong>
 
           <p>{{ total_projects|intcomma }}</p>
+
+          <i class="icon-undo"></i>
 
         </div>
 
@@ -131,6 +135,7 @@
         <a class="block-chart block-gray pull-right" href="/fonti-di-finanziamento/">
           <strong class="title">Risorse totali 2007-2013*</strong>
           <p>102.668 milioni <span>di euro</span></p>
+          <i class="icon-share-alt"></i>
         </a>
 
         <p id="claim">“Per promuovere lo sviluppo economico,

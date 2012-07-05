@@ -4172,10 +4172,10 @@ a.thumbnail:hover {
 }
 .block-chart .bar-vertical {
   width: 6px;
-  height: 100px;
+  height: 80px;
   position: absolute;
   right: 5px;
-  bottom: 5px;
+  bottom: 35px;
   background-color: #70cabf;
 }
 .block-chart .bar-vertical  > span {
@@ -4191,6 +4191,12 @@ a.thumbnail:hover {
   background-image: linear-gradient(top, #006d61, #003a33);
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#006d61', endColorstr='#003a33', GradientType=0);
+  overflow: visible;
+  text-indent: -30px;
+  color: black;
+  font-weight: bold;
+  font-size: .9em;
+  text-shadow: 0 1px 0 #ffffff;
 }
 .block-chart .caret {
   width: 0;
@@ -4220,6 +4226,13 @@ a.thumbnail:hover {
   color: #008678;
   cursor: pointer;
 }
+.block-chart i {
+  color: #8ad2c6;
+  font-size: 22px;
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
 .block-chart.block-active,
 .block-chart:hover {
   text-shadow: 0 1px 0 #676462;
@@ -4233,6 +4246,11 @@ a.thumbnail:hover {
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#afe0d8', endColorstr='#008678', GradientType=0);
   color: #ffffff;
+}
+.block-chart.block-active i,
+.block-chart:hover i {
+  color: #00534a;
+  text-shadow: 0 1px 0 #eae9e5;
 }
 .block-chart.block-active .bar-vertical,
 .block-chart:hover .bar-vertical {
@@ -4251,6 +4269,9 @@ a.thumbnail:hover {
   color: #564509;
   text-decoration: none;
 }
+.block-chart.block-gray i {
+  color: #b1aea8;
+}
 .block-chart.block-gray.block-active,
 .block-chart.block-gray:hover {
   background-color: #afa78d;
@@ -4263,6 +4284,10 @@ a.thumbnail:hover {
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eae9e5', endColorstr='#564509', GradientType=0);
   color: #ffffff;
+}
+.block-chart.block-gray.block-active i,
+.block-chart.block-gray:hover i {
+  color: #282004;
 }
 .block-container .block-chart {
   width: 32%;

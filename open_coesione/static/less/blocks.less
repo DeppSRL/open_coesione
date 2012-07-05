@@ -31,9 +31,9 @@
   }
 
   .bar-vertical {
-    width: 6px; height: 100px;
+    width: 6px; height: 80px;
     position:absolute;
-    right:5px; bottom:5px;
+    right:5px; bottom:35px;
     background-color: #70cabf;
 
     & > span {
@@ -41,6 +41,13 @@
       bottom:0;
       width: 100%;
       #gradient > .vertical(darken(@greenDark, 5%), darken(@greenDark, 15%) );
+
+      overflow: visible;
+      text-indent: -30px;
+      color: black;
+      font-weight: bold;
+      font-size: .9em;
+      text-shadow: 0 1px 0 @white;
     }
   }
 
@@ -65,11 +72,24 @@
   color: @greenDark;
   cursor: pointer;
 
+  i {
+    color: darken(@green, 10%);
+    font-size: 22px;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+  }
+
   &.block-active, &:hover {
     //background-color: @greenDark;
     text-shadow: 0 1px 0 @grayDark;
     #gradient > .vertical( @green, @greenDark );
     color: @white;
+
+    i {
+      color: darken(@greenDark, 10%);
+      text-shadow: 0 1px 0 @grayLighter;
+    }
 
     .bar-vertical {
       background-color: @green;
@@ -83,9 +103,17 @@
   color: @brown;
   text-decoration: none;
 
+  i {
+    color: darken(@gray, 10%);
+  }
+
   &.block-active, &:hover {
     #gradient > .vertical( @grayLighter, @brown );
     color: @white;
+
+    i {
+      color: darken(@brown, 10%);
+    }
   }
 }
 
