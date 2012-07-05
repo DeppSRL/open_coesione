@@ -22,7 +22,7 @@
         <StyleName>countries-outline</StyleName>
         <StyleName>countries</StyleName>
         <Datasource>
-            <Parameter name="file"><![CDATA[/Users/guglielmo/Documents/MapBox/project/regioni/layers/countries/82945364-10m-admin-0-countries.shp]]></Parameter>
+            <Parameter name="file"><![CDATA[{{ countries_shp_file }}]]></Parameter>
             <Parameter name="type"><![CDATA[shape]]></Parameter>
         </Datasource>
     </Layer>

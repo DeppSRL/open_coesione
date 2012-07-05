@@ -149,6 +149,7 @@ class MapnikView(TemplateView):
         context['codice_field'] = self.codice_field
         context['srs'] = self.srs
         context['shp_file'] = self.shp_file
+        context['countries_shp_file'] = '{0}/dati/countries.shp'.format(settings.REPO_ROOT)
 
         self.refine_context(context)
 
