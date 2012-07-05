@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+from django.views.decorators.cache import cache_page
 from soggetti.views import SoggettiView, SoggettoView
 
 
@@ -7,6 +8,6 @@ urlpatterns = patterns('',
    url(r'^$', SoggettiView.as_view(), name='soggetti_soggetti'),
 
    # dettaglio soggetto
-   url(r'^(?P<slug>[\w-]+)$', SoggettoView.as_view(), name='soggetti_soggetto'),
+   url(r'^(?P<slug>[\w-]+)$', cache_page()(SoggettoView.as_view()), name='soggetti_soggetto'),
 )
 
