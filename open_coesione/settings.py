@@ -160,17 +160,17 @@ TEMPLATE_CONTEXT_PROCESSORS += (
 )
 
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
-        'TIMEOUT': 86400,
-    }
-}
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+#        'LOCATION': '127.0.0.1:11211',
+#        'TIMEOUT': 86400,
+#    }
+#}
 
 # used in middleware for site-wide caching
-CACHE_MIDDLEWARE_SECONDS = 86400
-CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
+#CACHE_MIDDLEWARE_SECONDS = 86400
+#CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
