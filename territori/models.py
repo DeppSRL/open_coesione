@@ -51,6 +51,9 @@ class Territorio(models.Model):
     slug = models.SlugField(max_length=256, null=True, blank=True)
     territorio = models.CharField(max_length=1, choices=TERRITORIO, db_index=True)
     geom = models.MultiPolygonField(srid=4326, null=True, blank=True)
+    popolazione_totale = models.IntegerField(null=True, blank=True)
+    popolazione_maschile = models.IntegerField(null=True, blank=True)
+    popolazione_femminile = models.IntegerField(null=True, blank=True)
 
     objects = TerritoriManager()
 
