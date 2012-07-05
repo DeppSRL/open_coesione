@@ -97,7 +97,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '<< CHANGE ME >>'
+SECRET_KEY = '17694aR4nKPPllkk90'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -107,7 +107,9 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+#    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
+#    'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -162,8 +164,13 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': '127.0.0.1:11211',
-        }
+        'TIMEOUT': 86400,
+    }
 }
+
+# used in middleware for site-wide caching
+CACHE_MIDDLEWARE_SECONDS = 86400
+CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
