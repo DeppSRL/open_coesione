@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url, include
 from django.views.generic.base import TemplateView
 
-from territori.views import RegioneView, ComuneView, ProvinciaView, InfoView, TilesConfigView, LeafletView
+from territori.views import RegioneView, ComuneView, ProvinciaView, InfoView, TilesConfigView
 
 class ChartView(TemplateView):
     template_name='territori/index_chart.html'
@@ -27,7 +27,7 @@ urlpatterns = patterns('',
     url(r'^info/(?P<tipo>[\w]+)/(?P<lat>[-\d\.]+)/(?P<lng>[-\d\.]+)/$',
        InfoView.as_view(), name='territori_info'),
     url(r'^tiles.cfg$', TilesConfigView.as_view(), name='territori_tiles_cfg'),
-    url(r'^mapnick/', include('territori.urls.mapnick')),
+    url(r'^mapnik/', include('territori.urls.mapnik')),
     url(r'^leaflet/', include('territori.urls.leaflet')),
     url(r'^polymaps.html$', TemplateView.as_view(template_name='territori/polymaps.html'), name='territori_polymaps'),
     url(r'^highcharts.html$', TemplateView.as_view(template_name='territori/highcharts.html'), name='territori_highcharts'),

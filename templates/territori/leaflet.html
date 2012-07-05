@@ -50,7 +50,7 @@
         attributionControl: false
     });
 
-    var territori = new L.TileLayer('http://localhost:8099/{{ layer_name }}/{z}/{x}/{y}.png');
+    var territori = new L.TileLayer('{{ TILESTACHE_URL }}/{{ layer_name }}/{z}/{x}/{y}.png');
 
 
     var southWest = new L.LatLng({{ bounds.southwest.lat }},{{ bounds.southwest.lng }}),
@@ -64,10 +64,10 @@
     var popup = new L.Popup();
     function onMapClick(e) {
         var latlngStr = '(' + e.latlng.lat.toFixed(3) + ', ' + e.latlng.lng.toFixed(3) + ')';
-        var info_url = 'http://localhost:8020/territori/info/' +
+        var info_url = '{{ info_base_url }}/' +
             '{{ layer_type }}/' +
             e.latlng.lat.toFixed(3) + "/" +
-            e.latlng.lng.toFixed(3) + "/"
+            e.latlng.lng.toFixed(3) + "/";
         jQuery.get(info_url, function(data) {
             popup.setLatLng(e.latlng);
             popup.setContent(

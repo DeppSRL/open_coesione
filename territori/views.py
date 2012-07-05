@@ -6,6 +6,7 @@ from django.http import HttpResponse, Http404
 from django.contrib.gis.geos import Point
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
+from django.conf import settings
 from open_coesione.views import AggregatoView
 from open_coesione.data_classification import DataClassifier
 from progetti.models import Progetto, Tema, ClassificazioneAzione
@@ -103,12 +104,13 @@ class LeafletView(TemplateView):
         context['layer_type'] = path.split("/")[-1:][0][0:1].upper()
 
         # read legend html directly from mapnik xml (which should be cached at this point)
-        mapnik_xml_path = "%s.xml?tematizzazione=%s" % (re.sub(r'leaflet', 'mapnick', path), tematizzazione)
+        mapnik_xml_path = "%s.xml?tematizzazione=%s" % (re.sub(r'leaflet', 'mapnik', path), tematizzazione)
         mapnik_xml_url = "http://%s%s" % (Site.objects.get_current(), mapnik_xml_path)
         mapnik_xml = urllib.urlopen(mapnik_xml_url)
         tree = etree.parse(mapnik_xml, parser=etree.XMLParser())
         context['legend_html'] = tree.getroot()[0].text
-        print context['legend_html']
+
+        context['info_base_url'] = "http://{0}/territori/info".format(Site.objects.get_current())
         return context
 
 class TilesConfigView(TemplateView):
@@ -119,15 +121,16 @@ class TilesConfigView(TemplateView):
         context['tematizzazioni'] = ('totale_costi', 'totale_costi_pagati', 'totale_progetti')
         context['regioni'] = Territorio.objects.filter(territorio='R')
         context['province'] = Territorio.objects.filter(territorio='P')
+        context['mapnik_base_url'] = "http://{0}/territori/mapnik".format(Site.objects.get_current())
 
         return context
 
-class MapnickView(TemplateView):
+class MapnikView(TemplateView):
     """
-    Base class for rendering xml Mapnick files
+    Base class for rendering xml Mapnik files
     """
     territori_name = 'Territori'
-    template_name = 'territori/mapnick.xml'
+    template_name = 'territori/mapnik.xml'
     queryset = Territorio.objects.all()
     filter = None
 
@@ -141,7 +144,7 @@ class MapnickView(TemplateView):
     }
 
     def get_context_data(self, **kwargs):
-        context = super(MapnickView, self).get_context_data(**kwargs)
+        context = super(MapnikView, self).get_context_data(**kwargs)
         context['territori_name'] = self.territori_name
         context['codice_field'] = self.codice_field
         context['srs'] = self.srs
@@ -187,22 +190,22 @@ class MapnickView(TemplateView):
         pass
 
 
-class MapnickRegioniView(MapnickView):
+class MapnikRegioniView(MapnikView):
     territori_name = 'regioni'
     codice_field = 'COD_REG'
     srs = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over"
-    shp_file = '/Users/guglielmo/Workspace/open_coesione/dati/reg2011_g/regioni_stats.shp'
+    shp_file = '{0}/dati/reg2011_g/regioni_stats.shp'.format(settings.REPO_ROOT)
     queryset = Territorio.objects.filter(territorio='R')
 
     def refine_context(self, context):
         pass
 
 
-class MapnickProvinceView(MapnickView):
+class MapnikProvinceView(MapnikView):
     territori_name = 'province'
     codice_field = 'COD_PRO'
     srs = "+proj=utm +zone=32 +ellps=intl +units=m +no_defs"
-    shp_file = '/Users/guglielmo/Workspace/open_coesione/dati/prov2011_g/prov2011_g.shp'
+    shp_file = '{0}/dati/prov2011_g/prov2011_g.shp'.format(settings.REPO_ROOT)
 
     def refine_context(self, context):
         if 'cod_reg' in context['params']:
@@ -213,11 +216,11 @@ class MapnickProvinceView(MapnickView):
             self.queryset = Territorio.objects.filter(territorio='P')
 
 
-class MapnickComuniView(MapnickView):
+class MapnikComuniView(MapnikView):
     territori_name = 'comuni'
     codice_field = 'PRO_COM'
     srs = "+proj=utm +zone=32 +ellps=intl +units=m +no_defs"
-    shp_file = '/Users/guglielmo/Workspace/open_coesione/dati/com2011_g/com2011_g.shp'
+    shp_file = '{0}/dati/com2011_g/com2011_g.shp'.format(settings.REPO_ROOT)
 
     def refine_context(self, context):
         if 'cod_reg' in context['params']:
