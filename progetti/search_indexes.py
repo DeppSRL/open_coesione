@@ -11,13 +11,13 @@ from django.conf import settings
 
 class ProgettoIndex(SearchIndex):
     text = CharField(document=True, use_template=True)
+    territorio = MultiValueField(indexed=True, stored=True)
 
     # faceting fields
     natura = FacetCharField( )
     tema = FacetCharField( )
     data_inizio = FacetDateField(model_attr='data_inizio_effettiva')
     costo = FacetFloatField(model_attr='fin_totale_pubblico')
-    regions = MultiValueField(indexed=True, stored=True, faceted=True)
 
     # search result format is pre-rendered during index phase
     rendered = CharField(use_template=True, indexed=False)
@@ -28,8 +28,8 @@ class ProgettoIndex(SearchIndex):
     def prepare_tema(self, obj):
         return obj.tema.codice.split('.')[0]
 
-    def prepare_regions(self, obj):
-        return [t.cod_reg for t in list(obj.territori)]
+    def prepare_territorio(self, obj):
+        return [t.pk for t in list(obj.territori)]
 
 
 site.register(Progetto, ProgettoIndex)

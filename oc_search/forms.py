@@ -17,10 +17,6 @@ class RangeFacetedSearchForm(SearchForm):
     def search(self):
         sqs = super(RangeFacetedSearchForm, self).search()
 
-        # filter for votations in single act
-        if self.act_url:
-            sqs = sqs.filter(act_url=self.act_url)
-
         # We need to process each facet to ensure that the field name and the
         # value are quoted correctly and separately:
         for facet in self.selected_facets:

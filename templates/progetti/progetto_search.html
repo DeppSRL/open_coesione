@@ -46,13 +46,13 @@
 
 {% block sidebar %}
   <div class="flat_content">
-      {%  comment %}
-      <h4>Cerca tra i progetti</h4>
+        <h4>Cerca tra i progetti</h4>
         <form method="get" action="{% url progetti_search %}" class="form-search">
-            <input type="text" class="input-medium search-query" name="{{ form.q.html_name }}" value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
-            <button type="submit" class="btn">Cerca</button>
+            <input type="text" class="input-medium search-query" name="{{ form.q.html_name }}" value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" /><br/>
+            <input id="location" type="text" class="input-large search-query" placeholder="Inserisci il territorio"/>
+            <input id="location-id" type="hidden" /><br/>
+            <button type="submit" class="btn add-in"><i class="icon-search"> Cerca</i></button>
         </form>
-    {%  endcomment %}
 
     {% if n_results %}
         <!-- Begin faceting. -->
@@ -72,13 +72,6 @@
                     <dd>
                         <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
                         {{ tema.short_label|key:facet.r_label|safe }}
-                    </dd>
-                {% endif %}
-                {% if facet.field == 'regions' and facets.fields.regions.is_field_selected %}
-                    <dt>Regione</dt>
-                    <dd>
-                        <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
-                        {{ regione.denominazione|key:facet.r_label|safe }}
                     </dd>
                 {% endif %}
                 {% if facet.field == 'data_inizio' and facet_queries_date.is_selected %}
@@ -132,19 +125,6 @@
                                 {% endif %}
                             </dd>
                         {% endif %}
-                    {% endfor %}
-                {% endif %}
-            </dl>
-            <dl>
-                {% if facets.fields.regions and not facets.fields.regions.is_field_selected %}
-                    <dt>Regioni</dt>
-                    {# Provide only the top 10 #}
-                    {% for reg in facets.fields.regions.counts %}
-                        <dd>
-                            {% if not reg.2 and reg.1 > 0 and reg.0 != '0' %}
-                                <a href="{{ base_url }}&selected_facets=regions:{{ reg.0|urlencode }}">{{ regione.denominazione|key:reg.0 }}</a> ({{ reg.1 }})
-                            {% endif %}
-                        </dd>
                     {% endfor %}
                 {% endif %}
             </dl>
@@ -216,4 +196,47 @@
         <!-- End faceting -->
     {% endif %}
   </div>
+{% endblock %}
+
+{% block js_content %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#location').focus(function(){
+                if ($(this)._cleared) return;
+                $(this).val('');
+                $(this)._cleared = true;
+            });
+
+
+            $( "#location" ).autocomplete({
+                source: function( request, response ) {
+                    $.getJSON(
+                            "http://localhost:8020/territori/autocomplete/",
+                            {'query': request.term },
+                            function( data ) {
+                                response( $.map( data.territori, function( item ) {
+                                    return {
+                                        label: item.denominazione,
+                                        url: item.url,
+                                        id: item.id
+                                    }
+                                }));
+                            }
+                    );
+                },
+                minLength: 2,
+                select: function( event, ui ) {
+                    $('#location-id').val(ui.item.id);
+                },
+                open: function() {
+                    $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                },
+                close: function() {
+                    $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                }
+            }).css('z-index', 10000);
+
+        });
+    </script>
 {% endblock %}
