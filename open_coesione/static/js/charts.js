@@ -13,7 +13,7 @@ var APP = {
 
 var defaults = {
     credits: { text: 'Fonte: DPS-ISTAT', href:'http://www.istat.it/it/archivio/16777/' },
-    backgroundColor: 'transparent'
+    backgroundColor: '#F7F6F1'
 };
 
 var pie_chart_options = {
@@ -30,7 +30,7 @@ var pie_chart_options = {
             return '<div class="tooltip-box"><b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +'<small>%</small></div>';
         },
         useHTML: true,
-        backgroundColor: 'transparent',
+        backgroundColor: '#F7F6F1',
         borderWidth: 0,
         shadow: false,
         style: {

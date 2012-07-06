@@ -1,5 +1,5 @@
 import csv
-from datetime import date
+from django.conf import settings
 import os
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
@@ -90,26 +90,28 @@ class TipologiaView(AggregatoView, DetailView):
 
         context['numero_soggetti'] = Soggetto.objects.count()
 
-        context['map'] = self.get_map_context()
+#        context['map'] = self.get_map_context()
+        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
+        context['map_legend_colors'] = settings.MAP_COLORS
 
-        context['map']['data'] = {
-            'regioni': {
-                'numero': {},
-                'costo': {},
-                'pagamento' : {},
-                }
-        }
-
-        for regione in Territorio.objects.regioni():
-
-            stats = Progetto.objects.con_natura(self.object).aggregate(
-                numero=Count('codice_locale'),
-                costo=Sum('fin_totale_pubblico'),
-                pagamento=Sum('pagamento'),
-            )
-
-            for key in stats:
-                context['map']['data']['regioni'][key][regione.cod_reg] = float(stats[key]) if key != 'numero' else int(stats[key])
+#        context['map']['data'] = {
+#            'regioni': {
+#                'numero': {},
+#                'costo': {},
+#                'pagamento' : {},
+#                }
+#        }
+#
+#        for regione in Territorio.objects.regioni():
+#
+#            stats = Progetto.objects.con_natura(self.object).aggregate(
+#                numero=Count('codice_locale'),
+#                costo=Sum('fin_totale_pubblico'),
+#                pagamento=Sum('pagamento'),
+#            )
+#
+#            for key in stats:
+#                context['map']['data']['regioni'][key][regione.cod_reg] = float(stats[key]) if key != 'numero' else int(stats[key])
 
         return context
 
@@ -145,26 +147,29 @@ class TemaView(AggregatoView, DetailView):
 
         context['numero_soggetti'] = Soggetto.objects.count()
 
-        context['map'] = self.get_map_context()
+        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
+        context['map_legend_colors'] = settings.MAP_COLORS
 
-        context['map']['data'] = {
-            'regioni': {
-                'numero': {},
-                'costo': {},
-                'pagamento' : {},
-            }
-        }
-
-        for regione in Territorio.objects.regioni():
-
-            stats = Progetto.objects.nel_territorio(regione).aggregate(
-                numero=Count('codice_locale'),
-                costo=Sum('fin_totale_pubblico'),
-                pagamento=Sum('pagamento'),
-            )
-
-            for key in stats:
-                context['map']['data']['regioni'][key][regione.cod_reg] = float(stats[key]) if key != 'numero' else int(stats[key])
+#        context['map'] = self.get_map_context()
+#
+#        context['map']['data'] = {
+#            'regioni': {
+#                'numero': {},
+#                'costo': {},
+#                'pagamento' : {},
+#            }
+#        }
+#
+#        for regione in Territorio.objects.regioni():
+#
+#            stats = Progetto.objects.nel_territorio(regione).aggregate(
+#                numero=Count('codice_locale'),
+#                costo=Sum('fin_totale_pubblico'),
+#                pagamento=Sum('pagamento'),
+#            )
+#
+#            for key in stats:
+#                context['map']['data']['regioni'][key][regione.cod_reg] = float(stats[key]) if key != 'numero' else int(stats[key])
 
         context['lista_indici_tema'] = csv.DictReader(open(os.path.join(REPO_ROOT, 'open_coesione/static/csv/indicatori/{0}.csv'.format(self.object.codice))))
 

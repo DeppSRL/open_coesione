@@ -23,7 +23,8 @@ class AccessControlView(object):
 
 
 class AggregatoView(AccessControlView):
-    pass
+    def get_map_context(self, territorio=None, **options):
+        pass
 #
 #    def get_map_context(self, territorio=None, **options):
 #
