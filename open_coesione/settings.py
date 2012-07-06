@@ -168,6 +168,14 @@ CACHES = {
     }
 }
 
+MAP_COLORS = {
+    'c0': '#eae7df',
+    'c1': '#c9c7c3',
+    'c2': '#969491',
+    'c3': '#676462',
+    'c4': '#2d2b2a',
+}
+
 # used in middleware for site-wide caching
 # CACHE_MIDDLEWARE_SECONDS = 86400
 # CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True

@@ -212,7 +212,7 @@
             $( "#location" ).autocomplete({
                 source: function( request, response ) {
                     $.getJSON(
-                            "http://localhost:8020/territori/autocomplete/",
+                            "/territori/autocomplete/",
                             {'query': request.term },
                             function( data ) {
                                 response( $.map( data.territori, function( item ) {
