@@ -31,251 +31,288 @@
     <script type="text/javascript" src="{{ STATIC_URL }}leaflet-dist/leaflet.js"></script>
   {% endaddtoblock %}
 
-  {{ block.super }}
+    {{ block.super }}
 
-  <script type="text/javascript">
-  function number_format( number, decimals, dec_point, thousands_sep ) {
-    // http://kevin.vanzonneveld.net
-    // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
-    // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-    // +	 bugfix by: Michael White (http://crestidg.com)
-    // +	 bugfix by: Benjamin Lupton
-    // +	 bugfix by: Allan Jensen (http://www.winternet.no)
-    // +	revised by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
-    // *	 example 1: number_format(1234.5678, 2, '.', '');
-    // *	 returns 1: 1234.57
-
-    var n = number, c = isNaN(decimals = Math.abs(decimals)) ? 2 : decimals;
-    var d = dec_point == undefined ? "," : dec_point;
-    var t = thousands_sep == undefined ? "." : thousands_sep, s = n < 0 ? "-" : "";
-    var i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "", j = (j = i.length) > 3 ? j % 3 : 0;
-
-    return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
-  }
-  var intcomma = function( number, decimals ) {
-    decimals = decimals === undefined ? 0 : decimals;
-    return number_format( number, decimals, ',', '.' );
-  };
-  var intword = function( number ) {
-    number = parseInt( number );
-    if( number < 100 ) {
-      return number;
-    } else if( number < 1000000 ) {
-      return intcomma( number, 0 );
-    } else if( number < 1000000000 ) {
-      return intcomma( number / 1000000.0, 1 ) + " mil.";
-    } else /*if( number < 1000000000000 )*/ { //senseless on a 32 bit system probably.
-      return intcomma( number / 1000000000.0, 1 ) + " mld.";
-    }
-    return "" + number;	// too big.
-  };
-
-var MAPPA, MAPPA_LAYER, MAPPA_ONCLICK;
-
-    $(document).ready(function() {
-
-      $('#main_topics').length && print_pie_chart('#main_topics', 'main_topics_chart' );
-      $('#main_types').length && print_pie_chart('#main_types', 'main_types_chart' );
-
-
-
-      /*
-       * Ajax overlay 1.0
-       * Author: Simon Ilett @ aplusdesign.com.au
-       * Descrip: Creates and inserts an ajax loader for ajax calls / timed events
-       * Date: 03/08/2011
-       */
-      function ajaxLoader (el, options) {
-        // Becomes this.options
-        var defaults = {
-          bgColor 		: '#fff',
-          duration		: 800,
-          opacity			: 0.7,
-          classOveride 	: false
-        }
-        this.options 	= jQuery.extend(defaults, options);
-        this.container 	= $(el);
-
-        this.init = function() {
-          var container = this.container;
-          // Delete any other loaders
-          this.remove();
-          // Create the overlay
-          var overlay = $('<div></div>').css({
-            'background-color': this.options.bgColor,
-            'opacity':this.options.opacity,
-            'width':container.width(),
-            'height':container.height(),
-            'position':'absolute',
-            'top':'0px',
-            'left':'0px',
-            'z-index':99999
-          }).addClass('ajax_overlay');
-          // add an overiding class name to set new loader style
-          if (this.options.classOveride) {
-            overlay.addClass(this.options.classOveride);
-          }
-          // insert overlay and loader into DOM
-          container.append(
-              overlay.append(
-                  $('<div></div>').addClass('ajax_loader')
-              ).fadeIn(this.options.duration)
-          );
-        };
-
-        this.remove = function(){
-          var overlay = this.container.children(".ajax_overlay");
-          if (overlay.length) {
-            overlay.fadeOut(this.options.classOveride, function() {
-              overlay.remove();
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#map-city').focus(function(){
+                if ($(this)._cleared) return;
+                $(this).val('');
+                $(this)._cleared = true;
             });
+
+
+            $( "#map-city" ).autocomplete({
+                source: function( request, response ) {
+                    $.getJSON(
+                            "/territori/autocomplete/",
+                            {'query': request.term },
+                            function( data ) {
+                                response( $.map( data.territori, function( item ) {
+                                    return {
+                                        label: item.denominazione,
+                                        url: item.url
+                                    }
+                                }));
+                            }
+                    );
+                },
+                minLength: 2,
+                select: function( event, ui ) {
+                    window.location.href = ui.item.url;
+                },
+                open: function() {
+                    $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                },
+                close: function() {
+                    $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                }
+            }).css('z-index', 10000);
+
+        });
+    </script>
+
+    <script type="text/javascript">
+      function number_format( number, decimals, dec_point, thousands_sep ) {
+        // http://kevin.vanzonneveld.net
+        // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
+        // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+        // +	 bugfix by: Michael White (http://crestidg.com)
+        // +	 bugfix by: Benjamin Lupton
+        // +	 bugfix by: Allan Jensen (http://www.winternet.no)
+        // +	revised by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
+        // *	 example 1: number_format(1234.5678, 2, '.', '');
+        // *	 returns 1: 1234.57
+
+        var n = number, c = isNaN(decimals = Math.abs(decimals)) ? 2 : decimals;
+        var d = dec_point == undefined ? "," : dec_point;
+        var t = thousands_sep == undefined ? "." : thousands_sep, s = n < 0 ? "-" : "";
+        var i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "", j = (j = i.length) > 3 ? j % 3 : 0;
+
+        return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+      }
+      var intcomma = function( number, decimals ) {
+        decimals = decimals === undefined ? 0 : decimals;
+        return number_format( number, decimals, ',', '.' );
+      };
+      var intword = function( number ) {
+        number = parseInt( number );
+        if( number < 100 ) {
+          return number;
+        } else if( number < 1000000 ) {
+          return intcomma( number, 0 );
+        } else if( number < 1000000000 ) {
+          return intcomma( number / 1000000.0, 1 ) + " mil.";
+        } else /*if( number < 1000000000000 )*/ { //senseless on a 32 bit system probably.
+          return intcomma( number / 1000000000.0, 1 ) + " mld.";
+        }
+        return "" + number;	// too big.
+      };
+
+      var MAPPA, MAPPA_LAYER, MAPPA_ONCLICK;
+
+      $(document).ready(function() {
+
+          $('#main_topics').length && print_pie_chart('#main_topics', 'main_topics_chart' );
+          $('#main_types').length && print_pie_chart('#main_types', 'main_types_chart' );
+
+          /*
+           * Ajax overlay 1.0
+           * Author: Simon Ilett @ aplusdesign.com.au
+           * Descrip: Creates and inserts an ajax loader for ajax calls / timed events
+           * Date: 03/08/2011
+           */
+          function ajaxLoader (el, options) {
+            // Becomes this.options
+            var defaults = {
+              bgColor 		: '#fff',
+              duration		: 800,
+              opacity			: 0.7,
+              classOveride 	: false
+            }
+            this.options 	= jQuery.extend(defaults, options);
+            this.container 	= $(el);
+
+            this.init = function() {
+              var container = this.container;
+              // Delete any other loaders
+              this.remove();
+              // Create the overlay
+              var overlay = $('<div></div>').css({
+                'background-color': this.options.bgColor,
+                'opacity':this.options.opacity,
+                'width':container.width(),
+                'height':container.height(),
+                'position':'absolute',
+                'top':'0px',
+                'left':'0px',
+                'z-index':99999
+              }).addClass('ajax_overlay');
+              // add an overiding class name to set new loader style
+              if (this.options.classOveride) {
+                overlay.addClass(this.options.classOveride);
+              }
+              // insert overlay and loader into DOM
+              container.append(
+                  overlay.append(
+                      $('<div></div>').addClass('ajax_loader')
+                  ).fadeIn(this.options.duration)
+              );
+            };
+
+            this.remove = function(){
+              var overlay = this.container.children(".ajax_overlay");
+              if (overlay.length) {
+                overlay.fadeOut(this.options.classOveride, function() {
+                  overlay.remove();
+                });
+              }
+            }
+
+            this.init();
           }
-        }
 
-        this.init();
-      }
+          L.Control.Legend = L.Control.extend({
+            options: {
+              position: 'topright'
+            },
+            content: '',
 
-      L.Control.Legend = L.Control.extend({
-        options: {
-          position: 'topright'
-        },
-        content: '',
+            initialize: function (options) {
+              L.Util.setOptions(this, options);
+            },
 
-        initialize: function (options) {
-          L.Util.setOptions(this, options);
-        },
+            onAdd: function (map) {
+              this._container = L.DomUtil.create('div', 'leaflet-control-legend');
+              this._container.innerHTML = this.content;
+              L.DomEvent.disableClickPropagation(this._container);
 
-        onAdd: function (map) {
-          this._container = L.DomUtil.create('div', 'leaflet-control-legend');
-          this._container.innerHTML = this.content;
-          L.DomEvent.disableClickPropagation(this._container);
-
-          return this._container;
-        }
-
-      });
-
-      L.Map.mergeOptions({
-        legendControl: true
-      });
-
-      L.Map.addInitHook(function () {
-        if (this.options.legendControl) {
-          this.legendControl = (new L.Control.Legend()).addTo(this);
-        }
-      });
-
-
-
-      // costo or pagamento or numero
-      var dataset_name = $('#map-layer-selector .block-chart.block-active').data('dataset');
-      var layer_name = $('#selectors .active').prop('id');
-      MAPPA = new L.Map('map', {
-        //minZoom: 5,
-        //maxZoom: 7,
-        scrollWheelZoom: false,
-        attributionControl: false
-      });
-      var MAPPA_POPUP = new L.Popup();
-
-      function load_map_layer(data) {
-        if (MAPPA_LAYER && MAPPA.hasLayer(MAPPA_LAYER)) {
-          MAPPA.removeLayer(MAPPA_LAYER);
-        }
-
-        MAPPA_LAYER = new L.TileLayer(data.tilestache_url+'/'+data.layer_name+'/{z}/{x}/{y}.png',{
-          maxZoom: data['zoom']['max'],
-          minZoom: data['zoom']['min']
-        });
-
-        var southWest = new L.LatLng(data.bounds.southwest.lat, data.bounds.southwest.lng ),
-            northEast = new L.LatLng(data.bounds.northeast.lat, data.bounds.northeast.lng),
-            bounds = new L.LatLngBounds(southWest, northEast);
-        MAPPA.fitBounds(bounds);
-
-        MAPPA.addLayer(MAPPA_LAYER);
-
-        //console.log(data);
-        $('.leaflet-control-legend').html(data.legend_html).each(function(){
-          //console.log($(this).text());
-          //intword
-          $('li',this).each(function(){
-            var values = $(this).text().split(' - ')
-            $(this).text(intword(values[0].split('.').join('')) + ' - ' + intword(values[1].split('.').join('')));
-          }).prepend($('<i />').addClass('icon-sign-blank'));
-        });
-
-        var marker = $('#selectors .btn.active').data('coords');
-        if ( marker ) {
-          marker = marker.split(',');
-          MAPPA.addLayer(new L.Marker(new L.LatLng( marker[1], marker[0]), {
-            title : '{{ territorio.denominazione }}',
-            clickable: false
-          }));
-          return; // avoid popup
-        }
-
-        if (MAPPA_ONCLICK) {
-          MAPPA.off('click', MAPPA_ONCLICK);
-        }
-
-        MAPPA_ONCLICK = function onMapClick(e) {
-          var latlngStr = '(' + e.latlng.lat.toFixed(3) + ', ' + e.latlng.lng.toFixed(3) + ')';
-          var info_url = data.info_base_url +'/' + data.layer_type +'/'+
-              e.latlng.lat.toFixed(3) + "/" +
-              e.latlng.lng.toFixed(3) + "/";
-
-          jQuery.get(info_url, function(data) {
-            //console.log(data);
-            MAPPA_POPUP.setLatLng(e.latlng);
-            var content = '';
-            content += '<a href="'+data.territorio.territori[0][1]+'">'+data.territorio.territori[0][0]+'</a>';
-            if ( data.territorio.territori[1] ) {
-              content += ' &gt; <a href="'+data.territorio.territori[1][1]+'">'+data.territorio.territori[1][0]+'</a>';
+              return this._container;
             }
-            if ( data.territorio.territori[2] ) {
-              content += '<br><a href="'+data.territorio.territori[2][1]+'">'+data.territorio.territori[2][0]+'</a>';
-            }
-            MAPPA_POPUP.setContent(
-                    content + "<br/>" +
-                    "<b>n. progetti</b>: " + intword(data.territorio.n_progetti) + "<br/>" +
-                    "<b>costo</b>: " + intword(data.territorio.costo) + "<br/>" +
-                    "<b>pagamento</b>: " + intword(data.territorio.pagamento)
 
-            );
-            MAPPA.openPopup(MAPPA_POPUP);
           });
-        };
-        MAPPA.on('click', MAPPA_ONCLICK );
-      }
+
+          L.Map.mergeOptions({
+            legendControl: true
+          });
+
+          L.Map.addInitHook(function () {
+            if (this.options.legendControl) {
+              this.legendControl = (new L.Control.Legend()).addTo(this);
+            }
+          });
 
 
 
-      var loader = new ajaxLoader('#map');
+          // costo or pagamento or numero
+          var dataset_name = $('#map-layer-selector .block-chart.block-active').data('dataset');
+          var layer_name = $('#selectors .active').prop('id');
+          MAPPA = new L.Map('map', {
+            //minZoom: 5,
+            //maxZoom: 7,
+            scrollWheelZoom: false,
+            attributionControl: false
+          });
+          var MAPPA_POPUP = new L.Popup();
+
+          function load_map_layer(data) {
+            if (MAPPA_LAYER && MAPPA.hasLayer(MAPPA_LAYER)) {
+              MAPPA.removeLayer(MAPPA_LAYER);
+            }
+
+            MAPPA_LAYER = new L.TileLayer(data.tilestache_url+'/'+data.layer_name+'/{z}/{x}/{y}.png',{
+              maxZoom: data['zoom']['max'],
+              minZoom: data['zoom']['min']
+            });
+
+            var southWest = new L.LatLng(data.bounds.southwest.lat, data.bounds.southwest.lng ),
+                northEast = new L.LatLng(data.bounds.northeast.lat, data.bounds.northeast.lng),
+                bounds = new L.LatLngBounds(southWest, northEast);
+            MAPPA.fitBounds(bounds);
+
+            MAPPA.addLayer(MAPPA_LAYER);
+
+            //console.log(data);
+            $('.leaflet-control-legend').html(data.legend_html).each(function(){
+              //console.log($(this).text());
+              //intword
+              $('li',this).each(function(){
+                var values = $(this).text().split(' - ')
+                $(this).text(intword(values[0].split('.').join('')) + ' - ' + intword(values[1].split('.').join('')));
+              }).prepend($('<i />').addClass('icon-sign-blank'));
+            });
+
+            var marker = $('#selectors .btn.active').data('coords');
+            if ( marker ) {
+              marker = marker.split(',');
+              MAPPA.addLayer(new L.Marker(new L.LatLng( marker[1], marker[0]), {
+                title : '{{ territorio.denominazione }}',
+                clickable: false
+              }));
+              return; // avoid popup
+            }
+
+            if (MAPPA_ONCLICK) {
+              MAPPA.off('click', MAPPA_ONCLICK);
+            }
+
+            MAPPA_ONCLICK = function onMapClick(e) {
+              var latlngStr = '(' + e.latlng.lat.toFixed(3) + ', ' + e.latlng.lng.toFixed(3) + ')';
+              var info_url = data.info_base_url +'/' + data.layer_type +'/'+
+                  e.latlng.lat.toFixed(3) + "/" +
+                  e.latlng.lng.toFixed(3) + "/";
+
+              jQuery.get(info_url, function(data) {
+                //console.log(data);
+                MAPPA_POPUP.setLatLng(e.latlng);
+                var content = '';
+                content += '<a href="'+data.territorio.territori[0][1]+'">'+data.territorio.territori[0][0]+'</a>';
+                if ( data.territorio.territori[1] ) {
+                  content += ' &gt; <a href="'+data.territorio.territori[1][1]+'">'+data.territorio.territori[1][0]+'</a>';
+                }
+                if ( data.territorio.territori[2] ) {
+                  content += '<br><a href="'+data.territorio.territori[2][1]+'">'+data.territorio.territori[2][0]+'</a>';
+                }
+                MAPPA_POPUP.setContent(
+                        content + "<br/>" +
+                        "<b>n. progetti</b>: " + intword(data.territorio.n_progetti) + "<br/>" +
+                        "<b>costo</b>: " + intword(data.territorio.costo) + "<br/>" +
+                        "<b>pagamento</b>: " + intword(data.territorio.pagamento)
+
+                );
+                MAPPA.openPopup(MAPPA_POPUP);
+              });
+            };
+            MAPPA.on('click', MAPPA_ONCLICK );
+          }
 
 
-      $.getJSON('/territori/leaflet/'+$('#selectors .active').data('path')+'.json?tematizzazione='+dataset_name,function(data){
-        load_map_layer(data);
-        loader.remove();
-      });
 
-      $('#selectors .btn').click(function() {
-        if ($(this).hasClass('active')) {
-          return;
-        }
-        var loader = new ajaxLoader('#map');
+          var loader = new ajaxLoader('#map');
 
-        var me = $(this);
-        $('#selectors .btn.active').removeClass('active');
 
-        $.getJSON('/territori/leaflet/'+ $(this).data('path') +'.json?tematizzazione='+dataset_name,function(data){
-          load_map_layer(data);
-          $(me).addClass("active");
-          loader.remove();
-        });
+          $.getJSON('/territori/leaflet/'+$('#selectors .active').data('path')+'.json?tematizzazione='+dataset_name,function(data){
+            load_map_layer(data);
+            loader.remove();
+          });
 
-        return false;
-      });
+          $('#selectors .btn').click(function() {
+            if ($(this).hasClass('active')) {
+              return;
+            }
+            var loader = new ajaxLoader('#map');
+
+            var me = $(this);
+            $('#selectors .btn.active').removeClass('active');
+
+            $.getJSON('/territori/leaflet/'+ $(this).data('path') +'.json?tematizzazione='+dataset_name,function(data){
+              load_map_layer(data);
+              $(me).addClass("active");
+              loader.remove();
+            });
+
+            return false;
+          });
 
     });
   </script>
@@ -380,7 +417,7 @@ var MAPPA, MAPPA_LAYER, MAPPA_ONCLICK;
             {% if territorio %}
               <div class="span6">
               <h1 class="title black" style="margin-bottom: 0;"><span>{{ territorio.get_territorio_display }} {% if territorio.territorio != 'R' %}di {% endif %}{{ territorio }}</span></h1>
-              <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=regions:{{ territorio.cod_reg }}">Vai a tutti i progetti</a></p>
+              <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&territorio_id={{ territorio.pk }}">Vai a tutti i progetti</a></p>
               </div>
             {% endif %}
 
@@ -408,7 +445,7 @@ var MAPPA, MAPPA_LAYER, MAPPA_ONCLICK;
                 {% for tipologia in tipologie_principali %}
                   <tr>
                       {% if territorio %}
-                          <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.object.codice }}&selected_facets=regions:{{ territorio.cod_reg }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                          <td><a href="{% url progetti_search %}?q=&territorio_id={{ territorio.pk }}&selected_facets=natura:{{ tipologia.object.codice }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  elif tema %}
                           <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.object.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  else %}
@@ -432,7 +469,7 @@ var MAPPA, MAPPA_LAYER, MAPPA_ONCLICK;
                 {% for tema in temi_principali %}
                   <tr>
                       {% if territorio %}
-                          <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.object.codice }}&selected_facets=regions:{{ territorio.cod_reg }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
+                          <td><a href="{% url progetti_search %}?q=&territorio_id={{ territorio.pk }}&selected_facets=tema:{{ tema.object.codice }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
                       {%  elif tipologia %}
                           <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.object.codice }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
                       {%  else %}
@@ -475,7 +512,7 @@ var MAPPA, MAPPA_LAYER, MAPPA_ONCLICK;
               <form class="form-search content">
                   <div class="input-append">
                       Cerca
-                      <input type="text" class="input-medium search-query" placeholder="Inserisci un comune"><button type="submit" class="btn"><i class="icon-search"></i></button>
+                      <input id="map-city" type="text" class="input-large search-query" placeholder="Inserisci il territorio"><button type="submit" class="btn add-in"><i class="icon-search"></i></button>
                   </div>
               </form>
           </div>
