@@ -221,6 +221,7 @@ class TilesConfigView(TemplateView):
         context['regioni'] = Territorio.objects.filter(territorio='R')
         context['province'] = Territorio.objects.filter(territorio='P')
         context['mapnik_base_url'] = "http://{0}/territori/mapnik".format(Site.objects.get_current())
+        context['path_to_cache'] = settings.TILESTACHE_CACHE_PATH
 
         return context
 
