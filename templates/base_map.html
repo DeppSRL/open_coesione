@@ -335,7 +335,7 @@
 
           <div class="bar-vertical"></div>
 
-          <div class="caret"></div>
+          {% if tematizzazione == 'totale_costi' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
 
 {#          <div style="position: absolute; bottom: -16px; left: 5px; color: black; font-size: 10px; text-transform: none;">#}
 {#            *Dati aggiornati al 31.12.2011#}
@@ -351,7 +351,7 @@
 
           <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}">{{ cost_payments_ratio }}</span></div>
 
-          <i class="icon-undo"></i>
+          {% if tematizzazione == 'totale_costi_pagati' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
 
         </a>
 
@@ -361,7 +361,7 @@
 
           <p>{{ total_projects|intcomma }}</p>
 
-          <i class="icon-undo"></i>
+          {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
 
         </a>
 
