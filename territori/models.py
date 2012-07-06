@@ -103,6 +103,24 @@ class Territorio(models.Model):
 
         raise Exception('Territorio non interrogabile %s' % self)
 
+    def get_breadcrumbs(self):
+        if self.territorio == self.TERRITORIO.R:
+            return [(self.denominazione, self.get_absolute_url() )]
+        elif self.territorio == self.TERRITORIO.P:
+            regione = Territorio.objects.regioni().get(cod_reg=self.cod_reg)
+            return [
+                (regione.denominazione, regione.get_absolute_url() ),
+                (self.denominazione, self.get_absolute_url() )
+            ]
+        elif self.territorio == self.TERRITORIO.C:
+            regione = Territorio.objects.regioni().get(cod_reg=self.cod_reg)
+            provincia = Territorio.objects.provincie().get(cod_prov=self.cod_prov)
+            return [
+                (regione.denominazione, regione.get_absolute_url() ),
+                (provincia.denominazione, provincia.get_absolute_url() ),
+                (self.denominazione, self.get_absolute_url() )
+            ]
+
     @property
     def n_progetti_deep(self):
         """
