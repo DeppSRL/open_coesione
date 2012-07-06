@@ -1,28 +1,14 @@
 {% extends 'base_two_columns.html' %}
 
+{% block page_title %}Cercare un progetto{% endblock %}
+
 {% block content %}
 
   <div class="flat_content">
     <h1>Cerca un progetto</h1>
 
     <p>
-      Alla base del sito c’è un insieme strutturato di dati relativi a singoli progetti, cosi come sono configurati nelle basi informativo - gestionali delle amministrazioni, riferibili a atti amministrativi in genere autonomi. In alcuni casi più progetti sono parte di un singolo intervento o tra loro coordinati nell’ambiti di un’unica strategia di intervento.
-    </p>
-
-    <p>
-      Per ogni singolo progetto sono disponibili informazioni relative all’ambito con diversi livelli di dettaglio, al luogo in cui si realizza, ai soggetti coinvolti.
-    </p>
-
-    <p>
-      Soggetti: il soggetto che ha programmato l’intervento, il soggetto amministrativo che ne è l’attuatore, il destinatario del finanziamento, il soggetto che lo realizza.
-    </p>
-
-    <p>
-      Luoghi: secondo il livello di dettaglio disponibile o pertinente, per ogni intervento viene indicata l’area del Paese, la Regione, il Comune, il CAP, l’indirizzo in cui si realizza l’intervento.
-    </p>
-
-    <p>
-      Interventi: fonti finanziarie utilizzate per la realizzazione, programma operativo che contempla l’intervento, la tipologia di intervento secondo la classificazione adottata in ambito comunitario, eventuali ulteriori informazioni pertinenti sulla cronologia dell’intervento.
+      Alla base del portale c’è un insieme strutturato di dati relativi a singoli progetti, così come sono configurati nelle basi informativo-gestionali delle amministrazioni, riferibili ad atti amministrativi in genere autonomi. In alcuni casi più progetti sono parte di un singolo intervento o sono tra loro coordinati nell’ambito di un’unica strategia di intervento.
     </p>
 
     <p>
@@ -30,8 +16,23 @@
     </p>
 
     <p>
-      L’esito della ricerca può poi essere affinato agendo sui filtri: tema (per esempio “Ambiente”), tipologia (per esempio “Infrastrutture”), costo (per esempio “Fino a un milione di euro”),  data inizio.
+      L’esito della ricerca può poi essere affinato agendo sui filtri: tema (per esempio “Ambiente”), tipologia (per esempio “Lavori pubblici”), costo (per esempio “Fino a un milione di euro”), data inizio.
     </p>
+
+    <p>
+      Per ogni singolo progetto è possibile visualizzare un scheda sintetica che include numerosi dettagli: fonti finanziarie utilizzate per la realizzazione, programma operativo che contempla il progetto, tipologia di intervento secondo la classificazione adottata in ambito comunitario, eventuali ulteriori informazioni pertinenti sulla cronologia dell’intervento.
+    </p>
+
+    <p>
+      Sono inoltre presenti nelle singole schede di progetto informazioni relative al luogo in cui si realizza e ai soggetti coinvolti:
+    </p>
+
+    <ul class="spaced" style="margin-left:20px;">
+      <li><strong>Soggetti</strong>: il soggetto che ha <i>programmato</i> l’intervento, il soggetto amministrativo che ne è l’<i>attuatore</i>, il
+        <i>destinatario</i> del finanziamento, il soggetto che lo <i>realizza</i>.</li>
+      <li><strong>Luoghi</strong>: secondo il livello di dettaglio disponibile o pertinente, per ogni intervento viene indicata l’area del Paese, la Regione, il Comune, il CAP, l’indirizzo in cui si realizza il progetto.</li>
+    </ul>
+
   </div>
 
 {% endblock %}
