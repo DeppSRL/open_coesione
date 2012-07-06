@@ -56,8 +56,31 @@ class InfoView(JSONResponseMixin, TemplateView):
         return context
 
 
+class AutocompleteView(JSONResponseMixin, TemplateView):
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(AutocompleteView, self).get_context_data(**kwargs)
+        query = self.request.GET['query']
+        territori = Territorio.objects.filter(denominazione__istartswith=query).order_by('-popolazione_totale')[0:20]
+        context['territori'] = [{
+            'denominazione': territorio.nome_con_provincia,
+            'url': territorio.get_absolute_url(),
+            'id': territorio.pk
+            } for territorio in territori]
+        return context
+
 class LeafletView(TemplateView):
-    template_name='territori/leaflet.html'
+
+    def get_template_names(self):
+        """
+        set template name according to extension
+        extensions are validated at URL level
+        """
+        ext = self.kwargs['ext']
+        if ext == 'html':
+            return['territori/leaflet.html']
+        else:
+            return['territori/leaflet.js']
 
     def get_context_data(self, **kwargs):
         context = super(LeafletView, self).get_context_data(**kwargs)
@@ -97,7 +120,7 @@ class LeafletView(TemplateView):
             raise Http404
 
 
-        path = self.request.path
+        path = self.request.path.split(".")[0]
         context['layer_name'] = "_".join(path.split("/")[3:]) + "_" + tematizzazione
 
         # layer type may be R, P or C

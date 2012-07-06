@@ -27,12 +27,14 @@
   <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet">
   <link href="{{ STATIC_URL }}css/bootstrap-responsive.css" rel="stylesheet">
   {% endif %}
+  <link rel="stylesheet" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.21.custom.css" type="text/css" media="all" />
   {% endaddtoblock %}
   {% render_block "css_link" %}
 
   <!-- scripts -->
   {% addtoblock "js_script" %}
   <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.21.custom.min.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-dropdown.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-tab.js"></script>
   {% endaddtoblock %}
@@ -131,7 +133,46 @@
 
 </div><!-- #wrapper -->
 
-{% block js_content %}{% endblock %}
+{% block js_content %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#city').focus(function(){
+                if ($(this)._cleared) return;
+                $(this).val('');
+                $(this)._cleared = true;
+            });
+
+
+            $( "#city" ).autocomplete({
+                source: function( request, response ) {
+                    $.getJSON(
+                            "http://localhost:8020/territori/autocomplete/",
+                            {'query': request.term },
+                            function( data ) {
+                                response( $.map( data.territori, function( item ) {
+                                    return {
+                                        label: item.denominazione,
+                                        url: item.url
+                                    }
+                                }));
+                            }
+                    );
+                },
+                minLength: 2,
+                select: function( event, ui ) {
+                    window.location.href = ui.item.url;
+                },
+                open: function() {
+                    $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                },
+                close: function() {
+                    $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                }
+            }).css('z-index', 10000);
+
+        });
+    </script>
+{% endblock %}
 
 </body>
 </html>
