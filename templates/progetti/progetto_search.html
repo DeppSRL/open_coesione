@@ -17,7 +17,6 @@
     Blocco dei risultati
     {%  endcomment %}
     {% if n_results %}
-        {% digg_paginator %}
 
         <section style="clear: both;">
         <h3>{% if not query %}Tutti i {{ n_results }}{% else %}{{ n_results }} progetti trovati{% endif %}</h3>
@@ -35,7 +34,9 @@
         </table>
       </section>
 
+      {%  comment %}
       {% digg_paginator %}
+      {%  endcomment %}
 
 
     {% else %}
@@ -48,9 +49,12 @@
   <div class="flat_content">
         <h4>Cerca tra i progetti</h4>
         <form method="get" action="{% url progetti_search %}" class="form-search">
-            <input type="text" class="input-medium search-query" name="{{ form.q.html_name }}" value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" /><br/>
-            <input id="location" type="text" class="input-large search-query" placeholder="Inserisci il territorio"/>
-            <input id="location-id" type="hidden" /><br/>
+            <input type="text" class="input-medium search-query" name="{{ form.q.html_name }}"
+                   value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" /><br/>
+            <input id="location" type="text" class="input-large search-query"
+                   value="{% if territorio %}{{ territorio }}{% endif %}" placeholder="Inserisci il territorio"/>
+            <input id="location-id" name="{{ form.territorio_id.html_name }}"
+                   value="{% if form.territorio_id.value %}{{ form.territorio_id.value }}{% endif %}" type="hidden"/><br/>
             <button type="submit" class="btn add-in"><i class="icon-search"> Cerca</i></button>
         </form>
 
@@ -212,7 +216,7 @@
             $( "#location" ).autocomplete({
                 source: function( request, response ) {
                     $.getJSON(
-                            "http://localhost:8020/territori/autocomplete/",
+                            "/territori/autocomplete/",
                             {'query': request.term },
                             function( data ) {
                                 response( $.map( data.territori, function( item ) {

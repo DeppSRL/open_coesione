@@ -27,7 +27,46 @@
 
   {{ block.super }}
 
-  <script type="text/javascript">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#map-city').focus(function(){
+                if ($(this)._cleared) return;
+                $(this).val('');
+                $(this)._cleared = true;
+            });
+
+
+            $( "#map-city" ).autocomplete({
+                source: function( request, response ) {
+                    $.getJSON(
+                            "/territori/autocomplete/",
+                            {'query': request.term },
+                            function( data ) {
+                                response( $.map( data.territori, function( item ) {
+                                    return {
+                                        label: item.denominazione,
+                                        url: item.url
+                                    }
+                                }));
+                            }
+                    );
+                },
+                minLength: 2,
+                select: function( event, ui ) {
+                    window.location.href = ui.item.url;
+                },
+                open: function() {
+                    $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                },
+                close: function() {
+                    $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                }
+            }).css('z-index', 10000);
+
+        });
+    </script>
+
+    <script type="text/javascript">
 
     $(document).ready(function() {
 
@@ -179,7 +218,7 @@
             {% if territorio %}
               <div class="span6">
               <h1 class="title black" style="margin-bottom: 0;"><span>{{ territorio.get_territorio_display }} {% if territorio.territorio != 'R' %}di {% endif %}{{ territorio }}</span></h1>
-              <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=regions:{{ territorio.cod_reg }}">Vai a tutti i progetti</a></p>
+              <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&territorio_id={{ territorio.pk }}">Vai a tutti i progetti</a></p>
               </div>
             {% endif %}
 
@@ -207,7 +246,7 @@
                 {% for tipologia in tipologie_principali %}
                   <tr>
                       {% if territorio %}
-                          <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.object.codice }}&selected_facets=regions:{{ territorio.cod_reg }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                          <td><a href="{% url progetti_search %}?q=&territorio_id={{ territorio.pk }}&selected_facets=natura:{{ tipologia.object.codice }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  elif tema %}
                           <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.object.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  else %}
@@ -231,7 +270,7 @@
                 {% for tema in temi_principali %}
                   <tr>
                       {% if territorio %}
-                          <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.object.codice }}&selected_facets=regions:{{ territorio.cod_reg }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
+                          <td><a href="{% url progetti_search %}?q=&territorio_id={{ territorio.pk }}&selected_facets=tema:{{ tema.object.codice }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
                       {%  elif tipologia %}
                           <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.object.codice }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
                       {%  else %}
@@ -268,7 +307,7 @@
               <form class="form-search content">
                   <div class="input-append">
                       Cerca
-                      <input type="text" class="input-medium search-query" placeholder="Inserisci un comune"><button type="submit" class="btn"><i class="icon-search"></i></button>
+                      <input id="map-city" type="text" class="input-large search-query" placeholder="Inserisci il territorio"><button type="submit" class="btn add-in"><i class="icon-search"></i></button>
                   </div>
               </form>
           </div>

@@ -254,7 +254,7 @@ class MapnikComuniView(MapnikView):
             self.territori_name = 'regioni_%s_comuni' % cod_reg
         elif 'cod_prov' in context['params']:
             cod_prov = context['params']['cod_prov']
-            self.queryset = Territorio.objects.filter(territorio='C', cod_reg=cod_prov)
+            self.queryset = Territorio.objects.filter(territorio='C', cod_prov=cod_prov)
             self.territori_name = 'province_%s_comuni' % cod_prov
         else:
             raise Exception("a region or a province must be specified for this view")

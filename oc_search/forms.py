@@ -1,11 +1,12 @@
+from django import forms
 from haystack.forms import SearchForm
 import sys
 
 class RangeFacetedSearchForm(SearchForm):
+    territorio_id = forms.IntegerField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.selected_facets = kwargs.pop("selected_facets", [])
-        self.act_url = kwargs.pop("act_url", [])
         super(RangeFacetedSearchForm, self).__init__(*args, **kwargs)
 
     def no_query_found(self):
@@ -30,5 +31,9 @@ class RangeFacetedSearchForm(SearchForm):
                     sqs = sqs.narrow(u'%s:%s' % (field, value))
                 else:
                     sqs = sqs.narrow(u'%s:"%s"' % (field, sqs.query.clean(value)))
+
+        # aggiunge filtro territorio, se presente
+        if self.is_valid() and self.cleaned_data.get('territorio_id'):
+            sqs = sqs.filter_and(territorio=self.cleaned_data['territorio_id'])
 
         return sqs
