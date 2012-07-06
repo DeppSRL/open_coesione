@@ -119,10 +119,17 @@ class Territorio(models.Model):
     @property
     def nome(self):
         if self.denominazione_ted:
-            return "%s - %s" % (self.denominazione, self.denominazione_ted)
+            return u"%s - %s" % (self.denominazione, self.denominazione_ted)
         else:
-            return "%s" % self.denominazione
+            return u"%s" % self.denominazione
 
+
+    @property
+    def nome_con_provincia(self):
+        if self.territorio == self.TERRITORIO.P:
+            return u"{0} (Provincia)".format(self.nome)
+        else:
+            return self.nome
 
 
     def __unicode__(self):
