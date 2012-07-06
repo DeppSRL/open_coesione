@@ -195,9 +195,9 @@ var MAPPA, MAPPA_LAYER, MAPPA_ONCLICK;
 
         MAPPA.addLayer(MAPPA_LAYER);
 
-        console.log(data);
+        //console.log(data);
         $('.leaflet-control-legend').html(data.legend_html).each(function(){
-          console.log($(this).text());
+          //console.log($(this).text());
           //intword
           $('li',this).each(function(){
             var values = $(this).text().split(' - ')
@@ -226,7 +226,7 @@ var MAPPA, MAPPA_LAYER, MAPPA_ONCLICK;
               e.latlng.lng.toFixed(3) + "/";
 
           jQuery.get(info_url, function(data) {
-            console.log(data);
+            //console.log(data);
             MAPPA_POPUP.setLatLng(e.latlng);
             var content = '';
             content += '<a href="'+data.territorio.territori[0][1]+'">'+data.territorio.territori[0][0]+'</a>';

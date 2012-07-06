@@ -16,9 +16,8 @@
         <h1 class='title'><span>Soggetti coinvolti</span></h1>
 
         <p>
-          I soggetti coinvolti nei progetti sono <strong>{{ numero_soggetti }}</strong> divisi tra programmatori, attuatori, realizzatori
-          e destinatari.
-          Di ogni soggetto vengono indicati tutti i progetti e i finanziamenti ricevuti.
+          I soggetti coinvolti nei progetti sono <strong>{{ numero_soggetti|intcomma }}</strong> divisi tra programmatori, attuatori, realizzatori e destinatari.
+          Di ogni soggetto vengono indicati tutti i progetti e i finanziamenti gestiti.
         </p>
 
         <hr>
@@ -49,18 +48,22 @@
 
         <h1 class="title"><span>Partecipa e racconta i progetti</span></h1>
 
-        <p><img src="{{ STATIC_URL }}img/icona_home.png" style="float:left">La partecipazione  delle comunità  interessate è fondamentale perché si possano esercitare le
-          dovute forme di controllo e pressione per contribuire a un cambiamento di passo
-          nell’attuazione delle politiche di sviluppo e della coesione.
+        <p><img src="{{ STATIC_URL }}img/icona_home.png" style="float:left">
+          Le risorse finanziarie per lo sviluppo e la coesione sono destinate alle comunità e hanno l’obiettivo di
+          migliorare la qualità della vita delle persone.
         </p>
         <p>
-          Per questo invitiamo tutti i soggetti coinvolti a <a href="/contatti/">inviarci</a> i "racconti" dei progetti che li hanno visti protagonisti.
-          Inoltre da settembre sarà possibile per tutti i cittadini:
+          È interesse di queste comunità esercitare tutte le forme
+          di controllo e sollecitazione perché le politiche di coesione siano orientate a risolvere i problemi e
+          promuovere lo sviluppo.
         </p>
-        <ul>
-          <li>monitorare i progetti di un territorio o riferiti a una tematica</li>
-          <li>commentare e condividere ogni singolo progetto</li>
-        </ul>
+
+        <p>
+          Per questo invitiamo tutti coloro che hanno preso parte a un progetto, come amministratori
+          o destinatari finali, a <a href="/contatti/">inviarci</a> il loro "racconto" perché sia pubblicato e di esempio ad altri.
+        </p>
+
+        <p>Inoltre da settembre sarà possibile per tutti i cittadini monitorare e commentare ogni singolo progetto.</p>
 
       </section>
 
@@ -100,16 +103,17 @@
           <h1 class='title'><span>Risorse stanziate</span></h1>
 
           <p>
-            Sia per l’Unione europea, sia per lo Stato italiano hanno tra
-            i propri obiettivi quello  di garantire al meglio eguaglianza di
-            opportunità e di qualità della vita nei diversi territori.
-            Si tratta di un obiettivo ambizioso che rende indispensabile un’azione aggiuntiva
-            e un sostegno speciale per quei territori e comunità che per le ragioni
-            più diverse divergono dalle traiettorie migliori. Risorse dedicate alle politiche
-            di coesione territoriale che agiscono, pur con grande differenza d’intensità,
-            in tutto il Paese.  Comprendono fonti europee, sostenute da un co-finanziamento nazionale,
-            che costituiscono il Fondo europeo per lo sviluppo regionale (FESR)
-            e il Fondo sociale europeo (FSE) e fonti nazionali che costituiscono il Fondo per lo sviluppo e la coesione (FSC).
+            Sia l’Unione europea, sia lo Stato italiano hanno tra i propri obiettivi quello di garantire al meglio
+            eguaglianza di opportunità e di qualità della vita nei diversi territori. Si tratta di un obiettivo
+            ambizioso che rende indispensabile un’azione aggiuntiva e un sostegno speciale per quei territori e
+            comunità che per le ragioni più disparate divergono dalle traiettorie migliori. Risorse dedicate alle
+            politiche di coesione territoriale che agiscono, pur con grande differenza d’intensità, in tutto il Paese.
+          </p>
+
+          <p>
+            Comprendono fonti europee, sostenute da un co-finanziamento nazionale, che costituiscono il Fondo europeo
+            per lo sviluppo regionale (FESR) e il Fondo sociale europeo (FSE), e fonti nazionali che costituiscono il
+            Fondo per lo sviluppo e la coesione (FSC, ex FAS).
           </p>
 
           <p><i class="icon-chevron-right"></i> <a href="/fonti-di-finanziamento/">Approfondisci</a></p>
