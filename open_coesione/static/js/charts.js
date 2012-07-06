@@ -13,7 +13,7 @@ var APP = {
 
 var defaults = {
     credits: { text: 'Fonte: DPS-ISTAT', href:'http://www.istat.it/it/archivio/16777/' },
-    backgroundColor: '#F7F6F1'
+    backgroundColor: null
 };
 
 var pie_chart_options = {
@@ -147,7 +147,7 @@ var read_csv = function(csvtext, skip_first, separator) {
         // split line to cells
         var items = lines[line].split(separator);
         // take the first for key
-        var key = items.shift().trim();
+        var key = items[0].trim();
         // add this line to results
         results[ key ] = items.length == 1 ?
             items[0].trim() :
