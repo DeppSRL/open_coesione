@@ -13,7 +13,7 @@ var APP = {
 
 var defaults = {
     credits: { text: 'Fonte: DPS-ISTAT', href:'http://www.istat.it/it/archivio/16777/' },
-    backgroundColor: 'transparent'
+    backgroundColor: '#F7F6F1'
 };
 
 var pie_chart_options = {

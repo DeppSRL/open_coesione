@@ -386,7 +386,7 @@ class TerritorioView(AccessControlView, DetailView):
 
         #context['map'] = self.get_map_context( self.object )
         context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
-        context['map_legend_colors'] = MapnikView.colors
+        context['map_legend_colors'] = settings.MAP_COLORS
 
         return context
 
