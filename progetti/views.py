@@ -203,12 +203,9 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView):
         """
         extra = super(ProgettoSearchView, self).extra_context()
 
-        extra['regione'] = {
-            'denominazione': dict(
-                (str(r.cod_reg), r.denominazione)
-                for r in Territorio.objects.filter(territorio=Territorio.TERRITORIO.R)
-            )
-        }
+        territorio_id = self.request.GET.get('territorio_id', 0)
+        if territorio_id:
+            extra['territorio'] = Territorio.objects.get(pk=territorio_id).nome_con_provincia
 
         # definizione struttura dati per  visualizzazione faccette natura
         extra['natura'] = {
