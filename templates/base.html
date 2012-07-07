@@ -29,6 +29,9 @@
   {% endif %}
   <link rel="stylesheet" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.21.custom.css" type="text/css" media="all" />
   {% endaddtoblock %}
+  <!--[if IE 7]>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/font-awesome-ie7.css">
+  <![endif]-->
   {% render_block "css_link" %}
 
   <!-- scripts -->
