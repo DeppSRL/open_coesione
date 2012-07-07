@@ -39,20 +39,32 @@ class InfoView(JSONResponseMixin, TemplateView):
 
     This class can be used for an AJAX get request
     """
+
+    filter = None
+
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(InfoView, self).get_context_data(**kwargs)
-        tipo = context['params']['tipo']
-        lat = float(context['params']['lat'])
-        lon = float(context['params']['lng'])
+        tipo = kwargs['tipo']
+        lat = float(kwargs['lat'])
+        lon = float(kwargs['lng'])
         pnt = Point(lon, lat)
         territorio = Territorio.objects.get(geom__intersects=pnt, territorio=tipo)
+
+
+        tema = None
+        if self.filter == 'temi':
+            tema = Tema.objects.get(slug=kwargs['slug'])
+
+        natura = None
+        if self.filter == 'nature':
+            natura = ClassificazioneAzione.objects.get(slug=kwargs['slug'])
+
         context['territorio'] = {
             'denominazione': territorio.denominazione,
-            'n_progetti': territorio.progetti_deep.count() or 0,
-            'costo': float(territorio.progetti_deep.aggregate(s = Sum('fin_totale_pubblico'))['s'] or 0),
-            'pagamento': float(territorio.progetti_deep.aggregate(s = Sum('pagamento'))['s'] or 0),
-            #'url' : territorio.get_absolute_url(),
+            'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura) or 0,
+            'costo': Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura) or 0,
+            'pagamento': Progetto.objects.totale_costi_pagati(territorio=territorio, tema=tema, classificazione=natura) or 0,
             'territori': territorio.get_breadcrumbs()
         }
 
@@ -72,8 +84,13 @@ class AutocompleteView(JSONResponseMixin, TemplateView):
             } for territorio in territori]
         return context
 
-class MapLayerView(JSONResponseMixin,TemplateView):
 
+class MapLayerView(JSONResponseMixin,TemplateView):
+    """
+    DEPRECATED: will be removed soon
+    """
+
+    """
     def get_context_data(self, **kwargs):
         context = super(MapLayerView, self).get_context_data(**kwargs)
 
@@ -128,11 +145,12 @@ class MapLayerView(JSONResponseMixin,TemplateView):
 
         context['info_base_url'] = "http://{0}/territori/info".format(Site.objects.get_current())
         return context
-
+    """
 
 
 class LeafletView(TemplateView):
     template_name = 'territori/leaflet.html'
+    filter = None
 
     def render_to_response(self, context, **response_kwargs):
         """
@@ -209,7 +227,14 @@ class LeafletView(TemplateView):
         tree = etree.parse(mapnik_xml, parser=etree.XMLParser())
         context['legend_html'] = tree.getroot()[0].text
 
-        context['info_base_url'] = "http://{0}/territori/info".format(Site.objects.get_current())
+        # info_base_url for popup changes in case temi or nature filters are applied
+        if self.filter:
+            context['info_base_url'] = "http://{0}/territori/info/{1}/{2}".format(
+                Site.objects.get_current(),
+                self.filter, self.kwargs['slug']
+            )
+        else:
+            context['info_base_url'] = "http://{0}/territori/info".format(Site.objects.get_current())
         return context
 
 class TilesConfigView(TemplateView):
@@ -220,6 +245,8 @@ class TilesConfigView(TemplateView):
         context['tematizzazioni'] = ('totale_costi', 'totale_costi_pagati', 'totale_progetti')
         context['regioni'] = Territorio.objects.filter(territorio='R')
         context['province'] = Territorio.objects.filter(territorio='P')
+        context['temi'] = Tema.objects.principali()
+        context['nature'] = ClassificazioneAzione.objects.nature()
         context['mapnik_base_url'] = "http://{0}/territori/mapnik".format(Site.objects.get_current())
         context['path_to_cache'] = settings.TILESTACHE_CACHE_PATH
 
@@ -247,10 +274,9 @@ class MapnikView(TemplateView):
 
         self.refine_context(context)
 
-        # compute all costi, to be used in classification
-        # 'n_progetti': t.progetti_deep.count(),
-        # 'pagamenti': t.progetti_deep.aggregate(s=Sum('pagamento'))['s']
-
+        # get tematisation from GET
+        # totale_costi is the default tematisation
+        # tematizzazione contains the name of the method in progetti.managers.ProgettiManager
         if 'tematizzazione' in self.request.GET:
             tematizzazione = self.request.GET['tematizzazione']
         else:
@@ -258,9 +284,31 @@ class MapnikView(TemplateView):
         if tematizzazione not in ('totale_costi', 'totale_costi_pagati', 'totale_progetti'):
             raise Http404
 
+        # build the collection of aggregated data for the map
         data = {}
+
+        # eventual filter on tema
+        tema = None
+        if self.filter == 'tema':
+            tema = Tema.objects.get(slug=self.kwargs['slug'])
+
+        # eventual filter on natura
+        natura = None
+        if self.filter == 'natura':
+            natura = ClassificazioneAzione.objects.get(slug=self.kwargs['slug'])
+
+        # loop over all territories
+        # foreach, invoke the tematizzazione method, with specified filters
         for t in self.queryset:
-            data[t.codice] = float(getattr(Progetto.objects, tematizzazione)(territorio=t))
+            data[t.codice] = getattr(Progetto.objects, tematizzazione)(
+                    territorio=t,
+                    tema=tema,
+                    classificazione=natura
+            )
+
+        # print sorted data to check thematisation
+#        for d in sorted(data.values()):
+#            print d
 
         # DataClassifier instance
         self.dc = DataClassifier(data.values(), classifier_args={'k': 5}, colors_map=self.colors)

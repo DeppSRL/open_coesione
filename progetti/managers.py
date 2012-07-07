@@ -14,19 +14,19 @@ class ProgettiQuerySet(models.query.QuerySet):
         query_set = self
 
         if territorio:
-            query_set = self.nel_territorio( territorio )
+            query_set = query_set.nel_territorio( territorio )
 
         if tipo:
-            query_set = self.del_tipo( tipo )
+            query_set = query_set.del_tipo( tipo )
 
         if tema:
-            query_set = self.con_tema( tema )
+            query_set = query_set.con_tema( tema )
 
         if classificazione:
-            query_set = self.con_natura( classificazione )
+            query_set = query_set.con_natura( classificazione )
 
         if soggetto:
-            query_set = self.del_soggetto( soggetto )
+            query_set = query_set.del_soggetto( soggetto )
 
 #        if not query_set:
 #            raise Exception('Richiesta non valida')
@@ -127,6 +127,12 @@ class TemiManager(models.Manager):
         return self.get_query_set().annotate(totale=models.Sum('progetto_set__fin_totale_pubblico'))
 
 class ClassificazioneAzioneManager(models.Manager):
+
+    def nature(self):
+        """
+        an alias of tematiche
+        """
+        return self.tematiche()
 
     def tematiche(self):
         return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.natura)
