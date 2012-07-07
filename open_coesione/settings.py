@@ -168,6 +168,8 @@ CACHES = {
     }
 }
 
+MAPNIK_HOST = False
+
 MAP_COLORS = {
     'c0': '#eae7df',
     'c1': '#c9c7c3',
