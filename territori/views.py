@@ -264,6 +264,9 @@ class MapnikView(TemplateView):
     # Class-colors mapping
     colors = settings.MAP_COLORS
 
+    # Manager for Progetti
+    manager = Progetto.objects
+
     def get_context_data(self, **kwargs):
         context = super(MapnikView, self).get_context_data(**kwargs)
         context['territori_name'] = self.territori_name
@@ -300,6 +303,7 @@ class MapnikView(TemplateView):
         # loop over all territories
         # foreach, invoke the tematizzazione method, with specified filters
         for t in self.queryset:
+            #data[t.codice] = float(getattr(self.manager, tematizzazione)(territorio=t))
             data[t.codice] = getattr(Progetto.objects, tematizzazione)(
                     territorio=t,
                     tema=tema,
@@ -331,6 +335,19 @@ class MapnikView(TemplateView):
 
     def refine_context(self, context):
         pass
+#        if self.filter in ['natura','tema']:
+#            # retrieve object by slug
+#            o = {
+#                'natura': ClassificazioneAzione,
+#                'tema' : Tema
+#
+#            }[ self.filter ].objects.get(slug=self.kwargs.get('slug') )
+#
+#            # override manager with required queryset
+#            self.manager = getattr(self.manager, 'con_{0}'.format( self.filter ) )( o )
+#
+#            # extends name of layer
+#            context['territori_name'] = '{0} {1} per {2}'.format(self.filter.title(), o.short_label, self.territori_name )
 
 
 class MapnikRegioniView(MapnikView):
@@ -343,7 +360,6 @@ class MapnikRegioniView(MapnikView):
     def refine_context(self, context):
         pass
 
-
 class MapnikProvinceView(MapnikView):
     territori_name = 'province'
     codice_field = 'COD_PRO'
@@ -351,6 +367,7 @@ class MapnikProvinceView(MapnikView):
     shp_file = '{0}/dati/prov2011_g/prov2011_g.shp'.format(settings.REPO_ROOT)
 
     def refine_context(self, context):
+        #super(MapnikProvinceView, self).refine_context(context)
         if 'cod_reg' in context['params']:
             cod_reg = context['params']['cod_reg']
             self.queryset = Territorio.objects.filter(territorio='P', cod_reg=cod_reg)
@@ -366,6 +383,7 @@ class MapnikComuniView(MapnikView):
     shp_file = '{0}/dati/com2011_g/com2011_g.shp'.format(settings.REPO_ROOT)
 
     def refine_context(self, context):
+        #super(MapnikComuniView, self).refine_context(context)
         if 'cod_reg' in context['params']:
             cod_reg = context['params']['cod_reg']
             self.queryset = Territorio.objects.filter(territorio='C', cod_reg=cod_reg)
