@@ -39,6 +39,7 @@ urlpatterns = patterns('',
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
     url(r'^info-disponibili/', TemplateView.as_view(template_name='flat/info_disponibili.html')),
     url(r'^open-data/', TemplateView.as_view(template_name='flat/open_data.html')),
+    url(r'^faq/', TemplateView.as_view(template_name='flat/faq.html')),
 
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html')),
     url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),
