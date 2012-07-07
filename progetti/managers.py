@@ -70,7 +70,7 @@ class ProgettiQuerySet(models.query.QuerySet):
     def totale_costi(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
         return float(self.totali(territorio, tema, tipo,classificazione, soggetto).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0)
 
-    def totale_costi_pagati(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
+    def totale_pagamenti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
         return float(self.totali(territorio, tema, tipo,classificazione, soggetto).aggregate(total=models.Sum('pagamento'))['total'] or 0.0)
 
     def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
@@ -117,14 +117,14 @@ class ProgettiManager(models.Manager):
     def totale_costi(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
         return self.get_query_set().totale_costi(territorio, tema, tipo,classificazione, soggetto)
 
-    def totale_costi_pagati(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
-        return self.get_query_set().totale_costi_pagati(territorio, tema, tipo,classificazione, soggetto)
+    def totale_pagamenti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
+        return self.get_query_set().totale_pagamenti(territorio, tema, tipo,classificazione, soggetto)
 
     def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
         return self.get_query_set().totale_progetti(territorio, tema, tipo,classificazione, soggetto)
 
-    def totale_risorse_stanziate(self, territorio=None, tema=None, tipo=None,classificazione=None):
-        return self.totali(territorio, tema, tipo,classificazione).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0
+#    def totale_risorse_stanziate(self, territorio=None, tema=None, tipo=None,classificazione=None):
+#        return self.totali(territorio, tema, tipo,classificazione).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0
 
 
 class TemiManager(models.Manager):
