@@ -11,9 +11,15 @@ var APP = {
     location_ids: []
 };
 
+if(typeof String.prototype.trim !== 'function') {
+    String.prototype.trim = function() {
+        return this.replace(/^\s+|\s+$/g, '');
+    }
+}
+
 var defaults = {
     credits: { text: 'Fonte: DPS-ISTAT', href:'http://www.istat.it/it/archivio/16777/' },
-    backgroundColor: '#F7F6F1'
+    backgroundColor: null
 };
 
 var pie_chart_options = {
