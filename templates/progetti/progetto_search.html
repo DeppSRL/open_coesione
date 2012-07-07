@@ -13,13 +13,10 @@
 {% endblock %}
 
 {% block content %}
-        {%  comment %}
-    Blocco dei risultati
-    {%  endcomment %}
     {% if n_results %}
 
         <section style="clear: both;">
-        <h3>{% if not query %}Tutti i {{ n_results }}{% else %}{{ n_results }} progetti trovati{% endif %}</h3>
+        <h3>pagina {{ page_obj.number }} di {{ n_results }} progetti trovati</h3>
 
         <table class="search-results table">
           <tbody>
@@ -34,9 +31,7 @@
         </table>
       </section>
 
-      {%  comment %}
       {% digg_paginator %}
-      {%  endcomment %}
 
 
     {% else %}

@@ -16,12 +16,6 @@
                 <li><a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ p }}">{{ p }}</a></li>
             {% endif %}
         {% endfor %}
-        {% if not in_trailing_range %}
-            <li><span class="ellipsis">&hellip;</span></li>
-            {% for p in pages_outside_leading_range reversed %}
-                <li><a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ p }}">{{ p }}</a></li>
-            {% endfor %}
-        {% endif %}
         {% if has_next %}
             <li><a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ next }}">Succ &raquo;</a></li>
         {% endif %}

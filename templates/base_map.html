@@ -34,6 +34,9 @@
     {{ block.super }}
 
     <script type="text/javascript">
+        /*
+         * Autocompleter for the map input field
+         */
         $(document).ready(function() {
             $('#map-city').focus(function(){
                 if ($(this)._cleared) return;
@@ -73,6 +76,9 @@
     </script>
 
     <script type="text/javascript">
+      /*
+       * Some functions taken from http://vanzonneveld.net, to humanize big numbers
+       */
       function number_format( number, decimals, dec_point, thousands_sep ) {
         // http://kevin.vanzonneveld.net
         // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
@@ -103,11 +109,15 @@
           return intcomma( number, 0 );
         } else if( number < 1000000000 ) {
           return intcomma( number / 1000000.0, 1 ) + " mil.";
-        } else /*if( number < 1000000000000 )*/ { //senseless on a 32 bit system probably.
+        } else {
           return intcomma( number / 1000000000.0, 1 ) + " mld.";
         }
-        return "" + number;	// too big.
       };
+
+
+      /*
+       * Map
+       */
 
       var MAPPA, MAPPA_LAYER, MAPPA_ONCLICK;
 
@@ -129,7 +139,7 @@
               duration		: 800,
               opacity			: 0.7,
               classOveride 	: false
-            }
+            };
             this.options 	= jQuery.extend(defaults, options);
             this.container 	= $(el);
 
@@ -167,11 +177,14 @@
                   overlay.remove();
                 });
               }
-            }
+            };
 
             this.init();
           }
 
+          /*
+           * Legend definition build and positioning
+           */
           L.Control.Legend = L.Control.extend({
             options: {
               position: 'topright'
@@ -208,8 +221,15 @@
           if ( !$('#map').length ) {
             return;
           }
+          /*
+           * Get required dataset directly from tabs in html
+           */
           var dataset_name = $('#map-layer-selector .block-chart.block-active').data('dataset');
           var layer_name = $('#selectors .active').prop('id');
+
+          /*
+           * Create map instance, and popup
+           */
           MAPPA = new L.Map('map', {
             //minZoom: 5,
             //maxZoom: 7,
@@ -218,24 +238,34 @@
           });
           var MAPPA_POPUP = new L.Popup();
 
+
+          /*
+           * Function to properly generate the map
+           * necessary data are passed as arguments
+           */
           function load_map_layer(data) {
+
+            // layer removal, if necessary
             if (MAPPA_LAYER && MAPPA.hasLayer(MAPPA_LAYER)) {
               MAPPA.removeLayer(MAPPA_LAYER);
             }
 
+            // layer instance creation
             MAPPA_LAYER = new L.TileLayer(data.tilestache_url+'/'+data.layer_name+'/{z}/{x}/{y}.png',{
               maxZoom: data['zoom']['max'],
               minZoom: data['zoom']['min']
             });
 
+            // boundaries retrieval from data
             var southWest = new L.LatLng(data.bounds.southwest.lat, data.bounds.southwest.lng ),
                 northEast = new L.LatLng(data.bounds.northeast.lat, data.bounds.northeast.lng),
                 bounds = new L.LatLngBounds(southWest, northEast);
             MAPPA.fitBounds(bounds);
 
+            // layer is added
             MAPPA.addLayer(MAPPA_LAYER);
 
-            //console.log(data);
+            // legend is updated
             $('.leaflet-control-legend').html(data.legend_html).each(function(){
               //console.log($(this).text());
               //intword
@@ -245,6 +275,7 @@
               }).prepend($('<i />').addClass('icon-sign-blank'));
             });
 
+            // marker added if necessary
             var marker = $('#selectors .btn.active').data('coords');
             if ( marker ) {
               marker = marker.split(',');
@@ -255,10 +286,12 @@
               return; // avoid popup
             }
 
+            // onclick event disabled on map
             if (MAPPA_ONCLICK) {
               MAPPA.off('click', MAPPA_ONCLICK);
             }
 
+            // onclick event defined
             MAPPA_ONCLICK = function onMapClick(e) {
               var latlngStr = '(' + e.latlng.lat.toFixed(3) + ', ' + e.latlng.lng.toFixed(3) + ')';
               var info_url = data.info_base_url +'/' + data.layer_type +'/'+
@@ -266,7 +299,7 @@
                   e.latlng.lng.toFixed(3) + "/";
 
               jQuery.get(info_url, function(data) {
-                //console.log(data);
+                // popup building
                 MAPPA_POPUP.setLatLng(e.latlng);
                 var content = '';
                 content += '<a href="'+data.territorio.territori[0][1]+'">'+data.territorio.territori[0][0]+'</a>';
@@ -286,15 +319,21 @@
                 MAPPA.openPopup(MAPPA_POPUP);
               });
             };
+
+            // on click event activated
             MAPPA.on('click', MAPPA_ONCLICK );
           }
 
 
-
+          /*
+           * Define the ajax loader
+           */
           var loader = new ajaxLoader('#map');
 
-
-          $.getJSON('/territori/leaflet/'+$('#selectors .active').data('path')+'.json?tematizzazione='+dataset_name,function(data){
+          /*
+           * Loads the data with a JSON call, and then load the map layer, using the data
+           */
+          $.getJSON('/territori/leaflet/{{ map_selector }}'+$('#selectors .active').data('path')+'.json?tematizzazione='+dataset_name,function(data){
             load_map_layer(data);
             loader.remove();
           });
@@ -308,7 +347,7 @@
             var me = $(this);
             $('#selectors .btn.active').removeClass('active');
 
-            $.getJSON('/territori/leaflet/'+ $(this).data('path') +'.json?tematizzazione='+dataset_name,function(data){
+            $.getJSON('/territori/leaflet/{{ map_selector }}'+ $(this).data('path') +'.json?tematizzazione='+dataset_name,function(data){
               load_map_layer(data);
               $(me).addClass("active");
               loader.remove();
