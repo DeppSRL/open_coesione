@@ -5,10 +5,10 @@ from territori.views import MapnikRegioniView, MapnikProvinceView, MapnikComuniV
 
 urlpatterns = patterns('',
     url(r'^regioni.xml$',
-        cache_page()(MapnikRegioniView.as_view(filter=None)),
+        cache_page(key_prefix='mapnik_regioni')(MapnikRegioniView.as_view(filter=None)),
         name='territori_mapnick_regioni'),
     url(r'^province.xml$',
-        cache_page()(MapnikProvinceView.as_view(filter=None)),
+        cache_page(key_prefix='mapnik_province')(MapnikProvinceView.as_view(filter=None)),
         name='territori_mapnick_province'),
     url(r'^regioni/(?P<cod_reg>[\d]+)/province.xml$',
         cache_page()(MapnikProvinceView.as_view(filter=None)),
