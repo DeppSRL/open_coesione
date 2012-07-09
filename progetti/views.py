@@ -11,7 +11,7 @@ from oc_search.forms import RangeFacetedSearchForm
 from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto, ClassificazioneAzione, ClassificazioneQSN
-from open_coesione.settings import REPO_ROOT
+from django.conf import settings
 from open_coesione.views import AggregatoView, AccessControlView
 from progetti.models import Tema, ClassificazioneAzione
 from soggetti.models import Soggetto
@@ -100,7 +100,7 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
 #        context['map_legend_colors'] = settings.MAP_COLORS
         context['map_selector'] = 'temi/{0}/'.format(self.kwargs['slug'])
 
-        context['lista_indici_tema'] = csv.DictReader(open(os.path.join(REPO_ROOT, 'open_coesione/static/csv/indicatori/{0}.csv'.format(self.object.codice))))
+        context['lista_indici_tema'] = csv.DictReader(open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))))
 
         return context
 
