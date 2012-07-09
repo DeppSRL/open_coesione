@@ -19,7 +19,7 @@ DESCRIZIONE_ASSE_QCS;
 """
 import cStringIO
 import codecs
-
+from open_coesione import settings_local as settings
 __author__ = 'daniele'
 
 
@@ -33,21 +33,8 @@ csvfile_encoding = 'latin'
 indexes_allowed_file = 'dati/temi_indicatori.csv'
 
 regioni_id_range = range(1,21) + [23]
-temi_db_mapping = {
-    u'Competitivit\xe0 per le imprese' : 6,
-    u'Ambiente e prevenzione dei rischi' : 11 ,
-    u'Occupazione e mobilit\xe0 dei lavoratori' : 2,
-    u'Attrazione culturale, naturale e turistica' : 7,
-    u'Trasporti e infrastrutture a rete' : 13,
-    u'Rinnovamento urbano e rurale' : 12,
-    u'Energia e efficienza energetica' : 5,
-    u'Agenda digitale' : 4,
-    u'Istruzione' : 3,
-    u'Rafforzamento delle capacit\xe0 della PA' : 10,
-    u'Inclusione sociale' : 1,
-    u'Ricerca e innovazione' : 9 ,
-    u'Servizi di cura infanzia e anziani' : 8
-}
+
+temi_db_mapping = settings.TEMI_DB_MAPPING
 
 # Prepare structures
 db = {
@@ -95,8 +82,7 @@ def read_index_value(line):
 
 def main():
     # take allowed indexes
-    allowed_indexes = [line['IID'] for line in csv.DictReader( open(indexes_allowed_file, 'r'), delimiter=';' ) if not line['IID'] == '000']
-
+    allowed_indexes = settings.INDICATORI_VALIDI
 
     # open file
     file = open(csvfile, 'rb')
