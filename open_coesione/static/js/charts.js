@@ -156,7 +156,7 @@ var read_csv = function(csvtext, skip_first, separator) {
         var key = items.shift().trim();
         // add this line to results
         results[ key ] = items.length == 1 ?
-            items[0].trim() :
+            items.shift().trim() :
             $.map(items, $.trim);
     }
     return results;
