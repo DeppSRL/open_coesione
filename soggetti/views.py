@@ -19,7 +19,7 @@ class SoggettoView(AggregatoView, DetailView):
         context = super(SoggettoView, self).get_context_data(**kwargs)
 
         context['total_cost'] = Progetto.objects.totale_costi(soggetto=self.object)
-        context['total_cost_paid'] = Progetto.objects.totale_costi_pagati(soggetto=self.object)
+        context['total_cost_paid'] = Progetto.objects.totale_pagamenti(soggetto=self.object)
         context['total_projects'] = Progetto.objects.totale_progetti(soggetto=self.object)
         context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
 

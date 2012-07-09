@@ -8,7 +8,7 @@ from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.conf import settings
 from open_coesione.data_classification import DataClassifier
-from open_coesione.views import AccessControlView
+from open_coesione.views import AccessControlView, AggregatoView
 from progetti.models import Progetto, Tema, ClassificazioneAzione
 from territori.models import Territorio
 import json
@@ -64,7 +64,7 @@ class InfoView(JSONResponseMixin, TemplateView):
             'denominazione': territorio.denominazione,
             'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura) or 0,
             'costo': Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura) or 0,
-            'pagamento': Progetto.objects.totale_costi_pagati(territorio=territorio, tema=tema, classificazione=natura) or 0,
+            'pagamento': Progetto.objects.totale_pagamenti(territorio=territorio, tema=tema, classificazione=natura) or 0,
             'territori': territorio.get_breadcrumbs()
         }
 
@@ -209,7 +209,7 @@ class LeafletView(TemplateView):
             tematizzazione = self.request.GET['tematizzazione']
         else:
             tematizzazione = 'totale_costi'
-        if tematizzazione not in ('totale_costi', 'totale_costi_pagati', 'totale_progetti'):
+        if tematizzazione not in ('totale_costi', 'totale_pagamenti', 'totale_progetti'):
             raise Http404
 
 
@@ -242,7 +242,7 @@ class TilesConfigView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TilesConfigView, self).get_context_data(**kwargs)
-        context['tematizzazioni'] = ('totale_costi', 'totale_costi_pagati', 'totale_progetti')
+        context['tematizzazioni'] = ('totale_costi', 'totale_pagamenti', 'totale_progetti')
         context['regioni'] = Territorio.objects.filter(territorio='R')
         context['province'] = Territorio.objects.filter(territorio='P')
         context['temi'] = Tema.objects.principali()
@@ -284,7 +284,7 @@ class MapnikView(TemplateView):
             tematizzazione = self.request.GET['tematizzazione']
         else:
             tematizzazione = 'totale_costi'
-        if tematizzazione not in ('totale_costi', 'totale_costi_pagati', 'totale_progetti'):
+        if tematizzazione not in ('totale_costi', 'totale_pagamenti', 'totale_progetti'):
             raise Http404
 
         # build the collection of aggregated data for the map
@@ -396,7 +396,7 @@ class MapnikComuniView(MapnikView):
             raise Exception("a region or a province must be specified for this view")
 
 
-class TerritorioView(AccessControlView, DetailView):
+class TerritorioView(AccessControlView, AggregatoView, DetailView):
     context_object_name = 'territorio'
     tipo_territorio = ''
     model = 'Territorio'
@@ -405,35 +405,52 @@ class TerritorioView(AccessControlView, DetailView):
         # Call the base implementation first to get a context
         context = super(TerritorioView, self).get_context_data(**kwargs)
 
-        context['total_cost'] = Progetto.objects.totale_costi(territorio=self.object)
-        context['total_cost_paid'] = Progetto.objects.totale_costi_pagati(territorio=self.object)
-        context['total_projects'] = Progetto.objects.totale_progetti(territorio=self.object)
-        context['total_allocated_resources'] = Progetto.objects.totale_risorse_stanziate(territorio=self.object)
-        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
+        context = self.get_aggregate_data(context, territorio=self.object)
 
-        context['temi_principali'] = [
-            {
-            'object': tema,
-            'data': Tema.objects.\
-                filter(tema_superiore=tema).\
-                filter(**self.object.get_cod_dict(prefix='progetto_set__territorio_set__')).\
-                aggregate(numero=Count('progetto_set'),
-                          costo=Sum('progetto_set__fin_totale_pubblico'),
-                          pagamento=Sum('progetto_set__pagamento'))
-            } for tema in Tema.objects.principali()
-        ]
-
-        context['tipologie_principali'] = [
-            {
-            'object': natura,
-            'data': ClassificazioneAzione.objects.\
-                filter(classificazione_superiore=natura).\
-                filter(**self.object.get_cod_dict(prefix='progetto_set__territorio_set__')).\
-                aggregate(numero=Count('progetto_set'),
-                          costo=Sum('progetto_set__fin_totale_pubblico'),
-                          pagamento=Sum('progetto_set__pagamento'))
-            } for natura in ClassificazioneAzione.objects.tematiche()
-        ]
+#        context['total_cost'] = Progetto.objects.totale_costi(territorio=self.object)
+#        context['total_cost_paid'] = Progetto.objects.totale_pagamenti(territorio=self.object)
+#        context['total_projects'] = Progetto.objects.totale_progetti(territorio=self.object)
+#        context['total_allocated_resources'] = Progetto.objects.totale_risorse_stanziate(territorio=self.object)
+#        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
+#
+#
+#        # map context
+#        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
+#        context['map_legend_colors'] = settings.MAP_COLORS
+#
+#        # read tematizzazione for nature and temi
+#        aggregate_field = {
+#            'totale_costi': Sum('progetto_set__fin_totale_pubblico'),
+#            'totale_pagamenti': Sum('progetto_set__pagamento'),
+#            'totale_progetti': Count('progetto_set')
+#        }[ context['tematizzazione'] ]
+#
+#
+#        context['temi_principali'] = [
+#            {
+#            'object': tema,
+#            'data': Tema.objects.\
+#                filter(tema_superiore=tema).\
+#                filter(**self.object.get_cod_dict(prefix='progetto_set__territorio_set__')).\
+#                aggregate( tot=aggregate_field )['tot']
+##                aggregate(numero=Count('progetto_set'),
+##                          costo=Sum('progetto_set__fin_totale_pubblico'),
+##                          pagamento=Sum('progetto_set__pagamento'))
+#            } for tema in Tema.objects.principali()
+#        ]
+#
+#        context['tipologie_principali'] = [
+#            {
+#            'object': natura,
+#            'data': ClassificazioneAzione.objects.\
+#                filter(classificazione_superiore=natura).\
+#                filter(**self.object.get_cod_dict(prefix='progetto_set__territorio_set__')).\
+#                aggregate( tot=aggregate_field )['tot']
+##                aggregate(numero=Count('progetto_set'),
+##                          costo=Sum('progetto_set__fin_totale_pubblico'),
+##                          pagamento=Sum('progetto_set__pagamento'))
+#            } for natura in ClassificazioneAzione.objects.tematiche()
+#        ]
 
         context['top_progetti_per_costo'] = Progetto.objects.nel_territorio(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().nel_territorio(self.object)[:5]
@@ -452,8 +469,6 @@ class TerritorioView(AccessControlView, DetailView):
 #                .order_by('-fin_totale_pubblico')[:3]
 
         #context['map'] = self.get_map_context( self.object )
-        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
-        context['map_legend_colors'] = settings.MAP_COLORS
 
         return context
 
