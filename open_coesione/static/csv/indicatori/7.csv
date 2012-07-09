@@ -1,6 +1,10 @@
 ID,Titolo,Sottotitolo
-018,Indice di domanda culturale degli istituti statali (media per istituto),Numero di visitatori degli istituti statali di antichità e d'arte per istituto statale (valori in migliaia)
-024,Grado di promozione dell'offerta culturale degli istituti statali,Visitatori paganti su visitatori non paganti degli istituti statali di antichità e di arte con ingresso a pagamento (%)
-030,Indice di domanda culturale (circuiti museali),Numero di visitatori dei circuiti museali sul totale istituti statali di antichità e d'arte appartenenti ai circuiti (valori in migliaia)
-032,Incidenza dei biglietti venduti nei circuiti museali,Numero di biglietti dei circuiti museali sul totale dei biglietti degli istituti statali di antichità e d'arte (%)
-165,Turismo nei mesi non estivi,Giornate di presenza (italiani e stranieri) nel complesso degli esercizi ricettivi nei mesi non estivi per abitante
+063,Occupati che partecipano ad attività formative e di istruzione,Adulti occupati nella classe d'età 25-64 anni che partecipano ad attività formative e di istruzione per 100 adulti occupati nella classe di età corrispondente (%)
+067,Non occupati che partecipano ad attività formative e di istruzione,Adulti inoccupati (disoccupati e non forze di lavoro) nella classe d'età 25-64 anni che partecipano ad attività formative e di istruzione per 100 adulti inoccupati nella classe d'età corrispondente (%
+077,Livello di istruzione della popolazione 15-19 anni,Quota della popolazione di 15-19 anni in possesso almeno della licenza media inferiore (%)
+099,Adulti che partecipano all'apprendimento permanente,Percentuale della popolazione 25-64 anni che frequenta un corso di studio o di formazione professionale
+102,Giovani che abbandonano prematuramente gli studi,Popolazione 18-24 anni con al più la licenza media e che non frequenta altri corsi scolastici o svolge attività formative superiori ai 2 anni (%)
+106,Studenti con scarse competenze in lettura,Percentuale di 15-enni con un livello basso di competenza (al massimo primo livello) nell'area della lettura
+110,Studenti con scarse competenze in matematica,Percentuale di 15-enni con un livello basso di competenza (al massimo primo livello) nell'area della matematica
+111,Studenti con elevate competenze in lettura,Percentuale di 15-enni con un livello elevato di competenza (almeno il quarto livello) nell'area della lettura
+112,Studenti con elevate competenze in matematica,Percentuale di 15-enni con un livello elevato di competenza (almeno il quarto livello) nell'area della matematica
