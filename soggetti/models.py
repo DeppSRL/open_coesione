@@ -19,8 +19,15 @@ class FormaGiuridica(models.Model):
         verbose_name_plural = "Forme giuridiche"
 
 class Soggetto(models.Model):
+    RUOLO = Choices(
+        ('1', 'programmatore', 'Programmatore'),
+        ('2', 'attuatore', 'Attuatore'),
+        ('3', 'destinatario', 'Destinatario del finanziamento'),
+        ('4', 'realizzatore', 'Realizzatore')
+    )
     codice_fiscale = models.CharField(max_length=16)
     denominazione = models.CharField(max_length=255)
+    ruolo = models.CharField(max_length=1, choices=RUOLO)
     slug = models.CharField(max_length=300, blank=True, null=True)
     forma_giuridica = models.ForeignKey(FormaGiuridica,
                                         related_name='forma_giuridica_set',

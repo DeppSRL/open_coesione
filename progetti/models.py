@@ -351,7 +351,7 @@ class Progetto(models.Model):
     dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE)
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
-    soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
+    soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True)
 
     @property
     def territori(self):
@@ -363,7 +363,7 @@ class Progetto(models.Model):
 
     @property
     def programmatori(self):
-        return self.soggetto_set.filter(ruolo=Ruolo.RUOLO.programmatore)
+        return self.soggetto_set.filter(ruolo=Soggetto.RUOLO.programmatore)
 
     @property
     def destinatari(self):
@@ -412,34 +412,5 @@ class Localizzazione(models.Model):
 
     class Meta:
         verbose_name_plural = "Localizzazioni"
-
-class Ruolo(models.Model):
-    """
-    The role of the recipient in the project.
-    """
-    RUOLO = Choices(
-        ('1', 'programmatore', 'Programmatore'),
-        ('2', 'attuatore', 'Attuatore'),
-        ('3', 'destinatario', 'Destinatario del finanziamento'),
-        ('4', 'realizzatore', 'Realizzatore')
-    )
-    soggetto = models.ForeignKey('soggetti.Soggetto', verbose_name=u'Soggetto')
-    progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
-    ruolo = models.CharField(max_length=1, choices=RUOLO)
-
-    @property
-    def soggetti(self):
-        return self.soggetto_set.all()
-
-    @property
-    def progetti(self):
-        return self.progetto_set.all()
-
-    def __unicode__(self):
-        return u"%s" % (self.get_ruolo_diplay(),)
-
-    class Meta:
-        verbose_name = "Ruolo"
-        verbose_name_plural = "Ruoli"
 
 

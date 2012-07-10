@@ -187,6 +187,7 @@ class Command(BaseCommand):
                 denominazione = r['DPS_DENOMINAZIONE_SOGG'].strip(),
                 defaults={
                     'codice_fiscale': r['DPS_CODICE_FISCALE_SOGG'].strip(),
+                    'ruolo': r['SOGG_COD_RUOLO'],
                     'forma_giuridica': forma_giuridica,
                     'rappresentante_legale': rappresentante_legale,
                     'indirizzo': indirizzo,
@@ -199,12 +200,8 @@ class Command(BaseCommand):
             else:
                 self.logger.debug(u"%s: Soggetto trovato e non modificato: %s" % (c, soggetto.denominazione))
 
-            # add role of subject in project
-            Ruolo.objects.create(
-                progetto = progetto,
-                soggetto = soggetto,
-                ruolo = r['SOGG_COD_RUOLO']
-            )
+            progetto.soggetto_set.add(soggetto)
+
 
         self.logger.info("Fine")
 
