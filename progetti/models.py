@@ -420,7 +420,7 @@ class Ruolo(models.Model):
     RUOLO = Choices(
         ('1', 'programmatore', 'Programmatore'),
         ('2', 'attuatore', 'Attuatore'),
-        ('3', 'destinatario', 'Destinatario del finanziamento'),
+        ('3', 'destinatario', 'Destinatario'),
         ('4', 'realizzatore', 'Realizzatore')
     )
     soggetto = models.ForeignKey('soggetti.Soggetto', verbose_name=u'Soggetto')
