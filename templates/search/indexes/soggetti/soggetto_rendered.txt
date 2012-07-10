@@ -1,0 +1,14 @@
+{% comment %}
+from django.template import loader, Context
+t = loader.get_template("search/indexes/soggetti/soggetto_rendered.txt")
+/Users/guglielmo/.virtualenvs/open_coesione/lib/python2.6/site-packages/django/template/defaulttags.py:1235: DeprecationWarning: The syntax for the url template tag is changing. Load the `url` tag from the `future` tag library to start using the new behavior.
+  category=DeprecationWarning)
+c = Context({'object': Soggetto.objects.get(slug='miur')})
+t.render(c)
+{% endcomment %}
+
+
+<div class="block-description">
+    <h3><a href="{% url soggetti_soggetto slug=object.slug %}">{{ object.denominazione }}</a></h3>
+</div>
+
