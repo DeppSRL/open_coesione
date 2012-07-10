@@ -49,24 +49,28 @@ class InfoView(JSONResponseMixin, TemplateView):
         lat = float(kwargs['lat'])
         lon = float(kwargs['lng'])
         pnt = Point(lon, lat)
-        territorio = Territorio.objects.get(geom__intersects=pnt, territorio=tipo)
+        try:
+            territorio = Territorio.objects.get(geom__intersects=pnt, territorio=tipo)
 
+            tema = None
+            if self.filter == 'temi':
+                tema = Tema.objects.get(slug=kwargs['slug'])
 
-        tema = None
-        if self.filter == 'temi':
-            tema = Tema.objects.get(slug=kwargs['slug'])
+            natura = None
+            if self.filter == 'nature':
+                natura = ClassificazioneAzione.objects.get(slug=kwargs['slug'])
 
-        natura = None
-        if self.filter == 'nature':
-            natura = ClassificazioneAzione.objects.get(slug=kwargs['slug'])
+            context['territorio'] = {
+                'denominazione': territorio.denominazione,
+                'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura) or 0,
+                'costo': Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura) or 0,
+                'pagamento': Progetto.objects.totale_costi_pagati(territorio=territorio, tema=tema, classificazione=natura) or 0,
+                'territori': territorio.get_breadcrumbs()
+            }
 
-        context['territorio'] = {
-            'denominazione': territorio.denominazione,
-            'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura) or 0,
-            'costo': Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura) or 0,
-            'pagamento': Progetto.objects.totale_costi_pagati(territorio=territorio, tema=tema, classificazione=natura) or 0,
-            'territori': territorio.get_breadcrumbs()
-        }
+            context['success'] = True
+        except Territorio.DoesNotExist:
+            context['success'] = False
 
         return context
 
