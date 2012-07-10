@@ -1,6 +1,7 @@
 import datetime
 from haystack.indexes import *
 from haystack import site
+from oc_search.fields import L10NCharField
 
 from progetti.models import Progetto
 
@@ -20,7 +21,7 @@ class ProgettoIndex(SearchIndex):
     costo = FacetFloatField(model_attr='fin_totale_pubblico')
 
     # search result format is pre-rendered during index phase
-    rendered = CharField(use_template=True, indexed=False)
+    rendered = L10NCharField(use_template=True, indexed=False)
 
     def prepare_natura(self, obj):
         return obj.classificazione_azione.codice.split('.')[0]
