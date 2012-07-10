@@ -34,6 +34,10 @@ class Soggetto(models.Model):
     def progetti(self):
         return self.progetto_set.all()
 
+    @property
+    def ruoli(self):
+        return self.ruolo_set.all()
+
     def __unicode__(self):
         return u"%s" % (self.denominazione, )
 
