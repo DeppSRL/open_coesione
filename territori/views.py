@@ -8,7 +8,7 @@ from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.conf import settings
 from open_coesione.data_classification import DataClassifier
-from open_coesione.views import AccessControlView
+from open_coesione.views import AccessControlView, AggregatoView
 from progetti.models import Progetto, Tema, ClassificazioneAzione
 from territori.models import Territorio
 import json
@@ -64,7 +64,7 @@ class InfoView(JSONResponseMixin, TemplateView):
                 'denominazione': territorio.denominazione,
                 'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura) or 0,
                 'costo': Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura) or 0,
-                'pagamento': Progetto.objects.totale_costi_pagati(territorio=territorio, tema=tema, classificazione=natura) or 0,
+                'pagamento': Progetto.objects.totale_pagamenti(territorio=territorio, tema=tema, classificazione=natura) or 0,
                 'territori': territorio.get_breadcrumbs()
             }
 
@@ -87,69 +87,6 @@ class AutocompleteView(JSONResponseMixin, TemplateView):
             'id': territorio.pk
             } for territorio in territori]
         return context
-
-
-class MapLayerView(JSONResponseMixin,TemplateView):
-    """
-    DEPRECATED: will be removed soon
-    """
-
-    """
-    def get_context_data(self, **kwargs):
-        context = super(MapLayerView, self).get_context_data(**kwargs)
-
-        # fetch Geometry object to look at
-        # - nation
-        # - region
-        # - province
-        if 'cod_reg' in context['params']:
-            codice = context['params']['cod_reg']
-            area = Territorio.objects.get(territorio=Territorio.TERRITORIO.R, cod_reg=codice).geom
-        elif 'cod_prov' in context['params']:
-            codice = context['params']['cod_prov']
-            area = Territorio.objects.get(territorio=Territorio.TERRITORIO.R, cod_prov=codice).geom
-        else:
-            # Collect all comuni except Lampedusa e Linosa to reduce zoomlevel of fitbound
-            area = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).exclude(cod_com='84020').collect()
-
-        # compute bounds, to use inside the maps
-        bounds = {
-            'southwest': {
-                'lng': str(area.extent[0]),
-                'lat': str(area.extent[1])
-            },
-            'northeast': {
-                'lng': str(area.extent[2]),
-                'lat': str(area.extent[3])
-            }
-        }
-        context['bounds'] = bounds
-
-        # compute layer name from request.path and tematizzatione query string
-        if 'tematizzazione' in self.request.GET:
-            tematizzazione = self.request.GET['tematizzazione']
-        else:
-            tematizzazione = 'totale_costi'
-        if tematizzazione not in ('totale_costi', 'totale_costi_pagati', 'totale_progetti'):
-            raise Http404
-
-        path = self.request.path.split(".")[0]
-        context['layer_name'] = "_".join(path.split("/")[3:]) + "_" + tematizzazione
-
-        # layer type may be R, P or C
-        context['layer_type'] = path.split("/")[-1:][0][0:1].upper()
-
-        # read legend html directly from mapnik xml (which should be cached at this point)
-        mapnik_xml_path = "%s.xml?tematizzazione=%s" % (re.sub(r'leaflet', 'mapnik', path), tematizzazione)
-        MAPNIK_HOST = settings.MAPNIK_HOST or Site.objects.get_current()
-        mapnik_xml_url = "http://%s%s" % (MAPNIK_HOST, mapnik_xml_path)
-        mapnik_xml = urllib.urlopen(mapnik_xml_url)
-        tree = etree.parse(mapnik_xml, parser=etree.XMLParser())
-        context['legend_html'] = tree.getroot()[0].text
-
-        context['info_base_url'] = "http://{0}/territori/info".format(Site.objects.get_current())
-        return context
-    """
 
 
 class LeafletView(TemplateView):
@@ -213,7 +150,7 @@ class LeafletView(TemplateView):
             tematizzazione = self.request.GET['tematizzazione']
         else:
             tematizzazione = 'totale_costi'
-        if tematizzazione not in ('totale_costi', 'totale_costi_pagati', 'totale_progetti'):
+        if tematizzazione not in ('totale_costi', 'totale_pagamenti', 'totale_progetti'):
             raise Http404
 
 
@@ -246,7 +183,7 @@ class TilesConfigView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TilesConfigView, self).get_context_data(**kwargs)
-        context['tematizzazioni'] = ('totale_costi', 'totale_costi_pagati', 'totale_progetti')
+        context['tematizzazioni'] = ('totale_costi', 'totale_pagamenti', 'totale_progetti')
         context['regioni'] = Territorio.objects.filter(territorio='R')
         context['province'] = Territorio.objects.filter(territorio='P')
         context['temi'] = Tema.objects.principali()
@@ -288,7 +225,7 @@ class MapnikView(TemplateView):
             tematizzazione = self.request.GET['tematizzazione']
         else:
             tematizzazione = 'totale_costi'
-        if tematizzazione not in ('totale_costi', 'totale_costi_pagati', 'totale_progetti'):
+        if tematizzazione not in ('totale_costi', 'totale_pagamenti', 'totale_progetti'):
             raise Http404
 
         # build the collection of aggregated data for the map
@@ -339,20 +276,6 @@ class MapnikView(TemplateView):
 
     def refine_context(self, context):
         pass
-#        if self.filter in ['natura','tema']:
-#            # retrieve object by slug
-#            o = {
-#                'natura': ClassificazioneAzione,
-#                'tema' : Tema
-#
-#            }[ self.filter ].objects.get(slug=self.kwargs.get('slug') )
-#
-#            # override manager with required queryset
-#            self.manager = getattr(self.manager, 'con_{0}'.format( self.filter ) )( o )
-#
-#            # extends name of layer
-#            context['territori_name'] = '{0} {1} per {2}'.format(self.filter.title(), o.short_label, self.territori_name )
-
 
 class MapnikRegioniView(MapnikView):
     territori_name = 'regioni'
@@ -400,7 +323,7 @@ class MapnikComuniView(MapnikView):
             raise Exception("a region or a province must be specified for this view")
 
 
-class TerritorioView(AccessControlView, DetailView):
+class TerritorioView(AccessControlView, AggregatoView, DetailView):
     context_object_name = 'territorio'
     tipo_territorio = ''
     model = 'Territorio'
@@ -409,35 +332,7 @@ class TerritorioView(AccessControlView, DetailView):
         # Call the base implementation first to get a context
         context = super(TerritorioView, self).get_context_data(**kwargs)
 
-        context['total_cost'] = Progetto.objects.totale_costi(territorio=self.object)
-        context['total_cost_paid'] = Progetto.objects.totale_costi_pagati(territorio=self.object)
-        context['total_projects'] = Progetto.objects.totale_progetti(territorio=self.object)
-        context['total_allocated_resources'] = Progetto.objects.totale_risorse_stanziate(territorio=self.object)
-        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
-
-        context['temi_principali'] = [
-            {
-            'object': tema,
-            'data': Tema.objects.\
-                filter(tema_superiore=tema).\
-                filter(**self.object.get_cod_dict(prefix='progetto_set__territorio_set__')).\
-                aggregate(numero=Count('progetto_set'),
-                          costo=Sum('progetto_set__fin_totale_pubblico'),
-                          pagamento=Sum('progetto_set__pagamento'))
-            } for tema in Tema.objects.principali()
-        ]
-
-        context['tipologie_principali'] = [
-            {
-            'object': natura,
-            'data': ClassificazioneAzione.objects.\
-                filter(classificazione_superiore=natura).\
-                filter(**self.object.get_cod_dict(prefix='progetto_set__territorio_set__')).\
-                aggregate(numero=Count('progetto_set'),
-                          costo=Sum('progetto_set__fin_totale_pubblico'),
-                          pagamento=Sum('progetto_set__pagamento'))
-            } for natura in ClassificazioneAzione.objects.tematiche()
-        ]
+        context = self.get_aggregate_data(context, territorio=self.object)
 
         context['top_progetti_per_costo'] = Progetto.objects.nel_territorio(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().nel_territorio(self.object)[:5]
@@ -448,16 +343,6 @@ class TerritorioView(AccessControlView, DetailView):
             .annotate( totale=models.Sum('progetto__fin_totale_pubblico') )\
             .filter( totale__isnull=False )\
             .order_by('-totale')[:5]
-        # sotto territori del territorio richiesto
-#        context['territori_piu_finanziati'] = Territorio.objects\
-#                .exclude(pk=self.object.pk)\
-#                .filter(totale__isnull=False, territorio= Territorio.TERRITORIO.C, **self.object.get_cod_dict())\
-#                .annotate(totale=models.Sum('progetto__costo'))\
-#                .order_by('-fin_totale_pubblico')[:3]
-
-        #context['map'] = self.get_map_context( self.object )
-        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
-        context['map_legend_colors'] = settings.MAP_COLORS
 
         return context
 

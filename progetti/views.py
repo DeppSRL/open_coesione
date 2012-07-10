@@ -11,7 +11,7 @@ from oc_search.forms import RangeFacetedSearchForm
 from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto, ClassificazioneAzione, ClassificazioneQSN
-from open_coesione.settings import REPO_ROOT
+from django.conf import settings
 from open_coesione.views import AggregatoView, AccessControlView
 from progetti.models import Tema, ClassificazioneAzione
 from soggetti.models import Soggetto
@@ -71,27 +71,12 @@ class TipologiaView(AggregatoView, DetailView):
         # Call the base implementation first to get a context
         context = super(TipologiaView, self).get_context_data(**kwargs)
 
-        context['total_cost'] = Progetto.objects.totale_costi(classificazione=self.object)
-        context['total_cost_paid'] = Progetto.objects.totale_costi_pagati(classificazione=self.object)
-        context['total_projects'] = Progetto.objects.totale_progetti(classificazione=self.object)
-        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
-
-        context['temi_principali'] = [
-            {
-            'object': tema,
-            'data': Tema.objects.\
-                filter(tema_superiore=tema).\
-                filter(progetto_set__classificazione_azione__classificazione_superiore=self.object).\
-                aggregate(numero=Count('progetto_set'),
-                          costo=Sum('progetto_set__fin_totale_pubblico'),
-                          pagamento=Sum('progetto_set__pagamento'))
-            } for tema in Tema.objects.principali()
-        ]
+        context = self.get_aggregate_data(context, classificazione=self.object)
 
         context['numero_soggetti'] = Soggetto.objects.count()
 
-        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
-        context['map_legend_colors'] = settings.MAP_COLORS
+#        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
+#        context['map_legend_colors'] = settings.MAP_COLORS
         context['map_selector'] = 'nature/{0}/'.format(self.kwargs['slug'])
 
 
@@ -100,40 +85,22 @@ class TipologiaView(AggregatoView, DetailView):
     def get_object(self, queryset=None):
         return ClassificazioneAzione.objects.get(slug=self.kwargs.get('slug'))
 
-class TemaView(AggregatoView, DetailView):
+class TemaView(AccessControlView, AggregatoView, DetailView):
     context_object_name = 'tema'
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(TemaView, self).get_context_data(**kwargs)
 
-        context['total_cost'] = Progetto.objects.totale_costi(tema=self.object)
-        context['total_cost_paid'] = Progetto.objects.totale_costi_pagati(tema=self.object)
-        context['total_projects'] = Progetto.objects.totale_progetti(tema=self.object)
-        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
-
-        # estrae l'aggregato di numero, costi e pagamenti progetti per
-        # tutte le nature (tipologie principali)
-        # a tema fissato
-        context['tipologie_principali'] = [
-            {
-                'object': natura,
-                'data': ClassificazioneAzione.objects.\
-                          filter(classificazione_superiore=natura).\
-                          filter(progetto_set__tema__tema_superiore=self.object).\
-                          aggregate(numero=Count('progetto_set'),
-                                    costo=Sum('progetto_set__fin_totale_pubblico'),
-                                    pagamento=Sum('progetto_set__pagamento'))
-            } for natura in ClassificazioneAzione.objects.tematiche()
-        ]
+        context = self.get_aggregate_data(context, tema=self.object)
 
         context['numero_soggetti'] = Soggetto.objects.count()
 
-        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
-        context['map_legend_colors'] = settings.MAP_COLORS
+#        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
+#        context['map_legend_colors'] = settings.MAP_COLORS
         context['map_selector'] = 'temi/{0}/'.format(self.kwargs['slug'])
 
-        context['lista_indici_tema'] = csv.DictReader(open(os.path.join(REPO_ROOT, 'open_coesione/static/csv/indicatori/{0}.csv'.format(self.object.codice))))
+        context['lista_indici_tema'] = csv.DictReader(open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))))
 
         return context
 

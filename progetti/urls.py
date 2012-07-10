@@ -25,10 +25,10 @@ urlpatterns = patterns('',
    url(r'^(?P<slug>[\w-]+)$', ProgettoView.as_view(), name='progetti_progetto'),
 
    # tipologie
-   url(r'^tipologie/(?P<slug>[\w-]+)$', cache_page()(TipologiaView.as_view()), name='progetti_tipologia'),
+   url(r'^tipologie/(?P<slug>[\w-]+)$', cache_page(key_prefix='tipologie')(TipologiaView.as_view()), name='progetti_tipologia'),
 
    # temi
-   url(r'^temi/(?P<slug>[\w-]+)$', cache_page()(TemaView.as_view()), name='progetti_tema'),
+   url(r'^temi/(?P<slug>[\w-]+)$', cache_page(key_prefix='temi')(TemaView.as_view()), name='progetti_tema'),
 
 )
 

@@ -393,7 +393,7 @@
 
           <strong class="title">Finanziamenti monitorati</strong>
 
-          <p>{{ total_cost|intword }} <span>di euro</span></p>
+          <p>{{ totale_costi|intword }} <span>di euro</span></p>
 
           <div class="bar-vertical"></div>
 
@@ -405,15 +405,15 @@
 
         </a>
 
-        <a href="{{ request.path }}?tematizzazione=totale_costi_pagati" class="block-chart{% if tematizzazione == 'totale_costi_pagati' %} block-active{% endif %}" title="{{ cost_payments_ratio }} del totale" data-dataset="totale_costi_pagati">
+        <a href="{{ request.path }}?tematizzazione=totale_pagamenti" class="block-chart{% if tematizzazione == 'totale_pagamenti' %} block-active{% endif %}" title="{{ percentuale_costi_pagamenti }} del totale" data-dataset="totale_pagamenti">
 
           <strong class="title">Pagamenti monitorati</strong>
 
-          <p>{{ total_cost_paid|intword }} <span>di euro</span></p>
+          <p>{{ totale_pagamenti|intword }} <span>di euro</span></p>
 
-          <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}">{{ cost_payments_ratio }}</span></div>
+          <div class="bar-vertical"><span style="height:{{ percentuale_costi_pagamenti }}">{{ percentuale_costi_pagamenti }}</span></div>
 
-          {% if tematizzazione == 'totale_costi_pagati' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+          {% if tematizzazione == 'totale_pagamenti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
 
         </a>
 
@@ -421,7 +421,7 @@
 
           <strong class="title">Progetti monitorati</strong>
 
-          <p>{{ total_projects|intcomma }}</p>
+          <p>{{ totale_progetti|intcomma }}</p>
 
           {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
 
@@ -497,23 +497,23 @@
               </div>
             {% endif %}
 
-            {% if tipologie_principali %}
+            {% if nature_principali %}
             <div class="span3{% if tema or tipologia %} offset3{% endif %}">
               <h4>Natura dell'intervento</h4>
 
               <div id="main_types_chart" style="width: 100%; height: 250px"></div>
 
               <table id="main_types" class="table">
-                {% for tipologia in tipologie_principali %}
+                {% for tipologia in nature_principali %}
                   <tr>
                       {% if territorio %}
-                          <td><a href="{% url progetti_search %}?q=&territorio_id={{ territorio.pk }}&selected_facets=natura:{{ tipologia.object.codice }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                          <td><a href="{% url progetti_search %}?q=&territorio_id={{ territorio.pk }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  elif tema %}
-                          <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.object.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                          <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  else %}
-                          <td><a href="{{ tipologia.object.get_absolute_url }}" title="{{ tipologia.object.descrizione }}">{{ tipologia.object.short_label }}</a></td>
+                          <td><a href="{{ tipologia.get_absolute_url }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a></td>
                       {% endif %}
-                    <td class="amount"><strong>{{ tipologia.data.costo|default:"0"|intcomma }}</strong> euro</td>
+                    <td class="amount"><strong>{{ tipologia.tot|default:"0"|intcomma }}</strong> {% if tematizzazione == 'totale_progetti' %}progetti{% else %}euro{% endif %}</td>
                   </tr>
                 {% endfor %}
               </table>
@@ -531,13 +531,13 @@
                 {% for tema in temi_principali %}
                   <tr>
                       {% if territorio %}
-                          <td><a href="{% url progetti_search %}?q=&territorio_id={{ territorio.pk }}&selected_facets=tema:{{ tema.object.codice }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
+                          <td><a href="{% url progetti_search %}?q=&territorio_id={{ territorio.pk }}&selected_facets=tema:{{ tema.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
                       {%  elif tipologia %}
-                          <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.object.codice }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
+                          <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
                       {%  else %}
-                          <td><a href="{{ tema.object.get_absolute_url }}" title="{{ tema.object.descrizione }}">{{ tema.object.short_label }}</a></td>
+                          <td><a href="{{ tema.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a></td>
                       {% endif %}
-                    <td class="amount"><strong>{{ tema.data.costo|default:"0"|intcomma }}</strong> euro</td>
+                    <td class="amount"><strong>{{ tema.tot|default:"0"|intcomma }}</strong> {% if tematizzazione == 'totale_progetti' %}progetti{% else %}euro{% endif %}</td>
 
                   </tr>
                 {% endfor %}
