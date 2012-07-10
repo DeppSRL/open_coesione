@@ -436,7 +436,7 @@ class Ruolo(models.Model):
         return self.progetto_set.all()
 
     def __unicode__(self):
-        return u"%s" % (self.get_ruolo_diplay(),)
+        return u"%s" % (self.get_ruolo_display(),)
 
     class Meta:
         verbose_name = "Ruolo"
