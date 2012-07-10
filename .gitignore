@@ -16,4 +16,5 @@ open_coesione/static/csv/temaind
 */migrations/*
 dati
 splitcsv2.py
+test_numberformat.py
 django.ini
