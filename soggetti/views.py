@@ -18,35 +18,7 @@ class SoggettoView(AggregatoView, DetailView):
         # Call the base implementation first to get a context
         context = super(SoggettoView, self).get_context_data(**kwargs)
 
-        context['total_cost'] = Progetto.objects.totale_costi(soggetto=self.object)
-        context['total_cost_paid'] = Progetto.objects.totale_pagamenti(soggetto=self.object)
-        context['total_projects'] = Progetto.objects.totale_progetti(soggetto=self.object)
-        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
-
-        context['temi_principali'] = [
-            {
-            'object': tema,
-            'data': Tema.objects.\
-                        filter(tema_superiore=tema).\
-                        filter(progetto_set__soggetto_set__pk=self.object.pk).
-                        aggregate(numero=Count('progetto_set'),
-                            costo=Sum('progetto_set__fin_totale_pubblico'),
-                            pagamento=Sum('progetto_set__pagamento'))
-            } for tema in Tema.objects.principali()
-        ]
-
-        context['tipologie_principali'] = [
-            {
-            'object': natura,
-            'data': ClassificazioneAzione.objects.\
-                        filter(classificazione_superiore=natura).\
-                        filter(progetto_set__soggetto_set__pk=self.object.pk).\
-                        aggregate(numero=Count('progetto_set'),
-                            costo=Sum('progetto_set__fin_totale_pubblico'),
-                            pagamento=Sum('progetto_set__pagamento'))
-            } for natura in ClassificazioneAzione.objects.tematiche()
-        ]
-
+        context = self.get_aggregate_data(context, soggetto=self.object)
 
         # calcolo dei collaboratori con cui si spartiscono piu' soldi
         collaboratori = {}
