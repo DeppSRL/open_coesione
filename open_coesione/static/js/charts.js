@@ -129,13 +129,13 @@ var line_chart_options = {
         title: {
             align: 'high',
             offset: 0,
-            text: '%',
-            rotation: 0,
-            y: -10
+            text: '',
+            rotation: 0
+            //y: -10
         }
 
     },
-    tooltip: { valueDecimals: 2, valueSuffix: '%', xDateFormat: '%Y' },
+    tooltip: { valueDecimals: 2, valueSuffix: '', xDateFormat: '%Y' },
     credits: defaults.credits
 };
 

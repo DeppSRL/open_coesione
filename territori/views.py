@@ -175,7 +175,7 @@ class LeafletView(TemplateView):
 
         # info_base_url for popup changes in case temi or nature filters are applied
         if self.filter:
-            context['info_base_url'] = "/territori/info/{1}/{2}".format(
+            context['info_base_url'] = "/territori/info/{0}/{1}".format(
                 #Site.objects.get_current(),
                 self.filter, self.kwargs['slug']
             )
