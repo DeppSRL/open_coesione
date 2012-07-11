@@ -4,6 +4,7 @@ from django.views.generic.detail import DetailView
 from django.db.models import Count, Sum
 from django.core.urlresolvers import reverse
 from oc_search.forms import RangeFacetedSearchForm
+from oc_search.mixins import FacetRangeCostoMixin, FacetRangeNProgettiMixin
 from oc_search.views import ExtendedFacetedSearchView
 from open_coesione.views import AggregatoView, AccessControlView
 from progetti.models import Progetto, Tema, ClassificazioneAzione, Ruolo
@@ -11,23 +12,32 @@ from soggetti.models import Soggetto
 from territori.models import Territorio
 
 
-class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView):
+class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, FacetRangeNProgettiMixin):
     """
-
     This view allows faceted search and navigation of a progetto.
 
     It extends an extended version of the basic FacetedSearchView,
 
+    It also extends FacetRangeCostoMixin and FacetRangeNProgettiMixin, to handle
+    custom facets on range fields `costo` and `n_progetti`.
     """
     __name__ = 'SoggettoSearchView'
 
-    N_RANGES = {
-        '0TO10':      '[* TO 10]',
-        '10TO100':    '[11 TO 100]',
-        '100TO1K':    '[101 TO 1000]',
-        '1KTO10K':    '[1001 TO 10000]',
-        '10KTOINF':   '[10000 TO *]',
-        }
+    COST_RANGES = {
+        '0-0TO100K':   {'qrange': '[* TO 100000]',             'r_label': 'fino a 100.000 &euro;'},
+        '1-100KTO1M':  {'qrange': '[100001 TO 1000000]',       'r_label': 'da 100.000 a 1 mil. di &euro;'},
+        '2-1MTO10M':   {'qrange': '[1000001 TO 10000000]',     'r_label': 'da 1 mil. a 10 mil. di &euro;'},
+        '3-10MTO100M': {'qrange': '[10000001 TO 100000000]',   'r_label': 'da 10 mil. a 100 mil. di &euro;'},
+        '4-100MTO1G':  {'qrange': '[100000001 TO 1000000000]', 'r_label': 'da 100 mil. a 1 mld. di &euro;'},
+        '5-1GTOINF':   {'qrange': '[1000000001 TO *]',         'r_label': 'oltre 1 mld. di &euro;'},
+    }
+    N_PROGETTI_RANGES = {
+        '0-0TO10':     {'qrange': '[* TO 10]',       'r_label': 'fino a 10' },
+        '1-10TO100':   {'qrange': '[11 TO 100]',     'r_label': 'da 10 a 100' },
+        '2-100TO1K':   {'qrange': '[101 TO 1000]',   'r_label': 'da 100 a 1.000' },
+        '3-1KTO10K':   {'qrange': '[1001 TO 10000]', 'r_label': 'da 1.000 a 10.000' },
+        '4-10KTOINF':  {'qrange': '[10001 TO *]',    'r_label': 'oltre 10.000' },
+    }
 
 
     def __init__(self, *args, **kwargs):
@@ -43,6 +53,20 @@ class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView):
 
         return super(SoggettoSearchView, self).build_form(form_kwargs)
 
+
+    def _get_extended_selected_facets(self):
+        """
+        modifies the extended_selected_facets, adding correct labels for this view
+        works directly on the extended_selected_facets dictionary
+        """
+        extended_selected_facets = super(SoggettoSearchView, self)._get_extended_selected_facets()
+
+        # these comes from the Mixins
+        extended_selected_facets = self.add_costo_extended_selected_facets(extended_selected_facets)
+        extended_selected_facets = self.add_n_progetti_extended_selected_facets(extended_selected_facets)
+
+        return extended_selected_facets
+
     def extra_context(self):
         """
         Add extra content here, when needed
@@ -52,6 +76,10 @@ class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView):
         territorio_id = self.request.GET.get('territorio_id', 0)
         if territorio_id:
             extra['territorio'] = Territorio.objects.get(pk=territorio_id).nome_con_provincia
+
+        # get data about custom costo and n_progetti range facets
+        extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()
+        extra['facet_queries_n_progetti'] = self.get_custom_facet_queries_n_progetti()
 
         # definizione struttura dati per  visualizzazione faccette ruoli
         extra['ruolo'] = {
@@ -72,7 +100,7 @@ class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView):
                     for c in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)
             )
         }
-        extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
+        extra['base_url'] = reverse('soggetti_search') + '?' + extra['params'].urlencode()
 
 
         paginator = Paginator(self.results, 25)

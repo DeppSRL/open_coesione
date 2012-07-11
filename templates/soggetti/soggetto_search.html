@@ -35,9 +35,9 @@
                         </td>
 
                         <!-- finanziamenti -->
-                        <td>{{ result.finanziamenti|default:"0.0" }}</td>
+                        <td>{{ result.costo|default:"0.0"|floatformat:2 }}</td>
 
-                        <td>{{ result.n_progetti|default:"0"|intcomma:0 }}</td>
+                        <td>{{ result.n_progetti|default:"0" }}</td>
                     </tr>
                 {% empty %}
                     <p>Nessun risultato trovato.</p>
@@ -87,6 +87,20 @@
                             {{ tema.short_label|key:facet.r_label|safe }}
                         </dd>
                     {% endif %}
+                    {% if facet.field == 'costo' and facet_queries_costo.is_selected %}
+                        <dt>Finanziamenti</dt>
+                        <dd>
+                            <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
+                            {{ facet.r_label|safe }}
+                        </dd>
+                    {% endif %}
+                    {% if facet.field == 'n_progetti' and facet_queries_n_progetti.is_selected %}
+                        <dt>Numero di progetti</dt>
+                        <dd>
+                            <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
+                            {{ facet.r_label|safe }}
+                        </dd>
+                    {% endif %}
                 {% endfor %}
             {% else %}
                 <h3>Filtra</h3>
@@ -123,6 +137,31 @@
                                     {% endif %}
                                 </dd>
                             {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </dl>
+                <dl>
+                    {% if not facet_queries_costo.is_selected %}
+                        <dt>Finanziamenti</dt>
+                        {% for range in facet_queries_costo.ranges %}
+                            <dd>
+                                <a href="{{ base_url }}&selected_facets={{ range.key }}">
+                                    {{ range.label|safe }}
+                                </a> ({{ range.count }})
+                            </dd>
+                        {% endfor %}
+                    {% endif %}
+                </dl>
+
+                <dl>
+                    {% if not facet_queries_n_progetti.is_selected %}
+                        <dt>Numero di progetti</dt>
+                        {% for range in facet_queries_n_progetti.ranges %}
+                            <dd>
+                                <a href="{{ base_url }}&selected_facets={{ range.key }}">
+                                    {{ range.label|safe }}
+                                </a> ({{ range.count }})
+                            </dd>
                         {% endfor %}
                     {% endif %}
                 </dl>

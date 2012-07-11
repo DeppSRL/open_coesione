@@ -15,7 +15,7 @@ class SoggettoIndex(SearchIndex):
     # faceting fields
     ruolo = FacetMultiValueField()
     tema = FacetMultiValueField()
-    finanziamenti = FacetFloatField()
+    costo = FacetFloatField()
     n_progetti = FacetIntegerField()
 
     # search result format is pre-rendered during index phase
@@ -27,7 +27,7 @@ class SoggettoIndex(SearchIndex):
     def prepare_tema(self, obj):
         return [t['codice'] for t in Tema.objects.filter(tema_set__progetto_set__soggetto_set=obj).distinct().values('codice')]
 
-    def prepare_finanziamenti(self, obj):
+    def prepare_costo(self, obj):
         return Progetto.objects.totale_costi(soggetto=obj)
 
     def prepare_n_progetti(self, obj):

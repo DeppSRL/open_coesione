@@ -11,10 +11,10 @@ sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
         query_facet('data_inizio', ProgettoSearchView.SIXMONTHS).\
         query_facet('data_inizio', ProgettoSearchView.ONEYEAR).\
         query_facet('data_inizio', ProgettoSearchView.TWOYEARS).\
-        query_facet('costo', ProgettoSearchView.COST_RANGES['0TO1K']).\
-        query_facet('costo', ProgettoSearchView.COST_RANGES['1KTO10K']).\
-        query_facet('costo', ProgettoSearchView.COST_RANGES['10KTO100K']).\
-        query_facet('costo', ProgettoSearchView.COST_RANGES['100KTOINF']).\
+        query_facet('costo', ProgettoSearchView.COST_RANGES['0-0TO1K']['qrange']).\
+        query_facet('costo', ProgettoSearchView.COST_RANGES['1-1KTO10K']['qrange']).\
+        query_facet('costo', ProgettoSearchView.COST_RANGES['2-10KTO100K']['qrange']).\
+        query_facet('costo', ProgettoSearchView.COST_RANGES['3-100KTOINF']['qrange']).\
         highlight()
 
 urlpatterns = patterns('',

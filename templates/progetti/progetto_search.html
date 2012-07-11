@@ -80,8 +80,8 @@
                         {{ facet.r_label|safe }}
                     </dd>
                 {% endif %}
-                {% if facet.field == 'costo' and facet_queries_cost.is_selected %}
-                    <dt>Data inizio</dt>
+                {% if facet.field == 'costo' and facet_queries_costo.is_selected %}
+                    <dt>Finanziamenti</dt>
                     <dd>
                         <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
                         {{ facet.r_label|safe }}
@@ -156,38 +156,15 @@
             </dl>
 
             <dl>
-                {% if not facet_queries_cost.is_selected %}
-                    <dt>Costo</dt>
-                    {% if facet_queries_cost.costrange_0TO1K.count %}
+                {% if not facet_queries_costo.is_selected %}
+                    <dt>Finanziamenti</dt>
+                    {% for range in facet_queries_costo.ranges %}
                         <dd>
-                            <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_0TO1K.key }}">
-                                da 0 a 1.000 &euro;
-                            </a> ({{ facet_queries_cost.costrange_0TO1K.count }})
+                            <a href="{{ base_url }}&selected_facets={{ range.key }}">
+                                {{ range.label|safe }}
+                            </a> ({{ range.count }})
                         </dd>
-                    {% endif %}
-
-                    {% if facet_queries_cost.costrange_1KTO10K.count %}
-                        <dd>
-                            <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_1KTO10K.key }}">
-                                da 1.000 a 10.000 &euro;
-                            </a> ({{ facet_queries_cost.costrange_1KTO10K.count }})
-                        </dd>
-                    {% endif %}
-
-                    {% if facet_queries_cost.costrange_10KTO100K.count %}
-                        <dd>
-                            <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_10KTO100K.key }}">
-                                da 10.000 a 100.000 &euro;
-                            </a> ({{ facet_queries_cost.costrange_10KTO100K.count }})
-                        </dd>
-                    {% endif %}
-                    {% if facet_queries_cost.costrange_100KTOINF.count %}
-                        <dd>
-                            <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_100KTOINF.key }}">
-                                oltre 100.000 &euro;
-                            </a> ({{ facet_queries_cost.costrange_100KTOINF.count }})
-                        </dd>
-                    {% endif %}
+                    {% endfor %}
                 {% endif %}
             </dl>
 
