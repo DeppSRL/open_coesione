@@ -11,8 +11,7 @@ from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin
 from oc_search.views import ExtendedFacetedSearchView
 
-from models import Progetto, ClassificazioneAzione, ClassificazioneQSN
-from django.conf import settings
+from models import Progetto, ClassificazioneAzione
 from open_coesione.views import AggregatoView, AccessControlView
 from progetti.models import Tema
 from soggetti.models import Soggetto
@@ -155,9 +154,24 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         """
         extra = super(ProgettoSearchView, self).extra_context()
 
-        territorio_id = self.request.GET.get('territorio_id', 0)
-        if territorio_id:
-            extra['territorio'] = Territorio.objects.get(pk=territorio_id).nome_con_provincia
+        territorio_com = self.request.GET.get('territorio_com', 0)
+        territorio_prov = self.request.GET.get('territorio_prov', 0)
+        territorio_reg = self.request.GET.get('territorio_reg', 0)
+        if territorio_com and territorio_com != '0':
+            extra['territorio'] = Territorio.objects.get(
+                territorio=Territorio.TERRITORIO.C,
+                cod_com=territorio_com
+            ).nome
+        elif territorio_prov and territorio_prov != '0':
+            extra['territorio'] = Territorio.objects.get(
+                territorio=Territorio.TERRITORIO.P,
+                cod_prov=territorio_prov
+            ).nome_con_provincia
+        elif territorio_reg and territorio_reg != '0':
+            extra['territorio'] = Territorio.objects.get(
+                territorio=Territorio.TERRITORIO.R,
+                cod_reg=territorio_reg
+            ).nome
 
         # get data about custom costo and n_progetti range facets
         extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()

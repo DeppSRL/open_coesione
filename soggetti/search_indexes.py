@@ -10,7 +10,9 @@ from django.conf import settings
 
 class SoggettoIndex(SearchIndex):
     text = CharField(document=True, use_template=True)
-    # territorio = MultiValueField(indexed=True, stored=True)
+    territorio_com = MultiValueField(indexed=True, stored=True)
+    territorio_prov = MultiValueField(indexed=True, stored=True)
+    territorio_reg = MultiValueField(indexed=True, stored=True)
 
     # faceting fields
     ruolo = FacetMultiValueField()
@@ -33,8 +35,17 @@ class SoggettoIndex(SearchIndex):
     def prepare_n_progetti(self, obj):
         return Progetto.objects.totale_progetti(soggetto=obj)
 
-    def prepare_territorio(self, obj):
-        return obj.territorio
+    def prepare_territorio_reg(self, obj):
+        if obj.territorio:
+            return obj.territorio.cod_reg
+
+    def prepare_territorio_prov(self, obj):
+        if obj.territorio:
+            return obj.territorio.cod_prov
+
+    def prepare_territorio_com(self, obj):
+        if obj.territorio:
+            return obj.territorio.cod_com
 
 
 site.register(Soggetto, SoggettoIndex)

@@ -80,8 +80,11 @@ class AutocompleteView(JSONResponseMixin, TemplateView):
         context['territori'] = [{
             'denominazione': territorio.nome_con_provincia,
             'url': territorio.get_absolute_url(),
-            'id': territorio.pk
-            } for territorio in territori]
+            'id': territorio.pk,
+            'cod_com': territorio.cod_com,
+            'cod_prov': territorio.cod_prov,
+            'cod_reg': territorio.cod_reg,
+        } for territorio in territori]
         return context
 
 

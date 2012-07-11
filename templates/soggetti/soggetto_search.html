@@ -59,12 +59,25 @@
     <div class="flat_content">
         <h4>Cerca tra i soggetti</h4>
         <form method="get" action="{% url soggetti_search %}" class="form-search">
-            <input type="text" class="input-medium search-query" name="{{ form.q.html_name }}"
-                   value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" /><br/>
-            <input id="location" type="text" class="input-large search-query"
-                   value="{% if territorio %}{{ territorio }}{% endif %}" placeholder="Inserisci il territorio"/>
-            <input id="location-id" name="{{ form.territorio_id.html_name }}"
-                   value="{% if form.territorio_id.value %}{{ form.territorio_id.value }}{% endif %}" type="hidden"/><br/>
+            {%  spaceless %}
+                <input id="query" type="text" class="input-medium search-query" name="{{ form.q.html_name }}"
+                       value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
+                <button id="clear-query" class="btn add-in"><i class="icon-remove"></i></button>
+            {%  endspaceless %}
+            <br/>
+            {%  spaceless %}
+                <input id="location" type="text" class="input-large search-query"
+                       value="{% if territorio %}{{ territorio }}{% endif %}"
+                       placeholder="Inserisci il territorio"/>
+                <button id="clear-location" class="btn add-in"><i class="icon-remove"></i></button>
+            {%  endspaceless %}
+            <br/>
+            <input id="territorio-com" name="{{ form.territorio_com.html_name }}"
+                   value="{% if form.territorio_com.value %}{{ form.territorio_com.value }}{% endif %}" type="hidden"/>
+            <input id="territorio-prov" name="{{ form.territorio_prov.html_name }}"
+                   value="{% if form.territorio_prov.value %}{{ form.territorio_prov.value }}{% endif %}" type="hidden"/>
+            <input id="territorio-reg" name="{{ form.territorio_reg.html_name }}"
+                   value="{% if form.territorio_reg.value %}{{ form.territorio_reg.value }}{% endif %}" type="hidden"/>
             <button type="submit" class="btn add-in"><i class="icon-search"> Cerca</i></button>
         </form>
 
@@ -194,7 +207,9 @@
                                     return {
                                         label: item.denominazione,
                                         url: item.url,
-                                        id: item.id
+                                        cod_com: item.cod_com,
+                                        cod_prov: item.cod_prov,
+                                        cod_reg: item.cod_reg
                                     }
                                 }));
                             }
@@ -202,7 +217,9 @@
                 },
                 minLength: 2,
                 select: function( event, ui ) {
-                    $('#location-id').val(ui.item.id);
+                    $('#territorio-com').val(ui.item.cod_com);
+                    $('#territorio-prov').val(ui.item.cod_prov);
+                    $('#territorio-reg').val(ui.item.cod_reg);
                 },
                 open: function() {
                     $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
@@ -211,6 +228,16 @@
                     $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
                 }
             }).css('z-index', 10000);
+
+            $( "#clear-location").click( function (){
+                $("#location").val('');
+                $('#territorio-com').val('');
+                $('#territorio-prov').val('');
+                $('#territorio-reg').val('');
+            });
+            $( "#clear-query").click( function (){
+                $("#query").val('');
+            });
 
         });
     </script>

@@ -12,7 +12,9 @@ from django.conf import settings
 
 class ProgettoIndex(SearchIndex):
     text = CharField(document=True, use_template=True)
-    territorio = MultiValueField(indexed=True, stored=True)
+    territorio_com = MultiValueField(indexed=True, stored=True)
+    territorio_prov = MultiValueField(indexed=True, stored=True)
+    territorio_reg = MultiValueField(indexed=True, stored=True)
 
     # faceting fields
     natura = FacetCharField( )
@@ -29,8 +31,13 @@ class ProgettoIndex(SearchIndex):
     def prepare_tema(self, obj):
         return obj.tema.codice.split('.')[0]
 
-    def prepare_territorio(self, obj):
-        return [t.pk for t in list(obj.territori)]
+    def prepare_territorio_reg(self, obj):
+        return [c['cod_reg'] for c in obj.territori.values('cod_reg')]
 
+    def prepare_territorio_prov(self, obj):
+        return [c['cod_prov'] for c in obj.territori.values('cod_prov')]
+
+    def prepare_territorio_com(self, obj):
+        return [c['cod_com'] for c in obj.territori.values('cod_com')]
 
 site.register(Progetto, ProgettoIndex)

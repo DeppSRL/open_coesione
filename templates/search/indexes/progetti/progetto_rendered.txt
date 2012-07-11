@@ -1,9 +1,3 @@
-{% comment %}
-from django.template import loader, Context
-t = loader.get_template("search/indexes/progetti/progetto_rendered.txt")
-c = Context({'object': Progetto.objects.get(slug='1mpia-1-fesr06_por_campania-2011-433')})
-t.render(c)
-{% endcomment %}
 {% load i18n %}
 <div class="block-chart block" title="{{ object.percentuale_pagamenti|floatformat:0|default:"0" }}% del totale">
   <strong>Pagamenti effettuati</strong>
