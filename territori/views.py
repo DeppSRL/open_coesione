@@ -147,6 +147,7 @@ class LeafletView(TemplateView):
         context['bounds'] = bounds
 
         if self.layer == 'world':
+            context['zoom'] = { 'min' : 4, 'max' : 11 }
             context['layer_name'] = 'world'
             return context
 

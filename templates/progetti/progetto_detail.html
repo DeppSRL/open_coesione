@@ -6,19 +6,23 @@
 
 {% block js_content %}
   {% addtoblock "css_link" %}
-    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}simplegeo-polymaps/examples/example.css">
-    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}simplegeo-polymaps/lib/colorbrewer/colorbrewer.css">
     <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/map-styles.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}leaflet-dist/leaflet.css" />
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="{{ STATIC_URL }}leaflet-dist/leaflet.ie.css" />
+    <![endif]-->
+    <style type="text/css">
+      .map-location-active { text-decoration: underline; }
+    </style>
   {% endaddtoblock %}
+
   {% addtoblock "js_script" %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/d3.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}simplegeo-polymaps/lib/protovis/protodata.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}simplegeo-polymaps/polymaps.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}simplegeo-polymaps/lib/jquery/jquery.svg.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}simplegeo-polymaps/lib/jquery/jquery.svgdom.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/maps.js"></script>
+
+    <script type="text/javascript" src="{{ STATIC_URL }}leaflet-dist/leaflet.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-loader.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/oc-maps.js"></script>
   {% endaddtoblock %}
 
   {{ block.super }}
@@ -67,22 +71,35 @@
 
     };
 
+    var MAPPA, MAPPA_LAYER, MAPPA_MONDO, MAPPA_ONCLICK, MAPPA_POPUP, MAPPA_CACHE = {};
+
     $(document).ready(function() {
 
+      // init MAPPA variabless
+      build_map('map', '/territori/leaflet/world.json', function(data) {
+        var base_style = {
+              color: '#343434',
+              radius: 6
+            },
+            hover_style = {
+              color: '#003A33',
+              radius: 10
+            };
+        $('.map-location').each(function() {
+          var $this = $(this);
+          if ( $this.data('coords') ) {
+            var marker = $this.data('coords').split(',');
+            var circle = new L.CircleMarker(new L.LatLng( marker[1], marker[0]), base_style);
+            MAPPA.addLayer(circle);
+            // add mouse hover effect
+            $this.hover(function() { circle.setStyle(hover_style).setRadius(hover_style.radius) }, function() { circle.setStyle(base_style).setRadius(base_style.radius) });
+            $(circle).hover(function() { $this.addClass('map-location-active') }, function() { $this.removeClass('map-location-active') })
+          }
+        });
+      });
 
       print_pie_chart('#finanziamento_chart_table', 'finanziamento_chart' );
 
-      var tiles_url = "http://{S}tile.cloudmade.com"
-          + "/1a1b06b230af4efdbb989ea99e9841af" // http://cloudmade.com/register
-          + "/20760/256/{Z}/{X}/{Y}.png";
-      var mapfactory = new MAP( {}, '{{ TILESTACHE_URL }}', tiles_url , d3, org.polymaps, pv);
-
-      mapfactory.build('map', {{ map.extent }}, {{ map.zoomlev|default:"null" }}, {{ map.zoomrange|default:"null" }});
-
-      var poi_list = {{ map.pois|safe }};
-      for ( var poi in poi_list ) {
-        mapfactory.add_point( poi_list[poi] );
-      }
     });
   </script>
 {% endblock %}
@@ -205,9 +222,9 @@
               <div>
                   Località
                 {% for territorio in progetto.territori %}
-                  <a href="{{ territorio.get_absolute_url }}">
+                  <a href="{{ territorio.get_absolute_url }}" class="map-location" data-coords="{{ territorio.geom.centroid.coords|join:"," }}">
                     {{ territorio.denominazione }}
-                  </a>
+                  </a>{% if not forloop.last %}, {% endif %}
                 {% endfor %}
               </div>
             </h1>

@@ -91,14 +91,14 @@ function load_map_layer(data) {
 
 
     if ( data.layer_name == 'world' ) {
-        // marker added if necessary
-        var marker = $('#selectors .btn.active').data('coords');
-        if ( marker ) {
-            marker = marker.split(',');
-            MAPPA.addLayer(new L.Circle(new L.LatLng( marker[1], marker[0]), 30 * 1000, {
-                color: '#343434'
-            }));
-        }
+//        // marker added if necessary
+//        var marker = $('#selectors .btn.active').data('coords');
+//        if ( marker ) {
+//            marker = marker.split(',');
+//            MAPPA.addLayer(new L.Circle(new L.LatLng( marker[1], marker[0]), 30 * 1000, {
+//                color: '#343434'
+//            }));
+//        }
         // removing LegendControl from map
         MAPPA.legendControl.removeFrom(MAPPA);
         return;
@@ -138,13 +138,20 @@ function load_map_layer(data) {
         var info_url = data.info_base_url +'/' + data.layer_type +'/'+
             e.latlng.lat.toFixed(3) + "/" +
             e.latlng.lng.toFixed(3) + "/";
+        // popup building
+        MAPPA_POPUP.setLatLng(e.latlng);
+        MAPPA_POPUP.setContent('<div id="map-info-loader" style="height:40px; width: 60px;"></div>');
+        MAPPA.openPopup(MAPPA_POPUP);
+
+        var loader = new ajaxLoader('#map-info-loader');
 
         jQuery.get(info_url, function(data) {
+
+            loader.remove();
             if (!data.success) {
                 return;
             }
-            // popup building
-            MAPPA_POPUP.setLatLng(e.latlng);
+
             var content = '';
             content += '<a href="'+data.territorio.territori[0][1]+'">'+data.territorio.territori[0][0]+'</a>';
             if ( data.territorio.territori[1] ) {
@@ -160,10 +167,9 @@ function load_map_layer(data) {
                     "<b>pagamento</b>: " + intword(data.territorio.pagamento)
 
             );
-            MAPPA.openPopup(MAPPA_POPUP);
         });
     };
-
+    
     // on click event activated
     MAPPA.on('click', MAPPA_ONCLICK );
 }

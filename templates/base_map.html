@@ -103,8 +103,19 @@
           var dataset_name = $('#map-layer-selector .block-chart.block-active').data('dataset');
           var layer_name = $('#selectors .active').prop('id');
 
-          // init MAPPA variabless
-          build_map('map', '/territori/leaflet/{{ map_selector }}'+$('#selectors .active').data('path')+'.json?tematizzazione='+dataset_name);
+          // init MAPPA
+          build_map('map', '/territori/leaflet/{{ map_selector }}'+$('#selectors .active').data('path')+'.json?tematizzazione='+dataset_name, function(data) {
+            if ( data.layer_name == 'world' ) {
+              // marker added if necessary
+              var marker = $('#selectors .btn.active').data('coords');
+              if ( marker ) {
+                marker = marker.split(',');
+                MAPPA.addLayer(new L.Circle(new L.LatLng( marker[1], marker[0]), 30 * 1000, {
+                  color: '#343434'
+                }));
+              }
+            }
+          });
 
           $('#selectors .btn').click(function() {
             if ($(this).hasClass('active')) {
