@@ -72,7 +72,8 @@ class Tema(models.Model):
                                        related_name='tema_set',
                                        db_column='tema_superiore', null=True, blank=True)
     codice = models.CharField(max_length=16, primary_key=True)
-    descrizione = models.TextField()
+    descrizione = models.CharField(max_length=255)
+    descrizione_estesa = models.TextField(null=True, blank=True)
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_tema = models.CharField(max_length=16, choices=TIPO)
     slug = models.CharField(max_length=64, blank=True, null=True)
