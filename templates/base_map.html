@@ -247,6 +247,7 @@
                 <h1 class="title black" style="margin-bottom: 0;"><span>Tema: {{ tema.short_label }}</span></h1>
                 <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}">Vai a tutti i progetti</a></p>
               </div>
+              <div class="span3">{{ tema.descrizione_estesa }}</div>
             {% endif %}
 
             {% if tipologia %}

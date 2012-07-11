@@ -72,7 +72,8 @@ class Tema(models.Model):
                                        related_name='tema_set',
                                        db_column='tema_superiore', null=True, blank=True)
     codice = models.CharField(max_length=16, primary_key=True)
-    descrizione = models.TextField()
+    descrizione = models.CharField(max_length=255)
+    descrizione_estesa = models.TextField(null=True, blank=True)
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_tema = models.CharField(max_length=16, choices=TIPO)
     slug = models.CharField(max_length=64, blank=True, null=True)
@@ -412,5 +413,34 @@ class Localizzazione(models.Model):
 
     class Meta:
         verbose_name_plural = "Localizzazioni"
+
+class Ruolo(models.Model):
+    """
+    The role of the recipient in the project.
+    """
+    RUOLO = Choices(
+        ('1', 'programmatore', 'Programmatore'),
+        ('2', 'attuatore', 'Attuatore'),
+        ('3', 'destinatario', 'Destinatario'),
+        ('4', 'realizzatore', 'Realizzatore')
+    )
+    soggetto = models.ForeignKey('soggetti.Soggetto', verbose_name=u'Soggetto')
+    progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
+    ruolo = models.CharField(max_length=1, choices=RUOLO)
+
+    @property
+    def soggetti(self):
+        return self.soggetto_set.all()
+
+    @property
+    def progetti(self):
+        return self.progetto_set.all()
+
+    def __unicode__(self):
+        return u"%s" % (self.get_ruolo_display(),)
+
+    class Meta:
+        verbose_name = "Ruolo"
+        verbose_name_plural = "Ruoli"
 
 

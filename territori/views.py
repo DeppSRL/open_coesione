@@ -1,6 +1,6 @@
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models.aggregates import Count, Sum
 from django.template.defaultfilters import slugify
 from django.http import HttpResponse, Http404
 from django.contrib.gis.geos import Point
@@ -16,6 +16,24 @@ from lxml import etree
 import re
 import urllib
 
+
+def get_search_url(territorio, **kwargs):
+    search_url = reverse('progetti_search') + "?q="
+    print kwargs
+    if 'tema' in kwargs:
+        tema = kwargs['tema']
+        search_url += "&selected_facets=tema:{0}".format(tema.codice)
+
+    if 'natura' in kwargs:
+        natura = kwargs['natura']
+        search_url += "&selected_facets=natura:{0}".format(natura.codice)
+
+    for t in territorio.get_hierarchy():
+        d = t.get_cod_dict()
+        key = d.keys()[0]
+        search_url += "&territorio{0}={1}".format(key[3:], d[key])
+
+    return search_url
 
 class JSONResponseMixin(object):
     response_class = HttpResponse
@@ -49,28 +67,32 @@ class InfoView(JSONResponseMixin, TemplateView):
         lat = float(kwargs['lat'])
         lon = float(kwargs['lng'])
         pnt = Point(lon, lat)
-        try:
-            territorio = Territorio.objects.get(geom__intersects=pnt, territorio=tipo)
 
-            tema = None
-            if self.filter == 'temi':
-                tema = Tema.objects.get(slug=kwargs['slug'])
+        territorio = Territorio.objects.get(geom__intersects=pnt, territorio=tipo)
+        territorio_hierarchy = territorio.get_hierarchy()
 
-            natura = None
-            if self.filter == 'nature':
-                natura = ClassificazioneAzione.objects.get(slug=kwargs['slug'])
 
-            context['territorio'] = {
-                'denominazione': territorio.denominazione,
-                'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura) or 0,
-                'costo': Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura) or 0,
-                'pagamento': Progetto.objects.totale_pagamenti(territorio=territorio, tema=tema, classificazione=natura) or 0,
-                'territori': territorio.get_breadcrumbs()
-            }
+        territori = territorio.get_breadcrumbs()
 
-            context['success'] = True
-        except Territorio.DoesNotExist:
-            context['success'] = False
+        tema = None
+        if self.filter == 'temi':
+            tema = Tema.objects.get(slug=kwargs['slug'])
+            territori = [(t.denominazione, get_search_url(tema=tema, territorio=t))
+                          for t in territorio_hierarchy]
+
+        natura = None
+        if self.filter == 'nature':
+            natura = ClassificazioneAzione.objects.get(slug=kwargs['slug'])
+            territori = [(t.denominazione, get_search_url(natura=natura, territorio=t))
+                        for t in territorio_hierarchy]
+
+        context['territorio'] = {
+            'denominazione': territorio.denominazione,
+            'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura) or 0,
+            'costo': Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura) or 0,
+            'pagamento': Progetto.objects.totale_pagamenti(territorio=territorio, tema=tema, classificazione=natura) or 0,
+            'territori': territori
+        }
 
         return context
 
@@ -84,8 +106,11 @@ class AutocompleteView(JSONResponseMixin, TemplateView):
         context['territori'] = [{
             'denominazione': territorio.nome_con_provincia,
             'url': territorio.get_absolute_url(),
-            'id': territorio.pk
-            } for territorio in territori]
+            'id': territorio.pk,
+            'cod_com': territorio.cod_com,
+            'cod_prov': territorio.cod_prov,
+            'cod_reg': territorio.cod_reg,
+        } for territorio in territori]
         return context
 
 

@@ -44,12 +44,25 @@
   <div class="flat_content">
         <h4>Cerca tra i progetti</h4>
         <form method="get" action="{% url progetti_search %}" class="form-search">
-            <input type="text" class="input-medium search-query" name="{{ form.q.html_name }}"
-                   value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" /><br/>
+            {%  spaceless %}
+            <input id="query" type="text" class="input-medium search-query" name="{{ form.q.html_name }}"
+                   value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
+            <button id="clear-query" class="btn add-in"><i class="icon-remove"></i></button>
+            {%  endspaceless %}
+            <br/>
+            {%  spaceless %}
             <input id="location" type="text" class="input-large search-query"
-                   value="{% if territorio %}{{ territorio }}{% endif %}" placeholder="Inserisci il territorio"/>
-            <input id="location-id" name="{{ form.territorio_id.html_name }}"
-                   value="{% if form.territorio_id.value %}{{ form.territorio_id.value }}{% endif %}" type="hidden"/><br/>
+                   value="{% if territorio %}{{ territorio }}{% endif %}"
+                   placeholder="Inserisci il territorio"/>
+            <button id="clear-location" class="btn add-in"><i class="icon-remove"></i></button>
+            {%  endspaceless %}
+            <br/>
+            <input id="territorio-com" name="{{ form.territorio_com.html_name }}"
+                   value="{% if form.territorio_com.value %}{{ form.territorio_com.value }}{% endif %}" type="hidden"/>
+            <input id="territorio-prov" name="{{ form.territorio_prov.html_name }}"
+                   value="{% if form.territorio_prov.value %}{{ form.territorio_prov.value }}{% endif %}" type="hidden"/>
+            <input id="territorio-reg" name="{{ form.territorio_reg.html_name }}"
+                   value="{% if form.territorio_reg.value %}{{ form.territorio_reg.value }}{% endif %}" type="hidden"/>
             <button type="submit" class="btn add-in"><i class="icon-search"> Cerca</i></button>
         </form>
 
@@ -80,8 +93,8 @@
                         {{ facet.r_label|safe }}
                     </dd>
                 {% endif %}
-                {% if facet.field == 'costo' and facet_queries_cost.is_selected %}
-                    <dt>Data inizio</dt>
+                {% if facet.field == 'costo' and facet_queries_costo.is_selected %}
+                    <dt>Finanziamenti</dt>
                     <dd>
                         <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
                         {{ facet.r_label|safe }}
@@ -90,10 +103,10 @@
             {% endfor %}
         {% else %}
             <h3>Filtra</h3>
-            <p>Puoi trovare il progetto scorrendo la lista degli ultimi pubblicati, qui sotto.
+            <p>Puoi trovare il progetto scorrendo la lista, qui sotto.
                 Puoi perfezionare la ricerca usando i filtri nella colonna qui a destra, oppure puoi usare il form di
                 ricerca con una parola che pensi sia contenuta nel progetto,
-                in cima alla colonna qui a destra</p>
+                in cima a questa colonna qui a destra</p>
         {% endif %}
 
         <div>
@@ -156,38 +169,15 @@
             </dl>
 
             <dl>
-                {% if not facet_queries_cost.is_selected %}
-                    <dt>Costo</dt>
-                    {% if facet_queries_cost.costrange_0TO1K.count %}
+                {% if not facet_queries_costo.is_selected %}
+                    <dt>Finanziamenti</dt>
+                    {% for range in facet_queries_costo.ranges %}
                         <dd>
-                            <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_0TO1K.key }}">
-                                da 0 a 1.000 &euro;
-                            </a> ({{ facet_queries_cost.costrange_0TO1K.count }})
+                            <a href="{{ base_url }}&selected_facets={{ range.key }}">
+                                {{ range.label|safe }}
+                            </a> ({{ range.count }})
                         </dd>
-                    {% endif %}
-
-                    {% if facet_queries_cost.costrange_1KTO10K.count %}
-                        <dd>
-                            <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_1KTO10K.key }}">
-                                da 1.000 a 10.000 &euro;
-                            </a> ({{ facet_queries_cost.costrange_1KTO10K.count }})
-                        </dd>
-                    {% endif %}
-
-                    {% if facet_queries_cost.costrange_10KTO100K.count %}
-                        <dd>
-                            <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_10KTO100K.key }}">
-                                da 10.000 a 100.000 &euro;
-                            </a> ({{ facet_queries_cost.costrange_10KTO100K.count }})
-                        </dd>
-                    {% endif %}
-                    {% if facet_queries_cost.costrange_100KTOINF.count %}
-                        <dd>
-                            <a href="{{ base_url }}&selected_facets={{ facet_queries_cost.costrange_100KTOINF.key }}">
-                                oltre 100.000 &euro;
-                            </a> ({{ facet_queries_cost.costrange_100KTOINF.count }})
-                        </dd>
-                    {% endif %}
+                    {% endfor %}
                 {% endif %}
             </dl>
 
@@ -218,7 +208,9 @@
                                     return {
                                         label: item.denominazione,
                                         url: item.url,
-                                        id: item.id
+                                        cod_com: item.cod_com,
+                                        cod_prov: item.cod_prov,
+                                        cod_reg: item.cod_reg
                                     }
                                 }));
                             }
@@ -226,7 +218,9 @@
                 },
                 minLength: 2,
                 select: function( event, ui ) {
-                    $('#location-id').val(ui.item.id);
+                    $('#territorio-com').val(ui.item.cod_com);
+                    $('#territorio-prov').val(ui.item.cod_prov);
+                    $('#territorio-reg').val(ui.item.cod_reg);
                 },
                 open: function() {
                     $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
@@ -235,6 +229,16 @@
                     $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
                 }
             }).css('z-index', 10000);
+
+            $( "#clear-location").click( function (){
+                $("#location").val('');
+                $('#territorio-com').val('');
+                $('#territorio-prov').val('');
+                $('#territorio-reg').val('');
+            });
+            $( "#clear-query").click( function (){
+                $("#query").val('');
+            });
 
         });
     </script>
