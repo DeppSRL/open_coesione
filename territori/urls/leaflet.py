@@ -3,6 +3,7 @@ from django.views.decorators.cache import cache_page
 from territori.views import LeafletView
 
 urlpatterns = patterns('',
+    url(r'^world.(?P<ext>(json|html))$', cache_page(key_prefix='leaflet_world')(LeafletView.as_view(layer='world')), name='territori_leaflet_world'),
     url(r'^regioni.(?P<ext>(json|html))$', cache_page(key_prefix='leaflet_regioni')(LeafletView.as_view()), name='territori_leaflet_regioni'),
     url(r'^province.(?P<ext>(json|html))$', cache_page(key_prefix='leaflet_province')(LeafletView.as_view()), name='territori_leaflet_province'),
     url(r'^regioni/(?P<cod_reg>[\d]+)/province.(?P<ext>(json|html))$', cache_page(key_prefix='leaflet_province_regione')(LeafletView.as_view()), name='territori_leaflet_province_regione'),

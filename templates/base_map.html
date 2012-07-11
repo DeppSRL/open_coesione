@@ -260,6 +260,29 @@
               MAPPA.addLayer(MAPPA_MONDO);
             }
 
+            // boundaries retrieval from data
+            var southWest = new L.LatLng(data.bounds.southwest.lat, data.bounds.southwest.lng ),
+                northEast = new L.LatLng(data.bounds.northeast.lat, data.bounds.northeast.lng),
+                bounds = new L.LatLngBounds(southWest, northEast);
+            MAPPA.fitBounds(bounds);
+
+
+            if ( data.layer_name == 'world' ) {
+              // marker added if necessary
+              var marker = $('#selectors .btn.active').data('coords');
+              if ( marker ) {
+                marker = marker.split(',');
+                MAPPA.addLayer(new L.Circle(new L.LatLng( marker[1], marker[0]), 30 * 1000, {
+{#                  title : '{{ territorio.denominazione }}',#}
+{#                  clickable: false,#}
+                  color: '#343434'
+                }));
+              }
+              // removing LegendControl from map
+              MAPPA.legendControl.removeFrom(MAPPA);
+              return;
+            }
+
             if ( !MAPPA_CACHE[data.layer_name] ) {
               // layer instance creation
               MAPPA_CACHE[data.layer_name] = new L.TileLayer(data.tilestache_url+'/'+data.layer_name+'/{z}/{x}/{y}.png',{
@@ -269,13 +292,6 @@
             }
 
             MAPPA_LAYER = MAPPA_CACHE[data.layer_name];
-
-
-            // boundaries retrieval from data
-            var southWest = new L.LatLng(data.bounds.southwest.lat, data.bounds.southwest.lng ),
-                northEast = new L.LatLng(data.bounds.northeast.lat, data.bounds.northeast.lng),
-                bounds = new L.LatLngBounds(southWest, northEast);
-            MAPPA.fitBounds(bounds);
 
             // layer is added
             MAPPA.addLayer(MAPPA_LAYER);
@@ -289,17 +305,6 @@
                 $(this).text(intword(values[0].split('.').join('')) + ' - ' + intword(values[1].split('.').join('')));
               }).prepend($('<i />').addClass('icon-sign-blank'));
             });
-
-            // marker added if necessary
-            var marker = $('#selectors .btn.active').data('coords');
-            if ( marker ) {
-              marker = marker.split(',');
-              MAPPA.addLayer(new L.Marker(new L.LatLng( marker[1], marker[0]), {
-                title : '{{ territorio.denominazione }}',
-                clickable: false
-              }));
-              return; // avoid popup
-            }
 
             // onclick event disabled on map
             if (MAPPA_ONCLICK) {
@@ -564,7 +569,7 @@
             {% elif territorio.territorio == 'P' %}
               <a href="#" id="province_{{ territorio.cod_prov }}_comuni" data-path="province/{{ territorio.cod_prov }}/comuni" class="btn active">comuni</a>
             {% elif territorio.territorio == 'C' %}
-              <a href="#" id="comuni" data-path="regioni" data-coords="{{ territorio.geom.centroid.coords|join:"," }}" class="btn active">{{ territorio }}</a>
+              <a href="#" id="comuni" data-path="world" data-coords="{{ territorio.geom.centroid.coords|join:"," }}" class="btn active">{{ territorio }}</a>
             {% else %}
               <a href="#" id="regioni" data-path="regioni" class="btn">regioni</a><a href="#" id="province" data-path="province" class="btn active">province</a>
             {% endif %}

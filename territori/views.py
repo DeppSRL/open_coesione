@@ -92,6 +92,7 @@ class AutocompleteView(JSONResponseMixin, TemplateView):
 class LeafletView(TemplateView):
     template_name = 'territori/leaflet.html'
     filter = None
+    layer = None
 
     def render_to_response(self, context, **response_kwargs):
         """
@@ -145,6 +146,10 @@ class LeafletView(TemplateView):
         }
         context['bounds'] = bounds
 
+        if self.layer == 'world':
+            context['layer_name'] = 'world'
+            return context
+
         # compute layer name from request.path and tematizzatione query string
         if 'tematizzazione' in self.request.GET:
             tematizzazione = self.request.GET['tematizzazione']
@@ -170,12 +175,12 @@ class LeafletView(TemplateView):
 
         # info_base_url for popup changes in case temi or nature filters are applied
         if self.filter:
-            context['info_base_url'] = "http://{0}/territori/info/{1}/{2}".format(
-                Site.objects.get_current(),
+            context['info_base_url'] = "/territori/info/{1}/{2}".format(
+                #Site.objects.get_current(),
                 self.filter, self.kwargs['slug']
             )
         else:
-            context['info_base_url'] = "http://{0}/territori/info".format(Site.objects.get_current())
+            context['info_base_url'] = "/territori/info".format(Site.objects.get_current())
         return context
 
 class TilesConfigView(TemplateView):
