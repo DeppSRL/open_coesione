@@ -301,7 +301,7 @@ class MapnikView(TemplateView):
             colore = self.dc.get_color(data[t.codice])
 
             context['territori'].append({
-                'codice': t.codice,
+                'codice': str(t.codice),
                 'colore': colore,
             })
 
