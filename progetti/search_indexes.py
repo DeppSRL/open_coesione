@@ -15,6 +15,7 @@ class ProgettoIndex(SearchIndex):
     territorio_com = MultiValueField(indexed=True, stored=True)
     territorio_prov = MultiValueField(indexed=True, stored=True)
     territorio_reg = MultiValueField(indexed=True, stored=True)
+    soggetto = MultiValueField(indexed=True, stored=True)
 
     # faceting fields
     natura = FacetCharField( )
@@ -32,12 +33,15 @@ class ProgettoIndex(SearchIndex):
         return obj.tema.codice.split('.')[0]
 
     def prepare_territorio_reg(self, obj):
-        return [c['cod_reg'] for c in obj.territori.values('cod_reg')]
+        return [c['cod_reg'] for c in obj.territori.values('cod_reg').distinct()]
 
     def prepare_territorio_prov(self, obj):
-        return [c['cod_prov'] for c in obj.territori.values('cod_prov')]
+        return [c['cod_prov'] for c in obj.territori.values('cod_prov').distinct()]
 
     def prepare_territorio_com(self, obj):
-        return [c['cod_com'] for c in obj.territori.values('cod_com')]
+        return [c['cod_com'] for c in obj.territori.values('cod_com').distinct()]
+
+    def prepare_soggetto(self, obj):
+        return [s['slug'] for s in obj.soggetto_set.values('slug').distinct()]
 
 site.register(Progetto, ProgettoIndex)
