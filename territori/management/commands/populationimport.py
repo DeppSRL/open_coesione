@@ -22,7 +22,7 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--csv-file',
                     dest='csvfile',
-                    default='./progetti.csv',
+                    default='./popolazione.csv',
                     help='Select csv file'),
         )
 

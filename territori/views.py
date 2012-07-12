@@ -288,10 +288,6 @@ class MapnikView(TemplateView):
                     classificazione=natura
             )
 
-        # print sorted data to check thematisation
-#        for d in sorted(data.values()):
-#            print d
-
         # DataClassifier instance
         self.dc = DataClassifier(data.values(), classifier_args={'k': 5}, colors_map=self.colors)
         context['classification_bins'] = self.dc.get_bins_ranges()
@@ -305,7 +301,7 @@ class MapnikView(TemplateView):
             colore = self.dc.get_color(data[t.codice])
 
             context['territori'].append({
-                'codice': t.codice,
+                'codice': str(t.codice),
                 'colore': colore,
             })
 
