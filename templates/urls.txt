@@ -1,0 +1,28 @@
+{% for tematizzazione in tematizzazioni %}
+{{ mapnik_base_url}}/regioni.xml?tematizzazione={{ tematizzazione }}
+{{ mapnik_base_url }}/province.xml?tematizzazione={{ tematizzazione }}
+{{ base_url }}/regioni?tematizzazione={{ tematizzazione }}
+{{ base_url }}/province?tematizzazione={{ tematizzazione }}
+{% for t in regioni %}
+{{ mapnik_base_url }}/regioni/{{ t.codice }}/province.xml?tematizzazione={{ tematizzazione }}
+{{ mapnik_base_url }}/regioni/{{ t.codice }}/comuni.xml?tematizzazione={{ tematizzazione }}
+{{ base_url }}/regioni/{{ t.codice }}/province?tematizzazione={{ tematizzazione }}
+{{ base_url }}/regioni/{{ t.codice }}/comuni?tematizzazione={{ tematizzazione }}
+{% endfor %}
+{% for t in province %}
+{{ mapnik_base_url }}/province/{{ t.codice }}/comuni.xml?tematizzazione={{ tematizzazione }}
+{{ base_url }}/province/{{ t.codice }}/comuni?tematizzazione={{ tematizzazione }}
+{% endfor %}
+{% for t in temi %}
+{{ mapnik_base_url }}/temi/{{ t.slug }}/regioni.xml?tematizzazione={{ tematizzazione }}
+{{ mapnik_base_url }}/temi/{{ t.slug }}/province.xml?tematizzazione={{ tematizzazione }}
+{{ base_url }}/temi/{{ t.slug }}/regioni?tematizzazione={{ tematizzazione }}
+{{ base_url }}/temi/{{ t.slug }}/province?tematizzazione={{ tematizzazione }}
+{% endfor %}
+{% for n in nature %}
+{{ mapnik_base_url }}/nature/{{ n.slug }}/regioni.xml?tematizzazione={{ tematizzazione }}
+{{ mapnik_base_url }}/nature/{{ n.slug }}/province.xml?tematizzazione={{ tematizzazione }}
+{{ base_url }}/nature/{{ n.slug }}/regioni?tematizzazione={{ tematizzazione }}
+{{ base_url }}/nature/{{ n.slug }}/province?tematizzazione={{ tematizzazione }}
+{% endfor %}
+{% endfor %}

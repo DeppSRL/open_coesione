@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 from django.utils.decorators import method_decorator
 
 from datetime import datetime
@@ -21,6 +22,22 @@ class AccessControlView(object):
 #    def dispatch(self, *args, **kwargs):
 #        return super(AccessControlView, self).dispatch(*args, **kwargs)
     pass
+
+
+class URLsConfigView(TemplateView):
+    template_name = 'urls.txt'
+
+    def get_context_data(self, **kwargs):
+        context = super(URLsConfigView, self).get_context_data(**kwargs)
+        context['tematizzazioni'] = ('totale_costi', 'totale_pagamenti', 'totale_progetti')
+        context['regioni'] = Territorio.objects.filter(territorio='R')
+        context['province'] = Territorio.objects.filter(territorio='P')
+        context['temi'] = Tema.objects.principali()
+        context['nature'] = ClassificazioneAzione.objects.nature()
+        context['base_url'] = "http://{0}".format(Site.objects.get_current())
+        context['mapnik_base_url'] = "{0}/territori/mapnik".format(context['base_url'])
+
+        return context
 
 class AggregatoView(object):
     def get_aggregate_data(self,context, **filter):

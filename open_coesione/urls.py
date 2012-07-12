@@ -3,7 +3,7 @@ from django.contrib.gis import admin
 from django.conf import settings
 from django.views.decorators.cache import cache_page
 from django.views.generic.base import TemplateView
-from open_coesione.views import HomeView, FondiView, RisorseView
+from open_coesione.views import HomeView, FondiView, RisorseView, URLsConfigView
 
 admin.autodiscover()
 
@@ -25,6 +25,9 @@ urlpatterns = patterns('',
 
     # territori
     url(r'^territori/', include('territori.urls')),
+
+    # list of urls to cache
+    url(r'^urls.txt$', URLsConfigView.as_view(), name='urls_txt'),
 
 
     # pre-csm page routes
