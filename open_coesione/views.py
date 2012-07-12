@@ -17,10 +17,10 @@ class AccessControlView(object):
     """
     Define access control for the view
     """
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(AccessControlView, self).dispatch(*args, **kwargs)
-
+#    @method_decorator(login_required)
+#    def dispatch(self, *args, **kwargs):
+#        return super(AccessControlView, self).dispatch(*args, **kwargs)
+    pass
 
 class AggregatoView(object):
     def get_aggregate_data(self,context, **filter):
