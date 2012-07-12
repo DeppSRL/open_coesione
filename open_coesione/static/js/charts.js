@@ -75,7 +75,8 @@ var pie_chart_options = {
     series: [],
     credits: { enabled: false },
     colors: [
-        "#ECE7DF", "#CAC7C3", "#979491", "#686462", "#2E2B2A", "#777777", "#AAAAAA", "#BBBBBB", "#CCCCCC", "#DDDDDD", "#EEEEEE"
+        "#c1dccb", "#aed4bd", "#bae2d4", "#bee2cc", "#d0e2d7", "#cae7d5", "#afded4", "#d3ece2", "#dcefe2", "#91c9a8", "#e3f2e8", "#bde3d2", "#b3d7c9"
+        //"#ECE7DF", "#CAC7C3", "#979491", "#686462", "#2E2B2A", "#777777", "#AAAAAA", "#BBBBBB", "#CCCCCC", "#DDDDDD", "#EEEEEE"
     ]
 };
 
@@ -218,9 +219,9 @@ var read_values = function(values, years)
 
 var get_location_id = function(name) {
     var index;
-    console.log(APP.regioni, typeof APP.regioni )
+    //console.log(APP.regioni, typeof APP.regioni )
     for( var key in APP.regioni ) {
-        console.log( key, APP.regioni[key] )
+        //console.log( key, APP.regioni[key] )
         if (APP.regioni[key] == name) {
             index = key;
         }
@@ -368,10 +369,10 @@ var print_line_chart = function(container, min_regions, max_regions) {
     });
 
     $('#region-reset').click(function() {
-        console.log('reset',min_regions,max_regions,APP.chart.series.length);
+        //console.log('reset',min_regions,max_regions,APP.chart.series.length);
         var elements_count = APP.chart.series.length;
         while( elements_count > min_regions ) {
-            console.log('removing',elements_count, APP.chart.series.pop().remove() );
+            //console.log('removing',elements_count, APP.chart.series.pop().remove() );
             elements_count--;
         }
 

@@ -4657,6 +4657,10 @@ section h2.title span {
 #wrapper > header nav {
   background-color: #5b5955;
 }
+#wrapper > header .navbar-search button.btn {
+  padding: 0 6px;
+  margin-top: 4px;
+}
 #wrapper > header .navbar-search input {
   margin-bottom: 0;
   margin-top: 4px;
