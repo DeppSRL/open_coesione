@@ -43,11 +43,12 @@ function ajaxLoader (el, options) {
         );
     };
 
-    this.remove = function(){
+    this.remove = function(callback){
         var overlay = this.container.children(".ajax_overlay");
         if (overlay.length) {
             overlay.fadeOut(this.options.classOveride, function() {
                 overlay.remove();
+                callback && callback();
             });
         }
     };

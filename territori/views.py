@@ -68,7 +68,13 @@ class InfoView(JSONResponseMixin, TemplateView):
         lon = float(kwargs['lng'])
         pnt = Point(lon, lat)
 
-        territorio = Territorio.objects.get(geom__intersects=pnt, territorio=tipo)
+        try:
+            territorio = Territorio.objects.get(geom__intersects=pnt, territorio=tipo)
+        except Territorio.DoesNotExist:
+            return { 'success' : False }
+
+        context['success'] = True
+
         territorio_hierarchy = territorio.get_hierarchy()
 
 
