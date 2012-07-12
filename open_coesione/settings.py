@@ -211,7 +211,7 @@ LOGGING = {
             'level':'INFO',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': REPO_ROOT + "/log/logfile",
-            'maxBytes': 250000,
+            'maxBytes': 10000000,
             'backupCount': 10,
             'formatter': 'standard',
         },

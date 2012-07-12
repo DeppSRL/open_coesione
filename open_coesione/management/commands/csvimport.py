@@ -42,7 +42,7 @@ class UnicodeDictReader:
 
     def next(self):
         row = self.reader.next()
-        return dict((k, unicode(s, "utf-8")) for k, s in row.iteritems())
+        return dict((k, unicode(s, "utf-8")) for k, s in row.iteritems() if s is not None)
 
     def __iter__(self):
         return self
@@ -159,9 +159,9 @@ class Command(BaseCommand):
             # lookup o creazione forma giuridica
             created = False
             forma_giuridica, created = FormaGiuridica.objects.get_or_create(
-                codice=r['DPS_FORMA_GIURIDICA_SOGG'],
+                codice=r['COD_FORMA_GIURIDICA_SOGG'],
                 defaults={
-                    'denominazione': r['DPS_DESCR_FORMA_GIURIDICA_SOGG'],
+                    'denominazione': r['DESCR_FORMA_GIURIDICA_SOGG'],
                     }
             )
             if created:
@@ -173,11 +173,10 @@ class Command(BaseCommand):
 
             # localizzazione
             try:
-                territorio = Territorio.objects.get_from_istat_code(r['COD_ISTAT_SEDE_SOGG'])
+                territorio = Territorio.objects.get_from_istat_code(r['COD_COMUNE_SEDE_SOGG'])
             except ObjectDoesNotExist:
                 territorio = None
 
-            rappresentante_legale = r['RAPPR_LEGALE_SOGG'].strip() if r['RAPPR_LEGALE_SOGG'].strip() else None
             indirizzo = r['INDIRIZZO_SOGG'].strip() if r['INDIRIZZO_SOGG'].strip() else None
             cap = r['CAP_SOGG'].strip() if r['CAP_SOGG'].strip() else None
 
@@ -187,9 +186,7 @@ class Command(BaseCommand):
                 denominazione = r['DPS_DENOMINAZIONE_SOGG'].strip(),
                 defaults={
                     'codice_fiscale': r['DPS_CODICE_FISCALE_SOGG'].strip(),
-                    'ruolo': r['SOGG_COD_RUOLO'],
                     'forma_giuridica': forma_giuridica,
-                    'rappresentante_legale': rappresentante_legale,
                     'indirizzo': indirizzo,
                     'cap': cap,
                     'territorio': territorio,
@@ -200,7 +197,13 @@ class Command(BaseCommand):
             else:
                 self.logger.debug(u"%s: Soggetto trovato e non modificato: %s" % (c, soggetto.denominazione))
 
-            progetto.soggetto_set.add(soggetto)
+            # add role of subject in project
+            Ruolo.objects.create(
+                progetto = progetto,
+                soggetto = soggetto,
+                ruolo = r['SOGG_COD_RUOLO']
+            )
+
 
 
         self.logger.info("Fine")
@@ -231,46 +234,46 @@ class Command(BaseCommand):
 
             if tipo_territorio == Territorio.TERRITORIO.R:
                 territorio = Territorio.objects.get(
-                    cod_reg=int(r['PROG_COD_REGIONE']),
+                    cod_reg=int(r['COD_REGIONE']),
                     territorio=Territorio.TERRITORIO.R,
                 )
             elif tipo_territorio == 'P':
                 territorio = Territorio.objects.get(
-                    cod_reg=int(r['PROG_COD_REGIONE']),
-                    cod_prov=int(r['PROG_COD_PROVINCIA']),
+                    cod_reg=int(r['COD_REGIONE']),
+                    cod_prov=int(r['COD_PROVINCIA']),
                     territorio=Territorio.TERRITORIO.P,
                 )
             elif tipo_territorio == 'C':
                 try:
                     territorio = Territorio.objects.get(
-                        cod_reg=int(r['PROG_COD_REGIONE']),
-                        cod_prov=int(r['PROG_COD_PROVINCIA']),
-                        cod_com="%s%s" % (int(r['PROG_COD_PROVINCIA']), r['PROG_COD_COMUNE']),
+                        cod_reg=int(r['COD_REGIONE']),
+                        cod_prov=int(r['COD_PROVINCIA']),
+                        cod_com="%s%s" % (int(r['COD_PROVINCIA']), r['COD_COMUNE']),
                         territorio=Territorio.TERRITORIO.C,
                     )
                 except Territorio.DoesNotExist as e:
                     try:
                         territorio = Territorio.objects.get(
-                            cod_reg=int(r['PROG_COD_REGIONE']),
-                            denominazione=r['PROG_DEN_COMUNE'],
+                            cod_reg=int(r['COD_REGIONE']),
+                            denominazione=r['DEN_COMUNE'],
                             territorio=Territorio.TERRITORIO.C,
                         )
-                        self.logger.debug("Comune '%s' individuato attraverso la denominazione" % r['PROG_DEN_COMUNE'])
+                        self.logger.debug("Comune '%s' individuato attraverso la denominazione" % r['DEN_COMUNE'])
                     except Territorio.DoesNotExist as e:
-                        self.logger.warning("Comune non trovato. %s: %s-%s-%s [%s]" % (r['PROG_DEN_COMUNE'],r['PROG_DEN_REGIONE'],r['PROG_COD_PROVINCIA'],r['PROG_COD_COMUNE'],r['COD_LOCALE_PROGETTO']))
+                        self.logger.warning("Comune non trovato. %s: %s-%s-%s [%s]" % (r['DEN_COMUNE'],r['DEN_REGIONE'],r['COD_PROVINCIA'],r['COD_COMUNE'],r['COD_LOCALE_PROGETTO']))
                         continue
             elif tipo_territorio in ('E', 'N'):
                 # territorio estero o nazionale
                 # get_or_create, perché non sono in Territorio di default
                 created = False
-                codice_territorio = int(r['PROG_COD_REGIONE'])
+                codice_territorio = int(r['COD_REGIONE'])
                 territorio, created = Territorio.objects.get_or_create(
                     cod_reg=codice_territorio,
                     cod_prov=0,
                     cod_com=0,
                     territorio=tipo_territorio,
                     defaults={
-                        'denominazione': r['PROG_DEN_REGIONE']
+                        'denominazione': r['DEN_REGIONE']
                     }
                 )
                 if created:
@@ -514,14 +517,25 @@ class Command(BaseCommand):
                              (r['DPS_COD_FONTE'], codice_locale, e))
                 continue
 
-            # classificazione azione
+            # classificazione azione (natura e tipologia)
             try:
                 created = False
+
+                # eccezione accorpamento beni e servizi
+                cup_cod_natura = r['CUP_COD_NATURA']
+                cup_descr_natura = r['CUP_DESCR_NATURA']
+                if cup_cod_natura == '02':
+                    cup_cod_natura = '01'
+
+                if cup_cod_natura == '01':
+                    cup_descr_natura = 'ACQUISTO DI BENI E SERVIZI'
+
+
                 natura, created = ClassificazioneAzione.objects.get_or_create(
-                    codice=r['CUP_COD_NATURA'],
+                    codice=cup_cod_natura,
                     tipo_classificazione=ClassificazioneAzione.TIPO.natura,
                     defaults={
-                        'descrizione':r['CUP_DESCR_NATURA']
+                        'descrizione':cup_descr_natura
                     }
                 )
                 if created:
@@ -531,7 +545,7 @@ class Command(BaseCommand):
 
                 created = False
                 natura_tipologia, created = ClassificazioneAzione.objects.get_or_create(
-                    codice="%s.%s" % (r['CUP_COD_NATURA'], r['CUP_COD_TIPOLOGIA']),
+                    codice="%s.%s" % (cup_cod_natura, r['CUP_COD_TIPOLOGIA']),
                     tipo_classificazione=ClassificazioneAzione.TIPO.tipologia,
                     defaults={
                         'descrizione':r['CUP_DESCR_TIPOLOGIA'],
@@ -600,7 +614,7 @@ class Command(BaseCommand):
 
             # totale finanziamento
             # fin_totale = Decimal(r['FINANZ_TOTALE'].replace(',','.')) if r['FINANZ_TOTALE'].strip() else None
-            fin_totale_pubblico = Decimal(r['DPS_TOT_FINANZ_PUBBLICO'].replace(',','.')) if r['DPS_TOT_FINANZ_PUBBLICO'].strip() else None
+            fin_totale_pubblico = Decimal(r['FINANZ_TOTALE_PUBBLICO'].replace(',','.')) if r['FINANZ_TOTALE_PUBBLICO'].strip() else None
 
             fin_ue = Decimal(r['FINANZ_UE'].replace(',','.')) if r['FINANZ_UE'].strip() else None
             fin_stato_fondo_rotazione = Decimal(r['FINANZ_Stato_Fondo_di_Rotazione'].replace(',','.')) if r['FINANZ_Stato_Fondo_di_Rotazione'].strip() else None
@@ -627,8 +641,7 @@ class Command(BaseCommand):
             data_fine_effettiva = datetime.datetime.strptime(r['DATA_FINE_EFFETTIVA'], '%Y%m%d') if r['DATA_FINE_EFFETTIVA'].strip() else None
 
             # data ultimo aggiornamento progetto
-            data_aggiornamento = datetime.datetime.strptime(r['DATA_AGGIORNAMENTO'], '%m/%Y') if r['DATA_AGGIORNAMENTO'].strip() else None
-            data_inizio_info = int(r['DATA_INIZIO_INFO']) if r['DATA_INIZIO_INFO'].strip() else None
+            data_aggiornamento = datetime.datetime.strptime(r['DATA_AGGIORNAMENTO'], '%Y%m%d') if r['DATA_AGGIORNAMENTO'].strip() else None
 
             # progetto
             try:
@@ -669,7 +682,6 @@ class Command(BaseCommand):
                         'data_fine_prevista': data_fine_prevista,
                         'data_inizio_effettiva': data_inizio_effettiva,
                         'data_fine_effettiva': data_fine_effettiva,
-                        'data_inizio_info': data_inizio_info,
                         'data_aggiornamento': data_aggiornamento,
                         'dps_flag_presenza_date': r['DPS_FLAG_PRESENZA_DATE'],
                         'dps_flag_date_previste': r['DPS_FLAG_COERENZA_DATE_PREV'],

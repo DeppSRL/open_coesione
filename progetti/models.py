@@ -343,7 +343,6 @@ class Progetto(models.Model):
     data_fine_prevista = models.DateField(null=True, blank=True)
     data_inizio_effettiva = models.DateField(null=True, blank=True)
     data_fine_effettiva = models.DateField(null=True, blank=True)
-    data_inizio_info = models.IntegerField(null=True, blank=True)
     data_aggiornamento = models.DateField(null=True, blank=True)
 
     dps_flag_cup = models.CharField(max_length=1, choices=DPS_FLAG_CUP)
@@ -352,7 +351,7 @@ class Progetto(models.Model):
     dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE)
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
-    soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True)
+    soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
 
     @property
     def territori(self):
@@ -364,19 +363,19 @@ class Progetto(models.Model):
 
     @property
     def programmatori(self):
-        return self.soggetto_set.filter(ruolo=Soggetto.RUOLO.programmatore)
+        return self.soggetto_set.filter(ruolo=Ruolo.RUOLO.programmatore)
 
     @property
     def destinatari(self):
-        return self.soggetto_set.filter(ruolo=Soggetto.RUOLO.destinatario)
+        return self.soggetto_set.filter(ruolo=Ruolo.RUOLO.destinatario)
 
     @property
     def attuatori(self):
-        return self.soggetto_set.filter(ruolo=Soggetto.RUOLO.attuatore)
+        return self.soggetto_set.filter(ruolo=Ruolo.RUOLO.attuatore)
 
     @property
     def destinatari(self):
-        return self.soggetto_set.filter(ruolo=Soggetto.RUOLO.destinatario)
+        return self.soggetto_set.filter(ruolo=Ruolo.RUOLO.destinatario)
 
     def __unicode__(self):
         return self.codice_locale
