@@ -650,7 +650,7 @@ class Command(BaseCommand):
                     defaults={
                         'classificazione_qsn': qsn_obiettivo_specifico,
                         'titolo_progetto': r['DPS_TITOLO_PROGETTO'],
-                        'cup': r['CUP'],
+                        'cup': r['CUP'].strip(),
                         'programma_asse_obiettivo': programma_asse_obiettivo,
                         'obiettivo_sviluppo': obiettivo_sviluppo,
 #                        'tipo_operazione': tipo_operazione,

@@ -19,7 +19,7 @@ import urllib
 
 def get_search_url(territorio, **kwargs):
     search_url = reverse('progetti_search') + "?q="
-    print kwargs
+
     if 'tema' in kwargs:
         tema = kwargs['tema']
         search_url += "&selected_facets=tema:{0}".format(tema.codice)
