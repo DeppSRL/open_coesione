@@ -138,35 +138,39 @@ function load_map_layer(data) {
         var info_url = data.info_base_url +'/' + data.layer_type +'/'+
             e.latlng.lat.toFixed(3) + "/" +
             e.latlng.lng.toFixed(3) + "/";
-        // popup building
-        MAPPA_POPUP.setLatLng(e.latlng);
-        MAPPA_POPUP.setContent('<div id="map-info-loader" style="height:40px; width: 60px;"></div>');
-        MAPPA.openPopup(MAPPA_POPUP);
 
-        var loader = new ajaxLoader('#map-info-loader');
+        //MAPPA_POPUP.setContent('<div id="map-info-loader" style="height:40px; width: 60px;"></div>');
+
+
+        var loader = new ajaxLoader('#map');
 
         jQuery.get(info_url, function(data) {
-
-            loader.remove();
             if (!data.success) {
+                loader.remove();
                 return;
             }
+            loader.remove(function() {
+                // popup building
+                MAPPA_POPUP.setLatLng(e.latlng);
+                MAPPA.openPopup(MAPPA_POPUP);
 
-            var content = '';
-            content += '<a href="'+data.territorio.territori[0][1]+'">'+data.territorio.territori[0][0]+'</a>';
-            if ( data.territorio.territori[1] ) {
-                content += ' &gt; <a href="'+data.territorio.territori[1][1]+'">'+data.territorio.territori[1][0]+'</a>';
-            }
-            if ( data.territorio.territori[2] ) {
-                content += '<br><a href="'+data.territorio.territori[2][1]+'">'+data.territorio.territori[2][0]+'</a>';
-            }
-            MAPPA_POPUP.setContent(
-                content + "<br/>" +
-                    "<b>n. progetti</b>: " + intword(data.territorio.n_progetti) + "<br/>" +
-                    "<b>costo</b>: " + intword(data.territorio.costo) + "<br/>" +
-                    "<b>pagamento</b>: " + intword(data.territorio.pagamento)
+                var content = '';
+                content += '<a href="'+data.territorio.territori[0][1]+'">'+data.territorio.territori[0][0]+'</a>';
+                if ( data.territorio.territori[1] ) {
+                    content += ' &gt; <a href="'+data.territorio.territori[1][1]+'">'+data.territorio.territori[1][0]+'</a>';
+                }
+                if ( data.territorio.territori[2] ) {
+                    content += '<br><a href="'+data.territorio.territori[2][1]+'">'+data.territorio.territori[2][0]+'</a>';
+                }
+                MAPPA_POPUP.setContent(
+                    content + "<br/>" +
+                        "<b>n. progetti</b>: " + intword(data.territorio.n_progetti) + "<br/>" +
+                        "<b>costo</b>: " + intword(data.territorio.costo) + "<br/>" +
+                        "<b>pagamento</b>: " + intword(data.territorio.pagamento)
 
-            );
+                );
+            });
+
         });
     };
     
