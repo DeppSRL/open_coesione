@@ -8,15 +8,14 @@ from django.views.generic.detail import DetailView
 from django.utils import simplejson
 
 from oc_search.forms import RangeFacetedSearchForm
+from oc_search.mixins import FacetRangeCostoMixin
 from oc_search.views import ExtendedFacetedSearchView
 
-from models import Progetto, ClassificazioneAzione, ClassificazioneQSN
-from django.conf import settings
+from models import Progetto, ClassificazioneAzione
 from open_coesione.views import AggregatoView, AccessControlView
-from progetti.models import Tema, ClassificazioneAzione
+from progetti.models import Tema
 from soggetti.models import Soggetto
 from territori.models import Territorio
-from django.db.models import Sum, Count
 
 
 class ProgettoView(AccessControlView, DetailView):
@@ -60,9 +59,6 @@ class ProgettoView(AccessControlView, DetailView):
         }
 
         return context
-
-#    def get_object(self, queryset=None):
-#       return Progetto.objects.get(slug=self.kwargs.get('slug'))
 
 class TipologiaView(AggregatoView, DetailView):
     context_object_name = 'tipologia'
@@ -108,7 +104,7 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
         return Tema.objects.get(slug=self.kwargs.get('slug'))
 
 
-class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView):
+class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin):
     """
 
     This view allows faceted search and navigation of a progetto.
@@ -117,6 +113,14 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView):
 
     """
     __name__ = 'ProgettoSearchView'
+
+    COST_RANGES = {
+        '0-0TO1K':      {'qrange': '[* TO 1000]', 'r_label': 'da 0 a 1.000&euro;'},
+        '1-1KTO10K':    {'qrange': '[1001 TO 10000]', 'r_label': 'da 1.000 a 10.000&euro;'},
+        '2-10KTO100K':  {'qrange': '[10001 TO 100000]', 'r_label': 'da 10.000 a 100.000&euro;'},
+        '3-100KTOINF':  {'qrange': '[100001 TO *]', 'r_label': 'oltre 100.000&euro;'},
+    }
+
 
     def __init__(self, *args, **kwargs):
         # Needed to switch out the default form class.
@@ -131,15 +135,46 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView):
 
         return super(ProgettoSearchView, self).build_form(form_kwargs)
 
+
+    def _get_extended_selected_facets(self):
+        """
+        modifies the extended_selected_facets, adding correct labels for this view
+        works directly on the extended_selected_facets dictionary
+        """
+        extended_selected_facets = super(ProgettoSearchView, self)._get_extended_selected_facets()
+
+        # this comes from the Mixins
+        extended_selected_facets = self.add_costo_extended_selected_facets(extended_selected_facets)
+
+        return extended_selected_facets
+
     def extra_context(self):
         """
         Add extra content here, when needed
         """
         extra = super(ProgettoSearchView, self).extra_context()
 
-        territorio_id = self.request.GET.get('territorio_id', 0)
-        if territorio_id:
-            extra['territorio'] = Territorio.objects.get(pk=territorio_id).nome_con_provincia
+        territorio_com = self.request.GET.get('territorio_com', 0)
+        territorio_prov = self.request.GET.get('territorio_prov', 0)
+        territorio_reg = self.request.GET.get('territorio_reg', 0)
+        if territorio_com and territorio_com != '0':
+            extra['territorio'] = Territorio.objects.get(
+                territorio=Territorio.TERRITORIO.C,
+                cod_com=territorio_com
+            ).nome
+        elif territorio_prov and territorio_prov != '0':
+            extra['territorio'] = Territorio.objects.get(
+                territorio=Territorio.TERRITORIO.P,
+                cod_prov=territorio_prov
+            ).nome_con_provincia
+        elif territorio_reg and territorio_reg != '0':
+            extra['territorio'] = Territorio.objects.get(
+                territorio=Territorio.TERRITORIO.R,
+                cod_reg=territorio_reg
+            ).nome
+
+        # get data about custom costo and n_progetti range facets
+        extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()
 
         # definizione struttura dati per  visualizzazione faccette natura
         extra['natura'] = {

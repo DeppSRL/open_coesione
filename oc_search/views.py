@@ -1,7 +1,6 @@
 from haystack.views import SearchView
 from forms import RangeFacetedSearchForm
-from django.utils.translation import ugettext_lazy as _
-from progetti.models import Progetto, ClassificazioneQSN
+from progetti.models import Progetto
 
 class ExtendedFacetedSearchView(SearchView):
     """
@@ -15,12 +14,6 @@ class ExtendedFacetedSearchView(SearchView):
     ONEYEAR   = '[NOW/DAY-365DAYS TO NOW/DAY]'
     TWOYEARS  = '[NOW/DAY-730DAYS TO NOW/DAY]'
 
-    COST_RANGES = {
-        '0TO1K':      '[* TO 1000]',
-        '1KTO10K':    '[1001 TO 10000]',
-        '10KTO100K':  '[10001 TO 100000]',
-        '100KTOINF':  '[100001 TO *]',
-    }
 
     def __init__(self, *args, **kwargs):
         # Needed to switch out the default form class.
@@ -83,8 +76,6 @@ class ExtendedFacetedSearchView(SearchView):
             field, x, label = f.partition(":")
 
             r_label = label
-            if field == 'tipo_operazione':
-                r_label = dict(Progetto.TIPO_OPERAZIONE)[label]
 
             # TODO: use an associative array
             if label == self.SIXMONTHS:
@@ -94,20 +85,13 @@ class ExtendedFacetedSearchView(SearchView):
             elif label == self.TWOYEARS:
                 r_label = 'ultimi due anni'
 
-            elif label == self.COST_RANGES['0TO1K']:
-                r_label = 'da 0 a 1.000&euro;'
-            elif label == self.COST_RANGES['1KTO10K']:
-                r_label = 'da 1.000 a 10.000&euro;'
-            elif label == self.COST_RANGES['10KTO100K']:
-                r_label = 'da 10.000 a 100.000&euro;'
-            elif label == self.COST_RANGES['100KTOINF']:
-                r_label = 'oltre 100.000&euro;'
-
-
             sf = {'field': field, 'label': label, 'r_label': r_label, 'url': url}
             extended_selected_facets.append(sf)
 
         return extended_selected_facets
+
+
+
 
     def _get_custom_facet_queries_date(self):
         """
@@ -143,26 +127,6 @@ class ExtendedFacetedSearchView(SearchView):
 
         return facets
 
-    def _get_custom_facet_queries_cost(self):
-        """
-
-        """
-        selected_facets = self.request.GET.getlist('selected_facets')
-        facet_counts_queries = self.results.facet_counts().get('queries', {})
-
-        facets = {'is_selected': False}
-        for r in ('0TO1K', '1KTO10K', '10KTO100K', '100KTOINF'):
-            if "costo:%s" % self.COST_RANGES[r] in facet_counts_queries:
-                facets['costrange_'+r] = {
-                    'key': "costo:%s" % self.COST_RANGES[r],
-                    'count': facet_counts_queries["costo:%s" % self.COST_RANGES[r]]
-                }
-                if facets['costrange_'+r]['key'] in selected_facets:
-                    facets['is_selected'] = True
-
-        return facets
-
-
     def extra_context(self):
         """
 
@@ -175,7 +139,6 @@ class ExtendedFacetedSearchView(SearchView):
         extra['selected_facets'] = self._get_extended_selected_facets()
         extra['facets'] = self._get_extended_facets_fields()
         extra['facet_queries_date'] = self._get_custom_facet_queries_date()
-        extra['facet_queries_cost'] = self._get_custom_facet_queries_cost()
 
         # make get array as mutable QueryDict
         params = self.request.GET.copy()

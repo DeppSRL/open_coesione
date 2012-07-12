@@ -103,23 +103,22 @@ class Territorio(models.Model):
 
         raise Exception('Territorio non interrogabile %s' % self)
 
-    def get_breadcrumbs(self):
+    def get_hierarchy(self):
+        """
+        returns the list of parent objects (me included)
+        """
         if self.territorio == self.TERRITORIO.R:
-            return [(self.denominazione, self.get_absolute_url() )]
+            return [self]
         elif self.territorio == self.TERRITORIO.P:
             regione = Territorio.objects.regioni().get(cod_reg=self.cod_reg)
-            return [
-                (regione.denominazione, regione.get_absolute_url() ),
-                (self.denominazione, self.get_absolute_url() )
-            ]
+            return [regione, self]
         elif self.territorio == self.TERRITORIO.C:
             regione = Territorio.objects.regioni().get(cod_reg=self.cod_reg)
             provincia = Territorio.objects.provincie().get(cod_prov=self.cod_prov)
-            return [
-                (regione.denominazione, regione.get_absolute_url() ),
-                (provincia.denominazione, provincia.get_absolute_url() ),
-                (self.denominazione, self.get_absolute_url() )
-            ]
+            return [regione, provincia, self]
+
+    def get_breadcrumbs(self):
+        return [(t.denominazione, t.get_absolute_url()) for t in self.get_hierarchy()]
 
     @property
     def n_progetti_deep(self):

@@ -1,0 +1,4 @@
+<div class="block-description">
+    <h3><a href="{% url soggetti_soggetto slug=object.slug %}">{{ object.denominazione }}</a></h3>
+</div>
+

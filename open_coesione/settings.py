@@ -60,7 +60,7 @@ USE_L10N = True
 USE_TZ = True
 
 # Much easier than using floatformat:0 in templates
-USE_THOUSAND_SEPARATOR = False
+USE_THOUSAND_SEPARATOR = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
@@ -211,7 +211,7 @@ LOGGING = {
             'level':'INFO',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': REPO_ROOT + "/log/logfile",
-            'maxBytes': 250000,
+            'maxBytes': 10000000,
             'backupCount': 10,
             'formatter': 'standard',
         },
