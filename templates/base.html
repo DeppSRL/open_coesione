@@ -112,8 +112,20 @@
         jQuery('.submenu').hover(function () {
           jQuery(this).children('ul').removeClass('submenu-hide').addClass('submenu-show');
         }, function () {
-          jQuery(this).children('ul').removeClass('.submenu-show').addClass('submenu-hide');
+          if ( $('#city:focus').length == 0) {
+            jQuery(this).children('ul').removeClass('.submenu-show').addClass('submenu-hide');
+          }
         }).find("a:first").append(" &raquo; ");
+
+        $('form.navbar-search').submit(function(){
+          //var search_type = $('select', this).val();
+          $("#search-form").attr("action", "/"+$('select', this).val()+"/");
+          //$('select', this).remove();
+        });
+
+        $('.navbar-search select').change(function(){
+          $('.navbar-search input').attr('placeholder', 'Cerca tra i '+ $(this).val())
+        })
       });//]]>
       </script>
     {% endaddtoblock %}

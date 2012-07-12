@@ -164,6 +164,7 @@ class ClassificazioneAzione(models.Model):
                                                   db_column='classificazione_superiore', null=True, blank=True)
     codice = models.CharField(max_length=8, primary_key=True)
     descrizione = models.TextField()
+    descrizione_estesa = models.TextField(null=True, blank=True)
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_classificazione = models.CharField(max_length=16, choices=TIPO)
     slug = models.CharField(max_length=64, blank=True, null=True)
@@ -363,19 +364,19 @@ class Progetto(models.Model):
 
     @property
     def programmatori(self):
-        return self.soggetto_set.filter(ruolo=Ruolo.RUOLO.programmatore)
+        return self.soggetto_set.filter(ruolo__ruolo=Ruolo.RUOLO.programmatore)
 
     @property
     def destinatari(self):
-        return self.soggetto_set.filter(ruolo=Ruolo.RUOLO.destinatario)
+        return self.soggetto_set.filter(ruolo__ruolo=Ruolo.RUOLO.destinatario)
 
     @property
     def attuatori(self):
-        return self.soggetto_set.filter(ruolo=Ruolo.RUOLO.attuatore)
+        return self.soggetto_set.filter(ruolo__ruolo=Ruolo.RUOLO.attuatore)
 
     @property
     def destinatari(self):
-        return self.soggetto_set.filter(ruolo=Ruolo.RUOLO.destinatario)
+        return self.soggetto_set.filter(ruolo__ruolo=Ruolo.RUOLO.destinatario)
 
     def __unicode__(self):
         return self.codice_locale

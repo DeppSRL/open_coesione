@@ -756,4 +756,12 @@
   .navbar-full-width .nav > li {
     width: auto;
   }
+  .block-chart.block-gray {
+    width: 147px;
+  }
+}
+@media (min-width: 1200px) {
+  .block-chart.block-gray {
+    width: 182px;
+  }
 }

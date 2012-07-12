@@ -116,6 +116,9 @@ section h1.title, section h2.title {
 }
 
 #sidebar {
+
+  padding-top: 25px;
+
   h1.title {
     div, span {
       color: @black;
@@ -140,7 +143,7 @@ section h1.title, section h2.title {
   padding-top: 1em;
   background-image: url('../img/site-bg.png'); background-repeat: repeat;
   .row {
-    margin-top: 20px;
+    margin-top: 30px;
     margin-bottom: 10px;
   }
 
@@ -160,6 +163,10 @@ section h1.title, section h2.title {
     button.btn {
       padding: 0 6px;
       margin-top: 4px;
+    }
+
+    button, input, select {
+      font-size: 12px;
     }
 
     input {
@@ -198,7 +205,7 @@ section h1.title, section h2.title {
 
   // container spaces
   & > div.container, & > div.area {
-    padding-top: 10px; padding-bottom: 10px;
+    /*padding-top: 10px;*/ padding-bottom: 10px;
   }
 
   & > div.container:first-child {
@@ -346,7 +353,13 @@ dl.data {
     color: @black;
     margin-bottom: 10px;
   }
+}
 
+h4.title { color: @grayDark; }
+
+hr.big {
+  border-top: 5px solid #EBE8E0;
+  border-bottom: 0;
 }
 
 .table th, .table td {
@@ -368,7 +381,7 @@ dl.data {
 }
 
 
-#map-search {
+#map-search, .map-header {
     padding: 10px;
     background-color: @graySemilight;
 }
@@ -386,16 +399,40 @@ dl.data {
 #map_container {
   .btn {
     .border-radius(0);
+    text-transform: uppercase;
   }
+
   .leaflet-control-legend {
     background-color: white;
     padding: 10px;
     ul {
       margin-left: 0;
       list-style: none;
+      li {
+        font-size: 11px;
+      }
     }
   }
 }
 
 .ajax_overlay {}
 .ajax_loader {background: url("../img/spinner_squares_circle.gif") no-repeat center center transparent;width:100%;height:100%;}
+
+#content {
+  padding-top: 25px;
+}
+
+#progetto-container {
+  .bg-gray;
+  #content { background: @white; }
+}
+
+.big-amounts {
+  .amount {
+    font-size: 18px;
+  }
+}
+
+#content-header {
+  padding-top: 25px;
+}

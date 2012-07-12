@@ -142,7 +142,7 @@
 
 {% block container %}
 
-  <div class="container">
+  <div class="container" id="content-header">
 
     <div class="row">
 
@@ -154,8 +154,7 @@
 
           <p>{{ totale_costi|intword }} <span>di euro</span></p>
 
-          <div class="bar-vertical"></div>
-
+{#          <div class="bar-vertical"></div>#}
           {% if tematizzazione == 'totale_costi' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
 
 {#          <div style="position: absolute; bottom: -16px; left: 5px; color: black; font-size: 10px; text-transform: none;">#}
@@ -170,7 +169,7 @@
 
           <p>{{ totale_pagamenti|intword }} <span>di euro</span></p>
 
-          <div class="bar-vertical"><span style="height:{{ percentuale_costi_pagamenti }}">{{ percentuale_costi_pagamenti }}</span></div>
+{#          <div class="bar-vertical"><span style="height:{{ percentuale_costi_pagamenti }}">{{ percentuale_costi_pagamenti }}</span></div>#}
 
           {% if tematizzazione == 'totale_pagamenti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
 
@@ -201,7 +200,7 @@
           OpenCoesione è il primo portale sull'attuazione degli investimenti programmati nel ciclo 2007-2013
           da Regioni e amministrazioni centrali dello Stato con le risorse per la coesione.
           I dati sono pubblicati perché i cittadini possano valutare se i progetti corrispondono ai
-          loro bisogni e se le risorse vengono impegnate in modo efficace. Leggi <a href="/faq">qui</a> per saperne di più
+          loro bisogni e se le risorse vengono impegnate in modo efficace. <a href="/faq">Leggi qui</a> per saperne di più
         </p>
 
           {% endblock %}
@@ -246,7 +245,8 @@
                 <h1 class="title black" style="margin-bottom: 0;"><span>Tema: {{ tema.short_label }}</span></h1>
                 <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}">Vai a tutti i progetti</a></p>
               </div>
-              <div class="span3">{{ tema.descrizione_estesa }}</div>
+              <div class="span3">{{ tema.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
+
             {% endif %}
 
             {% if tipologia %}
@@ -254,11 +254,14 @@
                 <h1 class="title black" style="margin-bottom: 0;"><span>Natura: {{ tipologia.short_label }}</span></h1>
                 <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=tipologia:{{ tipologia.codice }}">Vai a tutti i progetti</a></p>
               </div>
+              <div class="span3">{{ tipologia.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
             {% endif %}
 
             {% if nature_principali %}
-            <div class="span3{% if tema or tipologia %} offset3{% endif %}">
+            <div class="span3">
               <h4>Natura dell'investimento</h4>
+
+              <p>Cosa si fa con i progetti?</p>
 
               <div id="main_types_chart" style="width: 100%; height: 250px"></div>
 
@@ -283,6 +286,8 @@
             {% if temi_principali %}
             <div class="span3">
               <h4>Temi</h4>
+
+              <p>In quali settori si interviene?</p>
 
               <div id="main_topics_chart" style="width: 100%; height: 250px"></div>
 
@@ -310,10 +315,11 @@
 
         <div class="span6" id="map_container">
           {% block map %}
+            <div class="map-header clearfix">
 
             <div class="btn-group pull-left">
               <a class="btn active" href="#">Totali</a>
-              <a class="btn disabled" href="#">Pro-capite</a>
+              <a class="btn disabled" href="#">Pro capite</a>
             </div>
 
           <div id="selectors" class="btn-group">
@@ -328,6 +334,7 @@
               <a href="#" id="regioni" data-path="regioni" class="btn">regioni</a><a href="#" id="province" data-path="province" class="btn active">province</a>
             {% endif %}
           </div>
+            </div>
           <div id="map"{% if territorio.territorio == 'C' %} style=" height: 400px; "{% endif %}></div>
           <div id="map-search">
               <form class="form-search content">
@@ -344,6 +351,58 @@
 
     </div>
   </div>
+
+  {% if top_progetti_per_costo and ultimi_progetti_conclusi and territori_piu_finanziati_pro_capite %}
+  <div class="container" style="margin-top:25px;">
+    <div class="row">
+
+      <section class="span6">
+        <h1 class='title'><span>Progetti con maggiori finanziamenti</span></h1>
+
+        <table class="table">
+          {% for progetto in top_progetti_per_costo %}
+            <tr>
+              <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></td>
+              <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </section>
+
+      <section class="span3">
+        <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
+
+        <ul class='spaced'>
+          {% for progetto in ultimi_progetti_conclusi %}
+            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
+          {% endfor %}
+        </ul>
+
+      </section>
+
+      {% if territori_piu_finanziati_pro_capite %}
+        <section class="span3">
+          <h1 class='title'><span>Comuni con maggiori finanziamenti pro capite</span></h1>
+
+          <table class="table">
+            {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
+              <tr>
+                <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
+                <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
+              </tr>
+            {% endfor %}
+          </table>
+
+          <p class="text-right">
+            <a href="#">Scarica tutti i comuni</a>
+          </p>
+
+        </section>
+      {% endif %}
+
+    </div>
+  </div>
+  {% endif %}
 
 
 

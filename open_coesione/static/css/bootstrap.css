@@ -4204,18 +4204,18 @@ a.block-chart {
 .block-chart .caret {
   width: 0;
   height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-top: 20px solid #008678;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #008678;
   position: absolute;
-  bottom: -20px;
+  bottom: -10px;
   left: 40%;
   opacity: 1;
 }
 .block-chart {
-  -webkit-box-shadow: 0 0 6px #676462;
-  -moz-box-shadow: 0 0 6px #676462;
-  box-shadow: 0 0 6px #676462;
+  -webkit-box-shadow: 1px 1px 3px #676462;
+  -moz-box-shadow: 1px 1px 3px #676462;
+  box-shadow: 1px 1px 3px #676462;
   text-shadow: 0 1px 0 #ffffff;
   background-color: #dff3ef;
   background-image: -moz-linear-gradient(top, #ffffff, #afe0d8);
@@ -4238,6 +4238,9 @@ a.block-chart {
 }
 .block-chart.block-active,
 .block-chart:hover {
+  -webkit-box-shadow: 0 0 0;
+  -moz-box-shadow: 0 0 0;
+  box-shadow: 0 0 0;
   text-shadow: 0 1px 0 #676462;
   background-color: #69bcb2;
   background-image: -moz-linear-gradient(top, #afe0d8, #008678);
@@ -4302,6 +4305,18 @@ a.block-chart {
   min-height: 100px;
   float: none;
   margin: 25px auto;
+  color: #000000;
+  -webkit-box-shadow: 0 0 0;
+  -moz-box-shadow: 0 0 0;
+  box-shadow: 0 0 0;
+  background-image: none;
+  background-color: #c7e3dd;
+  cursor: auto;
+  text-shadow: 0 0 0;
+}
+#sidebar .block-chart:hover,
+.block-chart.block:hover {
+  color: #000000;
 }
 #sidebar .block-chart p,
 .block-chart.block p {
@@ -4309,12 +4324,15 @@ a.block-chart {
   text-align: center;
   right: 0;
   left: 0;
+  font-size: 25px;
+  line-height: 28px;
 }
 #sidebar .block-chart .bar-vertical,
 .block-chart.block .bar-vertical {
   width: 8px;
   right: 0;
   bottom: 0;
+  height: 100px;
 }
 .block-chart.block {
   margin: 0 15px 0 0;
@@ -4417,6 +4435,9 @@ a.block-chart {
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0;
+  -webkit-box-shadow: 0 0 0;
+  -moz-box-shadow: 0 0 0;
+  box-shadow: 0 0 0;
 }
 .navbar-full-width a {
   color: #000000;
@@ -4465,7 +4486,6 @@ a.block-chart {
   border-left: 1px solid #ffffff;
 }
 .navbar-full-width .nav  > li {
-  width: 32%;
   border-right: 1px solid #ffffff;
 }
 .navbar-full-width .nav  > li:hover,
@@ -4627,6 +4647,9 @@ section h2.title span {
 #main .area h4 {
   text-transform: none;
 }
+#sidebar {
+  padding-top: 25px;
+}
 #sidebar h1.title div,
 #sidebar h1.title span {
   color: #000000;
@@ -4646,7 +4669,7 @@ section h2.title span {
   background-repeat: repeat;
 }
 #wrapper > header .row {
-  margin-top: 20px;
+  margin-top: 30px;
   margin-bottom: 10px;
 }
 #wrapper > header h2 {
@@ -4660,6 +4683,11 @@ section h2.title span {
 #wrapper > header .navbar-search button.btn {
   padding: 0 6px;
   margin-top: 4px;
+}
+#wrapper > header .navbar-search button,
+#wrapper > header .navbar-search input,
+#wrapper > header .navbar-search select {
+  font-size: 12px;
 }
 #wrapper > header .navbar-search input {
   margin-bottom: 0;
@@ -4697,7 +4725,7 @@ section h2.title span {
 }
 #wrapper > section#main  > div.container,
 #wrapper > section#main  > div.area {
-  padding-top: 10px;
+  /*padding-top: 10px;*/
   padding-bottom: 10px;
 }
 #wrapper > section#main  > div.container:first-child {
@@ -4828,6 +4856,13 @@ dl.data dd {
   color: #000000;
   margin-bottom: 10px;
 }
+h4.title {
+  color: #676462;
+}
+hr.big {
+  border-top: 5px solid #EBE8E0;
+  border-bottom: 0;
+}
 .table th,
 .table td {
   padding: 6px;
@@ -4845,7 +4880,8 @@ dl.data dd {
 .left_space {
   margin-left: 10px;
 }
-#map-search {
+#map-search,
+.map-header {
   padding: 10px;
   background-color: #e5e2d7;
 }
@@ -4859,6 +4895,7 @@ dl.data dd {
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0;
+  text-transform: uppercase;
 }
 #map_container .leaflet-control-legend {
   background-color: white;
@@ -4868,8 +4905,26 @@ dl.data dd {
   margin-left: 0;
   list-style: none;
 }
+#map_container .leaflet-control-legend ul li {
+  font-size: 11px;
+}
 .ajax_loader {
   background: url("../img/spinner_squares_circle.gif") no-repeat center center transparent;
   width: 100%;
   height: 100%;
+}
+#content {
+  padding-top: 25px;
+}
+#progetto-container {
+  background-color: #f7f6f1;
+}
+#progetto-container #content {
+  background: #ffffff;
+}
+.big-amounts .amount {
+  font-size: 18px;
+}
+#content-header {
+  padding-top: 25px;
 }

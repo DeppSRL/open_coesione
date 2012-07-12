@@ -5,7 +5,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from django.core.urlresolvers import reverse
 from django.views.generic.detail import DetailView
-from django.utils import simplejson
+from django.db import models
 
 from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin
@@ -39,24 +39,26 @@ class ProgettoView(AccessControlView, DetailView):
 #            )
 #        if context['giorni_alla_fine'] and context['giorni_alla_fine'] < 0:
 #            context['giorni_alla_fine'] = ''
+        numero_collaboratori = 5
+        altri_progetti_nei_territori = Progetto.objects.exclude(codice_locale=self.object.codice_locale).nei_territori( self.object.territori ).order_by('-fin_totale_pubblico')
 
-        context['stesso_tema'] = Progetto.objects.exclude(codice_locale=self.object.codice_locale).con_tema(self.object.tema).nei_territori( self.object.territori )[:1]
-        context['stesso_tipologia'] = Progetto.objects.exclude(codice_locale=self.object.codice_locale).del_tipo(self.object.tipo_operazione).nei_territori( self.object.territori )[:1]
-        context['stessi_destinatari'] = Progetto.objects.exclude(codice_locale=self.object.codice_locale).con_tema(self.object.tema).nei_territori( self.object.territori )[:1]
-        context['stessi_realizzatori'] = Progetto.objects.exclude(codice_locale=self.object.codice_locale).con_tema(self.object.tema).nei_territori( self.object.territori )[:1]
+        context['stesso_tema'] = altri_progetti_nei_territori.con_tema(self.object.tema).nei_territori( self.object.territori )[:numero_collaboratori]
+        context['stesso_tipologia'] = altri_progetti_nei_territori.del_tipo(self.object.tipo_operazione)[:numero_collaboratori]
+        context['stessi_attuatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.attuatori)[:numero_collaboratori]
+        context['stessi_programmatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.programmatori)[:numero_collaboratori]
 
         context['total_cost'] = float(self.object.fin_totale_pubblico) if self.object.fin_totale_pubblico else 0.0
         context['total_cost_paid'] = float(self.object.pagamento) if self.object.pagamento else 0.0
         # calcolo della percentuale del finanziamento erogato
         context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
 
-        primo_territorio = self.object.territori[0] or None
-
-        context['map'] = {
-            'extent': "[{{lon: {0}, lat: {1}}},{{lon: {2}, lat: {3}}}]".format( *Territorio.objects.filter(territorio='R').extent() ),
-            'poi': simplejson.dumps( primo_territorio.geom.centroid.coords if primo_territorio else False ),
-            'pois' : simplejson.dumps( [t.geom.centroid.coords for t in self.object.territori] ),
-        }
+#        primo_territorio = self.object.territori[0] or None
+#
+#        context['map'] = {
+#            'extent': "[{{lon: {0}, lat: {1}}},{{lon: {2}, lat: {3}}}]".format( *Territorio.objects.filter(territorio='R').extent() ),
+#            'poi': simplejson.dumps( primo_territorio.geom.centroid.coords if primo_territorio else False ),
+#            'pois' : simplejson.dumps( [t.geom.centroid.coords for t in self.object.territori] ),
+#        }
 
         return context
 
@@ -74,6 +76,15 @@ class TipologiaView(AggregatoView, DetailView):
 #        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
 #        context['map_legend_colors'] = settings.MAP_COLORS
         context['map_selector'] = 'nature/{0}/'.format(self.kwargs['slug'])
+
+        context['top_progetti_per_costo'] = Progetto.objects.con_natura(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_natura(self.object)[:5]
+
+        context['territori_piu_finanziati_pro_capite'] = Territorio.objects\
+                                                         .filter( territorio=Territorio.TERRITORIO.C, progetto__classificazione_azione__classificazione_superiore=self.object  )\
+                                                         .annotate( totale=models.Sum('progetto__fin_totale_pubblico') )\
+                                                         .filter( totale__isnull=False )\
+                                                         .order_by('-totale')[:5]
 
 
         return context
@@ -97,6 +108,15 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
         context['map_selector'] = 'temi/{0}/'.format(self.kwargs['slug'])
 
         context['lista_indici_tema'] = csv.DictReader(open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))))
+
+        context['top_progetti_per_costo'] = Progetto.objects.con_tema(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_tema(self.object)[:5]
+
+        context['territori_piu_finanziati_pro_capite'] = Territorio.objects\
+                                                         .filter( territorio=Territorio.TERRITORIO.C, progetto__tema__tema_superiore=self.object )\
+                                                         .annotate( totale=models.Sum('progetto__fin_totale_pubblico') )\
+                                                         .filter( totale__isnull=False )\
+                                                         .order_by('-totale')[:5]
 
         return context
 

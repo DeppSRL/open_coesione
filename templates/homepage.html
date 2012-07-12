@@ -9,7 +9,7 @@
 
   {{ block.super }}
 
-  <div class="container">
+  <div class="container" style="margin-top:25px;">
     <div class="row">
 
       <section class="span3">
@@ -33,17 +33,17 @@
         <h1 class='title'><span>Soggetti coinvolti</span></h1>
 
         <p>
-          I soggetti coinvolti nei progetti sono <strong>{{ numero_soggetti|intcomma }}</strong> divisi tra programmatori, attuatori, realizzatori e destinatari.
+          I soggetti coinvolti nei progetti sono <strong>{{ numero_soggetti|intcomma }}</strong> divisi tra programmatorie attuatori.
           Di ogni soggetto vengono indicati tutti i progetti e i finanziamenti gestiti.
         </p>
 
         <hr>
 
-        <form class="form-search content">
+        <form class="form-search content" method="get" action="{% url soggetti_search %}">
           <h5>Cerca tra i soggetti</h5>
-          <form class="input-append" method="get" action="#">
-            <input type="text" class="input-medium search-query" placeholder="Inserisci una parola"><button type="submit" class="btn"><i class="icon-search"></i></button>
-          </form>
+          <div class="input-append" >
+            <input type="text" name="q" class="input-medium search-query" placeholder="Inserisci una parola"><button type="submit" class="btn"><i class="icon-search"></i></button>
+          </div>
         </form>
 
       </section>
@@ -85,7 +85,6 @@
       {#        </ul>#}
       {##}
       {#      </section>#}
-
     </div>
   </div>
 
@@ -95,27 +94,30 @@
 
       <section class="span6">
 
-        <div class="left_space">
-          <h1 class='title'><span>Risorse stanziate</span></h1>
+        <hr class="big">
 
-          <p>
-            Sia l’Unione europea, sia lo Stato italiano hanno tra i propri obiettivi quello di garantire al meglio
-            eguaglianza di opportunità e di qualità della vita nei diversi territori. Si tratta di un obiettivo
-            ambizioso che rende indispensabile un’azione aggiuntiva e un sostegno speciale per quei territori e
-            comunità che per le ragioni più disparate divergono dalle traiettorie migliori. Risorse dedicate alle
-            politiche di coesione territoriale che agiscono, pur con grande differenza d’intensità, in tutto il Paese.
-          </p>
+        <h1 class='title'><span>Risorse stanziate</span></h1>
 
-          <p>
-            Comprendono fonti europee, sostenute da un co-finanziamento nazionale, che costituiscono il Fondo europeo
-            per lo sviluppo regionale (FESR) e il Fondo sociale europeo (FSE), e fonti nazionali che costituiscono il
-            Fondo per lo sviluppo e la coesione (FSC, ex FAS).
-          </p>
+        <p>
+          Sia l’Unione europea, sia lo Stato italiano hanno tra i propri obiettivi quello di garantire al meglio
+          eguaglianza di opportunità e di qualità della vita nei diversi territori. Si tratta di un obiettivo
+          ambizioso che rende indispensabile un’azione aggiuntiva e un sostegno speciale per quei territori e
+          comunità che per le ragioni più disparate divergono dalle traiettorie migliori. Risorse dedicate alle
+          politiche di coesione territoriale che agiscono, pur con grande differenza d’intensità, in tutto il Paese.
+        </p>
 
-          <p><i class="icon-chevron-right"></i> <a href="/fonti-di-finanziamento/">Approfondisci</a></p>
-        </div>
+        <p>
+          Comprendono fonti europee, sostenute da un co-finanziamento nazionale, che costituiscono il Fondo europeo
+          per lo sviluppo regionale (FESR) e il Fondo sociale europeo (FSE), e fonti nazionali che costituiscono il
+          Fondo per lo sviluppo e la coesione (FSC, ex FAS).
+        </p>
+
+        <p><i class="icon-chevron-right"></i> <a href="/fonti-di-finanziamento/">Approfondisci</a></p>
+
       </section>
       <section class="span6">
+
+        <hr class="big">
 
         <h1 class='title'><span>Piano di Azione Coesione</span></h1>
         <p>

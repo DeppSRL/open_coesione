@@ -55,11 +55,11 @@ a.block-chart { text-decoration: none; }
   .caret {
     width: 0;
     height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-top: 20px solid @greenDark;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid @greenDark;
     position: absolute;
-    bottom: -20px; left: 40%;
+    bottom: -10px; left: 40%;
     opacity: 1;
   }
 }
@@ -67,7 +67,7 @@ a.block-chart { text-decoration: none; }
 // blocks coloring
 .block-chart {
   //background-color: @green;
-  .box-shadow(0 0 6px @grayDark);
+  .box-shadow(1px 1px 3px @grayDark);
   text-shadow: 0 1px 0 @white;
   #gradient > .vertical( @white, @green );
   color: @greenDark;
@@ -83,6 +83,7 @@ a.block-chart { text-decoration: none; }
 
   &.block-active, &:hover {
     //background-color: @greenDark;
+    .box-shadow(0 0 0);
     text-shadow: 0 1px 0 @grayDark;
     #gradient > .vertical( @green, @greenDark );
     color: @white;
@@ -134,17 +135,31 @@ a.block-chart { text-decoration: none; }
   min-height: 100px;
   float: none;
   margin: 25px auto;
+  color: @black;
+
+  .box-shadow(0 0 0);
+  //#gradient > .vertical( @greenLight,@greenLight );
+  background-image: none;
+  background-color: @greenLight;
+  cursor: auto;
+  text-shadow: 0 0 0;
+  &:hover {
+    color: @black;
+  }
 
   p {
     width: auto;
     text-align: center;
     right: 0;
     left: 0;
+    font-size: 25px;
+    line-height: 28px;
   }
 
   .bar-vertical {
     width: 8px;
     right:0; bottom:0;
+    height: 100px;
   }
 }
 

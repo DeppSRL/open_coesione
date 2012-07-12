@@ -36,7 +36,7 @@
         plotBackgroundColor: null,
         plotBorderWidth: null,
         plotShadow: false,
-        backgroundColor: 'transparent'
+        backgroundColor: null
       },
       title: {
         text: ''
@@ -66,7 +66,7 @@
       series: [],
       credits: { enabled: false },
       colors: [
-          "#ECE7DF", "#CAC7C3", "#979491", "#686462", "#2E2B2A", "#777777", "#AAAAAA", "#BBBBBB", "#CCCCCC", "#DDDDDD", "#EEEEEE"
+        "#c1dccb", "#aed4bd", "#bae2d4", "#bee2cc", "#d0e2d7", "#cae7d5", "#afded4", "#d3ece2", "#dcefe2", "#91c9a8", "#e3f2e8", "#bde3d2", "#b3d7c9"
       ]
 
     };
@@ -106,8 +106,8 @@
 
 {% block container %}
 
-  <div class="container">
-    <article id="progetto" class="row">
+  <div class="container" id="progetto-container">
+    <article id="progetto"  class="row">
       <div class="span6" id="content">
 
         <header>
@@ -115,7 +115,9 @@
           <h1>{{ progetto.titolo_progetto }}</h1>
         </header>
 
-        <ul class="spaced">
+        <p>Data di aggiornamento: <strong>{{ progetto.data_aggiornamento|date:"d.m.Y" }}</strong></p>
+
+        <ul class="unstyled">
           <li>
             <a href="{{ progetto.classificazione_azione.classificazione_superiore.get_absolute_url }}">
               {{ progetto.classificazione_azione.classificazione_superiore.short_label|upper }}
@@ -136,91 +138,100 @@
           </p>
         {% endif %}
 
+        <hr class="big">
+
         <section>
           <h1 class="title">
             <span>Soggetti</span>
           </h1>
 
-          <div class="row-fluid">
-            <div class="span6">
-              <dl class="data">
-                {% for programmatore in progetto.programmatori %}
-                  {% if forloop.first %}
-                  <dt>Programmatore</dt>
-                  {% endif %}
-                <dd><a href="{{ programmatore.get_absolute_url }}">{{ programmatore }}</a></dd>
-                {% endfor %}
-
-                {% for destinatario in progetto.destinatarii %}
-                  {% if forloop.first %}
-                    <dt>Destinatario</dt>
-                  {% endif %}
-                <dd><a href="{{ destinatario.get_absolute_url }}">{{ destinatario }}</a></dd>
-                {% endfor %}
-              </dl>
+          <div class="row">
+            <div class="span3">
+              {% for programmatore in progetto.programmatori %}
+                {% if forloop.first %}
+                  <h4 class="title">Programmatore</h4>
+                {% endif %}
+                <a href="{{ programmatore.get_absolute_url }}"><strong>{{ programmatore }}</strong></a>
+              {% endfor %}
             </div>
-            <div class="span6">
-              <dl class="data">
-                {% for attuatore in progetto.attuatori %}
-                  {% if forloop.first %}
-                    <dt>Attuatore</dt>
-                  {% endif %}
-                <dd><a href="{{ attuatore.get_absolute_url }}">{{ attuatore }}</a></dd>
-                {% endfor %}
-
-                {% for realizzatore in progetto.realizzatori %}
-                  {% if forloop.first %}
-                    <dt>Realizzatore</dt>
-                  {% endif %}
-                <dd><a href="{{ realizzatore.get_absolute_url }}">{{ realizzatore }}</a></dd>
-                {% endfor %}
-              </dl>
+            <div class="span3">
+              {% for attuatore in progetto.attuatori %}
+                {% if forloop.first %}
+                  <h4 class="title">Attuatore</h4>
+                {% endif %}
+                <a href="{{ attuatore.get_absolute_url }}"><strong>{{ attuatore }}</strong></a>
+              {% endfor %}
 
             </div>
+{#            <div class="span6">#}
+{#              <dl class="data">#}
+{#                {% for destinatario in progetto.destinatarii %}#}
+{#                  {% if forloop.first %}#}
+{#                    <dt>Destinatario</dt>#}
+{#                  {% endif %}#}
+{#                  <dd><a href="{{ destinatario.get_absolute_url }}">{{ destinatario }}</a></dd>#}
+{#                {% endfor %}#}
+{#                {% for realizzatore in progetto.realizzatori %}#}
+{#                  {% if forloop.first %}#}
+{#                    <dt>Realizzatore</dt>#}
+{#                  {% endif %}#}
+{#                <dd><a href="{{ realizzatore.get_absolute_url }}">{{ realizzatore }}</a></dd>#}
+{#                {% endfor %}#}
+{#              </dl>#}
+{#            </div>#}
           </div>
 
         </section>
 
-        <section class="row-fluid">
-          <div class="span6">
-            <h1 class="title">
-              <span>Tempi</span>
-            </h1>
+        <hr class="big">
 
-            <dl class="data">
-              <dt>Inizio previsto</dt>
-              <dd>{{ progetto.data_inizio_prevista|default:"Dato non disponibile" }}</dd>
+        <section>
+          <h1 class="title">
+            <span>Tempi</span>
+          </h1>
+          <div class="row">
+            <div class="span3">
+              <h4 class="title">Inizio previsto</h4>
+              <strong>{{ progetto.data_inizio_prevista|default:"Dato non disponibile" }}</strong>
+            </div>
+            <div class="span3">
+              <h4 class="title">Inizio effettivo</h4>
+              <strong>{{ progetto.data_inizio_effettiva|default:"Dato non disponibile" }}</strong>
+            </div>
+          </div>
 
-              <dt>Inizio effettivo</dt>
-              <dd>{{ progetto.data_inizio_effettiva|default:"Dato non disponibile" }}</dd>
+          <hr>
 
-              <dt>Fine prevista</dt>
-              <dd>{{ progetto.data_fine_prevista|default:"Dato non disponibile" }}</dd>
+          <div class="row">
+            <div class="span3">
+              <h4 class="title">Fine prevista</h4>
+              <strong>{{ progetto.data_fine_prevista|default:"Dato non disponibile" }}</strong>
+            </div>
+            <div class="span3">
+              <h4 class="title">Fine effettiva</h4>
+              <strong>{{ progetto.data_fine_effettiva|default:"Dato non disponibile" }}</strong>
+            </div>
+          </div>
 
-              <dt>Fine effettiva</dt>
-              <dd>{{ progetto.data_fine_effettiva|default:"Dato non disponibile" }}</dd>
-
-              {% if durata_progetto_prevista %}
-                <dt>Durata prevista</dt>
-                <dd>{{ durata_progetto_prevista }} giorni</dd>
-              {% endif %}
-
-              {% if durata_progetto_effettiva %}
-                <dt>Durata effettiva</dt>
-                <dd>{{ durata_progetto_effettiva }} giorni</dd>
-              {% endif %}
-
+{#              {% if durata_progetto_effettiva %}#}
+{#                <dt>Durata effettiva</dt>#}
+{#                <dd>{{ durata_progetto_effettiva }} giorni</dd>#}
+{#              {% endif %}#}
 {#              {% if giorni_alla_fine %}#}
 {#              <dt>Giorni rimanenti</dt>#}
 {#              <dd>{{ giorni_alla_fine }} giorni</dd>#}
 {#              {% endif %}#}
-            </dl>
 
-          </div>
-          <div class="span6">
+        </section>
+
+        <hr class="big">
+
+        <section>
+
+          <div style="float:right; width:46%; margin-left:10px;margin-right:10px;">
             <h1 class="title" id="map-header">
               <div>
-                  Località
+                Località
                 {% for territorio in progetto.territori %}
                   <a href="{{ territorio.get_absolute_url }}" class="map-location" data-coords="{{ territorio.geom.centroid.coords|join:"," }}">
                     {{ territorio.denominazione }}
@@ -230,24 +241,23 @@
             </h1>
             <div id="map" style="height:250px; width: 100%;"></div>
           </div>
+
+          <h3>Priorità</h3>
+          <p>
+            {{ progetto.classificazione_qsn.classificazione_superiore.classificazione_superiore.descrizione }}
+          </p>
+
+          <h3>Obiettivo generale QSN</h3>
+          <p>
+            {{ progetto.classificazione_qsn.classificazione_superiore.descrizione }}
+          </p>
+
+          <h3>Obiettivo specifico QSN</h3>
+          <p>
+            {{ progetto.classificazione_qsn.descrizione }}
+          </p>
+
         </section>
-
-        <h3>Priorità</h3>
-        <p>
-          {{ progetto.classificazione_qsn.classificazione_superiore.classificazione_superiore.descrizione }}
-        </p>
-
-        <h3>Obiettivo generale QSN</h3>
-        <p>
-          {{ progetto.classificazione_qsn.classificazione_superiore.descrizione }}
-        </p>
-
-        <h3>Obiettivo specifico QSN</h3>
-        <p>
-          {{ progetto.classificazione_qsn.descrizione }}
-        </p>
-
-        <p>Aggiornamento: <strong>{{ progetto.data_aggiornamento|date:"m.Y" }}</strong></p>
 
       </div>
 
@@ -255,24 +265,54 @@
 
       <aside id="sidebar" class="span6">
 
-        <section>
+        <section class="clearfix">
           <div class="row">
-            <h1 class="title span6"><span>Finanziamento pubblico</span></h1>
-
+            <div class="span12">
+              <h1 class="title" style="margin-left:25px;"><span>Risorse pubbliche</span></h1>
+            </div>
+          </div>
+          <div class="row">
             <div class="span3 text-center">
-              <h2>Finanziamento complessivo</h2>
-              <p><strong>{{ total_cost|intcomma }}</strong> euro</p>
+              <h2>Finanziamento</h2>
+              <strong>{{ total_cost|intcomma }}</strong> euro
             </div>
 
             <div class="span3 text-center">
               <h2>Pagamenti effettuati</h2>
-              <p><strong>{{ total_cost_paid|intcomma }}</strong> euro</p>
+              <strong>{{ total_cost_paid|intcomma }}</strong> euro
             </div>
           </div>
 
           <div class="row" style="height: 150px">
             <div class="span3">
               <div id="finanziamento_chart" style="width: 100%; height: 150px"></div>
+
+              <table class="table" id="finanziamento_chart_table" style="margin-left: 25px;">
+                {% if progetto.fin_ue %}
+                  <tr><th>Unione europea</th><td class="amount"><strong>{{ progetto.fin_ue|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% endif %}
+                {% if progetto.fin_stato_fondo_rotazione %}
+                  <tr><th>Co-finanziamento nazionale</th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% endif %}
+                {% if progetto.fin_stato_fsc %}
+                  <tr><th>Stato: Fondo Sviluppo e Coesione</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% endif %}
+                {% if progetto.fin_stato_altri_provvedimenti %}
+                  <tr><th>Stato: altri provvedimenti</th><td class="amount"><strong>{{ progetto.fin_stato_altri_provvedimenti|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% endif %}
+                {% if progetto.fin_regione %}
+                  <tr><th>Regione</th><td class="amount"><strong>{{ progetto.fin_regione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% endif %}
+                {% if progetto.fin_provincia %}
+                  <tr><th>Provincia</th><td class="amount"><strong>{{ progetto.fin_provincia|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% endif %}
+                {% if progetto.fin_comune %}
+                  <tr><th>Comune</th><td class="amount"><strong>{{ progetto.fin_comune|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% endif %}
+                {% if progetto.fin_altro_pubblico %}
+                  <tr><th>Altra fonte pubblica</th><td class="amount"><strong>{{ progetto.fin_altro_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% endif %}
+              </table>
             </div>
 
             <div class="span3">
@@ -288,33 +328,6 @@
 {#              <small>*Dati aggiornati al {{ progetto.data_aggiornamento }} e relativi alla competenza del finanziamento pubblico</small>#}
 {#            </p>#}
           </div>
-
-          <table class="table" id="finanziamento_chart_table">
-            {% if progetto.fin_ue %}
-            <tr><th>Europa</th><td class="amount"><strong>{{ progetto.fin_ue|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
-            {% endif %}
-            {% if progetto.fin_stato_fondo_rotazione %}
-            <tr><th>Co-finanziamento nazionale</th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
-            {% endif %}
-            {% if progetto.fin_stato_fsc %}
-            <tr><th>Stato FSC</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
-            {% endif %}
-            {% if progetto.fin_stato_altri_provvedimenti %}
-            <tr><th>Stato altri provvedimenti</th><td class="amount"><strong>{{ progetto.fin_stato_altri_provvedimenti|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
-            {% endif %}
-            {% if progetto.fin_regione %}
-            <tr><th>Regione</th><td class="amount"><strong>{{ progetto.fin_regione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
-            {% endif %}
-            {% if progetto.fin_provincia %}
-            <tr><th>Provincia</th><td class="amount"><strong>{{ progetto.fin_provincia|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
-            {% endif %}
-            {% if progetto.fin_comune %}
-            <tr><th>Comune</th><td class="amount"><strong>{{ progetto.fin_comune|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
-            {% endif %}
-            {% if progetto.fin_altro_pubblico %}
-            <tr><th>Altro pubblico</th><td class="amount"><strong>{{ progetto.fin_altro_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
-            {% endif %}
-          </table>
 
         </section>
 
@@ -347,31 +360,31 @@
 
         {% if progetto.fin_stato_estero or progetto.fin_privato or progetto.fin_da_reperire %}
 
-        <hr>
-
         <section>
-          <h1 class="title"><span>Altre risorse</span></h1>
+          <h1 class="title" style="margin-left: 25px;"><span>Altre risorse</span></h1>
 
-          <table class="table">
-            {% if progetto.fin_stato_estero %}
-            <tr>
-              <th>Stati Esteri</th>
-              <td class="amount"><span>{{ progetto.fin_stato_estero|intcomma }}</span> euro</td>
-            </tr>
-            {% endif %}
-            {% if progetto.fin_privato %}
-            <tr>
-              <th>Privati</th>
-              <td class="amount"><span>{{ progetto.fin_privato|intcomma }}</span> euro</td>
-            </tr>
-            {% endif %}
-            {% if progetto.fin_da_reperire %}
-            <tr>
-              <th>Da reperire</th>
-              <td class="amount"><span>{{ progetto.fin_da_reperire|intcomma }}</span> euro</td>
-            </tr>
-            {% endif %}
-          </table>
+          <div style="margin: 0 25px;">
+            <table class="table">
+              {% if progetto.fin_stato_estero %}
+              <tr>
+                <th>Stati Esteri</th>
+                <td class="amount"><strong>{{ progetto.fin_stato_estero|intcomma }}</strong> euro</td>
+              </tr>
+              {% endif %}
+              {% if progetto.fin_privato %}
+              <tr>
+                <th>Privati</th>
+                <td class="amount"><strong>{{ progetto.fin_privato|intcomma }}</strong> euro</td>
+              </tr>
+              {% endif %}
+              {% if progetto.fin_da_reperire %}
+              <tr>
+                <th>Da reperire</th>
+                <td class="amount"><strong>{{ progetto.fin_da_reperire|intcomma }}</strong> euro</td>
+              </tr>
+              {% endif %}
+            </table>
+          </div>
 
         </section>
 
@@ -383,26 +396,28 @@
 
 
   <div class="area">
-    <div class="container">
+    <div class="container big-amounts">
       <div class="row">
-
         <h3 class="span12">Altri progetti sul territorio</h3>
+      </div>
+
+      <div class="row">
 
         <div class="span6">
           <h1 class="title"><span>Stesso tema</span></h1>
           <table>
             {% for p in stesso_tema  %}
               <tr>
-                <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                <td class="span5"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
                 <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
               </tr>
             {% endfor %}
           </table>
         </div>
         <div class="span6">
-          <h1 class="title"><span>Stessi destinatari</span></h1>
+          <h1 class="title"><span>Stessi attuatori</span></h1>
           <table>
-            {% for p in stessi_destinatari  %}
+            {% for p in stessi_attuatori  %}
               <tr>
                 <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
                 <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
@@ -412,11 +427,11 @@
         </div>
       </div>
 
-      <hr>
+      <hr class="big">
 
       <div class="row">
         <div class="span6">
-          <h1 class="title"><span>Stessa tipologia</span></h1>
+          <h1 class="title"><span>Stessa natura dell'investimento</span></h1>
           <table>
             {% for p in stesso_tipo  %}
               <tr>
@@ -427,7 +442,7 @@
           </table>
         </div>
         <div class="span6">
-          <h1 class="title"><span>Stessi realizzatori</span></h1>
+          <h1 class="title"><span>Stessi programmatori</span></h1>
           <table>
             {% for p in stessi_realizzatori  %}
               <tr>

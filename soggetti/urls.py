@@ -26,7 +26,7 @@ urlpatterns = patterns('',
    url(r'^$', SoggettoSearchView(template='soggetti/soggetto_search.html', searchqueryset=sqs), name='soggetti_search'),
 
    # aggregato soggetti
-   url(r'^$', SoggettiView.as_view(), name='soggetti_soggetti'),
+   #url(r'^$', SoggettiView.as_view(), name='soggetti_soggetti'),
 
    # dettaglio soggetto
    url(r'^(?P<slug>[\w-]+)$', cache_page(key_prefix='soggetto')(SoggettoView.as_view()), name='soggetti_soggetto'),
