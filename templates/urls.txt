@@ -1,28 +1,29 @@
-{% for tematizzazione in tematizzazioni %}
-{{ mapnik_base_url}}/regioni.xml?tematizzazione={{ tematizzazione }}
-{{ mapnik_base_url }}/province.xml?tematizzazione={{ tematizzazione }}
-{{ base_url }}/regioni?tematizzazione={{ tematizzazione }}
-{{ base_url }}/province?tematizzazione={{ tematizzazione }}
-{% for t in regioni %}
-{{ mapnik_base_url }}/regioni/{{ t.codice }}/province.xml?tematizzazione={{ tematizzazione }}
-{{ mapnik_base_url }}/regioni/{{ t.codice }}/comuni.xml?tematizzazione={{ tematizzazione }}
-{{ base_url }}/regioni/{{ t.codice }}/province?tematizzazione={{ tematizzazione }}
-{{ base_url }}/regioni/{{ t.codice }}/comuni?tematizzazione={{ tematizzazione }}
+rm {{ log_file }}
+touch {{ log_file }}
+
+{{ curl_cmd|safe }} "{{ base_url}}/territori/mapnik/regioni.xml{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/province.xml{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}{{ tematizzazioni }}" >> {{ log_file }}
+
+{% for r in regioni %}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/regioni/{{r.codice}}/province.xml{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/regioni/{{r.codice}}/comuni.xml{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/regioni/{{ r.slug }}{{ tematizzazioni }}" >> {{ log_file }}
 {% endfor %}
+
 {% for t in province %}
-{{ mapnik_base_url }}/province/{{ t.codice }}/comuni.xml?tematizzazione={{ tematizzazione }}
-{{ base_url }}/province/{{ t.codice }}/comuni?tematizzazione={{ tematizzazione }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/province/{{t.codice}}/comuni.xml{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/province/{{ t.slug }}{{ tematizzazioni }}" >> {{ log_file }}
 {% endfor %}
+
 {% for t in temi %}
-{{ mapnik_base_url }}/temi/{{ t.slug }}/regioni.xml?tematizzazione={{ tematizzazione }}
-{{ mapnik_base_url }}/temi/{{ t.slug }}/province.xml?tematizzazione={{ tematizzazione }}
-{{ base_url }}/temi/{{ t.slug }}/regioni?tematizzazione={{ tematizzazione }}
-{{ base_url }}/temi/{{ t.slug }}/province?tematizzazione={{ tematizzazione }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/temi/{{t.slug}}/regioni.xml{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/temi/{{t.slug}}/province.xml{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/temi/{{ t.slug }}{{ tematizzazioni }}" >> {{ log_file }}
 {% endfor %}
-{% for n in nature %}
-{{ mapnik_base_url }}/nature/{{ n.slug }}/regioni.xml?tematizzazione={{ tematizzazione }}
-{{ mapnik_base_url }}/nature/{{ n.slug }}/province.xml?tematizzazione={{ tematizzazione }}
-{{ base_url }}/nature/{{ n.slug }}/regioni?tematizzazione={{ tematizzazione }}
-{{ base_url }}/nature/{{ n.slug }}/province?tematizzazione={{ tematizzazione }}
-{% endfor %}
+
+{% for t in nature %}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/tipologie/{{t.slug}}/regioni.xml{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/tipologie/{{t.slug}}/province.xml{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/tipologie/{{ t.slug }}{{ tematizzazioni }}" >> {{ log_file }}
 {% endfor %}

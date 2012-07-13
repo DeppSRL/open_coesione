@@ -29,13 +29,14 @@ class URLsConfigView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(URLsConfigView, self).get_context_data(**kwargs)
-        context['tematizzazioni'] = ('totale_costi', 'totale_pagamenti', 'totale_progetti')
+        context['tematizzazioni'] = '{,?tematizzazione=totale_costi,?tematizzazione=totale_pagamenti,?tematizzazione=totale_progetti}'
         context['regioni'] = Territorio.objects.filter(territorio='R')
         context['province'] = Territorio.objects.filter(territorio='P')
         context['temi'] = Tema.objects.principali()
         context['nature'] = ClassificazioneAzione.objects.nature()
         context['base_url'] = "http://{0}".format(Site.objects.get_current())
-        context['mapnik_base_url'] = "{0}/territori/mapnik".format(context['base_url'])
+        context['curl_cmd'] = "curl -L -o/dev/null -w '%{url_effective} - %{http_code} (%{time_total}sec.)\\n'"
+        context['log_file'] = "cache_generation.log"
 
         return context
 
