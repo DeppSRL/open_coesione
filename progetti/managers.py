@@ -68,10 +68,10 @@ class ProgettiQuerySet(models.query.QuerySet):
         return self.filter(soggetto_set__pk=soggetto.pk)
 
     def totale_costi(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
-        return float(self.totali(territorio, tema, tipo,classificazione, soggetto).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0)
+        return float(sum([l[0] for l in self.totali(territorio, tema, tipo,classificazione, soggetto).filter(fin_totale_pubblico__isnull=False).values_list('fin_totale_pubblico')]) or 0.0)
 
     def totale_pagamenti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
-        return float(self.totali(territorio, tema, tipo,classificazione, soggetto).aggregate(total=models.Sum('pagamento'))['total'] or 0.0)
+        return float(sum([l[0] for l in self.totali(territorio, tema, tipo,classificazione, soggetto).filter(pagamento__isnull=False).values_list('pagamento')]) or 0.0)
 
     def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
         return self.totali(territorio, tema, tipo,classificazione, soggetto).count()
