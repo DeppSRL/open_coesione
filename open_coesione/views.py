@@ -40,6 +40,7 @@ class URLsConfigView(TemplateView):
         return context
 
 class AggregatoView(object):
+
     def get_aggregate_data(self,context, **filter):
 
         if len(filter) > 1:
@@ -51,7 +52,10 @@ class AggregatoView(object):
             totale_progetti =   Progetto.objects.totale_progetti(**filter),
             **context
         )
-        context['percentuale_costi_pagamenti'] = "{0:.0%}".format(context['totale_pagamenti'] / context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0)
+        context['percentuale_costi_pagamenti'] = "{0:.0%}".format(
+            context['totale_pagamenti'] /
+            context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0
+        )
 
         # read tematizzazione GET param
         context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
@@ -69,12 +73,15 @@ class AggregatoView(object):
             'temi_principali' : {
                 'manager': Tema.objects,
                 'parent_class_field': 'tema_superiore',
-                'manager_parent_method': 'principali'
+                'manager_parent_method': 'principali',
+                'filter_name': 'tema',
             },
             'nature_principali' : {
                 'manager': ClassificazioneAzione.objects,
                 'parent_class_field': 'classificazione_superiore',
-                'manager_parent_method': 'tematiche'
+                'manager_parent_method': 'tematiche',
+                'filter_name': 'classificazione'
+
             }
         }
 
@@ -82,10 +89,10 @@ class AggregatoView(object):
         if filter.has_key('territorio'):
             query_filters = dict( **filter['territorio'].get_cod_dict(prefix='progetto_set__territorio_set__') )
         elif filter.has_key('tema'):
-            query_filters = dict(progetto_set__tema__tema_superiore=filter['tema'])
+            query_filters = dict(tema=filter['tema'])
             del query_models['temi_principali']
         elif filter.has_key('classificazione'):
-            query_filters = dict(progetto_set__classificazione_azione__classificazione_superiore=filter['classificazione'])
+            query_filters = dict(classificazione=filter['classificazione'])
             del query_models['nature_principali']
         else:
             # homepage takes all
@@ -97,9 +104,10 @@ class AggregatoView(object):
             for object in getattr(query_models[name]['manager'], query_models[name]['manager_parent_method'])():
                 q = query_filters.copy()
                 # add %model%_superiore to query filters
-                q[query_models[name]['parent_class_field']] = object
+                q[query_models[name]['filter_name']] = object
                 # make query and add totale to object
-                object.tot = query_models[name]['manager'].filter( **q ).aggregate( tot=aggregate_field )['tot']
+                # object.tot = query_models[name]['manager'].filter( **q ).aggregate( tot=aggregate_field )['tot']
+                object.tot = getattr(Progetto.objects, context['tematizzazione'])(**q)
                 # add object to right context
                 context[name].append( object )
 
