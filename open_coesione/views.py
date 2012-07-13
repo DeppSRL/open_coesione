@@ -87,7 +87,7 @@ class AggregatoView(object):
 
         # specialize the filter
         if filter.has_key('territorio'):
-            query_filters = dict( **filter['territorio'].get_cod_dict(prefix='progetto_set__territorio_set__') )
+            query_filters = dict(territorio=filter['territorio'])
         elif filter.has_key('tema'):
             query_filters = dict(tema=filter['tema'])
             del query_models['temi_principali']
