@@ -21,11 +21,9 @@
         <table class="search-results table">
           <tbody>
           {% for result in page_obj.object_list %}
-          <tr>
-            <td>{{ result.rendered|safe }}</td>
-          </tr>
-          {% empty %}
-              <p>Nessun risultato trovato.</p>
+              <tr>
+                <td>{{ result.rendered|safe }}</td>
+              </tr>
           {% endfor %}
           </tbody>
         </table>
@@ -35,7 +33,7 @@
 
 
     {% else %}
-        {# Show some example queries to run, maybe query syntax, something else? #}
+        <p>Nessun risultato trovato.</p>
     {% endif %}
 
 {% endblock %}

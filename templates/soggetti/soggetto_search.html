@@ -39,8 +39,6 @@
 
                         <td>{{ result.n_progetti|default:"0" }}</td>
                     </tr>
-                {% empty %}
-                    <p>Nessun risultato trovato.</p>
                 {% endfor %}
                 </tbody>
             </table>
@@ -50,7 +48,7 @@
 
 
     {% else %}
-        {# Show some example queries to run, maybe query syntax, something else? #}
+        <p>Nessun risultato trovato.</p>
     {% endif %}
 
 {% endblock %}
