@@ -444,3 +444,26 @@ class Ruolo(models.Model):
         verbose_name_plural = "Ruoli"
 
 
+class SegnalazioneProgetto(models.Model):
+    TIPOLOGIE = (
+        ('FINAZIATORE', "Faccio parte dell'amministrazione che programma e finanzia" ),
+        ('ATTUATORE', "Faccio parte dell'organizzazione che gestisce l'attuazione del progetto" ),
+        ('REALIZZATORE', "Lavoro / ho lavorato per la realizzazione del progetto"),
+        ('OSSERVATORE', "Abito lì vicino"),
+        ('ALTRO', "conosco il progetto per un altro motivo"),
+        )
+
+    come_lo_conosci = models.CharField(choices=TIPOLOGIE, max_length=12)
+
+    cup = models.CharField(max_length=15)
+    organizzazione = models.CharField(max_length=255)
+    email = models.EmailField()
+    descrizione = models.TextField()
+
+    # optional fields
+    risultati_conseguiti = models.TextField(blank=True, null=True)
+    effetti_sul_territorio = models.TextField(blank=True, null=True)
+    cosa_piace = models.TextField(blank=True, null=True)
+    cosa_non_piace = models.TextField(blank=True, null=True)
+    quanto_utile = models.TextField(blank=True, null=True)
+    come_migliorare = models.TextField(blank=True, null=True)

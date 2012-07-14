@@ -3,9 +3,10 @@ from django.conf import settings
 import os
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic.detail import DetailView
 from django.db import models
+from django.views.generic.edit import FormView
 
 from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin
@@ -13,6 +14,7 @@ from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto, ClassificazioneAzione
 from open_coesione.views import AggregatoView, AccessControlView
+from progetti.forms import DescrizioneProgettoForm
 from progetti.models import Tema
 from soggetti.models import Soggetto
 from territori.models import Territorio
@@ -237,3 +239,19 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         extra['page_obj'] = page_obj
 
         return extra
+
+
+class SegnalaDescrizioneView(FormView):
+    template_name = 'segnalazione/modulo.html'
+    form_class = DescrizioneProgettoForm
+    success_url = reverse_lazy('progetti_segnalazione_completa')
+
+    def form_valid(self, form):
+
+        form.send_email()
+
+        return super(SegnalaDescrizioneView, self).form_valid(form)
+
+
+
+

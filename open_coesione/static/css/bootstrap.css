@@ -4928,3 +4928,16 @@ hr.big {
 #content-header {
   padding-top: 25px;
 }
+#contact-form label {
+  float: left;
+  width: 140px;
+  padding-top: 5px;
+  text-align: right;
+}
+#contact-form textarea {
+  width: 400px;
+  height: 150px;
+}
+#contact-form .form-actions {
+  background: none;
+}

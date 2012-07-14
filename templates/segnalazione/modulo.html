@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block container %}
+
+  <div class="container">
+
+    <div class="row" style="padding-top:25px;">
+
+      <div class="span8">
+
+        <h1>Modulo per la segnalazione di un Progetto</h1>
+
+        <p>
+          Questo portale mostra informazioni sui progetti finanziati dalle politiche di sviluppo e coesione.
+        </p>
+
+        <p>
+          La descrizione che se ne ricava non è sempre sufficiente per comprendere in che cosa consiste il progetto e
+          quali effetti ha prodotto. Se conosci un progetto finanziato dalle politiche di coesione che ritieni meritevole
+          di attenzione, vai a qui per raccontarlo.
+        </p>
+
+        <p>
+          Vorremo costruire una galleria di testimonianze sulle politiche di coesione.
+        </p>
+
+        <form id="contact-form" action="{% url progetti_segnalazione %}" class="form-horizontal" method="post">{% csrf_token %}
+          <fieldset>
+
+            {% for field in form %}
+              <div class="control-group">
+                {{ field.label_tag }}
+                <div class="controls">
+                  {{ field }} {{ field.errors }}
+                </div>
+              </div>
+            {% endfor %}
+
+          </fieldset>
+          <div class="form-actions">
+            <button class="btn" type="submit">Invia</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+
+{% endblock %}
