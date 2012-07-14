@@ -25,6 +25,12 @@ class AccessControlView(object):
 
 
 class CGView(TemplateView):
+    """
+    cache generator view
+    generates the curl invocations to pre-navigate the time-consuming urls
+    can be filtered by maps or pages
+    """
+
     template_name = 'cache_generator.txt'
     filter = None
 
