@@ -143,6 +143,7 @@ INSTALLED_APPS = (
     'territori',
     'soggetti',
     'open_coesione',
+    'oc_search',
     'dynamic-content',
     # FeinCMS
     'feincms',

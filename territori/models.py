@@ -3,6 +3,7 @@
 from model_utils import Choices
 from progetti.models import Progetto
 from django.contrib.gis.db import models
+from django.core.urlresolvers import reverse
 import struct
 
 class TerritoriManager(models.GeoManager):
@@ -151,6 +152,31 @@ class Territorio(models.Model):
 
     def __unicode__(self):
         return self.nome
+
+    def get_progetti_search_url(self, **kwargs):
+        """
+        returns the correct search url in progetti faceted navigation
+        can be used with optional filters:
+        tema=TemaInstance
+        natura=ClassificazioneAzioneInstance
+        """
+        search_url = reverse('progetti_search') + "?q="
+
+        if 'tema' in kwargs:
+            tema = kwargs['tema']
+            search_url += "&selected_facets=tema:{0}".format(tema.codice)
+
+        if 'natura' in kwargs:
+            natura = kwargs['natura']
+            search_url += "&selected_facets=natura:{0}".format(natura.codice)
+
+        for t in self.get_hierarchy():
+            d = t.get_cod_dict()
+            key = d.keys()[0]
+            search_url += "&territorio{0}={1}".format(key[3:], d[key])
+
+        return search_url
+
 
     @models.permalink
     def get_absolute_url(self):
