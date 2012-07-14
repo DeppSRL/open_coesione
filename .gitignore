@@ -18,4 +18,5 @@ dati
 splitcsv2.py
 test_numberformat.py
 django.ini
-cache_*
+cache_generator.sh
+cache_generation.log
