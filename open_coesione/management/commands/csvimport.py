@@ -2,9 +2,8 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import DatabaseError
 from django.core.management.base import BaseCommand, CommandError
-from django.conf import settings
 
-from os import path
+from open_coesione import utils
 from optparse import make_option
 from decimal import Decimal
 import re
@@ -16,36 +15,6 @@ import codecs
 from progetti.models import *
 from soggetti.models import *
 from territori.models import Territorio
-
-class UTF8Recoder:
-    """
-    Iterator that reads an encoded stream and reencodes the input to UTF-8
-    """
-    def __init__(self, f, encoding):
-        self.reader = codecs.getreader(encoding)(f)
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        return self.reader.next().encode("utf-8")
-
-class UnicodeDictReader:
-    """
-    A CSV reader which will iterate over lines in the CSV file "f",
-    which is encoded in the given encoding.
-    """
-
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
-        f = UTF8Recoder(f, encoding)
-        self.reader = csv.DictReader(f, dialect=dialect, **kwds)
-
-    def next(self):
-        row = self.reader.next()
-        return dict((k, unicode(s, "utf-8")) for k, s in row.iteritems() if s is not None)
-
-    def __iter__(self):
-        return self
 
 class Command(BaseCommand):
     """
@@ -96,7 +65,7 @@ class Command(BaseCommand):
 
         # read first csv file
         try:
-            self.unicode_reader = UnicodeDictReader(open(self.csv_file, 'rb'), delimiter=';', encoding=self.encoding)
+            self.unicode_reader = utils.UnicodeDictReader(open(self.csv_file, 'rb'), delimiter=';', encoding=self.encoding)
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.csv_file)
             exit(1)
