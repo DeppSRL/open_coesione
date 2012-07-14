@@ -318,10 +318,12 @@
           {% block map %}
             <div class="map-header clearfix">
 
+            {% comment %}
             <div class="btn-group pull-left">
               <a class="btn active" href="#">Totali</a>
               <a class="btn disabled" href="#">Pro capite</a>
             </div>
+            {%  endcomment %}
 
           <div id="selectors" class="btn-group">
             {% if territorio.territorio == 'R' %}
