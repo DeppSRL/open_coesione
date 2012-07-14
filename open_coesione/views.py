@@ -24,11 +24,12 @@ class AccessControlView(object):
     pass
 
 
-class URLsConfigView(TemplateView):
-    template_name = 'urls.txt'
+class CGView(TemplateView):
+    template_name = 'cache_generator.txt'
+    filter = None
 
     def get_context_data(self, **kwargs):
-        context = super(URLsConfigView, self).get_context_data(**kwargs)
+        context = super(CGView, self).get_context_data(**kwargs)
         context['tematizzazioni'] = '{,?tematizzazione=totale_costi,?tematizzazione=totale_pagamenti,?tematizzazione=totale_progetti}'
         context['regioni'] = Territorio.objects.filter(territorio='R')
         context['province'] = Territorio.objects.filter(territorio='P')
@@ -37,6 +38,14 @@ class URLsConfigView(TemplateView):
         context['base_url'] = "http://{0}".format(Site.objects.get_current())
         context['curl_cmd'] = "curl -L -o/dev/null -w '%{url_effective} - %{http_code} (%{time_total}sec.)\\n'"
         context['log_file'] = "cache_generation.log"
+
+        context['maps'] = True
+        context['pages'] = True
+        if self.filter == 'maps':
+            context['pages'] = False
+        if self.filter == 'pages':
+            context['maps'] = False
+
 
         return context
 

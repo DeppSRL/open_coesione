@@ -287,11 +287,13 @@ class Progetto(models.Model):
     slug = models.CharField(max_length=128, blank=True, null=True)
     classificazione_qsn = models.ForeignKey('ClassificazioneQSN',
                                             related_name='progetto_set',
-                                            db_column='classificazione_qsn')
+                                            db_column='classificazione_qsn',
+                                            blank=True, null=True)
 
     programma_asse_obiettivo = models.ForeignKey('ProgrammaAsseObiettivo',
                                                  related_name='progetto_set',
-                                                 db_column='programma_asse_progetto')
+                                                 db_column='programma_asse_progetto',
+                                                 blank=True, null=True)
 
     obiettivo_sviluppo = models.CharField(max_length=16,
                                           blank=True, null=True,
@@ -302,23 +304,31 @@ class Progetto(models.Model):
                                          choices=FONDO_COMUNITARIO)
     tema = models.ForeignKey('Tema',
                              related_name='progetto_set',
-                             db_column='tema')
+                             db_column='tema',
+                             blank=True, null=True)
 
 #    intesa_istituzionale = models.ForeignKey('Intesa',
 #                                             related_name='progetto_set',
 #                                             db_column='intesa_istituzionale')
     fonte = models.ForeignKey('Fonte',
                               related_name='progetto_set',
-                              db_column='fonte')
+                              db_column='fonte',
+                              blank=True, null=True)
 
     classificazione_azione = models.ForeignKey('ClassificazioneAzione',
                                                related_name='progetto_set',
-                                               db_column='classificazione_azione')
+                                               db_column='classificazione_azione',
+                                               blank=True, null=True)
 
     classificazione_oggetto = models.ForeignKey('ClassificazioneOggetto',
                                                 related_name='progetto_set',
-                                                db_column='classificazione_oggetto')
+                                                db_column='classificazione_oggetto',
+                                                blank=True, null=True)
 
+    cipe_num_delibera = models.IntegerField(blank=True, null=True)
+    cipe_anno_delibera = models.CharField(max_length=4, blank=True, null=True)
+    cipe_data_adozione = models.DateField(null=True, blank=True)
+    cipe_note = models.TextField(blank=True, null=True)
 
     fin_totale = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_totale_pubblico = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
@@ -346,10 +356,10 @@ class Progetto(models.Model):
     data_fine_effettiva = models.DateField(null=True, blank=True)
     data_aggiornamento = models.DateField(null=True, blank=True)
 
-    dps_flag_cup = models.CharField(max_length=1, choices=DPS_FLAG_CUP)
-    dps_flag_presenza_date = models.CharField(max_length=2, choices=DPS_FLAG_PRESENZA_DATE)
-    dps_flag_date_previste = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE)
-    dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE)
+    dps_flag_cup = models.CharField(max_length=1, choices=DPS_FLAG_CUP, null=True, blank=True)
+    dps_flag_presenza_date = models.CharField(max_length=2, choices=DPS_FLAG_PRESENZA_DATE, null=True, blank=True)
+    dps_flag_date_previste = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE, null=True, blank=True)
+    dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE, null=True, blank=True)
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
