@@ -424,7 +424,9 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunto programma FS: %s" % (programma.codice,))
+                    self.logger.info("Aggiunto programma FS: %s" % (programma,))
+                else:
+                    self.logger.debug("Trovato programma FS: %s" % (programma,))
 
                 created = False
                 programma_asse, created = ProgrammaAsseObiettivo.objects.get_or_create(
@@ -436,7 +438,9 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunto asse: %s" % (programma_asse.codice,))
+                    self.logger.info("Aggiunto asse: %s" % (programma_asse,))
+                else:
+                    self.logger.debug("Trovato asse: %s" % (programma_asse,))
 
                 created = False
                 programma_asse_obiettivo, created = ProgrammaAsseObiettivo.objects.get_or_create(
@@ -448,9 +452,9 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.debug("Aggiunto obiettivo: %s" % (programma_asse_obiettivo.codice,))
+                    self.logger.debug("Aggiunto obiettivo: %s" % (programma_asse_obiettivo,))
                 else:
-                    self.logger.debug("Trovato obiettivo: %s" % (programma_asse_obiettivo.codice,))
+                    self.logger.debug("Trovato obiettivo: %s" % (programma_asse_obiettivo,))
 
 
             except DatabaseError as e:
@@ -612,6 +616,11 @@ class Command(BaseCommand):
                              (codice_locale, e))
                 continue
 
+            cipe_num_delibera = int(r['NUM_DELIBERA']) if r['NUM_DELIBERA'].strip() else None
+            cipe_anno_delibera = r['ANNO_DELIBERA'].strip() if r['ANNO_DELIBERA'].strip() else None
+            cipe_data_adozione = datetime.datetime.strptime(r['DATA_ADOZIONE'], '%Y%m%d') if r['DATA_ADOZIONE'].strip() else None
+            cipe_note = r['NOTE'].strip() if r['NOTE'].strip() else None
+
             # totale finanziamento
             # fin_totale = Decimal(r['FINANZ_TOTALE'].replace(',','.')) if r['FINANZ_TOTALE'].strip() else None
             fin_totale_pubblico = Decimal(r['FINANZ_TOTALE_PUBBLICO'].replace(',','.')) if r['FINANZ_TOTALE_PUBBLICO'].strip() else None
@@ -660,6 +669,10 @@ class Command(BaseCommand):
                         'fonte': fonte,
                         'classificazione_azione': natura_tipologia,
                         'classificazione_oggetto': settore_sottosettore_categoria,
+                        'cipe_num_delibera': cipe_num_delibera,
+                        'cipe_anno_delibera': cipe_anno_delibera,
+                        'cipe_data_adozione': cipe_data_adozione,
+                        'cipe_note': cipe_note,
 #                        'fin_totale': fin_totale,
                         'fin_totale_pubblico': fin_totale_pubblico,
                         'fin_ue': fin_ue,
@@ -679,7 +692,7 @@ class Command(BaseCommand):
 #                        'pagamento_fsc': pagamento_fsc,
                         'pagamento_ammesso': pagamento_ammesso,
                         'data_inizio_prevista': data_inizio_prevista,
-                        'data_fine_prevista': data_fine_prevista,
+                            'data_fine_prevista': data_fine_prevista,
                         'data_inizio_effettiva': data_inizio_effettiva,
                         'data_fine_effettiva': data_fine_effettiva,
                         'data_aggiornamento': data_aggiornamento,
