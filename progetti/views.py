@@ -198,27 +198,34 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         # definizione struttura dati per  visualizzazione faccette natura
         extra['natura'] = {
-            'descrizione': dict(
-                (c.codice, c.descrizione)
-                for c in ClassificazioneAzione.objects.filter(tipo_classificazione='natura')
-            ),
-            'short_label': dict(
-                (c.codice, c.short_label)
-                for c in ClassificazioneAzione.objects.filter(tipo_classificazione='natura')
-            )
+            'descrizione': {},
+            'short_label': {}
         }
+        for c in ClassificazioneAzione.objects.filter(tipo_classificazione='natura'):
+            if c.codice != ' ':
+                codice = c.codice
+            else:
+                codice = 'ND'
+            extra['natura']['descrizione'][codice] = c.descrizione
+            extra['natura']['short_label'][codice] = c.short_label
+
+
+        print extra['natura']
 
         # definizione struttura dati per  visualizzazione faccette tema
         extra['tema'] = {
-            'descrizione': dict(
-                (c.codice, c.descrizione)
-                for c in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)
-            ),
-            'short_label': dict(
-                (c.codice, c.short_label)
-                    for c in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)
-            )
+            'descrizione': {},
+            'short_label': {}
         }
+        for c in Tema.objects.principali():
+            if c.codice != ' ':
+                codice = c.codice
+            else:
+                codice = 'ND'
+
+            extra['tema']['descrizione'][codice] = c.descrizione
+            extra['tema']['short_label'][codice] = c.short_label
+
         extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
 
 

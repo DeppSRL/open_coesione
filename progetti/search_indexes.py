@@ -27,7 +27,11 @@ class ProgettoIndex(SearchIndex):
     rendered = L10NCharField(use_template=True, indexed=False)
 
     def prepare_natura(self, obj):
-        return obj.classificazione_azione.codice.split('.')[0]
+        codice = obj.classificazione_azione.codice.split('.')[0]
+        if codice != ' ':
+            return codice
+        else:
+            return 'ND'
 
     def prepare_tema(self, obj):
         return obj.tema.codice.split('.')[0]
