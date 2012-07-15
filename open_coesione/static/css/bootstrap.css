@@ -4941,3 +4941,11 @@ hr.big {
 #contact-form .form-actions {
   background: none;
 }
+#contact-form .errorlist {
+  color: #9d261d;
+  list-style: none;
+}
+#contact-form select,
+#contact-form input {
+  width: 400px;
+}

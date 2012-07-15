@@ -450,20 +450,22 @@ class SegnalazioneProgetto(models.Model):
         ('ATTUATORE', "Faccio parte dell'organizzazione che gestisce l'attuazione del progetto" ),
         ('REALIZZATORE', "Lavoro / ho lavorato per la realizzazione del progetto"),
         ('OSSERVATORE', "Abito lì vicino"),
-        ('ALTRO', "conosco il progetto per un altro motivo"),
+        ('ALTRO', "Conosco il progetto per un altro motivo"),
         )
 
-    come_lo_conosci = models.CharField(choices=TIPOLOGIE, max_length=12)
+    come_lo_conosci = models.CharField(choices=TIPOLOGIE, max_length=12, verbose_name="Come conosci il progetto?*")
+    come_lo_conosci_altro = models.TextField(verbose_name="Specificare come hai conosciuto il progetto", blank=True, null=True)
 
-    cup = models.CharField(max_length=15)
-    organizzazione = models.CharField(max_length=255)
-    email = models.EmailField()
-    descrizione = models.TextField()
+    cup = models.CharField(max_length=15, verbose_name="Codice CUP del progetto*")
+    organizzazione = models.CharField(max_length=255, verbose_name="Amministrazione o altra organizzazione*")
+    utente = models.CharField(max_length=255, verbose_name="Nome e cognome*")
+    email = models.EmailField(verbose_name="E-mail*")
+    descrizione = models.TextField(verbose_name="Descrizione del progetto*")
 
     # optional fields
     risultati_conseguiti = models.TextField(blank=True, null=True)
     effetti_sul_territorio = models.TextField(blank=True, null=True)
-    cosa_piace = models.TextField(blank=True, null=True)
-    cosa_non_piace = models.TextField(blank=True, null=True)
-    quanto_utile = models.TextField(blank=True, null=True)
-    come_migliorare = models.TextField(blank=True, null=True)
+    cosa_piace = models.TextField(blank=True, null=True, verbose_name="Cosa ti è piaciuto di più?")
+    cosa_non_piace = models.TextField(blank=True, null=True, verbose_name="Cosa ti è piaciuto di meno?")
+    quanto_utile = models.TextField(blank=True, null=True, verbose_name="Per cosa è stato utile il progetto?")
+    come_migliorare = models.TextField(blank=True, null=True, verbose_name="Come si potrebbe migliorare?*")

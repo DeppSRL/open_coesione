@@ -22,8 +22,8 @@ urlpatterns = patterns('',
    # faceted navigation
    url(r'^$', ProgettoSearchView(template='progetti/progetto_search.html', searchqueryset=sqs), name='progetti_search'),
 
-   url(r'^segnalazione/completa', TemplateView.as_view(template_name='segnalazione/completata.html'), name='progetti_segnalazione_completa'),
    url(r'^segnalazione/$', SegnalaDescrizioneView.as_view(), name='progetti_segnalazione'),
+   url(r'^segnalazione/completa$', TemplateView.as_view(template_name='segnalazione/completata.html'), name='progetti_segnalazione_completa'),
 
    # dettaglio di progetto
    url(r'^(?P<slug>[\w-]+)$', ProgettoView.as_view(), name='progetti_progetto'),

@@ -250,6 +250,8 @@ class SegnalaDescrizioneView(FormView):
 
         form.send_email()
 
+        form.save()
+
         return super(SegnalaDescrizioneView, self).form_valid(form)
 
 
