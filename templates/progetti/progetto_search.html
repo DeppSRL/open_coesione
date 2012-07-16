@@ -17,7 +17,9 @@
 
         <section style="clear: both;">
         <h3>pagina {{ page_obj.number }} di {{ n_results }} progetti trovati</h3>
-
+            {% if soggetto %}
+                <p>per il soggetto:       {{ soggetto }}  </p>
+            {% endif %}
         <table class="search-results table">
           <tbody>
           {% for result in page_obj.object_list %}
@@ -64,7 +66,7 @@
             <button type="submit" class="btn add-in"><i class="icon-search"> Cerca</i></button>
         </form>
 
-    {% if n_results %}
+      {% if n_results %}
         <!-- Begin faceting. -->
 
         {% if selected_facets %}
