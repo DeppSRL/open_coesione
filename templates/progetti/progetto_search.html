@@ -17,6 +17,9 @@
 
         <section style="clear: both;">
         <h3>pagina {{ page_obj.number }} di {{ n_results }} progetti trovati</h3>
+        {% if soggetto %}
+            <p>per il soggetto:       {{ soggetto }}  </p>
+        {% endif %}
 
         <hr class="big">
 
@@ -69,7 +72,7 @@
         </form>
         <br>
 
-    {% if n_results %}
+      {% if n_results %}
         <!-- Begin faceting. -->
 
         {% if selected_facets %}

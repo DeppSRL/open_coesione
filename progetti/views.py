@@ -202,6 +202,10 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
                 cod_reg=territorio_reg
             ).nome
 
+        soggetto_slug = self.request.GET.get('soggetto', None)
+        if soggetto_slug:
+            extra['soggetto'] = Soggetto.objects.get(slug=soggetto_slug)
+
         # get data about custom costo and n_progetti range facets
         extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()
 
