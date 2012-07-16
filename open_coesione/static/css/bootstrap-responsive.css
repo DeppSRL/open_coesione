@@ -760,6 +760,12 @@
     width: 147px;
   }
 }
+@media (min-width: 768px) and (max-width: 979px) {
+  #wrapper > section#main table td.amount,
+  #wrapper > section#main table col.amount {
+    white-space: normal;
+  }
+}
 @media (min-width: 1200px) {
   .block-chart.block-gray {
     width: 182px;
