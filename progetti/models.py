@@ -477,3 +477,10 @@ class SegnalazioneProgetto(models.Model):
     cosa_piace = models.TextField(blank=True, null=True, verbose_name="Cosa ti è piaciuto di più?")
     cosa_non_piace = models.TextField(blank=True, null=True, verbose_name="Cosa ti è piaciuto di meno?")
     quanto_utile = models.TextField(blank=True, null=True, verbose_name="Per cosa è stato utile il progetto?")
+
+    def __unicode__(self):
+        return u"{0} su {1}".format(self.email, self.cup)
+
+    class Meta:
+        verbose_name = "Segnalazione"
+        verbose_name_plural = "Segnalazioni"
