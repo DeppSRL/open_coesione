@@ -253,7 +253,7 @@
             {% if tipologia %}
               <div class="span6">
                 <h1 class="title black" style="margin-bottom: 0;"><span>Natura: {{ tipologia.short_label }}</span></h1>
-                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=tipologia:{{ tipologia.codice }}">Vai a tutti i progetti</a></p>
+                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}">Vai a tutti i progetti</a></p>
               </div>
               <div class="span3">{{ tipologia.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
             {% endif %}
