@@ -16,8 +16,15 @@
 
   $(document).ready(function() {
 
+    $(function () {
+      var activeTab = $('[href=' + location.hash + ']');
+      activeTab && activeTab.tab('show');
+    });
 
-    print_pie_chart('#chart_table', 'chart' );
+    $('#chart_table a[href^="#"]').click(function(){ $('.nav-tabs [href=' + $(this).attr('href') + ']').tab('show') });
+
+
+    //print_pie_chart('#chart_table', 'chart' );
 
     var line_options = {
       chart: {
@@ -264,8 +271,74 @@
     </p>
 
     <p>
-      Complessivamente, le risorse finanziarie attualmente disponibili per il ciclo di programmazione 2007-2013 ammontano a circa 100 miliardi di euro, composte da diversi fondi, come indicato nella tabella accanto.
+      Complessivamente, le risorse finanziarie attualmente disponibili per il ciclo di programmazione 2007-2013 ammontano a circa 100 miliardi di euro, composte da diversi fondi, come indicato nella tabella.
     </p>
+
+    <h3>Risorse finanziarie disponibili 2007-2013 ( dato di luglio 2012 )</h3>
+
+    <table class="table" id="chart_table">
+      <tbody>
+      <tr>
+        <th colspan="2"><a href="#fondi-europei">Fondi europei (FS 2007-2013)</a> (*)</th>
+      </tr>
+      <tr>
+        <td>Cofinanziamento nazionale ai programmi operativi dei Fondi strutturali</td>
+        <td class="amount"><strong>26.927,7</strong> mil. euro</td>
+      </tr>
+      <tr>
+        <td>Fondi strutturali UE (POR, PON, POIN)</td>
+        <td class="amount"><strong>27.965,0</strong> mil. euro</td>
+      </tr>
+      <tr>
+        <th colspan="2"><a href="#fondi-nazionali">Fondi nazionali (FSC 2007-2013)</a> (**)</th>
+      </tr>
+      <tr>
+        <td>Delibere CIPE o ex lege, a singoli progetti speciali</td>
+        <td class="amount"><strong>17.386,8</strong> mil. euro</td>
+      </tr>
+      <tr>
+        <td>PAR delle Regioni del Centro-Nord (eccetto il Lazio), Abruzzo e Molise e alcuni utilizzi disposti con ordinanza del Presidente del Consiglio dei Ministri (OPCM) o ex legge</td>
+        <td class="amount"><strong>6.432,5</strong> mil. euro</td>
+      </tr>
+      <tr>
+        <td>Delibere CIPE settoriali</td>
+        <td class="amount"><strong>10.178,9</strong> mil. euro</td>
+      </tr>
+      <tr>
+        <td>Obiettivi di servizio Mezzogiorno</td>
+        <td class="amount"><strong>1.044,0</strong> mil. euro</td>
+      </tr>
+      <tr>
+        <td>Disponibilita da programmare</td>
+        <td class="amount"><strong>4.345,3</strong> mil. euro</td>
+      </tr>
+
+      <tr>
+        <th colspan="2"><a href="/pac/">Piano di Azione Coesione (PAC)</a> (***)</th>
+      </tr>
+      <tr>
+        <td>Interventi del PAC con programmazione propria</td>
+        <td class="amount"><strong>5006,3</strong> mil. euro</td>
+      </tr>
+
+      </tbody>
+      <tfoot>
+      <tr>
+        <td class="text-right"><strong>TOTALE (****)</strong></td>
+        <td class="amount"><strong>99.286,6</strong> mil. euro</td>
+      </tr>
+      </tfoot>
+    </table>
+
+    <h5>Nota</h5>
+    <ul class="unstyled" style="font-size: 0.8em;">
+      <li>(*) Stime in attesa della riprogrammazione dei Programmi operativi regionali</li>
+      <li>(**) Esclude risorse ex FAS destinate alla copertura del debito sanitario di alcune regioni e al Fondo occupazione (2500 mln); include circa 412 mln della programmazione 2000-2006</li>
+      <li>(***) Non include interventi PAC da attuare nell'ambito della riprogrammazione delle priorità dei Programmi operativi dei fondi strutturali</li>
+      <li>(****) Il ciclo di programmazione cui sono destinati i fondi europei e per associazione quelli nazionali è di 7 anni (più due consentiti per il completamento della spesa)</li>
+    </ul>
+    <br>
+
 
   </div>
 
@@ -340,7 +413,7 @@
           sviluppo regionale e il Fondo sociale europeo.
         </p>
         <div id="chart_convergenza" style="height: 250px; width: 100%;"></div>
-        {% include 'commons/table_found.html' with table_name="Andamento percentuale dei pagamenti rispetto ai contributi comunitari" table_id="chart_fesr_fse_table_conv" table_class="chart_table hidden" table_rows=convergenza_fesr_fse %}
+        {% include 'commons/table_found.html' with table_name="Andamento percentuale dei pagamenti rispetto al costo pubblico" table_id="chart_fesr_fse_table_conv" table_class="chart_table hidden" table_rows=convergenza_fesr_fse %}
         <hr class="big">
         <div id="chart_convergenza_fse_regioni" style="height: 400px; width: 100%;"></div>
         {% include 'commons/table_found.html' with table_name="Fondo FSE: confronto della spesa tra le regioni al 31.12.2011" table_id="chart_fse_table_conv_regioni" table_class="chart_table hidden" table_rows=fse_data_conv_regioni %}
@@ -364,7 +437,7 @@
         </p>
 
         <div id="chart_competitivita" style="height: 250px; width: 100%;"></div>
-        {% include 'commons/table_found.html' with table_name="Andamento percentuale dei pagamenti rispetto ai contributi comunitari" table_id="chart_fesr_fse_table_comp" table_class="chart_table hidden" table_rows=competitivita_fesr_fse %}
+        {% include 'commons/table_found.html' with table_name="Andamento percentuale dei pagamenti rispetto al costo pubblico" table_id="chart_fesr_fse_table_comp" table_class="chart_table hidden" table_rows=competitivita_fesr_fse %}
         <hr class="big">
         <div id="chart_fse_competitivita" style="height: 400px; width: 100%;"></div>
         {% include 'commons/table_found.html' with table_name="Fondo FSE: confronto della spesa tra le regioni al 31.12.2011" table_id="chart_fse_table" table_class="chart_table hidden" table_rows=fse_data_comp %}
@@ -586,45 +659,13 @@
 {% block sidebar %}
 
   <div class="flat_content">
-    <br><br>
-    <h3>Risorse finanziarie disponibili 2007-2013 ( dato di fine 2011 )</h3>
+    <br>
 
-    <table class="table" id="chart_table">
-      <tbody>
-      <tr>
-        <td><a href="#">FAS-FSC  Fondi nazionali per interventi su Infrastrutture, sostegno all’occupazione e sostegno alla competitività del Paese</a></td>
-        <td class="amount"><strong>18.746.000.000</strong> euro</td>
-      </tr>
-      <tr>
-        <td><a href="#">FAS-FSC 2007-2013 Obiettivi di servizio</a></td>
-        <td class="amount"><strong>1.044.000.000</strong> euro</td>
-      </tr>
-      <tr>
-        <td><a href="#">FAS-FSC 2007-2013 tramite PAR</a></td>
-        <td class="amount"><strong>22.979.000.000</strong> euro</td>
-      </tr>
-      <tr>
-        <td><a href="#">Cofinanziamento nazionale ai programmi operativi dei Fondi strutturali</a></td>
-        <td class="amount"><strong>31.934.000.000</strong> euro</td>
-      </tr>
-      <tr>
-        <td><a href="#">Fondi strutturali comunitari 2007-2013 (POR, PON, POIN)</a></td>
-        <td class="amount"><strong>27.965.000.000</strong> euro</td>
-      </tr>
-      </tbody>
-      <tfoot>
-      <tr>
-        <td class="text-right">Totale:</td>
-        <td class="amount"><strong>102.668.000.000</strong> euro</td>
-      </tr>
-      </tfoot>
-    </table>
-
-    <h4>Ripartizione percentuale delle risorse finanziarie disponibili 2007-2013</h4>
-
-    <div id="chart" style="width: 100%; height: 200px"></div>
-
-    <h4>Programmi operativi</h4>
+    <h3>Glossario</h3>
+{#    <h4>Ripartizione percentuale delle risorse finanziarie disponibili 2007-2013</h4>#}
+{#    <div id="chart" style="width: 100%; height: 200px"></div>#}
+    <br>
+    <h4>Cosa sono i programmi operativi</h4>
     <p>I fondi europei (insieme al co-finanziamento nazionale) assegnati ai territori vengono impegnati attraverso programmi operativi. Nell’attuale ciclo di programmazione 2007-2013 i programmi operativi che impiegano FESR e FSE sono 66.</p>
 
     <h4>Che cosa sono i PON</h4>

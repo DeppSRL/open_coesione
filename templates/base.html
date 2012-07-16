@@ -1,7 +1,10 @@
 {% load i18n %}
 {% load sekizai_tags %}
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="it"> <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   <title>Open Coesione - {% block page_title %}{% endblock %}</title>
@@ -28,11 +31,12 @@
   <link href="{{ STATIC_URL }}css/bootstrap-responsive.css" rel="stylesheet">
   {% endif %}
   <link rel="stylesheet" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.21.custom.css" type="text/css" media="all" />
-  {% endaddtoblock %}
   <!--[if IE 7]>
     <link rel="stylesheet" href="{{ STATIC_URL }}css/font-awesome-ie7.css">
   <![endif]-->
-  {% render_block "css_link" %}
+  {% endaddtoblock %}
+
+ {% render_block "css_link" %}
 
   <!-- scripts -->
   {% addtoblock "js_script" %}
@@ -44,39 +48,21 @@
 
   {% render_block "js_script" %}
 
-    <style type="text/css">
-        #map {
-            background: #E6E6E6;
-        }
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-980632-20']);
+    _gaq.push(['_setDomainName', 'opencoesione.gov.it']);
+    _gaq.push(['_trackPageview']);
 
-        .layer path {
-            fill: none;
-            stroke: #aaa;
-            stroke-width: .25px;
-            vector-effect: non-scaling-stroke;
-        }
-
-        #regioni path {
-            stroke: #fff;
-            stroke-width: 1.5px;
-            vector-effect: scaling-stroke;
-        }
-
-        #copy {
-            position: relative;
-            color: #000;
-            opacity: .5;
-        }
-
-        #copy a {
-            color: #000;
-        }
-
-    </style>
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
 
 
-
-    <!-- fav and touch icons -->
+  <!-- fav and touch icons -->
   <link rel="shortcut icon" href="{{ STATIC_URL }}ico/favicon.ico">
 {#  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ STATIC_URL }}ico/apple-touch-icon-144-precomposed.png">#}
 {#  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ STATIC_URL }}ico/apple-touch-icon-114-precomposed.png">#}

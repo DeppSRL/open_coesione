@@ -193,7 +193,7 @@
 
         <a class="block-chart block-gray pull-right" href="/fonti-di-finanziamento/">
           <strong class="title">Risorse totali 2007-2013</strong>
-          <p>102,7 miliardi <span>di euro</span></p>
+          <p>99,286 miliardi <span>di euro</span></p>
           <i class="icon-share-alt"></i>
         </a>
 
@@ -221,10 +221,16 @@
         {% if soggetto %}
           <div class="span12">
             <h1 class="title violet" style="margin-bottom: 0;"><span>{{ soggetto.denominazione }}</span></h1>
-            <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&soggetto:{{ soggetto.slug }}">Tutti i progetti</a></p>
+            <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&soggetto={{ soggetto.slug }}">Tutti i progetti</a></p>
             <ul class="unstyled">
             {% if soggetto.forma_giuridica %}<li>{{ soggetto.forma_giuridica }}</li>{% endif %}
             {% if soggetto.indirizzo %}<li>{{ soggetto.indirizzo }}</li>{% endif %}
+            {% if soggetto.territorio %}
+              <li>
+                {% if soggetto.cap %}{{ soggetto.cap }}{% endif %}
+                {{ soggetto.territorio.denominazione }}
+              </li>
+            {% endif %}
             {% if soggetto.rappresentante_legale %}<li>Rappresentante legale: {{ soggetto.rappresentante_legale }}</li>{% endif %}
             {% if soggetto.codice_fiscale.strip %}<li>CF.: {{ soggetto.codice_fiscale }}</li>{% endif %}
             </ul>
