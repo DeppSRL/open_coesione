@@ -68,7 +68,7 @@
                    value="{% if form.territorio_prov.value %}{{ form.territorio_prov.value }}{% endif %}" type="hidden"/>
             <input id="territorio-reg" name="{{ form.territorio_reg.html_name }}"
                    value="{% if form.territorio_reg.value %}{{ form.territorio_reg.value }}{% endif %}" type="hidden"/>
-            <button type="submit" class="btn add-in"><i class="icon-search"></i> Cerca</button>
+            <button id="search-button" type="submit" class="btn add-in"><i class="icon-search"></i> Cerca</button>
         </form>
         <br>
 
@@ -236,14 +236,33 @@
                 }
             }).css('z-index', 10000);
 
+            function handle_keydown(event) {
+                // track enter key
+                var keycode = (event.keyCode ? event.keyCode : (event.which ? event.which : event.charCode));
+                if (keycode == 13) { // keycode for enter key
+                    // force the 'Enter Key' to implicitly click the Update button
+                    document.getElementById('search-button').click();
+                    return false;
+                } else  {
+                    return true;
+                }
+            } // end of function
+
+            $("#query").bind("keydown", handle_keydown);
+            $("#location").bind("keydown", handle_keydown);
+
             $( "#clear-location").click( function (){
                 $("#location").val('');
                 $('#territorio-com').val('');
                 $('#territorio-prov').val('');
                 $('#territorio-reg').val('');
+                document.getElementById('search-button').click();
+                return false;
             });
             $( "#clear-query").click( function (){
                 $("#query").val('');
+                document.getElementById('search-button').click();
+                return false;
             });
 
         });
