@@ -30,9 +30,13 @@ class TemaAdmin(admin.ModelAdmin):
 class ClassificazioneAdmin(admin.ModelAdmin):
     list_filter = ('tipo_classificazione',)
 
+class ClassificazioneAzioneAdmin(ClassificazioneAdmin):
+    list_display = ('codice', 'descrizione', 'priorita')
+
+
 admin.site.register(Progetto, ProgettoAdmin)
 admin.site.register(ClassificazioneQSN, ClassificazioneAdmin)
-admin.site.register(ClassificazioneAzione, ClassificazioneAdmin)
+admin.site.register(ClassificazioneAzione, ClassificazioneAzioneAdmin)
 admin.site.register(ClassificazioneOggetto, ClassificazioneAdmin)
 admin.site.register(ProgrammaAsseObiettivo, ProgrammaAsseObiettivoAdmin)
 admin.site.register(Tema, TemaAdmin)

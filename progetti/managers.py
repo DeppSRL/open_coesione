@@ -144,7 +144,7 @@ class ClassificazioneAzioneManager(models.Manager):
         return self.tematiche()
 
     def tematiche(self):
-        return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.natura)
+        return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.natura).order_by('priorita')
 
     def costo_totale(self):
         return self.get_query_set().annotate(totale=models.Sum('progetto_set__fin_totale_pubblico'))

@@ -168,6 +168,7 @@ class ClassificazioneAzione(models.Model):
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_classificazione = models.CharField(max_length=16, choices=TIPO)
     slug = models.CharField(max_length=64, blank=True, null=True)
+    priorita = models.IntegerField(blank=True, null=True)
 
     @property
     def classificazioni_figlie(self):
