@@ -242,7 +242,7 @@
             <div id="map" style="height:250px; width: 100%;"></div>
           </div>
 
-          <h3>Priorità</h3>
+          <h3>Priorità QSN</h3>
           <p>
             {{ progetto.classificazione_qsn.classificazione_superiore.classificazione_superiore.descrizione }}
           </p>
@@ -345,7 +345,7 @@
             <dd>{{ progetto.fonte.descrizione }}</dd>
             <dt>Programma</dt>
             <dd>
-              <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}">
+              <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}" target="_blank">
                 {{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}
               </a>
             </dd>
