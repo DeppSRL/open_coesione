@@ -41,6 +41,7 @@ class CGView(TemplateView):
         context['province'] = Territorio.objects.filter(territorio='P')
         context['temi'] = Tema.objects.principali()
         context['nature'] = ClassificazioneAzione.objects.nature()
+        context['soggetti'] = Soggetto.objects.annotate(c=Count('progetto')).filter(c__gte=1000).order_by('c')
         context['base_url'] = "http://{0}".format(Site.objects.get_current())
         context['curl_cmd'] = "curl -L -o/dev/null -w '%{url_effective} - %{http_code} (%{time_total}sec.)\\n'"
         context['log_file'] = "cache_generation.log"

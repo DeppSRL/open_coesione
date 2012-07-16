@@ -57,3 +57,6 @@ touch {{ log_file }}
 {% endif %}
 {% endfor %}
 
+{% for s in soggetti %}
+{{ curl_cmd|safe }} "{{ base_url }}/soggetti/{{ s.slug }}" >> {{ log_file }}
+{% endfor %}
