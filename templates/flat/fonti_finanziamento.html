@@ -51,7 +51,7 @@
         href: 'http://www.dps.tesoro.it/',
         text: 'Fonte: DPS'
       },
-      tooltip: { valueDecimals: 2, valueSuffix: '%', xDateFormat: '%Y' }
+      tooltip: { valueDecimals: 2, valueSuffix: '%', xDateFormat: '%Y' },
     };
 
 
@@ -182,7 +182,8 @@
       credits: {
         href: 'http://www.dps.tesoro.it/',
         text: 'Fonte: DPS'
-      }
+      },
+      colors: [ '#b5b299', '#707005' ]
     };
 
 
@@ -344,16 +345,16 @@
         </p>
         <div id="chart_convergenza" style="height: 250px; width: 100%;"></div>
         {% include 'commons/table_found.html' with table_name="Andamento percentuale dei pagamenti rispetto ai contributi comunitari" table_id="chart_fesr_fse_table_conv" table_class="chart_table hidden" table_rows=convergenza_fesr_fse %}
-        <hr>
+        <hr class="big">
         <div id="chart_convergenza_fse_regioni" style="height: 400px; width: 100%;"></div>
         {% include 'commons/table_found.html' with table_name="Fondo FSE: confronto della spesa tra le regioni al 31.12.2011" table_id="chart_fse_table_conv_regioni" table_class="chart_table hidden" table_rows=fse_data_conv_regioni %}
-        <hr>
+        <hr class="big">
         <div id="chart_convergenza_fse_temi" style="height: 400px; width: 100%;"></div>
         {% include 'commons/table_found.html' with table_name="Fondo FSE: confronto della spesa per i temi al 31.12.2011" table_id="chart_fse_table_conv_temi" table_class="chart_table hidden" table_rows=fse_data_conv_temi %}
-        <hr>
+        <hr class="big">
         <div id="chart_convergenza_fesr_regioni" style="height: 400px; width: 100%;"></div>
         {% include 'commons/table_found.html' with table_name="Fondo FESR: confronto della spesa tra le regioni al 31.12.2011" table_id="chart_fesr_table_conv_regioni" table_class="chart_table hidden" table_rows=fesr_data_conv_regioni %}
-        <hr>
+        <hr class="big">
         <div id="chart_convergenza_fesr_temi" style="height: 400px; width: 100%;"></div>
         {% include 'commons/table_found.html' with table_name="Fondo FESR: confronto della spesa per i temi al 31.12.2011" table_id="chart_fesr_table_conv_temi" table_class="chart_table hidden" table_rows=fesr_data_conv_temi %}
 
@@ -368,10 +369,10 @@
 
         <div id="chart_competitivita" style="height: 250px; width: 100%;"></div>
         {% include 'commons/table_found.html' with table_name="Andamento percentuale dei pagamenti rispetto ai contributi comunitari" table_id="chart_fesr_fse_table_comp" table_class="chart_table hidden" table_rows=competitivita_fesr_fse %}
-        <hr>
+        <hr class="big">
         <div id="chart_fse_competitivita" style="height: 400px; width: 100%;"></div>
         {% include 'commons/table_found.html' with table_name="Fondo FSE: confronto della spesa tra le regioni al 31.12.2011" table_id="chart_fse_table" table_class="chart_table hidden" table_rows=fse_data_comp %}
-        <hr>
+        <hr class="big">
         <div id="chart_fesr_competitivita" style="height: 400px; width: 100%;"></div>
         {% include 'commons/table_found.html' with table_name="Fondo FESR: confronto della spesa tra le regioni al 31.12.2011" table_id="chart_fesr_table" table_class="chart_table hidden" table_rows=fesr_data_comp %}
 

@@ -20,7 +20,21 @@
   .block-chart.block-gray {
     width: 147px;
   }
+}
 
+@media (min-width: 768px) and (max-width: 979px) {
+// main section
+  #wrapper > section#main {
+  // global table style in #main container
+    table {
+    //.table;
+    //.table-bordered;
+
+      td.amount, col.amount {
+        white-space: normal;
+      }
+    }
+  }
 }
 
 @media (min-width: 1200px) {

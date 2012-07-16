@@ -17,9 +17,12 @@
 
         <section style="clear: both;">
         <h3>pagina {{ page_obj.number }} di {{ n_results }} progetti trovati</h3>
-            {% if soggetto %}
-                <p>per il soggetto:       {{ soggetto }}  </p>
-            {% endif %}
+        {% if soggetto %}
+            <p>per il soggetto:       {{ soggetto }}  </p>
+        {% endif %}
+
+        <hr class="big">
+
         <table class="search-results table">
           <tbody>
           {% for result in page_obj.object_list %}
@@ -43,34 +46,37 @@
 {% block sidebar %}
   <div class="flat_content">
         <h4>Cerca tra i progetti</h4>
-        <form method="get" action="{% url progetti_search %}" class="form-search">
+        <form method="get" action="{% url progetti_search %}" class="form-search form-condensed">
+          <div class="control-group">
             {%  spaceless %}
             <input id="query" type="text" class="input-medium search-query" name="{{ form.q.html_name }}"
                    value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
             <button id="clear-query" class="btn add-in"><i class="icon-remove"></i></button>
             {%  endspaceless %}
-            <br/>
+          </div>
+          <div class="control-group">
             {%  spaceless %}
             <input id="location" type="text" class="input-large search-query"
                    value="{% if territorio %}{{ territorio }}{% endif %}"
                    placeholder="Inserisci il territorio"/>
             <button id="clear-location" class="btn add-in"><i class="icon-remove"></i></button>
             {%  endspaceless %}
-            <br/>
+          </div>
             <input id="territorio-com" name="{{ form.territorio_com.html_name }}"
                    value="{% if form.territorio_com.value %}{{ form.territorio_com.value }}{% endif %}" type="hidden"/>
             <input id="territorio-prov" name="{{ form.territorio_prov.html_name }}"
                    value="{% if form.territorio_prov.value %}{{ form.territorio_prov.value }}{% endif %}" type="hidden"/>
             <input id="territorio-reg" name="{{ form.territorio_reg.html_name }}"
                    value="{% if form.territorio_reg.value %}{{ form.territorio_reg.value }}{% endif %}" type="hidden"/>
-            <button type="submit" class="btn add-in"><i class="icon-search"> Cerca</i></button>
+            <button type="submit" class="btn add-in"><i class="icon-search"></i> Cerca</button>
         </form>
+        <br>
 
       {% if n_results %}
         <!-- Begin faceting. -->
 
         {% if selected_facets %}
-            <h3>Modifica i filtri</h3>
+            <h4>Modifica i filtri</h4>
             {% for facet in selected_facets  %}
                 {% if facet.field == 'natura' and facets.fields.natura.is_field_selected %}
                     <dt>Natura operazione</dt>
@@ -102,7 +108,7 @@
                 {% endif %}
             {% endfor %}
         {% else %}
-            <h3>Filtra</h3>
+            <h4>Filtra</h4>
             <p>Puoi trovare il progetto scorrendo la lista, qui sotto.
                 Puoi perfezionare la ricerca usando i filtri nella colonna qui a destra, oppure puoi usare il form di
                 ricerca con una parola che pensi sia contenuta nel progetto,

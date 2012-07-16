@@ -24,7 +24,7 @@ a {
 
 .bg-gray { background-color: #f7f6f1; }
 
-#sidebar { .bg-gray; p small { color: @grayDark; } }
+#sidebar { /*.bg-gray;*/ p small { color: @grayDark; } }
 
 
 // text alignments
@@ -173,6 +173,7 @@ section h1.title, section h2.title {
       margin-bottom: 0;
       margin-top: 4px;
       padding-top:0 ; padding-bottom: 0;
+      width: 165px;
       .border-radius(6);
     }
   }
@@ -224,7 +225,7 @@ section h1.title, section h2.title {
     td.amount, col.amount {
       white-space: nowrap;
       vertical-align: middle;
-      text-align: center;
+      text-align: right;
     }
   }
 }
@@ -257,27 +258,34 @@ section h1.title, section h2.title {
     padding: 10px;
   }
 
-.tab-content .tab-pane {
-  padding: 10px;
-}
+  .tab-content .tab-pane {
+    padding: 10px;
+  }
 
   h1.title { margin-bottom: 0; }
 
   .nav-tabs {
     margin-bottom: 0;
+    border:0;
 
     & > li {
       //width: 30%;
       text-transform: uppercase;
-      //border-right: 2px solid @white;
-      .bg-gray;
+      border-right: 2px solid @white;
+      //.bg-gray;
+      background-color: @gray;
+      margin-bottom: 0;
 
       &.active {
+        background-color: #f7f6f1;
+        margin-bottom: -1px;
         a { color: @black; }
       }
 
       & > a {
+        border:0;
         .border-radius(0);
+        margin-right: 0;
         //border: 0;
         //padding-left: 0; padding-right: 0; margin: 0;
         text-align: center;
@@ -285,7 +293,7 @@ section h1.title, section h2.title {
 
         background-color: transparent;
         &:hover {
-          background-color: transparent;
+          background-color: #f7f6f1;
         }
       }
     }
@@ -370,9 +378,12 @@ hr.big {
 }
 #main .flat_content {
   margin-left: 10px;
+  margin-right: 10px;
   h1 {
     text-transform: none;
     margin-bottom: 10px;
+    font-size: 24px;
+    line-height: 30px;
   }
 }
 
@@ -391,9 +402,16 @@ hr.big {
 }
 
 .search-results {
-    td li {
-      font-size: 16px;
+    td {
+      li {
+        font-size: 16px;
+      }
+      padding-top: 15px;
+      padding-bottom: 15px;
     }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
 }
 
 #map_container {
@@ -412,6 +430,9 @@ hr.big {
         font-size: 11px;
       }
     }
+  }
+  .leaflet-container a {
+    color: @greenDark;
   }
 }
 
@@ -435,4 +456,40 @@ hr.big {
 
 #content-header {
   padding-top: 25px;
+}
+
+#statistics {
+  .table td, .table th {
+    line-height: 16px;
+  }
+}
+
+#faq_list {
+  h2 {
+    text-transform: none;
+    line-height: 30px;
+  }
+}
+
+.form-search.form-condensed {
+  input, select {
+    margin-bottom: 0;
+    margin-top: 4px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .btn {
+    padding: 0 6px;
+    margin-top: 4px;
+  }
+}
+
+#main.two_columns {
+  article.container {
+    background-color: #f7f6f1;
+  }
+
+  #content {
+    background-color: @white;
+  }
 }

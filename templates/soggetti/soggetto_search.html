@@ -18,26 +18,36 @@
         <section style="clear: both;">
             <h3>pagina {{ page_obj.number }} di {{ n_results }} soggetti trovati</h3>
 
+            <hr class="big">
+
             <table class="search-results table">
+                <thead>
+                <tr>
+                  <th>Ruolo</th>
+                  <th>Denominazione</th>
+                  <th class="text-right">Finanziamenti (&euro;)</th>
+                  <th class="text-right">Progetti</th>
+                </tr>
+                </thead>
                 <tbody>
                 {% for result in page_obj.object_list %}
                     <tr>
                         <!-- ruoli -->
-                        <td>
+                        <td class="span1">
                             {% for r in result.ruolo %}
                                 {{ ruolo.denominazione|key:r }}<br/>
                             {% endfor %}
                         </td>
 
                         <!-- denomination -->
-                        <td>
+                        <td class="span5">
                             {{ result.rendered|safe }}
                         </td>
 
                         <!-- finanziamenti -->
-                        <td>{{ result.costo|default:"0.0"|floatformat:2 }}</td>
+                        <td class="amount span1"><strong>{{ result.costo|default:"0.0"|floatformat:2 }}</strong></td>
 
-                        <td>{{ result.n_progetti|default:"0" }}</td>
+                        <td class="amount span1"><strong>{{ result.n_progetti|default:"0" }}</strong></td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -56,28 +66,33 @@
 {% block sidebar %}
     <div class="flat_content">
         <h4>Cerca tra i soggetti</h4>
-        <form method="get" action="{% url soggetti_search %}" class="form-search">
-            {%  spaceless %}
+        <form method="get" action="{% url soggetti_search %}" class="form-search form-condensed">
+            <div class="control-group">
+              {%  spaceless %}
                 <input id="query" type="text" class="input-medium search-query" name="{{ form.q.html_name }}"
                        value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
                 <button id="clear-query" class="btn add-in"><i class="icon-remove"></i></button>
-            {%  endspaceless %}
-            <br/>
-            {%  spaceless %}
-                <input id="location" type="text" class="input-large search-query"
-                       value="{% if territorio %}{{ territorio }}{% endif %}"
-                       placeholder="Inserisci il territorio"/>
-                <button id="clear-location" class="btn add-in"><i class="icon-remove"></i></button>
-            {%  endspaceless %}
-            <br/>
+              {%  endspaceless %}
+            </div>
+            <div class="control-group">
+                {%  spaceless %}
+                  <input id="location" type="text" class="input-large search-query"
+                         value="{% if territorio %}{{ territorio }}{% endif %}"
+                         placeholder="Inserisci il territorio"/>
+                  <button id="clear-location" class="btn add-in"><i class="icon-remove"></i></button>
+                {%  endspaceless %}
+            </div>
+
             <input id="territorio-com" name="{{ form.territorio_com.html_name }}"
                    value="{% if form.territorio_com.value %}{{ form.territorio_com.value }}{% endif %}" type="hidden"/>
             <input id="territorio-prov" name="{{ form.territorio_prov.html_name }}"
                    value="{% if form.territorio_prov.value %}{{ form.territorio_prov.value }}{% endif %}" type="hidden"/>
             <input id="territorio-reg" name="{{ form.territorio_reg.html_name }}"
                    value="{% if form.territorio_reg.value %}{{ form.territorio_reg.value }}{% endif %}" type="hidden"/>
-            <button type="submit" class="btn add-in"><i class="icon-search"> Cerca</i></button>
+            <button type="submit" class="btn"><i class="icon-search"></i> Cerca</button>
         </form>
+
+        <br>
 
         {% if n_results %}
             <!-- Begin faceting. -->
@@ -114,7 +129,7 @@
                     {% endif %}
                 {% endfor %}
             {% else %}
-                <h3>Filtra</h3>
+                <h4>Filtra</h4>
                 <p>Puoi trovare il soggetto scorrendo la lista degli ultimi pubblicati, qui sotto.
                     Puoi perfezionare la ricerca usando i filtri nella colonna qui a destra, oppure puoi usare il form di
                     ricerca con una parola che pensi sia contenuta nella denominazione del soggetto o con il suo codice fiscale.,
