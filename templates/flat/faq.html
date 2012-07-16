@@ -11,7 +11,7 @@
             In particolare, i progetti, i finanziamenti, i luoghi e gli ambiti tematici in cui intervengono,
             i soggetti coinvolti e i tempi di realizzazione.</p>
 
-        <p>I dati possono essere scaricati in forma di dataset “grezzo” e rielaborabile oppure visualizzati
+        <p>I dati possono essere scaricati in forma di base-dati “grezza” e rielaborabile oppure visualizzati
             mediante grafici interattivi navigabili per tema, territorio e tipologia di intervento,
             e schede sui singoli progetti o soggetti. Sono corredati da un insieme di informazioni
             e dati sul contesto territoriale e finanziario.</p>
@@ -19,31 +19,23 @@
 
         <h2>Cosa NON c&rsquo;è in OpenCoesione?</h2>
 
-        <p>Non ci sono dati sui risultati dei progetti, non ci sono indicazioni su quanto i progetti
-            abbiano realizzato gli obiettivi delle politiche di coesione, non ci sono informazioni su
-            chi beneficia concretamente dei singoli interventi (ad eccezione di alcuni casi).</p>
+        <p>Non ci sono dati sui risultati dei progetti in termini di qualità di vita dei cittadini
+          (perché la vecchia programmazione non chiedeva agli amministratori di esplicitarlo), non ci sono informazioni
+          su chi beneficia concretamente dei singoli interventi (a eccezione di alcuni casi).
+        </p>
 
-        <p>Mancano anche descrizioni puntuali su cosa fanno i progetti, oltre a quelle desumibili dal titolo e
-            dalle variabili tematiche e territoriali associate a ciascun intervento.
-            Se sei un protagonista di un progetto monitorato su OpenCoesione
-            <a href="/contatti/">inviaci</a> una descrizione del tuo progetto!</p>
-
-
-        <h2>Come posso contribuire a OpenCoesione?</h2>
-
-        <p>Puoi <a href="http://www.dps.tesoro.it/opencoesione/contatti" target="_blank">inviare</a> idee,
-            consigli, segnalazioni e esempi di riuso (applicazioni, servizi, ricerche)
-            che si basano sui dati di OpenCoesione.</p>
-
-        <p>Se sei un protagonista di un progetto monitorato su OpenCoesione inviaci una descrizione del tuo progetto!
-            <a href="/contatti/">inviaci</a></p>
-
+        <p>Mancano anche descrizioni puntuali su “cosa fanno” i progetti, oltre a quelle desumibili dal
+          titolo e dalle variabili tematiche e territoriali associate a ciascun intervento.
+          Se sei un protagonista di un progetto monitorato su OpenCoesione <a href="{% url progetti_segnalazione %}">inviaci</a>
+          una descrizione del tuo progetto!
+        </p>
 
         <h2>A chi si rivolge OpenCoesione?</h2>
 
         <p>Si rivolge a tutti: cittadini, amministrazioni italiane ed europee, ricercatori, analisti delle politiche,
-            imprese, settori organizzati della società civile, media, affinché possano conoscere e seguire
-            le politiche di coesione, ma anche valutare l&rsquo;efficacia e la coerenza dell&rsquo;impiego delle risorse disponibili.</p>
+          imprese, settori organizzati della società civile, media, affinché possano conoscere e seguire le
+          politiche di coesione, ma anche valutare l’allocazione per temi e territori dell’impiego delle
+          risorse disponibili e lo stato di attuazione dei progetti.</p>
 
 
         <h2>Quali sono i dati disponibili al primo rilascio di OpenCoesione (luglio 2012)?</h2>
@@ -52,15 +44,15 @@
             in programmi cofinanziati con Fondi Strutturali europei , a eccezione dei programmi di cooperazione
             internazionale o transfrontaliera.</p>
 
-        <p>Sono anche disponibili dati relativi alle assegnazioni di risorse del Fondo nazionale per lo
-            Sviluppo e la Coesione effettuate dal CIPE per progetti che non sono ancora inclusi nei sistemi
-            di monitoraggio delle politiche di coesione. Questi dati riguardano le informazioni disponibili
-            al momento in cui il CIPE ha assunto la decisione di finanziamento e non hanno caratteristica di
-            monitoraggio.</p>
-
         <p>Nei rilasci successivi si prevede di ampliare la disponibilità agli altri programmi già monitorati,
-            ai nuovi progetti man mano in attuazione,  a interventi riferiti a precedenti periodi di programmazione,
-            nonché a un insieme più ampio di variabili, in seguito a analisi e controlli di qualità che sono in corso.</p>
+          ai nuovi progetti man mano in attuazione, a interventi riferiti a precedenti periodi di programmazione,
+          nonché a un insieme più ampio di variabili, in seguito a analisi e controlli di qualità che sono in corso.
+        </p>
+
+        <p>In particolare, nei prossimi giorni saranno resi disponibili dati relativi alle assegnazioni di risorse del
+          Fondo nazionale per lo Sviluppo e la Coesione effettuate dal CIPE per progetti che non sono ancora inclusi
+          nei sistemi di monitoraggio delle politiche di coesione. Questi dati riguardano le informazioni disponibili
+          al momento in cui il CIPE ha assunto la decisione di finanziamento e non hanno caratteristica di monitoraggio.</p>
 
 
         <h2>Cos'è un progetto in OpenCoesione?</h2>
@@ -82,10 +74,9 @@
         <h2>Quali informazioni trovo sui singoli progetti in OpenCoesione?</h2>
 
         <p>Per i progetti sono disponibili – a diversi livelli di dettaglio e esaustività – informazioni relative
-            all&rsquo;ambito settoriale o tematico, al luogo in cui si realizza,
-            ai soggetti coinvolti e ai tempi di realizzazione.
-            Eventuali dati mancanti derivano da un caricamento incompleto delle informazioni da parte
-            delle Amministrazioni competenti oppure da incoerenze riscontrate nei dati.
+          all’ambito settoriale o tematico, al luogo in cui si realizza, ai soggetti coinvolti e ai tempi di realizzazione.
+          Eventuali dati mancanti derivano da un caricamento incompleto delle informazioni da parte delle
+          Amministrazioni competenti oppure da incoerenze riscontrate nei dati.
         </p>
 
         <p>Per scaricare i dati relativi a tutti i progetti finanziati dalla politica di coesione e
@@ -100,40 +91,46 @@
             <a href="http://www.opencoesione.gov" target="_blank">vai qui</a></p>
 
 
+        <h2>Come posso contribuire a OpenCoesione?</h2>
+
+        <p>Puoi <a href="/contatti">inviare</a>
+          idee, consigli, segnalazioni e esempi di riuso (applicazioni, servizi, ricerche) che si basano sui dati di OpenCoesione.</p>
+
+        <p>Se sei un protagonista di un progetto monitorato su OpenCoesione <a href="{% url progetti_segnalazione %}">inviaci</a>
+          una descrizione del tuo progetto!
+        </p>
+
+
         <h2>Quali sono le fonti di dati sull&rsquo;attuazione delle politiche di coesione?</h2>
 
-        <p>La fonte dei dati sull&rsquo;attuazione delle politiche di coesione sono
-            i sistemi di monitoraggio a cui contribuiscono, secondo protocolli comuni,
-            le Amministrazioni beneficiarie dei fondi. In particolare, le informazioni
-            sull'attuazione della programmazione 2007-2013 sono raccolte in un unico sistema di monitoraggio,
-            amministrato dalla Ragioneria Generale dello Stato del Ministero dell&rsquo;economia e delle finanze.</p>
+        <p>La fonte dei dati sull’attuazione delle politiche di coesione sono i sistemi di monitoraggio
+          centralizzati alimentati  secondo protocolli comuni, o interfaccia comuni di alimentazione,
+          dalle Amministrazioni beneficiarie dei fondi. In particolare, le informazioni sull'attuazione
+          della programmazione 2007-2013 sono raccolte in un sistema di monitoraggio unico, gestito dalla
+          Ragioneria Generale dello Stato del Ministero dell’economia e delle finanze.</p>
 
-        <p>Le Amministrazioni regionali e centrali che gestiscono i fondi sono quindi la fonte
-            principale dell&rsquo;informazione restituita su questo sito. Sono state tuttavia
-            effettuate alcune elaborazioni per facilitare la leggibilità e la coerenza delle informazioni
-            (identificabili nei dataset con il suffisso DPS_).</p>
+        <p>Le Amministrazioni regionali e centrali che gestiscono i fondi sono quindi la fonte principale
+          dell’informazione restituita su questo sito. Sono state tuttavia effettuate alcune elaborazioni per
+          facilitare la leggibilità e la coerenza delle informazioni (identificabili nei dataset con il suffisso DPS_).
+          Le singole Amministrazioni regionali e centrali che gestiscono i fondi, anche in ottemperanza a norme e
+          regolamenti sulla trasparenza dei beneficiari dei fondi, devono pubblicare direttamente informazioni che
+          fanno riferimento anche a variabili diverse rispetto a quelle selezionate per OpenCoesione.</p>
+
+        <p>
+          Per i progetti cofinanziati dai Fondi Strutturali i dati rendicontati alla Commissione possono differire da
+          quanto presente su OpenCoesione in funzione della data di aggiornamento dei dati riferiti ad un medesimo
+          periodo e delle specifiche regole da applicare per la procedura di rendicontazione.
+        </p>
 
 
         <h2>Quali sono le fonti di dati sulle assegnazioni del Fondo nazionale per lo Sviluppo e la Coesione?</h2>
 
-        <p>La fonte dei dati sull’attuazione delle politiche di coesione sono i sistemi di monitoraggio centralizzati a cui contribuiscono,
-          secondo protocolli comuni, o interfaccia comuni di alimentazione, le Amministrazioni beneficiarie dei fondi. In particolare, le
-          informazioni sull'attuazione della programmazione 2007-2013 sono raccolte in un sistema di monitoraggio unico, gestito dalla
-          Ragioneria Generale dello Stato del Ministero dell’economia e delle finanze.</p>
+        <p>La fonte di dati sulle assegnazioni del Fondo nazionale per lo Sviluppo e la Coesione a destinazione
+          nazionale e regionale sono le Delibere CIPE. Questi dati riguardano le informazioni disponibili al
+          momento in cui il CIPE ha assunto la decisione di finanziamento e non hanno caratteristica di monitoraggio.
+          I dati sono scaricabili <a href="http://www.cipecomitato.it/opendata">dal sito del CIPE</a> e saranno navigabili
+          da questo sito nei prossimi giorni.</p>
 
-        <p>
-          Le Amministrazioni regionali e centrali che gestiscono i fondi sono quindi la fonte principale dell’informazione restituita su
-          questo sito. Sono state tuttavia effettuate alcune elaborazioni per facilitare la leggibilità e la coerenza delle informazioni
-          (identificabili nei dataset con il suffisso DPS_). Le singole Amministrazioni regionali e centrali che gestiscono i fondi, anche
-          in ottemperanza a norme e regolamenti sulla trasparenza dei beneficiari dei fondi, devono pubblicare direttamente
-          informazioni che fanno riferimento anche a variabili diverse rispetto a quelle selezionate per OpenCoesione.
-        </p>
-
-        <p>
-          Per i progetti cofinanziati dai Fondi Strutturali i dati rendicontati alla Commissione possono differire da quanto presente su
-          OpenCoesione in funzione della data di aggiornamento dei dati riferiti ad un medesimo periodo e delle specifiche regole da
-          applicare per la procedura di rendicontazione.
-        </p>
 
 
         <h2>Quando si aggiornano i dati disponibili su OpenCoesione?</h2>
@@ -293,8 +290,10 @@
         <h2>Quale metodo viene utilizzato per la tematizzazione delle mappe?</h2>
 
         <p>
-          Le classi di valori rappresentate sulle mappe sono definite tramite l’algoritmo di Jenks (Jenks natural breaks classification
-          method), un metodo che ottimizza la distribuzione in classi minimizzando la varianza all’interno di ciascuna classe (within) e
+          Le classi di valori rappresentate sulle mappe sono definite tramite
+          l’<a href="http://danieljlewis.org/2010/06/07/jenks-natural-breaks-algorithm-in-python/">algoritmo di Jenks</a>
+          (Jenks natural breaks classification method), un metodo che ottimizza la distribuzione in classi
+          minimizzando la varianza all’interno di ciascuna classe (within) e
           massimizzando la varianza tra le classi (between).
         </p>
 
