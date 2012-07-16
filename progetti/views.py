@@ -40,7 +40,7 @@ class ProgettoView(AccessControlView, DetailView):
 #        if context['giorni_alla_fine'] and context['giorni_alla_fine'] < 0:
 #            context['giorni_alla_fine'] = ''
         numero_collaboratori = 5
-        altri_progetti_nei_territori = Progetto.objects.exclude(codice_locale=self.object.codice_locale).nei_territori( self.object.territori ).order_by('-fin_totale_pubblico')
+        altri_progetti_nei_territori = Progetto.objects.exclude(codice_locale=self.object.codice_locale).nei_territori( self.object.territori ).distinct().order_by('-fin_totale_pubblico')
 
         context['stesso_tema'] = altri_progetti_nei_territori.con_tema(self.object.tema).nei_territori( self.object.territori )[:numero_collaboratori]
         context['stesso_tipologia'] = altri_progetti_nei_territori.del_tipo(self.object.tipo_operazione)[:numero_collaboratori]
