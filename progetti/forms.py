@@ -8,5 +8,25 @@ class DescrizioneProgettoForm(forms.ModelForm):
     def send_mail(self):
         pass
 
+    def clean(self):
+
+        cleaned_data = super(DescrizioneProgettoForm, self).clean()
+
+        come_lo_conosce = cleaned_data.get("come_lo_conosci")
+
+        if come_lo_conosce == SegnalazioneProgetto.TIPOLOGIA_ALTRO:
+            # We know these are not in self._errors now (see discussion below)
+            if not str(cleaned_data.get("come_lo_conosci_altro")).strip():
+                self._errors["come_lo_conosci"] = self.error_class([u"Hai selezionato un altro motivo, inserisci la descrizione qui sotto."])
+                self._errors["come_lo_conosci_altro"] = self.error_class([u"Descrizione obbligatoria."])
+                # These fields are no longer valid. Remove them from the
+                # cleaned data.
+                del cleaned_data["come_lo_conosci"]
+                del cleaned_data["come_lo_conosci_altro"]
+
+        # Always return the full collection of cleaned data.
+        return cleaned_data
+
+
     class Meta:
         model = SegnalazioneProgetto

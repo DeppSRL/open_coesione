@@ -4949,3 +4949,21 @@ hr.big {
 #contact-form input {
   width: 400px;
 }
+#banner_segnalazione_progetto {
+  background-color: #f7f6f1;
+  padding: 10px 20px;
+  text-align: center;
+  margin: 15px 0;
+  text-transform: uppercase;
+  line-height: 35px;
+}
+#banner_segnalazione_progetto:hover {
+  text-decoration: none;
+}
+#banner_segnalazione_progetto span {
+  text-decoration: underline;
+}
+#banner_segnalazione_progetto i {
+  color: #9d261d;
+  font-size: 26px;
+}

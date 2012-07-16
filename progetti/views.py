@@ -246,9 +246,21 @@ class SegnalaDescrizioneView(FormView):
     form_class = DescrizioneProgettoForm
     success_url = reverse_lazy('progetti_segnalazione_completa')
 
+    def get_initial(self):
+        """
+        Returns the initial data to use for forms on this view.
+        """
+        initials = self.initial.copy()
+
+        if 'cup' in self.request.GET:
+
+            initials['cup'] = self.request.GET.get('cup')
+
+        return initials
+
     def form_valid(self, form):
 
-        form.send_email()
+        form.send_mail()
 
         form.save()
 
