@@ -138,6 +138,12 @@
           </p>
         {% endif %}
 
+        <a href="{% url progetti_segnalazione %}?cup={{ progetto.cup }}" id="banner_segnalazione_progetto">
+          <i class="icon-comments"></i> Ritieni questo progetto meritevole di attenzione?
+          <span>Raccontacelo qui</span>.
+{#          <img src="{{ STATIC_URL }}img/raccontacelo.png" alt="Racconta il progetto">#}
+        </a>
+
         <hr class="big">
 
         <section>
@@ -267,7 +273,7 @@
 
         <section class="clearfix">
           <div class="row">
-            <div class="span12">
+            <div class="span6">
               <h1 class="title" style="margin-left:25px;"><span>Risorse pubbliche</span></h1>
             </div>
           </div>

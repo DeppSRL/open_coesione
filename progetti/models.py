@@ -445,3 +445,35 @@ class Ruolo(models.Model):
         verbose_name_plural = "Ruoli"
 
 
+class SegnalazioneProgetto(models.Model):
+
+    TIPOLOGIA_FINANZIATORE = 'FINAZIATORE'
+    TIPOLOGIA_ATTUATORE = 'ATTUATORE'
+    TIPOLOGIA_REALIZZATORE = 'REALIZZATORE'
+    TIPOLOGIA_OSSERVATORE = 'OSSERVATORE'
+    TIPOLOGIA_ALTRO = 'ALTRO'
+
+    TIPOLOGIE = (
+        (TIPOLOGIA_FINANZIATORE, "Faccio parte dell'amministrazione che programma e finanzia" ),
+        (TIPOLOGIA_ATTUATORE, "Faccio parte dell'organizzazione che gestisce l'attuazione del progetto" ),
+        (TIPOLOGIA_REALIZZATORE, "Lavoro / ho lavorato per la realizzazione del progetto"),
+        (TIPOLOGIA_OSSERVATORE, "Abito lì vicino"),
+        (TIPOLOGIA_ALTRO, "Conosco il progetto per un altro motivo"),
+    )
+
+    come_lo_conosci = models.CharField(choices=TIPOLOGIE, max_length=12, verbose_name="Come conosci il progetto?*")
+    come_lo_conosci_altro = models.TextField(verbose_name="Specificare come hai conosciuto il progetto", blank=True, null=True)
+
+    cup = models.CharField(max_length=15, verbose_name="Codice CUP del progetto*")
+    organizzazione = models.CharField(max_length=255, verbose_name="Amministrazione o altra organizzazione*")
+    utente = models.CharField(max_length=255, verbose_name="Nome e cognome*")
+    email = models.EmailField(verbose_name="E-mail*")
+    descrizione = models.TextField(verbose_name="Racconto del progetto*")
+    come_migliorare = models.TextField(blank=True, null=True, verbose_name="Come si potrebbe migliorare?*")
+
+    # optional fields
+    risultati_conseguiti = models.TextField(blank=True, null=True)
+    effetti_sul_territorio = models.TextField(blank=True, null=True)
+    cosa_piace = models.TextField(blank=True, null=True, verbose_name="Cosa ti è piaciuto di più?")
+    cosa_non_piace = models.TextField(blank=True, null=True, verbose_name="Cosa ti è piaciuto di meno?")
+    quanto_utile = models.TextField(blank=True, null=True, verbose_name="Per cosa è stato utile il progetto?")
