@@ -11,6 +11,11 @@ class DataClassifier:
         self.classifier_args = classifier_args
         self.colors_map = colors_map
         self.data = data
+
+        if len(data) < self.classifier_args['k']:
+            self.classifier_args['k'] = len(data)
+
+
         self.dc = self.classifier_class(np.array(self.data), **self.classifier_args)
 
 
