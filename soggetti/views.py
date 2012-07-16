@@ -98,10 +98,7 @@ class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         # definizione struttura dati per  visualizzazione faccette ruoli
         extra['ruolo'] = {
-            'denominazione': dict(
-                (r.ruolo, r.get_ruolo_display())
-                    for r in Ruolo.objects.filter()
-            )
+            'denominazione':dict(Ruolo.RUOLO)
         }
 
         # definizione struttura dati per  visualizzazione faccette tema
