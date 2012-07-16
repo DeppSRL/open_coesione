@@ -52,7 +52,7 @@
         <h1 class='title'><span>Progetti con maggiori finanziamenti</span></h1>
 
         <table class="table">
-          {% for progetto in top_progetti_per_costo %}
+          {% for progetto in top_progetti %}
             <tr>
               <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></td>
               <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>

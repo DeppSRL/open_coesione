@@ -97,13 +97,14 @@ class AggregatoView(object):
                 'parent_class_field': 'classificazione_superiore',
                 'manager_parent_method': 'tematiche',
                 'filter_name': 'classificazione'
-
             }
         }
 
         # specialize the filter
         if filter.has_key('territorio'):
             query_filters = dict(territorio=filter['territorio'])
+        elif filter.has_key('soggetto'):
+            query_filters = dict(soggetto=filter['soggetto'])
         elif filter.has_key('tema'):
             query_filters = dict(tema=filter['tema'])
             del query_models['temi_principali']
@@ -131,6 +132,22 @@ class AggregatoView(object):
 
         return context
 
+    def top_comuni_pro_capite(self, filters):
+
+        from django.db import models
+
+        def pro_capite_order(territorio):
+            territorio.totale_pro_capite = territorio.totale / territorio.popolazione_totale
+            return territorio.totale_pro_capite
+
+        queryset = Territorio.objects.filter( territorio=Territorio.TERRITORIO.C, **filters )
+
+        return sorted(
+            queryset
+            .annotate( totale=models.Sum('progetto__fin_totale_pubblico') )
+            .filter( totale__isnull=False ), key= pro_capite_order, reverse=True
+        )[:5]
+
 
 
 class HomeView(AccessControlView, AggregatoView, TemplateView):
@@ -141,7 +158,7 @@ class HomeView(AccessControlView, AggregatoView, TemplateView):
 
         context = self.get_aggregate_data(context)
 
-        context['top_progetti_per_costo'] = Progetto.objects.filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+        context['top_progetti'] = Progetto.objects.filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
 
         #context['ultimi_progetti_avviati'] = Progetto.objects.filter(data_inizio_effettiva__lte=datetime.now()).order_by('-data_inizio_effettiva')[:3]
         #context['ultimi_progetti_conclusi'] = Progetto.objects.filter(data_fine_effettiva__lte=datetime.now()).order_by('-data_fine_effettiva')[:3]

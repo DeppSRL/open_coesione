@@ -3,6 +3,7 @@
 
 {% block page_title %}Soggetto: {{ soggetto.denominazione }}{% endblock %}
 {% block page_description %}Informazioni sui progetti in cui partecipa {{ soggetto.denominazione }}{% endblock %}
+{% block top_content %}{% endblock %}
 
 {% block container %}
   {{ block.super }}
@@ -78,7 +79,7 @@
         {% for regione, totale in lista_finanziamenti_per_regione %}
           {% if totale > 0  %}
             <tr>
-              <th>{{ regione.denominazione }}</th>
+              <th><a href="{% url progetti_search %}?q=&territorio_reg={{ regione.cod_reg }}">{{ regione.denominazione }}</a></th>
               <td class="amount"><strong>{{ totale|intcomma }}</strong> euro</td>
             </tr>
           {% endif %}

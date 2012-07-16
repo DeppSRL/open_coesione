@@ -352,12 +352,9 @@ class TerritorioView(AccessControlView, AggregatoView, DetailView):
         context['top_progetti_per_costo'] = Progetto.objects.nel_territorio(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().nel_territorio(self.object)[:5]
 
-        context['territori_piu_finanziati_pro_capite'] = Territorio.objects\
-            .filter( territorio=Territorio.TERRITORIO.C ,**self.object.get_cod_dict() )\
-            .exclude(pk=self.object.pk)\
-            .annotate( totale=models.Sum('progetto__fin_totale_pubblico') )\
-            .filter( totale__isnull=False )\
-            .order_by('-totale')[:5]
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+            filters=self.object.get_cod_dict()
+        )
 
         return context
 

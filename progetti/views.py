@@ -80,11 +80,11 @@ class TipologiaView(AggregatoView, DetailView):
         context['top_progetti_per_costo'] = Progetto.objects.con_natura(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_natura(self.object)[:5]
 
-        context['territori_piu_finanziati_pro_capite'] = Territorio.objects\
-                                                         .filter( territorio=Territorio.TERRITORIO.C, progetto__classificazione_azione__classificazione_superiore=self.object  )\
-                                                         .annotate( totale=models.Sum('progetto__fin_totale_pubblico') )\
-                                                         .filter( totale__isnull=False )\
-                                                         .order_by('-totale')[:5]
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+            filters={
+                'progetto__classificazione_azione__classificazione_superiore': self.object
+            }
+        )
 
 
         return context
@@ -112,11 +112,20 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
         context['top_progetti_per_costo'] = Progetto.objects.con_tema(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_tema(self.object)[:5]
 
-        context['territori_piu_finanziati_pro_capite'] = Territorio.objects\
-                                                         .filter( territorio=Territorio.TERRITORIO.C, progetto__tema__tema_superiore=self.object )\
-                                                         .annotate( totale=models.Sum('progetto__fin_totale_pubblico') )\
-                                                         .filter( totale__isnull=False )\
-                                                         .order_by('-totale')[:5]
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+            filters={
+                'progetto__tema__tema_superiore': self.object
+            }
+        )
+#        def pro_capite_order(territorio):
+#            territorio.totale_pro_capite = territorio.totale / territorio.popolazione_totale
+#            return territorio.totale_pro_capite
+#
+#        context['territori_piu_finanziati_pro_capite'] = sorted( Territorio.objects
+#                                                         .filter( territorio=Territorio.TERRITORIO.C, progetto__tema__tema_superiore=self.object )
+#                                                         .annotate( totale=models.Sum('progetto__fin_totale_pubblico') )
+#                                                         .filter( totale__isnull=False ), key= pro_capite_order, reverse=True )[:5]
+#                                                         #.order_by('-totale')[:5]
 
         return context
 

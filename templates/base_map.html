@@ -201,7 +201,8 @@
           OpenCoesione è il primo portale sull'attuazione degli investimenti programmati nel ciclo 2007-2013
           da Regioni e amministrazioni centrali dello Stato con le risorse per la coesione.
           I dati sono pubblicati perché i cittadini possano valutare se i progetti corrispondono ai
-          loro bisogni e se le risorse vengono impegnate in modo efficace. <a href="/faq">Leggi qui</a> per saperne di più
+          loro bisogni e se le risorse vengono impegnate in modo efficace.
+          <a href="/faq">Leggi qui</a> per saperne di più.
         </p>
 
           {% endblock %}
@@ -220,7 +221,7 @@
         {% if soggetto %}
           <div class="span12">
             <h1 class="title violet" style="margin-bottom: 0;"><span>{{ soggetto.denominazione }}</span></h1>
-            <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="#">Tutti i progetti</a></p>
+            <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&soggetto:{{ soggetto.slug }}">Tutti i progetti</a></p>
             <ul class="unstyled">
             {% if soggetto.forma_giuridica %}<li>{{ soggetto.forma_giuridica }}</li>{% endif %}
             {% if soggetto.indirizzo %}<li>{{ soggetto.indirizzo }}</li>{% endif %}
@@ -272,7 +273,9 @@
                       {% if territorio %}
                           <td><a href="{{ territorio|progetti_search_url_by_natura:tipologia }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  elif tema %}
-                          <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                        <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                      {%  elif soggetto %}
+                        <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}&soggetto={{ soggetto.slug }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  else %}
                           <td><a href="{{ tipologia.get_absolute_url }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a></td>
                       {% endif %}
@@ -299,6 +302,8 @@
                           <td><a href="{{ territorio|progetti_search_url_by_tema:tema }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
                       {%  elif tipologia %}
                           <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
+                      {%  elif soggetto %}
+                          <td><a href="{% url soggetti_search %}?q=&selected_facets=tema:{{ tema.codice }}&soggetto={{ soggetto.slug }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  else %}
                           <td><a href="{{ tema.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a></td>
                       {% endif %}
@@ -355,7 +360,7 @@
     </div>
   </div>
 
-  {% if top_progetti_per_costo and ultimi_progetti_conclusi and territori_piu_finanziati_pro_capite %}
+  {% if top_progetti_per_costo %}
   <div class="container" style="margin-top:25px;">
     <div class="row">
 
@@ -372,6 +377,7 @@
         </table>
       </section>
 
+      {% if ultimi_progetti_conclusi %}
       <section class="span3">
         <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
 
@@ -382,23 +388,30 @@
         </ul>
 
       </section>
+      {% endif %}
 
       {% if territori_piu_finanziati_pro_capite %}
         <section class="span3">
-          <h1 class='title'><span>Comuni con maggiori finanziamenti pro capite</span></h1>
+          <h1 class='title'><span>
+            {% if territorio and territorio.territorio == 'C' %}
+              Finanziamenti pro capite
+            {% else %}
+              Comuni con maggiori finanziamenti pro capite
+            {% endif %}
+          </span></h1>
 
           <table class="table">
             {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
               <tr>
                 <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
-                <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
+                <td class="amount"><strong>{{ territorio_finanziato.totale_pro_capite|intcomma }}</strong> euro</td>
               </tr>
             {% endfor %}
           </table>
 
-          <p class="text-right">
-            <a href="#">Scarica tutti i comuni</a>
-          </p>
+{#          <p class="text-right">#}
+{#            <a href="#">Scarica tutti i comuni</a>#}
+{#          </p>#}
 
         </section>
       {% endif %}
