@@ -27,9 +27,12 @@ class SplitListNode(Node):
             for index, el in enumerate(input):
                 splitted[index % cols].append(el)
         elif mode == 'vertical':
-            elements_for_columns = len(input) // cols
+            import math
+            elements_for_columns = int( math.ceil( float(len(input)) / float(cols) ) )
+            start = 0
             for column in range(cols):
-                splitted[column] = input[ elements_for_columns*column : elements_for_columns*(column+1)+1 ]
+                splitted[column] = input[ start : start + elements_for_columns ]
+                start += elements_for_columns
         return splitted
 #        start = 0
 #        for i in xrange(cols):
