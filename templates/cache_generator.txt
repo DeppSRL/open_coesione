@@ -58,5 +58,5 @@ touch {{ log_file }}
 {% endfor %}
 
 {% for s in soggetti %}
-{{ curl_cmd|safe }} "{{ base_url }}/soggetti/{{ s.slug }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/soggetti/{{ s.slug }}{{ tematizzazioni }}" >> {{ log_file }}
 {% endfor %}
