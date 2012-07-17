@@ -4433,7 +4433,7 @@ a.block-chart {
   display: block;
 }
 .navbar-full-width .dropdown-menu {
-  min-width: 180px;
+  min-width: 200px;
 }
 .navbar-full-width .dropdown-menu .submenu .submenu-show {
   top: 25px;
@@ -4455,7 +4455,6 @@ a.block-chart {
   float: left;
 }
 .navbar-full-width .nav > .dropdown > .dropdown-menu {
-  min-width: auto;
   right: 0;
   left: 0;
 }
