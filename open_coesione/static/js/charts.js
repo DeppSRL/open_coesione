@@ -338,7 +338,7 @@ var print_line_chart = function(container, min_regions, max_regions) {
 
     // the region select handler
     $('#region-selector').unbind('change').change(function() {
-//        console.log('region selected',arguments);
+//        console.log('region selected',arguments, APP.chart.series, APP.chart.series.length, max_regions);
         if (APP.chart.series.length == max_regions) {
             APP.chart.series[max_regions-1].remove();
         }
@@ -376,7 +376,7 @@ var print_line_chart = function(container, min_regions, max_regions) {
             elements_count--;
         }
 
-        $('#region-selector').val('');
+        $('#region-selector').val('').change();
         return false;
     });
 
