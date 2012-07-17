@@ -113,7 +113,7 @@ class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
             )
         }
         extra['base_url'] = reverse('soggetti_search') + '?' + extra['params'].urlencode()
-
+        extra['soggetto'] = True
 
         paginator = Paginator(self.results, 25)
         page = self.request.GET.get('page')

@@ -10,28 +10,6 @@ touch {{ log_file }}
 {{ curl_cmd|safe }} "{{ base_url }}{{ tematizzazioni }}" >> {{ log_file }}
 {% endif %}
 
-{% for r in regioni %}
-{% if maps %}
-{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/regioni/{{r.codice}}/province.xml{{ tematizzazioni }}" >> {{ log_file }}
-{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/regioni/{{r.codice}}/comuni.xml{{ tematizzazioni }}" >> {{ log_file }}
-{{ curl_cmd|safe }} "{{ base_url }}/territori/leaflet/regioni/{{r.codice}}/province.json{{ tematizzazioni }}" >> {{ log_file }}
-{{ curl_cmd|safe }} "{{ base_url }}/territori/leaflet/regioni/{{r.codice}}/comuni.json{{ tematizzazioni }}" >> {{ log_file }}
-{% endif %}
-{% if pages %}
-{{ curl_cmd|safe }} "{{ base_url }}/territori/regioni/{{ r.slug }}{{ tematizzazioni }}" >> {{ log_file }}
-{% endif %}
-{% endfor %}
-
-{% for t in province %}
-{% if maps %}
-{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/province/{{t.codice}}/comuni.xml{{ tematizzazioni }}" >> {{ log_file }}
-{{ curl_cmd|safe }} "{{ base_url }}/territori/leaflet/province/{{t.codice}}/comuni.json{{ tematizzazioni }}" >> {{ log_file }}
-{% endif %}
-{% if pages %}
-{{ curl_cmd|safe }} "{{ base_url }}/territori/province/{{ t.slug }}{{ tematizzazioni }}" >> {{ log_file }}
-{% endif %}
-{% endfor %}
-
 {% for t in temi %}
 {% if maps %}
 {{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/temi/{{t.slug}}/regioni.xml{{ tematizzazioni }}" >> {{ log_file }}
@@ -54,4 +32,31 @@ touch {{ log_file }}
 {% if pages %}
 {{ curl_cmd|safe }} "{{ base_url }}/territori/tipologie/{{ t.slug }}{{ tematizzazioni }}" >> {{ log_file }}
 {% endif %}
+{% endfor %}
+
+{% for r in regioni %}
+{% if maps %}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/regioni/{{r.codice}}/province.xml{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/regioni/{{r.codice}}/comuni.xml{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/leaflet/regioni/{{r.codice}}/province.json{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/leaflet/regioni/{{r.codice}}/comuni.json{{ tematizzazioni }}" >> {{ log_file }}
+{% endif %}
+{% if pages %}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/regioni/{{ r.slug }}{{ tematizzazioni }}" >> {{ log_file }}
+{% endif %}
+{% endfor %}
+
+
+{% for t in province %}
+{% if maps %}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/mapnik/province/{{t.codice}}/comuni.xml{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/leaflet/province/{{t.codice}}/comuni.json{{ tematizzazioni }}" >> {{ log_file }}
+{% endif %}
+{% if pages %}
+{{ curl_cmd|safe }} "{{ base_url }}/territori/province/{{ t.slug }}{{ tematizzazioni }}" >> {{ log_file }}
+{% endif %}
+{% endfor %}
+
+{% for s in soggetti %}
+{{ curl_cmd|safe }} "{{ base_url }}/soggetti/{{ s.slug }}" >> {{ log_file }}
 {% endfor %}
