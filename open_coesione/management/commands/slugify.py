@@ -91,9 +91,30 @@ class Command(BaseCommand):
             return
 
         territori = Territorio.objects.filter(slug__isnull=True)
+        slug_utilizzati = {}
         self.logger.info("{0} territori will be slugified".format(territori.count()))
         for n, territorio in enumerate(territori):
-            territorio.slug = slugify(u"{0}-{1}".format(territorio.denominazione, territorio.get_territorio_display() ))
+            slug = slugify(u"{0}-{1}".format(territorio.denominazione, territorio.get_territorio_display() ))
+            if slug in slug_utilizzati:
+                # li differenzio aggiungendo la provincia alla fine
+                # inizio modificando lo slug dell'altro territorio
+                altro_territorio = slug_utilizzati[slug]
+                altro_territorio.slug = u"{0}-{1}".format(
+                    altro_territorio.slug,
+                    slugify(Territorio.objects.provincie().get(cod_prov=altro_territorio.cod_prov ))
+                )
+                altro_territorio.save()
+                # a infine modifico lo slug corrente
+                slug = u"{0}-{1}".format(
+                    slug,
+                    slugify(Territorio.objects.provincie().get(cod_prov=territorio.cod_prov ))
+                )
+                self.logger.debug('found two Territori with same slug {0} - {1}'.format(territorio, altro_territorio) )
+                self.logger.debug('-> changed to {0} - {1}'.format(slug, altro_territorio.slug) )
+            else:
+                slug_utilizzati[slug] = territorio
+
+            territorio.slug = slug
             territorio.save()
             if n%100 == 0:
                 self.logger.debug(n)
