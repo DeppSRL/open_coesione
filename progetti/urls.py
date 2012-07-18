@@ -23,16 +23,16 @@ urlpatterns = patterns('',
    url(r'^$', ProgettoSearchView(template='progetti/progetto_search.html', searchqueryset=sqs), name='progetti_search'),
 
    url(r'^segnalazione/$', SegnalaDescrizioneView.as_view(), name='progetti_segnalazione'),
-   url(r'^segnalazione/completa$', TemplateView.as_view(template_name='segnalazione/completata.html'), name='progetti_segnalazione_completa'),
+   url(r'^segnalazione/completa/$', TemplateView.as_view(template_name='segnalazione/completata.html'), name='progetti_segnalazione_completa'),
 
    # dettaglio di progetto
-   url(r'^(?P<slug>[\w-]+)$', ProgettoView.as_view(), name='progetti_progetto'),
+   url(r'^(?P<slug>[\w-]+)/$', ProgettoView.as_view(), name='progetti_progetto'),
 
    # tipologie
-   url(r'^tipologie/(?P<slug>[\w-]+)$', cache_page(key_prefix='tipologie')(TipologiaView.as_view()), name='progetti_tipologia'),
+   url(r'^tipologie/(?P<slug>[\w-]+)/$', cache_page(key_prefix='tipologie')(TipologiaView.as_view()), name='progetti_tipologia'),
 
    # temi
-   url(r'^temi/(?P<slug>[\w-]+)$', cache_page(key_prefix='temi')(TemaView.as_view()), name='progetti_tema'),
+   url(r'^temi/(?P<slug>[\w-]+)/$', cache_page(key_prefix='temi')(TemaView.as_view()), name='progetti_tema'),
 
 )
 
