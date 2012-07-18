@@ -4,7 +4,7 @@ from django.views.generic.detail import DetailView
 from django.db.models import Count, Sum
 from django.core.urlresolvers import reverse
 from oc_search.forms import RangeFacetedSearchForm
-from oc_search.mixins import FacetRangeCostoMixin, FacetRangeNProgettiMixin
+from oc_search.mixins import FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
 from open_coesione.views import AggregatoView, AccessControlView
 from progetti.models import Progetto, Tema, ClassificazioneAzione, Ruolo
@@ -12,7 +12,7 @@ from soggetti.models import Soggetto
 from territori.models import Territorio
 
 
-class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, FacetRangeNProgettiMixin):
+class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin):
     """
     This view allows faceted search and navigation of a progetto.
 
@@ -64,6 +64,7 @@ class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         # these comes from the Mixins
         extended_selected_facets = self.add_costo_extended_selected_facets(extended_selected_facets)
         extended_selected_facets = self.add_n_progetti_extended_selected_facets(extended_selected_facets)
+        extended_selected_facets = self.add_territorio_extended_selected_facets(extended_selected_facets)
 
         return extended_selected_facets
 
