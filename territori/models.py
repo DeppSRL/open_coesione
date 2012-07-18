@@ -101,6 +101,8 @@ class Territorio(models.Model):
             return { '{0}cod_prov'.format(prefix): self.cod_prov }
         elif self.territorio == self.TERRITORIO.C:
             return { '{0}cod_com'.format(prefix) : self.cod_com }
+        elif self.territorio == self.TERRITORIO.N:
+            return { '{0}cod_prov'.format(prefix) : 0 }
 
         raise Exception('Territorio non interrogabile %s' % self)
 
