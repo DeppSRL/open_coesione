@@ -402,64 +402,67 @@
   </div>
 
 
-  <div class="area">
-    <div class="container big-amounts">
-      <div class="row">
-        <h3 class="span12">Altri progetti sul territorio</h3>
-      </div>
+    {% if progetto.territori %}
+        <div class="area">
+            <div class="container big-amounts">
+                <div class="row">
+                    <h3 class="span12">Altri progetti sul territorio</h3>
+                </div>
 
-      <div class="row">
+                <div class="row">
 
-        <div class="span6">
-          <h1 class="title"><span>Stesso tema</span></h1>
-          <table>
-            {% for p in stesso_tema  %}
-              <tr>
-                <td class="span5"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
-                <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
-              </tr>
-            {% endfor %}
-          </table>
-        </div>
-        <div class="span6">
-          <h1 class="title"><span>Stessi attuatori</span></h1>
-          <table>
-            {% for p in stessi_attuatori  %}
-              <tr>
-                <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
-                <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
-              </tr>
-            {% endfor %}
-          </table>
-        </div>
-      </div>
+                    <div class="span6">
+                        <h1 class="title"><span>Stesso tema</span></h1>
+                        <table>
+                            {% for p in stesso_tema  %}
+                                <tr>
+                                    <td class="span5"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                                    <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    <div class="span6">
+                        <h1 class="title"><span>Stessi attuatori</span></h1>
+                        <table>
+                            {% for p in stessi_attuatori  %}
+                                <tr>
+                                    <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                                    <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
 
-      <hr class="big">
+                <hr class="big">
 
-      <div class="row">
-        <div class="span6">
-          <h1 class="title"><span>Stessa natura dell'investimento</span></h1>
-          <table>
-            {% for p in stesso_tipo  %}
-              <tr>
-                <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
-                <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
-              </tr>
-            {% endfor %}
-          </table>
+                <div class="row">
+                    <div class="span6">
+                        <h1 class="title"><span>Stessa natura dell'investimento</span></h1>
+                        <table>
+                            {% for p in stesso_tipo  %}
+                                <tr>
+                                    <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                                    <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    <div class="span6">
+                        <h1 class="title"><span>Stessi programmatori</span></h1>
+                        <table>
+                            {% for p in stessi_realizzatori  %}
+                                <tr>
+                                    <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
+                                    <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="span6">
-          <h1 class="title"><span>Stessi programmatori</span></h1>
-          <table>
-            {% for p in stessi_realizzatori  %}
-              <tr>
-                <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
-                <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
-              </tr>
-            {% endfor %}
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+    {% endif %}
+
 {% endblock %}

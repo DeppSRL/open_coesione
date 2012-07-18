@@ -42,12 +42,12 @@ class ProgettoView(AccessControlView, DetailView):
 #        if context['giorni_alla_fine'] and context['giorni_alla_fine'] < 0:
 #            context['giorni_alla_fine'] = ''
         numero_collaboratori = 5
-        altri_progetti_nei_territori = Progetto.objects.exclude(codice_locale=self.object.codice_locale).nei_territori( self.object.territori ).distinct().order_by('-fin_totale_pubblico')
-
-        context['stesso_tema'] = altri_progetti_nei_territori.con_tema(self.object.tema).nei_territori( self.object.territori )[:numero_collaboratori]
-        context['stesso_tipologia'] = altri_progetti_nei_territori.del_tipo(self.object.tipo_operazione)[:numero_collaboratori]
-        context['stessi_attuatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.attuatori)[:numero_collaboratori]
-        context['stessi_programmatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.programmatori)[:numero_collaboratori]
+        if self.object.territori:
+            altri_progetti_nei_territori = Progetto.objects.exclude(codice_locale=self.object.codice_locale).nei_territori( self.object.territori ).distinct().order_by('-fin_totale_pubblico')
+            context['stesso_tema'] = altri_progetti_nei_territori.con_tema(self.object.tema).nei_territori( self.object.territori )[:numero_collaboratori]
+            context['stesso_tipologia'] = altri_progetti_nei_territori.del_tipo(self.object.tipo_operazione)[:numero_collaboratori]
+            context['stessi_attuatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.attuatori)[:numero_collaboratori]
+            context['stessi_programmatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.programmatori)[:numero_collaboratori]
 
         context['total_cost'] = float(self.object.fin_totale_pubblico) if self.object.fin_totale_pubblico else 0.0
         context['total_cost_paid'] = float(self.object.pagamento) if self.object.pagamento else 0.0
