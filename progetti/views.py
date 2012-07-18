@@ -225,8 +225,6 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
             extra['natura']['short_label'][codice] = c.short_label
 
 
-        print extra['natura']
-
         # definizione struttura dati per  visualizzazione faccette tema
         extra['tema'] = {
             'descrizione': {},
