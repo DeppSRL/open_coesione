@@ -9,7 +9,7 @@ from django.db import models
 from django.views.generic.edit import FormView
 
 from oc_search.forms import RangeFacetedSearchForm
-from oc_search.mixins import FacetRangeCostoMixin
+from oc_search.mixins import FacetRangeCostoMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto, ClassificazioneAzione
@@ -135,7 +135,7 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
         return Tema.objects.get(slug=self.kwargs.get('slug'))
 
 
-class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin):
+class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, TerritorioMixin):
     """
 
     This view allows faceted search and navigation of a progetto.
@@ -176,6 +176,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         # this comes from the Mixins
         extended_selected_facets = self.add_costo_extended_selected_facets(extended_selected_facets)
+        extended_selected_facets = self.add_territorio_extended_selected_facets(extended_selected_facets)
 
         return extended_selected_facets
 

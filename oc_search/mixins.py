@@ -4,6 +4,8 @@ Ranges must be defined in the extending class.
 The extending class, must also extend a View (possibly a SearchView) class,
 in order to make the self.request work.
 """
+from territori.models import Territorio
+
 class FacetRangeNProgettiMixin:
     N_PROGETTI_RANGES = {}
 
@@ -70,3 +72,18 @@ class FacetRangeCostoMixin:
                         selected_facet['r_label'] = self.COST_RANGES[range]['r_label']
         return extended_selected_facets
 
+class TerritorioMixin:
+    def add_territorio_extended_selected_facets(self, extended_selected_facets):
+        for selected_facet in extended_selected_facets:
+            territorio_com = self.request.GET.get('territorio_com', 0)
+            territorio_prov = self.request.GET.get('territorio_prov', 0)
+            territorio_reg = self.request.GET.get('territorio_reg', 0)
+            if territorio_com != '0':
+                selected_facet['url'] += "&territorio_com={0}".format(territorio_com)
+            if territorio_prov != '0':
+                selected_facet['url'] += "&territorio_prov={0}".format(territorio_prov)
+            if territorio_reg != '0':
+                selected_facet['url'] += "&territorio_reg={0}".format(territorio_reg)
+
+
+        return extended_selected_facets
