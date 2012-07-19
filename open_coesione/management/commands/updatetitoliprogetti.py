@@ -45,7 +45,7 @@ class Command(BaseCommand):
         )
 
     csv_file = ''
-    encoding = 'iso-8859-1'
+    encoding = 'utf-8'
     logger = logging.getLogger('csvimport')
     unicode_reader = None
 
@@ -54,7 +54,7 @@ class Command(BaseCommand):
 
         # read first csv file
         try:
-            self.unicode_reader = utils.UnicodeDictReader(open(self.csv_file, 'rb'), delimiter=';', encoding=self.encoding)
+            self.unicode_reader = utils.UnicodeDictReader(open(self.csv_file, 'r'), delimiter=';', encoding=self.encoding)
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.csv_file)
             exit(1)

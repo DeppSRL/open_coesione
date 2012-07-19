@@ -56,7 +56,7 @@ class ProgrammaAsseObiettivo(models.Model):
         return self.progetto_set
 
     def __unicode__(self):
-        return self.codice + " - " + unicode(self.descrizione)
+        return unicode(self.codice + " - " + self.descrizione[0:100])
 
     class Meta:
         verbose_name_plural = "Programmi - Assi - Obiettivi operativi"
