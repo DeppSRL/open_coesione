@@ -33,9 +33,14 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Set the dry-run command mode: no actual modification is made'),
+        make_option('--overwrite',
+                    dest='offset',
+                    default=False,
+                    action='store_true',
+                    help='Always overwrite values in the DB with values in the CSV'),
         make_option('--encoding',
                     dest='encoding',
-                    default='iso-8859-1',
+                    default='utf-8',
                     help='set character encoding of input file')
         )
 
@@ -69,6 +74,7 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
+        overwrite = options['overwrite']
 
         self.logger.info("Inizio import da %s" % self.csv_file)
         self.logger.info("Encoding: %s" % self.encoding)
@@ -89,7 +95,7 @@ class Command(BaseCommand):
             try:
                 progetto = Progetto.objects.get(pk=r['COD_LOCALE_PROGETTO'])
                 titolo = r['DPS_TITOLO_PROGETTO']
-                if progetto.titolo_progetto is None or progetto.titolo_progetto != titolo:
+                if progetto.titolo_progetto is None or progetto.titolo_progetto != titolo or overwrite:
                     progetto.titolo = titolo
                     n += 1
                     if not dryrun:
