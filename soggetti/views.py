@@ -149,13 +149,11 @@ class SoggettoView(AggregatoView, DetailView):
 
         # calcolo dei collaboratori con cui si spartiscono piu' soldi
         collaboratori = {}
-        for soggetti in [x.soggetti for x in self.object.progetti]:
-            for s in soggetti:
-                if s == self.object:
-                    continue
-                if not s in collaboratori:
-                    collaboratori[s] = 0
-                collaboratori[s] += 1
+        soggetti = Soggetto.objects.exclude(pk=self.object.pk).filter(progetto__ruolo__soggetto=self.object)
+        for s in soggetti:
+            if not s in collaboratori:
+                collaboratori[s] = 0
+            collaboratori[s] += 1
 
         context['top_collaboratori'] = sorted(
             # create a list of dict with partners
