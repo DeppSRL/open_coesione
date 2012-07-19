@@ -18,7 +18,7 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--csv-file',
                     dest='csvfile',
-                    default='./titoli_progetti.csv',
+                    default='./obiettivioperativi.csv',
                     help='Select csv file'),
         make_option('--limit',
                     dest='limit',
@@ -87,18 +87,18 @@ class Command(BaseCommand):
 
             # codice locale progetto (ID del record)
             try:
-                progetto = Progetto.objects.get(pk=r['COD_LOCALE_PROGETTO'])
-                titolo = r['DPS_TITOLO_PROGETTO']
-                if progetto.titolo_progetto is None or progetto.titolo_progetto != titolo:
-                    progetto.titolo = titolo
+                obiettivo = ProgrammaAsseObiettivo.objects.get(pk=r['COD_IDENTIFICATIVO'])
+                descrizione = r['PO_OBIETTIVO_OPERATIVO']
+                if obiettivo.descrizione is None or obiettivo.descrizione != descrizione:
+                    obiettivo.descrizione = descrizione
                     n += 1
                     if not dryrun:
-                        progetto.save()
-                    self.logger.info("%s, %s - Progetto: %s aggiornato" % (n, c, progetto.codice_locale))
+                        obiettivo.save()
+                    self.logger.info("%s, %s - Obiettivo: %s aggiornato" % (n, c, obiettivo.codice))
                 else:
-                    self.logger.debug("%s, %s - Progetto: %s NON aggiornato" % (n, c, progetto.codice_locale))
+                    self.logger.debug("%s, %s - Obiettivo: %s NON aggiornato" % (n, c, obiettivo.codice))
             except ObjectDoesNotExist:
-                self.logger.debug("%s - Progetto non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
+                self.logger.warning("%s - Obiettivo non trovato: %s, skipping" % (c, r['COD_IDENTIFICATIVO']))
                 continue
 
 
