@@ -18,7 +18,7 @@ touch {{ log_file }}
 {{ curl_cmd|safe }} "{{ base_url }}/territori/leaflet/temi/{{t.slug}}/province.json{{ tematizzazioni }}" >> {{ log_file }}
 {% endif %}
 {% if pages %}
-{{ curl_cmd|safe }} "{{ base_url }}/territori/temi/{{ t.slug }}{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/progetti/temi/{{ t.slug }}{{ tematizzazioni }}" >> {{ log_file }}
 {% endif %}
 {% endfor %}
 
@@ -30,7 +30,7 @@ touch {{ log_file }}
 {{ curl_cmd|safe }} "{{ base_url }}/territori/leaflet/tipologie/{{t.slug}}/province.json{{ tematizzazioni }}" >> {{ log_file }}
 {% endif %}
 {% if pages %}
-{{ curl_cmd|safe }} "{{ base_url }}/territori/tipologie/{{ t.slug }}{{ tematizzazioni }}" >> {{ log_file }}
+{{ curl_cmd|safe }} "{{ base_url }}/progetti/tipologie/{{ t.slug }}{{ tematizzazioni }}" >> {{ log_file }}
 {% endif %}
 {% endfor %}
 
