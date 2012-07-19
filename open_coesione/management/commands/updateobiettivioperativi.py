@@ -34,7 +34,7 @@ class Command(BaseCommand):
                     default=False,
                     help='Set the dry-run command mode: no actual modification is made'),
         make_option('--overwrite',
-                    dest='offset',
+                    dest='overwrite',
                     default=False,
                     action='store_true',
                     help='Always overwrite values in the DB with values in the CSV'),
