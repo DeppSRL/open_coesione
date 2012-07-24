@@ -3,7 +3,7 @@ from django.contrib.gis import admin
 from django.conf import settings
 from django.views.decorators.cache import cache_page
 from django.views.generic.base import TemplateView
-from open_coesione.views import HomeView, FondiView, RisorseView, CGView
+from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView
 
 admin.autodiscover()
 
@@ -34,7 +34,7 @@ urlpatterns = patterns('',
     # pre-csm page routes
     url(r'^progetto/', TemplateView.as_view(template_name='flat/progetto.html')),
     url(r'^privacy/', TemplateView.as_view(template_name='flat/privacy.html')),
-    url(r'^contatti/', TemplateView.as_view(template_name='flat/contatti.html')),
+    url(r'^contatti/', ContactView.as_view(template_name='flat/contatti.html'), name='oc_contatti'),
     url(r'^licenza/', TemplateView.as_view(template_name='flat/licenza.html')),
 
     url(r'^cerca-un-progetto/', TemplateView.as_view(template_name='flat/cerca_progetto.html')),

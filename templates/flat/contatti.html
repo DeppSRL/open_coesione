@@ -24,6 +24,47 @@
 
     </p>
 
+    <hr>
+
+    {% if contact_form_submitted %}
+      <p class="well">Grazie per averci contattato, la nostra redazione leggerà il tuo messaggio il prima possibile</p>
+    {% else %}
+
+    <form action="{% url oc_contatti %}" id="" method="post" class="form-horizontal">
+      {% csrf_token %}
+      <div class="row-fluid clearfix">
+        <fieldset class="span6">
+      {% for field in contact_form %}
+        {% if not forloop.last %}
+          <div class="control-group {% if field.errors %}error{% endif %}">
+            <label for="{{ field.html_name }}" class="control-label">{{ field.label }}:</label>
+            <div class="controls">
+              {{ field }}
+              {% if field.errors %}<div class="help-block">{{ field.errors }}</div>{% endif %}
+            </div>
+          </div>
+        {% else %}
+        </fieldset>
+        <fieldset class="span6">
+          <div class="control-group {% if field.errors %}error{% endif %}" style="margin-left: 20px;">
+            <label for="{{ field.html_name }}" class="">{{ field.label }}:</label>
+            <div class="">
+              <textarea name="{{ field.html_name }}" id="{{ field.html_name }}" class="input-xlarge" cols="30" rows="10">{{ field.value|default_if_none:'' }}</textarea>
+              {% if field.errors %}<div class="help-block">{{ field.errors }}</div>{% endif %}
+            </div>
+          </div>
+        </fieldset>
+        {% endif %}
+      {% endfor %}
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-info" type="submit">Invia</button>
+        <button class="btn" type="reset">Annulla</button>
+      </div>
+    </form>
+
+  {% endif %}
+
   </div>
 
 {% endblock %}

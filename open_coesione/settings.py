@@ -235,3 +235,5 @@ LOGGING = {
         }
     }
 }
+
+CONTACTS_EMAIL = tuple()

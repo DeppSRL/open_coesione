@@ -1,11 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse
 from django.utils.decorators import method_decorator
 
 from datetime import datetime
 import os
 from django.views.generic.base import TemplateView, View
 from django.db.models import Count, Sum
+from open_coesione.forms import ContactForm
 from open_coesione.settings import PROJECT_ROOT
 from progetti.models import Progetto, Tema, ClassificazioneOggetto, ClassificazioneAzione
 from soggetti.models import Soggetto
@@ -198,3 +201,33 @@ class FondiView(RisorseView):
 
         return context
 
+class ContactView(TemplateView):
+
+    def get_context_data(self, **kwargs):
+
+#        if self.request.method == 'POST': # If the form has been submitted...
+#            form = ContactForm( self.request.POST ) # A form bound to the POST data
+#            if form.is_valid(): # All validation rules pass
+#                # Process the data in form.cleaned_data
+#                form.send_mail()
+#                return HttpResponseRedirect( reverse('oc_contatti') ) # Redirect after POST
+#        else:
+#            form = ContactForm() # An unbound form
+
+        return {
+            'contact_form' : ContactForm() if self.request.method == 'GET' else ContactForm( self.request.POST ),
+            'contact_form_submitted' : self.request.GET.get('completed','') == 'true'
+        }
+
+    def post(self, request, *args, **kwargs):
+        form = ContactForm( self.request.POST ) # A form bound to the POST data
+        if form.is_valid(): # All validation rules pass
+            try:
+                # Process the data in form.cleaned_data
+                form.send_mail()
+            except BadHeaderError:
+                return HttpResponse('Invalid header found.')
+
+            return HttpResponseRedirect( "{0}?completed=true".format(reverse('oc_contatti')) ) # Redirect after POST
+
+        return self.get(request, *args, **kwargs)

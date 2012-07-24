@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Email da {{ sender }}</title>
+</head>
+<body>
+  <p>
+    {{ body }}
+  </p>
+  <ul>
+    <li>Messaggio inviato da <a href="mailto:{{ email }}">{{ sender }}</a> da <i>{{ location }}</i></li>
+    <li>Organizzazione: {{ organization }}</li>
+    <li>Motivo del contatto: {{ reason }}</li>
+  </ul>
+
+</body>
+</html>
