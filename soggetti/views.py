@@ -172,11 +172,9 @@ class SoggettoView(AggregatoView, DetailView):
             .annotate(totale=Sum('progetto__fin_totale_pubblico'))\
             .order_by('-totale')[:5]
 
-
-        #context['map'] = self.get_map_context( )
-
         context['lista_finanziamenti_per_regione'] = [
-            (regione,float(Progetto.objects.nel_territorio( regione ).filter(soggetto_set__pk=self.object.pk).aggregate(totale=Sum('fin_totale_pubblico'))['totale'] or 0))
+            (regione, getattr(Progetto.objects.nel_territorio( regione ).del_soggetto(self.object),
+                              self.request.GET.get('tematizzazione', 'totale_costi'))())
             for regione in Territorio.objects.regioni()
         ]
 

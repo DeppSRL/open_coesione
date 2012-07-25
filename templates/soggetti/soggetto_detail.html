@@ -87,7 +87,7 @@
           {% if totale > 0  %}
             <tr>
               <th><a href="{% url progetti_search %}?q=&soggetto={{ soggetto.slug }}&territorio_reg={{ regione.cod_reg }}">{{ regione.denominazione }}</a></th>
-              <td class="amount"><strong>{{ totale|intcomma }}</strong> euro</td>
+              <td class="amount"><strong>{{ totale|default:"0"|intcomma }}</strong> {% if tematizzazione == 'totale_progetti' %}progetti{% else %}euro{% endif %}</td>
             </tr>
           {% endif %}
         {% endfor %}
