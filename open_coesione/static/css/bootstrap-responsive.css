@@ -749,6 +749,25 @@
   }
 }
 @media (max-width: 767px) {
+  #content-header .block-container {
+    *zoom: 1;
+  }
+  #content-header .block-container:before,
+  #content-header .block-container:after {
+    display: table;
+    content: "";
+  }
+  #content-header .block-container:after {
+    clear: both;
+  }
+  #content-header #claim-container {
+    width: auto;
+    float: none;
+    margin-top: 20px;
+  }
+  #content-header #claim-container .block-chart {
+    margin-right: 20px;
+  }
   .navbar-full-width {
     margin-left: -20px;
     margin-right: -20px;

@@ -4944,6 +4944,10 @@ hr.big {
 #content-header {
   padding-top: 25px;
 }
+#content-header #claim-container {
+  width: 50%;
+  float: left;
+}
 #statistics .table td,
 #statistics .table th {
   line-height: 16px;
