@@ -372,7 +372,7 @@ var print_line_chart = function(container, min_regions, max_regions) {
         //console.log('reset',min_regions,max_regions,APP.chart.series.length);
         var elements_count = APP.chart.series.length;
         while( elements_count > min_regions ) {
-            //console.log('removing',elements_count, APP.chart.series.pop().remove() );
+            APP.chart.series.pop().remove()
             elements_count--;
         }
 
