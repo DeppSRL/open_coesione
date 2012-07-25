@@ -4,6 +4,14 @@
 {% block page_title %}Soggetto: {{ soggetto.denominazione }}{% endblock %}
 {% block page_description %}Informazioni sui progetti in cui partecipa {{ soggetto.denominazione }}{% endblock %}
 
+{% block top_content %}
+<div id="claim-container">
+  <p class="claim">
+    Al soggetto è associato l'intero finanziamento dei progetti in cui è coinvolto, anche quando i progetti coinvolgono più soggetti.
+  </p>
+</div>
+{% endblock %}
+
 {% block container %}
   {{ block.super }}
 

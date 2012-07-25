@@ -46,6 +46,18 @@
   </script>
 {% endblock %}
 
+{% if territorio.territorio == 'C' %}
+  {% block top_content %}
+
+    <div id="claim-container">
+      <p class="claim">
+        Al comune è associato l'intero finanziamento dei progetti, anche quando il progetto è localizzato in più comuni
+      </p>
+    </div>
+
+  {% endblock %}
+{% endif %}
+
 {% block container %}
 
   {{ block.super }}

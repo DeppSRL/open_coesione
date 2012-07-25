@@ -4527,10 +4527,7 @@ a {
 .bg-gray {
   background-color: #f7f6f1;
 }
-#sidebar {
-  /*.bg-gray;*/
-}
-#sidebar p small {
+p small {
   color: #676462;
 }
 .text-left {
