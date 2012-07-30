@@ -137,6 +137,7 @@ class Intesa(models.Model):
 class Fonte(models.Model):
     codice = models.CharField(max_length=8, primary_key=True)
     descrizione = models.TextField()
+    short_label = models.CharField(max_length=64, blank=True, null=True)
 
     @property
     def progetti(self):
@@ -288,11 +289,13 @@ class Progetto(models.Model):
     slug = models.CharField(max_length=128, blank=True, null=True)
     classificazione_qsn = models.ForeignKey('ClassificazioneQSN',
                                             related_name='progetto_set',
-                                            db_column='classificazione_qsn')
+                                            db_column='classificazione_qsn',
+                                            null=True, blank=True)
 
     programma_asse_obiettivo = models.ForeignKey('ProgrammaAsseObiettivo',
                                                  related_name='progetto_set',
-                                                 db_column='programma_asse_progetto')
+                                                 db_column='programma_asse_progetto',
+                                                 null=True, blank=True)
 
     obiettivo_sviluppo = models.CharField(max_length=16,
                                           blank=True, null=True,
@@ -303,23 +306,32 @@ class Progetto(models.Model):
                                          choices=FONDO_COMUNITARIO)
     tema = models.ForeignKey('Tema',
                              related_name='progetto_set',
-                             db_column='tema')
+                             db_column='tema',
+                             null=True, blank=True)
 
-#    intesa_istituzionale = models.ForeignKey('Intesa',
-#                                             related_name='progetto_set',
-#                                             db_column='intesa_istituzionale')
     fonte = models.ForeignKey('Fonte',
                               related_name='progetto_set',
                               db_column='fonte')
 
     classificazione_azione = models.ForeignKey('ClassificazioneAzione',
                                                related_name='progetto_set',
-                                               db_column='classificazione_azione')
+                                               db_column='classificazione_azione',
+                                               null=True, blank=True)
 
     classificazione_oggetto = models.ForeignKey('ClassificazioneOggetto',
                                                 related_name='progetto_set',
-                                                db_column='classificazione_oggetto')
+                                                db_column='classificazione_oggetto',
+                                                null=True, blank=True)
 
+
+
+    cipe_num_delibera = models.IntegerField(null=True, blank=True)
+    cipe_anno_delibera = models.CharField(max_length=4, null=True, blank=True)
+    cipe_data_adozione = models.DateField(null=True, blank=True)
+    cipe_data_pubblicazione = models.DateField(null=True, blank=True)
+    cipe_flag = models.BooleanField(default=False)
+
+    note = models.TextField(null=True, blank=True)
 
     fin_totale = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_totale_pubblico = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
@@ -346,6 +358,7 @@ class Progetto(models.Model):
     data_inizio_effettiva = models.DateField(null=True, blank=True)
     data_fine_effettiva = models.DateField(null=True, blank=True)
     data_aggiornamento = models.DateField(null=True, blank=True)
+
 
     dps_flag_cup = models.CharField(max_length=1, choices=DPS_FLAG_CUP)
     dps_flag_presenza_date = models.CharField(max_length=2, choices=DPS_FLAG_PRESENZA_DATE)

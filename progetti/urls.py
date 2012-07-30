@@ -9,6 +9,7 @@ from progetti.views import ProgettoSearchView, ProgettoView, TipologiaView, Tema
 sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
         facet('natura').\
         facet('tema').\
+        facet('fonte').\
         query_facet('data_inizio', ProgettoSearchView.SIXMONTHS).\
         query_facet('data_inizio', ProgettoSearchView.ONEYEAR).\
         query_facet('data_inizio', ProgettoSearchView.TWOYEARS).\

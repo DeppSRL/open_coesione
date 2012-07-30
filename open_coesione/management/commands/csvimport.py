@@ -190,6 +190,7 @@ class Command(BaseCommand):
 
 
         for r in self.unicode_reader:
+
             c = self.unicode_reader.reader.line_num
             if c < int(options['offset']):
                 continue
@@ -393,9 +394,9 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunto programma FS: %s" % (programma,))
+                    self.logger.info("Aggiunto programma: %s" % (programma,))
                 else:
-                    self.logger.debug("Trovato programma FS: %s" % (programma,))
+                    self.logger.debug("Trovato programma: %s" % (programma,))
 
                 created = False
                 programma_asse, created = ProgrammaAsseObiettivo.objects.get_or_create(
@@ -452,8 +453,9 @@ class Command(BaseCommand):
 
             try:
                 created = False
+                cod_tema_prioritario = r['QSN_COD_TEMA_PRIORITARIO_UE']
                 tema_prioritario, created = Tema.objects.get_or_create(
-                    codice="%s.%s" % (tema_sintetico.codice, r['QSN_COD_TEMA_PRIORITARIO_UE']),
+                    codice="%s.%s" % (tema_sintetico.codice, cod_tema_prioritario),
                     tipo_tema=Tema.TIPO.prioritario,
                     defaults={
                         'descrizione': r['QSN_DESCR_TEMA_PRIORITARIO_UE'],
@@ -467,7 +469,7 @@ class Command(BaseCommand):
 
             except DatabaseError as e:
                 self.logger.error("In fetch di tema prioritario %s per codice locale:%s. %s" %
-                             (r['QSN_COD_TEMA_PRIORITARIO_UE'], codice_locale, e))
+                             (cod_tema_prioritario, codice_locale, e))
                 continue
 
 
@@ -588,7 +590,12 @@ class Command(BaseCommand):
             cipe_num_delibera = int(r['NUM_DELIBERA']) if r['NUM_DELIBERA'].strip() else None
             cipe_anno_delibera = r['ANNO_DELIBERA'].strip() if r['ANNO_DELIBERA'].strip() else None
             cipe_data_adozione = datetime.datetime.strptime(r['DATA_ADOZIONE'], '%Y%m%d') if r['DATA_ADOZIONE'].strip() else None
+            cipe_data_pubblicazione = datetime.datetime.strptime(r['DATA_PUBBLICAZIONE'], '%Y%m%d') if r['DATA_PUBBLICAZIONE'].strip() else None
             cipe_note = r['NOTE'].strip() if r['NOTE'].strip() else None
+
+            cipe_flag = False
+            if cipe_num_delibera is not None:
+                cipe_flag = True
 
             # totale finanziamento
             # fin_totale = Decimal(r['FINANZ_TOTALE'].replace(',','.')) if r['FINANZ_TOTALE'].strip() else None
@@ -621,6 +628,7 @@ class Command(BaseCommand):
             # data ultimo aggiornamento progetto
             data_aggiornamento = datetime.datetime.strptime(r['DATA_AGGIORNAMENTO'], '%Y%m%d') if r['DATA_AGGIORNAMENTO'].strip() else None
 
+
             # progetto
             try:
                 p, created = Progetto.objects.get_or_create(
@@ -638,11 +646,14 @@ class Command(BaseCommand):
                         'fonte': fonte,
                         'classificazione_azione': natura_tipologia,
                         'classificazione_oggetto': settore_sottosettore_categoria,
+#
                         'cipe_num_delibera': cipe_num_delibera,
                         'cipe_anno_delibera': cipe_anno_delibera,
                         'cipe_data_adozione': cipe_data_adozione,
-                        'cipe_note': cipe_note,
-#                        'fin_totale': fin_totale,
+                        'cipe_data_pubblicazione': cipe_data_pubblicazione,
+                        'note': cipe_note,
+                        'cipe_flag': cipe_flag,
+#
                         'fin_totale_pubblico': fin_totale_pubblico,
                         'fin_ue': fin_ue,
                         'fin_stato_fondo_rotazione': fin_stato_fondo_rotazione,
@@ -661,7 +672,7 @@ class Command(BaseCommand):
 #                        'pagamento_fsc': pagamento_fsc,
                         'pagamento_ammesso': pagamento_ammesso,
                         'data_inizio_prevista': data_inizio_prevista,
-                            'data_fine_prevista': data_fine_prevista,
+                        'data_fine_prevista': data_fine_prevista,
                         'data_inizio_effettiva': data_inizio_effettiva,
                         'data_fine_effettiva': data_fine_effettiva,
                         'data_aggiornamento': data_aggiornamento,

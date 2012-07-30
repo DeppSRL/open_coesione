@@ -20,6 +20,7 @@ class ProgettoIndex(SearchIndex):
     # faceting fields
     natura = FacetCharField( )
     tema = FacetCharField( )
+    fonte = FacetCharField( model_attr='fonte__codice' )
     data_inizio = FacetDateField(model_attr='data_inizio_effettiva')
     costo = FacetFloatField(model_attr='fin_totale_pubblico')
 
