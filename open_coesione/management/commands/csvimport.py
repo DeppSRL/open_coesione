@@ -62,6 +62,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.csv_file = options['csvfile']
+        self.encoding = options['encoding']
 
         # read first csv file
         try:

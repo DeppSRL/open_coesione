@@ -244,7 +244,7 @@
                 {% endfor %}
               </div>
             </h1>
-            <div id="map" style="height:250px; width: 100%;"></div>
+            <div id="map" style="height:250px; width: 100%; margin-bottom: 0.75em"></div>
           </div>
 
           {%  if not progetto.cipe_flag %}
@@ -281,7 +281,7 @@
           <div class="row">
             <div class="span3 text-center">
               {%  if progetto.cipe_flag %}
-                  <h2>Assegnazione CIPE</h2>
+                  <h2 style="color: #4b6dbc">Assegnazione CIPE</h2>
               {%  else %}
                   <h2>Finanziamento</h2>
               {% endif %}
@@ -345,16 +345,16 @@
 
         </section>
 
-        {% if progetto.fondo_comunitario == 'fse' or progetto.fondo_comunitario == 'fesr' %}
+        {% if progetto.fondo_comunitario == 'fse' or progetto.fondo_comunitario == 'fesr' or progetto.cipe_flag %}
         <section>
 
           <dl class="data">
             <dt>
               {% if progetto.fondo_comunitario == 'fse' %}
                 Fondo Strutturale Europeo (FSE)
-              {% else %}
+              {% elif progetto.fondo_comunitario == 'fesr' %}
                 Fondo Europeo di Sviluppo Regionale (FESR)
-                {% endif %}
+              {% endif %}
             </dt>
             <dd>{{ progetto.fonte.descrizione }}</dd>
             <dt>Programma</dt>
@@ -369,10 +369,18 @@
                 <dt>Obiettivo</dt>
                 <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
             {%  endif %}
-          </dl>
 
+            {%  if progetto.cipe_flag %}
+                <dt>Delibera CIPE</dt>
+                <dd>
+                    Numero {{ progetto.cipe_num_delibera }} del {{ progetto.cipe_anno_delibera }}, pubblicata sulla
+                    Gazzetta Ufficiale del {{ progetto.cipe_data_pubblicazione|date:'d/m/Y' }}
+                </dd>
+            {%  endif %}
+          </dl>
         </section>
         {% endif %}
+
 
         {% if progetto.fin_stato_estero or progetto.fin_privato or progetto.fin_da_reperire %}
 
