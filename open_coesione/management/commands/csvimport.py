@@ -588,16 +588,22 @@ class Command(BaseCommand):
                              (codice_locale, e))
                 continue
 
-            cipe_num_delibera = int(r['NUM_DELIBERA']) if r['NUM_DELIBERA'].strip() else None
-            cipe_anno_delibera = r['ANNO_DELIBERA'].strip() if r['ANNO_DELIBERA'].strip() else None
-            cipe_data_adozione = datetime.datetime.strptime(r['DATA_ADOZIONE'], '%Y%m%d') if r['DATA_ADOZIONE'].strip() else None
-            cipe_data_pubblicazione = datetime.datetime.strptime(r['DATA_PUBBLICAZIONE'], '%Y%m%d') if r['DATA_PUBBLICAZIONE'].strip() else None
-            cipe_note = r['NOTE'].strip() if r['NOTE'].strip() else None
-
             cipe_flag = False
-            if cipe_num_delibera is not None:
-                cipe_flag = True
-
+            if 'NUM_DELIBERA' in r.keys():
+                cipe_num_delibera = int(r['NUM_DELIBERA']) if r['NUM_DELIBERA'].strip() else None
+                cipe_anno_delibera = r['ANNO_DELIBERA'].strip() if r['ANNO_DELIBERA'].strip() else None
+                cipe_data_adozione = datetime.datetime.strptime(r['DATA_ADOZIONE'], '%Y%m%d') if r['DATA_ADOZIONE'].strip() else None
+                cipe_data_pubblicazione = datetime.datetime.strptime(r['DATA_PUBBLICAZIONE'], '%Y%m%d') if r['DATA_PUBBLICAZIONE'].strip() else None
+                cipe_note = r['NOTE'].strip() if r['NOTE'].strip() else None
+                if cipe_num_delibera is not None:
+                    cipe_flag = True
+            else:
+                cipe_num_delibera = None
+                cipe_anno_delibera = None
+                cipe_data_adozione = None
+                cipe_data_pubblicazione = None
+                cipe_note = None
+                
             # totale finanziamento
             # fin_totale = Decimal(r['FINANZ_TOTALE'].replace(',','.')) if r['FINANZ_TOTALE'].strip() else None
             fin_totale_pubblico = Decimal(r['FINANZ_TOTALE_PUBBLICO'].replace(',','.')) if r['FINANZ_TOTALE_PUBBLICO'].strip() else None
