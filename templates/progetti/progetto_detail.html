@@ -111,7 +111,7 @@
       <div class="span6" id="content">
 
         <header>
-          {% if progetto.cup %}<h2>CUP: {{ progetto.cup }}</h2>{% endif %}
+          {% if progetto.cup and not progetto.cipe_flag %}<h2>CUP: {{ progetto.cup }}</h2>{% endif %}
           <h1>{{ progetto.titolo_progetto }}</h1>
         </header>
 
@@ -121,14 +121,18 @@
           <li>
             <a href="{{ progetto.classificazione_azione.classificazione_superiore.get_absolute_url }}">
               {{ progetto.classificazione_azione.classificazione_superiore.short_label|upper }}
-            </a> -
+            </a>
+            {%  if not progetto.cipe_flag %}-
             {{ progetto.classificazione_azione.descrizione|upper }}
+            {%  endif %}
           </li>
           <li>
             <a href="{{ progetto.tema.tema_superiore.get_absolute_url }}">
               {{ progetto.tema.tema_superiore.short_label|upper }}
-            </a> -
+            </a>
+            {%  if not progetto.cipe_flag %}-
             {{ progetto.tema.descrizione|upper }}
+            {%  endif %}
           </li>
         </ul>
 
@@ -190,46 +194,40 @@
 
         </section>
 
-        <hr class="big">
+        {% if not progetto.cipe_flag %}
+            <hr class="big">
 
-        <section>
-          <h1 class="title">
-            <span>Tempi</span>
-          </h1>
-          <div class="row">
-            <div class="span3">
-              <h4 class="title">Inizio previsto</h4>
-              <strong>{{ progetto.data_inizio_prevista|default:"Dato non disponibile" }}</strong>
-            </div>
-            <div class="span3">
-              <h4 class="title">Inizio effettivo</h4>
-              <strong>{{ progetto.data_inizio_effettiva|default:"Dato non disponibile" }}</strong>
-            </div>
-          </div>
+            <section>
+                <h1 class="title">
+                    <span>Tempi</span>
+                </h1>
+                <div class="row">
+                    <div class="span3">
+                        <h4 class="title">Inizio previsto</h4>
+                        <strong>{{ progetto.data_inizio_prevista|default:"Dato non disponibile" }}</strong>
+                    </div>
+                    <div class="span3">
+                        <h4 class="title">Inizio effettivo</h4>
+                        <strong>{{ progetto.data_inizio_effettiva|default:"Dato non disponibile" }}</strong>
+                    </div>
+                </div>
 
-          <hr>
+                <hr>
 
-          <div class="row">
-            <div class="span3">
-              <h4 class="title">Fine prevista</h4>
-              <strong>{{ progetto.data_fine_prevista|default:"Dato non disponibile" }}</strong>
-            </div>
-            <div class="span3">
-              <h4 class="title">Fine effettiva</h4>
-              <strong>{{ progetto.data_fine_effettiva|default:"Dato non disponibile" }}</strong>
-            </div>
-          </div>
+                <div class="row">
+                    <div class="span3">
+                        <h4 class="title">Fine prevista</h4>
+                        <strong>{{ progetto.data_fine_prevista|default:"Dato non disponibile" }}</strong>
+                    </div>
+                    <div class="span3">
+                        <h4 class="title">Fine effettiva</h4>
+                        <strong>{{ progetto.data_fine_effettiva|default:"Dato non disponibile" }}</strong>
+                    </div>
+                </div>
 
-{#              {% if durata_progetto_effettiva %}#}
-{#                <dt>Durata effettiva</dt>#}
-{#                <dd>{{ durata_progetto_effettiva }} giorni</dd>#}
-{#              {% endif %}#}
-{#              {% if giorni_alla_fine %}#}
-{#              <dt>Giorni rimanenti</dt>#}
-{#              <dd>{{ giorni_alla_fine }} giorni</dd>#}
-{#              {% endif %}#}
+            </section>
 
-        </section>
+        {% endif %}
 
         <hr class="big">
 
@@ -246,23 +244,25 @@
                 {% endfor %}
               </div>
             </h1>
-            <div id="map" style="height:250px; width: 100%;"></div>
+            <div id="map" style="height:250px; width: 100%; margin-bottom: 0.75em"></div>
           </div>
 
-          <h3>Priorità QSN</h3>
-          <p>
-            {{ progetto.classificazione_qsn.classificazione_superiore.classificazione_superiore.descrizione }}
-          </p>
+          {%  if not progetto.cipe_flag %}
+              <h3>Priorità QSN</h3>
+              <p>
+                {{ progetto.classificazione_qsn.classificazione_superiore.classificazione_superiore.descrizione }}
+              </p>
 
-          <h3>Obiettivo generale QSN</h3>
-          <p>
-            {{ progetto.classificazione_qsn.classificazione_superiore.descrizione }}
-          </p>
+              <h3>Obiettivo generale QSN</h3>
+              <p>
+                {{ progetto.classificazione_qsn.classificazione_superiore.descrizione }}
+              </p>
 
-          <h3>Obiettivo specifico QSN</h3>
-          <p>
-            {{ progetto.classificazione_qsn.descrizione }}
-          </p>
+              <h3>Obiettivo specifico QSN</h3>
+              <p>
+                {{ progetto.classificazione_qsn.descrizione }}
+              </p>
+          {%  endif %}
 
         </section>
 
@@ -280,14 +280,20 @@
           </div>
           <div class="row">
             <div class="span3 text-center">
-              <h2>Finanziamento</h2>
+              {%  if progetto.cipe_flag %}
+                  <h2 style="color: #4b6dbc">Assegnazione CIPE</h2>
+              {%  else %}
+                  <h2>Finanziamento</h2>
+              {% endif %}
               <strong>{{ total_cost|intcomma }}</strong> euro
             </div>
 
-            <div class="span3 text-center">
-              <h2>Pagamenti effettuati</h2>
-              <strong>{{ total_cost_paid|intcomma }}</strong> euro
-            </div>
+            {% if not progetto.cipe_flag %}
+                <div class="span3 text-center">
+                  <h2>Pagamenti effettuati</h2>
+                  <strong>{{ total_cost_paid|intcomma }}</strong> euro
+                </div>
+            {%  endif %}
           </div>
 
           <div class="row" style="height: 150px">
@@ -323,12 +329,13 @@
             </div>
 
             <div class="span3">
-              <div class="block-chart" title="{{ cost_payments_ratio }} del totale">
+              {%  if not progetto.cipe_flag %}
+                  <div class="block-chart" title="{{ cost_payments_ratio }} del totale">
 
-                <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}"></span></div>
-                <p>{{ cost_payments_ratio }}</p>
-
-              </div>
+                    <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}"></span></div>
+                    <p>{{ cost_payments_ratio }}</p>
+                  </div>
+              {%  endif %}
             </div>
 
 {#            <p class="span6 text-center">#}
@@ -338,16 +345,16 @@
 
         </section>
 
-        {% if progetto.fondo_comunitario == 'fse' or progetto.fondo_comunitario == 'fesr' %}
+        {% if progetto.fondo_comunitario == 'fse' or progetto.fondo_comunitario == 'fesr' or progetto.cipe_flag %}
         <section>
 
           <dl class="data">
             <dt>
               {% if progetto.fondo_comunitario == 'fse' %}
                 Fondo Strutturale Europeo (FSE)
-              {% else %}
+              {% elif progetto.fondo_comunitario == 'fesr' %}
                 Fondo Europeo di Sviluppo Regionale (FESR)
-                {% endif %}
+              {% endif %}
             </dt>
             <dd>{{ progetto.fonte.descrizione }}</dd>
             <dt>Programma</dt>
@@ -356,14 +363,24 @@
                 {{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}
               </a>
             </dd>
-            <dt>Asse</dt>
-            <dd>{{ progetto.programma_asse_obiettivo.classificazione_superiore.descrizione }}</dd>
-            <dt>Obiettivo</dt>
-            <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
-          </dl>
+            {% if not progetto.cipe_flag %}
+                <dt>Asse</dt>
+                <dd>{{ progetto.programma_asse_obiettivo.classificazione_superiore.descrizione }}</dd>
+                <dt>Obiettivo</dt>
+                <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
+            {%  endif %}
 
+            {%  if progetto.cipe_flag %}
+                <dt>Delibera CIPE</dt>
+                <dd>
+                    Numero {{ progetto.cipe_num_delibera }} del {{ progetto.cipe_anno_delibera }}, pubblicata sulla
+                    Gazzetta Ufficiale del {{ progetto.cipe_data_pubblicazione|date:'d/m/Y' }}
+                </dd>
+            {%  endif %}
+          </dl>
         </section>
         {% endif %}
+
 
         {% if progetto.fin_stato_estero or progetto.fin_privato or progetto.fin_da_reperire %}
 

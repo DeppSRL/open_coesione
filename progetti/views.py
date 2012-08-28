@@ -15,7 +15,7 @@ from oc_search.views import ExtendedFacetedSearchView
 from models import Progetto, ClassificazioneAzione
 from open_coesione.views import AggregatoView, AccessControlView
 from progetti.forms import DescrizioneProgettoForm
-from progetti.models import Tema
+from progetti.models import Tema, Fonte
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
@@ -247,6 +247,14 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
 
+        # definizione struttura dati per visualizzazione faccette fonte
+        extra['fonte'] = {
+            'descrizione': {},
+            'short_label': {}
+        }
+        for c in Fonte.objects.all():
+            extra['fonte']['descrizione'][c.codice] = c.descrizione
+            extra['fonte']['short_label'][c.codice] = c.short_label
 
         paginator = Paginator(self.results, 10)
         page = self.request.GET.get('page')

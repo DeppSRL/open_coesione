@@ -20,7 +20,8 @@ class ProgettoIndex(SearchIndex):
     # faceting fields
     natura = FacetCharField( )
     tema = FacetCharField( )
-    data_inizio = FacetDateField(model_attr='data_inizio_effettiva')
+    fonte = FacetCharField( model_attr='fonte__codice' )
+    data_inizio = FacetDateField()
     costo = FacetFloatField(model_attr='fin_totale_pubblico')
 
     # search result format is pre-rendered during index phase
@@ -47,5 +48,11 @@ class ProgettoIndex(SearchIndex):
 
     def prepare_soggetto(self, obj):
         return [s['slug'] for s in obj.soggetto_set.values('slug').distinct()]
+
+    def prepare_data_inizio(self, obj):
+        if obj.data_inizio_effettiva:
+            return obj.data_inizio_effettiva
+        else:
+            return obj.data_inizio_prevista
 
 site.register(Progetto, ProgettoIndex)

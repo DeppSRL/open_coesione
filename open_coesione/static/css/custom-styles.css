@@ -1,0 +1,14 @@
+div.cipe.block-chart.block {
+    background-color: #8199D0;
+    position: relative;
+}
+
+div.cipe.block-chart.block div {
+    position: absolute;
+    bottom: 0;
+    color: #fff;
+}
+
+div.cipe.block-chart.block div strong {
+    min-height: 0;
+}
