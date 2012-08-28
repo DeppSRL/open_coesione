@@ -82,8 +82,8 @@ class TerritorioMixin:
                 selected_facet['url'] += "&territorio_com={0}".format(territorio_com)
             if territorio_prov != '0':
                 selected_facet['url'] += "&territorio_prov={0}".format(territorio_prov)
-            if territorio_reg != '0':
-                selected_facet['url'] += "&territorio_reg={0}".format(territorio_reg)
+            #if territorio_reg != '0':
+            selected_facet['url'] += "&territorio_reg={0}".format(territorio_reg)
 
 
         return extended_selected_facets

@@ -226,7 +226,7 @@
 
             {% if territorio %}
               <div class="span6">
-              <h1 class="title black" style="margin-bottom: 0;"><span>{{ territorio.get_territorio_display }} {% if territorio.territorio != 'R' %}di {% endif %}{{ territorio }}</span></h1>
+              <h1 class="title black" style="margin-bottom: 0;"><span>{% if territorio.territorio != 'N' %}{{ territorio.get_territorio_display }} {% if territorio.territorio != 'R' %}di {% endif %}{% endif %}{{ territorio }}</span></h1>
               <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{{ territorio|progetti_search_url }}">Vai a tutti i progetti</a></p>
               </div>
             {% endif %}

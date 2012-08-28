@@ -46,23 +46,22 @@
   </script>
 {% endblock %}
 
-{% if territorio.territorio == 'C' %}
-  {% block top_content %}
+{% block top_content %}
+  {% if territorio.territorio == 'C' %}
 
     <div id="claim-container">
       <p class="claim">
         Al comune è associato l'intero finanziamento dei progetti, anche quando il progetto è localizzato in più comuni
       </p>
     </div>
-
-  {% endblock %}
-{% endif %}
+  {% endif %}
+{% endblock %}
 
 {% block container %}
 
   {{ block.super }}
 
-  {% if territorio.territorio == 'R' %}
+  {% if territorio.territorio == 'R' or territorio.territorio == 'N' %}
   <section class="container">
     <div class="row">
       <div class="span12" id="charts_accordion">
@@ -104,3 +103,7 @@
 
 
 {% endblock %}
+
+{% if territorio.territorio == 'N' %}
+  {% block map %}{% endblock %}
+{% endif %}

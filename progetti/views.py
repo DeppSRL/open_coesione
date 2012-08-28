@@ -204,6 +204,11 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
                 territorio=Territorio.TERRITORIO.R,
                 cod_reg=territorio_reg
             ).nome
+        elif territorio_reg and territorio_reg == '0':
+            extra['territorio'] = Territorio.objects.get(
+                territorio=Territorio.TERRITORIO.N,
+                cod_reg=territorio_reg
+            ).nome
 
         soggetto_slug = self.request.GET.get('soggetto', None)
         if soggetto_slug:

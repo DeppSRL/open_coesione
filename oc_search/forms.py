@@ -42,6 +42,8 @@ class RangeFacetedSearchForm(SearchForm):
             sqs = sqs.filter_and(territorio_prov=self.cleaned_data['territorio_prov'])
         if self.is_valid() and self.cleaned_data.get('territorio_reg'):
             sqs = sqs.filter_and(territorio_reg=self.cleaned_data['territorio_reg'])
+        elif self.is_valid() and self.cleaned_data.get('territorio_reg') == 0:
+            sqs = sqs.filter_and(territorio_reg=self.cleaned_data['territorio_reg'])
 
         # aggiunge filtro soggetto, se presente
         if self.is_valid() and self.cleaned_data.get('soggetto'):

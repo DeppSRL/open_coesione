@@ -107,8 +107,10 @@ var print_pie_chart = function( source, destination )
             values = $('th, strong', line).map( function(el, item) { return $(item).text(); });
         }
         var sub_total = parseInt(values[1].split('.').join(''));
-        total += sub_total;
-        series.data.push([values[0], sub_total ]);
+        if (sub_total > 0 ) {
+            total += sub_total;
+            series.data.push([values[0], sub_total ]);
+        }
     });
 
     // normalize values

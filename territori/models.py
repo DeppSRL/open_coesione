@@ -8,8 +8,11 @@ import struct
 
 class TerritoriManager(models.GeoManager):
 
-    def regioni(self):
-        return self.get_query_set().filter(territorio= Territorio.TERRITORIO.R )
+    def regioni(self, with_nation=False):
+        codes = [ Territorio.TERRITORIO.R ]
+        if with_nation:
+            codes.append( Territorio.TERRITORIO.N )
+        return self.get_query_set().filter(territorio__in= codes )
 
     def provincie(self):
         return self.get_query_set().filter(territorio= Territorio.TERRITORIO.P )
@@ -102,7 +105,7 @@ class Territorio(models.Model):
         elif self.territorio == self.TERRITORIO.C:
             return { '{0}cod_com'.format(prefix) : self.cod_com }
         elif self.territorio == self.TERRITORIO.N:
-            return { '{0}cod_prov'.format(prefix) : 0 }
+            return { '{0}cod_reg'.format(prefix): 0 }
 
         raise Exception('Territorio non interrogabile %s' % self)
 
@@ -119,6 +122,8 @@ class Territorio(models.Model):
             regione = Territorio.objects.regioni().get(cod_reg=self.cod_reg)
             provincia = Territorio.objects.provincie().get(cod_prov=self.cod_prov)
             return [regione, provincia, self]
+        elif self.territorio == self.TERRITORIO.N:
+            return [self]
 
     def get_breadcrumbs(self):
         return [(t.denominazione, t.get_absolute_url()) for t in self.get_hierarchy()]
@@ -182,13 +187,16 @@ class Territorio(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('territori_{0}'.format({
+        url_name = 'territori_{0}'.format({
             self.TERRITORIO.R: 'regione',
             self.TERRITORIO.P: 'provincia',
             self.TERRITORIO.C: 'comune',
             self.TERRITORIO.N: 'nazionale',
             self.TERRITORIO.E: 'estero',
-        }[self.territorio]), (), {
+            }[self.territorio])
+        if self.territorio == Territorio.TERRITORIO.N:
+            return url_name
+        return (url_name, (), {
             'slug': self.slug
         })
 

@@ -359,7 +359,9 @@ class TerritorioView(AccessControlView, AggregatoView, DetailView):
         return context
 
     def get_object(self, queryset=None):
-        return Territorio.objects.get(slug= slugify(self.kwargs['slug']) , territorio= self.tipo_territorio)
+        return (Territorio.objects.get(slug= slugify(self.kwargs['slug']) , territorio= self.tipo_territorio)
+            if 'slug' in self.kwargs
+            else Territorio.objects.get(territorio= self.tipo_territorio))
 
 
 class RegioneView(TerritorioView):
@@ -370,3 +372,6 @@ class ProvinciaView(TerritorioView):
 
 class ComuneView(TerritorioView):
     tipo_territorio = Territorio.TERRITORIO.C
+
+class AmbitoNazionaleView(TerritorioView):
+    tipo_territorio = Territorio.TERRITORIO.N

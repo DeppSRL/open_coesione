@@ -172,10 +172,12 @@ class SoggettoView(AggregatoView, DetailView):
             .annotate(totale=Sum('progetto__fin_totale_pubblico'))\
             .order_by('-totale')[:5]
 
+        # calcolo dei finanziamenti regione per regione
+        # e nell'ambito nazionale
         context['lista_finanziamenti_per_regione'] = [
             (regione, getattr(Progetto.objects.nel_territorio( regione ).del_soggetto(self.object),
                               self.request.GET.get('tematizzazione', 'totale_costi'))())
-            for regione in Territorio.objects.regioni()
+            for regione in Territorio.objects.regioni(with_nation=True)
         ]
 
 

@@ -238,7 +238,7 @@
           <div style="float:right; width:46%; margin-left:10px;margin-right:10px;">
             <h1 class="title" id="map-header">
               <div>
-                Località
+                Territorio
                 {% for territorio in progetto.territori %}
                   <a href="{{ territorio.get_absolute_url }}" class="map-location" data-coords="{{ territorio.geom.centroid.coords|join:"," }}">
                     {{ territorio.denominazione }}

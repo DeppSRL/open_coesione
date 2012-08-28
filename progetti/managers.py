@@ -40,6 +40,8 @@ class ProgettiQuerySet(models.query.QuerySet):
             return self.filter(territorio_set__cod_prov=territorio.cod_prov)
         elif territorio.territorio == territorio.TERRITORIO.C:
             return self.filter(territorio_set__cod_com=territorio.cod_com)
+        elif territorio.territorio == territorio.TERRITORIO.N:
+            return self.filter(territorio_set__territorio=territorio.TERRITORIO.N)
         else:
             raise Exception('Territorio non valido %s' % territorio)
 

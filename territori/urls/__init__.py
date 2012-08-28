@@ -1,7 +1,7 @@
 from django.views.decorators.cache import cache_page
 from django.conf.urls import patterns, url, include
 from django.views.generic.base import TemplateView
-from territori.views import RegioneView, ComuneView, ProvinciaView, InfoView, TilesConfigView, AutocompleteView
+from territori.views import RegioneView, ComuneView, ProvinciaView, AmbitoNazionaleView, InfoView, TilesConfigView, AutocompleteView
 
 class ChartView(TemplateView):
     template_name='territori/index_chart.html'
@@ -24,6 +24,8 @@ urlpatterns = patterns('',
        cache_page(key_prefix='territori_provincia')(ProvinciaView.as_view()), name='territori_provincia'),
     url(r'^comuni/(?P<slug>[-\w]+)/$',
        ComuneView.as_view(), name='territori_comune'),
+    url(r'^ambito-nazionale/$',
+        cache_page(key_prefix='territori_nazionale')(AmbitoNazionaleView.as_view()), name='territori_nazionale'),
     url(r'^info/(?P<tipo>[\w]+)/(?P<lat>[-\d\.]+)/(?P<lng>[-\d\.]+)/$',
        cache_page(key_prefix='info')(InfoView.as_view()), name='territori_info'),
     url(r'^info/temi/(?P<slug>[-\w]+)/(?P<tipo>[\w]+)/(?P<lat>[-\d\.]+)/(?P<lng>[-\d\.]+)/$',
