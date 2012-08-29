@@ -1,5 +1,6 @@
 import csv
 from django.conf import settings
+from django.http import HttpResponse
 import os
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
@@ -13,6 +14,7 @@ from oc_search.mixins import FacetRangeCostoMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto, ClassificazioneAzione
+from open_coesione import utils
 from open_coesione.views import AggregatoView, AccessControlView
 from progetti.forms import DescrizioneProgettoForm
 from progetti.models import Tema, Fonte
@@ -133,6 +135,46 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
 
     def get_object(self, queryset=None):
         return Tema.objects.get(slug=self.kwargs.get('slug'))
+
+class CSVView(AggregatoView, DetailView):
+
+    filter_field = ''
+
+    def get_first_row(self):
+        return ['Comune', 'Finanziamento procapite']
+
+    def get_csv_filename(self):
+        return '{0}_pro_capite'.format(self.kwargs.get('slug','all'))
+
+    def write_csv(self, response):
+        writer = utils.UnicodeWriter(response)
+        writer.writerow( self.get_first_row() )
+        for city in self.top_comuni_pro_capite(filters={ self.filter_field: self.object}, qnt=None):
+            writer.writerow([unicode(city.denominazione), ('%f' % city.totale_pro_capite).rstrip('0').rstrip('.')])
+
+    def get(self, request, *args, **kwargs):
+
+        self.object = self.get_object()
+
+        # Create the HttpResponse object with the appropriate CSV header.
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={0}.csv'.format(self.get_csv_filename())
+
+        self.write_csv(response)
+
+        return response
+
+    def get_object(self, queryset=None):
+        return self.model.objects.get(slug=self.kwargs.get('slug'))
+
+class TipologiaCSVView(CSVView):
+    model = ClassificazioneAzione
+    filter_field = 'progetto__classificazione_azione__classificazione_superiore'
+
+class TemaCSVView(CSVView):
+    model = Tema
+    filter_field = 'progetto__tema__tema_superiore'
+
 
 
 class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, TerritorioMixin):
