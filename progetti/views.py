@@ -149,8 +149,12 @@ class CSVView(AggregatoView, DetailView):
     def write_csv(self, response):
         writer = utils.UnicodeWriter(response)
         writer.writerow( self.get_first_row() )
-        for city in self.top_comuni_pro_capite(filters={ self.filter_field: self.object}, qnt=None):
-            writer.writerow([unicode(city.denominazione), ('%f' % city.totale_pro_capite).rstrip('0').rstrip('.')])
+        comuni = Territorio.objects.comuni()
+        comuni_con_pro_capite = self.top_comuni_pro_capite(filters={ self.filter_field: self.object}, qnt=None, sort=False)
+        for city in comuni:
+            writer.writerow([
+                unicode(city.denominazione),
+                '{0:.2f}'.format( comuni_con_pro_capite.get(pk=city.pk).totale / comuni_con_pro_capite.get(pk=city.pk).popolazione_totale if city in comuni_con_pro_capite else .0 ).replace('.', ',')  ])
 
     def get(self, request, *args, **kwargs):
 

@@ -136,23 +136,26 @@ class AggregatoView(object):
 
         return context
 
-    def top_comuni_pro_capite(self, filters, qnt=5):
+    def top_comuni_pro_capite(self, filters, qnt=5, sort=True):
 
         from django.db import models
 
-        def pro_capite_order(territorio):
-            territorio.totale_pro_capite = territorio.totale / territorio.popolazione_totale if territorio.popolazione_totale else 0.0
-            return territorio.totale_pro_capite
-
-        queryset = Territorio.objects.filter( territorio=Territorio.TERRITORIO.C, **filters ).annotate( totale=models.Sum('progetto__fin_totale_pubblico') )
+        queryset = Territorio.objects.comuni().filter( **filters ).annotate( totale=models.Sum('progetto__fin_totale_pubblico') )
 
         if qnt:
             queryset.filter( totale__isnull=False )
 
+        if not sort:
+            return queryset[:qnt]
+
+        def pro_capite_order(territorio):
+            territorio.totale_pro_capite = territorio.totale / territorio.popolazione_totale if territorio.popolazione_totale else 0.0
+            return territorio.totale_pro_capite if sort else territorio.denominazione
+
         return sorted(
             queryset,
             key= pro_capite_order,
-            reverse=True
+            reverse=sort
         )[:qnt]
 
 
