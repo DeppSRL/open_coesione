@@ -373,8 +373,8 @@
             {%  if progetto.cipe_flag %}
                 <dt>Delibera CIPE</dt>
                 <dd>
-                    Numero {{ progetto.cipe_num_delibera }} del {{ progetto.cipe_anno_delibera }}, pubblicata sulla
-                    Gazzetta Ufficiale del {{ progetto.cipe_data_pubblicazione|date:'d/m/Y' }}
+                  <a href="/fonti-di-finanziamento/#fondi-nazionali">Numero {{ progetto.cipe_num_delibera }} del {{ progetto.cipe_anno_delibera }}, pubblicata sulla
+                    Gazzetta Ufficiale del {{ progetto.cipe_data_pubblicazione|date:'d/m/Y' }}</a>
                 </dd>
             {%  endif %}
           </dl>
