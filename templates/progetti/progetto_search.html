@@ -47,19 +47,19 @@
   <div class="flat_content">
         <h4>Cerca tra i progetti</h4>
         <form method="get" action="{% url progetti_search %}" class="form-search form-condensed">
-          <div class="control-group">
+          <div class="control-group input-append">
             {%  spaceless %}
             <input id="query" type="text" class="input-medium search-query" name="{{ form.q.html_name }}"
                    value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
-            <button id="clear-query" class="btn add-in"><i class="icon-remove"></i></button>
+            <span id="clear-query" class="btn add-on"><i class="icon-remove"></i></span>
             {%  endspaceless %}
           </div>
-          <div class="control-group">
+          <div class="control-group input-append">
             {%  spaceless %}
             <input id="location" type="text" class="input-large search-query"
                    value="{% if territorio %}{{ territorio }}{% endif %}"
                    placeholder="Inserisci il territorio"/>
-            <button id="clear-location" class="btn add-in"><i class="icon-remove"></i></button>
+            <span id="clear-location" class="btn add-on"><i class="icon-remove"></i></span>
             {%  endspaceless %}
           </div>
             <input id="territorio-com" name="{{ form.territorio_com.html_name }}"

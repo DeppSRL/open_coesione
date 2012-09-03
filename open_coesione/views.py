@@ -136,14 +136,13 @@ class AggregatoView(object):
 
         return context
 
-    def top_comuni_pro_capite(self, filters, qnt=5, sort=True):
+    def top_comuni_pro_capite(self, filters, qnt=5, sort=True, **annotations):
 
         from django.db import models
 
-        queryset = Territorio.objects.comuni().filter( **filters ).annotate( totale=models.Sum('progetto__fin_totale_pubblico') )
-
-        if qnt:
-            queryset.filter( totale__isnull=False )
+        queryset = Territorio.objects.comuni().filter( **filters )\
+            .annotate( totale=models.Sum('progetto__fin_totale_pubblico'), **annotations )\
+            .filter( totale__isnull=False )
 
         if not sort:
             return queryset[:qnt]

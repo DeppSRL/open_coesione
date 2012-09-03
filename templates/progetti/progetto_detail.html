@@ -308,7 +308,7 @@
                   <tr><th>Co-finanziamento nazionale</th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
                 {% if progetto.fin_stato_fsc %}
-                  <tr><th>Stato: Fondo Sviluppo e Coesione</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                  <tr><th>Stato: Fondo per lo sviluppo e la coesione 2007-2013</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
                 {% if progetto.fin_stato_altri_provvedimenti %}
                   <tr><th>Stato: altri provvedimenti</th><td class="amount"><strong>{{ progetto.fin_stato_altri_provvedimenti|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
@@ -354,9 +354,20 @@
                 Fondo Strutturale Europeo (FSE)
               {% elif progetto.fondo_comunitario == 'fesr' %}
                 Fondo Europeo di Sviluppo Regionale (FESR)
+              {% elif progetto.cipe_flag  %}
+                Fondo per lo sviluppo e la coesione 2007-2013
               {% endif %}
             </dt>
-            <dd>{{ progetto.fonte.descrizione }}</dd>
+            <dd>
+              {% if progetto.cipe_flag  %}
+                <p id="claim">
+                  Questo progetto ha ricevuto un’assegnazione di risorse dal Fondo Sviluppo e Coesione tramite una delibera CIPE. Non sono ancora disponibili i dati di monitoraggio sull’attuazione.
+                </p>
+              {% else %}
+                {{ progetto.fonte.descrizione }}
+              {% endif %}
+            </dd>
+
             <dt>Programma</dt>
             <dd>
               <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}" target="_blank">

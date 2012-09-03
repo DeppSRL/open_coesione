@@ -4953,16 +4953,11 @@ hr.big {
   text-transform: none;
   line-height: 30px;
 }
-.form-search.form-condensed input,
-.form-search.form-condensed select {
-  margin-bottom: 0;
-  margin-top: 4px;
-  padding-top: 0;
-  padding-bottom: 0;
+.form-search.form-condensed .control-group {
+  margin-top: 6px;
 }
-.form-search.form-condensed .btn {
-  padding: 0 6px;
-  margin-top: 4px;
+.form-search.form-condensed input {
+  line-height: 20px;
 }
 #main.two_columns article.container {
   background-color: #f7f6f1;

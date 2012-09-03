@@ -141,7 +141,7 @@ class CSVView(AggregatoView, DetailView):
     filter_field = ''
 
     def get_first_row(self):
-        return ['Comune', 'Finanziamento procapite']
+        return ['Comune', 'Provincia', 'Finanziamento procapite']
 
     def get_csv_filename(self):
         return '{0}_pro_capite'.format(self.kwargs.get('slug','all'))
@@ -150,10 +150,12 @@ class CSVView(AggregatoView, DetailView):
         writer = utils.UnicodeWriter(response)
         writer.writerow( self.get_first_row() )
         comuni = Territorio.objects.comuni()
+        provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().values('cod_prov','denominazione')])
         comuni_con_pro_capite = self.top_comuni_pro_capite(filters={ self.filter_field: self.object}, qnt=None, sort=False)
         for city in comuni:
             writer.writerow([
                 unicode(city.denominazione),
+                unicode(provincie[city.cod_prov]),
                 '{0:.2f}'.format( comuni_con_pro_capite.get(pk=city.pk).totale / comuni_con_pro_capite.get(pk=city.pk).popolazione_totale if city in comuni_con_pro_capite else .0 ).replace('.', ',')  ])
 
     def get(self, request, *args, **kwargs):
