@@ -269,6 +269,8 @@ class MapnikView(TemplateView):
                     tema=tema,
                     classificazione=natura
             )
+            if self.request.GET.get('pro_capite', False):
+                data[t.codice] /= float(t.popolazione_totale)
 
         # DataClassifier instance
         self.dc = DataClassifier(data.values(), classifier_args={'k': 5}, colors_map=self.colors)
