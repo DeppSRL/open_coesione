@@ -394,7 +394,7 @@ class Progetto(models.Model):
 
     @property
     def segnalazioni(self):
-        return SegnalazioneProgetto.objects.filter(cup=self.cup)
+        return SegnalazioneProgetto.objects.filter(cup=self.cup, pubblicato=True)
 
     def __unicode__(self):
         return self.codice_locale

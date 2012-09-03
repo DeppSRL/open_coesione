@@ -37,7 +37,7 @@ class ClassificazioneAzioneAdmin(ClassificazioneAdmin):
 class SegnalazioneAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
-            'fields': ('come_lo_conosci', 'come_lo_conosci_altro', 'cup')
+            'fields': ('pubblicato', 'come_lo_conosci', 'come_lo_conosci_altro', 'cup')
         }),
         ('Persona', {
             'fields': ('organizzazione', 'utente', 'email'),

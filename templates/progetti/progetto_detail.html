@@ -4,6 +4,16 @@
 
 {% block page_title %}Progetto: {{ progetto.titolo_progetto }}{% endblock %}
 
+{% block css_header %}
+  {{ block.super }}
+  <style type="text/css">
+  #segnalazioni_progetto {
+    height: 100px;
+    overflow: scroll;
+  }
+  </style>
+{% endblock %}
+
 {% block js_content %}
   {% addtoblock "css_link" %}
     <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/map-styles.css">
@@ -149,11 +159,13 @@
 {#          <img src="{{ STATIC_URL }}img/raccontacelo.png" alt="Racconta il progetto">#}
         </a>
 
-        <ul>
-          {% for segnalazione in progetto.segnalazioni %}
-          <li>{{ segnalazione.descrizione }}</li>
-          {% endfor %}
-        </ul>
+        {% for segnalazione in progetto.segnalazioni %}
+          {% if forloop.first %}<div id="segnalazioni_progetto">{% else %}<hr>{% endif %}
+          <div class="segnalazione">
+            <p>{{ segnalazione.descrizione }}</p>
+          </div>
+          {% if forloop.last %}</div>{% endif %}
+        {% endfor %}
 
         <hr class="big">
 
