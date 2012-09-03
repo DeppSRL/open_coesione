@@ -6,9 +6,11 @@ from django.contrib.gis.geos import Point
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.conf import settings
+from open_coesione import utils
 from open_coesione.data_classification import DataClassifier
 from open_coesione.views import AccessControlView, AggregatoView
 from progetti.models import Progetto, Tema, ClassificazioneAzione
+from progetti.views import CSVView
 from territori.models import Territorio
 import json
 from lxml import etree
@@ -377,3 +379,55 @@ class ComuneView(TerritorioView):
 
 class AmbitoNazionaleView(TerritorioView):
     tipo_territorio = Territorio.TERRITORIO.N
+
+class RegioneCSVView(CSVView):
+    model = Territorio
+
+    def write_csv(self, response):
+        territorio_filter = self.object.get_cod_dict()
+        writer = utils.UnicodeWriter(response)
+        writer.writerow( self.get_first_row() )
+        comuni = list(Territorio.objects.comuni().filter(**territorio_filter))
+        provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().filter(**territorio_filter).values('cod_prov','denominazione')])
+        comuni_con_pro_capite = self.top_comuni_pro_capite(territorio_filter, qnt=None, sort=True)
+
+        for city in comuni_con_pro_capite:
+            writer.writerow([
+                unicode(city.denominazione),
+                unicode(provincie[city.cod_prov]),
+                '{0:.2f}'.format( city.totale / city.popolazione_totale if city in comuni_con_pro_capite else .0).replace('.', ',')
+            ])
+            comuni.remove(city)
+
+        for city in comuni:
+            writer.writerow([
+                unicode(city.denominazione),
+                unicode(provincie[city.cod_prov]),
+                '{0:.2f}'.format( .0 ).replace('.', ',')
+            ])
+
+class ProvinciaCSVView(RegioneCSVView):
+
+
+    def write_csv(self, response):
+        territorio_filter = self.object.get_cod_dict()
+        writer = utils.UnicodeWriter(response)
+        writer.writerow( self.get_first_row() )
+        comuni = list(Territorio.objects.comuni().filter(**territorio_filter))
+
+        comuni_con_pro_capite = self.top_comuni_pro_capite(territorio_filter, qnt=None, sort=True)
+
+        for city in comuni_con_pro_capite:
+            writer.writerow([
+                unicode(city.denominazione),
+                unicode(self.object.denominazione),
+                '{0:.2f}'.format( city.totale / city.popolazione_totale if city in comuni_con_pro_capite else .0).replace('.', ',')
+            ])
+            comuni.remove(city)
+
+        for city in comuni:
+            writer.writerow([
+                unicode(city.denominazione),
+                unicode(self.object.denominazione),
+                '{0:.2f}'.format( .0 ).replace('.', ',')
+            ])

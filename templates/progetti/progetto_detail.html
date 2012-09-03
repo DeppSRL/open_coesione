@@ -149,6 +149,12 @@
 {#          <img src="{{ STATIC_URL }}img/raccontacelo.png" alt="Racconta il progetto">#}
         </a>
 
+        <ul>
+          {% for segnalazione in progetto.segnalazioni %}
+          <li>{{ segnalazione.descrizione }}</li>
+          {% endfor %}
+        </ul>
+
         <hr class="big">
 
         <section>

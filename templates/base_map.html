@@ -398,6 +398,18 @@
             {% endfor %}
           </table>
 
+          {% if tema %}
+            <a href="{% url progetti_tema_csv slug=tema.slug %}">Scarica i dati di tutti i comuni</a>
+          {% elif tipologia %}
+            <a href="{% url progetti_tipologia_csv slug=tipologia.slug %}">Scarica i dati di tutti i comuni</a>
+          {% elif territorio %}
+            {% if territorio.territorio == 'P' %}
+              <a href="{% url progetti_provincia_csv slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>
+            {% elif territorio.territorio == 'R' %}
+              <a href="{% url progetti_regione_csv slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>
+            {% endif %}
+          {% endif %}
+
           <p>
             <small>
               Al comune è associato l'intero finanziamento dei progetti, anche quando il progetto è localizzato in più comuni. La popolazione di riferimento è quella al 31.12.2011 di fonte Istat.

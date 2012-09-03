@@ -149,14 +149,24 @@ class CSVView(AggregatoView, DetailView):
     def write_csv(self, response):
         writer = utils.UnicodeWriter(response)
         writer.writerow( self.get_first_row() )
-        comuni = Territorio.objects.comuni()
+        comuni = list(Territorio.objects.comuni())
         provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().values('cod_prov','denominazione')])
-        comuni_con_pro_capite = self.top_comuni_pro_capite(filters={ self.filter_field: self.object}, qnt=None, sort=False)
+        comuni_con_pro_capite = self.top_comuni_pro_capite(filters={ self.filter_field: self.object}, qnt=None, sort=True)
+
+        for city in comuni_con_pro_capite:
+            writer.writerow([
+                unicode(city.denominazione),
+                unicode(provincie[city.cod_prov]),
+                '{0:.2f}'.format( city.totale / city.popolazione_totale if city in comuni_con_pro_capite else .0).replace('.', ',')
+            ])
+            comuni.remove(city)
+
         for city in comuni:
             writer.writerow([
                 unicode(city.denominazione),
                 unicode(provincie[city.cod_prov]),
-                '{0:.2f}'.format( comuni_con_pro_capite.get(pk=city.pk).totale / comuni_con_pro_capite.get(pk=city.pk).popolazione_totale if city in comuni_con_pro_capite else .0 ).replace('.', ',')  ])
+                '{0:.2f}'.format( .0 ).replace('.', ',')
+            ])
 
     def get(self, request, *args, **kwargs):
 

@@ -1,7 +1,7 @@
 from django.views.decorators.cache import cache_page
 from django.conf.urls import patterns, url, include
 from django.views.generic.base import TemplateView
-from territori.views import RegioneView, ComuneView, ProvinciaView, AmbitoNazionaleView, InfoView, TilesConfigView, AutocompleteView
+from territori.views import RegioneView, ComuneView, ProvinciaView, AmbitoNazionaleView, InfoView, TilesConfigView, AutocompleteView, RegioneCSVView, ProvinciaCSVView
 
 class ChartView(TemplateView):
     template_name='territori/index_chart.html'
@@ -20,8 +20,13 @@ class ChartView(TemplateView):
 urlpatterns = patterns('',
     url(r'^regioni/(?P<slug>[-\w]+)/$',
        cache_page(key_prefix='territori_regione')(RegioneView.as_view()), name='territori_regione'),
+    # csv comuni procapite per regioni
+    url(r'^regioni/(?P<slug>[-\w]+).csv$', RegioneCSVView.as_view(), name='progetti_regione_csv'),
+
     url(r'^province/(?P<slug>[-\w]+)/$',
        cache_page(key_prefix='territori_provincia')(ProvinciaView.as_view()), name='territori_provincia'),
+    # csv comuni procapite per provincie
+    url(r'^regioni/(?P<slug>[-\w]+).csv$', ProvinciaCSVView.as_view(), name='progetti_provincia_csv'),
     url(r'^comuni/(?P<slug>[-\w]+)/$',
        ComuneView.as_view(), name='territori_comune'),
     url(r'^ambito-nazionale/$',
@@ -40,4 +45,6 @@ urlpatterns = patterns('',
     url(r'^polymaps.html$', TemplateView.as_view(template_name='territori/polymaps.html'), name='territori_polymaps'),
     url(r'^highcharts.html$', TemplateView.as_view(template_name='territori/highcharts.html'), name='territori_highcharts'),
     url(r'^charts.html$', ChartView.as_view(), name='territori_charts'),
+
+
 )

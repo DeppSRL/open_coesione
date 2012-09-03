@@ -162,7 +162,7 @@ section h1.title, section h2.title {
 
     button.btn {
       padding: 0 6px;
-      margin-top: 4px;
+      margin: 4px 0 4px 0;
     }
 
     button, input, select {
@@ -170,11 +170,12 @@ section h1.title, section h2.title {
     }
 
     input {
-      margin-bottom: 0;
-      margin-top: 4px;
+      margin: 0;
       padding-top:0 ; padding-bottom: 0;
       width: 165px;
       .border-radius(6);
+      background-color: white;
+      border: 1px solid #CCC;
     }
   }
 
@@ -510,7 +511,7 @@ hr.big {
     color: @red;
     list-style: none;
   }
-  select, input {
+  select, input[type="text"] {
     width: 400px;
   }
 }

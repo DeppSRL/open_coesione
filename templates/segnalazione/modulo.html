@@ -33,7 +33,7 @@
               <div class="control-group">
                 {{ field.label_tag }}
                 <div class="controls">
-                  {{ field }} {{ field.errors }}
+                  {{ field }} {{ field.help_text }} {{ field.errors }}
                 </div>
               </div>
             {% endfor %}

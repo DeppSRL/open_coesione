@@ -4,6 +4,7 @@ from progetti.models import SegnalazioneProgetto
 class DescrizioneProgettoForm(forms.ModelForm):
 
     #come_lo_conosci_descrizione = forms.CharField(widget=forms.Textarea, required=False)
+    authorization = forms.BooleanField(label='', required=True, help_text= 'Testo Autorizzazione', initial=True)
 
     def send_mail(self):
         pass
@@ -30,3 +31,4 @@ class DescrizioneProgettoForm(forms.ModelForm):
 
     class Meta:
         model = SegnalazioneProgetto
+        exclude = ('pubblicato',)

@@ -4665,7 +4665,7 @@ section h2.title span {
 }
 #wrapper > header .navbar-search button.btn {
   padding: 0 6px;
-  margin-top: 4px;
+  margin: 4px 0 4px 0;
 }
 #wrapper > header .navbar-search button,
 #wrapper > header .navbar-search input,
@@ -4673,14 +4673,15 @@ section h2.title span {
   font-size: 12px;
 }
 #wrapper > header .navbar-search input {
-  margin-bottom: 0;
-  margin-top: 4px;
+  margin: 0;
   padding-top: 0 ;
   padding-bottom: 0;
   width: 165px;
   -webkit-border-radius: 6;
   -moz-border-radius: 6;
   border-radius: 6;
+  background-color: white;
+  border: 1px solid #CCC;
 }
 #wrapper > header a.flag {
   display: block;
@@ -4983,7 +4984,7 @@ hr.big {
   list-style: none;
 }
 #contact-form select,
-#contact-form input {
+#contact-form input[type="text"] {
   width: 400px;
 }
 #banner_segnalazione_progetto {

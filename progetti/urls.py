@@ -37,7 +37,7 @@ urlpatterns = patterns('',
    # temi
    url(r'^temi/(?P<slug>[\w-]+)/$', cache_page(key_prefix='temi')(TemaView.as_view()), name='progetti_tema'),
     # csv comuni procapite per tema
-    url(r'^temi/(?P<slug>[\w-]+).csv$', cache_page(key_prefix='temi')(TemaCSVView.as_view()), name='progetti_tema.csv'),
+    url(r'^temi/(?P<slug>[\w-]+).csv$', cache_page(key_prefix='temi')(TemaCSVView.as_view()), name='progetti_tema_csv'),
 
 
 )

@@ -392,6 +392,10 @@ class Progetto(models.Model):
     def destinatari(self):
         return self.soggetto_set.filter(ruolo__ruolo=Ruolo.RUOLO.destinatario)
 
+    @property
+    def segnalazioni(self):
+        return SegnalazioneProgetto.objects.filter(cup=self.cup)
+
     def __unicode__(self):
         return self.codice_locale
 
@@ -473,6 +477,9 @@ class SegnalazioneProgetto(models.Model):
         (TIPOLOGIA_OSSERVATORE, "Abito lì vicino"),
         (TIPOLOGIA_ALTRO, "Conosco il progetto per un altro motivo"),
     )
+
+    # pubblication flag
+    pubblicato = models.BooleanField(default=False)
 
     come_lo_conosci = models.CharField(choices=TIPOLOGIE, max_length=12, verbose_name="Come conosci il progetto?*")
     come_lo_conosci_altro = models.TextField(verbose_name="Specificare come hai conosciuto il progetto", blank=True, null=True)
