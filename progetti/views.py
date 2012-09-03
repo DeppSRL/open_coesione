@@ -151,7 +151,7 @@ class CSVView(AggregatoView, DetailView):
         writer.writerow( self.get_first_row() )
         comuni = list(Territorio.objects.comuni())
         provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().values('cod_prov','denominazione')])
-        comuni_con_pro_capite = self.top_comuni_pro_capite(filters={ self.filter_field: self.object}, qnt=None, sort=True)
+        comuni_con_pro_capite = self.top_comuni_pro_capite(filters={ self.filter_field: self.object}, qnt=None)
 
         for city in comuni_con_pro_capite:
             writer.writerow([

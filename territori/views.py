@@ -389,7 +389,7 @@ class RegioneCSVView(CSVView):
         writer.writerow( self.get_first_row() )
         comuni = list(Territorio.objects.comuni().filter(**territorio_filter))
         provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().filter(**territorio_filter).values('cod_prov','denominazione')])
-        comuni_con_pro_capite = self.top_comuni_pro_capite(territorio_filter, qnt=None, sort=True)
+        comuni_con_pro_capite = self.top_comuni_pro_capite(territorio_filter, qnt=None)
 
         for city in comuni_con_pro_capite:
             writer.writerow([
@@ -415,7 +415,7 @@ class ProvinciaCSVView(RegioneCSVView):
         writer.writerow( self.get_first_row() )
         comuni = list(Territorio.objects.comuni().filter(**territorio_filter))
 
-        comuni_con_pro_capite = self.top_comuni_pro_capite(territorio_filter, qnt=None, sort=True)
+        comuni_con_pro_capite = self.top_comuni_pro_capite(territorio_filter, qnt=None)
 
         for city in comuni_con_pro_capite:
             writer.writerow([

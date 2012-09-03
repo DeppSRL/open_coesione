@@ -1,20 +1,17 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse
-from django.utils.decorators import method_decorator
 
-from datetime import datetime
 import os
-from django.views.generic.base import TemplateView, View
+from django.views.generic.base import TemplateView
 from django.db.models import Count, Sum
 from open_coesione.forms import ContactForm
 from open_coesione.settings import PROJECT_ROOT
-from progetti.models import Progetto, Tema, ClassificazioneOggetto, ClassificazioneAzione
+from progetti.models import Progetto, Tema, ClassificazioneAzione
 from soggetti.models import Soggetto
 from territori.models import Territorio
-from django.utils import simplejson
 from django.conf import settings
+from django.db import models
 
 
 class AccessControlView(object):
@@ -136,25 +133,20 @@ class AggregatoView(object):
 
         return context
 
-    def top_comuni_pro_capite(self, filters, qnt=5, sort=True):
-
-        from django.db import models
+    def top_comuni_pro_capite(self, filters, qnt=5):
 
         queryset = Territorio.objects.comuni().filter( **filters )\
             .annotate( totale=models.Sum('progetto__fin_totale_pubblico'))\
             .filter( totale__isnull=False )
 
-        if not sort:
-            return queryset[:qnt]
-
         def pro_capite_order(territorio):
             territorio.totale_pro_capite = territorio.totale / territorio.popolazione_totale if territorio.popolazione_totale else 0.0
-            return territorio.totale_pro_capite if sort else territorio.denominazione
+            return territorio.totale_pro_capite
 
         return sorted(
             queryset,
             key= pro_capite_order,
-            reverse=sort
+            reverse=True
         )[:qnt]
 
 
