@@ -198,6 +198,15 @@ section h1.title, section h2.title {
       &:hover { background-position: 0 0; }
     }
   }
+
+  // blog link
+  & > div > .container {
+    position: relative;
+
+    #blog_info {
+      position:absolute; top: -14px; background-color: @grayLighter; right: 0; padding: 0 10px 5px 10px}
+  }
+
 }
 
 // main section
@@ -369,6 +378,7 @@ h4.title { color: @grayDark; }
 hr.big {
   border-top: 5px solid #EBE8E0;
   border-bottom: 0;
+  &.dark { border-top-color: #5B5955; }
 }
 
 .table th, .table td {
@@ -516,15 +526,35 @@ hr.big {
   }
 }
 
-#banner_segnalazione_progetto {
-  background-color: #f7f6f1;
-  padding: 10px 20px;
-  text-align: center;
-  //display: block;
-  margin: 15px 0;
-  text-transform: uppercase;
-  line-height: 35px;
+.baloons-block {
 
+  margin: 15px 30px 15px 0;
+  padding: 5px 20px 2px 10px;
+  background-color: #F7F6F1;
+  display: block;
+
+  i { float:left; display: inline-block; width: 30px; height: 30px; background: transparent url("/static/img/icon-baloons-small.png") no-repeat left top;
+
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 16px;
+    padding-left: 6px;
+  }
+  p {
+    text-transform: uppercase;
+    line-height: 18px;
+    padding: 6px 0;
+    margin-bottom: 0; // remove default bottom margin
+    margin-left: 30px; // distance from icon
+    a { text-decoration: underline; }
+    a:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+#banner_segnalazione_progetto {
   &:hover {
     text-decoration: none;
   }
@@ -532,9 +562,44 @@ hr.big {
   span {
     text-decoration: underline;
   }
+}
 
-  i {
-    color: @red;
-    font-size: 26px;
+// lista dei link per aprire i popup delle segnalazioni
+#segnalazioni_progetto p {
+  text-transform: none;
+  font-weight: bold;
+  a { text-decoration:  none; }
+  a:hover, a:active { text-decoration:  none; }
+}
+
+// container segnalazione del popup
+#segnalazione {
+  .lead { padding: 15px 0; border-bottom: 2px solid transparent; border-bottom: 2px solid black; }
+  header {
+    margin-bottom: 20px;
+
+    h1 { color: @greenDarker; margin: 0; line-height: 30px; text-transform: none; }
+  }
+  h4 { color: @grayDark; }
+}
+
+// container per la lista di entries
+#blog {
+  article {
+
+    margin: 0 10px 10px 10px;
+
+    header.page-header {
+      h1 { font-size: 18px; text-transform: uppercase; margin: 0; }
+      padding-bottom: 0;
+      margin-bottom: 5px;
+      h1 > small { font-size: 14px; }
+    }
+
+    div {
+      margin-left: 20px;
+    }
+
+    footer { text-align: right; color: @gray; font-style: italic; font-size: 12px; }
   }
 }

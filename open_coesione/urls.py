@@ -26,13 +26,17 @@ urlpatterns = patterns('',
     # territori
     url(r'^territori/', include('territori.urls')),
 
+    # blog
+    url(r'^news/', include('blog.urls')),
+
     # list of urls to cache
     url(r'^full_cache_generator.txt$', CGView.as_view(), name='full_cache_generator'),
     url(r'^maps_cache_generator.txt$', CGView.as_view(filter='maps'), name='maps_cache_generator'),
     url(r'^pages_cache_generator.txt$', CGView.as_view(filter='pages'), name='pages_cache_generator'),
 
     # pre-csm page routes
-    url(r'^progetto/', TemplateView.as_view(template_name='flat/progetto.html')),
+    url(r'^progetto/$', TemplateView.as_view(template_name='flat/progetto.html')),
+    url(r'^progetto/en/$', TemplateView.as_view(template_name='flat/progetto_en.html')),
     url(r'^privacy/', TemplateView.as_view(template_name='flat/privacy.html')),
     url(r'^contatti/', ContactView.as_view(template_name='flat/contatti.html'), name='oc_contatti'),
     url(r'^licenza/', TemplateView.as_view(template_name='flat/licenza.html')),
@@ -43,7 +47,8 @@ urlpatterns = patterns('',
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
     url(r'^info-disponibili/', TemplateView.as_view(template_name='flat/info_disponibili.html')),
     url(r'^open-data/', TemplateView.as_view(template_name='flat/open_data.html')),
-    url(r'^faq/', TemplateView.as_view(template_name='flat/faq.html')),
+    url(r'^faq/$', TemplateView.as_view(template_name='flat/faq.html')),
+    url(r'^faq/en/$', TemplateView.as_view(template_name='flat/faq_en.html')),
 
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html')),
     url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),

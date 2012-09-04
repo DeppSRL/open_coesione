@@ -17,7 +17,7 @@ from models import Progetto, ClassificazioneAzione
 from open_coesione import utils
 from open_coesione.views import AggregatoView, AccessControlView
 from progetti.forms import DescrizioneProgettoForm
-from progetti.models import Tema, Fonte
+from progetti.models import Tema, Fonte, SegnalazioneProgetto
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
@@ -55,6 +55,8 @@ class ProgettoView(AccessControlView, DetailView):
         context['total_cost_paid'] = float(self.object.pagamento) if self.object.pagamento else 0.0
         # calcolo della percentuale del finanziamento erogato
         context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
+
+        context['segnalazioni_pubblicate'] = self.object.segnalazioni
 
 #        primo_territorio = self.object.territori[0] or None
 #
@@ -357,5 +359,8 @@ class SegnalaDescrizioneView(FormView):
         return super(SegnalaDescrizioneView, self).form_valid(form)
 
 
-
+class SegnalazioneDetailView(DetailView):
+    model = SegnalazioneProgetto
+    template_name = 'segnalazione/singola.html'
+    context_object_name = 'segnalazione'
 

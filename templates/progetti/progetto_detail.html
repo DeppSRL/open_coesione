@@ -4,16 +4,6 @@
 
 {% block page_title %}Progetto: {{ progetto.titolo_progetto }}{% endblock %}
 
-{% block css_header %}
-  {{ block.super }}
-  <style type="text/css">
-  #segnalazioni_progetto {
-    height: 100px;
-    overflow: scroll;
-  }
-  </style>
-{% endblock %}
-
 {% block js_content %}
   {% addtoblock "css_link" %}
     <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/map-styles.css">
@@ -110,6 +100,22 @@
 
       print_pie_chart('#finanziamento_chart_table', 'finanziamento_chart' );
 
+      // open popup for segnalazioni
+      $('#segnalazioni_progetto a').click(function(){
+
+        var width = 550, height = 450,
+            sheight = screen.height, swidth = screen.width,
+            left = Math.round((swidth / 2) - (width / 2)),
+            top = 0;
+        if (sheight > height) {
+          top = Math.round((sheight / 2) - (height / 2))
+        }
+        // open window
+        window.open( $( this ).prop('href'), '', 'left=' + left + ',top=' + top + ',width=' + width + ',height=' + height + ',personalbar=0,toolbar=0,scrollbars=1,resizable=1');
+
+        return false; // stop propagation
+      })
+
     });
   </script>
 {% endblock %}
@@ -152,20 +158,25 @@
           </p>
         {% endif %}
 
-        <a href="{% url progetti_segnalazione %}?cup={{ progetto.cup }}" id="banner_segnalazione_progetto">
-          <i class="icon-comments"></i>
-          Sei un protagonista di questo progetto?
-          <span>Raccontacelo qui</span>.
-{#          <img src="{{ STATIC_URL }}img/raccontacelo.png" alt="Racconta il progetto">#}
+        <a href="{% url progetti_segnalazione %}?cup={{ progetto.cup }}" id="banner_segnalazione_progetto" class="baloons-block">
+          <i></i>
+          <p>
+            Sei un protagonista di questo progetto?
+            <span>Raccontacelo qui</span>.
+          </p>
         </a>
 
-        {% for segnalazione in progetto.segnalazioni %}
-          {% if forloop.first %}<div id="segnalazioni_progetto">{% else %}<hr>{% endif %}
-          <div class="segnalazione">
-            <p>{{ segnalazione.descrizione }}</p>
-          </div>
-          {% if forloop.last %}</div>{% endif %}
-        {% endfor %}
+      {% if segnalazioni_pubblicate %}
+        <div id="segnalazioni_progetto" class="baloons-block">
+          <i>{{ segnalazioni_pubblicate|length }}</i>
+
+          <p>I protagonisti raccontano:
+          {% for segnalazione in segnalazioni_pubblicate %}
+            <a href="{% url progetto_segnalazione_pubblicata segnalazione.pk %}">{{ segnalazione.utente }}</a>{% if forloop.last %}.{% else %},{% endif %}
+          {% endfor %}
+          </p>
+        </div>
+      {% endif %}
 
         <hr class="big">
 

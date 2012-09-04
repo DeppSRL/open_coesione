@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Segnalazione sul progetto: {{ segnalazione.progetto.titolo_progetto }}{% endblock %}
+{# empty blocks for popup mode #}
+{% block header_flags %}{% endblock %}
+{% block menu %}<hr class="big dark">{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block container %}
+
+  <div class="container">
+
+    <div class="row-fluid">
+
+      <div class="span12" id="segnalazione">
+
+        <p class="lead">I protagonisti raccontano</p>
+
+        <header>
+          <h1>{{ segnalazione.progetto.titolo_progetto }}</h1>
+          <strong>{{ segnalazione.utente }}</strong>
+          <br>
+          {{ segnalazione.organizzazione }}
+        </header>
+
+        <h4>Il Progetto</h4>
+        <p>{{ segnalazione.descrizione }}</p>
+
+        <h4>Come potrebbe migliorare</h4>
+        <p>{{ segnalazione.come_migliorare }}</p>
+
+
+      </div>
+
+    </div>
+
+  </div>
+{% endblock %}

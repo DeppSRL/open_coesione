@@ -3,7 +3,7 @@ from django.views.decorators.cache import cache_page
 from django.views.generic.base import TemplateView
 from haystack.query import SearchQuerySet
 
-from progetti.views import ProgettoSearchView, ProgettoView, TipologiaView, TipologiaCSVView, TemaCSVView, TemaView, SegnalaDescrizioneView
+from progetti.views import ProgettoSearchView, ProgettoView, TipologiaView, TipologiaCSVView, TemaCSVView, TemaView, SegnalaDescrizioneView, SegnalazioneDetailView
 
 ## SearchQuerySet with multiple facets and highlight
 sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
@@ -19,12 +19,15 @@ sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
         query_facet('costo', ProgettoSearchView.COST_RANGES['3-100KTOINF']['qrange']).\
         highlight()
 
+
+
 urlpatterns = patterns('',
    # faceted navigation
    url(r'^$', ProgettoSearchView(template='progetti/progetto_search.html', searchqueryset=sqs), name='progetti_search'),
 
    url(r'^segnalazione/$', SegnalaDescrizioneView.as_view(), name='progetti_segnalazione'),
    url(r'^segnalazione/completa/$', TemplateView.as_view(template_name='segnalazione/completata.html'), name='progetti_segnalazione_completa'),
+   url(r'^segnalazione/(?P<pk>\d+)/$', SegnalazioneDetailView.as_view(), name='progetto_segnalazione_pubblicata'),
 
    # dettaglio di progetto
    url(r'^(?P<slug>[\w-]+)/$', ProgettoView.as_view(), name='progetti_progetto'),

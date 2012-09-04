@@ -145,6 +145,7 @@ INSTALLED_APPS = (
     'open_coesione',
     'oc_search',
     'dynamic-content',
+    'blog',
     # FeinCMS
     'feincms',
     'feincms.module.page',

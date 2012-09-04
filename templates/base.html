@@ -78,20 +78,28 @@
 <!-- HEADER -->
   <header>
     <div>
-        <div class="container">
+        <div class="container" style="position:relative;">
             <div class="row">
                 <div class="span9">
                     <h1><a href="/"><img src="{{ STATIC_URL }}img/header/testata.png" alt="Open Coesione : Conosci, segui e costruisci le risorse per lo sviluppo "></a></h1>
                 </div>
-                <div class="span3 text-right">
+                {% block header_flags %}<div class="span3 text-right">
 
                     <a href="http://www.europa.eu/" class="flag flag-ue" title="Unione Europea"></a>
                     <a href="http://www.italia.gov.it/" class="flag flag-ita" title="Repubblica Italiana"></a>
                 </div>
+                {% if latest_entry %}
+                  <div id="blog_info">
+                    {{ latest_entry.published_at|date:'d/m/Y' }} - <strong>{{ latest_entry.title }}</strong> >
+                    <a href="{% url blog_home %}">Leggi le novità</a>.
+                  </div>
+                {% endif %}
+                {% endblock %}
             </div>
         </div>
     </div>
 
+    {% block menu %}
     {% include 'commons/menu.html' %}
     {% addtoblock "js_script" %}
       <script type='text/javascript'>//<![CDATA[
@@ -112,6 +120,7 @@
       });//]]>
       </script>
     {% endaddtoblock %}
+    {% endblock %}
 
   </header><!-- /HEADER -->
 
@@ -124,9 +133,9 @@
   <!-- MAIN-SECTION -->
 
   <!-- FOOTER -->
-  <footer>
+  {% block footer %}<footer>
   {% include 'commons/footer.html' %}
-  </footer>
+  </footer>{% endblock %}
   <!-- /FOOTER -->
 
 </div><!-- #wrapper -->

@@ -1,5 +1,13 @@
 """
 http://www.sprklab.com/notes/13-passing-arguments-to-functions-in-django-template
+
+we can pass the arguments to getPrice by writing
+`` {{ meeting|args:user|call:"getPrice" }}.
+
+So we set the arguments using "args" and then call the function using "call".
+To call multiple arguments do
+`` {{ meeting|args:arg1|args:arg2|call:"getPrice" }}.
+
 """
 from django.template import Library
 

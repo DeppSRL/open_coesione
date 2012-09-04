@@ -371,6 +371,18 @@ class TerritorioView(AccessControlView, AggregatoView, DetailView):
 class RegioneView(TerritorioView):
     tipo_territorio = Territorio.TERRITORIO.R
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(RegioneView, self).get_context_data(**kwargs)
+
+        try:
+            context['popolazione_nazionale'] = Territorio.objects.get(territorio=Territorio.TERRITORIO.N).popolazione_totale
+        except (Territorio.DoesNotExist, Territorio.MultipleObjectsReturned) :
+            pass
+
+        return context
+
+
 class ProvinciaView(TerritorioView):
     tipo_territorio = Territorio.TERRITORIO.P
 

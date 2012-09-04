@@ -1,4 +1,5 @@
 from django.conf import settings
+from blog.models import Blog
 from progetti.models import ClassificazioneAzione, Tema
 from territori.models import Territorio
 
@@ -23,5 +24,6 @@ def main_settings(request):
         'TILESTACHE_URL': settings.TILESTACHE_URL,
         'lista_regioni': Territorio.objects.filter(territorio= Territorio.TERRITORIO.R),
         'lista_tipologie_principali': nature,
-        'lista_temi_principali': Tema.objects.principali()
+        'lista_temi_principali': Tema.objects.principali(),
+        'latest_entry': Blog.get_latest_entries(single=True)
     }

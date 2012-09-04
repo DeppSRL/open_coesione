@@ -92,6 +92,11 @@ class Tema(models.Model):
     def is_root(self):
         return self.tipo_tema == Tema.TIPO.sintetico
 
+    def totale_pro_capite(self, territorio_or_popolazione ):
+        if isinstance(territorio_or_popolazione, (int,float)):
+            return self.costo_totale() / territorio_or_popolazione
+        return self.costo_totale(territorio_or_popolazione) / territorio_or_popolazione.popolazione_totale
+
     def costo_totale(self, territorio=None ):
         if self.is_root:
             prefix = 'progetto_set__'
@@ -497,6 +502,10 @@ class SegnalazioneProgetto(models.Model):
     cosa_piace = models.TextField(blank=True, null=True, verbose_name="Cosa ti è piaciuto di più?")
     cosa_non_piace = models.TextField(blank=True, null=True, verbose_name="Cosa ti è piaciuto di meno?")
     quanto_utile = models.TextField(blank=True, null=True, verbose_name="Per cosa è stato utile il progetto?")
+
+    @property
+    def progetto(self):
+        return Progetto.objects.get(cup=self.cup)
 
     def __unicode__(self):
         return u"{0} su {1}".format(self.email, self.cup)
