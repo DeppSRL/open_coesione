@@ -125,17 +125,17 @@ class ProgettiManager(models.Manager):
     def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
         return self.get_query_set().totale_progetti(territorio, tema, tipo,classificazione, soggetto)
 
-    def costi_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
+    def totale_costi_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
         from territori.models import Territorio
         territorio = territorio or Territorio.objects.nazione()
         return self.get_query_set().totale_costi(territorio, tema, tipo,classificazione, soggetto) / territorio.popolazione_totale
 
-    def pagamenti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
+    def totale_pagamenti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
         from territori.models import Territorio
         territorio = territorio or Territorio.objects.nazione()
         return self.get_query_set().totale_pagamenti(territorio, tema, tipo,classificazione, soggetto) / territorio.popolazione_totale
 
-    def progetti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
+    def totale_progetti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
         from territori.models import Territorio
         territorio = territorio or Territorio.objects.nazione()
         return self.get_query_set().totale_progetti(territorio, tema, tipo,classificazione, soggetto) / territorio.popolazione_totale

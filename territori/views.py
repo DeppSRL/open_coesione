@@ -203,7 +203,7 @@ class TilesConfigView(TemplateView):
 
     TEMATIZZAZIONI = (
         'totale_costi', 'totale_pagamenti', 'totale_progetti',
-        'costi_procapite', 'pagamenti_procapite', 'progetti_procapite')
+        'totale_costi_procapite', 'totale_pagamenti_procapite', 'totale_progetti_procapite')
 
     def get_context_data(self, **kwargs):
         context = super(TilesConfigView, self).get_context_data(**kwargs)

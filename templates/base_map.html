@@ -136,6 +136,24 @@
             return false;
           });
 
+          $('#procapite_selectors .btn').click(function() {
+            if ($(this).hasClass('active')) {
+              return;
+            }
+
+            // close popup if opened
+            MAPPA_POPUP && MAPPA.closePopup(MAPPA_POPUP);
+
+            var me = $(this);
+            me.siblings().removeClass('active');
+
+            build_map('map', '/territori/leaflet/{{ map_selector }}'+ $('#selectors .btn.active').data('path') +'.json?tematizzazione='+dataset_name + '_procapite', function() {
+              $(me).addClass("active");
+            });
+
+            return false;
+          })
+
     });
   </script>
 
@@ -312,12 +330,10 @@
           {% block map %}
             <div class="map-header clearfix">
 
-            {% comment %}
-            <div class="btn-group pull-left">
+            <div class="btn-group pull-left" id="procapite_selectors">
               <a class="btn active" href="#">Totali</a>
-              <a class="btn disabled" href="#">Pro capite</a>
+              <a class="btn" href="#">Pro capite</a>
             </div>
-            {%  endcomment %}
 
           <div id="selectors" class="btn-group">
             {% if territorio.territorio == 'R' %}
