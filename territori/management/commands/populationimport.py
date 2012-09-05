@@ -98,6 +98,7 @@ class Command(BaseCommand):
             )
 
         self.logger.info("Aggiornamento regioni")
+        popolazione_nazionale = 0.0
         for t in Territorio.objects.filter(territorio=Territorio.TERRITORIO.R):
             pop = Territorio.objects.filter(territorio='P', cod_reg=t.cod_reg).\
             aggregate(
@@ -112,6 +113,16 @@ class Command(BaseCommand):
             self.logger.info(
                 u"{0.denominazione} - T:{0.popolazione_totale} M:{0.popolazione_maschile} F:{0.popolazione_femminile}".format(t)
             )
+
+            popolazione_nazionale += t.popolazione_totale
+
+        self.logger.info("Aggiornamento Ambito nazionale")
+        try:
+            nazione = Territorio.objects.get(territorio=Territorio.TERRITORIO.N)
+            nazione.popolazione_totale = popolazione_nazionale
+            nazione.save()
+        except (Territorio.DoesNotExist, Territorio.MultipleObjectsReturned ):
+            self.logger.error(u"L'ambito nazionale deve essere unico")
 
         self.logger.info("Fine")
 
