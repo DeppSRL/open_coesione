@@ -23,7 +23,7 @@ legend {
   width: 100%;
   padding: 0;
   margin-bottom: @baseLineHeight * 1.5;
-  font-size: @baseFontSize * 1.5;
+  font-size: @baseFontSizeForm * 1.5;
   line-height: @baseLineHeight * 2;
   color: @grayDark;
   border: 0;
@@ -42,7 +42,7 @@ input,
 button,
 select,
 textarea {
-  #font > .shorthand(@baseFontSize,normal,@baseLineHeight); // Set size, weight, line-height here
+  #font > .shorthand(@baseFontSizeForm,normal,@baseLineHeight); // Set size, weight, line-height here
 }
 input,
 button,
@@ -82,7 +82,7 @@ input[type="color"],
   height: @baseLineHeight;
   padding: 4px;
   margin-bottom: 9px;
-  font-size: @baseFontSize;
+  font-size: @baseFontSizeForm;
   line-height: @baseLineHeight;
   color: @grayDark;
 }

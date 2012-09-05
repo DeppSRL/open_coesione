@@ -67,3 +67,10 @@ urlpatterns += patterns('',
     url(r'', include('feincms.contrib.preview.urls')),
     url(r'', include('feincms.urls')),
 )
+
+#tinymce
+urlpatterns += patterns('',
+
+    (r'^tinymce/', include('tinymce.urls')),
+
+)

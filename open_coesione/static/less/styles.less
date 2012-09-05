@@ -204,7 +204,7 @@ section h1.title, section h2.title {
     position: relative;
 
     #blog_info {
-      position:absolute; top: -14px; background-color: @grayLighter; right: 0; padding: 0 10px 5px 10px}
+      position:absolute; top: -14px; background-color: @grayLighter; right: 0; padding: 5px 10px 5px 10px}
   }
 
 }
@@ -554,7 +554,7 @@ hr.big {
   }
 }
 
-#banner_segnalazione_progetto {
+#banner_segnalazione_progetto.baloons-block {
   &:hover {
     text-decoration: none;
   }
@@ -593,13 +593,11 @@ hr.big {
       h1 { font-size: 18px; text-transform: uppercase; margin: 0; }
       padding-bottom: 0;
       margin-bottom: 5px;
-      h1 > small { font-size: 14px; }
+      h1 > small { font-size: 14px; color:@grayDark; font-size: 12px; }
     }
 
     div {
       margin-left: 20px;
     }
-
-    footer { text-align: right; color: @gray; font-style: italic; font-size: 12px; }
   }
 }

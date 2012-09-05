@@ -94,8 +94,14 @@ class Tema(models.Model):
 
     def totale_pro_capite(self, territorio_or_popolazione ):
         if isinstance(territorio_or_popolazione, (int,float)):
-            return self.costo_totale() / territorio_or_popolazione
-        return self.costo_totale(territorio_or_popolazione) / territorio_or_popolazione.popolazione_totale
+            popolazione = territorio_or_popolazione
+            costo = self.costo_totale()
+        else:
+            popolazione = territorio_or_popolazione.popolazione_totale or 0.0
+            costo = self.costo_totale(territorio_or_popolazione) or 0.0
+        if not popolazione:
+            return 0.0
+        return float(costo) / float(popolazione)
 
     def costo_totale(self, territorio=None ):
         if self.is_root:

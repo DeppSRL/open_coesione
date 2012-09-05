@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
+{% block page_title %}Ultime novità{% endblock %}
+
 {% block container %}
   <div class="container">
     <div class="row">
       <div class="span12" id="blog">
-        <h1>Ultime news</h1>
 
         {% for article in object_list %}
           <article>
@@ -14,7 +15,7 @@
             </header>
 
             <div>
-              {{ article.body }}
+              {{ article.body|safe }}
             </div>
           </article>
         {% endfor %}

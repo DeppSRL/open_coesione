@@ -33,3 +33,5 @@ django-mptt
 
 django-classy-tags
 django-sekizai
+
+django-tinymce

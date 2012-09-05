@@ -609,7 +609,7 @@ legend {
   width: 100%;
   padding: 0;
   margin-bottom: 27px;
-  font-size: 21px;
+  font-size: 19.5px;
   line-height: 36px;
   color: #676462;
   border: 0;
@@ -624,7 +624,7 @@ input,
 button,
 select,
 textarea {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: normal;
   line-height: 18px;
 }
@@ -659,7 +659,7 @@ input[type="color"],
   height: 18px;
   padding: 4px;
   margin-bottom: 9px;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 18px;
   color: #676462;
 }
@@ -4713,7 +4713,7 @@ section h2.title span {
   top: -14px;
   background-color: #eae9e5;
   right: 0;
-  padding: 0 10px 5px 10px;
+  padding: 5px 10px 5px 10px;
 }
 #wrapper > section#main {
   min-height: 300px;
@@ -5031,10 +5031,10 @@ hr.big.dark {
 .baloons-block p a:hover {
   text-decoration: none;
 }
-#banner_segnalazione_progetto:hover {
+#banner_segnalazione_progetto.baloons-block:hover {
   text-decoration: none;
 }
-#banner_segnalazione_progetto span {
+#banner_segnalazione_progetto.baloons-block span {
   text-decoration: underline;
 }
 #segnalazioni_progetto p {
@@ -5079,13 +5079,9 @@ hr.big.dark {
 }
 #blog article header.page-header h1 > small {
   font-size: 14px;
+  color: #676462;
+  font-size: 12px;
 }
 #blog article div {
   margin-left: 20px;
-}
-#blog article footer {
-  text-align: right;
-  color: #c9c7c3;
-  font-style: italic;
-  font-size: 12px;
 }

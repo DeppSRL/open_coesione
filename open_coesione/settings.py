@@ -150,6 +150,8 @@ INSTALLED_APPS = (
     'feincms',
     'feincms.module.page',
     'feincms.module.medialibrary',
+    # TinyMCE
+    'tinymce',
 )
 
 # context processors and templates directory
@@ -238,3 +240,15 @@ LOGGING = {
 }
 
 CONTACTS_EMAIL = tuple()
+
+# tinymce admin support
+TINYMCE_JS_ROOT = os.path.join(STATIC_ROOT, 'tiny_mce')
+TINYMCE_JS_URL = os.path.join(STATIC_URL, "tiny_mce/tiny_mce_src.js")
+TINYMCE_DEFAULT_CONFIG = {
+    'plugins': "table,spellchecker,paste,searchreplace",
+    'theme': "advanced",
+    'cleanup_on_startup': True,
+    'custom_undo_redo_levels': 10,
+    'theme_advanced_toolbar_location' : "top"
+    }
+TINYMCE_SPELLCHECKER = True
