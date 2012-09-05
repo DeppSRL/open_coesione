@@ -171,9 +171,8 @@ class LeafletView(TemplateView):
             tematizzazione = self.request.GET['tematizzazione']
         else:
             tematizzazione = 'totale_costi'
-        if tematizzazione not in ('totale_costi', 'totale_pagamenti', 'totale_progetti'):
+        if tematizzazione not in TilesConfigView.TEMATIZZAZIONI:
             raise Http404
-
 
         path = self.request.path.split(".")[0]
         context['layer_name'] = "_".join(path.split("/")[3:]) + "_" + tematizzazione
@@ -202,9 +201,13 @@ class LeafletView(TemplateView):
 class TilesConfigView(TemplateView):
     template_name = 'territori/tiles.cfg'
 
+    TEMATIZZAZIONI = (
+        'totale_costi', 'totale_pagamenti', 'totale_progetti',
+        'costi_procapite', 'pagamenti_procapite', 'progetti_procapite')
+
     def get_context_data(self, **kwargs):
         context = super(TilesConfigView, self).get_context_data(**kwargs)
-        context['tematizzazioni'] = ('totale_costi', 'totale_pagamenti', 'totale_progetti')
+        context['tematizzazioni'] = self.TEMATIZZAZIONI
         context['regioni'] = Territorio.objects.filter(territorio='R')
         context['province'] = Territorio.objects.filter(territorio='P')
         context['temi'] = Tema.objects.principali()
@@ -246,7 +249,7 @@ class MapnikView(TemplateView):
             tematizzazione = self.request.GET['tematizzazione']
         else:
             tematizzazione = 'totale_costi'
-        if tematizzazione not in ('totale_costi', 'totale_pagamenti', 'totale_progetti'):
+        if tematizzazione not in TilesConfigView.TEMATIZZAZIONI:
             raise Http404
 
         # build the collection of aggregated data for the map
@@ -271,8 +274,6 @@ class MapnikView(TemplateView):
                     tema=tema,
                     classificazione=natura
             )
-            if self.request.GET.get('pro_capite', False):
-                data[t.codice] /= float(t.popolazione_totale)
 
         # DataClassifier instance
         self.dc = DataClassifier(data.values(), classifier_args={'k': 5}, colors_map=self.colors)

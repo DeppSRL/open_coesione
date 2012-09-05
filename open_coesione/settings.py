@@ -173,6 +173,8 @@ CACHES = {
 }
 
 MAPNIK_HOST = False
+TILESTACHE_CACHE_PATH = ''
+TILESTACHE_URL = ''
 
 MAP_COLORS = {
     'c0': '#eae7df',

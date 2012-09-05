@@ -8,6 +8,9 @@ import struct
 
 class TerritoriManager(models.GeoManager):
 
+    def nazione(self):
+        return Territorio.objects.get(territorio= Territorio.TERRITORIO.N )
+
     def regioni(self, with_nation=False):
         codes = [ Territorio.TERRITORIO.R ]
         if with_nation:

@@ -131,6 +131,9 @@ class AggregatoView(object):
 
         context['map_legend_colors'] = settings.MAP_COLORS
 
+        if self.request.GET.get('pro_capite'):
+            context['mappa_pro_capite'] = True
+
         return context
 
     def top_comuni_pro_capite(self, filters, qnt=5):
