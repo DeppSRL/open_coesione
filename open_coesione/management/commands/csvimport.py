@@ -152,16 +152,20 @@ class Command(BaseCommand):
 
             # creazione soggetto
             created = False
-            soggetto, created = Soggetto.objects.get_or_create(
-                denominazione = r['DPS_DENOMINAZIONE_SOGG'].strip(),
-                defaults={
-                    'codice_fiscale': r['DPS_CODICE_FISCALE_SOGG'].strip(),
-                    'forma_giuridica': forma_giuridica,
-                    'indirizzo': indirizzo,
-                    'cap': cap,
-                    'territorio': territorio,
-                }
-            )
+            denominazione = re.sub('\s{2,}', ' ', r['DPS_DENOMINAZIONE_SOGG']).strip()
+            try:
+                soggetto = Soggetto.objects.get(denominazione__iexact=denominazione)
+            except ObjectDoesNotExist:
+                soggetto = Soggetto.objects.create(
+                    denominazione=denominazione,
+                    codice_fiscale=r['DPS_CODICE_FISCALE_SOGG'].strip(),
+                    forma_giuridica=forma_giuridica,
+                    indirizzo=indirizzo,
+                    cap=cap,
+                    territorio=territorio
+                )
+                created = True
+
             if created:
                 self.logger.info(u"%s: Aggiunto soggetto: %s" % (c, soggetto.denominazione,))
             else:
