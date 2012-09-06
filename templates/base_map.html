@@ -147,7 +147,7 @@
             var me = $(this);
             me.siblings().removeClass('active');
 
-            build_map('map', '/territori/leaflet/{{ map_selector }}'+ $('#selectors .btn.active').data('path') +'.json?tematizzazione='+dataset_name + '_procapite', function() {
+            build_map('map', '/territori/leaflet/{{ map_selector }}'+ $('#selectors .btn.active').data('path') +'.json?tematizzazione='+dataset_name + me.data('path'), function() {
               $(me).addClass("active");
             });
 
@@ -331,8 +331,8 @@
             <div class="map-header clearfix">
 
             <div class="btn-group pull-left" id="procapite_selectors">
-              <a class="btn active" href="#">Totali</a>
-              <a class="btn" href="#">Pro capite</a>
+              <a class="btn active" data-path='' href="#">Totali</a>
+              <a class="btn" href="#" data-path='_procapite'>Pro capite</a>
             </div>
 
           <div id="selectors" class="btn-group">
