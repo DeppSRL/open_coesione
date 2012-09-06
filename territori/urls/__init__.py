@@ -42,8 +42,8 @@ urlpatterns = patterns('',
     url(r'^tiles.cfg$', TilesConfigView.as_view(), name='territori_tiles_cfg'),
     url(r'^mapnik/', include('territori.urls.mapnik')),
     url(r'^leaflet/', include('territori.urls.leaflet')),
-    url(r'^polymaps.html$', TemplateView.as_view(template_name='territori/polymaps.html'), name='territori_polymaps'),
-    url(r'^highcharts.html$', TemplateView.as_view(template_name='territori/highcharts.html'), name='territori_highcharts'),
+#    url(r'^polymaps.html$', TemplateView.as_view(template_name='territori/polymaps.html'), name='territori_polymaps'),
+#    url(r'^highcharts.html$', TemplateView.as_view(template_name='territori/highcharts.html'), name='territori_highcharts'),
     url(r'^charts.html$', ChartView.as_view(), name='territori_charts'),
 
 
