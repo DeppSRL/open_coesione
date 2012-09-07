@@ -377,7 +377,7 @@ class RegioneView(TerritorioView):
         context = super(RegioneView, self).get_context_data(**kwargs)
 
         try:
-            context['popolazione_nazionale'] = Territorio.objects.get(territorio=Territorio.TERRITORIO.N).popolazione_totale
+            context['popolazione_nazionale'] = Territorio.objects.nazione().popolazione_totale
         except (Territorio.DoesNotExist, Territorio.MultipleObjectsReturned) :
             pass
 
