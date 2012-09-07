@@ -113,6 +113,8 @@
 
 {% endblock %}
 
-{% if territorio.territorio == 'N' %}
-  {% block map %}{% endblock %}
-{% endif %}
+{% block map %}
+  {% if territorio.territorio != 'N' %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
