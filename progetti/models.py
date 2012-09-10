@@ -400,10 +400,6 @@ class Progetto(models.Model):
         return self.soggetto_set.filter(ruolo__ruolo=Ruolo.RUOLO.attuatore)
 
     @property
-    def destinatari(self):
-        return self.soggetto_set.filter(ruolo__ruolo=Ruolo.RUOLO.destinatario)
-
-    @property
     def segnalazioni(self):
         return SegnalazioneProgetto.objects.filter(cup=self.cup, pubblicato=True)
 

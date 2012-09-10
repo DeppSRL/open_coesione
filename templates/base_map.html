@@ -330,10 +330,12 @@
           {% block map %}
             <div class="map-header clearfix">
 
+            {% if territorio.territorio != 'C' %}
             <div class="btn-group pull-left" id="procapite_selectors">
               <a class="btn active" data-path='' href="#">Totali</a>
               <a class="btn" href="#" data-path='_procapite'>Pro capite</a>
             </div>
+            {% endif %}
 
           <div id="selectors" class="btn-group">
             {% if territorio.territorio == 'R' %}

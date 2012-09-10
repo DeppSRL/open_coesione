@@ -64,7 +64,10 @@ class ProgettiQuerySet(models.query.QuerySet):
         return self.filter(tipo_operazione=tipologia)
 
     def con_natura(self, natura):
-        return self.filter(classificazione_azione__classificazione_superiore=natura)
+        if natura.is_root:
+            return self.filter(classificazione_azione__classificazione_superiore=natura)
+        else:
+            return self.filter(classificazione_azione=natura)
 
     def del_soggetto(self, soggetto):
         return self.filter(soggetto_set__pk=soggetto.pk)

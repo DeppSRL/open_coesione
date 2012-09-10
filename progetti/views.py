@@ -13,7 +13,7 @@ from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
 
-from models import Progetto, ClassificazioneAzione
+from models import Progetto, ClassificazioneAzione, Ruolo
 from open_coesione import utils
 from open_coesione.views import AggregatoView, AccessControlView
 from progetti.forms import DescrizioneProgettoForm
@@ -46,8 +46,8 @@ class ProgettoView(AccessControlView, DetailView):
         numero_collaboratori = 5
         if self.object.territori:
             altri_progetti_nei_territori = Progetto.objects.exclude(codice_locale=self.object.codice_locale).nei_territori( self.object.territori ).distinct().order_by('-fin_totale_pubblico')
-            context['stesso_tema'] = altri_progetti_nei_territori.con_tema(self.object.tema).nei_territori( self.object.territori )[:numero_collaboratori]
-            context['stesso_tipologia'] = altri_progetti_nei_territori.del_tipo(self.object.tipo_operazione)[:numero_collaboratori]
+            context['stesso_tema'] = altri_progetti_nei_territori.con_tema(self.object.tema)[:numero_collaboratori]
+            context['stessa_natura'] = altri_progetti_nei_territori.con_natura(self.object.classificazione_azione)[:numero_collaboratori]
             context['stessi_attuatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.attuatori)[:numero_collaboratori]
             context['stessi_programmatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.programmatori)[:numero_collaboratori]
 

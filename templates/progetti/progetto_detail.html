@@ -498,7 +498,7 @@
                     <div class="span6">
                         <h1 class="title"><span>Stessa natura dell'investimento</span></h1>
                         <table>
-                            {% for p in stesso_tipo  %}
+                            {% for p in stessa_natura  %}
                                 <tr>
                                     <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
                                     <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
@@ -509,7 +509,7 @@
                     <div class="span6">
                         <h1 class="title"><span>Stessi programmatori</span></h1>
                         <table>
-                            {% for p in stessi_realizzatori  %}
+                            {% for p in stessi_programmatori  %}
                                 <tr>
                                     <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
                                     <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
