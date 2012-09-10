@@ -21,7 +21,7 @@
       {% endif %}
     </ul>
     <p>Territorio: <a href="{{ object.territori.0.get_absolute_url }}">{{ object.territori.0 }}
-    {% if object.territori.0.territorio == 'C' %} ({{ object.territori.0.get_hierarchy.1.nome|lower|capfirst }} ){% endif %}</a>
+    {% if object.territori.0.territorio == 'C' %} ({{ object.territori.0.get_hierarchy.1.nome }}){% endif %}</a>
     {% if object.territori|length > 1 %}
     e altri
     {% endif %}
