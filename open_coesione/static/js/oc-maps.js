@@ -35,7 +35,7 @@ L.Map.addInitHook(function () {
 
 // OpenCoesione map builder
 
-function build_map( container, data_url, callback ) {
+function build_map( container, data_url, callback, failback ) {
     /*
      * Create map instance, and popup
      */
@@ -59,7 +59,7 @@ function build_map( container, data_url, callback ) {
         load_map_layer(data);
         loader.remove();
         callback && callback(data);
-    });
+    }).error( failback || callback );
 }
 
 /*
@@ -164,9 +164,10 @@ function load_map_layer(data) {
                 }
                 MAPPA_POPUP.setContent(
                     content + "<br/>" +
-                        "<b>n. progetti</b>: " + intword(data.territorio.n_progetti) + "<br/>" +
-                        "<b>costo</b>: " + intword(data.territorio.costo) + "<br/>" +
-                        "<b>pagamento</b>: " + intword(data.territorio.pagamento)
+                        "<b>finanziamento</b>: " + intword(data.territorio.costo) + " &euro;<br/>" +
+                        "<b>finanziamento procapite</b>: " + intword(data.territorio.costo_procapite) + " &euro;<br/>" +
+                        "<b>pagamento</b>: " + intword(data.territorio.pagamento) + " &euro;<br/>" +
+                        "<b>n. progetti</b>: " + intword(data.territorio.n_progetti)
 
                 );
             });

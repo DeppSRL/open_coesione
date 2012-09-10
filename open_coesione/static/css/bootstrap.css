@@ -4681,6 +4681,7 @@ section h2.title span {
   -moz-border-radius: 6;
   border-radius: 6;
   background-color: white;
+  color: #5b5955;
   border: 1px solid #CCC;
 }
 #wrapper > header a.flag {

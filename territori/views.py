@@ -76,10 +76,14 @@ class InfoView(JSONResponseMixin, TemplateView):
             territori = [(t.denominazione, t.get_progetti_search_url(natura=natura))
                         for t in territorio_hierarchy]
 
+        popolazione_totale = (territorio.popolazione_totale if territorio else Territorio.objects.nazione().popolazione_totale) or 0
+        costo_totale = Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura) or 0
+
         context['territorio'] = {
             'denominazione': territorio.denominazione,
             'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura) or 0,
-            'costo': Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura) or 0,
+            'costo': costo_totale,
+            'costo_procapite': costo_totale / popolazione_totale if popolazione_totale else '',
             'pagamento': Progetto.objects.totale_pagamenti(territorio=territorio, tema=tema, classificazione=natura) or 0,
             'territori': territori
         }

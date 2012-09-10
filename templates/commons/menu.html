@@ -85,13 +85,16 @@
 
       </ul>
 
-        <form method="get" action="{% url progetti_search %}" class="navbar-search form-search pull-right">
+        <form method="get" action="{% if soggetto %}{% url soggetti_search %}{% else %}{% url progetti_search %}{% endif %}" class="navbar-search form-search pull-right">
           <div class="input-append">
             <select name="" class="input-medium">
               <option value="progetti"{% if progetto %} selected="selected"{% endif %}>Progetti</option>
               <option value="soggetti"{% if soggetto %} selected="selected"{% endif %}>Soggetti</option>
             </select>
-            <input type="search" class="input-medium search-query" name="q" value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Cerca tra i progetti" /><button type="submit" class="btn"><i class="icon-search"></i></button>
+            <input type="text"
+                   class="input-medium search-query"
+                   name="q" {% if form.q.value %}value="{{ form.q.value }}"{% endif %}
+                   placeholder="Cerca tra i {% if soggetto %}soggetti{% else %}progetti{% endif %}" /><button type="submit" class="btn"><i class="icon-search"></i></button>
           </div>
         </form>
     </div>

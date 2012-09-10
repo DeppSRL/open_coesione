@@ -86,7 +86,7 @@
        * Map
        */
 
-      var MAPPA, MAPPA_LAYER, MAPPA_MONDO, MAPPA_ONCLICK, MAPPA_POPUP, MAPPA_CACHE = {};
+      var MAPPA, MAPPA_LAYER, MAPPA_MONDO, MAPPA_ONCLICK, MAPPA_POPUP, MAPPA_CACHE = {}, IS_LOADING = false;
 
       $(document).ready(function() {
 
@@ -119,36 +119,44 @@
           });
 
           $('#selectors .btn').click(function() {
-            if ($(this).hasClass('active')) {
-              return;
+            if ($(this).hasClass('active') || IS_LOADING) {
+              return false;
             }
-
-            // close popup if opened
-            MAPPA_POPUP && MAPPA.closePopup(MAPPA_POPUP);
-
-            var me = $(this);
-            $('#selectors .btn.active').removeClass('active');
-
-            build_map('map', '/territori/leaflet/{{ map_selector }}'+ $(this).data('path') +'.json?tematizzazione='+dataset_name, function() {
-              $(me).addClass("active");
-            });
-
-            return false;
-          });
-
-          $('#procapite_selectors .btn').click(function() {
-            if ($(this).hasClass('active')) {
-              return;
-            }
+            IS_LOADING = true;
 
             // close popup if opened
             MAPPA_POPUP && MAPPA.closePopup(MAPPA_POPUP);
 
             var me = $(this);
             me.siblings().removeClass('active');
+            me.attr('disabled', true);
+
+            build_map('map', '/territori/leaflet/{{ map_selector }}'+ $(this).data('path') +'.json?tematizzazione='+dataset_name + $('#procapite_selectors .btn.active').data('path'), function() {
+              me.addClass("active");
+              me.attr('disabled', false);
+              IS_LOADING = false;
+            });
+
+            return false;
+          });
+
+          $('#procapite_selectors .btn').click(function() {
+            if ($(this).hasClass('active') || IS_LOADING) {
+              return false;
+            }
+            IS_LOADING = true;
+
+            // close popup if opened
+            MAPPA_POPUP && MAPPA.closePopup(MAPPA_POPUP);
+
+            var me = $(this);
+            me.siblings().removeClass('active');
+            me.attr('disabled', true);
 
             build_map('map', '/territori/leaflet/{{ map_selector }}'+ $('#selectors .btn.active').data('path') +'.json?tematizzazione='+dataset_name + me.data('path'), function() {
-              $(me).addClass("active");
+              me.addClass("active");
+              me.attr('disabled', false);
+              IS_LOADING = false;
             });
 
             return false;
@@ -332,8 +340,10 @@
 
             {% if territorio.territorio != 'C' %}
             <div class="btn-group pull-left" id="procapite_selectors">
-              <a class="btn active" data-path='' href="#">Totali</a>
-              <a class="btn" href="#" data-path='_procapite'>Pro capite</a>
+              <a class="btn active" data-path="" href="#">Totali</a>
+              {% if tematizzazione == 'totale_costi' %}
+              <a class="btn" href="#" data-path="_procapite">Pro capite</a>
+              {% endif %}
             </div>
             {% endif %}
 
