@@ -17,8 +17,14 @@
   $(document).ready(function() {
 
     $(function () {
-      var activeTab = $('[href=' + location.hash + ']');
-      activeTab && activeTab.tab('show');
+      if (location.hash == '#delibere-cipe') {
+        $('[href=#fondi-nazionali]').tab("show");
+        $('#delibere-cipe').scroll();
+      }
+      else {
+        var activeTab = $('[href=' + location.hash + ']');
+        activeTab && activeTab.tab('show');
+      }
     });
 
     $('#chart_table a[href^="#"]').click(function(){ $('.nav-tabs [href=' + $(this).attr('href') + ']').tab('show') });
@@ -512,6 +518,7 @@
           <strong>Risorse del Fondo Sviluppo e Coesione assegnate tramite delibere CIPE a interventi individuati su opencoesione</strong>
         </p>
 
+        <a id="delibere-cipe"></a>
         <table class="table table-condensed">
           <thead>
           <tr>
@@ -522,46 +529,6 @@
           </thead>
           <tbody>
           <tr>
-            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E100032.pdf">32/2010</a></td>
-            <td>Messa in sicurezza edifici scolastici</td>
-            <td>357.602.000</td>
-          </tr>
-          <tr>
-            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120034Allegato1.xls">34/2012</a></td>
-            <td>Piccole e medie opere mezzogiorno</td>
-            <td>413.000.000</td>
-          </tr>
-          <tr>
-            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120038.pdf">38/2012</a></td>
-            <td>Beni culturali</td>
-            <td>70.000.000</td>
-          </tr>
-          <tr>
-            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120039.pdf">39/2012</a></td>
-            <td>Beni culturali</td>
-            <td>6.011.155</td>
-          </tr>
-          <tr>
-            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120044.pdf">44/2012</a></td>
-            <td>Abruzzo: Ricostruzione edifici pubblici</td>
-            <td>233.150.000</td>
-          </tr>
-{#          <tr>#}
-{#            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120046Allegato1.pdf">46/2012</a></td>#}
-{#            <td>Piano irriguo nazionale</td>#}
-{#            <td>418.507.864</td>#}
-{#          </tr>#}
-          <tr>
-            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120006.pdf">6/2012</a></td>
-            <td>Edilizia penitenziaria</td>
-            <td>511.167.373</td>
-          </tr>
-          <tr>
-            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E100067.pdf">67/2010</a></td>
-            <td>Messa in sicurezza edifici scolastici</td>
-            <td>1.650.000</td>
-          </tr>
-          <tr>
             <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E090079.pdf">79/2009</a></td>
             <td>Abruzzo: Ricostruzione edifici pubblici</td>
             <td>40.000.000</td>
@@ -571,6 +538,36 @@
             <td>Abruzzo: Ricostruzione edifici pubblici</td>
             <td>134.700.650</td>
           </tr>
+          <tr>
+            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E100032.pdf">32/2010</a></td>
+            <td>Messa in sicurezza edifici scolastici</td>
+            <td>357.602.000</td>
+          </tr>
+          <tr>
+            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E100067.pdf">67/2010</a></td>
+            <td>Messa in sicurezza edifici scolastici</td>
+            <td>1.650.000</td>
+          </tr>
+          <tr>
+            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E110062.pdf">62/2011</a></td>
+            <td>Infrastrutture</td>
+            <td>7.471.276.823</td>
+          </tr>
+          <tr>
+            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E110078.pdf">78/2011</a></td>
+            <td>Innovazione, ricerca e comp.</td>
+            <td>917.421.624</td>
+          </tr>
+
+
+{#          <tr>#}
+{#            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120046Allegato1.pdf">46/2012</a></td>#}
+{#            <td>Piano irriguo nazionale</td>#}
+{#            <td>418.507.864</td>#}
+{#          </tr>#}
+
+
+
 {#          <tr>#}
 {#            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E100092.pdf">92/2010</a></td>#}
 {#            <td>Piano irriguo NAZIONALE Regioni del Sud</td>#}
@@ -592,29 +589,47 @@
 {#          </tr>#}
 
           <tr>
-            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120060.pdf">60/2012</a></td>
-            <td>Depurazione e bonifiche</td>
-            <td>1.686.018.311</td>
+            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120006.pdf">6/2012</a></td>
+            <td>Edilizia penitenziaria</td>
+            <td>511.167.373</td>
           </tr>
-          <tr>
-            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E110062.pdf">62/2011</a></td>
-            <td>Infrastrutture</td>
-            <td>7.471.276.823</td>
-          </tr>
+
           <tr>
             <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120007.pdf">7/2012</a></td>
             <td>Università</td>
             <td>110.000.000</td>
           </tr>
-          <tr>
-            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E110078.pdf">78/2011</a></td>
-            <td>Innovazione, ricerca e comp.</td>
-            <td>917.421.624</td>
-          </tr>
+
           <tr>
             <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120008.pdf">8/2012</a></td>
             <td>Frane e Versanti</td>
             <td>679.722.251</td>
+          </tr>
+          <tr>
+            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120034Allegato1.xls">34/2012</a></td>
+            <td>Piccole e medie opere mezzogiorno</td>
+            <td>413.000.000</td>
+          </tr>
+          <tr>
+            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120038.pdf">38/2012</a></td>
+            <td>Beni culturali</td>
+            <td>70.000.000</td>
+          </tr>
+          <tr>
+            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120039.pdf">39/2012</a></td>
+            <td>Beni culturali</td>
+            <td>6.011.155</td>
+          </tr>
+          <tr>
+            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120044.pdf">44/2012</a></td>
+            <td>Abruzzo: Ricostruzione edifici pubblici</td>
+            <td>233.150.000</td>
+          </tr>
+
+          <tr>
+            <td><a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E120060.pdf">60/2012</a></td>
+            <td>Depurazione e bonifiche</td>
+            <td>1.686.018.311</td>
           </tr>
 {#          <tr>#}
 {#            <td colspan="2"><strong>Totale Programmazione regionale</strong></td>#}

@@ -165,7 +165,7 @@ function load_map_layer(data) {
                 MAPPA_POPUP.setContent(
                     content + "<br/>" +
                         "<b>finanziamento</b>: " + intword(data.territorio.costo) + " &euro;<br/>" +
-                        "<b>finanziamento procapite</b>: " + intword(data.territorio.costo_procapite) + " &euro;<br/>" +
+                        "<b>finanziamento pro capite</b>: " + intword(data.territorio.costo_procapite) + " &euro;<br/>" +
                         "<b>pagamento</b>: " + intword(data.territorio.pagamento) + " &euro;<br/>" +
                         "<b>n. progetti</b>: " + intword(data.territorio.n_progetti)
 

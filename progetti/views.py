@@ -338,6 +338,14 @@ class SegnalaDescrizioneView(FormView):
     form_class = DescrizioneProgettoForm
     success_url = reverse_lazy('progetti_segnalazione_completa')
 
+    def get_context_data(self, **kwargs):
+        context = super(SegnalaDescrizioneView,self).get_context_data(**kwargs)
+        try:
+            context['progetto'] = Progetto.objects.get(cup=self.request.GET.get('cup'))
+        except Progetto.DoesNotExist:
+            pass
+        return context
+
     def get_initial(self):
         """
         Returns the initial data to use for forms on this view.
