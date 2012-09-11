@@ -143,7 +143,7 @@ class CSVView(AggregatoView, DetailView):
     filter_field = ''
 
     def get_first_row(self):
-        return ['Comune', 'Provincia', 'Finanziamento procapite']
+        return ['Comune', 'Provincia', 'Finanziamento pro capite']
 
     def get_csv_filename(self):
         return '{0}_pro_capite'.format(self.kwargs.get('slug','all'))
