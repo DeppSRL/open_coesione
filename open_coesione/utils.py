@@ -1,3 +1,4 @@
+from _csv import register_dialect, QUOTE_ALL
 import csv
 import codecs
 import cStringIO
@@ -31,6 +32,13 @@ class UnicodeDictReader:
 
     def __iter__(self):
         return self
+
+class excel_semicolon(csv.excel):
+    """Extends excel Dialect in order to set semicolon as delimiter."""
+    delimiter = ';'
+    quoting = QUOTE_ALL
+
+register_dialect("excel_semicolon", excel_semicolon)
 
 class UnicodeWriter:
     """
