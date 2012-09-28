@@ -36,7 +36,7 @@ class Command(BaseCommand):
         make_option('--type',
                     dest='type',
                     default='proj',
-                    help='Type of import: proj|loc|rec'),
+                    help='Type of import: proj|loc|rec|cups'),
         make_option('--limit',
                     dest='limit',
                     default=0,
@@ -91,9 +91,55 @@ class Command(BaseCommand):
             self.handle_loc(*args, **options)
         elif options['type'] == 'rec':
             self.handle_rec(*args, **options)
+        elif options['type'] == 'cups':
+            self.handle_cups(*args, **options)
         else:
             self.logger.error("Wrong type %s. Select among proj, loc and rec." % options['type'])
             exit(1)
+
+
+    def handle_cups(self, *args, **options):
+        self.logger.info("Inizio import da %s" % self.csv_file)
+        self.logger.info("Encoding: %s" % self.encoding)
+        self.logger.info("Limit: %s" % options['limit'])
+        self.logger.info("Offset: %s" % options['offset'])
+
+        if options['delete']:
+            self.logger.error("Could not revert cup updates.")
+            exit(1)
+
+        updates = 0
+        already_ok = 0
+        not_found = 0
+        for r in self.unicode_reader:
+            c = self.unicode_reader.reader.line_num - 1
+            if c < int(options['offset']):
+                continue
+
+            if int(options['limit']) and\
+               (c - int(options['offset']) > int(options['limit'])):
+                break
+
+            # codice locale progetto (ID del record)
+            try:
+                progetto = Progetto.objects.get(pk=r['COD_LOCALE_PROGETTO'].strip())
+                self.logger.debug("%s - Progetto: %s" % (c, progetto.codice_locale))
+            except ObjectDoesNotExist:
+                self.logger.warning("%s - Progetto non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
+                not_found += 1
+                continue
+
+            if progetto.cup != r['CUP']:
+                self.logger.info("Update CUP for progetto %s from '%s' to '%s'" % (progetto, progetto.cup, r['CUP'].strip()))
+                progetto.cup = r['CUP'].strip()
+                progetto.save()
+                updates += 1
+            else:
+                self.logger.info("Progetto %s already has right cup '%s'" % (progetto, r['CUP'].strip()))
+                already_ok += 1
+
+        self.logger.info("Fine: %s cup aggiornati, %s non necessitavano aggiornamento e %s progetti non sono stati trovati" % (updates, already_ok, not_found))
+
 
 
     def handle_rec(self, *args, **options):
