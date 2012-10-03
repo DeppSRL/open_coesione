@@ -1,11 +1,13 @@
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse
+from django.views.generic import ListView
 
 import os
 from django.views.generic.base import TemplateView
 from django.db.models import Count, Sum
 from open_coesione.forms import ContactForm
+from open_coesione.models import PressReview
 from open_coesione.settings import PROJECT_ROOT
 from progetti.models import Progetto, Tema, ClassificazioneAzione
 from soggetti.models import Soggetto
@@ -231,3 +233,8 @@ class ContactView(TemplateView):
             return HttpResponseRedirect( "{0}?completed=true".format(reverse('oc_contatti')) ) # Redirect after POST
 
         return self.get(request, *args, **kwargs)
+
+class PressView(ListView):
+    model = PressReview
+    template_name = 'flat/press_review.html'
+

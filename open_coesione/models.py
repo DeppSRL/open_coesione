@@ -4,7 +4,6 @@ from django.db import models
 class ContactMessage(models.Model):
 
     REASON_CHOICES = (
-        (u'', u'--------------'),
         (1, u'domanda sui dati'),
         (2, u'domanda sul sito'),
         (3, u'esempio di riuso: applicazioni'),
@@ -29,3 +28,17 @@ class ContactMessage(models.Model):
         verbose_name_plural = "Messaggi"
         verbose_name = "Messaggio"
 
+class PressReview(models.Model):
+
+    title = models.CharField(max_length=200, verbose_name='Titolo')
+    source = models.CharField(max_length=200, verbose_name='Fonte')
+    author = models.CharField(max_length=200, verbose_name='Autore')
+
+    file = models.FileField(upload_to='press', blank=True, null=True)
+    url = models.URLField(blank=True, null=True)
+
+    published_at = models.DateField(verbose_name='Data di pubblicazione')
+
+    class Meta:
+        verbose_name_plural = "Rassegna stampa"
+        verbose_name = "Articolo"
