@@ -180,5 +180,22 @@ class SoggettoView(AggregatoView, DetailView):
             for regione in Territorio.objects.regioni(with_nation=True)
         ]
 
+        # calcolo i finanziamenti per ruolo del soggetto
+        # preparo il filtro di aggregazione in base alla tematizzazione richiesta
+        aggregazione_ruolo = {
+            'totale_costi': Sum('progetto__fin_totale_pubblico'),
+            'totale_pagamenti': Sum('progetto__pagamento'),
+            'totale_progetti': Count('progetto')
+        }[ self.request.GET.get('tematizzazione', 'totale_costi') ]
+
+        context['lista_finanziamenti_per_ruolo'] = []
+        # TODO quando avremo realizzatori e destinatari posso prendere tutti i ruoli
+        for tipo_ruolo, nome_ruolo in Ruolo.RUOLO[:2]:
+            context['lista_finanziamenti_per_ruolo'].append(
+                (
+                    nome_ruolo,
+                    Ruolo.objects.filter(soggetto=self.object, ruolo=tipo_ruolo).aggregate(tot=aggregazione_ruolo)['tot']
+                )
+            )
 
         return context
