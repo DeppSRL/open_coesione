@@ -224,7 +224,7 @@ class ContactView(TemplateView):
         if form.is_valid(): # All validation rules pass
             try:
                 # Process the data in form.cleaned_data
-                form.send_mail()
+                form.execute()
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
 

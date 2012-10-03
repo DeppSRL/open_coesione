@@ -241,6 +241,7 @@ LOGGING = {
     }
 }
 
+# recipients for contacts
 CONTACTS_EMAIL = tuple()
 
 # tinymce admin support
