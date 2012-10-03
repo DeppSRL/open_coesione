@@ -36,7 +36,7 @@ class Command(BaseCommand):
         make_option('--type',
                     dest='type',
                     default='proj',
-                    help='Type of import: proj|loc|rec|cups'),
+                    help='Type of import: proj|loc|rec|cups|desc'),
         make_option('--limit',
                     dest='limit',
                     default=0,
@@ -93,6 +93,8 @@ class Command(BaseCommand):
             self.handle_rec(*args, **options)
         elif options['type'] == 'cups':
             self.handle_cups(*args, **options)
+        elif options['type'] == 'desc':
+            self.handle_desc(*args, **options)
         else:
             self.logger.error("Wrong type %s. Select among proj, loc and rec." % options['type'])
             exit(1)
@@ -139,6 +141,52 @@ class Command(BaseCommand):
                 already_ok += 1
 
         self.logger.info("Fine: %s cup aggiornati, %s non necessitavano aggiornamento e %s progetti non sono stati trovati" % (updates, already_ok, not_found))
+
+
+
+    def handle_desc(self, *args, **options):
+        self.logger.info("Inizio import da %s" % self.csv_file)
+        self.logger.info("Encoding: %s" % self.encoding)
+        self.logger.info("Limit: %s" % options['limit'])
+        self.logger.info("Offset: %s" % options['offset'])
+
+        if options['delete']:
+            self.logger.error("Could not revert descriptions updates.")
+            exit(1)
+
+        updates = 0
+        already_ok = 0
+        not_found = 0
+        for r in self.unicode_reader:
+            c = self.unicode_reader.reader.line_num - 1
+            if c < int(options['offset']):
+                continue
+
+            if int(options['limit']) and\
+               (c - int(options['offset']) > int(options['limit'])):
+                break
+
+            # prendo il progetto con per CUP
+            try:
+                progetto = Progetto.objects.get(cup__iexact=r['CUP'].strip())
+                self.logger.debug("%s - Progetto: %s" % (c, progetto.cup))
+            except ObjectDoesNotExist:
+                self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, r['CUP']))
+                not_found += 1
+                continue
+
+            sintesi = r['Sintesi'].strip()
+
+            if sintesi:
+                self.logger.info("Aggiornamento descrizione per il progetto %s" % progetto)
+                progetto.descrizione = sintesi
+                progetto.save()
+                updates += 1
+            else:
+                self.logger.info("Sintesi vuota per il progetto %s" % progetto)
+                already_ok += 1
+
+        self.logger.info("Fine: %s descrizioni aggiornate, %s sintesi da importare erano vuote e %s progetti non sono stati trovati tramite il cup" % (updates, already_ok, not_found))
 
 
 
