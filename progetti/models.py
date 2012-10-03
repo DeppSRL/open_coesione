@@ -297,6 +297,7 @@ class Progetto(models.Model):
     cup = models.CharField(max_length=15)
     titolo_progetto = models.TextField()
     descrizione = models.TextField(blank=True, null=True)
+    fonte_descrizione = models.TextField(blank=True, null=True)
     slug = models.CharField(max_length=128, blank=True, null=True)
     classificazione_qsn = models.ForeignKey('ClassificazioneQSN',
                                             related_name='progetto_set',

@@ -155,6 +155,10 @@
         {% if progetto.descrizione %}
           <p>
             {{ progetto.descrizione }}
+
+            {% if progetto.fonte_descrizione %}
+            <br><i>Fonte: {{ progetto.fonte_descrizione }}</i>
+            {% endif %}
           </p>
         {% endif %}
 
