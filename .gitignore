@@ -6,6 +6,7 @@ log/logfile*
 *.pyc
 */settings_*.py*
 media/medialibrary
+build
 GIS/tiles
 *.sql
 sitestatic
