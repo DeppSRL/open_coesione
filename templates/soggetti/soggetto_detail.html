@@ -68,6 +68,7 @@
   $(document).ready(function() {
 
     print_pie_chart('#regions_chart_table', 'regions_chart');
+    print_pie_chart('#roles_chart_table', 'roles_chart');
 
   });
   </script>
@@ -93,5 +94,25 @@
         {% endfor %}
       </table>
     </div>
+
+
+    <div class="span3">
+      <h4>Finanziamenti per ruolo</h4>
+
+      <p>....</p>
+
+      <div id="roles_chart" style="width: 100%; height: 250px"></div>
+
+      <table id="roles_chart_table" class="table">
+        {% for ruolo, finanziamento in lista_finanziamenti_per_ruolo %}
+          <tr>
+            <th>{{ ruolo }}</th>
+            <td class="amount"><strong>{{ finanziamento|default:"0"|intcomma }}</strong> {% if tematizzazione == 'totale_progetti' %}progetti{% else %}euro{% endif %}</td>
+          </tr>
+        {% endfor %}
+      </table>
+
+    </div>
+
   </div>
 {% endblock %}

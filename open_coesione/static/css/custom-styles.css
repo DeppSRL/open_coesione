@@ -12,3 +12,20 @@ div.cipe.block-chart.block div {
 div.cipe.block-chart.block div strong {
     min-height: 0;
 }
+
+#project_description {
+    padding-right: 20px;
+}
+
+#project_description .read-more i , #project_description .read-less i {
+    font-size: 2em;
+}
+#project_description .read-more a, #project_description .read-less a {
+    float: right;
+    margin: 5px 10px 5px 5px;
+    text-decoration: none;
+}
+#project_description .read-more a:hover, #project_description .read-less a:hover {
+    text-decoration: none;
+}
+

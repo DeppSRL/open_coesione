@@ -3,7 +3,7 @@ from django.contrib.gis import admin
 from django.conf import settings
 from django.views.decorators.cache import cache_page
 from django.views.generic.base import TemplateView
-from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView
+from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView, PressView
 
 admin.autodiscover()
 
@@ -52,6 +52,8 @@ urlpatterns = patterns('',
 
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html')),
     url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),
+
+    url(r'^rassegna-stampa/', PressView.as_view()),
 
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login'),
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),
