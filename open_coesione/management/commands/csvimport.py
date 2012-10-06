@@ -707,16 +707,16 @@ class Command(BaseCommand):
             fin_totale_pubblico = Decimal(r['FINANZ_TOTALE_PUBBLICO'].replace(',','.')) if r['FINANZ_TOTALE_PUBBLICO'].strip() else None
 
             fin_ue = Decimal(r['FINANZ_UE'].replace(',','.')) if r['FINANZ_UE'].strip() else None
-            fin_stato_fondo_rotazione = Decimal(r['FINANZ_Stato_Fondo_di_Rotazione'].replace(',','.')) if r['FINANZ_Stato_Fondo_di_Rotazione'].strip() else None
-            fin_stato_fsc = Decimal(r['FINANZ_Stato_FSC'].replace(',','.')) if r['FINANZ_Stato_FSC'].strip() else None
-            fin_stato_altri_provvedimenti = Decimal(r['FINANZ_Stato_altri_provvedimenti'].replace(',','.')) if r['FINANZ_Stato_altri_provvedimenti'].strip() else None
-            fin_regione = Decimal(r['FINANZ_Regione'].replace(',','.')) if r['FINANZ_Regione'].strip() else None
-            fin_provincia = Decimal(r['FINANZ_Provincia'].replace(',','.')) if r['FINANZ_Provincia'].strip() else None
-            fin_comune = Decimal(r['FINANZ_Comune'].replace(',','.')) if r['FINANZ_Comune'].strip() else None
-            fin_altro_pubblico = Decimal(r['FINANZ_Altro_pubblico'].replace(',','.')) if r['FINANZ_Altro_pubblico'].strip() else None
-            fin_stato_estero = Decimal(r['FINANZ_Stato_estero'].replace(',','.')) if r['FINANZ_Stato_estero'].strip() else None
-            fin_privato = Decimal(r['FINANZ_Privato'].replace(',','.')) if r['FINANZ_Privato'].strip() else None
-            fin_da_reperire = Decimal(r['FINANZ_Da_reperire'].replace(',','.')) if r['FINANZ_Da_reperire'].strip() else None
+            fin_stato_fondo_rotazione = Decimal(r['FINANZ_STATO_FONDO_DI_ROTAZIONE'].replace(',','.')) if r['FINANZ_STATO_FONDO_DI_ROTAZIONE'].strip() else None
+            fin_stato_fsc = Decimal(r['FINANZ_STATO_FSC'].replace(',','.')) if r['FINANZ_STATO_FSC'].strip() else None
+            fin_stato_altri_provvedimenti = Decimal(r['FINANZ_STATO_ALTRI_PROVVEDIMENTI'].replace(',','.')) if r['FINANZ_STATO_ALTRI_PROVVEDIMENTI'].strip() else None
+            fin_regione = Decimal(r['FINANZ_REGIONE'].replace(',','.')) if r['FINANZ_REGIONE'].strip() else None
+            fin_provincia = Decimal(r['FINANZ_PROVINCIA'].replace(',','.')) if r['FINANZ_PROVINCIA'].strip() else None
+            fin_comune = Decimal(r['FINANZ_COMUNE'].replace(',','.')) if r['FINANZ_COMUNE'].strip() else None
+            fin_altro_pubblico = Decimal(r['FINANZ_ALTRO_PUBBLICO'].replace(',','.')) if r['FINANZ_ALTRO_PUBBLICO'].strip() else None
+            fin_stato_estero = Decimal(r['FINANZ_STATO_ESTERO'].replace(',','.')) if r['FINANZ_STATO_ESTERO'].strip() else None
+            fin_privato = Decimal(r['FINANZ_PRIVATO'].replace(',','.')) if r['FINANZ_PRIVATO'].strip() else None
+            fin_da_reperire = Decimal(r['FINANZ_DA_REPERIRE'].replace(',','.')) if r['FINANZ_DA_REPERIRE'].strip() else None
 
             # costo = Decimal(r['COSTO'].replace(',','.')) if r['COSTO'].strip() else None
             costo_ammesso = Decimal(r['COSTO_RENDICONTABILE_UE'].replace(',','.')) if r['COSTO_RENDICONTABILE_UE'].strip() else None
