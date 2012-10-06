@@ -272,6 +272,9 @@ class Command(BaseCommand):
                 ruolo = r['SOGG_COD_RUOLO']
             )
 
+            del soggetto
+            del progetto
+
 
 
         self.logger.info("Fine")
@@ -375,6 +378,10 @@ class Command(BaseCommand):
                     self.logger.info("%d - Aggiunta localizzazione progetto: %s" % (c, localizzazione,))
                 else:
                     self.logger.debug("%d - Trovata localizzazione progetto: %s" % (c, localizzazione,))
+
+
+                del localizzazione
+                del progetto
 
             if int(options['limit']) and\
                (c - int(options['offset']) > int(options['limit'])):
@@ -793,6 +800,9 @@ class Command(BaseCommand):
                 else:
                     self.logger.info("%s: Progetto trovato e non modificato: %s" % (c, p.codice_locale))
 
+                # remove local variable p from the namespace,
+                #may free some memory
+                del p
 
             except DatabaseError as e:
                 self.logger.error("Progetto %s: %s" % (r['COD_LOCALE_PROGETTO'], e))
