@@ -261,7 +261,7 @@ class Command(BaseCommand):
                     )
                     self.logger.info(u"%s: Aggiunto soggetto: %s" % (c, soggetto.denominazione,))
                 except DatabaseError as e:
-                    self.logger.warning("Database error({0}): {1}. Skipping.".format(e.errno, e.strerror))
+                    self.logger.warning("Database error: {0}. Skipping.".format(e))
 
             if soggetto:
                 # add role of subject in project
