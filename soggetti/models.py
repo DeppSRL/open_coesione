@@ -20,7 +20,7 @@ class FormaGiuridica(models.Model):
 
 class Soggetto(models.Model):
     codice_fiscale = models.CharField(max_length=16)
-    denominazione = models.CharField(max_length=255)
+    denominazione = models.CharField(max_length=512)
     slug = models.CharField(max_length=300, blank=True, null=True)
     forma_giuridica = models.ForeignKey(FormaGiuridica,
                                         related_name='forma_giuridica_set',

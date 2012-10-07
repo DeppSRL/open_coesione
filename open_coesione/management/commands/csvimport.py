@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import connection
 from django.db.utils import DatabaseError
 from django.core.management.base import BaseCommand, CommandError
 
@@ -262,7 +263,8 @@ class Command(BaseCommand):
                     )
                     self.logger.info(u"%s: Aggiunto soggetto: %s" % (c, soggetto.denominazione,))
                 except DatabaseError as e:
-                    self.logger.warning("Database error: {0}. Skipping.".format(e))
+                    self.logger.warning("{0} - Database error: {1}. Skipping.".format(c, e))
+                    connection._rollback()
 
             if soggetto:
                 # add role of subject in project
