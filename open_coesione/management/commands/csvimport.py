@@ -245,35 +245,34 @@ class Command(BaseCommand):
             cap = r['CAP_SOGG'].strip() if r['CAP_SOGG'].strip() else None
 
             # creazione soggetto
-            created = False
             denominazione = re.sub('\s{2,}', ' ', r['DPS_DENOMINAZIONE_SOGG']).strip()
             try:
                 soggetto = Soggetto.objects.get(denominazione__iexact=denominazione)
-            except ObjectDoesNotExist:
-                soggetto = Soggetto.objects.create(
-                    denominazione=denominazione,
-                    codice_fiscale=r['DPS_CODICE_FISCALE_SOGG'].strip(),
-                    forma_giuridica=forma_giuridica,
-                    indirizzo=indirizzo,
-                    cap=cap,
-                    territorio=territorio
-                )
-                created = True
-
-            if created:
-                self.logger.info(u"%s: Aggiunto soggetto: %s" % (c, soggetto.denominazione,))
-            else:
                 self.logger.debug(u"%s: Soggetto trovato e non modificato: %s" % (c, soggetto.denominazione))
+            except ObjectDoesNotExist:
+                try:
+                    soggetto = Soggetto.objects.create(
+                        denominazione=denominazione,
+                        codice_fiscale=r['DPS_CODICE_FISCALE_SOGG'].strip(),
+                        forma_giuridica=forma_giuridica,
+                        indirizzo=indirizzo,
+                        cap=cap,
+                        territorio=territorio
+                    )
+                    self.logger.info(u"%s: Aggiunto soggetto: %s" % (c, soggetto.denominazione,))
+                except DatabaseError as e:
+                    self.logger.warning("Database error({0}): {1}. Skipping.".format(e.errno, e.strerror))
 
-            # add role of subject in project
-            Ruolo.objects.create(
-                progetto = progetto,
-                soggetto = soggetto,
-                ruolo = r['SOGG_COD_RUOLO']
-            )
+            if soggetto:
+                # add role of subject in project
+                Ruolo.objects.create(
+                    progetto = progetto,
+                    soggetto = soggetto,
+                    ruolo = r['SOGG_COD_RUOLO']
+                )
 
-            del soggetto
-            del progetto
+                del soggetto
+                del progetto
 
 
 
