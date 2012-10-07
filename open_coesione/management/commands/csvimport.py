@@ -268,12 +268,16 @@ class Command(BaseCommand):
 
             if soggetto:
                 # add role of subject in project
-                Ruolo.objects.create(
+                created = False
+                role, created = Ruolo.objects.get_or_create(
                     progetto = progetto,
                     soggetto = soggetto,
                     ruolo = r['SOGG_COD_RUOLO']
                 )
-                self.logger.info(u"%s: Ruolo creato: %s - %s" % (c, progetto, soggetto.denominazione,))
+                if created:
+                    self.logger.info(u"%s: Ruolo creato: %s" % (c, role,))
+                else:
+                    self.logger.debug(u"%s: Ruolo creato: %s" % (c, role,))
 
                 del soggetto
                 del progetto
