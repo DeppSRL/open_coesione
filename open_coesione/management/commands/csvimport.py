@@ -273,6 +273,7 @@ class Command(BaseCommand):
                     soggetto = soggetto,
                     ruolo = r['SOGG_COD_RUOLO']
                 )
+                self.logger.info(u"%s: Ruolo creato: %s - %s" % (c, progetto, soggetto.denominazione,))
 
                 del soggetto
                 del progetto
