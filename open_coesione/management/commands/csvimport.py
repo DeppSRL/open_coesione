@@ -245,6 +245,7 @@ class Command(BaseCommand):
             cap = r['CAP_SOGG'].strip() if r['CAP_SOGG'].strip() else None
 
             # creazione soggetto
+            soggetto = None
             denominazione = re.sub('\s{2,}', ' ', r['DPS_DENOMINAZIONE_SOGG']).strip()
             try:
                 soggetto = Soggetto.objects.get(denominazione__iexact=denominazione)
