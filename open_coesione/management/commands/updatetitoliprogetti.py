@@ -40,21 +40,26 @@ class Command(BaseCommand):
                     help='Always overwrite values in the DB with values in the CSV'),
         make_option('--encoding',
                     dest='encoding',
-                    default='utf-8',
+                    default='latin1',
                     help='set character encoding of input file')
         )
 
     csv_file = ''
-    encoding = 'utf-8'
+    encoding = ''
     logger = logging.getLogger('csvimport')
     unicode_reader = None
+    csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
 
     def handle(self, *args, **options):
         self.csv_file = options['csvfile']
 
         # read first csv file
         try:
-            self.unicode_reader = utils.UnicodeDictReader(open(self.csv_file, 'r'), delimiter=';', encoding=self.encoding)
+            self.unicode_reader = utils.UnicodeDictReader(
+                open(self.csv_file, 'r'),
+                encoding=self.encoding,
+                dialect='opencoesione'
+            )
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.csv_file)
             exit(1)
