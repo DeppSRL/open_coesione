@@ -8,6 +8,7 @@
 
 @import "blocks.less";
 @import "navbar.less";
+@import "tipsy.less";
 
 
 a {
@@ -599,6 +600,17 @@ hr.big {
 
     div {
       margin-left: 20px;
+    }
+  }
+}
+
+#payments-progress {
+  margin: 60px 20px 0 20px;
+  #gradient > .vertical(@green, @green);
+  .bar-success {
+    #gradient > .vertical(@greenDarker, @greenDarker);
+    &:hover {
+      #gradient > .vertical(@greenDark, @greenDark);
     }
   }
 }

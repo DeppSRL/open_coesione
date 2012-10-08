@@ -430,7 +430,7 @@ class Localizzazione(models.Model):
                                                            )
     territorio = models.ForeignKey('territori.Territorio', verbose_name=u'Territorio')
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
-    indirizzo = models.CharField(max_length=512, blank=True, null=True)
+    indirizzo = models.CharField(max_length=550, blank=True, null=True)
     cap = models.CharField(max_length=5, blank=True, null=True)
     dps_flag_cap = models.CharField(max_length=1, choices=DPS_FLAG_CAP)
 
@@ -516,3 +516,21 @@ class SegnalazioneProgetto(models.Model):
     class Meta:
         verbose_name = "Segnalazione"
         verbose_name_plural = "Segnalazioni"
+
+
+class PagamentoProgetto(models.Model):
+
+    progetto = models.ForeignKey(Progetto)
+    data = models.DateField()
+    ammontare = models.DecimalField(max_digits=14, decimal_places=2)
+
+    @property
+    def percentuale(self):
+        return float( self.ammontare / self.progetto.fin_totale_pubblico ) * 100.0
+
+    def __unicode__(self):
+        return "Pagamento del {0} per {1} di {2}".format(self.progetto, self.data, self.ammontare)
+
+    class Meta:
+        verbose_name = "Pagamento progetto"
+        verbose_name_plural = "Pagamenti progetti"

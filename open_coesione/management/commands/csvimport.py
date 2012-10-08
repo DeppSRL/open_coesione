@@ -12,6 +12,7 @@ import csv
 import logging
 import datetime
 import codecs
+import dateutil.parser
 
 from progetti.models import *
 from soggetti.models import *
@@ -37,7 +38,7 @@ class Command(BaseCommand):
         make_option('--type',
                     dest='type',
                     default='proj',
-                    help='Type of import: proj|loc|rec|cups|desc'),
+                    help='Type of import: proj|loc|rec|cups|desc|pay'),
         make_option('--limit',
                     dest='limit',
                     default=0,
@@ -96,9 +97,88 @@ class Command(BaseCommand):
             self.handle_cups(*args, **options)
         elif options['type'] == 'desc':
             self.handle_desc(*args, **options)
+        elif options['type'] == 'pay':
+            self.handle_payments(*args, **options)
         else:
             self.logger.error("Wrong type %s. Select among proj, loc and rec." % options['type'])
             exit(1)
+
+
+    def handle_payments(self, *args, **options):
+        self.logger.info("Inizio import da %s" % self.csv_file)
+        self.logger.info("Encoding: %s" % self.encoding)
+        self.logger.info("Limit: %s" % options['limit'])
+        self.logger.info("Offset: %s" % options['offset'])
+
+        if options['delete']:
+            PagamentoProgetto.objects.all().delete()
+            exit(1)
+
+        projects = 0
+        tot_payments = 0
+        not_found = 0
+        date_dict = None
+        date_list = []
+        for r in self.unicode_reader:
+            c = self.unicode_reader.reader.line_num - 1
+            if c < int(options['offset']):
+                continue
+
+            if int(options['limit']) and\
+               (c - int(options['offset']) > int(options['limit'])):
+                break
+
+            # inizializzo il dizionario delle date dei pagamenti
+            # che sono nella prima riga dalla seconda colonna in poi
+            if not date_dict:
+
+                # prendo tutte le chiavi della riga tranne la prima che è il codice locale progetto
+                # formato della key: TOT_PAGAMENTI_YYYYMMDD
+                date_dict = dict([(key, dateutil.parser.parse(key.split('TOT_PAGAMENTI_')[1]) ) for key in r.keys()[1:]])
+                date_list = sorted(date_dict.keys(), key=lambda x: date_dict[x])
+
+            # codice locale progetto (ID del record)
+            try:
+                progetto = Progetto.objects.get(pk=r['COD_LOCALE_PROGETTO'].strip())
+                self.logger.debug("%s - Progetto: %s" % (c, progetto.codice_locale))
+                projects += 1
+            except ObjectDoesNotExist:
+                self.logger.debug("%s - Progetto non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
+                not_found += 1
+                continue
+
+            payments = []
+            tot = 0.0
+            for key in date_list:
+                amount_str = r[key].strip()
+                if not amount_str:
+                    # nessun pagamento in questa data
+                    continue
+                amount = float(amount_str.replace(',','.'))
+                # faccio il controllo con l'intero per evitare pagamenti da 0.01
+                if int(tot) == int(amount):
+                    # nessun nuovo pagamento per questa data
+                    continue
+
+                delta = amount - tot
+
+                payment = PagamentoProgetto.objects.create(
+                    progetto= progetto,
+                    data= date_dict[key],
+                    ammontare= delta
+                )
+                # se presente un pagamento è il totale pagato fino a quel momento
+                tot = amount
+                payments.append(payment)
+                tot_payments += 1
+                self.logger.debug("%s" % payment)
+
+            if not progetto.pagamento or ( int(tot) != int(progetto.pagamento) ):
+                self.logger.warning('Il progetto %s ha come pagamento "%s" ma nello storico risulta "%s"' % (progetto.codice_locale, progetto.pagamento, tot))
+
+            self.logger.info("%s] %s ha ricevuto %s pagamenti" % (c, progetto, len(payments)))
+
+        self.logger.info("Fine: %s pagamenti inseriti, per %s progetti e %s progetti non sono stati trovati" % (tot_payments, projects, not_found))
 
 
     def handle_cups(self, *args, **options):
@@ -188,8 +268,6 @@ class Command(BaseCommand):
                 already_ok += 1
 
         self.logger.info("Fine: %s descrizioni aggiornate, %s sintesi da importare erano vuote e %s progetti non sono stati trovati tramite il cup" % (updates, already_ok, not_found))
-
-
 
     def handle_rec(self, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
