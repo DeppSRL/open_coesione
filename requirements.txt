@@ -22,13 +22,10 @@ python-dateutil
 ssh
 uuid
 wsgiref
-TileStache
 simplejson
 vectorformats
 psycopg2
-ModestMaps
 
-feincms
 django-mptt
 
 django-classy-tags

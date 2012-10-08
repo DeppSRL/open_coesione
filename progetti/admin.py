@@ -14,6 +14,7 @@ class ProgettoAdmin(admin.ModelAdmin):
     inlines = (LocalizzazioneInline,)
     search_fields = ['^codice_locale',]
     filter_vertical = ('soggetto_set',)
+    list_filter = ('cipe_flag',)
 
     # modify fields list, for superuser
     def change_view(self, request, object_id, form_url='', extra_context=None):

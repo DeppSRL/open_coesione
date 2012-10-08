@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import connection
 from django.db.utils import DatabaseError
 from django.core.management.base import BaseCommand, CommandError
 
@@ -323,32 +324,41 @@ class Command(BaseCommand):
             cap = r['CAP_SOGG'].strip() if r['CAP_SOGG'].strip() else None
 
             # creazione soggetto
-            created = False
+            soggetto = None
             denominazione = re.sub('\s{2,}', ' ', r['DPS_DENOMINAZIONE_SOGG']).strip()
             try:
                 soggetto = Soggetto.objects.get(denominazione__iexact=denominazione)
-            except ObjectDoesNotExist:
-                soggetto = Soggetto.objects.create(
-                    denominazione=denominazione,
-                    codice_fiscale=r['DPS_CODICE_FISCALE_SOGG'].strip(),
-                    forma_giuridica=forma_giuridica,
-                    indirizzo=indirizzo,
-                    cap=cap,
-                    territorio=territorio
-                )
-                created = True
-
-            if created:
-                self.logger.info(u"%s: Aggiunto soggetto: %s" % (c, soggetto.denominazione,))
-            else:
                 self.logger.debug(u"%s: Soggetto trovato e non modificato: %s" % (c, soggetto.denominazione))
+            except ObjectDoesNotExist:
+                try:
+                    soggetto = Soggetto.objects.create(
+                        denominazione=denominazione,
+                        codice_fiscale=r['DPS_CODICE_FISCALE_SOGG'].strip(),
+                        forma_giuridica=forma_giuridica,
+                        indirizzo=indirizzo,
+                        cap=cap,
+                        territorio=territorio
+                    )
+                    self.logger.info(u"%s: Aggiunto soggetto: %s" % (c, soggetto.denominazione,))
+                except DatabaseError as e:
+                    self.logger.warning("{0} - Database error: {1}. Skipping.".format(c, e))
+                    connection._rollback()
 
-            # add role of subject in project
-            Ruolo.objects.create(
-                progetto = progetto,
-                soggetto = soggetto,
-                ruolo = r['SOGG_COD_RUOLO']
-            )
+            if soggetto:
+                # add role of subject in project
+                created = False
+                role, created = Ruolo.objects.get_or_create(
+                    progetto = progetto,
+                    soggetto = soggetto,
+                    ruolo = r['SOGG_COD_RUOLO']
+                )
+                if created:
+                    self.logger.info(u"%s: Ruolo creato: %s" % (c, role,))
+                else:
+                    self.logger.debug(u"%s: Ruolo creato: %s" % (c, role,))
+
+                del soggetto
+                del progetto
 
 
 
@@ -453,6 +463,10 @@ class Command(BaseCommand):
                     self.logger.info("%d - Aggiunta localizzazione progetto: %s" % (c, localizzazione,))
                 else:
                     self.logger.debug("%d - Trovata localizzazione progetto: %s" % (c, localizzazione,))
+
+
+                del localizzazione
+                del progetto
 
             if int(options['limit']) and\
                (c - int(options['offset']) > int(options['limit'])):
@@ -785,16 +799,16 @@ class Command(BaseCommand):
             fin_totale_pubblico = Decimal(r['FINANZ_TOTALE_PUBBLICO'].replace(',','.')) if r['FINANZ_TOTALE_PUBBLICO'].strip() else None
 
             fin_ue = Decimal(r['FINANZ_UE'].replace(',','.')) if r['FINANZ_UE'].strip() else None
-            fin_stato_fondo_rotazione = Decimal(r['FINANZ_Stato_Fondo_di_Rotazione'].replace(',','.')) if r['FINANZ_Stato_Fondo_di_Rotazione'].strip() else None
-            fin_stato_fsc = Decimal(r['FINANZ_Stato_FSC'].replace(',','.')) if r['FINANZ_Stato_FSC'].strip() else None
-            fin_stato_altri_provvedimenti = Decimal(r['FINANZ_Stato_altri_provvedimenti'].replace(',','.')) if r['FINANZ_Stato_altri_provvedimenti'].strip() else None
-            fin_regione = Decimal(r['FINANZ_Regione'].replace(',','.')) if r['FINANZ_Regione'].strip() else None
-            fin_provincia = Decimal(r['FINANZ_Provincia'].replace(',','.')) if r['FINANZ_Provincia'].strip() else None
-            fin_comune = Decimal(r['FINANZ_Comune'].replace(',','.')) if r['FINANZ_Comune'].strip() else None
-            fin_altro_pubblico = Decimal(r['FINANZ_Altro_pubblico'].replace(',','.')) if r['FINANZ_Altro_pubblico'].strip() else None
-            fin_stato_estero = Decimal(r['FINANZ_Stato_estero'].replace(',','.')) if r['FINANZ_Stato_estero'].strip() else None
-            fin_privato = Decimal(r['FINANZ_Privato'].replace(',','.')) if r['FINANZ_Privato'].strip() else None
-            fin_da_reperire = Decimal(r['FINANZ_Da_reperire'].replace(',','.')) if r['FINANZ_Da_reperire'].strip() else None
+            fin_stato_fondo_rotazione = Decimal(r['FINANZ_STATO_FONDO_DI_ROTAZIONE'].replace(',','.')) if r['FINANZ_STATO_FONDO_DI_ROTAZIONE'].strip() else None
+            fin_stato_fsc = Decimal(r['FINANZ_STATO_FSC'].replace(',','.')) if r['FINANZ_STATO_FSC'].strip() else None
+            fin_stato_altri_provvedimenti = Decimal(r['FINANZ_STATO_ALTRI_PROVVEDIMENTI'].replace(',','.')) if r['FINANZ_STATO_ALTRI_PROVVEDIMENTI'].strip() else None
+            fin_regione = Decimal(r['FINANZ_REGIONE'].replace(',','.')) if r['FINANZ_REGIONE'].strip() else None
+            fin_provincia = Decimal(r['FINANZ_PROVINCIA'].replace(',','.')) if r['FINANZ_PROVINCIA'].strip() else None
+            fin_comune = Decimal(r['FINANZ_COMUNE'].replace(',','.')) if r['FINANZ_COMUNE'].strip() else None
+            fin_altro_pubblico = Decimal(r['FINANZ_ALTRO_PUBBLICO'].replace(',','.')) if r['FINANZ_ALTRO_PUBBLICO'].strip() else None
+            fin_stato_estero = Decimal(r['FINANZ_STATO_ESTERO'].replace(',','.')) if r['FINANZ_STATO_ESTERO'].strip() else None
+            fin_privato = Decimal(r['FINANZ_PRIVATO'].replace(',','.')) if r['FINANZ_PRIVATO'].strip() else None
+            fin_da_reperire = Decimal(r['FINANZ_DA_REPERIRE'].replace(',','.')) if r['FINANZ_DA_REPERIRE'].strip() else None
 
             # costo = Decimal(r['COSTO'].replace(',','.')) if r['COSTO'].strip() else None
             costo_ammesso = Decimal(r['COSTO_RENDICONTABILE_UE'].replace(',','.')) if r['COSTO_RENDICONTABILE_UE'].strip() else None
@@ -871,6 +885,9 @@ class Command(BaseCommand):
                 else:
                     self.logger.info("%s: Progetto trovato e non modificato: %s" % (c, p.codice_locale))
 
+                # remove local variable p from the namespace,
+                #may free some memory
+                del p
 
             except DatabaseError as e:
                 self.logger.error("Progetto %s: %s" % (r['COD_LOCALE_PROGETTO'], e))

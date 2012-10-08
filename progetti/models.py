@@ -430,7 +430,7 @@ class Localizzazione(models.Model):
                                                            )
     territorio = models.ForeignKey('territori.Territorio', verbose_name=u'Territorio')
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
-    indirizzo = models.CharField(max_length=512, blank=True, null=True)
+    indirizzo = models.CharField(max_length=550, blank=True, null=True)
     cap = models.CharField(max_length=5, blank=True, null=True)
     dps_flag_cap = models.CharField(max_length=1, choices=DPS_FLAG_CAP)
 
@@ -463,7 +463,7 @@ class Ruolo(models.Model):
         return self.progetto_set.all()
 
     def __unicode__(self):
-        return u"%s" % (self.get_ruolo_display(),)
+        return u"%s, %s nel progetto %s" % (self.soggetto, self.get_ruolo_display(), self.progetto)
 
     class Meta:
         verbose_name = "Ruolo"
