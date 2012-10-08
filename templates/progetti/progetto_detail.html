@@ -24,11 +24,13 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-loader.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/oc-maps.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.expander.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.tipsy.js"></script>
   {% endaddtoblock %}
 
   {{ block.super }}
 
   <script type="text/javascript">
+    var monthNames = new Array('Gennaio','Febbraio','Marzo','Aprile','Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre','Dicembre');
     var chart; // globally available
 
     var pie_chart_options = {
@@ -115,59 +117,40 @@
         window.open( $( this ).prop('href'), '', 'left=' + left + ',top=' + top + ',width=' + width + ',height=' + height + ',personalbar=0,toolbar=0,scrollbars=1,resizable=1');
 
         return false; // stop propagation
-      })
+      });
 
       // read more for project description
       $('#project_description').expander({
         // the number of characters at which the contents will be sliced into two parts.
         slicePoint: 200,
 
-// whether to keep the last word of the summary whole (true) or let it slice in the middle of a word (false)
-        preserveWords: true,
-
-// a threshold of sorts for whether to initially hide/collapse part of the element's contents.
-// If after slicing the contents in two there are fewer words in the second part than
-// the value set by widow, we won't bother hiding/collapsing anything.
-        widow: 4,
-
-// text displayed in a link instead of the hidden part of the element.
-// clicking this will expand/show the hidden/collapsed text
+        // text displayed in a link instead of the hidden part of the element.
+        // clicking this will expand/show the hidden/collapsed text
         expandText: '<i class="icon-caret-down"></i>',
         expandPrefix: '&hellip; ',
 
-// class names for summary element and detail element
-        summaryClass: 'summary',
-        detailClass: 'details',
-
-// one or more space-separated class names for <span> around
-// "read-more" link and "read-less" link
-        moreClass: 'read-more',
-        lessClass: 'read-less',
-
-// number of milliseconds after text has been expanded at which to collapse the text again.
-// when 0, no auto-collapsing
-        collapseTimer: 0,
-
-// effects for expanding and collapsing
-        expandEffect: 'fadeIn',
-        expandSpeed: 250,
-        collapseEffect: 'fadeOut',
-        collapseSpeed: 200,
-
-// allow the user to re-collapse the expanded text.
-        userCollapse: true,
-
-// text to use for the link to re-collapse the text
+        // text to use for the link to re-collapse the text
         userCollapseText: '<i class="icon-caret-up"></i>',
-        userCollapsePrefix: ' ',
+        userCollapsePrefix: ' '
+      });
 
+      // build a progress bar with tooltip
+      $('.progress div.bar').tipsy({trigger: 'manual', gravity: 's', opacity:1, title: 'data-percentage'}).each(function(){
 
-// all callback functions have the this keyword mapped to the element in the jQuery set when .expander() is called
+        var $bar = $(this);
 
-        onSlice: null, // function() {}
-        beforeExpand: null, // function() {},
-        afterExpand: null, // function() {},
-        onCollapse: null // function(byUser) {}
+        // open tip for percentage
+        $bar.tipsy('show');
+
+        // open tip for payment date
+        $bar.data('tipsy').tip().tipsy({
+          trigger: 'manual', gravity: 'n', offset: 15, opacity:1, title: function() {
+          // build data html
+          var payment_date_parts = $bar.data('date').split('-');
+{#          var month_short_name = monthNames[parseInt(payment_date_parts[1])-1].slice(0,3);#}
+          return '<span class="day">' + payment_date_parts[2] + '</span><span class="month">' + payment_date_parts[1] + '</span><span class="year">' + payment_date_parts[0] + '</span>';
+          }, html: true
+        }).tipsy('show');
       });
 
     });
@@ -413,11 +396,17 @@
 
             <div class="span3">
               {%  if not progetto.cipe_flag %}
-                  <div class="block-chart" title="{{ cost_payments_ratio }} del totale">
-
-                    <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}"></span></div>
-                    <p>{{ cost_payments_ratio }}</p>
-                  </div>
+                <div id="payments-progress" class="progress" style="position: relative;">
+                {% for pagamento in progetto.pagamentoprogetto_set.all %}
+                  <div class="bar bar-success" style="width: {{ pagamento.percentuale|floatformat:0 }}%;" data-percentage="{{ pagamento.percentuale|floatformat:0 }}%" data-date="{{ pagamento.data|date:"Y-M-d" }}"></div>
+                {% endfor %}
+{#                  <div class="bar bar-success" style="width: 45%;" data-percentage="45%" data-date="2012-04-01"></div>#}
+                </div>
+{#                  <div class="block-chart" title="{{ cost_payments_ratio }} del totale">#}
+{##}
+{#                    <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}"></span></div>#}
+{#                    <p>{{ cost_payments_ratio }}</p>#}
+{#                  </div>#}
               {%  endif %}
             </div>
 
