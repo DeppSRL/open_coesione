@@ -165,7 +165,7 @@ class Command(BaseCommand):
                 payment = PagamentoProgetto.objects.create(
                     progetto= progetto,
                     data= date_dict[key],
-                    ammontare= delta
+                    ammontare= "%.2g" % delta
                 )
                 # se presente un pagamento è il totale pagato fino a quel momento
                 tot = amount
