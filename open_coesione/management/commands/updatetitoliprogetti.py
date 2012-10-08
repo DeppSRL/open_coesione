@@ -52,13 +52,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.csv_file = options['csvfile']
+        self.encoding = options['encoding']
 
         # read first csv file
         try:
             self.unicode_reader = utils.UnicodeDictReader(
                 open(self.csv_file, 'r'),
-                encoding=self.encoding,
-                dialect='opencoesione'
+                dialect='opencoesione',
+                encoding=self.encoding
             )
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.csv_file)
