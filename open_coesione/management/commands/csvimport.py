@@ -210,16 +210,16 @@ class Command(BaseCommand):
 
 
             # controllo se il fin_totale_pubblico coincide con un pagamento
-            if (progetto.fin_totale_pubblico is not None) and \
-               (int(progetto.fin_totale_pubblico) not in [int(x[1]) for x in payment_tuples if x[1] is not None]):
-                self.logger.warning("%s] - Progetto '%s' ha un fin_totale_pubblico (%s) che non compare nei pagamenti: %s" % (
-                    c, project_code, progetto.fin_totale_pubblico, dict(payment_tuples)))
-                stats['Progetti con fin_totale_pubblico non presente nei pagamenti'] += 1
+#            if (progetto.fin_totale_pubblico is not None) and \
+#               (int(progetto.fin_totale_pubblico) not in [int(x[1]) for x in payment_tuples if x[1] is not None]):
+#                self.logger.warning("%s] - Progetto '%s' ha un fin_totale_pubblico (%s) che non compare nei pagamenti: %s" % (
+#                    c, project_code, progetto.fin_totale_pubblico, dict(payment_tuples)))
+#                stats['Progetti con fin_totale_pubblico non presente nei pagamenti'] += 1
 
-            # controllo se ci sono pagamenti negativi
-            if any(map(lambda x: (x[1] is not None) and (x[1]<0.0), payment_tuples)):
-                self.logger.warning("%s] - Progetto '%s' ha dei pagamenti negativi: %s" % (c, project_code, dict(payment_tuples)))
-                stats['Progetti con Pagamenti negativi'] += 1
+#            # controllo se ci sono pagamenti negativi
+#            if any(map(lambda x: (x[1] is not None) and (x[1]<0.0), payment_tuples)):
+#                self.logger.warning("%s] - Progetto '%s' ha dei pagamenti negativi: %s" % (c, project_code, dict(payment_tuples)))
+#                stats['Progetti con Pagamenti negativi'] += 1
 
             payments = []
             for dt, tot in payment_tuples:
