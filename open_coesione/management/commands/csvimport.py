@@ -234,11 +234,16 @@ class Command(BaseCommand):
                     self.logger.warning("%s] Progetto '%s' ha un pagamento (%s) maggiore del suo fin_totale_pubblico (%s) in data %s" % (c, project_code, amount, progetto.fin_totale_pubblico, dt))
                     stats['Progetti con pagamenti maggiori del fin_totale_pubblico'] +=1
 
-                PagamentoProgetto.objects.create(
+                created = False
+                pp, created = PagamentoProgetto.objects.get_or_create(
                     progetto= progetto,
                     data= dt,
                     ammontare= tot,
                 )
+                if created:
+                    self.logger.info("%s: pagamento inserito: %s" % (c, pp))
+                else:
+                    self.logger.debug("%s: pagamento trovato e non duplicato: %s" % (c, pp))
 
                 payments.append( tot )
                 stats['Numero pagamenti inseriti'] +=1
