@@ -338,7 +338,7 @@ class Command(BaseCommand):
                 not_found += 1
                 continue
             except MultipleObjectsReturned:
-                self.logger.warning("%s - Più progetti con CUP: %s, skip" % (c, r['CUP']))
+                self.logger.warning(u"%s - Più progetti con CUP: %s, skip" % (c, r['CUP']))
                 duplicate += 1
                 continue
 
