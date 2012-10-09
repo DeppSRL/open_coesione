@@ -34,7 +34,7 @@ class Command(LabelCommand):
         make_option('--type',
                     dest='type',
                     default='loc',
-                    help='Type of related data: loc|rec'),
+                    help='Type of related data: loc|rec|pay'),
         make_option('--encoding',
                     dest='encoding',
                     default='iso-8859-1',
@@ -110,6 +110,14 @@ class Command(LabelCommand):
                 "DPS_CODICE_FISCALE_SOGG","DPS_DENOMINAZIONE_SOGG",
                 "COD_FORMA_GIURIDICA_SOGG","DESCR_FORMA_GIURIDICA_SOGG",
                 "COD_COMUNE_SEDE_SOGG","INDIRIZZO_SOGG","CAP_SOGG"
+            ]
+        elif options['type'] == 'pay':
+            headers = [
+                "COD_LOCALE_PROGETTO",
+                "TOT_PAGAMENTI_20111231",
+                "TOT_PAGAMENTI_20120229",
+                "TOT_PAGAMENTI_20120430",
+                "TOT_PAGAMENTI_20120630"
             ]
         else:
             raise CommandError("Wrong type %s. Select between loc and rec." % options['type'])
