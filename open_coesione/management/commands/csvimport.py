@@ -37,7 +37,7 @@ class Command(BaseCommand):
                     help='Select csv file'),
         make_option('--type',
                     dest='type',
-                    default='proj',
+                    default=None,
                     help='Type of import: proj|loc|rec|cups|desc|pay'),
         make_option('--limit',
                     dest='limit',
@@ -103,7 +103,6 @@ class Command(BaseCommand):
             self.logger.error("Wrong type %s. Select among proj, loc and rec." % options['type'])
             exit(1)
 
-
     def handle_payments(self, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
         self.logger.info("Encoding: %s" % self.encoding)
@@ -112,73 +111,155 @@ class Command(BaseCommand):
 
         if options['delete']:
             PagamentoProgetto.objects.all().delete()
+            self.logger.info("Tutti i pagamenti sono stati cancellati")
             exit(1)
 
-        projects = 0
-        tot_payments = 0
-        not_found = 0
-        date_dict = None
-        date_list = []
-        for r in self.unicode_reader:
+        from dateutil import parser as dateparser
+        COL_CODE = 'COD_LOCALE_PROGETTO'
+        COL_DATE_PREFIX = 'TOT_PAGAMENTI_'
+
+        stats = {
+            'Progetti trovati nel db': 0,
+            'Progetti NON trovati nel db': 0,
+            'Progetti con COD_LOCALE_PROGETTO da modificare (iexacted)': 0,
+            'Progetti con Pagamenti negativi': 0,
+            'Progetti con pagamenti maggiori del fin_totale_pubblico': 0,
+            'Progetti con fin_totale_pubblico non presente nei pagamenti': 0,
+            'Numero pagamenti inseriti': 0,
+        }
+        pics={}
+        def _pics(v):
+            """
+            legend:
+                X -> None
+                0 -> 0 (zero)
+                + -> positive
+                - -> negative
+                E -> error
+            """
+            if v is None: return 'X'
+            elif v==0.0: return '0'
+            elif v>0.0: return  '+'
+            elif v<0.0: return  '-'
+            else: return 'E'
+
+        def add_pic(value_list):
+            key = "".join(map(_pics,value_list))
+            if key not in pics:
+                pics[key]=0
+            pics[key]+=1
+
+        valid_code_list = []
+
+
+        # prendo tutte le chiavi della riga tranne la prima che è il codice locale progetto
+        date_dict = {}
+        for key in self.unicode_reader.reader.fieldnames:
+            if key == COL_CODE: continue
+            # formato della key: TOT_PAGAMENTI_YYYYMMDD
+            date_dict[key] = dateparser.parse(key.replace(COL_DATE_PREFIX, ''))
+
+        date_list = sorted(date_dict.keys(), key=lambda x: date_dict[x])
+
+        for row in self.unicode_reader:
+            # select a set of rows
+            # with offset
             c = self.unicode_reader.reader.line_num - 1
             if c < int(options['offset']):
                 continue
-
+                # and limit
             if int(options['limit']) and\
                (c - int(options['offset']) > int(options['limit'])):
                 break
+            # ... i'm working...
+            if c % 2500 == 0: self.logger.info( ".. read line %d .." % c )
 
-            # inizializzo il dizionario delle date dei pagamenti
-            # che sono nella prima riga dalla seconda colonna in poi
-            if not date_dict:
 
-                # prendo tutte le chiavi della riga tranne la prima che è il codice locale progetto
-                # formato della key: TOT_PAGAMENTI_YYYYMMDD
-                date_dict = dict([(key, dateutil.parser.parse(key.split('TOT_PAGAMENTI_')[1]) ) for key in r.keys()[1:]])
-                date_list = sorted(date_dict.keys(), key=lambda x: date_dict[x])
+            project_code = row[ COL_CODE ].strip()
 
             # codice locale progetto (ID del record)
+            progetto=None
             try:
-                progetto = Progetto.objects.get(pk=r['COD_LOCALE_PROGETTO'].strip())
-                self.logger.debug("%s - Progetto: %s" % (c, progetto.codice_locale))
-                projects += 1
-            except ObjectDoesNotExist:
-                self.logger.debug("%s - Progetto non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
-                not_found += 1
-                continue
+                progetto = Progetto.objects.get( pk=project_code )
+                self.logger.debug("%s] - Progetto: %s" % (c, progetto.codice_locale))
+                stats['Progetti trovati nel db'] += 1
+            except Progetto.DoesNotExist:
+                self.logger.warning("%s] - Progetto non trovato: %s, provo iexact" % (c, project_code))
+                try:
+                    progetto = Progetto.objects.get( pk__iexact=project_code )
+                    self.logger.warning("%s] - Progetto: %s" % (c, progetto.codice_locale))
+                    stats['Progetti con COD_LOCALE_PROGETTO da modificare (iexacted)'] += 1
+                except Progetto.DoesNotExist:
+                    self.logger.error("%s] - Progetto non trovato: %s, SKIP" % (c, project_code))
+                    stats['Progetti NON trovati nel db'] += 1
+                    continue
+
+            valid_code_list.append(project_code)
+
+            # collect stats on payment values by date
+            # read values
+            payment_tuples = []
+            for date_col in date_list:
+                amount = row[date_col].strip()
+                if not amount: # no payment
+                    payment_tuples.append( (date_dict[date_col], None) )
+                    continue
+                amount = float(amount.replace(',','.'))
+                # payment_tuple: (DATE,EURO)
+                payment_tuples.append( (date_dict[date_col], amount) )
+
+
+            # controllo se il fin_totale_pubblico coincide con un pagamento
+            if (progetto.fin_totale_pubblico is not None) and \
+               (int(progetto.fin_totale_pubblico) not in [int(x[1]) for x in payment_tuples if x[1] is not None]):
+                self.logger.warning("%s] - Progetto '%s' ha un fin_totale_pubblico (%s) che non compare nei pagamenti: %s" % (
+                    c, project_code, progetto.fin_totale_pubblico, dict(payment_tuples)))
+                stats['Progetti con fin_totale_pubblico non presente nei pagamenti'] += 1
+
+            # controllo se ci sono pagamenti negativi
+            if any(map(lambda x: (x[1] is not None) and (x[1]<0.0), payment_tuples)):
+                self.logger.warning("%s] - Progetto '%s' ha dei pagamenti negativi: %s" % (c, project_code, dict(payment_tuples)))
+                stats['Progetti con Pagamenti negativi'] += 1
 
             payments = []
-            tot = 0.0
-            for key in date_list:
-                amount_str = r[key].strip()
-                if not amount_str:
-                    # nessun pagamento in questa data
-                    continue
-                amount = float(amount_str.replace(',','.'))
-                # faccio il controllo con l'intero per evitare pagamenti da 0.01
-                if int(tot) == int(amount):
-                    # nessun nuovo pagamento per questa data
+            for dt, tot in payment_tuples:
+
+                # skip empty payment
+                if tot is None:
+                    self.logger.debug("%s] Progetto '%s' ha un pagamento nullo in data %s, SKIP" % (c, project_code, dt))
+                    payments.append( tot )
                     continue
 
-                delta = amount - tot
+                if (progetto.fin_totale_pubblico is not None) and (int(tot) > int(progetto.fin_totale_pubblico)):
+                    self.logger.warning("%s] Progetto '%s' ha un pagamento (%s) maggiore del suo fin_totale_pubblico (%s) in data %s" % (c, project_code, amount, progetto.fin_totale_pubblico, dt))
+                    stats['Progetti con pagamenti maggiori del fin_totale_pubblico'] +=1
 
-                payment = PagamentoProgetto.objects.create(
+                PagamentoProgetto.objects.create(
                     progetto= progetto,
-                    data= date_dict[key],
-                    ammontare= delta
+                    data= dt,
+                    ammontare= tot,
                 )
-                # se presente un pagamento è il totale pagato fino a quel momento
-                tot = amount
-                payments.append(payment)
-                tot_payments += 1
-                self.logger.debug("%s" % payment)
 
-            if not progetto.pagamento or ( int(tot) != int(progetto.pagamento) ):
-                self.logger.warning('Il progetto %s ha come pagamento "%s" ma nello storico risulta "%s"' % (progetto.codice_locale, progetto.pagamento, tot))
+                payments.append( tot )
+                stats['Numero pagamenti inseriti'] +=1
 
-            self.logger.info("%s] %s ha ricevuto %s pagamenti" % (c, progetto, len(payments)))
+            self.logger.info("%s] %s ha ricevuto pagamenti: %s" % (c, progetto, payments))
 
-        self.logger.info("Fine: %s pagamenti inseriti, per %s progetti e %s progetti non sono stati trovati" % (tot_payments, projects, not_found))
+            add_pic(payments)
+
+        stats['Progetti nel db'] = Progetto.objects.count()
+        stats['Progetti NON trovati nel csv'] = Progetto.objects.exclude(codice_locale__in=valid_code_list).count()
+
+        self.logger.info('-------------- STATS --------------')
+        self.logger.info('')
+        for k in stats:
+            self.logger.info( "%s : %s" % (k, stats[k]) )
+        self.logger.info('')
+        self.logger.info('PICS: %s' % _pics.__doc__ )
+
+        for pic, qnt in sorted(pics.items(), key=lambda x: x[1],reverse=True):
+            self.logger.info( "%s : %d" % (pic, qnt) )
+
 
 
     def handle_cups(self, *args, **options):
