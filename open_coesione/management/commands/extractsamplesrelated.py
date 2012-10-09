@@ -65,7 +65,8 @@ class Command(LabelCommand):
             self.proj_reader = utils.UnicodeDictReader(
                 open(self.proj_sample_file, 'r'),
                 dialect='opencoesione',
-                encoding=self.encoding)
+                encoding=self.encoding
+            )
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.proj_sample_file)
             exit(1)
