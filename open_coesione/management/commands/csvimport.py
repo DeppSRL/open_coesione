@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import connection
 from django.db.utils import DatabaseError
 from django.core.management.base import BaseCommand, CommandError
@@ -319,6 +319,7 @@ class Command(BaseCommand):
         updates = 0
         already_ok = 0
         not_found = 0
+        duplicate = 0
         for r in self.unicode_reader:
             c = self.unicode_reader.reader.line_num - 1
             if c < int(options['offset']):
@@ -336,6 +337,11 @@ class Command(BaseCommand):
                 self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, r['CUP']))
                 not_found += 1
                 continue
+            except MultipleObjectsReturned:
+                self.logger.warning("%s - Più progetti con CUP: %s, skip" % (c, r['CUP']))
+                duplicate += 1
+                continue
+
 
             sintesi = r['Sintesi'].strip()
 
@@ -348,7 +354,10 @@ class Command(BaseCommand):
                 self.logger.info("Sintesi vuota per il progetto %s" % progetto)
                 already_ok += 1
 
-        self.logger.info("Fine: %s descrizioni aggiornate, %s sintesi da importare erano vuote e %s progetti non sono stati trovati tramite il cup" % (updates, already_ok, not_found))
+        self.logger.info(
+            "Fine: %s descrizioni aggiornate, %s sintesi da importare erano vuote, %s progetti non sono stati trovati tramite il cup, %s progetti si riferiscono a un CUP non univoco" %
+            (updates, already_ok, not_found, duplicate)
+        )
 
     def handle_rec(self, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
