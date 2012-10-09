@@ -355,7 +355,7 @@ class Command(BaseCommand):
                 if created:
                     self.logger.info(u"%s: Ruolo creato: %s" % (c, role,))
                 else:
-                    self.logger.debug(u"%s: Ruolo creato: %s" % (c, role,))
+                    self.logger.debug(u"%s: Ruolo trovato: %s" % (c, role,))
 
                 del soggetto
                 del progetto
