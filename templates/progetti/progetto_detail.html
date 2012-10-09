@@ -25,6 +25,7 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/oc-maps.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.expander.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.tipsy.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-modal.js"></script>
   {% endaddtoblock %}
 
   {{ block.super }}
@@ -134,24 +135,58 @@
         userCollapsePrefix: ' '
       });
 
-      // build a progress bar with tooltip
-      $('.progress div.bar').tipsy({trigger: 'manual', gravity: 's', opacity:1, title: 'data-percentage'}).each(function(){
 
-        var $bar = $(this);
+      var line_options = {
+        chart: {
+          renderTo: 'payments_chart',
+          type: 'spline',
+          backgroundColor: null
+        },
+        title: {
+          text: ''
+        },
+        subtitle: {
+          //text: 'Il grafico mostra'
+        },
+        xAxis: {
+          categories: []
+        },
+        yAxis: {
+          title: { text: '% pagamenti' },
+          min: 0, max: 100
+        },
+        series: [{
+          name: 'Pagamenti',
+          data: []
+        }],
+        credits: { enabled: false },
+        legend: { enabled: false },
+        tooltip: { valueDecimals: 2, valueSuffix: '%', xDateFormat: '%Y' }
+      };
+      $('#payments_chart_table').find('tr').map( function() {
+        var values = $('th, td, td', this).map(function() { return $(this).text() });
+        if (line_options['xAxis']['categories'].indexOf(values[0]) == -1) {
+          // init headers
+          line_options['xAxis']['categories'].push(values[0]);
+        }
+        line_options['series'][0]['data'].push( parseInt(values[2]) );
 
-        // open tip for percentage
-        $bar.tipsy('show');
-
-        // open tip for payment date
-        $bar.data('tipsy').tip().tipsy({
-          trigger: 'manual', gravity: 'n', offset: 15, opacity:1, title: function() {
-          // build data html
-          var payment_date_parts = $bar.data('date').split('-');
-{#          var month_short_name = monthNames[parseInt(payment_date_parts[1])-1].slice(0,3);#}
-          return '<span class="day">' + payment_date_parts[2] + '</span><span class="month">' + payment_date_parts[1] + '</span><span class="year">' + payment_date_parts[0] + '</span>';
-          }, html: true
-        }).tipsy('show');
       });
+
+
+      {% if progetto.pagamenti %}
+        var payment_chart = false;
+
+        var $navigator = $('#navigator');
+        $navigator.modal('hide');
+        $('#payments_chart_link').on('click', function() {
+          if (!payment_chart) {
+            payment_chart = new Highcharts.Chart($.extend(true, {}, line_options, {}));
+          }
+          $navigator.modal('show');
+          return false;
+        });
+      {% endif %}
 
     });
   </script>
@@ -168,7 +203,7 @@
           <h1>{{ progetto.titolo_progetto }}</h1>
         </header>
 
-        <p>Data di aggiornamento: <strong>{{ progetto.data_aggiornamento|date:"d.m.Y" }}</strong></p>
+        <p>Data di aggiornamento: <strong>{{ progetto.ultimo_aggiornamento|date:"d.m.Y" }}</strong></p>
 
         <ul class="unstyled">
           <li>
@@ -396,18 +431,23 @@
 
             <div class="span3">
               {%  if not progetto.cipe_flag %}
-                <div id="payments-progress" class="progress" style="position: relative;">
-                {% for pagamento in progetto.pagamentoprogetto_set.all %}
-                  <div class="bar bar-success" style="width: {{ pagamento.percentuale|floatformat:0 }}%;" data-percentage="{{ pagamento.percentuale|floatformat:0 }}%" data-date="{{ pagamento.data|date:"Y-M-d" }}"></div>
-                {% endfor %}
-{#                  <div class="bar bar-success" style="width: 45%;" data-percentage="45%" data-date="2012-04-01"></div>#}
-                </div>
-{#                  <div class="block-chart" title="{{ cost_payments_ratio }} del totale">#}
-{##}
-{#                    <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}"></span></div>#}
-{#                    <p>{{ cost_payments_ratio }}</p>#}
-{#                  </div>#}
+
+                  <div class="block-chart" title="{{ cost_payments_ratio }} del totale">
+
+                    <div class="bar-vertical"><span style="height:{{ cost_payments_ratio }}"></span></div>
+                    <p>{{ cost_payments_ratio }}</p>
+                  </div>
               {%  endif %}
+
+              {% if progetto.pagamenti %}
+              <p style="text-align:center ;"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></p>
+
+              <table id="payments_chart_table" class="hide">
+                {% for pagamento in progetto.pagamenti %}
+                <tr><th>{{ pagamento.data|date:"N Y" }}</th><td>{{ pagamento.ammontare }}</td><td>{{ pagamento.percentuale|floatformat:"0" }}</td></tr>
+                {% endfor %}
+              </table>
+              {% endif %}
             </div>
 
 {#            <p class="span6 text-center">#}
@@ -565,4 +605,14 @@
         </div>
     {% endif %}
 
+
+  <div class="modal hide" id="navigator">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">×</button>
+      <h3>Andamento dei pagamenti</h3>
+    </div>
+    <div class="modal-body">
+      <div id="payments_chart" style="width: 500px; height: 200px; margin: 20px;"></div>
+    </div>
+  </div>
 {% endblock %}

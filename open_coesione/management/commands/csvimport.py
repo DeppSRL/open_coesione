@@ -237,7 +237,7 @@ class Command(BaseCommand):
                 PagamentoProgetto.objects.create(
                     progetto= progetto,
                     data= dt,
-                    ammontare= "%.2g" % tot,
+                    ammontare= tot,
                 )
 
                 payments.append( tot )

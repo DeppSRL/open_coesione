@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
+from django.utils.functional import cached_property
 from model_utils import Choices
 from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager
 from soggetti.models import Soggetto
@@ -404,6 +405,20 @@ class Progetto(models.Model):
     def segnalazioni(self):
         return SegnalazioneProgetto.objects.filter(cup=self.cup, pubblicato=True)
 
+    @cached_property
+    def pagamenti(self):
+        return self.pagamentoprogetto_set.order_by('data').all()
+
+    @property
+    def ultimo_aggiornamento(self):
+        """
+        la data_aggiornamento potrebbe essere obsoleta rispetto
+        ai pagamenti
+        """
+        pagamenti = self.pagamenti
+        if not pagamenti and self.data_aggiornamento: return self.data_aggiornamento
+        return max(self.data_aggiornamento, *[p.data for p in pagamenti])
+
     def __unicode__(self):
         return self.codice_locale
 
@@ -522,7 +537,7 @@ class PagamentoProgetto(models.Model):
 
     progetto = models.ForeignKey(Progetto)
     data = models.DateField()
-    ammontare = models.DecimalField(max_digits=14, decimal_places=2)
+    ammontare = models.FloatField()
 
     @property
     def percentuale(self):
