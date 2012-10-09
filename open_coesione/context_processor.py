@@ -5,7 +5,7 @@ from territori.models import Territorio
 
 def main_settings(request):
     """
-    this function add to template context a subset of application settings
+    this function adds a subset of application settings to template context
     """
 
     # Dati non disponibili per ultimo
