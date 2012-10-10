@@ -407,7 +407,7 @@ class Progetto(models.Model):
 
     @cached_property
     def pagamenti(self):
-        return self.pagamentoprogetto_set.order_by('data').all()
+        return self.pagamentoprogetto_set.all()
 
     @property
     def ultimo_aggiornamento(self):
@@ -549,3 +549,4 @@ class PagamentoProgetto(models.Model):
     class Meta:
         verbose_name = "Pagamento progetto"
         verbose_name_plural = "Pagamenti progetti"
+        ordering = ['data']
