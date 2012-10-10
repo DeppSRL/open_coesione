@@ -153,7 +153,13 @@
         },
         yAxis: {
           title: { text: '% pagamenti' },
-          min: 0, max: 100
+          min: 0, showLastLabel:false,
+          labels: {
+            formatter: function() {
+              if ( this.value > 100 ) return '';
+              return this.value;
+            }
+          }
         },
         series: [{
           name: 'Pagamenti',
@@ -612,7 +618,7 @@
       <h3>Andamento dei pagamenti</h3>
     </div>
     <div class="modal-body">
-      <div id="payments_chart" style="width: 500px; height: 200px; margin: 20px;"></div>
+      <div id="payments_chart" style="width: 500px; height: 200px;"></div>
     </div>
   </div>
 {% endblock %}
