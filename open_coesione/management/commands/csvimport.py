@@ -184,17 +184,17 @@ class Command(BaseCommand):
                 self.logger.debug("%s] - Progetto: %s" % (c, progetto.codice_locale))
                 stats['Progetti trovati nel db'] += 1
             except Progetto.DoesNotExist:
-                self.logger.warning("%s] - Progetto non trovato: %s, provo iexact" % (c, project_code))
-                try:
-                    progetto = Progetto.objects.get( pk__iexact=project_code )
-                    self.logger.warning("%s] - Progetto: %s" % (c, progetto.codice_locale))
-                    stats['Progetti con COD_LOCALE_PROGETTO da modificare (iexacted)'] += 1
-                except Progetto.DoesNotExist:
-                    self.logger.error("%s] - Progetto non trovato: %s, SKIP" % (c, project_code))
-                    stats['Progetti NON trovati nel db'] += 1
-                    continue
+#                self.logger.warning("%s] - Progetto non trovato: %s, provo iexact" % (c, project_code))
+#                try:
+#                    progetto = Progetto.objects.get( pk__iexact=project_code )
+#                    self.logger.warning("%s] - Progetto: %s" % (c, progetto.codice_locale))
+#                    stats['Progetti con COD_LOCALE_PROGETTO da modificare (iexacted)'] += 1
+#                except Progetto.DoesNotExist:
+                self.logger.warning("%s] - Progetto non trovato: %s, SKIP" % (c, project_code))
+                stats['Progetti NON trovati nel db'] += 1
+                continue
 
-            valid_code_list.append(project_code)
+#            valid_code_list.append(project_code)
 
             # collect stats on payment values by date
             # read values
@@ -204,22 +204,22 @@ class Command(BaseCommand):
                 if not amount: # no payment
                     payment_tuples.append( (date_dict[date_col], None) )
                     continue
-                amount = float(amount.replace(',','.'))
+                amount = float( "%.2f" % float(amount.replace(',','.')) )
                 # payment_tuple: (DATE,EURO)
                 payment_tuples.append( (date_dict[date_col], amount) )
 
 
-            # controllo se il fin_totale_pubblico coincide con un pagamento
-            if (progetto.fin_totale_pubblico is not None) and \
-               (int(progetto.fin_totale_pubblico) not in [int(x[1]) for x in payment_tuples if x[1] is not None]):
-                self.logger.warning("%s] - Progetto '%s' ha un fin_totale_pubblico (%s) che non compare nei pagamenti: %s" % (
-                    c, project_code, progetto.fin_totale_pubblico, dict(payment_tuples)))
-                stats['Progetti con fin_totale_pubblico non presente nei pagamenti'] += 1
+#            # controllo se il fin_totale_pubblico coincide con un pagamento
+#            if (progetto.fin_totale_pubblico is not None) and \
+#               (int(progetto.fin_totale_pubblico) not in [int(x[1]) for x in payment_tuples if x[1] is not None]):
+#                self.logger.warning("%s] - Progetto '%s' ha un fin_totale_pubblico (%s) che non compare nei pagamenti: %s" % (
+#                    c, project_code, progetto.fin_totale_pubblico, dict(payment_tuples)))
+#                stats['Progetti con fin_totale_pubblico non presente nei pagamenti'] += 1
 
-            # controllo se ci sono pagamenti negativi
-            if any(map(lambda x: (x[1] is not None) and (x[1]<0.0), payment_tuples)):
-                self.logger.warning("%s] - Progetto '%s' ha dei pagamenti negativi: %s" % (c, project_code, dict(payment_tuples)))
-                stats['Progetti con Pagamenti negativi'] += 1
+#            # controllo se ci sono pagamenti negativi
+#            if any(map(lambda x: (x[1] is not None) and (x[1]<0.0), payment_tuples)):
+#                self.logger.warning("%s] - Progetto '%s' ha dei pagamenti negativi: %s" % (c, project_code, dict(payment_tuples)))
+#                stats['Progetti con Pagamenti negativi'] += 1
 
             payments = []
             for dt, tot in payment_tuples:
@@ -230,11 +230,11 @@ class Command(BaseCommand):
                     payments.append( tot )
                     continue
 
-                if (progetto.fin_totale_pubblico is not None) and (int(tot) > int(progetto.fin_totale_pubblico)):
-                    self.logger.warning("%s] Progetto '%s' ha un pagamento (%s) maggiore del suo fin_totale_pubblico (%s) in data %s" % (c, project_code, amount, progetto.fin_totale_pubblico, dt))
-                    stats['Progetti con pagamenti maggiori del fin_totale_pubblico'] +=1
+#                if (progetto.fin_totale_pubblico is not None) and (int(tot) > int(progetto.fin_totale_pubblico)):
+#                    self.logger.warning("%s] Progetto '%s' ha un pagamento (%s) maggiore del suo fin_totale_pubblico (%s) in data %s" % (c, project_code, amount, progetto.fin_totale_pubblico, dt))
+#                    stats['Progetti con pagamenti maggiori del fin_totale_pubblico'] +=1
 
-                PagamentoProgetto.objects.create(
+                PagamentoProgetto.objects.get_or_create(
                     progetto= progetto,
                     data= dt,
                     ammontare= tot,
@@ -247,8 +247,8 @@ class Command(BaseCommand):
 
             add_pic(payments)
 
-        stats['Progetti nel db'] = Progetto.objects.count()
-        stats['Progetti NON trovati nel csv'] = Progetto.objects.exclude(codice_locale__in=valid_code_list).count()
+#        stats['Progetti nel db'] = Progetto.objects.count()
+#        stats['Progetti NON trovati nel csv'] = Progetto.objects.exclude(codice_locale__in=valid_code_list).count()
 
         self.logger.info('-------------- STATS --------------')
         self.logger.info('')
