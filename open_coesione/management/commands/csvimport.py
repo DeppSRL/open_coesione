@@ -239,7 +239,7 @@ class Command(BaseCommand):
                 pp, created = PagamentoProgetto.objects.get_or_create(
                     progetto= progetto,
                     data= dt,
-                    ammontare= tot,
+                    ammontare= tot if tot >= 0.0 else 0.0,
                 )
                 if created:
                     self.logger.info("%s: pagamento inserito: %s" % (c, pp))
