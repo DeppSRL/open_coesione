@@ -157,13 +157,7 @@
         },
         yAxis: {
           title: { text: '% pagamenti' },
-          min: 0, showLastLabel:false,
-          labels: {
-            formatter: function() {
-              if ( this.value > 100 ) return '';
-              return this.value;
-            }
-          }
+          min: 0, max: 110
         },
         series: [{
           name: 'Pagamenti',
@@ -172,13 +166,13 @@
         credits: { enabled: false },
         legend: { enabled: false },
         tooltip: {
+          valueDecimals: 2,
           formatter: function() {
             return ''+
-              this.x +': '+ Highcharts.numberFormat(this.y, 1) +'% <br>Pagamento: '+
-              Highcharts.numberFormat(parseFloat(serie['key_to_value'][this.x].replace(".","")), 1, ',', '.') +' euro';
+              this.x +': '+ Highcharts.numberFormat(this.y, 2, ',', '.') +'% <br>Pagamento: '+
+              Highcharts.numberFormat(serie['key_to_value'][this.x], 2, ',', '.') +' euro';
           }
         }
-{#        tooltip: { valueDecimals: 2, valueSuffix: '%', xDateFormat: '%Y' }#}
       };
 
       $('#payments_chart_table').find('tr').map( function() {
@@ -187,8 +181,8 @@
           // init headers
           line_options['xAxis']['categories'].push(values[0]);
         }
-        serie['key_to_value'][values[0]] = values[1];
-        serie['data'].push( parseInt(values[2].replace(".","")) );
+        serie['key_to_value'][values[0]] = parseFloat(values[1].replace(".","").replace(",","."));
+        serie['data'].push( parseFloat(values[2].replace(".","").replace(",",".")) );
 
       });
       line_options['series'][0]['data'] = serie['data'];
@@ -464,7 +458,7 @@
 
               <table id="payments_chart_table" class="hide">
                 {% for pagamento in progetto.pagamenti %}
-                <tr><th>{{ pagamento.data|date:"N Y" }}</th><td>{{ pagamento.ammontare|floatformat:"1" }}</td><td>{{ pagamento.percentuale|floatformat:"0" }}</td></tr>
+                <tr><th>{{ pagamento.data|date:"N Y" }}</th><td>{{ pagamento.ammontare|floatformat:"2" }}</td><td>{{ pagamento.percentuale|floatformat:"2" }}</td></tr>
                 {% endfor %}
               </table>
               {% endif %}
