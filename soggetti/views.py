@@ -189,32 +189,39 @@ class SoggettoView(AggregatoView, DetailView):
         }[ self.request.GET.get('tematizzazione', 'totale_costi') ]
 
         context['lista_finanziamenti_per_ruolo'] = []
+
         progetto_to_ruoli = {}
+
         # TODO quando avremo realizzatori e destinatari posso prendere tutti i ruoli
         for tipo_ruolo, nome_ruolo in Ruolo.RUOLO[:2]:
 
             for progetto_id, tot in Ruolo.objects.filter(soggetto=self.object, ruolo=tipo_ruolo).annotate(tot=aggregazione_ruolo).values_list('progetto_id', 'tot'):
 
                 if progetto_id not in progetto_to_ruoli:
-                    progetto_to_ruoli[progetto_id] = []
-                progetto_to_ruoli[progetto_id].append( (nome_ruolo, tot) )
+                    progetto_to_ruoli[progetto_id] = {}
+                progetto_to_ruoli[progetto_id][nome_ruolo] = float(tot)
 
-        print progetto_to_ruoli
+        dict_finanziamenti_per_ruolo = {}
+
         for progetto_id in progetto_to_ruoli:
 
-            if len(progetto_to_ruoli[progetto_id]) == 1:
-                # il soggetto ha un solo ruolo in questo progetto
-                context['lista_finanziamenti_per_ruolo'].append(
-                    progetto_to_ruoli[progetto_id][0]
-                )
-            else:
+            is_multiple = len(progetto_to_ruoli[progetto_id]) > 1
+
+            if is_multiple:
                 # il soggetto partecipa con piu' ruoli
-                context['lista_finanziamenti_per_ruolo'].append(
-                    (
-                        "/".join([x[0] for x in progetto_to_ruoli[progetto_id]]),
-                        progetto_to_ruoli[progetto_id][0][1]
-                    )
-                )
-        for k in context['lista_finanziamenti_per_ruolo']:
-            print k
+                # concateno i nomi dei ruoli per creare un nuovo nome
+                name = "/".join(sorted(progetto_to_ruoli[progetto_id].keys()))
+                # prendo il massimo totale, tanto DEVONO essere tutti uguali
+                tot = max([ progetto_to_ruoli[progetto_id][key] for key in progetto_to_ruoli[progetto_id] ])
+                if name not in dict_finanziamenti_per_ruolo: dict_finanziamenti_per_ruolo[name] = 0.0
+                dict_finanziamenti_per_ruolo[name]+=tot
+            else:
+                # il soggetto ha un solo ruolo in questo progetto
+                name = progetto_to_ruoli[progetto_id].keys()[0]
+                tot = progetto_to_ruoli[progetto_id][name]
+                dict_finanziamenti_per_ruolo[name] = tot
+
+        # ordino il dict_finanziamenti_per_ruolo per i suoi valore (il totale)
+        context['lista_finanziamenti_per_ruolo'] = sorted(dict_finanziamenti_per_ruolo.items(), key=lambda x: x[1], reverse=True)
+
         return context
