@@ -204,7 +204,7 @@ class Command(BaseCommand):
                 if not amount: # no payment
                     payment_tuples.append( (date_dict[date_col], None) )
                     continue
-                amount = float( "%.2f" % float(amount.replace(',','.')) )
+                amount = Decimal(amount.replace(',','.'))
                 # payment_tuple: (DATE,EURO)
                 payment_tuples.append( (date_dict[date_col], amount) )
 

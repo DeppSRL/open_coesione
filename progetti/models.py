@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from decimal import Decimal
 
 from django.db import models
 from django.utils.functional import cached_property
@@ -537,11 +538,11 @@ class PagamentoProgetto(models.Model):
 
     progetto = models.ForeignKey(Progetto)
     data = models.DateField()
-    ammontare = models.FloatField()
+    ammontare = models.DecimalField(max_digits=14, decimal_places=2)
 
     @property
     def percentuale(self):
-        return (self.ammontare / float( self.progetto.fin_totale_pubblico ) )* 100.0
+        return (self.ammontare / self.progetto.fin_totale_pubblico ) * Decimal(100)
 
     def __unicode__(self):
         return "Pagamento del {0} per {1} di {2}".format(self.progetto, self.data, self.ammontare)
