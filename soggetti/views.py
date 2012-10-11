@@ -189,13 +189,32 @@ class SoggettoView(AggregatoView, DetailView):
         }[ self.request.GET.get('tematizzazione', 'totale_costi') ]
 
         context['lista_finanziamenti_per_ruolo'] = []
+        progetto_to_ruoli = {}
         # TODO quando avremo realizzatori e destinatari posso prendere tutti i ruoli
         for tipo_ruolo, nome_ruolo in Ruolo.RUOLO[:2]:
-            context['lista_finanziamenti_per_ruolo'].append(
-                (
-                    nome_ruolo,
-                    Ruolo.objects.filter(soggetto=self.object, ruolo=tipo_ruolo).aggregate(tot=aggregazione_ruolo)['tot']
-                )
-            )
 
+            for progetto_id, tot in Ruolo.objects.filter(soggetto=self.object, ruolo=tipo_ruolo).annotate(tot=aggregazione_ruolo).values_list('progetto_id', 'tot'):
+
+                if progetto_id not in progetto_to_ruoli:
+                    progetto_to_ruoli[progetto_id] = []
+                progetto_to_ruoli[progetto_id].append( (nome_ruolo, tot) )
+
+        print progetto_to_ruoli
+        for progetto_id in progetto_to_ruoli:
+
+            if len(progetto_to_ruoli[progetto_id]) == 1:
+                # il soggetto ha un solo ruolo in questo progetto
+                context['lista_finanziamenti_per_ruolo'].append(
+                    progetto_to_ruoli[progetto_id][0]
+                )
+            else:
+                # il soggetto partecipa con piu' ruoli
+                context['lista_finanziamenti_per_ruolo'].append(
+                    (
+                        "/".join([x[0] for x in progetto_to_ruoli[progetto_id]]),
+                        progetto_to_ruoli[progetto_id][0][1]
+                    )
+                )
+        for k in context['lista_finanziamenti_per_ruolo']:
+            print k
         return context
