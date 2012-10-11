@@ -541,7 +541,7 @@ class PagamentoProgetto(models.Model):
 
     @property
     def percentuale(self):
-        return float( self.ammontare / self.progetto.fin_totale_pubblico ) * 100.0
+        return (self.ammontare / float( self.progetto.fin_totale_pubblico ) )* 100.0
 
     def __unicode__(self):
         return "Pagamento del {0} per {1} di {2}".format(self.progetto, self.data, self.ammontare)

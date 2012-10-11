@@ -135,7 +135,11 @@
         userCollapsePrefix: ' '
       });
 
-
+      {% if progetto.pagamenti %}
+      var serie = {
+        'data': [],
+        'key_to_value': {}
+      };
       var line_options = {
         chart: {
           renderTo: 'payments_chart',
@@ -167,20 +171,28 @@
         }],
         credits: { enabled: false },
         legend: { enabled: false },
-        tooltip: { valueDecimals: 2, valueSuffix: '%', xDateFormat: '%Y' }
+        tooltip: {
+          formatter: function() {
+            return ''+
+              this.x +': '+ Highcharts.numberFormat(this.y, 1) +'% <br>Pagamento: '+
+              Highcharts.numberFormat(parseFloat(serie['key_to_value'][this.x].replace(".","")), 1, ',', '.') +' euro';
+          }
+        }
+{#        tooltip: { valueDecimals: 2, valueSuffix: '%', xDateFormat: '%Y' }#}
       };
+
       $('#payments_chart_table').find('tr').map( function() {
         var values = $('th, td, td', this).map(function() { return $(this).text() });
         if (line_options['xAxis']['categories'].indexOf(values[0]) == -1) {
           // init headers
           line_options['xAxis']['categories'].push(values[0]);
         }
-        line_options['series'][0]['data'].push( parseInt(values[2]) );
+        serie['key_to_value'][values[0]] = values[1];
+        serie['data'].push( parseInt(values[2].replace(".","")) );
 
       });
+      line_options['series'][0]['data'] = serie['data'];
 
-
-      {% if progetto.pagamenti %}
         var payment_chart = false;
 
         var $navigator = $('#navigator');
@@ -450,7 +462,7 @@
 
               <table id="payments_chart_table" class="hide">
                 {% for pagamento in progetto.pagamenti %}
-                <tr><th>{{ pagamento.data|date:"N Y" }}</th><td>{{ pagamento.ammontare }}</td><td>{{ pagamento.percentuale|floatformat:"0" }}</td></tr>
+                <tr><th>{{ pagamento.data|date:"N Y" }}</th><td>{{ pagamento.ammontare|floatformat:"1" }}</td><td>{{ pagamento.percentuale|floatformat:"0" }}</td></tr>
                 {% endfor %}
               </table>
               {% endif %}
