@@ -173,12 +173,21 @@ class SoggettoView(AggregatoView, DetailView):
             .order_by('-totale')[:5]
 
         # calcolo dei finanziamenti regione per regione
+        progetti_multi_territorio = Progetto.objects.del_soggetto(self.object).annotate(tot=Count('territorio_set')).filter(tot__gt=1).distinct()
+
         # e nell'ambito nazionale
         context['lista_finanziamenti_per_regione'] = [
-            (regione, getattr(Progetto.objects.nel_territorio( regione ).del_soggetto(self.object),
+            (regione, getattr(Progetto.objects.exclude(pk__in=[p.pk for p in progetti_multi_territorio]).nel_territorio( regione ).del_soggetto(self.object),
                               self.request.GET.get('tematizzazione', 'totale_costi'))())
             for regione in Territorio.objects.regioni(with_nation=True)
         ]
+        if progetti_multi_territorio:
+            context['lista_finanziamenti_per_regione'].append(
+                (
+                    Territorio(denominazione='Multi localizzazione'),
+                    getattr(progetti_multi_territorio, self.request.GET.get('tematizzazione', 'totale_costi'))()
+                )
+            )
 
         # calcolo i finanziamenti per ruolo del soggetto
         # preparo il filtro di aggregazione in base alla tematizzazione richiesta
@@ -199,7 +208,7 @@ class SoggettoView(AggregatoView, DetailView):
 
                 if progetto_id not in progetto_to_ruoli:
                     progetto_to_ruoli[progetto_id] = {}
-                progetto_to_ruoli[progetto_id][nome_ruolo] = float(tot)
+                progetto_to_ruoli[progetto_id][nome_ruolo] = float(tot if tot else 0)
 
         dict_finanziamenti_per_ruolo = {}
 
