@@ -282,6 +282,8 @@
                   <h4 class="title">Programmatore</h4>
                 {% endif %}
                 <a href="{{ programmatore.get_absolute_url }}"><strong>{{ programmatore }}</strong></a>
+              {% empty %}
+              &nbsp;
               {% endfor %}
             </div>
             <div class="span3">
