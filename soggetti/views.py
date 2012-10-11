@@ -184,7 +184,7 @@ class SoggettoView(AggregatoView, DetailView):
         if progetti_multi_territorio:
             context['lista_finanziamenti_per_regione'].append(
                 (
-                    Territorio(denominazione='Multi localizzazione'),
+                    Territorio(denominazione='Multi-localizzazione'),
                     getattr(progetti_multi_territorio, self.request.GET.get('tematizzazione', 'totale_costi'))()
                 )
             )
@@ -230,7 +230,11 @@ class SoggettoView(AggregatoView, DetailView):
                 tot = progetto_to_ruoli[progetto_id][name]
                 dict_finanziamenti_per_ruolo[name] = tot
 
+        del progetto_to_ruoli
+
         # ordino il dict_finanziamenti_per_ruolo per i suoi valore (il totale)
         context['lista_finanziamenti_per_ruolo'] = sorted(dict_finanziamenti_per_ruolo.items(), key=lambda x: x[1], reverse=True)
+
+        del dict_finanziamenti_per_ruolo
 
         return context

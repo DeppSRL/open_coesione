@@ -87,7 +87,10 @@
         {% for regione, totale in lista_finanziamenti_per_regione %}
           {% if totale > 0  %}
             <tr>
-              <th><a href="{% url progetti_search %}?q=&soggetto={{ soggetto.slug }}&territorio_reg={{ regione.cod_reg }}">{{ regione.denominazione }}</a></th>
+              <th>
+                  {% if regione.cod_reg %}<a href="{% url progetti_search %}?q=&soggetto={{ soggetto.slug }}&territorio_reg={{ regione.cod_reg }}">{{ regione.denominazione }}</a>
+                  {% else %}{{ regione.denominazione }}{% endif %}
+              </th>
               <td class="amount"><strong>{{ totale|default:"0"|intcomma }}</strong> {% if tematizzazione == 'totale_progetti' %}progetti{% else %}euro{% endif %}</td>
             </tr>
           {% endif %}
@@ -107,7 +110,12 @@
         {% for ruolo, finanziamento in lista_finanziamenti_per_ruolo %}
           <tr>
             <th>{{ ruolo }}</th>
-            <td class="amount"><strong>{{ finanziamento|default:"0"|intcomma }}</strong> {% if tematizzazione == 'totale_progetti' %}progetti{% else %}euro{% endif %}</td>
+            <td class="amount">
+              {% if tematizzazione == 'totale_progetti' %}
+              <strong>{{ finanziamento|default:"0"|floatformat:"0" }}</strong> progetti</td>
+              {% else %}
+              <strong>{{ finanziamento|default:"0"|intcomma }}</strong> euro</td>
+              {% endif %}
           </tr>
         {% endfor %}
       </table>
