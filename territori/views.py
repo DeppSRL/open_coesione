@@ -418,7 +418,7 @@ class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
             context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0
         )
         # read tematizzazione GET param
-        context['tematizzazione'] = tematizzazione = self.request.GET.get('tematizzazione', 'totale_costi')
+        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
 
         query_models = {
             'temi_principali' : {
@@ -453,12 +453,10 @@ class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
                 context[name].append( object )
 
 
-        context['top_progetti_per_costo'] = Progetto.objects.nei_territori(territori).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-        context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().nei_territori(self.queryset.all())[:5]
+        context['top_progetti_per_costo'] = Progetto.objects.nei_territori(territori).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico').distinct()[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().nei_territori( territori )[:5]
 
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
-            filters={'territorio':'E'}
-        )
+#        context['nazioni_piu_finanziate'] = self.queryset.annotate(totale=models.Sum('progetto__fin_totale_pubblico')).filter( totale__isnull=False ).order_by('-totale')
 
         progetti_multi_territorio = []
         multi_territori = {}
@@ -467,23 +465,21 @@ class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
             # se ha nei suoi territori un territorio estero..
             if any([x in territori for x in progetto.territori]):
                 progetti_multi_territorio.append(progetto.pk)
-                key = ", ".join([t.denominazione for t in progetto.territori])
+                key = ", ".join(sorted([t.denominazione for t in progetto.territori]))
                 if key not in multi_territori: multi_territori[key] = []
                 multi_territori[key].append(progetto.pk)
 
         context['lista_finanziamenti_per_nazione'] = [
             (nazione, getattr(
                 Progetto.objects.exclude(pk__in=progetti_multi_territorio).nel_territorio( nazione ),
-                tematizzazione)() )
+                context['tematizzazione'])() )
             for nazione in territori
         ]
-
-        print multi_territori
 
         for key in multi_territori:
             context['lista_finanziamenti_per_nazione'].append(
                 (
-                    Territorio(denominazione=key,territorio='E'), getattr(Progetto.objects.filter(pk__in=multi_territori[key]), tematizzazione)()
+                    Territorio(denominazione=key,territorio='E'), getattr(Progetto.objects.filter(pk__in=multi_territori[key]), context['tematizzazione'])()
                 )
             )
 
