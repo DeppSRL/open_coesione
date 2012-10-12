@@ -112,10 +112,11 @@
             <th>{{ ruolo }}</th>
             <td class="amount">
               {% if tematizzazione == 'totale_progetti' %}
-              <strong>{{ finanziamento|default:"0"|floatformat:"0" }}</strong> progetti</td>
+              <strong>{{ finanziamento|default:"0"|floatformat:"0" }}</strong> progetti
               {% else %}
-              <strong>{{ finanziamento|default:"0"|intcomma }}</strong> euro</td>
+              <strong>{{ finanziamento|default:"0"|intcomma }}</strong> euro
               {% endif %}
+            </td>
           </tr>
         {% endfor %}
       </table>

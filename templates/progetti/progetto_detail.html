@@ -181,8 +181,8 @@
           // init headers
           line_options['xAxis']['categories'].push(values[0]);
         }
-        serie['key_to_value'][values[0]] = parseFloat(values[1].replace(".","").replace(",","."));
-        serie['data'].push( parseFloat(values[2].replace(".","").replace(",",".")) );
+        serie['key_to_value'][values[0]] = parseFloat(values[1].replace(/\./g,"").replace(",","."));
+        serie['data'].push( parseFloat(values[2].replace(/\./g,"").replace(",",".")) );
 
       });
       line_options['series'][0]['data'] = serie['data'];

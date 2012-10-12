@@ -228,7 +228,8 @@ class SoggettoView(AggregatoView, DetailView):
                 # il soggetto ha un solo ruolo in questo progetto
                 name = progetto_to_ruoli[progetto_id].keys()[0]
                 tot = progetto_to_ruoli[progetto_id][name]
-                dict_finanziamenti_per_ruolo[name] = tot
+                if name not in dict_finanziamenti_per_ruolo: dict_finanziamenti_per_ruolo[name] = 0.0
+                dict_finanziamenti_per_ruolo[name] += tot
 
         del progetto_to_ruoli
 
