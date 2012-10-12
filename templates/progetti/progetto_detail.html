@@ -271,20 +271,18 @@
 
           <div class="row">
             <div class="span3">
+
               {% for programmatore in progetto.programmatori %}
-                {% if forloop.first %}
-                  <h4 class="title">Programmatore</h4>
-                {% endif %}
-                <a href="{{ programmatore.get_absolute_url }}"><strong>{{ programmatore }}</strong></a>
-              {% empty %}
-              &nbsp;
-              {% endfor %}
+                {% if forloop.first %}<h4 class="title">Programmatore</h4>{% endif %}
+                {% if not forloop.first %}, {% endif %}<a href="{{ programmatore.get_absolute_url }}"><strong>{{ programmatore }}</strong></a>
+              {% empty %}&nbsp;{% endfor %}
+
             </div>
             <div class="span3">
               {% for attuatore in progetto.attuatori %}
                 {% if forloop.first %}
                   <h4 class="title">Attuatore</h4>
-                {% endif %}
+                {% else %}, {% endif %}
                 <a href="{{ attuatore.get_absolute_url }}"><strong>{{ attuatore }}</strong></a>
               {% endfor %}
 

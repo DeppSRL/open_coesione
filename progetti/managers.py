@@ -9,12 +9,14 @@ class ProgettiQuerySet(models.query.QuerySet):
     def avviati(self, date=datetime.now() ):
         return self.filter(data_inizio_effettiva__lte=date).order_by('-data_inizio_effettiva')
 
-    def totali(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None):
+    def totali(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None):
 
         query_set = self
 
         if territorio:
             query_set = query_set.nel_territorio( territorio )
+        elif territori:
+            query_set = query_set.nei_territori( territori )
 
         if tipo:
             query_set = query_set.del_tipo( tipo )
@@ -42,6 +44,8 @@ class ProgettiQuerySet(models.query.QuerySet):
             return self.filter(territorio_set__cod_com=territorio.cod_com)
         elif territorio.territorio == territorio.TERRITORIO.N:
             return self.filter(territorio_set__territorio=territorio.TERRITORIO.N)
+        elif territorio.territorio == territorio.TERRITORIO.E:
+            return self.filter(territorio_set__pk=territorio.pk)
         else:
             raise Exception('Territorio non valido %s' % territorio)
 
@@ -72,14 +76,14 @@ class ProgettiQuerySet(models.query.QuerySet):
     def del_soggetto(self, soggetto):
         return self.filter(soggetto_set__pk=soggetto.pk)
 
-    def totale_costi(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
-        return float(sum([l['fin_totale_pubblico'] for l in self.totali(territorio, tema, tipo,classificazione, soggetto).filter(fin_totale_pubblico__isnull=False).values('codice_locale', 'fin_totale_pubblico')]) or 0.0)
+    def totale_costi(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None):
+        return float(sum([l['fin_totale_pubblico'] for l in self.totali(territorio, tema, tipo,classificazione, soggetto, territori).filter(fin_totale_pubblico__isnull=False).values('codice_locale', 'fin_totale_pubblico')]) or 0.0)
 
-    def totale_pagamenti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
-        return float(sum([l['pagamento'] for l in self.totali(territorio, tema, tipo,classificazione, soggetto).filter(pagamento__isnull=False).values('codice_locale', 'pagamento')]) or 0.0)
+    def totale_pagamenti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None):
+        return float(sum([l['pagamento'] for l in self.totali(territorio, tema, tipo,classificazione, soggetto, territori).filter(pagamento__isnull=False).values('codice_locale', 'pagamento')]) or 0.0)
 
-    def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
-        return self.totali(territorio, tema, tipo,classificazione, soggetto).count()
+    def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None):
+        return self.totali(territorio, tema, tipo,classificazione, soggetto, territori).count()
 
 
 
@@ -116,32 +120,32 @@ class ProgettiManager(models.Manager):
     def del_soggetto(self, soggetto):
         return self.totali(soggetto=soggetto)
 
-    def totali(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
-        return self.get_query_set().totali(territorio, tema, tipo, classificazione, soggetto)
+    def totali(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None):
+        return self.get_query_set().totali(territorio, tema, tipo, classificazione, soggetto, territori)
 
-    def totale_costi(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
-        return self.get_query_set().totale_costi(territorio, tema, tipo,classificazione, soggetto)
+    def totale_costi(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None):
+        return self.get_query_set().totale_costi(territorio, tema, tipo,classificazione, soggetto, territori)
 
-    def totale_pagamenti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
-        return self.get_query_set().totale_pagamenti(territorio, tema, tipo,classificazione, soggetto)
+    def totale_pagamenti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None):
+        return self.get_query_set().totale_pagamenti(territorio, tema, tipo,classificazione, soggetto, territori)
 
-    def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
-        return self.get_query_set().totale_progetti(territorio, tema, tipo,classificazione, soggetto)
+    def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None):
+        return self.get_query_set().totale_progetti(territorio, tema, tipo,classificazione, soggetto, territori)
 
-    def totale_costi_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
+    def totale_costi_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None):
         from territori.models import Territorio
         territorio = territorio or Territorio.objects.nazione()
-        return self.get_query_set().totale_costi(territorio, tema, tipo,classificazione, soggetto) / territorio.popolazione_totale
+        return self.get_query_set().totale_costi(territorio, tema, tipo,classificazione, soggetto, territori) / territorio.popolazione_totale
 
-    def totale_pagamenti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
+    def totale_pagamenti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None):
         from territori.models import Territorio
         territorio = territorio or Territorio.objects.nazione()
-        return self.get_query_set().totale_pagamenti(territorio, tema, tipo,classificazione, soggetto) / territorio.popolazione_totale
+        return self.get_query_set().totale_pagamenti(territorio, tema, tipo,classificazione, soggetto, territori) / territorio.popolazione_totale
 
-    def totale_progetti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None):
+    def totale_progetti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None):
         from territori.models import Territorio
         territorio = territorio or Territorio.objects.nazione()
-        return self.get_query_set().totale_progetti(territorio, tema, tipo,classificazione, soggetto) / territorio.popolazione_totale
+        return self.get_query_set().totale_progetti(territorio, tema, tipo,classificazione, soggetto, territori) / territorio.popolazione_totale
 
 #    def totale_risorse_stanziate(self, territorio=None, tema=None, tipo=None,classificazione=None):
 #        return self.totali(territorio, tema, tipo,classificazione).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0

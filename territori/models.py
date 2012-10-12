@@ -15,6 +15,7 @@ class TerritoriManager(models.GeoManager):
         codes = [ Territorio.TERRITORIO.R ]
         if with_nation:
             codes.append( Territorio.TERRITORIO.N )
+            codes.append( Territorio.TERRITORIO.E )
         return self.get_query_set().filter(territorio__in= codes )
 
     def provincie(self):
@@ -109,6 +110,8 @@ class Territorio(models.Model):
             return { '{0}cod_com'.format(prefix) : self.cod_com }
         elif self.territorio == self.TERRITORIO.N:
             return { '{0}cod_reg'.format(prefix): 0 }
+        elif self.territorio == self.TERRITORIO.E:
+            return { '{0}pk'.format(prefix): self.pk }
 
         raise Exception('Territorio non interrogabile %s' % self)
 
@@ -197,7 +200,7 @@ class Territorio(models.Model):
             self.TERRITORIO.N: 'nazionale',
             self.TERRITORIO.E: 'estero',
             }[self.territorio])
-        if self.territorio == Territorio.TERRITORIO.N:
+        if self.territorio in (Territorio.TERRITORIO.N, Territorio.TERRITORIO.E):
             return url_name
         return (url_name, (), {
             'slug': self.slug

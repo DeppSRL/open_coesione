@@ -1,8 +1,10 @@
 from django.contrib.sites.models import Site
 from django.db import models
+from django.db.models import Count
 from django.template.defaultfilters import slugify
 from django.http import HttpResponse, Http404
 from django.contrib.gis.geos import Point
+from django.views.generic import ListView
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.conf import settings
@@ -396,6 +398,96 @@ class ComuneView(TerritorioView):
 
 class AmbitoNazionaleView(TerritorioView):
     tipo_territorio = Territorio.TERRITORIO.N
+
+class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
+    queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.E)
+
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(AmbitoEsteroView, self).get_context_data(**kwargs)
+
+        territori = self.queryset.all()
+
+        context['totale_costi'] = Progetto.objects.totale_costi(territori=territori)
+        context['totale_pagamenti'] = Progetto.objects.totale_pagamenti(territori=territori)
+        context['totale_progetti'] = Progetto.objects.totale_progetti(territori=territori)
+
+        context['percentuale_costi_pagamenti'] = "{0:.0%}".format(
+            context['totale_pagamenti'] /
+            context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0
+        )
+        # read tematizzazione GET param
+        context['tematizzazione'] = tematizzazione = self.request.GET.get('tematizzazione', 'totale_costi')
+
+        query_models = {
+            'temi_principali' : {
+                'manager': Tema.objects,
+                'parent_class_field': 'tema_superiore',
+                'manager_parent_method': 'principali',
+                'filter_name': 'tema',
+                },
+            'nature_principali' : {
+                'manager': ClassificazioneAzione.objects,
+                'parent_class_field': 'classificazione_superiore',
+                'manager_parent_method': 'tematiche',
+                'filter_name': 'classificazione'
+            }
+        }
+
+        # specialize the filter
+        query_filters = dict(territori=territori)
+
+
+        for name in query_models:
+            context[name] = []
+            # takes all root models ( principali or tematiche )
+            for object in getattr(query_models[name]['manager'], query_models[name]['manager_parent_method'])():
+                q = query_filters.copy()
+                # add %model%_superiore to query filters
+                q[query_models[name]['filter_name']] = object
+                # make query and add totale to object
+                # object.tot = query_models[name]['manager'].filter( **q ).aggregate( tot=aggregate_field )['tot']
+                object.tot = getattr(Progetto.objects, context['tematizzazione'])(**q)
+                # add object to right context
+                context[name].append( object )
+
+
+        context['top_progetti_per_costo'] = Progetto.objects.nei_territori(territori).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().nei_territori(self.queryset.all())[:5]
+
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+            filters={'territorio':'E'}
+        )
+
+        progetti_multi_territorio = []
+        multi_territori = {}
+        # per ogni progetto multi-localizzato nel db
+        for progetto in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).select_related('territori'):
+            # se ha nei suoi territori un territorio estero..
+            if any([x in territori for x in progetto.territori]):
+                progetti_multi_territorio.append(progetto.pk)
+                key = ", ".join([t.denominazione for t in progetto.territori])
+                if key not in multi_territori: multi_territori[key] = []
+                multi_territori[key].append(progetto.pk)
+
+        context['lista_finanziamenti_per_nazione'] = [
+            (nazione, getattr(
+                Progetto.objects.exclude(pk__in=progetti_multi_territorio).nel_territorio( nazione ),
+                tematizzazione)() )
+            for nazione in territori
+        ]
+
+        print multi_territori
+
+        for key in multi_territori:
+            context['lista_finanziamenti_per_nazione'].append(
+                (
+                    Territorio(denominazione=key,territorio='E'), getattr(Progetto.objects.filter(pk__in=multi_territori[key]), tematizzazione)()
+                )
+            )
+
+        return context
 
 class RegioneCSVView(CSVView):
     model = Territorio
