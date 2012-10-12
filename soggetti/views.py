@@ -172,21 +172,34 @@ class SoggettoView(AggregatoView, DetailView):
             .annotate(totale=Sum('progetto__fin_totale_pubblico'))\
             .order_by('-totale')[:5]
 
-        # calcolo dei finanziamenti regione per regione
-        progetti_multi_territorio = Progetto.objects.del_soggetto(self.object).annotate(tot=Count('territorio_set')).filter(tot__gt=1).distinct()
 
-        # e nell'ambito nazionale
+        progetti_multi_territorio = []
+        multi_territori = {}
+        # per ogni progetto multi-localizzato nel db
+        for progetto in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).select_related('soggetti'):
+            # se ha nei suoi soggetti il soggetto richiesto ...
+            if self.object in progetto.soggetti:
+                progetti_multi_territorio.append(progetto.pk)
+                if any(filter(lambda t: t.territorio == 'C', progetto.territori)):
+                    key = 'Multi comunale'
+                else:
+                    key = ", ".join(sorted([t.denominazione for t in progetto.territori]))
+                if key not in multi_territori: multi_territori[key] = []
+                multi_territori[key].append(progetto.pk)
+
         context['lista_finanziamenti_per_regione'] = [
-            (regione, getattr(Progetto.objects.exclude(pk__in=[p.pk for p in progetti_multi_territorio]).nel_territorio( regione ).del_soggetto(self.object),
-                              self.request.GET.get('tematizzazione', 'totale_costi'))())
-            for regione in Territorio.objects.regioni(with_nation=True)
+            (territorio, getattr(
+                Progetto.objects.exclude(pk__in=progetti_multi_territorio).nel_territorio( territorio ).del_soggetto(self.object),
+                context['tematizzazione'])() )
+            for territorio in Territorio.objects.regioni(with_nation=True)
         ]
-        if progetti_multi_territorio:
+
+        for key in multi_territori:
             context['lista_finanziamenti_per_regione'].append(
                 (
-                    Territorio(denominazione='Multi-localizzazione'),
-                    getattr(progetti_multi_territorio, self.request.GET.get('tematizzazione', 'totale_costi'))()
-                )
+                    Territorio(denominazione=key,territorio='E'),
+                    getattr(Progetto.objects.filter(pk__in=multi_territori[key]).del_soggetto(self.object), context['tematizzazione'])()
+                    )
             )
 
         # calcolo i finanziamenti per ruolo del soggetto
@@ -220,8 +233,12 @@ class SoggettoView(AggregatoView, DetailView):
                 # il soggetto partecipa con piu' ruoli
                 # concateno i nomi dei ruoli per creare un nuovo nome
                 name = "/".join(sorted(progetto_to_ruoli[progetto_id].keys()))
-                # prendo il massimo totale, tanto DEVONO essere tutti uguali
-                tot = max([ progetto_to_ruoli[progetto_id][key] for key in progetto_to_ruoli[progetto_id] ])
+                tot = 0
+                for key in progetto_to_ruoli[progetto_id]:
+                    # prendo il massimo totale, tanto DEVONO essere tutti uguali
+                    tot = max(tot, progetto_to_ruoli[progetto_id][key])
+                    # aggiungo il ruolo anche se vuoto
+                    if key not in dict_finanziamenti_per_ruolo: dict_finanziamenti_per_ruolo[key] = 0.0
                 if name not in dict_finanziamenti_per_ruolo: dict_finanziamenti_per_ruolo[name] = 0.0
                 dict_finanziamenti_per_ruolo[name]+=tot
             else:
