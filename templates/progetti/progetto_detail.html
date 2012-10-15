@@ -238,7 +238,11 @@
 
         {% if progetto.descrizione %}
           <p id="project_description">
-            {% if progetto.fonte_descrizione %}{{ progetto.fonte_descrizione }} &ndash; {% endif %} {{ progetto.descrizione }}
+            {% if progetto.fonte_descrizione %}
+                {% if progetto.fonte_url %}<a href="{{ progetto.fonte_url }}">{{ progetto.fonte_descrizione }}</a>
+                {% else %}{{ progetto.fonte_descrizione }}{% endif %} &ndash;
+            {% endif %}
+            {{ progetto.descrizione }}
           </p>
         {% endif %}
 
