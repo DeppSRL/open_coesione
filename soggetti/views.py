@@ -175,17 +175,31 @@ class SoggettoView(AggregatoView, DetailView):
 
         progetti_multi_territorio = []
         multi_territori = {}
+
         # per ogni progetto multi-localizzato nel db
-        for progetto in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).select_related('soggetti'):
+        for progetto in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).select_related('soggetti', 'territori'):
             # se ha nei suoi soggetti il soggetto richiesto ...
             if self.object in progetto.soggetti:
                 progetti_multi_territorio.append(progetto.pk)
-                if any(filter(lambda t: t.territorio == 'C', progetto.territori)):
-                    key = 'Multi comunale'
-                else:
+                if all( map( lambda t: t.cod_reg == progetto.territori[0].cod_reg, progetto.territori) ):
+                    # sono tutti nella stessa regione
+                    continue
+                elif any(filter(lambda t: t.territorio == 'E', progetto.territori)):
+                    # progetto localizzato all'estero
                     key = ", ".join(sorted([t.denominazione for t in progetto.territori]))
+                else:
+                    key = 'Multi localizzato'
                 if key not in multi_territori: multi_territori[key] = []
                 multi_territori[key].append(progetto.pk)
+
+#                if any(filter(lambda t: t.territorio == 'C', progetto.territori)):
+#                    key = 'Multi comunale'
+#                else:
+#                key = ", ".join(sorted([t.denominazione for t in progetto.territori]))
+#                if key not in multi_territori: multi_territori[key] = []
+#                for t in progetto.territori:
+#                    if t.pk not in multi_territori: multi_territori[t.pk] = []
+#                    multi_territori[t.pk].append(progetto)
 
         context['lista_finanziamenti_per_regione'] = [
             (territorio, getattr(
@@ -195,6 +209,7 @@ class SoggettoView(AggregatoView, DetailView):
         ]
 
         for key in multi_territori:
+
             context['lista_finanziamenti_per_regione'].append(
                 (
                     Territorio(denominazione=key,territorio='E'),
