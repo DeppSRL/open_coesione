@@ -483,6 +483,8 @@ class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
                 )
             )
 
+        context['territori_esteri'] = territori
+
         return context
 
 class RegioneCSVView(CSVView):
