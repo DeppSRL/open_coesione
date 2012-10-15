@@ -1,3 +1,4 @@
+# coding=utf-8
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
@@ -173,48 +174,49 @@ class SoggettoView(AggregatoView, DetailView):
             .order_by('-totale')[:5]
 
 
-        progetti_multi_territorio = []
-        multi_territori = {}
-
-        # per ogni progetto multi-localizzato nel db
-        for progetto in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).select_related('soggetti', 'territori'):
-            # se ha nei suoi soggetti il soggetto richiesto ...
-            if self.object in progetto.soggetti:
-                progetti_multi_territorio.append(progetto.pk)
-                if all( map( lambda t: t.cod_reg == progetto.territori[0].cod_reg, progetto.territori) ):
-                    # sono tutti nella stessa regione
-                    continue
-                elif any(filter(lambda t: t.territorio == 'E', progetto.territori)):
-                    # progetto localizzato all'estero
-                    key = ", ".join(sorted([t.denominazione for t in progetto.territori]))
-                else:
-                    key = 'Multi localizzato'
-                if key not in multi_territori: multi_territori[key] = []
-                multi_territori[key].append(progetto.pk)
-
-#                if any(filter(lambda t: t.territorio == 'C', progetto.territori)):
-#                    key = 'Multi comunale'
-#                else:
-#                key = ", ".join(sorted([t.denominazione for t in progetto.territori]))
-#                if key not in multi_territori: multi_territori[key] = []
-#                for t in progetto.territori:
-#                    if t.pk not in multi_territori: multi_territori[t.pk] = []
-#                    multi_territori[t.pk].append(progetto)
-
-        context['lista_finanziamenti_per_regione'] = [
-            (territorio, getattr(
-                Progetto.objects.exclude(pk__in=progetti_multi_territorio).nel_territorio( territorio ).del_soggetto(self.object),
-                context['tematizzazione'])() )
-            for territorio in Territorio.objects.regioni(with_nation=True)
+        # query avanzata per evitare errori di calcolo
+        progetti_multi_localizzati = [
+            p for p in
+            Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).select_related('soggetti','territori')
+            if self.object in p.soggetti
         ]
 
-        for key in multi_territori:
+        context['lista_finanziamenti_per_regione'] = []
+        def tot(qs): return getattr(qs, context['tematizzazione'])()
+        def multi_localizzato_in_regione(p,r): return all( map(lambda t: t.cod_reg == r.cod_reg, p.territori) )
+        def multi_localizzato_in_nazione(p): return any(map(lambda t: t.territorio == 'N', p.territori)) and all(map(lambda t: t.territorio != 'E', p.territori))
 
+        for regione in Territorio.objects.regioni():
+
+            progetti_multi_localizzati = filter(lambda p: not multi_localizzato_in_regione(p, regione), progetti_multi_localizzati)
+
+            queryset = Progetto.objects.nel_territorio( regione ).del_soggetto( self.object ).exclude(
+                # tutti i progetti in regione del miur NON multi localizzati
+                pk__in=progetti_multi_localizzati
+            ).distinct()
+
+            context['lista_finanziamenti_per_regione'].append( ( regione, tot( queryset ) ) )
+
+        # rimuovo tutti i progetti multilocalizzati che fanno parte di
+
+        progetti_multi_localizzati = filter(lambda p: not multi_localizzato_in_nazione(p), progetti_multi_localizzati)
+
+        for nazione in Territorio.objects.filter(territorio__in=['N','E']).order_by('-territorio'):
+
+            queryset = Progetto.objects.nel_territorio( nazione ).del_soggetto( self.object ).exclude(
+                # tutti i progetti in una nazione realizzati dal miur NON multi localizzati
+                pk__in=progetti_multi_localizzati
+            )
+
+            context['lista_finanziamenti_per_regione'].append( ( nazione, tot( queryset ) ) )
+
+        if len(progetti_multi_localizzati):
+            # aggrego in un territorio fittizio i progetti multilocalizzati non inclusi fino ad ora
             context['lista_finanziamenti_per_regione'].append(
                 (
-                    Territorio(denominazione=key,territorio='E'),
-                    getattr(Progetto.objects.filter(pk__in=multi_territori[key]).del_soggetto(self.object), context['tematizzazione'])()
-                    )
+                    Territorio(denominazione='In più territori', territorio='X'),
+                    tot( Progetto.objects.del_soggetto( self.object).filter(pk__in=progetti_multi_localizzati) )
+                )
             )
 
         # calcolo i finanziamenti per ruolo del soggetto
