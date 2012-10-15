@@ -239,8 +239,9 @@
         {% if progetto.descrizione %}
           <p id="project_description">
             {% if progetto.fonte_descrizione %}
+                <strong>Fonte:
                 {% if progetto.fonte_url %}<a href="{{ progetto.fonte_url }}">{{ progetto.fonte_descrizione }}</a>
-                {% else %}{{ progetto.fonte_descrizione }}{% endif %} &ndash;
+                {% else %}{{ progetto.fonte_descrizione }}{% endif %}</strong> &ndash;
             {% endif %}
             {{ progetto.descrizione }}
           </p>
