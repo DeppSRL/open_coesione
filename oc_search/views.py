@@ -9,12 +9,6 @@ class ExtendedFacetedSearchView(SearchView):
     """
     __name__ = 'ExtendedFacetedSearchView'
 
-    ## simplified date-ranges definitions
-    SIXMONTHS = '[NOW/DAY-180DAYS TO NOW/DAY]'
-    ONEYEAR   = '[NOW/DAY-365DAYS TO NOW/DAY]'
-    TWOYEARS  = '[NOW/DAY-730DAYS TO NOW/DAY]'
-
-
     def __init__(self, *args, **kwargs):
         # Needed to switch out the default form class.
         if kwargs.get('form_class') is None:
@@ -77,14 +71,6 @@ class ExtendedFacetedSearchView(SearchView):
 
             r_label = label
 
-            # TODO: use an associative array
-            if label == self.SIXMONTHS:
-                r_label = 'ultimi sei mesi'
-            elif label == self.ONEYEAR:
-                r_label = 'ultimo anno'
-            elif label == self.TWOYEARS:
-                r_label = 'ultimi due anni'
-
             sf = {'field': field, 'label': label, 'r_label': r_label, 'url': url}
             extended_selected_facets.append(sf)
 
@@ -92,40 +78,6 @@ class ExtendedFacetedSearchView(SearchView):
 
 
 
-
-    def _get_custom_facet_queries_date(self):
-        """
-
-        """
-        selected_facets = self.request.GET.getlist('selected_facets')
-        facet_counts_queries = self.results.facet_counts().get('queries', {})
-
-        facets = {'is_selected': False}
-        if "data_inizio:%s" % self.SIXMONTHS in facet_counts_queries:
-            facets['sixmonths'] = {
-                'key': "data_inizio:%s" % self.SIXMONTHS,
-                'count': facet_counts_queries["data_inizio:%s" % self.SIXMONTHS]
-            }
-            if facets['sixmonths']['key'] in selected_facets:
-                facets['is_selected'] = True
-
-        if "data_inizio:%s" % self.ONEYEAR in facet_counts_queries:
-            facets['oneyear'] = {
-                'key': "data_inizio:%s" % self.ONEYEAR,
-                'count': facet_counts_queries["data_inizio:%s" % self.ONEYEAR]
-            }
-            if facets['oneyear']['key'] in selected_facets:
-                facets['is_selected'] = True
-
-        if "data_inizio:%s" % self.TWOYEARS in facet_counts_queries:
-            facets['twoyears'] = {
-                'key': "data_inizio:%s" % self.TWOYEARS,
-                'count': facet_counts_queries["data_inizio:%s" % self.TWOYEARS]
-            }
-            if facets['twoyears']['key'] in selected_facets:
-                facets['is_selected'] = True
-
-        return facets
 
     def extra_context(self):
         """
@@ -138,7 +90,6 @@ class ExtendedFacetedSearchView(SearchView):
         extra['request'] = self.request
         extra['selected_facets'] = self._get_extended_selected_facets()
         extra['facets'] = self._get_extended_facets_fields()
-        extra['facet_queries_date'] = self._get_custom_facet_queries_date()
 
         # make get array as mutable QueryDict
         params = self.request.GET.copy()

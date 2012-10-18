@@ -171,28 +171,14 @@
 
             <dl>
                 {% if not facet_queries_date.is_selected %}
-                    <dt>Data inizio</dt>
-                    {% if facet_queries_date.sixmonths.count %}
+                    <dt>Anno di inizio</dt>
+                    {% for range in facet_queries_date.ranges|dictsortreversed:"key"  %}
                         <dd>
-                            <a href="{{ base_url }}&selected_facets={{ facet_queries_date.sixmonths.key }}">
-                                Ultimi sei mesi
-                            </a> ({{ facet_queries_date.sixmonths.count }})
+                            <a href="{{ base_url }}&selected_facets={{ range.key }}">
+                                {{ range.label|safe }}
+                            </a> ({{ range.count }})
                         </dd>
-                    {% endif %}
-                    {% if facet_queries_date.oneyear.count %}
-                        <dd>
-                            <a href="{{ base_url }}&selected_facets={{ facet_queries_date.oneyear.key }}">
-                                Ultimo anno
-                            </a> ({{ facet_queries_date.oneyear.count }})
-                        </dd>
-                    {% endif %}
-                    {% if facet_queries_date.twoyears.count %}
-                        <dd>
-                            <a href="{{ base_url }}&selected_facets={{ facet_queries_date.twoyears.key }}">
-                                Ultimi due anni
-                            </a> ({{ facet_queries_date.twoyears.count }})
-                        </dd>
-                    {% endif %}
+                    {% endfor %}
                 {% endif %}
             </dl>
 

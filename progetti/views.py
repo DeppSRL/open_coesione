@@ -14,7 +14,7 @@ from django.db import models
 from django.views.generic.edit import FormView
 
 from oc_search.forms import RangeFacetedSearchForm
-from oc_search.mixins import FacetRangeCostoMixin, TerritorioMixin
+from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto, ClassificazioneAzione, Ruolo
@@ -198,13 +198,11 @@ class TemaCSVView(CSVView):
     filter_field = 'progetto__tema__tema_superiore'
 
 
-class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, TerritorioMixin):
+class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin):
     """
-
     This view allows faceted search and navigation of a progetto.
 
     It extends an extended version of the basic FacetedSearchView,
-
     """
     __name__ = 'ProgettoSearchView'
 
@@ -215,6 +213,22 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         '3-100KTOINF':  {'qrange': '[100001 TO *]', 'r_label': 'oltre 100.000&euro;'},
     }
 
+
+#    DATE_INTERVALS_RANGES = {
+#        'SIXMONTHS':  {'qrange': '[NOW/DAY-180DAYS TO NOW/DAY]', 'r_label': 'ultimi sei mesi'},
+#        'ONEYEAR': {'qrange': '[NOW/DAY-365DAYS TO NOW/DAY]', 'r_label': 'ultimo anno'},
+#        'TWOYEARS': {'qrange': '[NOW/DAY-730DAYS TO NOW/DAY]', 'r_label': 'ultimi due anno'}
+#    }
+
+    DATE_INTERVALS_RANGES = {
+        '2013':  {'qrange': '[2013-01-01T00:00:00Z TO 2014-01-01T00:00:00Z]', 'r_label': '2013'},
+        '2012':  {'qrange': '[2012-01-01T00:00:00Z TO 2013-01-01T00:00:00Z]', 'r_label': '2012'},
+        '2011':  {'qrange': '[2011-01-01T00:00:00Z TO 2012-01-01T00:00:00Z]', 'r_label': '2011'},
+        '2010':  {'qrange': '[2010-01-01T00:00:00Z TO 2011-01-01T00:00:00Z]', 'r_label': '2010'},
+        '2009':  {'qrange': '[2009-01-01T00:00:00Z TO 2010-01-01T00:00:00Z]', 'r_label': '2009'},
+        '2008':  {'qrange': '[2008-01-01T00:00:00Z TO 2009-01-01T00:00:00Z]', 'r_label': '2008'},
+        '2007':  {'qrange': '[2007-01-01T00:00:00Z TO 2008-01-01T00:00:00Z]', 'r_label': '2007'},
+    }
 
     def __init__(self, *args, **kwargs):
         # Needed to switch out the default form class.
@@ -240,6 +254,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         # this comes from the Mixins
         extended_selected_facets = self.add_costo_extended_selected_facets(extended_selected_facets)
         extended_selected_facets = self.add_territorio_extended_selected_facets(extended_selected_facets)
+        extended_selected_facets = self.add_date_interval_extended_selected_facets(extended_selected_facets)
 
         return extended_selected_facets
 
@@ -279,6 +294,9 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         # get data about custom costo and n_progetti range facets
         extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()
+
+        # get data about custom date range facets
+        extra['facet_queries_date'] = self._get_custom_facet_queries_date()
 
         # definizione struttura dati per  visualizzazione faccette natura
         extra['natura'] = {

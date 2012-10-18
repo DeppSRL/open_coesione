@@ -10,9 +10,12 @@ sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
         facet('natura').\
         facet('tema').\
         facet('fonte').\
-        query_facet('data_inizio', ProgettoSearchView.SIXMONTHS).\
-        query_facet('data_inizio', ProgettoSearchView.ONEYEAR).\
-        query_facet('data_inizio', ProgettoSearchView.TWOYEARS).\
+        query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2012']['qrange']).\
+        query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2011']['qrange']).\
+        query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2010']['qrange']).\
+        query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2009']['qrange']).\
+        query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2008']['qrange']).\
+        query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2007']['qrange']).\
         query_facet('costo', ProgettoSearchView.COST_RANGES['0-0TO1K']['qrange']).\
         query_facet('costo', ProgettoSearchView.COST_RANGES['1-1KTO10K']['qrange']).\
         query_facet('costo', ProgettoSearchView.COST_RANGES['2-10KTO100K']['qrange']).\
