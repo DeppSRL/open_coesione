@@ -3,7 +3,7 @@ from django.views.decorators.cache import cache_page
 from django.views.generic.base import TemplateView
 from haystack.query import SearchQuerySet
 
-from progetti.views import ProgettoSearchView, ProgettoView, TipologiaView, TipologiaCSVView, TemaCSVView, TemaView, SegnalaDescrizioneView, SegnalazioneDetailView
+from progetti.views import ProgettoSearchView, ProgettoView, TipologiaView, TipologiaCSVView, TemaCSVView, TemaView, SegnalaDescrizioneView, SegnalazioneDetailView, ProgettoCSVSearchView, ProgettoCSVPreviewSearchView, ProgettoJSONSearchView
 
 ## SearchQuerySet with multiple facets and highlight
 sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
@@ -24,6 +24,9 @@ sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
 urlpatterns = patterns('',
    # faceted navigation
    url(r'^$', ProgettoSearchView(template='progetti/progetto_search.html', searchqueryset=sqs), name='progetti_search'),
+   url(r'^csv_preview/$', ProgettoCSVPreviewSearchView(template='progetti/progetto_search_csv.html', searchqueryset=sqs), name='progetti_search_csv'),
+   url(r'^csv/$', ProgettoCSVSearchView(template='progetti/progetto_search_csv.html', searchqueryset=sqs), name='progetti_search_csv'),
+#    url(r'^json/$', ProgettoJSONSearchView(template='progetti/progetto_search_csv.html', searchqueryset=sqs), name='progetti_search_csv'),
 
    url(r'^segnalazione/$', SegnalaDescrizioneView.as_view(), name='progetti_segnalazione'),
    url(r'^segnalazione/completa/$', TemplateView.as_view(template_name='segnalazione/completata.html'), name='progetti_segnalazione_completa'),

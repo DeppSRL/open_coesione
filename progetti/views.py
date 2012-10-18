@@ -1,6 +1,10 @@
+import StringIO
 import csv
+import json
+import zipfile
 from django.conf import settings
 from django.http import HttpResponse
+from haystack.views import SearchView
 import os
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
@@ -194,7 +198,6 @@ class TemaCSVView(CSVView):
     filter_field = 'progetto__tema__tema_superiore'
 
 
-
 class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, TerritorioMixin):
     """
 
@@ -331,6 +334,116 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         extra['page_obj'] = page_obj
 
         return extra
+
+class CSVSearchResultsWriterMixin(object):
+    """
+    Mixin used by CSV - related SearchView classes, to add results as csv rows to a CSV writer
+    Both the results and the writer objects must have been correctly defined,
+    before invoking the write_search_results method.
+    """
+    def write_search_results(self, results, writer ):
+        """
+        Writes all results of a search query set into a CSV writer.
+        """
+        writer.writerow([
+            'CLP', 'CUP', 'FONTE',
+            'TEMA', 'NATURA', 'TITOLO', 'DESCRIZIONE',
+            'FIN_TOTALE_PUBBLICO',
+            'FIN_UE',
+            'FIN_STATO_FONDO_ROTAZIONE', 'FIN_STATO_FSC', 'FIN_STATO_ALTRI_PROVVEDIMENTI',
+            'FIN_REGIONE', 'FIN_PROVINCIA', 'FIN_COMUNE',
+            'FIN_ALTRO_PUBBLICO', 'FIN_STATO_ESTERO',
+            'FIN_PRIVATO', 'FIN_DA_REPERIRE',
+            'PAGAMENTO',
+            'FONDO',
+            'DATA_INIZIO_PREVISTA', 'DATA_FINE_PREVISTA',
+            'DATA_FINE_PREVISTA', 'DATA_FINE_EFFETTIVA',
+            'SOGG_PROGR_1', 'SOGG_PROGR_2', 'SOGG_PROGR_3'
+        ])
+        for r in results:
+            # flattening recipients
+            sogg_1 = ""; sogg_2 = ""; sogg_3 = ""
+            if r.sogg_programmatori and len(r.sogg_programmatori)>0:
+                sogg_1 = r.sogg_programmatori[0]
+            if r.sogg_programmatori and len(r.sogg_programmatori)>1:
+                sogg_2 = r.sogg_programmatori[1]
+            if r.sogg_programmatori and len(r.sogg_programmatori)>2:
+                sogg_3 = r.sogg_programmatori[2]
+
+            writer.writerow([
+                r.clp, r.cup,
+                unicode(r.tema_descr).encode('latin1'),
+                unicode(r.natura_descr).encode('latin1'),
+                unicode(r.titolo).encode('latin1'),
+                unicode(r.descrizione).encode('latin1'),
+                r.fin_totale_pubblico,
+                r.fin_ue, r.fin_stato_fondo_rotazione, r.fin_stato_fsc, r.fin_stato_altri_provvedimenti,
+                r.fin_regione, r.fin_provincia, r.fin_comune,
+                r.fin_altro_pubblico, r.fin_stato_estero,
+                r.fin_privato, r.fin_da_reperire,
+                r.pagamento,
+                unicode(r.fondo).encode('latin1'),
+                r.data_inizio_prevista, r.data_inizio_effettiva,
+                r.data_fine_prevista, r.data_fine_effettiva,
+                sogg_1, sogg_2, sogg_3
+            ])
+
+class ProgettoCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
+    def create_response(self):
+        """
+        Generates a zipped, downloadale CSV file, from search results
+        """
+        results = self.get_results()
+
+        response = HttpResponse(mimetype='application/zip')
+        response['Content-Disposition'] = 'attachment; filename=opencoesione_risultati_ricerca.csv.zip'
+
+        output = StringIO.StringIO()
+
+        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+        writer = csv.writer(output, dialect='opencoesione')
+
+        self.write_search_results(results, writer)
+        z = zipfile.ZipFile(response,'w')   ## write zip to response
+        z.writestr("opencoesione_risultati_ricerca.csv", output.getvalue())  ## write csv file to zip
+        return response
+
+class ProgettoCSVPreviewSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
+    def create_response(self):
+        """
+        Generates a CSV text preview (limited to 500 items) for search results
+        """
+        results = self.get_results()[0:500]
+
+        # send CSV output as plain text, to view it in the browser
+        response = HttpResponse(mimetype='text/plain')
+
+        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+        writer = csv.writer(response, dialect='opencoesione')
+        self.write_search_results(results, writer)
+        return response
+
+
+# TODO: serialization of complex JSON objects need to be tackled with proper tools (tastypie,
+
+
+class ProgettoJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        return obj.__dict__
+
+class ProgettoJSONSearchView(ProgettoSearchView):
+
+    def create_response(self):
+        """
+        Generates a CSV text preview (limited to 500 items) for search results
+        """
+        import jsonpickle
+        results = [r.object for r in self.get_results()]
+
+        # send JSON out as plain text
+        response = HttpResponse(json.dumps(results, cls=ProgettoJSONEncoder), mimetype='text/plain')
+
+        return response
 
 
 class SegnalaDescrizioneView(FormView):
