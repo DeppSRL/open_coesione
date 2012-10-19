@@ -39,7 +39,11 @@ class ProgettoIndex(SearchIndex):
     data_fine_effettiva = DateField(model_attr='data_fine_effettiva', null=True)
     data_aggiornamento = DateField(model_attr='data_aggiornamento', null=True)
 
-    sogg_programmatori = MultiValueField(stored=True)
+    soggetti_programmatori = MultiValueField(stored=True)
+    soggetti_attuatori = MultiValueField(stored=True)
+
+    territori = MultiValueField(stored=True)
+    ambiti_territoriali = MultiValueField(stored=True)
 
     text = CharField(document=True, use_template=True)
     territorio_com = MultiValueField(indexed=True, stored=True)
@@ -79,8 +83,17 @@ class ProgettoIndex(SearchIndex):
     def prepare_soggetto(self, obj):
         return [s['slug'] for s in obj.soggetto_set.values('slug').distinct()]
 
-    def prepare_sogg_programmatori(self, obj):
+    def prepare_soggetti_programmatori(self, obj):
         return [s['soggetto__denominazione'] for s in obj.ruolo_set.filter(ruolo=Ruolo.RUOLO.programmatore).values('soggetto__denominazione')]
+
+    def prepare_soggetti_attuatori(self, obj):
+        return [s['soggetto__denominazione'] for s in obj.ruolo_set.filter(ruolo=Ruolo.RUOLO.attuatore).values('soggetto__denominazione')]
+
+    def prepare_territori(self, obj):
+        return [t.nome_con_provincia for t in obj.territori]
+
+    def prepare_ambiti_territoriali(self, obj):
+        return [t.ambito_territoriale for t in obj.territori]
 
     def prepare_data_inizio(self, obj):
         if obj.data_inizio_effettiva:

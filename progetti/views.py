@@ -353,6 +353,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         return extra
 
+
 class CSVSearchResultsWriterMixin(object):
     """
     Mixin used by CSV - related SearchView classes, to add results as csv rows to a CSV writer
@@ -376,17 +377,40 @@ class CSVSearchResultsWriterMixin(object):
             'FONDO',
             'DATA_INIZIO_PREVISTA', 'DATA_FINE_PREVISTA',
             'DATA_FINE_PREVISTA', 'DATA_FINE_EFFETTIVA',
-            'SOGG_PROGR_1', 'SOGG_PROGR_2', 'SOGG_PROGR_3'
+            'SOGGETTI_PROGRAMMATORI', 'SOGGETTI_ATTUATORI',
+            'AMBITO_TERRITORIALE', 'TERRITORIO', 'CODICE_COMUNE', 'CODICE_PROVINCIA', 'CODICE_REGIONE'
         ])
         for r in results:
-            # flattening recipients
-            sogg_1 = ""; sogg_2 = ""; sogg_3 = ""
-            if r.sogg_programmatori and len(r.sogg_programmatori)>0:
-                sogg_1 = r.sogg_programmatori[0]
-            if r.sogg_programmatori and len(r.sogg_programmatori)>1:
-                sogg_2 = r.sogg_programmatori[1]
-            if r.sogg_programmatori and len(r.sogg_programmatori)>2:
-                sogg_3 = r.sogg_programmatori[2]
+            
+            separator = u":::"
+
+            soggetti_programmatori = ""
+            if r.soggetti_programmatori:
+                soggetti_programmatori = separator.join(list(r.soggetti_programmatori)).encode('latin1')
+
+            soggetti_attuatori = ""
+            if r.soggetti_attuatori:
+                soggetti_attuatori = separator.join(list(r.soggetti_attuatori)).encode('latin1')
+
+            ambiti = ""
+            if r.ambiti_territoriali:
+                ambiti = separator.join(list(r.ambiti_territoriali)).encode('latin1')
+
+            territori = ""
+            if r.territori:
+                territori = separator.join(list(r.territori)).encode('latin1')
+
+            cod_comuni = ""
+            if r.territorio_com:
+                cod_comuni = separator.join(list(r.territorio_com))
+
+            cod_province = ""
+            if r.territorio_prov:
+                cod_province = separator.join(list(r.territorio_prov))
+
+            cod_regioni = ""
+            if r.territorio_reg:
+                cod_regioni = separator.join(list(r.territorio_reg))
 
             writer.writerow([
                 r.clp, r.cup,
@@ -403,7 +427,8 @@ class CSVSearchResultsWriterMixin(object):
                 unicode(r.fondo).encode('latin1'),
                 r.data_inizio_prevista, r.data_inizio_effettiva,
                 r.data_fine_prevista, r.data_fine_effettiva,
-                sogg_1, sogg_2, sogg_3
+                soggetti_programmatori, soggetti_attuatori,
+                ambiti, territori, cod_comuni, cod_province, cod_regioni
             ])
 
 class ProgettoCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):

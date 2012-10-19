@@ -162,6 +162,20 @@ class Territorio(models.Model):
         else:
             return self.nome
 
+    @property
+    def ambito_territoriale(self):
+        """
+        returns: a Region (for C,P or R), Nazionale, or Estero
+        """
+        if self.territorio == self.TERRITORIO.R:
+            return self.nome
+        elif self.territorio == self.TERRITORIO.P or self.territorio == self.TERRITORIO.C:
+            regione = Territorio.objects.regioni().get(cod_reg=self.cod_reg)
+            return regione.nome
+        elif self.territorio == self.TERRITORIO.N:
+            return 'Nazionale'
+        else:
+            return 'Estero'
 
     def __unicode__(self):
         return self.nome
