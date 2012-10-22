@@ -326,7 +326,7 @@
                       {%  elif tipologia %}
                           <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
                       {%  elif soggetto %}
-                          <td><a href="{% url soggetti_search %}?q=&selected_facets=tema:{{ tema.codice }}&soggetto={{ soggetto.slug }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                          <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}&soggetto={{ soggetto.slug }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  else %}
                           <td><a href="{{ tema.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a></td>
                       {% endif %}
