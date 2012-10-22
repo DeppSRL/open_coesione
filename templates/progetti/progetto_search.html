@@ -16,7 +16,17 @@
     {% if n_results %}
 
         <section style="clear: both;">
-        <h3>Trovati {{ n_results }} progetti</h3>
+        <div class="row">
+            <h3 class="span4">Trovati {{ n_results }} progetti</h3>
+            <p class="span4">
+                scarica i dati:
+                <a href="{%  url progetti_search_csv %}?{{ request.META.QUERY_STRING }}">pacchetto zip</a>,<br/>
+                <a href="{%  url progetti_search_csv_preview %}?{{ request.META.QUERY_STRING }}">csv progetti</a>,
+                <a href="{%  url progetti_search_csv_loc_preview %}?{{ request.META.QUERY_STRING }}">csv localizzazioni</a>,
+                <a href="http://s3.amazonaws.com/open_coesione/metadati_search_results.xls">metadati xls</a>
+            </p>
+        </div>
+
         {% if soggetto %}
             <p>per il soggetto:       {{ soggetto }}  </p>
         {% endif %}

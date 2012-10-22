@@ -46,6 +46,7 @@ class ProgettoIndex(SearchIndex):
     ambiti_territoriali = MultiValueField(stored=True)
 
     text = CharField(document=True, use_template=True)
+    territorio_tipo = MultiValueField(indexed=True, stored=True)
     territorio_com = MultiValueField(indexed=True, stored=True)
     territorio_prov = MultiValueField(indexed=True, stored=True)
     territorio_reg = MultiValueField(indexed=True, stored=True)
@@ -71,14 +72,17 @@ class ProgettoIndex(SearchIndex):
     def prepare_tema(self, obj):
         return obj.tema.codice.split('.')[0]
 
+    def prepare_territorio_tipo(self, obj):
+        return [t.territorio for t in obj.territori]
+
     def prepare_territorio_reg(self, obj):
-        return [c['cod_reg'] for c in obj.territori.values('cod_reg').distinct()]
+        return [t.cod_reg for t in obj.territori]
 
     def prepare_territorio_prov(self, obj):
-        return [c['cod_prov'] for c in obj.territori.values('cod_prov').distinct()]
+        return [t.cod_prov for t in obj.territori]
 
     def prepare_territorio_com(self, obj):
-        return [c['cod_com'] for c in obj.territori.values('cod_com').distinct()]
+        return [t.cod_com for t in obj.territori]
 
     def prepare_soggetto(self, obj):
         return [s['slug'] for s in obj.soggetto_set.values('slug').distinct()]
@@ -90,10 +94,10 @@ class ProgettoIndex(SearchIndex):
         return [s['soggetto__denominazione'] for s in obj.ruolo_set.filter(ruolo=Ruolo.RUOLO.attuatore).values('soggetto__denominazione')]
 
     def prepare_territori(self, obj):
-        return [t.nome_con_provincia for t in obj.territori]
+        return set([t.nome_con_provincia for t in obj.territori])
 
     def prepare_ambiti_territoriali(self, obj):
-        return [t.ambito_territoriale for t in obj.territori]
+        return set([t.ambito_territoriale for t in obj.territori])
 
     def prepare_data_inizio(self, obj):
         if obj.data_inizio_effettiva:
