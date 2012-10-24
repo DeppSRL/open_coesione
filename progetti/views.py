@@ -394,7 +394,7 @@ class CSVSearchResultsWriterMixin(object):
 
         import locale
         from datetime import datetime
-        locale.setlocale(locale.LC_ALL, 'it_IT')
+        locale.setlocale(locale.LC_ALL, 'it_IT.utf8')
 
         writer.writerow([
             'COD_LOCALE_PROGETTO', 'CUP',
