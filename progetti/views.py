@@ -4,7 +4,6 @@ import json
 import zipfile
 from django.conf import settings
 from django.http import HttpResponse
-from haystack.views import SearchView
 import os
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
@@ -381,7 +380,10 @@ class CSVSearchResultsWriterMixin(object):
                 for t in territori_codici:
                     writer.writerow([
                         r.clp,
-                        t[0], t[1], t[2], t[3]
+                        t[0],
+                        "%06d" % int(t[1]),
+                        "%03d" % int(t[2]),
+                        t[3]
                     ])
 
 
@@ -465,7 +467,7 @@ class ProgettoLocCSVPreviewSearchView(ProgettoSearchView, CSVSearchResultsWriter
         """
         Generates a CSV text preview (limited to 50000 items) for search results
         """
-        results = self.get_results()[0:50000]
+        results = self.get_results()[0:5000]
 
         # send CSV output as plain text, to view it in the browser
         response = HttpResponse(mimetype='text/plain')
@@ -480,7 +482,7 @@ class ProgettoCSVPreviewSearchView(ProgettoSearchView, CSVSearchResultsWriterMix
         """
         Generates a CSV text preview (limited to 50000 items) for search results
         """
-        results = self.get_results()[0:50000]
+        results = self.get_results()[0:5000]
 
         # send CSV output as plain text, to view it in the browser
         response = HttpResponse(mimetype='text/plain')
@@ -501,8 +503,48 @@ class ProgettoCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
 
         csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
 
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=risultati_progetti.csv'
+
+        # add progetti csv to zip stream
+        writer = csv.writer(response, dialect='opencoesione')
+        self.write_projects_search_results(results, writer)
+
+        # send response
+        return response
+
+class ProgettoLocCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
+
+    def create_response(self):
+        """
+        Generates a zipped, downloadale CSV file, from search results
+        """
+        results = self.get_results()
+
+        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=risultati_localizzazioni.csv'
+
+        # add progetti csv to zip stream
+        writer = csv.writer(response, dialect='opencoesione')
+        self.write_projects_localisations_search_results(results, writer)
+
+        # send response
+        return response
+
+class ProgettoFullCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
+
+    def create_response(self):
+        """
+        Generates a zipped, downloadale CSV file, from search results
+        """
+        results = self.get_results()
+
+        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+
         response = HttpResponse(mimetype='application/zip')
-        response['Content-Disposition'] = 'attachment; filename=opencoesione_risultati_ricerca.csv.zip'
+        response['Content-Disposition'] = 'attachment; filename=opencoesione_risultati.csv.zip'
 
         # define zipped stream as response
         z = zipfile.ZipFile(response,'w')   ## write zip to response

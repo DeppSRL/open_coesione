@@ -3,7 +3,7 @@ from django.views.decorators.cache import cache_page
 from django.views.generic.base import TemplateView
 from haystack.query import SearchQuerySet
 
-from progetti.views import ProgettoSearchView, ProgettoView, TipologiaView, TipologiaCSVView, TemaCSVView, TemaView, SegnalaDescrizioneView, SegnalazioneDetailView, ProgettoCSVSearchView, ProgettoCSVPreviewSearchView, ProgettoJSONSearchView, ProgettoLocCSVPreviewSearchView
+from progetti.views import ProgettoSearchView, ProgettoView, TipologiaView, TipologiaCSVView, TemaCSVView, TemaView, SegnalaDescrizioneView, SegnalazioneDetailView, ProgettoCSVSearchView, ProgettoCSVPreviewSearchView, ProgettoLocCSVPreviewSearchView, ProgettoLocCSVSearchView, ProgettoFullCSVSearchView
 
 ## SearchQuerySet with multiple facets and highlight
 sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
@@ -29,7 +29,9 @@ urlpatterns = patterns('',
    url(r'^$', ProgettoSearchView(template='progetti/progetto_search.html', searchqueryset=sqs), name='progetti_search'),
    url(r'^csv_preview/$', ProgettoCSVPreviewSearchView(template='progetti/progetto_search_csv.html', searchqueryset=sqs), name='progetti_search_csv_preview'),
    url(r'^csv_loc_preview/$', ProgettoLocCSVPreviewSearchView(template='', searchqueryset=sqs), name='progetti_search_csv_loc_preview'),
-   url(r'^csv/$', ProgettoCSVSearchView(template='progetti/progetto_search_csv.html', searchqueryset=sqs), name='progetti_search_csv'),
+   url(r'^csv_prog/$', ProgettoCSVSearchView(searchqueryset=sqs), name='progetti_search_csv'),
+   url(r'^csv_loc/$', ProgettoLocCSVSearchView(searchqueryset=sqs), name='progetti_search_csv_loc'),
+   url(r'^csv_full/$', ProgettoFullCSVSearchView(searchqueryset=sqs), name='progetti_search_csv_full_archive'),
 #    url(r'^json/$', ProgettoJSONSearchView(template='progetti/progetto_search_csv.html', searchqueryset=sqs), name='progetti_search_csv'),
 
    url(r'^segnalazione/$', SegnalaDescrizioneView.as_view(), name='progetti_segnalazione'),
