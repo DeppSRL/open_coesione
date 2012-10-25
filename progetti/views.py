@@ -354,6 +354,8 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         extra['paginator'] = paginator
         extra['page_obj'] = page_obj
 
+        extra['n_max_downloadable'] = settings.N_MAX_DOWNLOADABLE_RESULTS
+
         return extra
 
 

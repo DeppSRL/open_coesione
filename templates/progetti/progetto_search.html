@@ -18,30 +18,40 @@
         <section style="clear: both;">
         <div class="row">
             <h3 class="span4">Trovati {{ n_results }} progetti</h3>
-            <p class="span4">
-                scarica i risultati della ricerca<br/>
-                <a style="font-weight: normal;"
-                   href="{%  url progetti_search_csv %}?{{ request.META.QUERY_STRING }}"
-                   title="scarica il file dei progetti, con i nomi delle localizzazioni"
-                >csv progetti</a><a
-                    href="{%  url progetti_search_csv %}?{{ request.META.QUERY_STRING }}"
-                    title="scarica il file dei progetti, con i nomi delle localizzazioni"
-                ><img src="{{ STATIC_URL }}img/download.png"/></a> |
-                <a style="font-weight: normal;"
-                   href="{%  url progetti_search_csv_loc %}?{{ request.META.QUERY_STRING }}"
-                   title="scarica il file dei codici delle localizzazioni"
-                >csv localizzazioni</a><a
-                    href="{%  url progetti_search_csv_loc %}?{{ request.META.QUERY_STRING }}"
-                    title="scarica il file dei codici delle localizzazioni"
-                ><img src="{{ STATIC_URL }}img/download.png"/></a> |
-                <a style="font-weight: normal;"
-                   href="{{ STATIC_URL }}risultati_ricerca_metadati.xls"
-                   title="scarica i metadati"
-                        >metadati</a><a
-                    href="{{ STATIC_URL }}risultati_ricerca_metadati.xls"
-                    title="scarica il pacchetto completo con progetti, localizzazioni e metadati"
-                    ><img src="{{ STATIC_URL }}img/download.png"/></a>
-            </p>
+            
+            {% if n_results < n_max_downloadable %}
+                <p class="span4">
+                    scarica i risultati della ricerca<br/>
+                    <a style="font-weight: normal;"
+                       href="{%  url progetti_search_csv %}?{{ request.META.QUERY_STRING }}"
+                       title="scarica il file dei progetti, con i nomi delle localizzazioni"
+                            >csv progetti</a><a
+                        href="{%  url progetti_search_csv %}?{{ request.META.QUERY_STRING }}"
+                        title="scarica il file dei progetti, con i nomi delle localizzazioni"
+                        ><img src="{{ STATIC_URL }}img/download.png"/></a> |
+                    <a style="font-weight: normal;"
+                       href="{%  url progetti_search_csv_loc %}?{{ request.META.QUERY_STRING }}"
+                       title="scarica il file dei codici delle localizzazioni"
+                            >csv localizzazioni</a><a
+                        href="{%  url progetti_search_csv_loc %}?{{ request.META.QUERY_STRING }}"
+                        title="scarica il file dei codici delle localizzazioni"
+                        ><img src="{{ STATIC_URL }}img/download.png"/></a> |
+                    <a style="font-weight: normal;"
+                       href="{{ STATIC_URL }}risultati_ricerca_metadati.xls"
+                       title="scarica i metadati"
+                            >metadati</a><a
+                        href="{{ STATIC_URL }}risultati_ricerca_metadati.xls"
+                        title="scarica il pacchetto completo con progetti, localizzazioni e metadati"
+                        ><img src="{{ STATIC_URL }}img/download.png"/></a>
+                </p>
+            {% else %}
+                <p class="span4">
+                    La tua ricerca supera i {{ n_max_downloadable }} progetti.<br/>
+                    Puoi scaricare tutti gli open data
+                    <a href="http://opencoesione.gov.it/open-data/">qui</a>
+                </p>
+
+            {% endif %} 
         </div>
 
         {% if soggetto %}
