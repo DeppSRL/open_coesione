@@ -3,6 +3,7 @@ import csv
 import json
 import zipfile
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 import os
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -289,7 +290,10 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         soggetto_slug = self.request.GET.get('soggetto', None)
         if soggetto_slug:
-            extra['soggetto'] = Soggetto.objects.get(slug=soggetto_slug)
+            try:
+                extra['soggetto'] = Soggetto.objects.get(slug=soggetto_slug)
+            except ObjectDoesNotExist:
+                pass
 
         # get data about custom costo and n_progetti range facets
         extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()
