@@ -12,7 +12,6 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic.detail import DetailView
 from django.db import models
 from django.views.generic.edit import FormView
-from django.utils.encoding import smart_str
 
 from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin
