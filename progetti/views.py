@@ -10,14 +10,13 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic.detail import DetailView
-from django.db import models
 from django.views.generic.edit import FormView
 
 from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
 
-from models import Progetto, ClassificazioneAzione, Ruolo
+from models import Progetto, ClassificazioneAzione
 from open_coesione import utils
 from open_coesione.views import AggregatoView, AccessControlView
 from progetti.forms import DescrizioneProgettoForm
@@ -208,9 +207,9 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
     COST_RANGES = {
         '0-0TO1K':      {'qrange': '[* TO 1000]', 'r_label': 'da 0 a 1.000&euro;'},
-        '1-1KTO10K':    {'qrange': '[1001 TO 10000]', 'r_label': 'da 1.000 a 10.000&euro;'},
-        '2-10KTO100K':  {'qrange': '[10001 TO 100000]', 'r_label': 'da 10.000 a 100.000&euro;'},
-        '3-100KTOINF':  {'qrange': '[100001 TO *]', 'r_label': 'oltre 100.000&euro;'},
+        '1-1KTO10K':    {'qrange': '[1000.001 TO 10000]', 'r_label': 'da 1.000 a 10.000&euro;'},
+        '2-10KTO100K':  {'qrange': '[10000.001 TO 100000]', 'r_label': 'da 10.000 a 100.000&euro;'},
+        '3-100KTOINF':  {'qrange': '[100000.001 TO *]', 'r_label': 'oltre 100.000&euro;'},
     }
 
 
@@ -228,6 +227,8 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         '2009':  {'qrange': '[2009-01-01T00:00:00Z TO 2010-01-01T00:00:00Z]', 'r_label': '2009'},
         '2008':  {'qrange': '[2008-01-01T00:00:00Z TO 2009-01-01T00:00:00Z]', 'r_label': '2008'},
         '2007':  {'qrange': '[2007-01-01T00:00:00Z TO 2008-01-01T00:00:00Z]', 'r_label': '2007'},
+        'early': {'qrange': '[1970-01-02T00:00:00Z TO 2007-01-01T00:00:00Z]', 'r_label': 'prima del 2007'},
+        'nd'  :  {'qrange': '[* TO 1970-01-01T00:00:00Z]', 'r_label': 'non disponibile'}
     }
 
     def __init__(self, *args, **kwargs):
