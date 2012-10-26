@@ -386,7 +386,7 @@ class CSVSearchResultsWriterMixin(object):
                 )
                 for t in territori_codici:
                     writer.writerow([
-                        r.clp,
+                        unicode(r.clp).encode('latin1'),
                         t[0],
                         "%06d" % int(t[1]),
                         "%03d" % int(t[2]),
@@ -441,7 +441,7 @@ class CSVSearchResultsWriterMixin(object):
                 territori = separator.join(list(r.territori)).encode('latin1')
 
             writer.writerow([
-                r.clp, r.cup,
+                unicode(r.clp).encode('latin1'), r.cup,
                 unicode(r.titolo).encode('latin1'),
                 unicode(r.descrizione).encode('latin1') if r.descrizione is not None else "",
                 unicode(r.tema_descr).encode('latin1'),
@@ -464,8 +464,10 @@ class CSVSearchResultsWriterMixin(object):
                 r.data_inizio_effettiva.strftime("%Y%m%d") if r.data_inizio_effettiva is not None else "",
                 r.data_fine_prevista.strftime("%Y%m%d") if r.data_fine_prevista is not None else "",
                 r.data_fine_effettiva.strftime("%Y%m%d") if r.data_fine_effettiva is not None else "",
-                soggetti_programmatori, soggetti_attuatori,
-                ambiti, territori
+                soggetti_programmatori, 
+                soggetti_attuatori,
+                ambiti, 
+                territori
             ])
 
 
