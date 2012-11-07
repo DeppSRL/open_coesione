@@ -123,15 +123,15 @@
       // read more for project description
       $('#project_description').expander({
         // the number of characters at which the contents will be sliced into two parts.
-        slicePoint: 200,
+        slicePoint: 400,
 
         // text displayed in a link instead of the hidden part of the element.
         // clicking this will expand/show the hidden/collapsed text
-        expandText: '<i class="icon-caret-down"></i>',
+        expandText: 'leggi tutto',
         expandPrefix: '&hellip; ',
 
         // text to use for the link to re-collapse the text
-        userCollapseText: '<i class="icon-caret-up"></i>',
+        userCollapseText: 'chiudi',
         userCollapsePrefix: ' '
       });
 
@@ -237,12 +237,21 @@
         </ul>
 
         {% if progetto.descrizione %}
+          <div class="baloons-block" style="padding-top: 2px;">
+              <p style="margin-left: 0;">
+
+              {% if progetto.fonte_descrizione %}
+                  {% if progetto.fonte_url %}<a href="{{ progetto.fonte_url }}" class="pull-right">{{ progetto.fonte_descrizione }}</a>
+                      {% else %}<span class="pull-right">{{ progetto.fonte_descrizione }}</span>
+                  {% endif %}
+              {% endif %}
+
+                  <strong>Sintesi del progetto</strong>
+              </p>
+
+          </div>
           <p id="project_description">
-            {% if progetto.fonte_descrizione %}
-                <strong>Fonte:
-                {% if progetto.fonte_url %}<a href="{{ progetto.fonte_url }}">{{ progetto.fonte_descrizione }}</a>
-                {% else %}{{ progetto.fonte_descrizione }}{% endif %}</strong> &ndash;
-            {% endif %}
+
             {{ progetto.descrizione }}
           </p>
         {% endif %}
