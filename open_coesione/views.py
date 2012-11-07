@@ -203,6 +203,23 @@ class FondiView(RisorseView):
 
         return context
 
+class SpesaCertificataView(RisorseView):
+    template_name = 'flat/spesa_certificata.html'
+
+    def get_context_data(self, **kwargs):
+
+        import csv
+
+        context = super(SpesaCertificataView, self).get_context_data(**kwargs)
+
+        context['chart_tables'] = []
+
+        for tipo in ['competitivita_fesr','competitivita_fse','convergenza_fesr','convergenza_fse']:
+
+            context['chart_tables'].append((tipo, csv.reader( open(os.path.join(PROJECT_ROOT, 'static/csv/spesa_certificata/%s.csv' % tipo))) ))
+
+        return context
+
 class ContactView(TemplateView):
 
     def get_context_data(self, **kwargs):
