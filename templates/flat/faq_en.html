@@ -121,6 +121,15 @@
       <p>The per-capita value of a region takes into account all projects located at a regional level or lower, the per capita value of a province takes into account all projects located at municipal or provincial level; the per capita value of a municipality takes into account all projects located at the municipal level. Therefore, municipal per-capita values do not take into account projects generically falling into its province or region.</p>
       <p>Projects referring to the "national level" only contribute to the calculation of average per-capita national reported as an element of comparison in the indicators.</p>
 
+      <h2>On the page dedicated to a project, what criteria underlie the “other projects on the territory” visualisation?</h2>
+      <p>The function is aimed at simplifying users’ surfing and at proposing projects, within the same territory, which could be defined as “similar” to the project being visualised. The four selection criteria are: </p>
+      <ul>
+        <li>Projects sharing the same thematic classification (metadata fields: dps_tema_sint and qsn_descr_tema_prioritario_ue) </li>
+        <li>Projects sharing the same nature (metadata fields: cup_descr_natura and cup_descr_tipologia)</li>
+        <li>Projects sharing the same programming authority </li>
+        <li>Projects sharing the same implementing subject.</li>
+      </ul>
+
       <h2>How often are OpenCoesione data updated?</h2>
 
       <p>Data from monitoring systems are updated every two months by the Administrations in charge of managing the
@@ -143,7 +152,7 @@
         <li>Reciepients (“Attuattore”) ─ i.e. responsible for implementing the project. In the case of Structural Funds it
           corresponds to the "beneficiary" under Article 2 of Regulation EC n.1083/2006 – namely, “beneficiaries are
           public or private firms carrying out an individual project and receiving public aid”. Through the project
-          implementation phase, the reciepient can in turn resort to other subjects not necessarily traced in
+          implementation phase, the recipient can in turn resort to other subjects not necessarily traced in
           the monitoring system.
         </li>
       </ul>
@@ -162,7 +171,7 @@
         resources.</p>
 
       <p>Among the measures meant to speed up the implementation of the operational programmes of the structural funds
-        2007-2013 in Italy, interim targets on costs actually incurred and certified expenditure have been forseen. In
+        2007-2013 in Italy, interim targets on costs actually incurred and certified expenditure have been foreseen. In
         addition to the date of 31 December of each year, certified expenditure is also monitored at 31 May and 31
         October. The data are reported <a
             href="http://www.coesioneterritoriale.gov.it/monitoraggio-spesa-certificata-fondi-europei/">here</a>.</p>
@@ -226,7 +235,7 @@
 
       <p>OpenCoesione CSV file settings are:</p>
       <ul>
-        <li><strong>font:</strong> Unicode (UTF-8)</li>
+        <li><strong>encoding:</strong> Unicode (UTF-8)</li>
         <li><strong>language:</strong> Italian (Italy)</li>
       </ul>
 
@@ -278,7 +287,13 @@
         classification method), which optimises the distribution into classes by minimising the variance within each
         class and maximising the variance between classes.</p>
 
-      <h2>What stak software is used in OpenCoesione?</h2>
+      <h2>What is the source of OpenCoesione maps?</h2>
+      <p>
+        Maps are from <a href="http://www.openstreetmap.org/">OpenStreetMap</a> (OSM).
+        Shapefiles related to regions, provinces and municipalities are from <a href="http://www.istat.it">Istat</a>.
+      </p>
+
+      <h2>What stack software is used in OpenCoesione?</h2>
       <p>Here it is:</p>
         <ul class="unstyled">
           <li><a href="http://leaflet.cloudmade.com/" target="_blank">Leaflet</a></li>
