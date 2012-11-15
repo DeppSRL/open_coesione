@@ -376,7 +376,6 @@ class CSVSearchResultsWriterMixin(object):
         ])
         for r in results:
 
-            print r.territorio_com
             if r.territorio_com is not None:
                 territori_codici = zip(
                     r.territorio_tipo,
@@ -513,7 +512,7 @@ class ProgettoCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
         csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
 
         response = HttpResponse(mimetype='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=risultati_progetti.csv'
+        response['Content-Disposition'] = 'attachment; filename=progetti.csv'
 
         # add progetti csv to zip stream
         writer = csv.writer(response, dialect='opencoesione')
@@ -533,7 +532,7 @@ class ProgettoLocCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
         csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
 
         response = HttpResponse(mimetype='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=risultati_localizzazioni.csv'
+        response['Content-Disposition'] = 'attachment; filename=codici_localita.csv'
 
         # add progetti csv to zip stream
         writer = csv.writer(response, dialect='opencoesione')

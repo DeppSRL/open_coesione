@@ -254,4 +254,5 @@ class ContactView(TemplateView):
 class PressView(ListView):
     model = PressReview
     template_name = 'flat/press_review.html'
+    queryset = PressReview.objects.all().order_by('-published_at')
 
