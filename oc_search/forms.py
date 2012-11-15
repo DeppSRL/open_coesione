@@ -1,6 +1,5 @@
 from django import forms
 from haystack.forms import SearchForm
-import sys
 
 class RangeFacetedSearchForm(SearchForm):
     territorio_com = forms.IntegerField(required=False)

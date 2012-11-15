@@ -1,6 +1,5 @@
 from haystack.views import SearchView
 from forms import RangeFacetedSearchForm
-from progetti.models import Progetto
 
 class ExtendedFacetedSearchView(SearchView):
     """
