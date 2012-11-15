@@ -376,7 +376,6 @@ class CSVSearchResultsWriterMixin(object):
         ])
         for r in results:
 
-            print r.territorio_com
             if r.territorio_com is not None:
                 territori_codici = zip(
                     r.territorio_tipo,
