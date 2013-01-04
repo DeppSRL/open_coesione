@@ -1,6 +1,6 @@
 ## -*- mode: python -*-
 """
-Fabric script (a.k.a. "fabfile") to automate the deployment process
+Fabric script (a.k.a. "fabfile.deprecated") to automate the deployment process
 of an instance of the Open Coesione web application.
 
 Deployment on both staging & production machine(s) is supported:

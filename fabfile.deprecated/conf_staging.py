@@ -20,7 +20,7 @@ RSYNC_EXCLUDE = (
     'docs/',
     '*.markdown',
     '*.gz',
-    'fabfile',
+    'fabfile.deprecated',
     'project_site',
     'apache/*',
     'import_tmp/*',
@@ -42,7 +42,7 @@ RSYNC_EXCLUDE = (
     'smtp_sink_server.py',
 )
 
-# the name of the Django project managed by this fabfile
+# the name of the Django project managed by this fabfile.deprecated
 PROJECT_NAME = 'open_coesione'
 # a unique identifier for this web application instance
 # usually it's set to the primary domain from which the web application is accessed

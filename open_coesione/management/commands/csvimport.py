@@ -337,14 +337,14 @@ class Command(BaseCommand):
 
             # prendo il progetto con per CUP
             try:
-                progetto = Progetto.objects.get(cup__iexact=r['CUP'].strip())
-                self.logger.debug("%s - Progetto: %s" % (c, progetto.cup))
+                progetto = Progetto.objects.get(pk=r['CodiceProgettoLocale'].strip())
+                self.logger.debug("%s - Progetto: %s" % (c, progetto.pk))
             except ObjectDoesNotExist:
-                self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, r['CUP']))
+                self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, r['CodiceProgettoLocale']))
                 not_found += 1
                 continue
             except MultipleObjectsReturned:
-                self.logger.warning(u"%s - Più progetti con CUP: %s, skip" % (c, r['CUP']))
+                self.logger.warning(u"%s - Più progetti con Codice: %s, skip" % (c, r['CodiceProgettoLocale']))
                 duplicate += 1
                 continue
 
@@ -361,7 +361,7 @@ class Command(BaseCommand):
                 already_ok += 1
 
         self.logger.info(
-            "Fine: %s descrizioni aggiornate, %s sintesi da importare erano vuote, %s progetti non sono stati trovati tramite il cup, %s progetti si riferiscono a un CUP non univoco" %
+            "Fine: %s descrizioni aggiornate, %s sintesi da importare erano vuote, %s progetti non sono stati trovati tramite il codice progetto locale, %s progetti si riferiscono a un CUP non univoco" %
             (updates, already_ok, not_found, duplicate)
         )
 
