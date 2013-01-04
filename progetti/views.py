@@ -3,21 +3,20 @@ import csv
 import json
 import zipfile
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-from haystack.views import SearchView
 import os
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic.detail import DetailView
-from django.db import models
 from django.views.generic.edit import FormView
 
 from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
 
-from models import Progetto, ClassificazioneAzione, Ruolo
+from models import Progetto, ClassificazioneAzione
 from open_coesione import utils
 from open_coesione.views import AggregatoView, AccessControlView
 from progetti.forms import DescrizioneProgettoForm
@@ -208,9 +207,9 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
     COST_RANGES = {
         '0-0TO1K':      {'qrange': '[* TO 1000]', 'r_label': 'da 0 a 1.000&euro;'},
-        '1-1KTO10K':    {'qrange': '[1001 TO 10000]', 'r_label': 'da 1.000 a 10.000&euro;'},
-        '2-10KTO100K':  {'qrange': '[10001 TO 100000]', 'r_label': 'da 10.000 a 100.000&euro;'},
-        '3-100KTOINF':  {'qrange': '[100001 TO *]', 'r_label': 'oltre 100.000&euro;'},
+        '1-1KTO10K':    {'qrange': '[1000.001 TO 10000]', 'r_label': 'da 1.000 a 10.000&euro;'},
+        '2-10KTO100K':  {'qrange': '[10000.001 TO 100000]', 'r_label': 'da 10.000 a 100.000&euro;'},
+        '3-100KTOINF':  {'qrange': '[100000.001 TO *]', 'r_label': 'oltre 100.000&euro;'},
     }
 
 
@@ -228,6 +227,8 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         '2009':  {'qrange': '[2009-01-01T00:00:00Z TO 2010-01-01T00:00:00Z]', 'r_label': '2009'},
         '2008':  {'qrange': '[2008-01-01T00:00:00Z TO 2009-01-01T00:00:00Z]', 'r_label': '2008'},
         '2007':  {'qrange': '[2007-01-01T00:00:00Z TO 2008-01-01T00:00:00Z]', 'r_label': '2007'},
+        'early': {'qrange': '[1970-01-02T00:00:00Z TO 2007-01-01T00:00:00Z]', 'r_label': 'prima del 2007'},
+        'nd'  :  {'qrange': '[* TO 1970-01-01T00:00:00Z]', 'r_label': 'non disponibile'}
     }
 
     def __init__(self, *args, **kwargs):
@@ -290,7 +291,10 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         soggetto_slug = self.request.GET.get('soggetto', None)
         if soggetto_slug:
-            extra['soggetto'] = Soggetto.objects.get(slug=soggetto_slug)
+            try:
+                extra['soggetto'] = Soggetto.objects.get(slug=soggetto_slug)
+            except ObjectDoesNotExist:
+                pass
 
         # get data about custom costo and n_progetti range facets
         extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()
@@ -351,6 +355,8 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         extra['paginator'] = paginator
         extra['page_obj'] = page_obj
 
+        extra['n_max_downloadable'] = settings.N_MAX_DOWNLOADABLE_RESULTS
+
         return extra
 
 
@@ -360,25 +366,58 @@ class CSVSearchResultsWriterMixin(object):
     Both the results and the writer objects must have been correctly defined,
     before invoking the write_search_results method.
     """
-    def write_search_results(self, results, writer ):
+    def write_projects_localisations_search_results(self, results, writer):
         """
         Writes all results of a search query set into a CSV writer.
         """
         writer.writerow([
-            'CLP', 'CUP', 'FONTE',
-            'TEMA', 'NATURA', 'TITOLO', 'DESCRIZIONE',
-            'FIN_TOTALE_PUBBLICO',
+            'COD_LOCALE_PROGETTO',
+            'DPS_TERRITORIO_PROG', 'COD_COMUNE', 'COD_PROVINCIA', 'COD_REGIONE'
+        ])
+        for r in results:
+
+            if r.territorio_com is not None:
+                territori_codici = zip(
+                    r.territorio_tipo,
+                    r.territorio_com,
+                    r.territorio_prov,
+                    r.territorio_reg
+                )
+                for t in territori_codici:
+                    writer.writerow([
+                        unicode(r.clp).encode('latin1'),
+                        t[0],
+                        "%06d" % int(t[1]),
+                        "%03d" % int(t[2]),
+                        t[3]
+                    ])
+
+
+    def write_projects_search_results(self, results, writer ):
+        """
+        Writes all results of a search query set into a CSV writer.
+        """
+
+        import locale
+        from datetime import datetime
+        locale.setlocale(locale.LC_ALL, 'it_IT.utf8')
+
+        writer.writerow([
+            'COD_LOCALE_PROGETTO', 'CUP',
+            'DPS_TITOLO_PROGETTO', 'DESCRIZIONE',
+            'DPS_TEMA_SINTETICO', 'CUP_DESCR_NATURA ',
             'FIN_UE',
             'FIN_STATO_FONDO_ROTAZIONE', 'FIN_STATO_FSC', 'FIN_STATO_ALTRI_PROVVEDIMENTI',
             'FIN_REGIONE', 'FIN_PROVINCIA', 'FIN_COMUNE',
             'FIN_ALTRO_PUBBLICO', 'FIN_STATO_ESTERO',
             'FIN_PRIVATO', 'FIN_DA_REPERIRE',
-            'PAGAMENTO',
-            'FONDO',
-            'DATA_INIZIO_PREVISTA', 'DATA_FINE_PREVISTA',
-            'DATA_FINE_PREVISTA', 'DATA_FINE_EFFETTIVA',
+            'FIN_TOTALE_PUBBLICO',
+            'TOT_PAGAMENTI',
+            'QSN_FONDO_COMUNITARIO',
+            'DPS_DATA_INIZIO_PREVISTA', 'DPS_DATA_FINE_PREVISTA',
+            'DPS_DATA_INIZIO_EFFETTIVA', 'DPS_DATA_FINE_EFFETTIVA',
             'SOGGETTI_PROGRAMMATORI', 'SOGGETTI_ATTUATORI',
-            'AMBITO_TERRITORIALE', 'TERRITORIO', 'CODICE_COMUNE', 'CODICE_PROVINCIA', 'CODICE_REGIONE'
+            'AMBITI_TERRITORIALI', 'TERRITORI'
         ])
         for r in results:
             
@@ -400,76 +439,148 @@ class CSVSearchResultsWriterMixin(object):
             if r.territori:
                 territori = separator.join(list(r.territori)).encode('latin1')
 
-            cod_comuni = ""
-            if r.territorio_com:
-                cod_comuni = separator.join(list(r.territorio_com))
-
-            cod_province = ""
-            if r.territorio_prov:
-                cod_province = separator.join(list(r.territorio_prov))
-
-            cod_regioni = ""
-            if r.territorio_reg:
-                cod_regioni = separator.join(list(r.territorio_reg))
-
             writer.writerow([
-                r.clp, r.cup,
+                unicode(r.clp).encode('latin1'), r.cup,
+                unicode(r.titolo).encode('latin1'),
+                unicode(r.descrizione).encode('latin1') if r.descrizione is not None else "",
                 unicode(r.tema_descr).encode('latin1'),
                 unicode(r.natura_descr).encode('latin1'),
-                unicode(r.titolo).encode('latin1'),
-                unicode(r.descrizione).encode('latin1'),
-                r.fin_totale_pubblico,
-                r.fin_ue, r.fin_stato_fondo_rotazione, r.fin_stato_fsc, r.fin_stato_altri_provvedimenti,
-                r.fin_regione, r.fin_provincia, r.fin_comune,
-                r.fin_altro_pubblico, r.fin_stato_estero,
-                r.fin_privato, r.fin_da_reperire,
-                r.pagamento,
+                locale.format("%.2f", r.fin_ue) if r.fin_ue is not None else "",
+                locale.format("%.2f", r.fin_stato_fondo_rotazione) if r.fin_stato_fondo_rotazione is not None else "",
+                locale.format("%.2f", r.fin_stato_fsc) if r.fin_stato_fsc is not None else "", 
+                locale.format("%.2f", r.fin_stato_altri_provvedimenti) if r.fin_stato_altri_provvedimenti is not None else "",
+                locale.format("%.2f", r.fin_regione) if r.fin_regione is not None else "", 
+                locale.format("%.2f", r.fin_provincia) if r.fin_provincia is not None else "", 
+                locale.format("%.2f", r.fin_comune) if r.fin_comune is not None else "",
+                locale.format("%.2f", r.fin_altro_pubblico) if r.fin_altro_pubblico is not None else "", 
+                locale.format("%.2f", r.fin_stato_estero) if r.fin_stato_estero is not None else "",
+                locale.format("%.2f", r.fin_privato) if r.fin_privato is not None else "", 
+                locale.format("%.2f", r.fin_da_reperire) if r.fin_da_reperire is not None else "",
+                locale.format("%.2f", r.fin_totale_pubblico) if r.fin_totale_pubblico is not None else "",
+                locale.format("%.2f", r.pagamento) if r.pagamento is not None else "",
                 unicode(r.fondo).encode('latin1'),
-                r.data_inizio_prevista, r.data_inizio_effettiva,
-                r.data_fine_prevista, r.data_fine_effettiva,
-                soggetti_programmatori, soggetti_attuatori,
-                ambiti, territori, cod_comuni, cod_province, cod_regioni
+                r.data_inizio_prevista.strftime("%Y%m%d") if r.data_inizio_prevista is not None else "",
+                r.data_inizio_effettiva.strftime("%Y%m%d") if r.data_inizio_effettiva is not None else "",
+                r.data_fine_prevista.strftime("%Y%m%d") if r.data_fine_prevista is not None else "",
+                r.data_fine_effettiva.strftime("%Y%m%d") if r.data_fine_effettiva is not None else "",
+                soggetti_programmatori, 
+                soggetti_attuatori,
+                ambiti, 
+                territori
             ])
 
-class ProgettoCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
+
+class ProgettoLocCSVPreviewSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
     def create_response(self):
         """
-        Generates a zipped, downloadale CSV file, from search results
+        Generates a CSV text preview (limited to 50000 items) for search results
         """
-        results = self.get_results()
-
-        response = HttpResponse(mimetype='application/zip')
-        response['Content-Disposition'] = 'attachment; filename=opencoesione_risultati_ricerca.csv.zip'
-
-        output = StringIO.StringIO()
-
-        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
-        writer = csv.writer(output, dialect='opencoesione')
-
-        self.write_search_results(results, writer)
-        z = zipfile.ZipFile(response,'w')   ## write zip to response
-        z.writestr("opencoesione_risultati_ricerca.csv", output.getvalue())  ## write csv file to zip
-        return response
-
-class ProgettoCSVPreviewSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
-    def create_response(self):
-        """
-        Generates a CSV text preview (limited to 500 items) for search results
-        """
-        results = self.get_results()[0:500]
+        results = self.get_results()[0:5000]
 
         # send CSV output as plain text, to view it in the browser
         response = HttpResponse(mimetype='text/plain')
 
         csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
         writer = csv.writer(response, dialect='opencoesione')
-        self.write_search_results(results, writer)
+        self.write_projects_localisations_search_results(results, writer)
+        return response
+
+class ProgettoCSVPreviewSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
+    def create_response(self):
+        """
+        Generates a CSV text preview (limited to 50000 items) for search results
+        """
+        results = self.get_results()[0:5000]
+
+        # send CSV output as plain text, to view it in the browser
+        response = HttpResponse(mimetype='text/plain')
+
+        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+        writer = csv.writer(response, dialect='opencoesione')
+        self.write_projects_search_results(results, writer)
         return response
 
 
-# TODO: serialization of complex JSON objects need to be tackled with proper tools (tastypie,
+class ProgettoCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
+
+    def create_response(self):
+        """
+        Generates a zipped, downloadale CSV file, from search results
+        """
+        results = self.get_results()
+
+        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=progetti.csv'
+
+        # add progetti csv to zip stream
+        writer = csv.writer(response, dialect='opencoesione')
+        self.write_projects_search_results(results, writer)
+
+        # send response
+        return response
+
+class ProgettoLocCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
+
+    def create_response(self):
+        """
+        Generates a zipped, downloadale CSV file, from search results
+        """
+        results = self.get_results()
+
+        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=codici_localita.csv'
+
+        # add progetti csv to zip stream
+        writer = csv.writer(response, dialect='opencoesione')
+        self.write_projects_localisations_search_results(results, writer)
+
+        # send response
+        return response
+
+class ProgettoFullCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
+
+    def create_response(self):
+        """
+        Generates a zipped, downloadale CSV file, from search results
+        """
+        results = self.get_results()
+
+        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+
+        response = HttpResponse(mimetype='application/zip')
+        response['Content-Disposition'] = 'attachment; filename=opencoesione_risultati.csv.zip'
+
+        # define zipped stream as response
+        z = zipfile.ZipFile(response,'w')   ## write zip to response
+
+        # add progetti csv to zip stream
+        output = StringIO.StringIO()
+        writer = csv.writer(output, dialect='opencoesione')
+        self.write_projects_search_results(results, writer)
+        z.writestr("progetti.csv", output.getvalue())  ## write csv file to zip
+
+        # add localizzazioni csv to zip stream
+        output = StringIO.StringIO()
+        writer = csv.writer(output, dialect='opencoesione')
+        self.write_projects_localisations_search_results(results, writer)
+        z.writestr("localizzazioni.csv", output.getvalue())  ## write csv file to zip
+
+        # add metadati content to zip stream
+        output = StringIO.StringIO()
+        f = open(os.path.join(settings.REPO_ROOT, 'dati', 'metadati_search_results.xls'), 'rb')
+        output.write(f.read())
+        z.writestr("metadati.xls", output.getvalue())
+
+        # send response
+        return response
 
 
+
+# TODO: serialization of complex JSON objects need to be tackled with proper tools
 class ProgettoJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         return obj.__dict__
