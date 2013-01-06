@@ -337,14 +337,14 @@ class Command(BaseCommand):
 
             # prendo il progetto con per CUP
             try:
-                progetto = Progetto.objects.get(pk=r['CodiceProgettoLocale'].strip())
+                progetto = Progetto.objects.get(pk=r['CodiceLocaleProgetto'].strip())
                 self.logger.debug("%s - Progetto: %s" % (c, progetto.pk))
             except ObjectDoesNotExist:
-                self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, r['CodiceProgettoLocale']))
+                self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, r['CodiceLocaleProgetto']))
                 not_found += 1
                 continue
             except MultipleObjectsReturned:
-                self.logger.warning(u"%s - Più progetti con Codice: %s, skip" % (c, r['CodiceProgettoLocale']))
+                self.logger.warning(u"%s - Più progetti con Codice: %s, skip" % (c, r['CodiceLocaleProgetto']))
                 duplicate += 1
                 continue
 
