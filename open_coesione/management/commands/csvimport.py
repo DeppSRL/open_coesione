@@ -318,6 +318,16 @@ class Command(BaseCommand):
         self.logger.info("Limit: %s" % options['limit'])
         self.logger.info("Offset: %s" % options['offset'])
 
+
+        # read first csv file
+        try:
+            self.unicode_reader = utils.UnicodeDictReader(open(self.csv_file, 'r'), delimiter='|', encoding=self.encoding)
+        except IOError:
+            self.logger.error("It was impossible to open file %s" % self.csv_file)
+            exit(1)
+        except csv.Error, e:
+            self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
+
         if options['delete']:
             self.logger.error("Could not revert descriptions updates.")
             exit(1)
