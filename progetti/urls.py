@@ -22,8 +22,7 @@ sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
         query_facet('costo', ProgettoSearchView.COST_RANGES['1-1KTO10K']['qrange']).\
         query_facet('costo', ProgettoSearchView.COST_RANGES['2-10KTO100K']['qrange']).\
         query_facet('costo', ProgettoSearchView.COST_RANGES['3-100KTOINF']['qrange']).\
-        highlight()
-
+        highlight().order_by('-costo')
 
 
 urlpatterns = patterns('',
