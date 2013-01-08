@@ -400,11 +400,11 @@ class CSVSearchResultsWriterMixin(object):
 
         import locale
         from datetime import datetime
-        locale.setlocale(locale.LC_ALL, 'it_IT.utf8')
+        locale.setlocale(locale.LC_ALL, 'it_IT.UTF-8')
 
         writer.writerow([
             'COD_LOCALE_PROGETTO', 'CUP',
-            'DPS_TITOLO_PROGETTO', 'DESCRIZIONE',
+            'DPS_TITOLO_PROGETTO',
             'DPS_TEMA_SINTETICO', 'CUP_DESCR_NATURA ',
             'FIN_UE',
             'FIN_STATO_FONDO_ROTAZIONE', 'FIN_STATO_FSC', 'FIN_STATO_ALTRI_PROVVEDIMENTI',
@@ -442,7 +442,6 @@ class CSVSearchResultsWriterMixin(object):
             writer.writerow([
                 unicode(r.clp).encode('latin1'), r.cup,
                 unicode(r.titolo).encode('latin1'),
-                unicode(r.descrizione).encode('latin1') if r.descrizione is not None else "",
                 unicode(r.tema_descr).encode('latin1'),
                 unicode(r.natura_descr).encode('latin1'),
                 locale.format("%.2f", r.fin_ue) if r.fin_ue is not None else "",
