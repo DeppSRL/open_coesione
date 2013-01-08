@@ -1,2 +1,3 @@
+{{ object.cup }}
 {{ object.titolo_progetto }}
 {{ object.descrizione }}
