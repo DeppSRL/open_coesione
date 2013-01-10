@@ -49,32 +49,17 @@
       </section>
 
       <section class="span6">
-          <h1 class='title'><span>Spesa Certificata UE</span></h1>
-          <p>
-              La spesa complessiva certificata all'UE al 31 ottobre 2012 è pari a
-              <strong>16.048</strong> milioni di euro (di cui 8.436 milioni a valere sul
-              finanziamento comunitario) con un incremento di 3.354 milioni di euro
-              rispetto al 31 dicembre 2011.
-          </p>
-          <p>
-              Complessivamente l'avanzamento al 31 ottobre 2012 della spesa certificata all'UE per i Programmi finanziati
-              con i Fondi Strutturali comunitari è pari al <strong>29,5%</strong>.
-          </p>
-          <p>
-              Per vedere i dettagli <a href="/spesa-certificata">vai qui</a> e per scaricare tutti i dati
-              <a href="http://www.dps.tesoro.it/qsn/Spesa_certificata/spesa_certificata.asp">vai qui</a>
-          </p>
 
-{#            <h1 class='title'><span>Progetti con maggiori finanziamenti</span></h1>#}
-{#            #}
-{#            <table class="table">#}
-{#              {% for progetto in top_progetti %}#}
-{#                <tr>#}
-{#                  <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></td>#}
-{#                  <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>#}
-{#                </tr>#}
-{#              {% endfor %}#}
-{#            </table>#}
+        <h1 class='title'><span>Progetti con maggiori finanziamenti</span></h1>
+
+        <table class="table">
+          {% for progetto in top_progetti %}
+            <tr>
+              <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></td>
+              <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
+            </tr>
+          {% endfor %}
+        </table>
       </section>
 
 
@@ -102,9 +87,6 @@
       {##}
       {#      </section>#}
     </div>
-  </div>
-
-  <div class="container">
 
     <div class="row">
 
@@ -153,6 +135,29 @@
 
       </section>
 
+    </div>
+
+    <div class="row">
+        <section class="span6">
+            <hr class="big">
+
+            <h1 class='title'><span>Spesa Certificata UE</span></h1>
+            <p>
+                La spesa complessiva certificata all'UE al 31 ottobre 2012 è pari a
+                <strong>16.048</strong> milioni di euro (di cui 8.436 milioni a valere sul
+                finanziamento comunitario) con un incremento di 3.354 milioni di euro
+                rispetto al 31 dicembre 2011.
+            </p>
+            <p>
+                Complessivamente l'avanzamento al 31 ottobre 2012 della spesa certificata all'UE per i Programmi finanziati
+                con i Fondi Strutturali comunitari è pari al <strong>29,5%</strong>.
+            </p>
+            <p>
+                Per vedere i dettagli <a href="/spesa-certificata">vai qui</a> e per scaricare tutti i dati
+                <a href="http://www.dps.tesoro.it/qsn/Spesa_certificata/spesa_certificata.asp">vai qui</a>
+            </p>
+
+        </section>
     </div>
 
   </div>
