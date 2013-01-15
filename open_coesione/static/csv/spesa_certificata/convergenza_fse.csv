@@ -1,15 +1,15 @@
-Obiettivo,Programma operativo,Fondo,Tipo dato,31/12/2010,31/10/2011,31/12/2011,31/05/2012,31/10/2012,31/12/2012,31/05/2013,31/10/2013,31/12/2013,31/12/2014
-Convergenza,Pon GAS,FSE,Risultato,"9,6","18,7","25,7","35,8","42,2",,,,,
-Convergenza,Pon GAS,FSE,Target,"8,5","17,29","24,7",28,"36,26","41,21","47,94","54,66","58,02","75,11"
-Convergenza,Pon Istruzione,FSE,Risultato,"27,7","39,2","42,3","46,3","51,05",,,,,
-Convergenza,Pon Istruzione,FSE,Target,"8,5","17,29","24,7","41,2","41,21","41,21","47,94","54,66","58,02","75,11"
-Convergenza,Por Basilicata,FSE,Risultato,"15,5","25,3","35,7","39,1","47,12",,,,,
-Convergenza,Por Basilicata,FSE,Target,15,"24,67","35,2","38,6","46,53","53,23","59,27","65,51","68,84","81,96"
-Convergenza,Por Calabria,FSE,Risultato,9,"19,4","25,4","25,4","32,35",,,,,
-Convergenza,Por Calabria,FSE,Target,"8,5","17,29","24,7","25,4",32,"41,21","45,67","52,39","58,02","75,11"
-Convergenza,Por Campania,FSE,Risultato,"1,8","3,4","13,7","13,7","17,21",,,,,
-Convergenza,Por Campania,FSE,Target,"0,3","8,7","13,6","13,6","16,06","25,43","29,61","36,46","42,56","59,52"
-Convergenza,Por Puglia,FSE,Risultato,"9,5","17,5","20,5","22,3","25,41",,,,,
-Convergenza,Por Puglia,FSE,Target,"8,5","13,2","18,4","20,3","24,52","31,54","35,18","40,33","44,39","57,47"
-Convergenza,Por Sicilia,FSE,Risultato,"3,7","4,3","16,6","21,3","25,3",,,,,
-Convergenza,Por Sicilia,FSE,Target,"4,4","14,6","16,5","21,1","25,9","36,55","39,65","45,96","52,31","68,06"
+Obiettivo,Programma operativo,Fondo,Tipo dato,31/12/2010,31/10/2011,31/12/2011,31/05/2012,31/10/2012,31/12/2012,31/05/2013,31/10/2013,31/12/2013,31/12/2014,31/12/2015
+Convergenza,Por Campania,FSE,Risultato,"1,8","3,4","13,7","13,7","17,2","24,4 ",,,,,
+Convergenza,Por Campania,FSE,Target,,"8,7","13,6","13,6","16,1","24,0","32,3","39,8","52,1","72,9","100,0 "
+Convergenza,Por Calabria,FSE,Risultato,"9,0","19,4","25,4","25,4","32,4","38,7 ",,,,,
+Convergenza,Por Calabria,FSE,Target,"8,5","17,3","24,7","25,4","32,0","38,3","45,7","52,4","58,0","75,1","100,0 "
+Convergenza,Por Sicilia,FSE,Risultato,"3,7","4,3","16,6","21,3","25,3","36,9 ",,,,,
+Convergenza,Por Sicilia,FSE,Target,"4,4","14,6","16,5","21,1","25,9","36,8","39,9","46,3","55,2","71,8","100,0 "
+Convergenza,Por Basilicata,FSE,Risultato,"15,5","25,3","35,7","39,1","47,1","53,6 ",,,,,
+Convergenza,Por Basilicata,FSE,Target,"15,0","24,7","35,2","38,6","46,5","53,2","59,3","65,5","68,8","82,0","100,0 "
+Convergenza,Por Puglia,FSE,Risultato,"9,5","17,5","20,5","22,3","25,4","33,9 ",,,,,
+Convergenza,Por Puglia,FSE,Target,"8,5","13,2","18,4","20,3","24,5","33,3","37,2","42,6","58,0","75,1","100,0 "
+Convergenza,Pon GAS,FSE,Risultato,"9,6","18,7","25,7","35,8","42,2","45,1 ",,,,,
+Convergenza,Pon GAS,FSE,Target,"8,5","17,3","24,7","28,0","36,3","41,2","47,9","54,7","58,0","75,1","100,0 "
+Convergenza,Pon Istruzione,FSE,Risultato,"27,7","39,2","42,3","46,3","51,1","52,8 ",,,,,
+Convergenza,Pon Istruzione,FSE,Target,"8,5","17,3","24,7","41,2","41,2","41,2","47,9","54,7","58,0","75,1","100,0 "
