@@ -9,12 +9,12 @@ mapping file is located in:
 
 Usage:
 
-`django-admin.py slugify --reset --model=topic
-`django-admin.py slugify --model=topic
-`django-admin.py slugify --reset --model=nature
-`django-admin.py slugify --model=nature
-`django-admin.py slugify --reset --model=location
-`django-admin.py slugify --model=location
+`django-admin.py slugify --reset --type=topic
+`django-admin.py slugify --type=topic
+`django-admin.py slugify --reset --type=nature
+`django-admin.py slugify --type=nature
+`django-admin.py slugify --reset --type=loc
+`django-admin.py slugify --type=loc
 
 NOTE:
 %_mapping.csv files has 'DB,SLUG' as Header (first line)
