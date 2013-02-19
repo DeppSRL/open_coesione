@@ -144,12 +144,7 @@ INSTALLED_APPS = (
     'soggetti',
     'open_coesione',
     'oc_search',
-    'dynamic-content',
     'blog',
-    # FeinCMS
-    'feincms',
-    'feincms.module.page',
-    'feincms.module.medialibrary',
     # TinyMCE
     'tinymce',
 )
