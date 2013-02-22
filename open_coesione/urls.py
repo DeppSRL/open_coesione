@@ -65,12 +65,6 @@ if settings.DEBUG:
         (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes':True}),
     )
 
-# feincms
-urlpatterns += patterns('',
-    url(r'', include('feincms.contrib.preview.urls')),
-    url(r'', include('feincms.urls')),
-)
-
 #tinymce
 urlpatterns += patterns('',
 

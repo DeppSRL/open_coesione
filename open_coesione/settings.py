@@ -57,7 +57,7 @@ USE_I18N = True
 USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = True
+USE_TZ = False
 
 # Much easier than using floatformat:0 in templates
 USE_THOUSAND_SEPARATOR = True
@@ -144,12 +144,7 @@ INSTALLED_APPS = (
     'soggetti',
     'open_coesione',
     'oc_search',
-    'dynamic-content',
     'blog',
-    # FeinCMS
-    'feincms',
-    'feincms.module.page',
-    'feincms.module.medialibrary',
     # TinyMCE
     'tinymce',
 )
