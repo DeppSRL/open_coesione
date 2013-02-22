@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
-from open_coesione.views import AggregatoView, AccessControlView
+from open_coesione.views import AggregatoView, AccessControlView, cached_context
 from progetti.models import Progetto, Tema, ClassificazioneAzione, Ruolo
 from soggetti.models import Soggetto
 from territori.models import Territorio
@@ -142,6 +142,7 @@ class SoggettoView(AggregatoView, DetailView):
     model = Soggetto
     context_object_name = 'soggetto'
 
+    @cached_context
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(SoggettoView, self).get_context_data(**kwargs)

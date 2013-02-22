@@ -3,8 +3,9 @@ from django.conf.urls import patterns, url, include
 from django.views.generic.base import TemplateView
 from territori.views import RegioneView, ComuneView, ProvinciaView, AmbitoNazionaleView, InfoView, TilesConfigView, AutocompleteView, RegioneCSVView, ProvinciaCSVView, AmbitoEsteroView
 
+
 class ChartView(TemplateView):
-    template_name='territori/index_chart.html'
+    template_name = 'territori/index_chart.html'
 
     def get_context_data(self, **kwargs):
         from progetti.models import Tema
@@ -12,27 +13,23 @@ class ChartView(TemplateView):
         return {
             'params': kwargs,
             'temi_principali': Tema.objects.principali(),
-            'tema': Tema.objects.get(codice=self.request.GET.get('tema','1') ),
+            'tema': Tema.objects.get(codice=self.request.GET.get('tema', '1')),
             'regioni': Territorio.objects.regioni(),
-            'territorio': Territorio.objects.get(cod_reg=self.request.GET.get('regione','1'), territorio='R'),
-            }
+            'territorio': Territorio.objects.get(cod_reg=self.request.GET.get('regione', '1'), territorio='R'),
+        }
 
 urlpatterns = patterns('',
-    url(r'^regioni/(?P<slug>[-\w]+)/$',
-       cache_page(key_prefix='territori_regione')(RegioneView.as_view()), name='territori_regione'),
+    url(r'^regioni/(?P<slug>[-\w]+)/$', RegioneView.as_view(), name='territori_regione'),
     # csv comuni procapite per regioni
     url(r'^regioni/(?P<slug>[-\w]+).csv$', RegioneCSVView.as_view(), name='progetti_regione_csv'),
 
-    url(r'^province/(?P<slug>[-\w]+)/$',
-       cache_page(key_prefix='territori_provincia')(ProvinciaView.as_view()), name='territori_provincia'),
+    url(r'^province/(?P<slug>[-\w]+)/$', ProvinciaView.as_view(), name='territori_provincia'),
     # csv comuni procapite per provincie
     url(r'^regioni/(?P<slug>[-\w]+).csv$', ProvinciaCSVView.as_view(), name='progetti_provincia_csv'),
-    url(r'^comuni/(?P<slug>[-\w]+)/$',
-       ComuneView.as_view(), name='territori_comune'),
-    url(r'^ambito-nazionale/$',
-        cache_page(key_prefix='territori_nazionale')(AmbitoNazionaleView.as_view()), name='territori_nazionale'),
-    url(r'^ambito-estero/$',
-        cache_page(key_prefix='territori_estero')(AmbitoEsteroView.as_view()), name='territori_estero'),
+    url(r'^comuni/(?P<slug>[-\w]+)/$', ComuneView.as_view(), name='territori_comune'),
+    url(r'^ambito-nazionale/$', AmbitoNazionaleView.as_view(), name='territori_nazionale'),
+    url(r'^ambito-estero/$', AmbitoEsteroView.as_view(), name='territori_estero'),
+
     url(r'^info/(?P<tipo>[\w]+)/(?P<lat>[-\d\.]+)/(?P<lng>[-\d\.]+)/$',
        cache_page(key_prefix='info')(InfoView.as_view()), name='territori_info'),
     url(r'^info/temi/(?P<slug>[-\w]+)/(?P<tipo>[\w]+)/(?P<lat>[-\d\.]+)/(?P<lng>[-\d\.]+)/$',
