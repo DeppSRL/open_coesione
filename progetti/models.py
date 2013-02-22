@@ -296,6 +296,7 @@ class Progetto(models.Model):
 
     codice_locale = models.CharField(max_length=100, primary_key=True,
                                      db_column='cod_locale_progetto')
+
     cup = models.CharField(max_length=15)
     titolo_progetto = models.TextField()
     descrizione = models.TextField(blank=True, null=True)
@@ -338,8 +339,6 @@ class Progetto(models.Model):
                                                 db_column='classificazione_oggetto',
                                                 null=True, blank=True)
 
-
-
     cipe_num_delibera = models.IntegerField(null=True, blank=True)
     cipe_anno_delibera = models.CharField(max_length=4, null=True, blank=True)
     cipe_data_adozione = models.DateField(null=True, blank=True)
@@ -376,9 +375,9 @@ class Progetto(models.Model):
 
 
     dps_flag_cup = models.CharField(max_length=1, choices=DPS_FLAG_CUP)
-    dps_flag_presenza_date = models.CharField(max_length=2, choices=DPS_FLAG_PRESENZA_DATE)
-    dps_flag_date_previste = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE)
-    dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE)
+    dps_flag_presenza_date = models.CharField(max_length=2, choices=DPS_FLAG_PRESENZA_DATE, null=True, blank=True)
+    dps_flag_date_previste = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE, null=True, blank=True)
+    dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE, null=True, blank=True)
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
@@ -435,8 +434,74 @@ class Progetto(models.Model):
             return 0.0
         return (float(self.pagamento) or 0.0) / (float(self.fin_totale_pubblico) or 0.0) * 100.0
 
+    def delibere_cipe(self):
+        return self.deliberacipe_set.all()
+
+    def save(self, force_insert=False, force_update=False, using=None):
+        # force re-computation of finanziamento totale and notes from delibere
+        # in case this is a cipe project
+        if self.cipe_flag:
+            notes = ''
+            fin_tot = 0
+            for pd in self.progettodeliberacipe_set.all():
+                if pd.note != '':
+                    notes += pd.note + "\r\n"
+                fin_tot += pd.finanziamento
+            self.fin_totale_pubblico = fin_tot
+            self.note = notes
+        super(Progetto, self).save(force_insert, force_update, using)
+
+
     class Meta:
         verbose_name_plural = "Progetti"
+
+
+class ProgettoDeliberaCIPE(models.Model):
+    """
+    Tabella di collegamento tra i progetti e le delibere
+    """
+    progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
+    delibera = models.ForeignKey('DeliberaCIPE')
+    finanziamento = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    note = models.TextField(null=True, blank=True)
+
+    def __unicode__(self):
+        return u"p:%s - d:%s" % (self.progetto, self.delibera,)
+
+class DeliberaCIPE(models.Model):
+    """
+    Contiene tutte le delibere CIPE
+    """
+    num = models.IntegerField(null=True, blank=True)
+    anno = models.CharField(max_length=4, null=True, blank=True)
+    data_adozione = models.DateField(null=True, blank=True)
+    data_pubblicazione = models.DateField(null=True, blank=True)
+    oggetto = models.TextField(null=True, blank=True)
+    fondi_assegnati = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    progetto_set = models.ManyToManyField(Progetto, through=ProgettoDeliberaCIPE)
+
+    def __unicode__(self):
+        return u"%s_%s" % (self.num, self.anno)
+
+    class Meta:
+        verbose_name = "Delibera CIPE"
+        verbose_name_plural = "Delibere CIPE"
+
+
+class CUP(models.Model):
+    """
+    CUP can be multiple (sic!)
+    A project may, after beinmg assigned a CUP at the start, be splitted into several sections, each
+    of which will get its own CUP.
+    """
+    progetto = models.ForeignKey(Progetto, db_column='codice_progetto', related_name='cups_progetto')
+    cup = models.CharField(max_length=15)
+
+    def __unicode__(self):
+        return u"%s - %s" % (self.progetto, self.cup)
+
+    class Meta:
+        verbose_name_plural = "CUP"
 
 
 class Localizzazione(models.Model):
@@ -449,7 +514,7 @@ class Localizzazione(models.Model):
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
     indirizzo = models.CharField(max_length=550, blank=True, null=True)
     cap = models.CharField(max_length=5, blank=True, null=True)
-    dps_flag_cap = models.CharField(max_length=1, choices=DPS_FLAG_CAP)
+    dps_flag_cap = models.CharField(max_length=1, choices=DPS_FLAG_CAP, default='0')
 
     def __unicode__(self):
         return u"%s %s (%s)" % (self.progetto, self.territorio, self.dps_flag_cap)
@@ -552,3 +617,7 @@ class PagamentoProgetto(models.Model):
         verbose_name = "Pagamento progetto"
         verbose_name_plural = "Pagamenti progetti"
         ordering = ['data']
+
+
+
+

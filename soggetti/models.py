@@ -24,7 +24,7 @@ class Soggetto(models.Model):
     slug = models.CharField(max_length=300, blank=True, null=True)
     forma_giuridica = models.ForeignKey(FormaGiuridica,
                                         related_name='forma_giuridica_set',
-                                        db_column='forma_giuridica')
+                                        db_column='forma_giuridica', null=True, blank=True)
     territorio = models.ForeignKey('territori.Territorio', null=True)
     rappresentante_legale = models.CharField(max_length=300, null=True, blank=True)
     indirizzo = models.CharField(max_length=300, null=True, blank=True)

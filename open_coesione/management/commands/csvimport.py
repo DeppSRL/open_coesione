@@ -2,7 +2,7 @@
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import connection
 from django.db.utils import DatabaseError
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from open_coesione import utils
 from optparse import make_option
@@ -11,8 +11,6 @@ import re
 import csv
 import logging
 import datetime
-import codecs
-import dateutil.parser
 
 from progetti.models import *
 from soggetti.models import *
@@ -89,6 +87,8 @@ class Command(BaseCommand):
 
         if options['type'] == 'proj':
             self.handle_proj(*args, **options)
+        elif options['type'] == 'cipeproj':
+            self.handle_cipeproj(*args, **options)
         elif options['type'] == 'loc':
             self.handle_loc(*args, **options)
         elif options['type'] == 'rec':
@@ -189,8 +189,6 @@ class Command(BaseCommand):
             self.logger.info( "%s : %s" % (k, stats[k]) )
         self.logger.info('')
 
-
-
     def handle_cups(self, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
         self.logger.info("Encoding: %s" % self.encoding)
@@ -232,8 +230,6 @@ class Command(BaseCommand):
                 already_ok += 1
 
         self.logger.info("Fine: %s cup aggiornati, %s non necessitavano aggiornamento e %s progetti non sono stati trovati" % (updates, already_ok, not_found))
-
-
 
     def handle_desc(self, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
@@ -393,7 +389,6 @@ class Command(BaseCommand):
 
         self.logger.info("Fine")
 
-
     def handle_loc(self, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
         self.logger.info("Limit: %s" % options['limit'])
@@ -416,20 +411,29 @@ class Command(BaseCommand):
                (c - int(options['offset']) > int(options['limit'])):
                 break
 
-            tipo_territorio = r['DPS_TERRITORIO_PROG']
+            if 'DPS_TERRITORIO_PROG' in r.keys():
+                tipo_territorio = r['DPS_TERRITORIO_PROG']
+            else:
+                # caso localizzazioni progetti CIPE (non c'è il campo DPS_TERRITORIO_PROG)
+                tipo_territorio = Territorio.TERRITORIO.C
+                if r['COD_PROVINCIA'] in ('000', '900'):
+                    tipo_territorio = Territorio.TERRITORIO.R
+                else:
+                    if r['COD_COMUNE'] in ('000', '900'):
+                        tipo_territorio = Territorio.TERRITORIO.P
 
             if tipo_territorio == Territorio.TERRITORIO.R:
                 territorio = Territorio.objects.get(
                     cod_reg=int(r['COD_REGIONE']),
                     territorio=Territorio.TERRITORIO.R,
                 )
-            elif tipo_territorio == 'P':
+            elif tipo_territorio == Territorio.TERRITORIO.P:
                 territorio = Territorio.objects.get(
                     cod_reg=int(r['COD_REGIONE']),
                     cod_prov=int(r['COD_PROVINCIA']),
                     territorio=Territorio.TERRITORIO.P,
                 )
-            elif tipo_territorio == 'C':
+            elif tipo_territorio == Territorio.TERRITORIO.C:
                 try:
                     territorio = Territorio.objects.get(
                         cod_reg=int(r['COD_REGIONE']),
@@ -470,12 +474,26 @@ class Command(BaseCommand):
                 self.logger.warning('Tipo di territorio sconosciuto o errato %s. Skip.' % (tipo_territorio,))
                 continue
 
+
+            indirizzo = r['INDIRIZZO_PROG'].strip()if 'INDIRIZZO_PROG' in r.keys() and r['INDIRIZZO_PROG'] else None
+            cap = r['CAP_PROG'].strip() if 'CAP_PROG' in r.keys() and r['CAP_PROG'] else None
+            dps_flag_cap = r['DPS_FLAG_CAP_PROG'] if 'DPS_FLAG_CAP_PROG' in r.keys() and r['DPS_FLAG_CAP_PROG'] else 0
+
+
             # codice locale progetto (ID del record)
             try:
-                progetto = Progetto.objects.get(pk=r['COD_LOCALE_PROGETTO'])
+                if 'COD_LOCALE_PROGETTO' in r.keys():
+                    pk_progetto = r['COD_LOCALE_PROGETTO']
+                elif 'COD_DIPE' in r.keys():
+                    pk_progetto = r['COD_DIPE']
+                else:
+                    self.logger.fatal("Chiave primaria mancante")
+                    quit()
+
+                progetto = Progetto.objects.get(pk=pk_progetto)
             except ObjectDoesNotExist:
                 progetto = None
-                self.logger.warning("Progetto non trovato: %s" % (r['COD_LOCALE_PROGETTO']))
+                self.logger.warning("%d - Progetto non trovato: %s" % (c, pk_progetto))
 
             if progetto:
                 created = False
@@ -483,9 +501,9 @@ class Command(BaseCommand):
                     territorio=territorio,
                     progetto = progetto,
                     defaults={
-                        'indirizzo': r['INDIRIZZO_PROG'].strip(),
-                        'cap': r['CAP_PROG'].strip(),
-                        'dps_flag_cap': r['DPS_FLAG_CAP_PROG']
+                        'indirizzo': indirizzo,
+                        'cap': cap,
+                        'dps_flag_cap': dps_flag_cap,
                     }
                 )
                 if created:
@@ -502,7 +520,6 @@ class Command(BaseCommand):
                 break
 
         self.logger.info("Fine")
-
 
     def handle_proj(self, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
@@ -824,7 +841,6 @@ class Command(BaseCommand):
                 cipe_note = None
                 
             # totale finanziamento
-            # fin_totale = Decimal(r['FINANZ_TOTALE'].replace(',','.')) if r['FINANZ_TOTALE'].strip() else None
             fin_totale_pubblico = Decimal(r['FINANZ_TOTALE_PUBBLICO'].replace(',','.')) if r['FINANZ_TOTALE_PUBBLICO'].strip() else None
 
             fin_ue = Decimal(r['FINANZ_UE'].replace(',','.')) if r['FINANZ_UE'].strip() else None
@@ -839,10 +855,8 @@ class Command(BaseCommand):
             fin_privato = Decimal(r['FINANZ_PRIVATO'].replace(',','.')) if r['FINANZ_PRIVATO'].strip() else None
             fin_da_reperire = Decimal(r['FINANZ_DA_REPERIRE'].replace(',','.')) if r['FINANZ_DA_REPERIRE'].strip() else None
 
-            # costo = Decimal(r['COSTO'].replace(',','.')) if r['COSTO'].strip() else None
             costo_ammesso = Decimal(r['COSTO_RENDICONTABILE_UE'].replace(',','.')) if r['COSTO_RENDICONTABILE_UE'].strip() else None
             pagamento = Decimal(r['TOT_PAGAMENTI'].replace(',','.')) if r['TOT_PAGAMENTI'].strip() else None
-            # pagamento_fsc = Decimal(r['PAGAMENTO_FSC'].replace(',','.')) if r['PAGAMENTO_FSC'].strip() else None
             pagamento_ammesso = Decimal(r['TOT_PAGAMENTI_RENDICONTABILI_UE'].replace(',','.')) if r['TOT_PAGAMENTI_RENDICONTABILI_UE'].strip() else None
 
             # date
@@ -865,21 +879,17 @@ class Command(BaseCommand):
                         'cup': r['CUP'].strip(),
                         'programma_asse_obiettivo': programma_asse_obiettivo,
                         'obiettivo_sviluppo': obiettivo_sviluppo,
-#                        'tipo_operazione': tipo_operazione,
                         'fondo_comunitario': fondo_comunitario,
                         'tema': tema_prioritario,
-#                        'intesa_istituzionale': intesa,
                         'fonte': fonte,
                         'classificazione_azione': natura_tipologia,
                         'classificazione_oggetto': settore_sottosettore_categoria,
-#
                         'cipe_num_delibera': cipe_num_delibera,
                         'cipe_anno_delibera': cipe_anno_delibera,
                         'cipe_data_adozione': cipe_data_adozione,
                         'cipe_data_pubblicazione': cipe_data_pubblicazione,
                         'note': cipe_note,
                         'cipe_flag': cipe_flag,
-#
                         'fin_totale_pubblico': fin_totale_pubblico,
                         'fin_ue': fin_ue,
                         'fin_stato_fondo_rotazione': fin_stato_fondo_rotazione,
@@ -892,10 +902,8 @@ class Command(BaseCommand):
                         'fin_stato_estero': fin_stato_estero,
                         'fin_privato': fin_privato,
                         'fin_da_reperire': fin_da_reperire,
-#                        'costo': costo,
                         'costo_ammesso': costo_ammesso,
                         'pagamento': pagamento,
-#                        'pagamento_fsc': pagamento_fsc,
                         'pagamento_ammesso': pagamento_ammesso,
                         'data_inizio_prevista': data_inizio_prevista,
                         'data_fine_prevista': data_fine_prevista,
@@ -924,6 +932,430 @@ class Command(BaseCommand):
 
         self.logger.info("Fine")
 
+    def handle_cipeproj(self, *args, **options):
+        """
+        Procedura per importare dati di progetto, e soggetti, a partire dal tracciato del CIPE
+        """
+        self.logger.info("Inizio import da %s" % self.csv_file)
+        self.logger.info("Limit: %s" % options['limit'])
+        self.logger.info("Offset: %s" % options['offset'])
+
+        # check whether to remove records
+        if options['delete']:
+            Progetto.objects.filter(cipe_flag=True).delete()
+            DeliberaCIPE.objects.all().delete()
+            self.logger.info("Progetti CIPE rimossi")
+
+        for r in self.unicode_reader:
+            c = self.unicode_reader.reader.line_num - 1
+            if c < int(options['offset']):
+                continue
+
+            if int(options['limit']) and \
+                    (c - int(options['offset']) > int(options['limit'])):
+                break
+
+            # codice locale (ID del record)
+            codice_locale = r['COD_DIPE']
+
+            cipe_flag = True
+            cipe_num_delibera = int(r['NUM_DELIBERA']) if r['NUM_DELIBERA'].strip() else None
+            cipe_anno_delibera = r['ANNO_DELIBERA'].strip() if r['ANNO_DELIBERA'].strip() else None
+            cipe_data_adozione = datetime.datetime.strptime(r['DATA_ADOZIONE_TEMP'], '%Y%m%d') if r['DATA_ADOZIONE_TEMP'].strip() else None
+            cipe_data_pubblicazione = datetime.datetime.strptime(r['DATA_PUBBLICAZIONE'], '%Y%m%d') if r['DATA_PUBBLICAZIONE'].strip() else None
+            cipe_finanziamento = Decimal(r['ASSEGNAZIONE_CIPE'].replace(',','.')) if r['ASSEGNAZIONE_CIPE'].strip() else None
+            cipe_note = r['NOTE'].strip() if r['NOTE'].strip() else ''
+
+            # le delibere CIPE (possono essere più di una per un progetto)
+            try:
+                created = False
+                delibera, created = DeliberaCIPE.objects.get_or_create(
+                    num=cipe_num_delibera,
+                    defaults={
+                        'anno': cipe_anno_delibera,
+                        'data_adozione': cipe_data_adozione,
+                        'data_pubblicazione': cipe_data_pubblicazione,
+                        }
+                )
+                if created:
+                    self.logger.info("Aggiunta delibera: %s" % (delibera,))
+                else:
+                    self.logger.debug("Trovata delibera: %s" % (delibera,))
+
+            except DatabaseError as e:
+                self.logger.error("In fetch di delibera per prog. con codice locale:%s. %s" %
+                                  (codice_locale, e))
+                continue
+
+
+            # CUP, possono essere più di uno, separati da virgole
+            cups_progetto = r['CUP'].strip().split(";") if r['CUP'] else [None,]
+
+            titolo_progetto = r['TITOLO_PROGETTO'].strip() if r['TITOLO_PROGETTO'] else ''
+
+            # totale finanziamento
+            costo = Decimal(r['COSTO'].replace(',','.')) if 'COSTO' in r.keys() and r['COSTO'].strip() else None
+
+            # programma, asse, obiettivo
+            try:
+                programmazione = r['PROGRAMMAZIONE']
+
+                created = False
+                programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
+                    codice=programmazione,
+                    tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma,
+                    defaults={
+                        'descrizione':programmazione
+                    }
+                )
+                if created:
+                    self.logger.info("Aggiunto programma: %s" % (programma,))
+                else:
+                    self.logger.debug("Trovato programma: %s" % (programma,))
+
+                created = False
+                programma_asse, created = ProgrammaAsseObiettivo.objects.get_or_create(
+                    codice="%s/00" % (programmazione,),
+                    tipo_classificazione=ProgrammaAsseObiettivo.TIPO.asse,
+                    defaults={
+                        'descrizione':'',
+                        'classificazione_superiore': programma
+                    }
+                )
+                if created:
+                    self.logger.info("Aggiunto asse: %s" % (programma_asse,))
+                else:
+                    self.logger.debug("Trovato asse: %s" % (programma_asse,))
+
+                created = False
+                programma_asse_obiettivo, created = ProgrammaAsseObiettivo.objects.get_or_create(
+                    codice="%s/00/00" % (programmazione, ),
+                    tipo_classificazione=ProgrammaAsseObiettivo.TIPO.obiettivo,
+                    defaults={
+                        'descrizione':'',
+                        'classificazione_superiore': programma_asse
+                    }
+                )
+                if created:
+                    self.logger.debug("Aggiunto obiettivo: %s" % (programma_asse_obiettivo,))
+                else:
+                    self.logger.debug("Trovato obiettivo: %s" % (programma_asse_obiettivo,))
+
+
+            except DatabaseError as e:
+                self.logger.error("In fetch di programma-asse-obiettivo per codice locale:%s. %s" % (codice_locale, e))
+                continue
+
+            # tema
+            dps_tema = self._normalizza_tema(r['DPS_TEMA_SINTETICO'])
+
+            try:
+                created = False
+                tema_sintetico, created = Tema.objects.get_or_create(
+                    descrizione=dps_tema,
+                    tipo_tema=Tema.TIPO.sintetico,
+                    defaults={
+                        'codice': 1 + Tema.objects.filter(tema_superiore__isnull=True).count(),
+                        }
+                )
+
+                if created:
+                    self.logger.info("Aggiunto tema sintetico: %s" % (tema_sintetico,))
+                else:
+                    self.logger.debug("Trovato tema sintetico: %s" % (tema_sintetico,))
+
+            except ObjectDoesNotExist as e:
+                self.logger.error("While reading tema sintetico %s in %s. %s" % (r['DPS_TEMA_SINTETICO'], codice_locale, e))
+                continue
+
+            try:
+                created = False
+                tema_prioritario, created = Tema.objects.get_or_create(
+                    codice="%s.00" % (tema_sintetico.codice,),
+                    tipo_tema=Tema.TIPO.prioritario,
+                    defaults={
+                        'descrizione': '',
+                        'tema_superiore': tema_sintetico,
+                        }
+                )
+                if created:
+                    self.logger.info("Aggiunto tema: %s" % (tema_prioritario.codice,))
+                else:
+                    self.logger.debug("Trovato tema: %s" % (tema_prioritario.codice,))
+
+            except DatabaseError as e:
+                self.logger.error("In fetch di tema prioritario (00) per codice locale:%s. %s" %
+                                  (codice_locale, e))
+                continue
+
+            # fonte
+            try:
+                created = False
+                fonte, created = Fonte.objects.get_or_create(
+                    descrizione="%s" % (r['FONDO']),
+                    defaults = {
+                        'codice': 'COD_' + r['FONDO'][-2:],
+                        'costo': costo,
+                    }
+                )
+                if created:
+                    self.logger.info("Aggiunta fonte: %s" % (fonte,))
+                else:
+                    self.logger.debug("Trovata fonte: %s" % (fonte,))
+
+            except DatabaseError as e:
+                self.logger.error("In fetch della fonte %s per codice locale:%s. %s" %
+                                  (r['FONDO'], codice_locale, e))
+                continue
+
+            # classificazione azione (natura e tipologia)
+            # TODO: in attesa di specifiche
+            cup_cod_natura = '03'
+            cup_descr_natura = 'REALIZZAZIONE DI LAVORI PUBBLICI (OPERE ED IMPIANTISTICA)'
+
+            try:
+                created = False
+
+                # eccezione accorpamento beni e servizi
+                if cup_cod_natura == '02':
+                    cup_cod_natura = '01'
+
+                if cup_cod_natura == '01':
+                    cup_descr_natura = 'ACQUISTO DI BENI E SERVIZI'
+
+
+                natura, created = ClassificazioneAzione.objects.get_or_create(
+                    codice=cup_cod_natura,
+                    tipo_classificazione=ClassificazioneAzione.TIPO.natura,
+                    defaults={
+                        'descrizione':cup_descr_natura
+                    }
+                )
+                if created:
+                    self.logger.info("Aggiunta classificazione azione natura: %s" % (natura.codice,))
+                else:
+                    self.logger.debug("Trovata classificazione azione natura: %s" % (natura.codice,))
+
+                created = False
+                natura_tipologia, created = ClassificazioneAzione.objects.get_or_create(
+                    codice="%s.00" % (cup_cod_natura,),
+                    tipo_classificazione=ClassificazioneAzione.TIPO.tipologia,
+                    defaults={
+                        'descrizione':'',
+                        'classificazione_superiore': natura
+                    }
+                )
+                if created:
+                    self.logger.info("Aggiunta classificazione azione natura_tipologia: %s" % (natura_tipologia.codice,))
+                else:
+                    self.logger.debug("Trovata classificazione azione natura_tipologia: %s" % (natura_tipologia.codice,))
+
+            except DatabaseError as e:
+                self.logger.error("In fetch di natura-tipologia per codice locale:%s. %s" % (codice_locale, e))
+                continue
+
+            # classificazione oggetto
+            try:
+                created = False
+                settore, created = ClassificazioneOggetto.objects.get_or_create(
+                    codice=r['CUP_COD_SETTORE'],
+                    tipo_classificazione=ClassificazioneOggetto.TIPO.settore,
+                    defaults={
+                        'descrizione':r['CUP_DESCR_SETTORE']
+                    }
+                )
+                if created:
+                    self.logger.info("Aggiunta classificazione oggetto settore: %s" % (settore.codice,))
+
+                created = False
+                settore_sottosettore, created = ClassificazioneOggetto.objects.get_or_create(
+                    codice="%s.%s" % (r['CUP_COD_SETTORE'], r['CUP_COD_SOTTOSETTORE']),
+                    tipo_classificazione=ClassificazioneOggetto.TIPO.sottosettore,
+                    defaults={
+                        'descrizione':r['CUP_DESCR_SOTTOSETTORE'],
+                        'classificazione_superiore': settore
+                    }
+                )
+                if created:
+                    self.logger.info("Aggiunta classificazione oggetto settore_sottosettore: %s" %
+                                     (settore_sottosettore.codice,))
+                else:
+                    self.logger.debug("Trovata classificazione oggetto settore_sottosettore: %s" %
+                                      (settore_sottosettore.codice,))
+
+                created = False
+                settore_sottosettore_categoria, created = ClassificazioneOggetto.objects.get_or_create(
+                    codice="%s.%s.000" % (r['CUP_COD_SETTORE'], r['CUP_COD_SOTTOSETTORE'], ),
+                    tipo_classificazione=ClassificazioneOggetto.TIPO.categoria,
+                    defaults={
+                        'descrizione':'',
+                        'classificazione_superiore': settore_sottosettore
+                    }
+                )
+                if created:
+                    self.logger.info("Aggiunta classificazione oggetto settore_sottosettore_categoria: %s" %
+                                     (settore_sottosettore_categoria.codice,))
+                else:
+                    self.logger.debug("Trovata classificazione oggetto settore_sottosettore_categoria: %s" %
+                                      (settore_sottosettore_categoria.codice,))
+
+            except DatabaseError as e:
+                self.logger.error("In fetch di settore-sottosettore-categoria per codice locale:%s. %s" %
+                                  (codice_locale, e))
+                continue
 
 
 
+
+            # progetto
+            try:
+                p, created = Progetto.objects.get_or_create(
+                    codice_locale=codice_locale,
+                    defaults={
+                        'cup': cups_progetto[0],
+                        'titolo_progetto': titolo_progetto,
+                        'programma_asse_obiettivo': programma_asse_obiettivo,
+                        'tema': tema_prioritario,
+                        'classificazione_azione': natura_tipologia,
+                        'classificazione_oggetto': settore_sottosettore_categoria,
+                        'fonte': fonte,
+                        'cipe_flag': cipe_flag,
+                        'costo': costo,
+                        'dps_flag_cup': 1,
+                    }
+                )
+
+                if created:
+                    self.logger.info("%s: Creazione progetto nuovo: %s" % (c, p.codice_locale))
+                else:
+                    self.logger.info("%s: Progetto trovato e non modificato: %s" % (c, p.codice_locale))
+
+                # add cups to CUP table
+                if len(cups_progetto) > 0:
+                    for c in cups_progetto:
+                        c = c.strip()
+                        if c not in p.cups_progetto.all():
+                            p.cups_progetto.create(cup=c)
+
+                # add delibera to project
+                if cipe_flag and delibera:
+                    created = False
+                    pd, created = ProgettoDeliberaCIPE.objects.get_or_create(
+                        progetto=p,
+                        delibera=delibera,
+                        )
+                    pd.finanziamento = cipe_finanziamento
+                    pd.note = cipe_note
+                    pd.save() # re-computation of notes and fin in post-save signal (see progetti/models.py)
+
+
+                    if created:
+                        self.logger.info("%s: Delibera %s associata a progetto: %s" % (c, delibera, p.codice_locale))
+                    else:
+                        self.logger.info("%s: Associazione tra delibera %s e progetto %s trovata e non modificata" %
+                                         (c, delibera, p.codice_locale))
+
+                # data aggiornamento è l'ultima data pubblicazione delibera cipe,
+                # solo se maggiore di quella registrata
+                if p.data_aggiornamento is None or p.data_aggiornamento < cipe_data_pubblicazione:
+                    p.data_aggiornamento = cipe_data_pubblicazione
+
+
+                p.save()
+
+                # soggetto responsabile
+                soggetto_responsabile = self._get_soggetto(r['SOGGETTO_RESPONSABILE'], c)
+                if soggetto_responsabile:
+                    # add role of subject in project
+                    created = False
+                    role, created = Ruolo.objects.get_or_create(
+                        progetto = p,
+                        soggetto = soggetto_responsabile,
+                        ruolo = Ruolo.RUOLO.programmatore
+                    )
+                    if created:
+                        self.logger.info(u"%s: Ruolo creato: %s" % (c, role,))
+                    else:
+                        self.logger.debug(u"%s: Ruolo trovato: %s" % (c, role,))
+
+                del soggetto_responsabile
+
+
+                # soggetto attuatore
+                soggetto_attuatore = self._get_soggetto(r['SOGGETTO_ATTUATORE'], c)
+                if soggetto_attuatore:
+                    # add role of subject in project
+                    created = False
+                    role, created = Ruolo.objects.get_or_create(
+                        progetto = p,
+                        soggetto = soggetto_attuatore,
+                        ruolo = Ruolo.RUOLO.attuatore
+                    )
+                    if created:
+                        self.logger.info(u"%s: Ruolo creato: %s" % (c, role,))
+                    else:
+                        self.logger.debug(u"%s: Ruolo trovato: %s" % (c, role,))
+
+                del soggetto_attuatore
+
+
+            except DatabaseError as e:
+                self.logger.error("Progetto %s: %s" % (r['COD_DIPE'], e))
+                continue
+
+            finally:
+                # remove local variable p from the namespace,
+                #may free some memory
+                del p
+
+        self.logger.info("Fine")
+
+
+
+    def _get_soggetto(self, soggetto_field, c):
+        soggetto = None
+
+        denominazione = soggetto_field.strip()
+        try:
+            soggetto = Soggetto.objects.get(denominazione__iexact=denominazione)
+            self.logger.debug(u"%s: Soggetto trovato e non modificato: %s" % (c, soggetto.denominazione))
+            return soggetto
+        except ObjectDoesNotExist:
+            try:
+                soggetto = Soggetto.objects.create(
+                    denominazione=denominazione,
+                    codice_fiscale='',
+                )
+                self.logger.info(u"%s: Aggiunto soggetto: %s" % (c, soggetto.denominazione,))
+                return soggetto
+            except DatabaseError as e:
+                self.logger.warning("{0} - Database error: {1}. Skipping {2}.".format(c, e, soggetto_field))
+                connection._rollback()
+                return None
+
+
+    def _normalizza_tema(self, tema):
+        """
+        Trasforma stringhe maiuscole, con altri termini,
+        nelle stringhe *canoniche*, riconosciute dal nostro sistema.
+        Ci possono essere più chiavi che corrispondono a uno stesso valore.
+        Questa funzione è usata solamente per l'import dei dati.
+        """
+        temi = {
+            u'OCCUPAZIONE E MOBILITÀ DEI LAVORATORI': 'Occupazione e mobilità dei lavoratori',
+            u'INCLUSIONE SOCIALE': 'Inclusione sociale',
+            u'ISTRUZIONE': 'Istruzione',
+            u'COMPETITIVITÀ PER LE IMPRESE': 'Competitività delle imprese',
+            u'RICERCA E INNOVAZIONE': 'Ricerca e innovazione',
+            u'ATTRAZIONE CULTURALE, NATURALE E TURISTICA': 'Attrazione culturale, naturale e turistica',
+            u'SERVIZI DI CURA INFANZIA E ANZIANI': 'Servizi di cura infanzia e anziani',
+            u'ENERGIA E EFFICIENZA ENERGETICA': 'Energia e efficienza energetica',
+            u'AGENDA DIGITALE': 'Agenda digitale',
+            u'AMBIENTE E PREVENZIONE DEI RISCHI': 'Ambiente e prevenzione dei rischi',
+            u'RAFFORZAMENTO CAPACITÀ DELLA PA': 'Rafforzamento capacità della PA',
+            u'RINNOVAMENTO URBANO E RURALE': 'Rinnovamento urbano e rurale',
+            u'AEREOPORTUALI': 'Trasporti e infrastrutture a rete',
+            u'TRASPORTI E INFRASTRUTTURE A RETE': 'Trasporti e infrastrutture a rete',
+        }
+
+        return temi[tema]

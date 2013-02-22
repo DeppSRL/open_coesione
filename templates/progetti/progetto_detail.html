@@ -412,13 +412,13 @@
               {%  else %}
                   <h2>Finanziamento</h2>
               {% endif %}
-              <strong>{{ total_cost|intcomma }}</strong> euro
+              <strong>{{ total_cost|floatformat:2|intcomma }}</strong> euro
             </div>
 
             {% if not progetto.cipe_flag %}
                 <div class="span3 text-center">
                   <h2>Pagamenti effettuati</h2>
-                  <strong>{{ total_cost_paid|intcomma }}</strong> euro
+                  <strong>{{ total_cost_paid|floatformat:2|intcomma }}</strong> euro
                 </div>
             {%  endif %}
           </div>
@@ -475,10 +475,6 @@
               </table>
               {% endif %}
             </div>
-
-{#            <p class="span6 text-center">#}
-{#              <small>*Dati aggiornati al {{ progetto.data_aggiornamento }} e relativi alla competenza del finanziamento pubblico</small>#}
-{#            </p>#}
           </div>
 
         </section>
@@ -487,7 +483,13 @@
         <section>
 
           <dl class="data">
-            <dt>
+              {% if progetto.costo %}
+                  <dt>Costo</dt>
+                  <dd>{{ progetto.costo|floatformat:2|intcomma }} euro</dd>
+              {% endif %}
+
+
+              <dt>
               {% if progetto.fondo_comunitario == 'fse' %}
                 Fondo Strutturale Europeo (FSE)
               {% elif progetto.fondo_comunitario == 'fesr' %}
@@ -521,11 +523,21 @@
 
             {%  if progetto.cipe_flag %}
                 <dt>Delibera CIPE</dt>
-                <dd>
-                  <a href="/fonti-di-finanziamento/#delibere-cipe">Numero {{ progetto.cipe_num_delibera }} del {{ progetto.cipe_anno_delibera }}, pubblicata sulla
-                    Gazzetta Ufficiale del {{ progetto.cipe_data_pubblicazione|date:'d/m/Y' }}</a>
-                </dd>
+                {% for delibera in progetto.delibere_cipe %}
+                    <dd>
+                        <a href="/fonti-di-finanziamento/#delibere-cipe">
+                            Numero {{ delibera.num }} del {{ delibera.anno }},
+                            pubblicata sulla Gazzetta Ufficiale del
+                            {{ delibera.data_pubblicazione|date:'d/m/Y' }}
+                        </a>
+                    </dd>
+                {% endfor %}
             {%  endif %}
+
+            {% if progetto.note != '' %}
+                <dt>Note</dt>
+                <dd>{{ progetto.note|linebreaks }}</dd>
+            {% endif %}
           </dl>
         </section>
         {% endif %}
