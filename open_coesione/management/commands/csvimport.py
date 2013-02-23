@@ -237,16 +237,6 @@ class Command(BaseCommand):
         self.logger.info("Limit: %s" % options['limit'])
         self.logger.info("Offset: %s" % options['offset'])
 
-
-        # read first csv file
-        try:
-            self.unicode_reader = utils.UnicodeDictReader(open(self.csv_file, 'r'), delimiter='|', encoding=self.encoding)
-        except IOError:
-            self.logger.error("It was impossible to open file %s" % self.csv_file)
-            exit(1)
-        except csv.Error, e:
-            self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
-
         if options['delete']:
             self.logger.error("Could not revert descriptions updates.")
             exit(1)
@@ -260,13 +250,13 @@ class Command(BaseCommand):
             if c < int(options['offset']):
                 continue
 
-            if int(options['limit']) and\
-               (c - int(options['offset']) > int(options['limit'])):
+            if int(options['limit']) and \
+                    (c - int(options['offset']) > int(options['limit'])):
                 break
 
             # prendo il progetto con per CUP
             try:
-                progetto = Progetto.objects.get(pk=r['CodiceLocaleProgetto'].strip())
+                progetto = Progetto.objects.get(pk=r['CodiceProgetto'].strip())
                 self.logger.debug("%s - Progetto: %s" % (c, progetto.pk))
             except ObjectDoesNotExist:
                 self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, r['CodiceLocaleProgetto']))
@@ -281,12 +271,12 @@ class Command(BaseCommand):
             sintesi = r['Sintesi'].strip()
 
             if sintesi:
-                self.logger.info("Aggiornamento descrizione per il progetto %s" % progetto)
+                self.logger.info(u"Aggiornamento descrizione per il progetto %s" % progetto)
                 progetto.descrizione = sintesi
                 progetto.save()
                 updates += 1
             else:
-                self.logger.info("Sintesi vuota per il progetto %s" % progetto)
+                self.logger.info(u"Sintesi vuota per il progetto %s" % progetto)
                 already_ok += 1
 
         self.logger.info(
