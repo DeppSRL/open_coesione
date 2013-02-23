@@ -156,13 +156,13 @@ class Command(BaseCommand):
 
 
             if row['DATA_AGGIORNAMENTO'].strip() is None:
-                self.logger.warning("%s] - Data aggiornamento non trovata (%s)" % (c, progetto.codice_locale))
+                self.logger.warning(u"%s] - Data aggiornamento non trovata (%s)" % (c, progetto.codice_locale))
             dt = datetime.datetime.strptime(row['DATA_AGGIORNAMENTO'], '%Y%m%d')
 
             tot = row['TOT_PAGAMENTI'].strip() if row['TOT_PAGAMENTI'].strip() else None
             # skip empty payment
             if tot is None:
-                self.logger.debug("%s] Progetto '%s' ha un pagamento nullo in data %s, SKIP" % (c, project_code, dt))
+                self.logger.debug(u"%s] Progetto '%s' ha un pagamento nullo in data %s, SKIP" % (c, project_code, dt))
                 continue
 
             # transform amount into Decimal
@@ -175,9 +175,9 @@ class Command(BaseCommand):
                 ammontare= tot if tot >= 0.0 else 0.0,
             )
             if created:
-                self.logger.info("%s: pagamento inserito: %s" % (c, pp))
+                self.logger.info(u"%s: pagamento inserito: %s" % (c, pp))
             else:
-                self.logger.debug("%s: pagamento trovato e non duplicato: %s" % (c, pp))
+                self.logger.debug(u"%s: pagamento trovato e non duplicato: %s" % (c, pp))
 
             stats['Numero pagamenti inseriti'] +=1
 

@@ -611,7 +611,7 @@ class PagamentoProgetto(models.Model):
         return (self.ammontare / self.progetto.fin_totale_pubblico ) * Decimal(100)
 
     def __unicode__(self):
-        return "Pagamento del {0} per {1} di {2}".format(self.progetto, self.data, self.ammontare)
+        return u"Pagamento del progetto {0} per {1} di {2}".format(self.progetto.codice_locale, self.data, self.ammontare)
 
     class Meta:
         verbose_name = "Pagamento progetto"
