@@ -1099,7 +1099,6 @@ class Command(BaseCommand):
                     descrizione="%s" % (r['FONDO']),
                     defaults = {
                         'codice': 'COD_' + r['FONDO'][-2:],
-                        'costo': costo,
                     }
                 )
                 if created:
