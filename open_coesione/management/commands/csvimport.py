@@ -269,7 +269,7 @@ class Command(BaseCommand):
 
             # prendo il progetto con per CUP
             try:
-                progetto = Progetto.objects.get(pk=r['CodiceProgetto'].strip())
+                progetto = Progetto.objects.get(pk=r['CodiceLocaleProgetto'].strip())
                 self.logger.debug("%s - Progetto: %s" % (c, progetto.pk))
             except ObjectDoesNotExist:
                 self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, r['CodiceLocaleProgetto']))
