@@ -993,10 +993,10 @@ class Command(BaseCommand):
 
 
             # CUP, possono essere più di uno, separati da virgole
-            cups_progetto = r['CUP'].strip().split(";") if r['CUP'] else [None,]
+            cups_progetto = r['CUP'].strip().split(";") if r['CUP'] else ['',]
 
             # CUP principale (il primo)
-            cup_main = cups_progetto[0] if len(cups_progetto)>0 else ''
+            cup_main = cups_progetto[0]
 
             titolo_progetto = r['TITOLO_PROGETTO'].strip() if r['TITOLO_PROGETTO'] else ''
 
@@ -1263,8 +1263,8 @@ class Command(BaseCommand):
 
                 # data aggiornamento è l'ultima data pubblicazione delibera cipe,
                 # solo se maggiore di quella registrata
-                if p.data_aggiornamento is None or p.data_aggiornamento < cipe_data_pubblicazione:
-                    p.data_aggiornamento = cipe_data_pubblicazione
+                if p.data_aggiornamento is None or p.data_aggiornamento < cipe_data_pubblicazione.date():
+                    p.data_aggiornamento = cipe_data_pubblicazione.date()
 
 
                 p.save()
@@ -1358,6 +1358,7 @@ class Command(BaseCommand):
             u'RINNOVAMENTO URBANO E RURALE': 'Rinnovamento urbano e rurale',
             u'AEREOPORTUALI': 'Trasporti e infrastrutture a rete',
             u'TRASPORTI E INFRASTRUTTURE A RETE': 'Trasporti e infrastrutture a rete',
+            u'AEROPORTUALI': 'Trasporti e infrastrutture a rete',
         }
 
         return temi[tema]
