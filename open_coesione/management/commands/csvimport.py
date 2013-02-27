@@ -267,9 +267,10 @@ class Command(BaseCommand):
                     (c - int(options['offset']) > int(options['limit'])):
                 break
 
-            # prendo il progetto con per CUP
+            # trasformazione per avere il codice_progetto_locale
+            codice_progetto_locale = "1MISE{0}".format(r['CodiceLocaleProgetto'].strip())
             try:
-                progetto = Progetto.objects.get(pk=r['CodiceLocaleProgetto'].strip())
+                progetto = Progetto.objects.get(pk=codice_progetto_locale)
                 self.logger.debug("%s - Progetto: %s" % (c, progetto.pk))
             except ObjectDoesNotExist:
                 self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, r['CodiceLocaleProgetto']))
