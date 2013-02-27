@@ -297,7 +297,7 @@ class Progetto(models.Model):
     codice_locale = models.CharField(max_length=100, primary_key=True,
                                      db_column='cod_locale_progetto')
 
-    cup = models.CharField(max_length=15)
+    cup = models.CharField(max_length=15, blank=True)
     titolo_progetto = models.TextField()
     descrizione = models.TextField(blank=True, null=True)
     fonte_descrizione = models.TextField(blank=True, null=True)
