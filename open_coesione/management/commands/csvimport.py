@@ -995,6 +995,9 @@ class Command(BaseCommand):
             # CUP, possono essere più di uno, separati da virgole
             cups_progetto = r['CUP'].strip().split(";") if r['CUP'] else [None,]
 
+            # CUP principale (il primo)
+            cup_main = cups_progetto[0] if len(cups_progetto)>0 else ''
+
             titolo_progetto = r['TITOLO_PROGETTO'].strip() if r['TITOLO_PROGETTO'] else ''
 
             # totale finanziamento
@@ -1215,7 +1218,7 @@ class Command(BaseCommand):
                 p, created = Progetto.objects.get_or_create(
                     codice_locale=codice_locale,
                     defaults={
-                        'cup': cups_progetto[0],
+                        'cup': cup_main,
                         'titolo_progetto': titolo_progetto,
                         'programma_asse_obiettivo': programma_asse_obiettivo,
                         'tema': tema_prioritario,
@@ -1306,10 +1309,6 @@ class Command(BaseCommand):
                 self.logger.error("Progetto %s: %s" % (r['COD_DIPE'], e))
                 continue
 
-            finally:
-                # remove local variable p from the namespace,
-                #may free some memory
-                del p
 
         self.logger.info("Fine")
 
