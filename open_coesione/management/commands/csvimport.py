@@ -237,6 +237,19 @@ class Command(BaseCommand):
         self.logger.info("Limit: %s" % options['limit'])
         self.logger.info("Offset: %s" % options['offset'])
 
+        # read csv file, changing the default field delimiter
+        try:
+            self.unicode_reader = utils.UnicodeDictReader(
+                open(self.csv_file, 'r'),
+                delimiter='|', encoding=self.encoding
+            )
+        except IOError:
+            self.logger.error("It was impossible to open file %s" % self.csv_file)
+            exit(1)
+        except csv.Error, e:
+            self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
+
+
         if options['delete']:
             self.logger.error("Could not revert descriptions updates.")
             exit(1)
@@ -1100,7 +1113,7 @@ class Command(BaseCommand):
                 continue
 
             # classificazione azione (natura e tipologia)
-            # TODO: il campo va letto da una colonna del CSV da produrre 
+            # TODO: implementare lettura da colonna CSV
             cup_cod_natura = '03'
             cup_descr_natura = 'REALIZZAZIONE DI LAVORI PUBBLICI (OPERE ED IMPIANTISTICA)'
 
