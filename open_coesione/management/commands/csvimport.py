@@ -925,6 +925,7 @@ class Command(BaseCommand):
     def handle_cipeproj(self, *args, **options):
         """
         Procedura per importare dati di progetto, e soggetti, a partire dal tracciato del CIPE
+        Non viene importata la natura, che arriva su un tracciato differente
         """
         self.logger.info("Inizio import da %s" % self.csv_file)
         self.logger.info("Limit: %s" % options['limit'])
@@ -1099,7 +1100,7 @@ class Command(BaseCommand):
                 continue
 
             # classificazione azione (natura e tipologia)
-            # TODO: in attesa di specifiche
+            # TODO: il campo va letto da una colonna del CSV da produrre 
             cup_cod_natura = '03'
             cup_descr_natura = 'REALIZZAZIONE DI LAVORI PUBBLICI (OPERE ED IMPIANTISTICA)'
 
