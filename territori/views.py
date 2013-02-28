@@ -10,7 +10,7 @@ from django.views.generic.detail import DetailView
 from django.conf import settings
 from open_coesione import utils
 from open_coesione.data_classification import DataClassifier
-from open_coesione.views import AccessControlView, AggregatoView
+from open_coesione.views import AccessControlView, AggregatoView, cached_context
 from progetti.models import Progetto, Tema, ClassificazioneAzione
 from progetti.views import CSVView
 from territori.models import Territorio
@@ -18,7 +18,9 @@ import json
 from lxml import etree
 import re
 import urllib
+import logging
 
+logger = logging.getLogger('oc')
 
 
 class JSONResponseMixin(object):
@@ -33,6 +35,7 @@ class JSONResponseMixin(object):
             json.dumps(context),
             **response_kwargs
         )
+
 
 class InfoView(JSONResponseMixin, TemplateView):
     """
@@ -57,7 +60,7 @@ class InfoView(JSONResponseMixin, TemplateView):
         try:
             territorio = Territorio.objects.get(geom__intersects=pnt, territorio=tipo)
         except Territorio.DoesNotExist:
-            return { 'success' : False }
+            return {'success': False}
 
         context['success'] = True
 
@@ -204,6 +207,7 @@ class LeafletView(TemplateView):
             context['info_base_url'] = "/territori/info".format(Site.objects.get_current())
         return context
 
+
 class TilesConfigView(TemplateView):
     template_name = 'territori/tiles.cfg'
 
@@ -222,6 +226,7 @@ class TilesConfigView(TemplateView):
         context['path_to_cache'] = settings.TILESTACHE_CACHE_PATH
 
         return context
+
 
 class MapnikView(TemplateView):
     """
@@ -303,6 +308,7 @@ class MapnikView(TemplateView):
     def refine_context(self, context):
         pass
 
+
 class MapnikRegioniView(MapnikView):
     territori_name = 'regioni'
     codice_field = 'COD_REG'
@@ -312,6 +318,7 @@ class MapnikRegioniView(MapnikView):
 
     def refine_context(self, context):
         pass
+
 
 class MapnikProvinceView(MapnikView):
     territori_name = 'province'
@@ -354,6 +361,7 @@ class TerritorioView(AccessControlView, AggregatoView, DetailView):
     tipo_territorio = ''
     model = 'Territorio'
 
+    @cached_context
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(TerritorioView, self).get_context_data(**kwargs)
@@ -384,7 +392,7 @@ class RegioneView(TerritorioView):
 
         try:
             context['popolazione_nazionale'] = Territorio.objects.nazione().popolazione_totale
-        except (Territorio.DoesNotExist, Territorio.MultipleObjectsReturned) :
+        except (Territorio.DoesNotExist, Territorio.MultipleObjectsReturned):
             pass
 
         return context
@@ -393,16 +401,19 @@ class RegioneView(TerritorioView):
 class ProvinciaView(TerritorioView):
     tipo_territorio = Territorio.TERRITORIO.P
 
+
 class ComuneView(TerritorioView):
     tipo_territorio = Territorio.TERRITORIO.C
+
 
 class AmbitoNazionaleView(TerritorioView):
     tipo_territorio = Territorio.TERRITORIO.N
 
+
 class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
     queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.E)
 
-
+    @cached_context
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(AmbitoEsteroView, self).get_context_data(**kwargs)
@@ -487,6 +498,7 @@ class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
 
         return context
 
+
 class RegioneCSVView(CSVView):
     model = Territorio
 
@@ -513,8 +525,8 @@ class RegioneCSVView(CSVView):
                 '{0:.2f}'.format( .0 ).replace('.', ',')
             ])
 
-class ProvinciaCSVView(RegioneCSVView):
 
+class ProvinciaCSVView(RegioneCSVView):
 
     def write_csv(self, response):
         territorio_filter = self.object.get_cod_dict()

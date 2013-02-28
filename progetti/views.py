@@ -18,7 +18,7 @@ from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto, ClassificazioneAzione
 from open_coesione import utils
-from open_coesione.views import AggregatoView, AccessControlView
+from open_coesione.views import AggregatoView, AccessControlView, cached_context
 from progetti.forms import DescrizioneProgettoForm
 from progetti.models import Tema, Fonte, SegnalazioneProgetto
 from soggetti.models import Soggetto
@@ -74,6 +74,7 @@ class ProgettoView(AccessControlView, DetailView):
 class TipologiaView(AggregatoView, DetailView):
     context_object_name = 'tipologia'
 
+    @cached_context
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(TipologiaView, self).get_context_data(**kwargs)
@@ -95,7 +96,6 @@ class TipologiaView(AggregatoView, DetailView):
             }
         )
 
-
         return context
 
     def get_object(self, queryset=None):
@@ -104,6 +104,7 @@ class TipologiaView(AggregatoView, DetailView):
 class TemaView(AccessControlView, AggregatoView, DetailView):
     context_object_name = 'tema'
 
+    @cached_context
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(TemaView, self).get_context_data(**kwargs)
@@ -116,7 +117,12 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
 #        context['map_legend_colors'] = settings.MAP_COLORS
         context['map_selector'] = 'temi/{0}/'.format(self.kwargs['slug'])
 
-        context['lista_indici_tema'] = csv.DictReader(open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))))
+        context['lista_indici_tema'] = []
+        with open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for line in reader:
+                context['lista_indici_tema'].append(line)
+
 
         context['top_progetti_per_costo'] = Progetto.objects.con_tema(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_tema(self.object)[:5]

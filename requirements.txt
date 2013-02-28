@@ -8,6 +8,7 @@ Pygments
 South
 Sphinx
 django-debug-toolbar
+django-cache-panel
 django-extensions
 django-haystack
 django-model-utils
@@ -32,3 +33,4 @@ django-classy-tags
 django-sekizai
 
 django-tinymce
+django-redis

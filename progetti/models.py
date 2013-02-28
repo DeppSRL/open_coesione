@@ -5,7 +5,10 @@ from django.db import models
 from django.utils.functional import cached_property
 from model_utils import Choices
 from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager
-from soggetti.models import Soggetto
+from django.core.cache import cache
+import logging
+
+logger = logging.getLogger('oc')
 
 
 class ClassificazioneQSN(models.Model):
@@ -105,23 +108,31 @@ class Tema(models.Model):
             return 0.0
         return float(costo) / float(popolazione)
 
-    def costo_totale(self, territorio=None ):
+    def costo_totale(self, territorio=None):
+        cache_key = ['costo_totale', ]
         if self.is_root:
             prefix = 'progetto_set__'
             query_set = self.temi_figli
         else:
             prefix = ''
             query_set = self.progetti
+        cache_key.append(str(self.codice))
 
         if territorio:
-            query_set = query_set.filter( **territorio.get_cod_dict('{0}territorio_set__'.format(prefix) ) )
+            query_set = query_set.filter(**territorio.get_cod_dict('{0}territorio_set__'.format(prefix)))
+            cache_key.append(str(territorio.pk))
 
-        return query_set.aggregate(totale=models.Sum('{0}fin_totale_pubblico'.format(prefix)) )['totale'] or 0.0
+        cache_key = ".".join(cache_key)
+        result = cache.get(cache_key)
+        if result is None:
+            result = query_set.aggregate(totale=models.Sum('{0}fin_totale_pubblico'.format(prefix)))['totale'] or 0.0
+            cache.set(cache_key, result)
+        return result
 
     @models.permalink
     def get_absolute_url(self):
         return ('progetti_tema', (), {
-            'slug' : self.slug
+            'slug': self.slug
         })
 
     def __unicode__(self):
@@ -130,6 +141,7 @@ class Tema(models.Model):
     class Meta:
         verbose_name_plural = "Temi"
         ordering = ['short_label','codice']
+
 
 class Intesa(models.Model):
     codice = models.CharField(max_length=8, primary_key=True)

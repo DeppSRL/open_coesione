@@ -1,3 +1,4 @@
+# coding=utf-8
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse
@@ -14,6 +15,27 @@ from soggetti.models import Soggetto
 from territori.models import Territorio
 from django.conf import settings
 from django.db import models
+from django.core.cache import cache
+
+
+def cached_context(get_context_data):
+    """
+    Questo decoratore viene usato per fare la cache del metodo get_context_data
+    chiamato da get() o post() nelle viste.
+    Si occupa di creare una chiave univoca per la richiesta,
+    dopodiche controlla se è presente in cache;
+    se lo è, restituisce il contesto precedentemente elaborato,
+    altrimenti lo genera e lo salva con quella chiave
+    """
+
+    def decorator(self, **kwargs):
+        key = 'context' + self.request.get_full_path()
+        context = cache.get(key)
+        if context is None:
+            context = get_context_data(self, **kwargs)
+            cache.set(key, context)
+        return context
+    return decorator
 
 
 class AccessControlView(object):
@@ -58,17 +80,22 @@ class CGView(TemplateView):
 
         return context
 
+
 class AggregatoView(object):
 
-    def get_aggregate_data(self,context, **filter):
+    def get_aggregate_data(self, context, **filter):
 
         if len(filter) > 1:
             raise Exception('Only one filter kwargs is accepted')
 
+        # read tematizzazione GET param
+        tematizzazione = self.request.GET.get('tematizzazione', 'totale_costi')
+
         context = dict(
-            totale_costi    =   Progetto.objects.totale_costi(**filter),
-            totale_pagamenti=   Progetto.objects.totale_pagamenti(**filter),
-            totale_progetti =   Progetto.objects.totale_progetti(**filter),
+            totale_costi=Progetto.objects.totale_costi(**filter),
+            totale_pagamenti=Progetto.objects.totale_pagamenti(**filter),
+            totale_progetti=Progetto.objects.totale_progetti(**filter),
+            tematizzazione=tematizzazione,
             **context
         )
         context['percentuale_costi_pagamenti'] = "{0:.0%}".format(
@@ -76,17 +103,13 @@ class AggregatoView(object):
             context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0
         )
 
-        # read tematizzazione GET param
-        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
-
-        #if filters.has_key('tema') or filters.has_key('natura'):
 
         # create tematizzazione field
-        aggregate_field = {
-            'totale_costi': Sum('progetto_set__fin_totale_pubblico'),
-            'totale_pagamenti': Sum('progetto_set__pagamento'),
-            'totale_progetti': Count('progetto_set')
-        }[ context['tematizzazione'] ]
+        # aggregate_field = {
+        #     'totale_costi': Sum('progetto_set__fin_totale_pubblico'),
+        #     'totale_pagamenti': Sum('progetto_set__pagamento'),
+        #     'totale_progetti': Count('progetto_set')
+        # }[ context['tematizzazione'] ]
 
         query_models = {
             'temi_principali' : {
@@ -104,14 +127,14 @@ class AggregatoView(object):
         }
 
         # specialize the filter
-        if filter.has_key('territorio'):
+        if 'territorio' in filter:
             query_filters = dict(territorio=filter['territorio'])
-        elif filter.has_key('soggetto'):
+        elif 'soggetto' in filter:
             query_filters = dict(soggetto=filter['soggetto'])
-        elif filter.has_key('tema'):
+        elif 'tema' in filter:
             query_filters = dict(tema=filter['tema'])
             del query_models['temi_principali']
-        elif filter.has_key('classificazione'):
+        elif 'classificazione' in filter:
             query_filters = dict(classificazione=filter['classificazione'])
             del query_models['nature_principali']
         else:
@@ -121,15 +144,15 @@ class AggregatoView(object):
         for name in query_models:
             context[name] = []
             # takes all root models ( principali or tematiche )
-            for object in getattr(query_models[name]['manager'], query_models[name]['manager_parent_method'])():
+            for obj in getattr(query_models[name]['manager'], query_models[name]['manager_parent_method'])():
                 q = query_filters.copy()
                 # add %model%_superiore to query filters
-                q[query_models[name]['filter_name']] = object
+                q[query_models[name]['filter_name']] = obj
                 # make query and add totale to object
-                # object.tot = query_models[name]['manager'].filter( **q ).aggregate( tot=aggregate_field )['tot']
-                object.tot = getattr(Progetto.objects, context['tematizzazione'])(**q)
+                # obj.tot = query_models[name]['manager'].filter( **q ).aggregate( tot=aggregate_field )['tot']
+                obj.tot = getattr(Progetto.objects, context['tematizzazione'])(**q)
                 # add object to right context
-                context[name].append( object )
+                context[name].append(obj)
 
         context['map_legend_colors'] = settings.MAP_COLORS
 
@@ -155,10 +178,10 @@ class AggregatoView(object):
         )[:qnt]
 
 
-
 class HomeView(AccessControlView, AggregatoView, TemplateView):
     template_name = 'homepage.html'
 
+    @cached_context
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
 
@@ -173,11 +196,13 @@ class HomeView(AccessControlView, AggregatoView, TemplateView):
 
         return context
 
+
 class RisorseView(AccessControlView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(RisorseView, self).get_context_data(**kwargs)
         context['risorsa'] = True
         return  context
+
 
 class FondiView(RisorseView):
     template_name = 'flat/fonti_finanziamento.html'
@@ -203,6 +228,7 @@ class FondiView(RisorseView):
 
         return context
 
+
 class SpesaCertificataView(RisorseView):
     template_name = 'flat/spesa_certificata.html'
 
@@ -214,11 +240,12 @@ class SpesaCertificataView(RisorseView):
 
         context['chart_tables'] = []
 
-        for tipo in ['competitivita_fesr','competitivita_fse','convergenza_fesr','convergenza_fse']:
+        for tipo in ['competitivita_fesr', 'competitivita_fse', 'convergenza_fesr', 'convergenza_fse']:
 
             context['chart_tables'].append((tipo, csv.reader( open(os.path.join(PROJECT_ROOT, 'static/csv/spesa_certificata/%s.csv' % tipo))) ))
 
         return context
+
 
 class ContactView(TemplateView):
 
@@ -250,6 +277,7 @@ class ContactView(TemplateView):
             return HttpResponseRedirect( "{0}?completed=true".format(reverse('oc_contatti')) ) # Redirect after POST
 
         return self.get(request, *args, **kwargs)
+
 
 class PressView(ListView):
     model = PressReview

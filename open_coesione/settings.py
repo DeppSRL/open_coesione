@@ -147,6 +147,21 @@ INSTALLED_APPS = (
     'blog',
     # TinyMCE
     'tinymce',
+    # debug toolbar 3rd party panels
+    'cache_panel',
+)
+
+DEBUG_TOOLBAR_PANELS = (
+    'debug_toolbar.panels.version.VersionDebugPanel',
+    'debug_toolbar.panels.timer.TimerDebugPanel',
+    'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
+    'debug_toolbar.panels.headers.HeaderDebugPanel',
+    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
+    'debug_toolbar.panels.sql.SQLDebugPanel',
+    'debug_toolbar.panels.template.TemplateDebugPanel',
+    'cache_panel.panel.CacheDebugPanel',
+    'debug_toolbar.panels.signals.SignalDebugPanel',
+    'debug_toolbar.panels.logger.LoggingPanel',
 )
 
 # context processors and templates directory
@@ -160,12 +175,16 @@ TEMPLATE_CONTEXT_PROCESSORS += (
 
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
-        'TIMEOUT': 50000000,
+    "default": {
+        "BACKEND": "redis_cache.cache.RedisCache",
+        "LOCATION": "127.0.0.1:6379:1",  # db 1
+        "TIMEOUT": 50000000,  # one week
+        "OPTIONS": {
+            "CLIENT_CLASS": "redis_cache.client.DefaultClient",
+        }
     }
 }
+
 
 MAPNIK_HOST = False
 TILESTACHE_CACHE_PATH = ''
@@ -178,6 +197,8 @@ MAP_COLORS = {
     'c3': '#676462',
     'c4': '#2d2b2a',
 }
+
+N_MAX_DOWNLOADABLE_RESULTS = 1000
 
 # used in middleware for site-wide caching
 # CACHE_MIDDLEWARE_SECONDS = 86400
@@ -193,8 +214,8 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt' : "%d/%b/%Y %H:%M:%S"
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
         },
     },
     'filters': {
@@ -203,14 +224,14 @@ LOGGING = {
         }
     },
     'handlers': {
-        'console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
         'logfile': {
-            'level':'INFO',
-            'class':'logging.handlers.RotatingFileHandler',
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': REPO_ROOT + "/log/logfile",
             'maxBytes': 10000000,
             'backupCount': 10,
@@ -228,10 +249,20 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'oc': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'csvimport': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
+        },
+        'django.db.backends': {
+            'handlers': ['console', ],
+            'level': 'ERROR',
+            'propagate': True
         }
     }
 }
@@ -248,5 +279,5 @@ TINYMCE_DEFAULT_CONFIG = {
     'cleanup_on_startup': True,
     'custom_undo_redo_levels': 10,
     'theme_advanced_toolbar_location' : "top"
-    }
+}
 TINYMCE_SPELLCHECKER = True
