@@ -474,6 +474,7 @@
                 {% endfor %}
               </table>
               {% endif %}
+
             </div>
           </div>
 
@@ -522,16 +523,27 @@
             {%  endif %}
 
             {%  if progetto.cipe_flag %}
-                <dt>Delibera CIPE</dt>
-                {% for delibera in progetto.delibere_cipe %}
-                    <dd>
-                        <a href="/fonti-di-finanziamento/#delibere-cipe">
-                            Numero {{ delibera.num }} del {{ delibera.anno }},
-                            pubblicata sulla Gazzetta Ufficiale del
-                            {{ delibera.data_pubblicazione|date:'d/m/Y' }}
-                        </a>
-                    </dd>
-                {% endfor %}
+
+                <table>
+                    <tr>
+                        <td><dt>Delibere CIPE</dt></td>
+                        <td style="padding-left: 0.5em">Assegnazioni</td>
+                    </tr>
+                    {% for assegnazione in progetto.assegnazioni_delibere %}
+                        <tr>
+                            <td>
+                                <a href="/fonti-di-finanziamento/#delibere-cipe">
+                                    Numero {{ assegnazione.delibera.num }} del {{ assegnazione.delibera.anno }},
+                                    pubblicata sulla Gazz.U. del
+                                    {{ assegnazione.delibera.data_pubblicazione|date:'d/m/Y' }}
+                                </a>
+                            </td>
+                            <td style="padding-left: 0.5em">
+                                {{ assegnazione.finanziamento|floatformat:"2" }} euro
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
             {%  endif %}
 
             {% if progetto.note != '' %}

@@ -61,6 +61,7 @@ class ProgettoView(AccessControlView, DetailView):
 
         context['segnalazioni_pubblicate'] = self.object.segnalazioni
 
+
 #        primo_territorio = self.object.territori[0] or None
 #
 #        context['map'] = {

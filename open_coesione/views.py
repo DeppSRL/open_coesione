@@ -10,7 +10,7 @@ from django.db.models import Count, Sum
 from open_coesione.forms import ContactForm
 from open_coesione.models import PressReview
 from open_coesione.settings import PROJECT_ROOT
-from progetti.models import Progetto, Tema, ClassificazioneAzione
+from progetti.models import Progetto, Tema, ClassificazioneAzione, DeliberaCIPE
 from soggetti.models import Soggetto
 from territori.models import Territorio
 from django.conf import settings
@@ -225,6 +225,9 @@ class FondiView(RisorseView):
 
         context['fse_data_conv_regioni'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse_regioni.csv')))
         context['fse_data_conv_temi'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse_temi.csv')))
+
+        context['delibere'] = DeliberaCIPE.objects.all()
+        context['totale_fondi_assegnati'] = DeliberaCIPE.objects.aggregate(s = Sum('fondi_assegnati'))['s']
 
         return context
 
