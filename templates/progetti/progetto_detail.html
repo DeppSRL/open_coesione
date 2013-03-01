@@ -434,8 +434,8 @@
                 {% if progetto.fin_stato_fondo_rotazione %}
                   <tr><th>Co-finanziamento nazionale</th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
-                {% if progetto.fin_stato_fsc %}
-                  <tr><th>Stato: Fondo per lo sviluppo e la coesione 2007-2013</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% if progetto.cipe_flag %}
+                  <tr><th>Stato: {{ progetto.fonte.descrizione }}</th><td class="amount"><strong>{{ progetto.fin_totale_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
                 {% if progetto.fin_stato_altri_provvedimenti %}
                   <tr><th>Stato: altri provvedimenti</th><td class="amount"><strong>{{ progetto.fin_stato_altri_provvedimenti|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
@@ -495,7 +495,7 @@
               {% elif progetto.fondo_comunitario == 'fesr' %}
                 Fondo Europeo di Sviluppo Regionale (FESR)
               {% elif progetto.cipe_flag  %}
-                Fondo per lo sviluppo e la coesione 2007-2013
+                {{ progetto.fonte.descrizione }}
               {% endif %}
             </dt>
             <dd>
