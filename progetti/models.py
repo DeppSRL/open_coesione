@@ -449,6 +449,10 @@ class Progetto(models.Model):
     def delibere_cipe(self):
         return self.deliberacipe_set.all()
 
+    @property
+    def assegnazioni_delibere(self):
+        return self.progettodeliberacipe_set.all()
+
     def save(self, force_insert=False, force_update=False, using=None):
         # force re-computation of finanziamento totale and notes from delibere
         # in case this is a cipe project
@@ -489,6 +493,7 @@ class DeliberaCIPE(models.Model):
     data_adozione = models.DateField(null=True, blank=True)
     data_pubblicazione = models.DateField(null=True, blank=True)
     oggetto = models.TextField(null=True, blank=True)
+    url = models.URLField(null=True, blank=True)
     fondi_assegnati = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     progetto_set = models.ManyToManyField(Progetto, through=ProgettoDeliberaCIPE)
 
