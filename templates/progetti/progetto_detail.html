@@ -532,7 +532,7 @@
                     {% for assegnazione in progetto.assegnazioni_delibere %}
                         <tr>
                             <td>
-                                <a href="/fonti-di-finanziamento/#delibere-cipe">
+                                <a href="{{ assegnazione.delibera.url }}">
                                     Numero {{ assegnazione.delibera.num }} del {{ assegnazione.delibera.anno }},
                                     pubblicata sulla Gazz.U. del
                                     {{ assegnazione.delibera.data_pubblicazione|date:'d/m/Y' }}
