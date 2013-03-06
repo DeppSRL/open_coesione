@@ -1,5 +1,6 @@
 # coding=utf-8
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.cache import cache
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.db.models import Count, Sum
@@ -175,12 +176,13 @@ class SoggettoView(AggregatoView, DetailView):
             .order_by('-totale')[:5]
 
 
+        pml = cache.get('pml')
+        if not pml:
+            pml = Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1)
+            cache.set('pml', pml)
+
         # query avanzata per evitare errori di calcolo
-        progetti_multi_localizzati = [
-            p for p in
-            Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).select_related('soggetti','territori')
-            if self.object in p.soggetti
-        ]
+        progetti_multi_localizzati = [ p for p in pml if self.object in p.soggetti ]
 
         context['lista_finanziamenti_per_regione'] = []
         def tot(qs): return getattr(qs, context['tematizzazione'])()
