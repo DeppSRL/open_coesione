@@ -432,25 +432,25 @@ class CSVSearchResultsWriterMixin(object):
 
             soggetti_programmatori = ""
             if r.soggetti_programmatori:
-                soggetti_programmatori = separator.join(list(r.soggetti_programmatori)).encode('latin1')
+                soggetti_programmatori = separator.join(list(r.soggetti_programmatori)).encode('latin1', 'ignore')
 
             soggetti_attuatori = ""
             if r.soggetti_attuatori:
-                soggetti_attuatori = separator.join(list(r.soggetti_attuatori)).encode('latin1')
+                soggetti_attuatori = separator.join(list(r.soggetti_attuatori)).encode('latin1', 'ignore')
 
             ambiti = ""
             if r.ambiti_territoriali:
-                ambiti = separator.join(list(r.ambiti_territoriali)).encode('latin1')
+                ambiti = separator.join(list(r.ambiti_territoriali)).encode('latin1', 'ignore')
 
             territori = ""
             if r.territori:
-                territori = separator.join(list(r.territori)).encode('latin1')
+                territori = separator.join(list(r.territori)).encode('latin1', 'ignore')
 
             writer.writerow([
-                unicode(r.clp, errors='ignore').encode('latin1'), r.cup,
-                unicode(r.titolo, errors='ignore').encode('latin1'),
-                unicode(r.tema_descr, errors='ignore').encode('latin1'),
-                unicode(r.natura_descr, errors='ignore').encode('latin1'),
+                unicode(r.clp).encode('latin1', 'ignore'), r.cup,
+                unicode(r.titolo).encode('latin1', 'ignore'),
+                unicode(r.tema_descr).encode('latin1', 'ignore'),
+                unicode(r.natura_descr).encode('latin1', 'ignore'),
                 locale.format("%.2f", r.fin_ue) if r.fin_ue is not None else "",
                 locale.format("%.2f", r.fin_stato_fondo_rotazione) if r.fin_stato_fondo_rotazione is not None else "",
                 locale.format("%.2f", r.fin_stato_fsc) if r.fin_stato_fsc is not None else "", 
@@ -464,7 +464,7 @@ class CSVSearchResultsWriterMixin(object):
                 locale.format("%.2f", r.fin_da_reperire) if r.fin_da_reperire is not None else "",
                 locale.format("%.2f", r.fin_totale_pubblico) if r.fin_totale_pubblico is not None else "",
                 locale.format("%.2f", r.pagamento) if r.pagamento is not None else "",
-                unicode(r.fondo, errors='ignore').encode('latin1'),
+                unicode(r.fondo).encode('latin1', 'ignore'),
                 r.data_inizio_prevista.strftime("%Y%m%d") if r.data_inizio_prevista is not None else "",
                 r.data_inizio_effettiva.strftime("%Y%m%d") if r.data_inizio_effettiva is not None else "",
                 r.data_fine_prevista.strftime("%Y%m%d") if r.data_fine_prevista is not None else "",
