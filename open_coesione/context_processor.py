@@ -26,7 +26,7 @@ def main_settings(request):
     # cache
     regioni = cache.get('territori.regioni')
     if regioni is None:
-        regioni = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R)
+        regioni = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).defer('geom')
         cache.set('territori.regioni', regioni)
 
     # cache
