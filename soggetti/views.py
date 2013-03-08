@@ -175,26 +175,19 @@ class SoggettoView(AggregatoView, DetailView):
             .annotate(totale=Sum('progetto__fin_totale_pubblico'))\
             .order_by('-totale')[:5]
 
+        pml_ids = cache.get('pml_ids')
+        if not pml_ids:
+            pml_ids = [p['pk'] for p in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).values('pk')]
+            cache.set('pml_ids', pml_ids)
 
-
-        pml = cache.get('pml')
-        if not pml:
-            pml = Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1)
-            cache.set('pml', pml)
-
-        soggetti_pml = cache.get('soggetti_pml')
-        if not soggetti_pml:
-            soggetti_pml = []
-            for p in pml:
-                for s in p.soggetti:
-                    soggetti_pml.append(s.pk)
-
-            cache.set('soggetti_pml', set(soggetti_pml))
-
+        soggetti_pml_ids = cache.get('soggetti_pml_ids')
+        if not soggetti_pml_ids:
+            soggetti_pml_ids = [s['pk'] for s in Soggetto.objects.filter(ruolo__progetto__codice_locale__in=pml_ids).values('pk')]
+            cache.set('soggetti_pml_ids', set(soggetti_pml_ids))
 
 
         # query avanzata per evitare errori di calcolo
-        progetti_multi_localizzati = [ p for p in pml if self.object.pk in soggetti_pml ]
+        progetti_multi_localizzati = Progetto.objects.filter(pk__in=[ p_id for p_id in pml_ids if self.object.pk in soggetti_pml_ids ])
 
         context['lista_finanziamenti_per_regione'] = []
         def tot(qs): return getattr(qs, context['tematizzazione'])()
