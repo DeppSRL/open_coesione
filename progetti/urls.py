@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import patterns, url
 from django.views.decorators.cache import cache_page
 from django.views.generic.base import TemplateView
@@ -45,12 +46,12 @@ urlpatterns = patterns('',
    # tipologie
    url(r'^tipologie/(?P<slug>[\w-]+)/$', TipologiaView.as_view(), name='progetti_tipologia'),
    # csv comuni procapite per natura
-   url(r'^tipologie/(?P<slug>[\w-]+).csv$', cache_page(key_prefix='tipologie')(TipologiaCSVView.as_view()), name='progetti_tipologia_csv'),
+   url(r'^tipologie/(?P<slug>[\w-]+).csv$', cache_page(settings.CACHE_PAGE_DURATION_SECS, TipologiaCSVView.as_view(), key_prefix='tipologie'), name='progetti_tipologia_csv'),
 
    # temi
    url(r'^temi/(?P<slug>[\w-]+)/$', TemaView.as_view(), name='progetti_tema'),
     # csv comuni procapite per tema
-    url(r'^temi/(?P<slug>[\w-]+).csv$', cache_page(key_prefix='temi')(TemaCSVView.as_view()), name='progetti_tema_csv'),
+    url(r'^temi/(?P<slug>[\w-]+).csv$', cache_page(settings.CACHE_PAGE_DURATION_SECS, TemaCSVView.as_view(), key_prefix='temi'), name='progetti_tema_csv'),
 
 
 )

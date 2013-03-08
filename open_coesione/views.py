@@ -163,7 +163,7 @@ class AggregatoView(object):
 
     def top_comuni_pro_capite(self, filters, qnt=5):
 
-        queryset = Territorio.objects.comuni().filter( **filters )\
+        queryset = Territorio.objects.comuni().filter( **filters ).defer('geom')\
             .annotate( totale=models.Sum('progetto__fin_totale_pubblico'))\
             .filter( totale__isnull=False )
 

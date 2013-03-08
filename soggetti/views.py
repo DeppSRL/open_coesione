@@ -171,7 +171,7 @@ class SoggettoView(AggregatoView, DetailView):
 
         # calcolo dei comuni un cui questo soggetto ha operato di piu'
         context['territori_piu_finanziati_pro_capite'] = Territorio.objects.comuni()\
-            .filter(progetto__soggetto_set__pk=self.object.pk)\
+            .filter(progetto__soggetto_set__pk=self.object.pk).defer('geom')\
             .annotate(totale=Sum('progetto__fin_totale_pubblico'))\
             .order_by('-totale')[:5]
 
@@ -209,7 +209,7 @@ class SoggettoView(AggregatoView, DetailView):
 
         progetti_multi_localizzati = filter(lambda p: not multi_localizzato_in_nazione(p), progetti_multi_localizzati)
 
-        for nazione in Territorio.objects.filter(territorio__in=['N','E']).order_by('-territorio'):
+        for nazione in Territorio.objects.filter(territorio__in=['N','E']).defer('geom').order_by('-territorio'):
 
             queryset = Progetto.objects.nel_territorio( nazione ).del_soggetto( self.object ).exclude(
                 # tutti i progetti in una nazione realizzati dal miur NON multi localizzati
