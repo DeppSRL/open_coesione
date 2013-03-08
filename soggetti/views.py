@@ -176,20 +176,32 @@ class SoggettoView(AggregatoView, DetailView):
             .order_by('-totale')[:5]
 
 
+
         pml = cache.get('pml')
         if not pml:
             pml = Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1)
             cache.set('pml', pml)
 
+        soggetti_pml = cache.get('soggetti_pml')
+        if not soggetti_pml:
+            soggetti_pml = []
+            for p in pml:
+                for s in p.soggetti:
+                    soggetti_pml.append(s.pk)
+
+            cache.set('soggetti_pml', set(soggetti_pml))
+
+
+
         # query avanzata per evitare errori di calcolo
-        progetti_multi_localizzati = [ p for p in pml if self.object in p.soggetti ]
+        progetti_multi_localizzati = [ p for p in pml if self.object.pk in soggetti_pml ]
 
         context['lista_finanziamenti_per_regione'] = []
         def tot(qs): return getattr(qs, context['tematizzazione'])()
         def multi_localizzato_in_regione(p,r): return all( map(lambda t: t.cod_reg == r.cod_reg, p.territori) )
         def multi_localizzato_in_nazione(p): return any(map(lambda t: t.territorio == 'N', p.territori)) and all(map(lambda t: t.territorio != 'E', p.territori))
 
-        for regione in Territorio.objects.regioni():
+        for regione in Territorio.objects.regioni().defer('geom'):
 
             progetti_multi_localizzati = filter(lambda p: not multi_localizzato_in_regione(p, regione), progetti_multi_localizzati)
 
