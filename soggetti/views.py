@@ -152,19 +152,26 @@ class SoggettoView(AggregatoView, DetailView):
 
         # calcolo dei collaboratori con cui si spartiscono piu' soldi
         collaboratori = {}
-        soggetti = Soggetto.objects.exclude(pk=self.object.pk).filter(progetto__ruolo__soggetto=self.object)
-        for s in soggetti:
-            if not s in collaboratori:
-                collaboratori[s] = 0
-            collaboratori[s] += 1
+        soggetti_ids = Soggetto.objects.exclude(pk=self.object.pk).filter(progetto__ruolo__soggetto=self.object).values('pk')
+        for s in soggetti_ids:
+            s_id = s['pk']
+            if not s_id in collaboratori:
+                collaboratori[s_id] = 0
+            collaboratori[s_id] += 1
 
-        context['top_collaboratori'] = sorted(
+        top_collaboratori = sorted(
             # create a list of dict with partners
-            [{'soggetto':key, 'numero':collaboratori[key]} for key in collaboratori],
+            [{'soggetto_id':s_id, 'numero':collaboratori[s_id]} for s_id in collaboratori],
             # sorted by totale
             key = lambda c: c['numero'],
-            # desc
             reverse = True )[:5]
+
+        # hydrate just the 5 extracted soggetti
+        for c in top_collaboratori:
+            c['soggetto'] = Soggetto.objects.get(pk=c['soggetto_id'])
+
+        context['top_collaboratori'] = top_collaboratori
+
 
         # calcolo dei progetti con piu' fondi
         context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
