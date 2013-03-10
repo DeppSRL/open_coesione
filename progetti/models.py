@@ -360,7 +360,7 @@ class Progetto(models.Model):
     note = models.TextField(null=True, blank=True)
 
     fin_totale = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
-    fin_totale_pubblico = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_totale_pubblico = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True, db_index=True)
     fin_ue = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_stato_fondo_rotazione = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_stato_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
