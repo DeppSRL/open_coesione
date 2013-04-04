@@ -34,3 +34,5 @@ django-sekizai
 
 django-tinymce
 django-redis
+
+django-recaptcha
