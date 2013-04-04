@@ -546,7 +546,7 @@
                 </table>
             {%  endif %}
 
-            {% if progetto.note != '' %}
+            {% if progetto.note and progetto.note != '' %}
                 <dt>Note</dt>
                 <dd>{{ progetto.note|linebreaks }}</dd>
             {% endif %}

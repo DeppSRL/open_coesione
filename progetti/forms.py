@@ -1,8 +1,11 @@
 from django import forms
+from captcha.fields import ReCaptchaField
 from progetti.models import SegnalazioneProgetto
+
 
 class DescrizioneProgettoForm(forms.ModelForm):
 
+    captcha = ReCaptchaField()
     #come_lo_conosci_descrizione = forms.CharField(widget=forms.Textarea, required=False)
     #authorization = forms.BooleanField(label='', required=True, help_text= 'Testo Autorizzazione', initial=True)
 
@@ -27,7 +30,6 @@ class DescrizioneProgettoForm(forms.ModelForm):
 
         # Always return the full collection of cleaned data.
         return cleaned_data
-
 
     class Meta:
         model = SegnalazioneProgetto

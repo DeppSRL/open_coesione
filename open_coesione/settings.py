@@ -99,6 +99,11 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = ''
 
+# This is your public and private API keys as provided by reCAPTCHA
+RECAPTCHA_PUBLIC_KEY = ''
+RECAPTCHA_PRIVATE_KEY = ''
+#RECAPTCHA_USE_SSL = True
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -147,6 +152,7 @@ INSTALLED_APPS = (
     'blog',
     # TinyMCE
     'tinymce',
+    'captcha',
     # debug toolbar 3rd party panels
     'cache_panel',
 )

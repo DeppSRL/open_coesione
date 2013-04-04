@@ -25,6 +25,11 @@ DATABASES = {
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'generate-new-secret-key'
 
+# This is your public and private API keys as provided by reCAPTCHA
+RECAPTCHA_PUBLIC_KEY = 'public-secret-key'
+RECAPTCHA_PRIVATE_KEY = 'private-secret-key'
+#RECAPTCHA_USE_SSL = True
+
 # Django TOOLBAR
 INTERNAL_IPS = ('127.0.0.1',)
 #MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)

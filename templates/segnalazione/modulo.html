@@ -59,27 +59,35 @@
   {{ block.super }}
   <script type="text/javascript">
     $(document).ready(function(){
-      if ( $('#id_come_lo_conosci').val() !== 'ALTRO' ){
-        $('#id_come_lo_conosci_altro').parent().parent().hide();
+      var $input = $('#id_come_lo_conosci'),
+              $verbose_input = $('#id_come_lo_conosci_altro');
+
+      if ( $input.val() !== 'ALTRO' ){
+          $verbose_input.parent().parent().hide();
       }
 
-      $('#id_come_lo_conosci').change(function(){
+      $input.change(function(){
         if ($(this).val() == 'ALTRO') {
           // set saved value
-          $('#id_come_lo_conosci_altro').val( $('#id_come_lo_conosci_altro').data('currvalue') );
+            $verbose_input.val( $verbose_input.data('currvalue') );
           // show
-          $('#id_come_lo_conosci_altro').parent().parent().slideDown();
+            $verbose_input.parent().parent().slideDown();
         }
         else {
           // save current value
-          $('#id_come_lo_conosci_altro').data('currvalue', $('#id_come_lo_conosci_altro').val() );
+          $verbose_input.data('currvalue', $verbose_input.val() );
           // reset value
-          $('#id_come_lo_conosci_altro').val('');
+          $verbose_input.val('');
           // hide
-          $('#id_come_lo_conosci_altro').parent().parent().slideUp()
+          $verbose_input.parent().parent().slideUp()
         }
       });
 
     });
   </script>
+{% endblock %}
+{% block css_header %}
+	<style type="text/css">
+        #contact-form .recaptchatable label.recaptcha_input_area_text { float: none; }
+	</style>
 {% endblock %}
