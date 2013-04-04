@@ -1,5 +1,5 @@
 BeautifulSoup
-Django
+Django==1.4
 Fabric
 Jinja2
 PIL
@@ -34,3 +34,5 @@ django-sekizai
 
 django-tinymce
 django-redis
+
+numpy
