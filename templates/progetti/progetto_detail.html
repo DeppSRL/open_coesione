@@ -256,7 +256,8 @@
           </p>
         {% endif %}
 
-        <a href="{% url progetti_segnalazione %}?cup={{ progetto.cup }}" id="banner_segnalazione_progetto" class="baloons-block">
+        <a href="{% url progetti_segnalazione %}?{% if progetto.cipe_flag %}clp={{ progetto.codice_locale }}{% else %}cup={{ progetto.cup }}{% endif %}"
+           id="banner_segnalazione_progetto" class="baloons-block">
           <i></i>
           <p>
             Sei un protagonista di questo progetto?

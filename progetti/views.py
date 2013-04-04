@@ -612,11 +612,18 @@ class SegnalaDescrizioneView(FormView):
     success_url = reverse_lazy('progetti_segnalazione_completa')
 
     def get_context_data(self, **kwargs):
-        context = super(SegnalaDescrizioneView,self).get_context_data(**kwargs)
-        try:
-            context['progetto'] = Progetto.objects.get(cup=self.request.GET.get('cup'))
-        except Progetto.DoesNotExist:
-            pass
+        context = super(SegnalaDescrizioneView, self).get_context_data(**kwargs)
+        params = {}
+        if 'cup' in self.request.GET:
+            params['cup'] = self.request.GET('cup')
+        elif 'clp' in self.request.GET:
+            params['cup'] = self.request.GET('clp')
+
+        if params:
+            try:
+                context['progetto'] = Progetto.objects.get(**params)
+            except Progetto.DoesNotExist:
+                pass
         return context
 
     def get_initial(self):
@@ -625,9 +632,16 @@ class SegnalaDescrizioneView(FormView):
         """
         initials = self.initial.copy()
 
+        initials['is_cipe'] = False
+
         if 'cup' in self.request.GET:
 
             initials['cup'] = self.request.GET.get('cup')
+
+        elif 'clp' in self.request.GET:
+
+            initials['cup'] = self.request.GET.get('clp')
+            initials['is_cipe'] = True
 
         return initials
 

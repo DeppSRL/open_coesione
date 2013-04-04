@@ -5,9 +5,15 @@ from progetti.models import SegnalazioneProgetto
 
 class DescrizioneProgettoForm(forms.ModelForm):
 
-    captcha = ReCaptchaField()
+    captcha = ReCaptchaField(label='Controllo anti-spam')
     #come_lo_conosci_descrizione = forms.CharField(widget=forms.Textarea, required=False)
     #authorization = forms.BooleanField(label='', required=True, help_text= 'Testo Autorizzazione', initial=True)
+
+    def __init__(self, *args, **kwargs):
+
+        super(DescrizioneProgettoForm, self).__init__(*args, **kwargs)
+
+        self.fields['is_cipe'].widget = forms.HiddenInput()
 
     def send_mail(self):
         pass

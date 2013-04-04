@@ -57,9 +57,12 @@ class ClassificazioneAzioneAdmin(ClassificazioneAdmin):
 
 
 class SegnalazioneAdmin(admin.ModelAdmin):
+    list_display = ('email', 'cup', 'is_cipe')
+    list_filter = ('is_cipe', )
+    search_fields = ('email', 'cup')
     fieldsets = (
         (None, {
-            'fields': ('pubblicato', 'come_lo_conosci', 'come_lo_conosci_altro', 'cup')
+            'fields': ('pubblicato', 'come_lo_conosci', 'come_lo_conosci_altro', ('cup', 'is_cipe'))
         }),
         ('Persona', {
             'fields': ('organizzazione', 'utente', 'email'),
@@ -71,7 +74,7 @@ class SegnalazioneAdmin(admin.ModelAdmin):
             'classes': ('collapse', )
         })
     )
-    readonly_fields = ['come_lo_conosci', 'come_lo_conosci_altro', 'cup', 'organizzazione', 'utente', 'email',
+    readonly_fields = ['come_lo_conosci', 'come_lo_conosci_altro', 'cup', 'is_cipe', 'organizzazione', 'utente', 'email',
                        'descrizione', 'come_migliorare', 'risultati_conseguiti', 'effetti_sul_territorio',
                        'cosa_piace', 'cosa_non_piace', 'quanto_utile']
 

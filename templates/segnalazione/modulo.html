@@ -33,7 +33,7 @@
         <form id="contact-form" action="{% url progetti_segnalazione %}" class="form-horizontal" method="post">{% csrf_token %}
           <fieldset>
 
-            {% for field in form %}
+            {% for field in form.visible_fields %}
               <div class="control-group">
                 {{ field.label_tag }}
                 <div class="controls">
@@ -44,6 +44,9 @@
 
           </fieldset>
           <div class="form-actions">
+              {% for field in form.hidden_fields %}
+              {{ field }}
+              {% endfor %}
             <button class="btn" type="submit">Invia</button>
           </div>
         </form>
