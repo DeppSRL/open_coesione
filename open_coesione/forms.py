@@ -1,11 +1,13 @@
 # coding=utf-8
 from django import forms
 from django.conf import settings
+from captcha.fields import ReCaptchaField
 from open_coesione.models import ContactMessage
+
 
 class ContactForm(forms.Form):
 
-    REASON_CHOICES= ((u'', u'--------------'),) + ContactMessage.REASON_CHOICES
+    REASON_CHOICES = ((u'', u'--------------'),) + ContactMessage.REASON_CHOICES
 
     name = forms.CharField(max_length= 50, label='Nome')
     surname = forms.CharField(max_length= 100, label='Cognome')
@@ -14,7 +16,8 @@ class ContactForm(forms.Form):
     location = forms.CharField(max_length=300, label='Luogo')
     reason = forms.TypedChoiceField(choices=REASON_CHOICES, label='Motivo del contatto', coerce=int, empty_value= '-----')
 
-    body = forms.CharField( widget=forms.Textarea, label='Messaggio' )
+    captcha = ReCaptchaField(label='Controllo anti-spam')
+    body = forms.CharField(widget=forms.Textarea, label='Messaggio')
 
     def execute(self):
         from django.core.mail import EmailMultiAlternatives
