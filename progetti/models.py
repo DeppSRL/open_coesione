@@ -591,7 +591,7 @@ class SegnalazioneProgetto(models.Model):
     come_lo_conosci = models.CharField(choices=TIPOLOGIE, max_length=12, verbose_name="Come conosci il progetto?*")
     come_lo_conosci_altro = models.TextField(verbose_name="Specificare come hai conosciuto il progetto", blank=True, null=True)
 
-    cup = models.CharField(max_length=15, verbose_name="Codice CUP del progetto*")
+    cup = models.CharField(max_length=15, verbose_name="Codice del progetto*")
     is_cipe = models.BooleanField(default=False, verbose_name="Progetto CIPE")
     organizzazione = models.CharField(max_length=255, verbose_name="Amministrazione o altra organizzazione*")
     utente = models.CharField(max_length=255, verbose_name="Nome e cognome*")

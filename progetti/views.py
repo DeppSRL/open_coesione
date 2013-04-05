@@ -615,9 +615,9 @@ class SegnalaDescrizioneView(FormView):
         context = super(SegnalaDescrizioneView, self).get_context_data(**kwargs)
         params = {}
         if 'cup' in self.request.GET:
-            params['cup'] = self.request.GET('cup')
+            params['cup'] = self.request.GET.get('cup')
         elif 'clp' in self.request.GET:
-            params['cup'] = self.request.GET('clp')
+            params['cup'] = self.request.GET.get('clp')
 
         if params:
             try:
