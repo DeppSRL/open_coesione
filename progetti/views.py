@@ -214,17 +214,10 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
     COST_RANGES = {
         '0-0TO1K':      {'qrange': '[* TO 1000]', 'r_label': 'da 0 a 1.000&euro;'},
-        '1-1KTO10K':    {'qrange': '[1000.001 TO 10000]', 'r_label': 'da 1.000 a 10.000&euro;'},
-        '2-10KTO100K':  {'qrange': '[10000.001 TO 100000]', 'r_label': 'da 10.000 a 100.000&euro;'},
-        '3-100KTOINF':  {'qrange': '[100000.001 TO *]', 'r_label': 'oltre 100.000&euro;'},
+        '1-1KTO10K':    {'qrange': '[1000.01 TO 10000]', 'r_label': 'da 1.000 a 10.000&euro;'},
+        '2-10KTO100K':  {'qrange': '[10000.01 TO 100000]', 'r_label': 'da 10.000 a 100.000&euro;'},
+        '3-100KTOINF':  {'qrange': '[100000.01 TO *]', 'r_label': 'oltre 100.000&euro;'},
     }
-
-
-#    DATE_INTERVALS_RANGES = {
-#        'SIXMONTHS':  {'qrange': '[NOW/DAY-180DAYS TO NOW/DAY]', 'r_label': 'ultimi sei mesi'},
-#        'ONEYEAR': {'qrange': '[NOW/DAY-365DAYS TO NOW/DAY]', 'r_label': 'ultimo anno'},
-#        'TWOYEARS': {'qrange': '[NOW/DAY-730DAYS TO NOW/DAY]', 'r_label': 'ultimi due anno'}
-#    }
 
     DATE_INTERVALS_RANGES = {
         '2013':  {'qrange': '[2013-01-01T00:00:00Z TO 2014-01-01T00:00:00Z]', 'r_label': '2013'},
