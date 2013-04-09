@@ -265,9 +265,9 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         """
         extra = super(ProgettoSearchView, self).extra_context()
 
-        territorio_com = self.request.GET.get('territorio_com', '0')
-        territorio_prov = self.request.GET.get('territorio_prov', '0')
-        territorio_reg = self.request.GET.get('territorio_reg', '0')
+        territorio_com = self.request.GET.get('territorio_com', '')
+        territorio_prov = self.request.GET.get('territorio_prov', '')
+        territorio_reg = self.request.GET.get('territorio_reg', '')
         if territorio_com and territorio_com != '0':
             extra['territorio'] = Territorio.objects.get(
                 territorio=Territorio.TERRITORIO.C,
