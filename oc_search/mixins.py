@@ -108,9 +108,9 @@ class FacetRangeDateIntervalsMixin:
 class TerritorioMixin:
     def add_territorio_extended_selected_facets(self, extended_selected_facets):
         for selected_facet in extended_selected_facets:
-            territorio_com = self.request.GET.get('territorio_com', 0)
-            territorio_prov = self.request.GET.get('territorio_prov', 0)
-            territorio_reg = self.request.GET.get('territorio_reg', 0)
+            territorio_com = self.request.GET.get('territorio_com', '')
+            territorio_prov = self.request.GET.get('territorio_prov', '')
+            territorio_reg = self.request.GET.get('territorio_reg', '')
             if territorio_com != '0':
                 selected_facet['url'] += "&territorio_com={0}".format(territorio_com)
             if territorio_prov != '0':
