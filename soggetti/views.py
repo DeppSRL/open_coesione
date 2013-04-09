@@ -26,12 +26,12 @@ class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
     __name__ = 'SoggettoSearchView'
 
     COST_RANGES = {
-        '0-0TO100K':   {'qrange': '[* TO 100000]',                 'r_label': 'fino a 100.000 &euro;'},
-        '1-100KTO1M':  {'qrange': '[100000.001 TO 1000000]',       'r_label': 'da 100.000 a 1 mil. di &euro;'},
-        '2-1MTO10M':   {'qrange': '[1000000.001 TO 10000000]',     'r_label': 'da 1 mil. a 10 mil. di &euro;'},
-        '3-10MTO100M': {'qrange': '[10000000.001 TO 100000000]',   'r_label': 'da 10 mil. a 100 mil. di &euro;'},
-        '4-100MTO1G':  {'qrange': '[100000000.001 TO 1000000000]', 'r_label': 'da 100 mil. a 1 mld. di &euro;'},
-        '5-1GTOINF':   {'qrange': '[1000000000.001 TO *]',         'r_label': 'oltre 1 mld. di &euro;'},
+        '0-0TO100K':   {'qrange': '[* TO 100000]',             'r_label': 'fino a 100.000 &euro;'},
+        '1-100KTO1M':  {'qrange': '[100000.1 TO 1000000]',     'r_label': 'da 100.000 a 1 mil. di &euro;'},
+        '2-1MTO10M':   {'qrange': '[1000001 TO 10000000]',     'r_label': 'da 1 mil. a 10 mil. di &euro;'},
+        '3-10MTO100M': {'qrange': '[10000001 TO 100000000]',   'r_label': 'da 10 mil. a 100 mil. di &euro;'},
+        '4-100MTO1G':  {'qrange': '[100000010 TO 1000000000]', 'r_label': 'da 100 mil. a 1 mld. di &euro;'},
+        '5-1GTOINF':   {'qrange': '[1000000001 TO *]',         'r_label': 'oltre 1 mld. di &euro;'},
     }
     N_PROGETTI_RANGES = {
         '0-0TO10':     {'qrange': '[* TO 10]',       'r_label': 'fino a 10' },
