@@ -172,9 +172,13 @@ class SoggettoView(AggregatoView, DetailView):
 
         context['top_collaboratori'] = top_collaboratori
 
-
         # calcolo dei progetti con piu' fondi
         context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
+        """
+        context['top_progetti'] = [
+            Progetto.objects.get(pk=p['codice_locale'])
+            for p in self.object.progetti.values('codice_locale', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]]
+        """
 
         # calcolo dei comuni un cui questo soggetto ha operato di piu'
         context['territori_piu_finanziati_pro_capite'] = Territorio.objects.comuni()\
