@@ -3,6 +3,7 @@ import csv
 import codecs
 import cStringIO
 
+
 class UTF8Recoder:
     """
     Iterator that reads an encoded stream and reencodes the input to UTF-8
@@ -15,6 +16,7 @@ class UTF8Recoder:
 
     def next(self):
         return self.reader.next().encode("utf-8")
+
 
 class UnicodeDictReader:
     """
@@ -30,6 +32,10 @@ class UnicodeDictReader:
         row = self.reader.next()
         return dict((k, unicode(s, "utf-8")) for k, s in row.iteritems() if s is not None)
 
+    @property
+    def columns(self):
+        return tuple(self.reader.fieldnames)
+
     def __iter__(self):
         return self
 
@@ -42,8 +48,7 @@ class UnicodeDictWriter(object):
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
 
-    def writerow(self, D):
-        self.writer.writerow(dict([(k,v.encode("utf-8")) for k,v in D.items()]))
+    def _unicode_row(self):
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()
         data = data.decode("utf-8")
@@ -53,6 +58,14 @@ class UnicodeDictWriter(object):
         self.stream.write(data)
         # empty queue
         self.queue.truncate(0)
+
+    def writerow(self, D):
+        self.writer.writerow(dict([(k, v.encode("utf-8")) for k, v in D.items()]))
+        self._unicode_row()
+
+    def writerow_list(self, L):
+        self.writer.writer.writerow([v.encode("utf-8") for v in L])
+        self._unicode_row()
 
     def writerows(self, rows):
         for D in rows:
