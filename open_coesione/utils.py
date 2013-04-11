@@ -59,6 +59,10 @@ class UnicodeDictWriter(object):
         # empty queue
         self.queue.truncate(0)
 
+    def writeheader(self):
+        header = dict(zip(self.writer.fieldnames, self.writer.fieldnames))
+        self.writerow(header)
+
     def writerow(self, D):
         self.writer.writerow(dict([(k, v.encode("utf-8")) for k, v in D.items()]))
         self._unicode_row()

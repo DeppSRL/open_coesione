@@ -373,7 +373,7 @@ Type 'yes' to continue, or 'no' to cancel: """.format("\n".join(REQUIRED_PATHS))
             self.stdout.write("Writing {0} regions\n".format(len(self.db.regions)))
         with open(DPS_REGIONS_CSV, 'wb') as csv_file:
             writer = utils.UnicodeDictWriter(csv_file, regions_fieldnames)
-            writer.writer.writeheader()
+            writer.writeheader()
 
             for location_id in sorted(self.db.regions):
                 writer.writerow_list([unicode(location_id), self.db.regions.get(location_id)])
@@ -384,7 +384,7 @@ Type 'yes' to continue, or 'no' to cancel: """.format("\n".join(REQUIRED_PATHS))
             self.stdout.write('Writing {0} topics\n'.format(len(self.db.topics)))
         with open(DPS_TOPIC_CSV, 'wb') as csv_file:
             writer = utils.UnicodeDictWriter(csv_file, topic_columns)
-            writer.writer.writeheader()
+            writer.writeheader()
 
             for topic_id in sorted(self.db.topics):
                 writer.writerow_list([unicode(topic_id), self.db.topics.get(topic_id)])
@@ -395,7 +395,7 @@ Type 'yes' to continue, or 'no' to cancel: """.format("\n".join(REQUIRED_PATHS))
 
             with open(static_topic(topic_id), 'wb') as csv_file:
                 writer = utils.UnicodeDictWriter(csv_file, index_columns)
-                writer.writer.writeheader()
+                writer.writeheader()
 
                 for index_id in sorted(self.db.indexes_by_topic.get(topic_id)):
                     index = self.db.indexes[index_id]
@@ -407,7 +407,7 @@ Type 'yes' to continue, or 'no' to cancel: """.format("\n".join(REQUIRED_PATHS))
 
                     with open(static_topic_index(topic_id, index_id), 'wb') as csv_index_file:
                         index_writer = utils.UnicodeDictWriter(csv_index_file, topic_index_columns)
-                        index_writer.writer.writeheader()
+                        index_writer.writeheader()
 
                         for location_id in sorted(self.db.values.get(index_id)):
                             values = [self.db.regions[location_id], ]
