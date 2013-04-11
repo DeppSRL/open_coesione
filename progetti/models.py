@@ -56,12 +56,20 @@ class ProgrammaAsseObiettivo(models.Model):
     tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
     url_riferimento = models.URLField(max_length=255, blank=True, null=True)
 
+
+    @property
+    def programma(self):
+        p = self
+        while p.classificazione_superiore is not None:
+            p = p.classificazione_superiore
+        return p
+
     @property
     def progetti(self):
         return self.progetto_set
 
     def __unicode__(self):
-        return unicode(self.codice + " - " + self.descrizione[0:100])
+        return unicode(self.descrizione[0:100])
 
     class Meta:
         verbose_name_plural = "Programmi - Assi - Obiettivi operativi"
@@ -452,6 +460,14 @@ class Progetto(models.Model):
     @property
     def assegnazioni_delibere(self):
         return self.progettodeliberacipe_set.all()
+
+    @property
+    def fonte_fin(self):
+        """
+        return the first level of programma_asse_obiettivo classification
+        which is used in the fonte_fin filtering of search results
+        """
+        return self.programma_asse_obiettivo.programma
 
     def save(self, force_insert=False, force_update=False, using=None):
         # force re-computation of finanziamento totale and notes from delibere

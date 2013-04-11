@@ -16,7 +16,7 @@ from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
 
-from models import Progetto, ClassificazioneAzione
+from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo
 from open_coesione import utils
 from open_coesione.views import AggregatoView, AccessControlView, cached_context
 from progetti.forms import DescrizioneProgettoForm
@@ -288,6 +288,13 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
                 territorio=Territorio.TERRITORIO.N,
                 cod_reg=territorio_reg
             ).nome
+
+        fonte_fin = self.request.GET.get('fonte_fin', None)
+        if fonte_fin:
+            try:
+                extra['fonte_fin'] = ProgrammaAsseObiettivo.objects.get(pk=fonte_fin)
+            except ObjectDoesNotExist:
+                pass
 
         soggetto_slug = self.request.GET.get('soggetto', None)
         if soggetto_slug:

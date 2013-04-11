@@ -55,7 +55,11 @@
         </div>
 
         {% if soggetto %}
-            <p>per il soggetto:       {{ soggetto }}  </p>
+            <p>per il soggetto: {{ soggetto }}</p>
+        {% endif %}
+
+        {% if fonte_fin %}
+            <p>per questo programma: {{ fonte_fin }}</p>
         {% endif %}
 
         <hr class="big">

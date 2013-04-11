@@ -28,7 +28,7 @@ __author__ = 'daniele'
 import csv
 import locale
 import copy
-locale.setlocale(locale.LC_ALL, 'it_IT.utf8')
+locale.setlocale(locale.LC_ALL, 'it_IT.UTF-8')
 
 csvfile = 'dati/istat.csv'
 csvfile_encoding = 'latin'
