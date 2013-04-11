@@ -391,7 +391,7 @@ Type 'yes' to continue, or 'no' to cancel: """.format("\n".join(REQUIRED_PATHS))
 
         for topic_id in sorted(self.db.indexes_by_topic):
             if self.verbosity > 0:
-                self.stdout.write(u"[{0}] {1}\n".format(topic_id, self.db.topics.get(topic_id)))
+                self.stdout.write(u"[{0}] {1}\n".format(topic_id, self.db.topics.get(topic_id)).encode('utf-8'))
 
             with open(static_topic(topic_id), 'wb') as csv_file:
                 writer = utils.UnicodeDictWriter(csv_file, index_columns)

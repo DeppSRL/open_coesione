@@ -10,10 +10,6 @@ build
 GIS/tiles
 *.sql
 sitestatic
-open_coesione/static/csv/regioni.csv
-open_coesione/static/csv/temi.csv
-open_coesione/static/csv/indicatori
-open_coesione/static/csv/temaind
 */migrations/*
 dati
 splitcsv2.py
