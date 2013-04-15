@@ -1,6 +1,6 @@
 from django.conf import settings
 from blog.models import Blog
-from progetti.models import ClassificazioneAzione, Tema
+from progetti.models import ClassificazioneAzione, Tema, ProgrammaAsseObiettivo
 from territori.models import Territorio
 from django.core.cache import cache
 
@@ -35,6 +35,12 @@ def main_settings(request):
         temi = Tema.objects.principali()
         cache.set('temi', temi)
 
+    # cache
+    programmi = cache.get('programmi')
+    if programmi is None:
+        programmi = ProgrammaAsseObiettivo.objects.filter(tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma)
+        cache.set('programmi', programmi)
+
     return {
         'DEBUG': settings.DEBUG,
         'TEMPLATE_DEBUG': settings.TEMPLATE_DEBUG,
@@ -43,5 +49,9 @@ def main_settings(request):
         'lista_regioni': regioni,
         'lista_tipologie_principali': classificazioni,
         'lista_temi_principali': temi,
-        'latest_entry': Blog.get_latest_entries(single=True)
+        'latest_entry': Blog.get_latest_entries(single=True),
+        'lista_programmi': {
+            'fse': [p for p in programmi if ' FSE ' in p.descrizione],
+            'fesr': [p for p in programmi if ' FESR ' in p.descrizione],
+        },
     }

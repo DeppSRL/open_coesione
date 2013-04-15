@@ -67,6 +67,30 @@
                 </li>
               </ul>
             </li>
+            <li class="submenu">
+              <a href="#">Programma FSE</a>
+              <ul class="dropdown-menu">
+                <li class="clearfix">
+                  <ul>
+                    {% for programma in lista_programmi.fse %}
+                    <li><a href="{% url progetti_search %}?q=&fonte_fin={{ programma.codice }}">{{ programma.descrizione }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li class="submenu">
+              <a href="#">Programma FESR</a>
+              <ul class="dropdown-menu">
+                <li class="clearfix">
+                  <ul>
+                    {% for programma in lista_programmi.fesr %}
+                    <li><a href="{% url progetti_search %}?q=&fonte_fin={{ programma.codice }}">{{ programma.descrizione }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </li>
+              </ul>
+            </li>
           </ul>
         </li>
         <li class="dropdown violet{% if soggetto %} active{% endif %}">
