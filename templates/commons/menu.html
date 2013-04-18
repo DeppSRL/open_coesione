@@ -71,19 +71,7 @@
               <a href="#">Programmi UE</a>
               <ul class="dropdown-menu" style="padding-right: 0;">
                 <li class="submenu">
-                  <a href="#">Programma UE FSE</a>
-                  <ul class="dropdown-menu">
-                    <li class="clearfix">
-                      <ul>
-                        {% for programma in lista_programmi.fse %}
-                            <li><a href="{% url progetti_search %}?q=&fonte_fin={{ programma.codice }}">{{ programma.descrizione|cut:"FSE " }}</a></li>
-                        {% endfor %}
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-                <li class="submenu">
-                  <a href="#">Programma UE FESR</a>
+                  <a href="#">Programmi UE FESR</a>
                   <ul class="dropdown-menu">
                     <li class="clearfix">
                       <ul>
@@ -92,6 +80,18 @@
                         {% endfor %}
                       </ul>
                     </li>
+                  </ul>
+                </li>
+                <li class="submenu">
+                  <a href="#">Programmi UE FSE</a>
+                  <ul class="dropdown-menu">
+                      <li class="clearfix">
+                          <ul>
+                              {% for programma in lista_programmi.fse %}
+                                  <li><a href="{% url progetti_search %}?q=&fonte_fin={{ programma.codice }}">{{ programma.descrizione|cut:"FSE " }}</a></li>
+                              {% endfor %}
+                          </ul>
+                      </li>
                   </ul>
                 </li>
               </ul>

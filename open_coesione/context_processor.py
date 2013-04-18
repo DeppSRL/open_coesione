@@ -51,7 +51,7 @@ def main_settings(request):
         'lista_temi_principali': temi,
         'latest_entry': Blog.get_latest_entries(single=True),
         'lista_programmi': {
-            'fse': [p for p in programmi if ' FSE ' in p.descrizione],
-            'fesr': [p for p in programmi if ' FESR ' in p.descrizione],
+            'fse': [p for p in programmi.order_by('descrizione') if ' FSE ' in p.descrizione],
+            'fesr': [p for p in programmi.order_by('descrizione') if ' FESR ' in p.descrizione],
         },
     }
