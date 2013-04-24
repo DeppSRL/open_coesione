@@ -6,3 +6,4 @@ class SoggettoAdmin(admin.ModelAdmin):
     list_filter = ('ruolo__ruolo',)
 admin.site.register(Soggetto, SoggettoAdmin)
 admin.site.register(FormaGiuridica)
+admin.site.register(CodiceAteco)

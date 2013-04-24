@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.db import models
 from django.utils.functional import cached_property
 from model_utils import Choices
+from model_utils.models import TimeStampedModel
 from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager
 from django.core.cache import cache
 import logging
@@ -274,9 +275,7 @@ class ClassificazioneOggetto(models.Model):
         ordering = ['codice']
 
 
-
-
-class Progetto(models.Model):
+class Progetto(TimeStampedModel):
 
     objects = ProgettiManager()    # override the default manager
 
@@ -537,7 +536,7 @@ class CUP(models.Model):
         verbose_name_plural = "CUP"
 
 
-class Localizzazione(models.Model):
+class Localizzazione(TimeStampedModel):
     DPS_FLAG_CAP = Choices(
         ('0', 'CAP non valido o incoerente con territorio'),
         ('1', 'CAP valido e coerente'),
@@ -555,7 +554,7 @@ class Localizzazione(models.Model):
     class Meta:
         verbose_name_plural = "Localizzazioni"
 
-class Ruolo(models.Model):
+class Ruolo(TimeStampedModel):
     """
     The role of the recipient in the project.
     """
@@ -585,7 +584,7 @@ class Ruolo(models.Model):
         verbose_name_plural = "Ruoli"
 
 
-class SegnalazioneProgetto(models.Model):
+class SegnalazioneProgetto(TimeStampedModel):
 
     TIPOLOGIA_FINANZIATORE = 'FINAZIATORE'
     TIPOLOGIA_ATTUATORE = 'ATTUATORE'
@@ -634,7 +633,7 @@ class SegnalazioneProgetto(models.Model):
         verbose_name_plural = "Segnalazioni"
 
 
-class PagamentoProgetto(models.Model):
+class PagamentoProgetto(TimeStampedModel):
 
     progetto = models.ForeignKey(Progetto)
     data = models.DateField()

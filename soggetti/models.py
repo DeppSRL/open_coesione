@@ -1,6 +1,23 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from model_utils import Choices
+from model_utils.models import TimeStampedModel
+
+
+class CodiceAteco(models.Model):
+    codice = models.CharField(max_length=16, primary_key=True)
+    descrizione = models.CharField(max_length=1024)
+
+    @property
+    def soggetti(self):
+        return self.soggetto_set.all()
+
+    def __unicode__(self):
+        return u"%s" % (self.descrizione,)
+
+    class Meta:
+        verbose_name = "Codice ATECO"
+        verbose_name_plural = "Codici ATECO"
 
 
 class FormaGiuridica(models.Model):
@@ -18,13 +35,15 @@ class FormaGiuridica(models.Model):
         verbose_name = "Forma giuridica"
         verbose_name_plural = "Forme giuridiche"
 
-class Soggetto(models.Model):
+
+class Soggetto(TimeStampedModel):
     codice_fiscale = models.CharField(max_length=16)
     denominazione = models.CharField(max_length=512)
     slug = models.CharField(max_length=300, blank=True, null=True)
     forma_giuridica = models.ForeignKey(FormaGiuridica,
-                                        related_name='forma_giuridica_set',
                                         db_column='forma_giuridica', null=True, blank=True)
+    codice_ateco = models.ForeignKey(CodiceAteco,
+                                     db_column='codice_ateco', null=True, blank=True)
     territorio = models.ForeignKey('territori.Territorio', null=True)
     rappresentante_legale = models.CharField(max_length=300, null=True, blank=True)
     indirizzo = models.CharField(max_length=300, null=True, blank=True)

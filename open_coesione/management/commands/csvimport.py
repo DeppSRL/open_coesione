@@ -170,14 +170,18 @@ class Command(BaseCommand):
 
             created = False
             pp, created = PagamentoProgetto.objects.get_or_create(
-                progetto= progetto,
-                data= dt,
-                ammontare= tot if tot >= 0.0 else 0.0,
+                progetto=progetto,
+                data=dt,
+                defaults={
+                    'ammontare': tot if tot >= 0.0 else 0.0,
+                }
             )
             if created:
                 self.logger.info(u"%s: pagamento inserito: %s" % (c, pp))
             else:
-                self.logger.debug(u"%s: pagamento trovato e non duplicato: %s" % (c, pp))
+                pp.ammontare = tot if tot >= 0.0 else 0.0
+                pp.save()
+                self.logger.debug(u"%s: pagamento trovato e sovrascritto: %s" % (c, pp))
 
             stats['Numero pagamenti inseriti'] +=1
 
@@ -249,7 +253,6 @@ class Command(BaseCommand):
         except csv.Error, e:
             self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
 
-
         if options['delete']:
             self.logger.error("Could not revert descriptions updates.")
             exit(1)
@@ -310,7 +313,6 @@ class Command(BaseCommand):
             FormaGiuridica.objects.all().delete()
             self.logger.info("Oggetti rimossi")
 
-
         for r in self.unicode_reader:
             c = self.unicode_reader.reader.line_num - 1
             if c < int(options['offset']):
@@ -333,15 +335,30 @@ class Command(BaseCommand):
             forma_giuridica, created = FormaGiuridica.objects.get_or_create(
                 codice=r['COD_FORMA_GIURIDICA_SOGG'],
                 defaults={
-                    'denominazione': r['DESCR_FORMA_GIURIDICA_SOGG'],
-                    }
+                    'denominazione': r['DESCR_FORMA_GIURIDICA_SOGG'].strip(),
+                }
             )
             if created:
                 self.logger.info(u"Aggiunta forma giuridica: %s (%s)" %
-                                 (forma_giuridica, forma_giuridica.codice))
+                                 (forma_giuridica.denominazione, forma_giuridica.codice))
             else:
                 self.logger.debug(u"Trovata forma giuridica: %s (%s)" %
-                                  (forma_giuridica, forma_giuridica.codice))
+                                  (forma_giuridica.denominazione.encode('ascii', 'ignore'), forma_giuridica.codice))
+
+            # lookup o creazione codice ATECO
+            created = False
+            codice_ateco, created = CodiceAteco.objects.get_or_create(
+                codice=r['COD_ATECO_SOGG'].strip(),
+                defaults={
+                    'descrizione': r['DESCRIZIONE_ATECO_SOGG'].strip(),
+                }
+            )
+            if created:
+                self.logger.info(u"Aggiunto codice ateco: %s (%s)" %
+                                 (codice_ateco.descrizione, codice_ateco.codice))
+            else:
+                self.logger.debug(u"Trovato codice_ateco: %s (%s)" %
+                                  (codice_ateco.descrizione.encode('ascii', 'ignore'), codice_ateco.codice))
 
             # localizzazione
             try:
@@ -352,18 +369,50 @@ class Command(BaseCommand):
             indirizzo = r['INDIRIZZO_SOGG'].strip() if r['INDIRIZZO_SOGG'].strip() else None
             cap = r['CAP_SOGG'].strip() if r['CAP_SOGG'].strip() else None
 
-            # creazione soggetto
+            # creazione o modifica di un soggetto
             soggetto = None
-            denominazione = re.sub('\s{2,}', ' ', r['DPS_DENOMINAZIONE_SOGG']).strip()
+            denominazione = re.sub('\s{2,}', u' ', r['DPS_DENOMINAZIONE_SOGG']).strip()
+            codice_fiscale = r['DPS_CODICE_FISCALE_SOGG'].strip()
             try:
+
+                # fetch del soggetto, attraverso la sua denominazione esatta
                 soggetto = Soggetto.objects.get(denominazione__iexact=denominazione)
-                self.logger.debug(u"%s: Soggetto trovato e non modificato: %s" % (c, soggetto.denominazione))
+
+                # controllo campo per campo se ci sono state variazioni
+                edited = False
+                if soggetto.forma_giuridica != forma_giuridica:
+                    soggetto.forma_giuridica = forma_giuridica
+                    edited = True
+                if soggetto.codice_ateco != codice_ateco:
+                    soggetto.codice_ateco = codice_ateco
+                    edited = True
+                if territorio and soggetto.territorio != territorio:
+                    soggetto.territorio = territorio
+                    edited = True
+                if codice_fiscale and soggetto.codice_fiscale != codice_fiscale:
+                    soggetto.codice_fiscale = codice_fiscale
+                    edited = True
+                if cap and soggetto.cap != cap:
+                    soggetto.cap = cap
+                    edited = True
+                if indirizzo and soggetto.indirizzo != indirizzo:
+                    soggetto.indirizzo = indirizzo
+                    edited = True
+
+                # salvataggio variazioni, se esistenti
+                if edited:
+                    soggetto.save()
+                    self.logger.debug(u"%s: Soggetto trovato e modificato: %s" % (c, soggetto.denominazione))
+                else:
+                    self.logger.debug(u"%s: Soggetto trovato e non modificato: %s" % (c, soggetto.denominazione))
             except ObjectDoesNotExist:
+                # creazione nuovo soggetto, se non esistente
                 try:
                     soggetto = Soggetto.objects.create(
                         denominazione=denominazione,
-                        codice_fiscale=r['DPS_CODICE_FISCALE_SOGG'].strip(),
+                        codice_fiscale=codice_fiscale,
                         forma_giuridica=forma_giuridica,
+                        codice_ateco=codice_ateco,
                         indirizzo=indirizzo,
                         cap=cap,
                         territorio=territorio
@@ -374,7 +423,7 @@ class Command(BaseCommand):
                     connection._rollback()
 
             if soggetto:
-                # add role of subject in project
+                # aggiunta del ruolo del soggetto nel progetto
                 created = False
                 role, created = Ruolo.objects.get_or_create(
                     progetto = progetto,
@@ -388,8 +437,6 @@ class Command(BaseCommand):
 
                 del soggetto
                 del progetto
-
-
 
         self.logger.info("Fine")
 
@@ -478,11 +525,9 @@ class Command(BaseCommand):
                 self.logger.warning('Tipo di territorio sconosciuto o errato %s. Skip.' % (tipo_territorio,))
                 continue
 
-
             indirizzo = r['INDIRIZZO_PROG'].strip()if 'INDIRIZZO_PROG' in r.keys() and r['INDIRIZZO_PROG'] else None
             cap = r['CAP_PROG'].strip() if 'CAP_PROG' in r.keys() and r['CAP_PROG'] else None
             dps_flag_cap = r['DPS_FLAG_CAP_PROG'] if 'DPS_FLAG_CAP_PROG' in r.keys() and r['DPS_FLAG_CAP_PROG'] else 0
-
 
             # codice locale progetto (ID del record)
             try:
@@ -513,7 +558,11 @@ class Command(BaseCommand):
                 if created:
                     self.logger.info("%d - Aggiunta localizzazione progetto: %s" % (c, localizzazione,))
                 else:
-                    self.logger.debug("%d - Trovata localizzazione progetto: %s" % (c, localizzazione,))
+                    localizzazione.indirizzo = indirizzo
+                    localizzazione.cap = cap
+                    localizzazione.dps_flag_cap = dps_flag_cap
+                    localizzazione.save()
+                    self.logger.debug("%d - Localizzazione progetto trovata e sovrascritta: %s" % (c, localizzazione,))
 
 
                 del localizzazione
@@ -875,6 +924,7 @@ class Command(BaseCommand):
 
             # progetto
             try:
+                # fetch o creazione del progetto, basandosi sul codice locale
                 p, created = Progetto.objects.get_or_create(
                     codice_locale=codice_locale,
                     defaults={
@@ -924,7 +974,49 @@ class Command(BaseCommand):
                 if created:
                     self.logger.info("%s: Creazione progetto nuovo: %s" % (c, p.codice_locale))
                 else:
-                    self.logger.info("%s: Progetto trovato e non modificato: %s" % (c, p.codice_locale))
+                    # modifica di tutti i campi del progetto, in base ai valori del CSV
+                    p.classificazione_qsn = qsn_obiettivo_specifico
+                    p.titolo_progetto = r['DPS_TITOLO_PROGETTO']
+                    p.cup = r['CUP'].strip()
+                    p.programma_asse_obiettivo = programma_asse_obiettivo
+                    p.obiettivo_sviluppo = obiettivo_sviluppo
+                    p.fondo_comunitario = fondo_comunitario
+                    p.tema = tema_prioritario
+                    p.fonte = fonte
+                    p.classificazione_azione = natura_tipologia
+                    p.classificazione_oggetto = settore_sottosettore_categoria
+                    p.cipe_num_delibera = cipe_num_delibera
+                    p.cipe_anno_delibera = cipe_anno_delibera
+                    p.cipe_data_adozione = cipe_data_adozione
+                    p.cipe_data_pubblicazione = cipe_data_pubblicazione
+                    p.note = cipe_note
+                    p.cipe_flag = cipe_flag
+                    p.fin_totale_pubblico = fin_totale_pubblico
+                    p.fin_ue = fin_ue
+                    p.fin_stato_fondo_rotazione = fin_stato_fondo_rotazione
+                    p.fin_stato_fsc = fin_stato_fsc
+                    p.fin_stato_altri_provvedimenti = fin_stato_altri_provvedimenti
+                    p.fin_regione = fin_regione
+                    p.fin_provincia = fin_provincia
+                    p.fin_comune = fin_comune
+                    p.fin_altro_pubblico = fin_altro_pubblico
+                    p.fin_stato_estero = fin_stato_estero
+                    p.fin_privato = fin_privato
+                    p.fin_da_reperire = fin_da_reperire
+                    p.costo_ammesso = costo_ammesso
+                    p.pagamento = pagamento
+                    p.pagamento_ammesso = pagamento_ammesso
+                    p.data_inizio_prevista = data_inizio_prevista
+                    p.data_fine_prevista = data_fine_prevista
+                    p.data_inizio_effettiva = data_inizio_effettiva
+                    p.data_fine_effettiva = data_fine_effettiva
+                    p.data_aggiornamento = data_aggiornamento
+                    p.dps_flag_presenza_date = r['DPS_FLAG_PRESENZA_DATE']
+                    p.dps_flag_date_previste = r['DPS_FLAG_COERENZA_DATE_PREV']
+                    p.dps_flag_date_effettive = r['DPS_FLAG_COERENZA_DATE_EFF']
+                    p.dps_flag_cup = r['DPS_FLAG_CUP']
+                    p.save()
+                    self.logger.info("%s: Progetto trovato e sovrascritto: %s" % (c, p.codice_locale))
 
                 # remove local variable p from the namespace,
                 #may free some memory
@@ -1235,6 +1327,18 @@ class Command(BaseCommand):
                 if created:
                     self.logger.info("%s: Creazione progetto nuovo: %s" % (c, p.codice_locale))
                 else:
+                    # modifica di tutti i campi del progetto, in base ai valori del CSV
+                    p.cup = r['CUP'].strip()
+                    p.titolo_progetto = r['DPS_TITOLO_p']
+                    p.programma_asse_obiettivo = programma_asse_obiettivo
+                    p.tema = tema_prioritario
+                    p.classificazione_azione = natura_tipologia
+                    p.classificazione_oggetto = settore_sottosettore_categoria
+                    p.fonte = fonte
+                    p.cipe_flag = cipe_flag
+                    p.dps_flag_cup = r['DPS_FLAG_CUP']
+                    p.costo = costo
+                    p.save()
                     self.logger.info("%s: Progetto trovato e non modificato: %s" % (c, p.codice_locale))
 
                 # add cups to CUP table
