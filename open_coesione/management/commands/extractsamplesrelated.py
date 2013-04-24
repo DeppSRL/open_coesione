@@ -37,7 +37,7 @@ class Command(LabelCommand):
                     help='Type of related data: loc|rec|pay'),
         make_option('--encoding',
                     dest='encoding',
-                    default='iso-8859-1',
+                    default='latin1',
                     help='set character encoding of input (and output) csv files')
         )
 
@@ -109,15 +109,14 @@ class Command(LabelCommand):
                 "SOGG_COD_RUOLO","SOGG_DESCR_RUOLO","SOGG_PROGR_RUOLO",
                 "DPS_CODICE_FISCALE_SOGG","DPS_DENOMINAZIONE_SOGG",
                 "COD_FORMA_GIURIDICA_SOGG","DESCR_FORMA_GIURIDICA_SOGG",
-                "COD_COMUNE_SEDE_SOGG","INDIRIZZO_SOGG","CAP_SOGG"
+                "COD_COMUNE_SEDE_SOGG","INDIRIZZO_SOGG","CAP_SOGG",
+                "DESCRIZIONE_ATECO_SOGG", "COD_ATECO_SOGG"
             ]
         elif options['type'] == 'pay':
             headers = [
                 "COD_LOCALE_PROGETTO",
-                "TOT_PAGAMENTI_20111231",
-                "TOT_PAGAMENTI_20120229",
-                "TOT_PAGAMENTI_20120430",
-                "TOT_PAGAMENTI_20120630"
+                "DATA_AGGIORNAMENTO",
+                "TOT_PAGAMENTI"
             ]
         else:
             raise CommandError("Wrong type %s. Select between loc and rec." % options['type'])
@@ -146,7 +145,7 @@ class Command(LabelCommand):
 
             loc = reader.next()
             if writer is None:
-                writer = utils.UnicodeDictWriter(sys.stdout, headers, dialect='opencoesione')
+                writer = utils.UnicodeDictWriter(sys.stdout, headers, dialect='opencoesione', encoding=self.encoding)
             while loc['COD_LOCALE_PROGETTO'] < proj_codice_locale:
                 loc = reader.next()
             writer.writerow(loc)
