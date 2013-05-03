@@ -340,7 +340,7 @@ class Command(BaseCommand):
             )
             if created:
                 self.logger.info(u"Aggiunta forma giuridica: %s (%s)" %
-                                 (forma_giuridica.denominazione, forma_giuridica.codice))
+                                 (forma_giuridica.denominazione.encode('ascii', 'ignore'), forma_giuridica.codice))
             else:
                 self.logger.debug(u"Trovata forma giuridica: %s (%s)" %
                                   (forma_giuridica.denominazione.encode('ascii', 'ignore'), forma_giuridica.codice))
@@ -355,7 +355,7 @@ class Command(BaseCommand):
             )
             if created:
                 self.logger.info(u"Aggiunto codice ateco: %s (%s)" %
-                                 (codice_ateco.descrizione, codice_ateco.codice))
+                                 (codice_ateco.descrizione.encode('ascii', 'ignore'), codice_ateco.codice))
             else:
                 self.logger.debug(u"Trovato codice_ateco: %s (%s)" %
                                   (codice_ateco.descrizione.encode('ascii', 'ignore'), codice_ateco.codice))
