@@ -157,6 +157,7 @@ INSTALLED_APPS = (
     'captcha',
     # debug toolbar 3rd party panels
     'cache_panel',
+    'disqus',
 )
 
 DEBUG_TOOLBAR_PANELS = (

@@ -29,11 +29,11 @@ class Command(BaseCommand):
         self.treshold = options['treshold']
         self.curl = options['curl']
 
-        grandi_soggetti = Soggetto.objects.all().annotate(n=Count('progetto')).filter(n__gt=self.treshold).order_by('-n')
+        grandi_soggetti = Soggetto.objects.all().annotate(n=Count('progetto')).filter(n__gt=self.treshold).order_by('n')
         for s in grandi_soggetti:
             if self.curl:
-                print "curl -L -o/dev/null -w '%{url_effective} - %{http_code} (%{time_total}sec.)'\n",\
-                      "\"http://opencoesione.gov.it/%s{,?tematizzazione=totale_costi,?tematizzazione=totale_pagamenti,?tematizzazione=totale_progetti}\" >> cache_soggetti_generation.log" % s.get_absolute_url()
+                print "curl -L -o/dev/null -w '%{url_effective} - %{http_code} (%{time_total}sec.)' ",\
+                      "\"http://opencoesione.gov.it/%s{,?tematizzazione=totale_costi,?tematizzazione=totale_pagamenti,?tematizzazione=totale_progetti}\"\n >> cache_soggetti_generation.log" % s.get_absolute_url()
             else:
                 print "%s;%s" % (s.get_absolute_url(), s.n)
 
