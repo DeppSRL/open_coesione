@@ -1329,7 +1329,7 @@ class Command(BaseCommand):
                 else:
                     # modifica di tutti i campi del progetto, in base ai valori del CSV
                     p.cup = r['CUP'].strip()
-                    p.titolo_progetto = r['DPS_TITOLO_p']
+                    p.titolo_progetto = r['DPS_TITOLO']
                     p.programma_asse_obiettivo = programma_asse_obiettivo
                     p.tema = tema_prioritario
                     p.classificazione_azione = natura_tipologia
