@@ -1328,15 +1328,15 @@ class Command(BaseCommand):
                     self.logger.info("%s: Creazione progetto nuovo: %s" % (c, p.codice_locale))
                 else:
                     # modifica di tutti i campi del progetto, in base ai valori del CSV
-                    p.cup = r['CUP'].strip()
-                    p.titolo_progetto = r['DPS_TITOLO']
+                    p.cup = cup_main
+                    p.titolo_progetto = titolo_progetto
                     p.programma_asse_obiettivo = programma_asse_obiettivo
                     p.tema = tema_prioritario
                     p.classificazione_azione = natura_tipologia
                     p.classificazione_oggetto = settore_sottosettore_categoria
                     p.fonte = fonte
                     p.cipe_flag = cipe_flag
-                    p.dps_flag_cup = r['DPS_FLAG_CUP']
+                    p.dps_flag_cup = 1
                     p.costo = costo
                     p.save()
                     self.logger.info("%s: Progetto trovato e non modificato: %s" % (c, p.codice_locale))
