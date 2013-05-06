@@ -592,7 +592,19 @@
     </article>
 
 
+    {% block comments %}
+    <div id="comment">
+        <div class="row">
+            <div class="span12">
+                {% load disqus_tags %}
+                {% disqus_show_comments %}
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
   </div>
+
 
 
     {% if progetto.territori %}
