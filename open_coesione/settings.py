@@ -247,6 +247,19 @@ LOGGING = {
             'backupCount': 10,
             'formatter': 'standard',
         },
+        'import_logfile': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': REPO_ROOT + "/log/import_logfile",
+            'mode': 'w',
+            'formatter': 'standard',
+        },
+        'cg_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': REPO_ROOT + "/log/cg_logfile",
+            'formatter': 'standard',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -265,7 +278,12 @@ LOGGING = {
             'propagate': True,
         },
         'csvimport': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'import_logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'cachegenerator': {
+            'handlers': ['cg_logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },

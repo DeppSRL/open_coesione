@@ -85,11 +85,9 @@ class Command(LabelCommand):
             self.logger.setLevel(logging.DEBUG)
 
         if options['type'] == 'loc':
-            """
             # to produce the full, sorted localizzazioni file
             # head -n 1 localizzazioni_20120630.csv > localizzazioni_sorted.csv
             # tail -n +2 localizzazioni_20120630.csv | sort >> localizzazioni_sorted.csv
-            """
             headers = [
                 "COD_LOCALE_PROGETTO",
                 "COD_REGIONE","DEN_REGIONE",
@@ -99,11 +97,9 @@ class Command(LabelCommand):
                 "DPS_TERRITORIO_PROG","DPS_FLAG_CAP_PROG"
             ]
         elif options['type'] == 'rec':
-            """
             # to produce the full, sorted soggetti file
             # head -n 1 soggetti_20120630.csv > soggetti_sorted.csv
             # tail -n +2 soggetti_20120630.csv | sort >> soggetti_sorted.csv
-            """
             headers = [
                 "COD_LOCALE_PROGETTO",
                 "SOGG_COD_RUOLO","SOGG_DESCR_RUOLO","SOGG_PROGR_RUOLO",
