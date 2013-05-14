@@ -23,4 +23,6 @@ div.cipe.block-chart.block div strong {
     padding-right: 20px;
 }
 
-
+#disqus_thread {
+  margin: 1em;
+}
