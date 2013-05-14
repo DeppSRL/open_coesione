@@ -290,6 +290,8 @@ class Command(BaseCommand):
             if sintesi:
                 self.logger.info(u"Aggiornamento descrizione per il progetto %s" % progetto)
                 progetto.descrizione = sintesi
+                progetto.fonte_descrizione = 'Open Data PON REC'
+                progetto.fonte_url = 'http://www.ponrec.it/open-data'
                 progetto.save()
                 updates += 1
             else:
