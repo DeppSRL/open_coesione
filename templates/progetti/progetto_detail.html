@@ -241,8 +241,8 @@
               <p style="margin-left: 0;">
 
               {% if progetto.fonte_descrizione %}
-                  {% if progetto.fonte_url %}<a href="{{ progetto.fonte_url }}" class="pull-right">{{ progetto.fonte_descrizione }}</a>
-                      {% else %}<span class="pull-right">{{ progetto.fonte_descrizione }}</span>
+                  {% if progetto.fonte_url %}FONTE: <a href="{{ progetto.fonte_url }}" class="no-pull-right">{{ progetto.fonte_descrizione }}</a>
+                      {% else %}<span class="no-pull-right">{{ progetto.fonte_descrizione }}</span>
                   {% endif %}
               {% endif %}
 
