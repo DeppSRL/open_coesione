@@ -42,9 +42,8 @@ class Command(BaseCommand):
         ## handle request to show topics list
         if options['topiclist']:
             topics = Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)
-            print "Tema: Slug"
             for t in topics:
-                print u"{0}: {1}".format(t.short_label, t.slug)
+                print u"{0}".format(t.slug)
             exit(1)
 
         csv_writer = utils.UnicodeWriter(sys.stdout, dialect=utils.excel_semicolon)
