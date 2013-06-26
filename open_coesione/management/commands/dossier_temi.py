@@ -67,7 +67,6 @@ class Command(BaseCommand):
             costo_reg = Progetto.objects.totale_costi(tema=topic, territorio=reg)
             costo_procapite_reg = Progetto.objects.totale_costi_procapite(tema=topic, territorio=reg)
             csv_writer.writerow([
-                topic.short_label,
                 reg.denominazione,
                 "{0:.2f}".format(costo_reg),
                 "{0:.2f}".format(costo_procapite_reg),
@@ -75,7 +74,6 @@ class Command(BaseCommand):
             ])
 
         csv_writer.writerow([
-            topic.short_label,
             "TOTALE",
             "{0:.2f}".format(costo),
             "{0:.2f}".format(costo_procapite),
@@ -83,7 +81,7 @@ class Command(BaseCommand):
         ])
 
     def get_first_row(self):
-        return ['Tema', 'Regione', 'Finanziamento totale', 'Finanziamento pro capite', 'Percentuale finanziamento su tema']
+        return ['Regione', 'Finanziamento totale', 'Finanziamento pro capite', 'Percentuale finanziamento su tema']
 
 
 
