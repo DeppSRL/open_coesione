@@ -16,7 +16,7 @@ from territori.models import Territorio
 from django.conf import settings
 from django.db import models
 from django.core.cache import cache
-
+import logging
 
 def cached_context(get_context_data):
     """
@@ -29,9 +29,13 @@ def cached_context(get_context_data):
     """
 
     def decorator(self, **kwargs):
+        logger = logging.getLogger('console')
+
         key = 'context' + self.request.get_full_path()
+        logger.debug("key: {0}".format(key))
         context = cache.get(key)
         if context is None:
+            logger.debug("not in cache")
             context = get_context_data(self, **kwargs)
             cache.set(key, context)
         return context

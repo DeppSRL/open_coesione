@@ -46,7 +46,7 @@ class Command(BaseCommand):
 
         view = setup_view(
             SoggettoView(),
-            RequestFactory().get('/soggetti/{0}'.format(slug)),
+            RequestFactory().get('/soggetti/{0}/'.format(slug)),
             soggetto
         )
 
