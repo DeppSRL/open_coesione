@@ -13,6 +13,7 @@ from progetti.models import Progetto, Tema, ClassificazioneAzione, Ruolo
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
+import logging
 
 class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin):
     """
@@ -148,9 +149,13 @@ class SoggettoView(AggregatoView, DetailView):
         # Call the base implementation first to get a context
         context = super(SoggettoView, self).get_context_data(**kwargs)
 
+        logger = logging.getLogger('console')
+        logger.debug("get_aggregate_data start")
         context = self.get_aggregate_data(context, soggetto=self.object)
+        logger.debug("get_aggregate_data end")
 
         # calcolo dei collaboratori con cui si spartiscono piu' soldi
+        logger.debug("top_collaboratori start")
         collaboratori = {}
         soggetti_ids = Soggetto.objects.exclude(pk=self.object.pk).filter(progetto__ruolo__soggetto=self.object).values('pk')
         for s in soggetti_ids:
@@ -172,20 +177,29 @@ class SoggettoView(AggregatoView, DetailView):
 
         context['top_collaboratori'] = top_collaboratori
 
+        logger.debug("top_collaboratori end")
+
         # calcolo dei progetti con piu' fondi
+        logger.debug("top_progetti start")
         context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
         """
         context['top_progetti'] = [
             Progetto.objects.get(pk=p['codice_locale'])
             for p in self.object.progetti.values('codice_locale', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]]
         """
+        logger.debug("top_progetti end")
 
         # calcolo dei comuni un cui questo soggetto ha operato di piu'
+        logger.debug("territori_piu_finanziati_pro_capite start")
         context['territori_piu_finanziati_pro_capite'] = Territorio.objects.comuni()\
             .filter(progetto__soggetto_set__pk=self.object.pk).defer('geom')\
             .annotate(totale=Sum('progetto__fin_totale_pubblico'))\
             .order_by('-totale')[:5]
+        logger.debug("territori_piu_finanziati_pro_capite end")
 
+
+
+        logger.debug("lista_finanziamenti_per_regione start")
         pml_ids = cache.get('pml_ids')
         if not pml_ids:
             pml_ids = [p['pk'] for p in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).values('pk')]
@@ -237,9 +251,12 @@ class SoggettoView(AggregatoView, DetailView):
                     tot( Progetto.objects.del_soggetto( self.object).filter(pk__in=progetti_multi_localizzati) )
                 )
             )
+        logger.debug("lista_finanziamenti_per_regione stop")
+
 
         # calcolo i finanziamenti per ruolo del soggetto
         # preparo il filtro di aggregazione in base alla tematizzazione richiesta
+        logger.debug("lista_finanziamenti_per_ruolo start")
         aggregazione_ruolo = {
             'totale_costi': Sum('progetto__fin_totale_pubblico'),
             'totale_pagamenti': Sum('progetto__pagamento'),
@@ -288,6 +305,7 @@ class SoggettoView(AggregatoView, DetailView):
 
         # ordino il dict_finanziamenti_per_ruolo per i suoi valore (il totale)
         context['lista_finanziamenti_per_ruolo'] = sorted(dict_finanziamenti_per_ruolo.items(), key=lambda x: x[1], reverse=True)
+        logger.debug("lista_finanziamenti_per_ruolo stop")
 
         del dict_finanziamenti_per_ruolo
 

@@ -224,7 +224,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'format': "[%(asctime)s.%(msecs).03d] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
             'datefmt': "%d/%b/%Y %H:%M:%S"
         },
     },
@@ -281,6 +281,11 @@ LOGGING = {
             'handlers': ['console', 'import_logfile'],
             'level': 'DEBUG',
             'propagate': True,
+        },
+        'console': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False
         },
         'cachegenerator': {
             'handlers': ['cg_logfile'],
