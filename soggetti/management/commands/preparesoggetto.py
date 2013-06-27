@@ -7,8 +7,6 @@ import logging
 from soggetti.models import Soggetto
 from soggetti.views import SoggettoView
 
-import cProfile, pstats, sys
-
 class Command(BaseCommand):
     """
     Extracts all relevant information to build the soggetto page.
