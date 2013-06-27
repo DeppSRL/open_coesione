@@ -152,7 +152,6 @@ class SoggettoView(AggregatoView, DetailView):
         logger = logging.getLogger('console')
         logger.debug("get_aggregate_data start")
         context = self.get_aggregate_data(context, soggetto=self.object)
-        logger.debug("get_aggregate_data end")
 
         # calcolo dei collaboratori con cui si spartiscono piu' soldi
         logger.debug("top_collaboratori start")
@@ -177,7 +176,6 @@ class SoggettoView(AggregatoView, DetailView):
 
         context['top_collaboratori'] = top_collaboratori
 
-        logger.debug("top_collaboratori end")
 
         # calcolo dei progetti con piu' fondi
         logger.debug("top_progetti start")
@@ -195,7 +193,6 @@ class SoggettoView(AggregatoView, DetailView):
             .filter(progetto__soggetto_set__pk=self.object.pk).defer('geom')\
             .annotate(totale=Sum('progetto__fin_totale_pubblico'))\
             .order_by('-totale')[:5]
-        logger.debug("territori_piu_finanziati_pro_capite end")
 
 
 
@@ -206,14 +203,12 @@ class SoggettoView(AggregatoView, DetailView):
         if not pml_ids:
             pml_ids = [p['pk'] for p in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).values('pk')]
             cache.set('pml_ids', pml_ids)
-        logger.debug("::fetch_pml_ids end")
 
         logger.debug("::soggetti_pml_ids start")
         soggetti_pml_ids = cache.get('soggetti_pml_ids')
         if not soggetti_pml_ids:
             soggetti_pml_ids = [s['pk'] for s in Soggetto.objects.filter(ruolo__progetto__codice_locale__in=pml_ids).values('pk')]
             cache.set('soggetti_pml_ids', set(soggetti_pml_ids))
-        logger.debug("::soggetti_pml_ids end")
 
 
         # query avanzata per evitare errori di calcolo
@@ -228,16 +223,21 @@ class SoggettoView(AggregatoView, DetailView):
 
         for regione in Territorio.objects.regioni().defer('geom'):
 
+            logger.debug("::::regione {0}".format(regione))
+
+
+            logger.debug("::::::filter start")
             progetti_multi_localizzati = filter(lambda p: not multi_localizzato_in_regione(p, regione), progetti_multi_localizzati)
 
+
+            logger.debug("::::::queryset start")
             queryset = Progetto.objects.nel_territorio( regione ).del_soggetto( self.object ).exclude(
                 # tutti i progetti in regione del miur NON multi localizzati
                 pk__in=progetti_multi_localizzati
             ).distinct()
 
+            logger.debug("::::::append tot start")
             context['lista_finanziamenti_per_regione'].append( ( regione, tot( queryset ) ) )
-
-        logger.debug("::fetch dati_regioni end")
 
         # rimuovo tutti i progetti multilocalizzati che fanno parte di
         progetti_multi_localizzati = filter(lambda p: not multi_localizzato_in_nazione(p), progetti_multi_localizzati)
