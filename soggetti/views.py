@@ -198,21 +198,26 @@ class SoggettoView(AggregatoView, DetailView):
 
         logger.debug("lista_finanziamenti_per_regione start")
 
-        logger.debug("::fetch_pml_ids start")
-        pml_ids = cache.get('pml_ids')
-        if not pml_ids:
-            pml_ids = [p['pk'] for p in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).values('pk')]
-            cache.set('pml_ids', pml_ids)
+        logger.debug("::fetch_pml start")
+        pml = cache.get('pml')
+        if not pml:
+            pml = Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1)
+            cache.set('pml', pml)
 
-        logger.debug("::soggetti_pml_ids start")
-        soggetti_pml_ids = cache.get('soggetti_pml_ids')
-        if not soggetti_pml_ids:
-            soggetti_pml_ids = [s['pk'] for s in Soggetto.objects.filter(ruolo__progetto__codice_locale__in=pml_ids).values('pk')]
-            cache.set('soggetti_pml_ids', set(soggetti_pml_ids))
+        logger.debug("::fetch soggetti_pml start")
+        soggetti_pml = cache.get('soggetti_pml')
+        if not soggetti_pml:
+            soggetti_pml = []
+            for p in pml:
+                for s in p.soggetti:
+                    soggetti_pml.append(s.pk)
 
+            cache.set('soggetti_pml', set(soggetti_pml))
 
         # query avanzata per evitare errori di calcolo
-        progetti_multi_localizzati = Progetto.objects.filter(pk__in=[ p_id for p_id in pml_ids if self.object.pk in soggetti_pml_ids ])
+        progetti_multi_localizzati = []
+        if self.object.pk in soggetti_pml:
+            progetti_multi_localizzati = [ p for p in pml ]
 
         context['lista_finanziamenti_per_regione'] = []
         def tot(qs): return getattr(qs, context['tematizzazione'])()
