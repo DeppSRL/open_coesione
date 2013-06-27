@@ -200,15 +200,20 @@ class SoggettoView(AggregatoView, DetailView):
 
 
         logger.debug("lista_finanziamenti_per_regione start")
+
+        logger.debug("::fetch_pml_ids start")
         pml_ids = cache.get('pml_ids')
         if not pml_ids:
             pml_ids = [p['pk'] for p in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).values('pk')]
             cache.set('pml_ids', pml_ids)
+        logger.debug("::fetch_pml_ids end")
 
+        logger.debug("::soggetti_pml_ids start")
         soggetti_pml_ids = cache.get('soggetti_pml_ids')
         if not soggetti_pml_ids:
             soggetti_pml_ids = [s['pk'] for s in Soggetto.objects.filter(ruolo__progetto__codice_locale__in=pml_ids).values('pk')]
             cache.set('soggetti_pml_ids', set(soggetti_pml_ids))
+        logger.debug("::soggetti_pml_ids end")
 
 
         # query avanzata per evitare errori di calcolo
@@ -218,6 +223,8 @@ class SoggettoView(AggregatoView, DetailView):
         def tot(qs): return getattr(qs, context['tematizzazione'])()
         def multi_localizzato_in_regione(p,r): return all( map(lambda t: t.cod_reg == r.cod_reg, p.territori) )
         def multi_localizzato_in_nazione(p): return any(map(lambda t: t.territorio == 'N', p.territori)) and all(map(lambda t: t.territorio != 'E', p.territori))
+
+        logger.debug("::fetch dati_regioni start")
 
         for regione in Territorio.objects.regioni().defer('geom'):
 
@@ -230,10 +237,12 @@ class SoggettoView(AggregatoView, DetailView):
 
             context['lista_finanziamenti_per_regione'].append( ( regione, tot( queryset ) ) )
 
-        # rimuovo tutti i progetti multilocalizzati che fanno parte di
+        logger.debug("::fetch dati_regioni end")
 
+        # rimuovo tutti i progetti multilocalizzati che fanno parte di
         progetti_multi_localizzati = filter(lambda p: not multi_localizzato_in_nazione(p), progetti_multi_localizzati)
 
+        logger.debug("::fetch dati_nazioni start")
         for nazione in Territorio.objects.filter(territorio__in=['N','E']).defer('geom').order_by('-territorio'):
 
             queryset = Progetto.objects.nel_territorio( nazione ).del_soggetto( self.object ).exclude(
@@ -242,6 +251,7 @@ class SoggettoView(AggregatoView, DetailView):
             )
 
             context['lista_finanziamenti_per_regione'].append( ( nazione, tot( queryset ) ) )
+        logger.debug("::fetch dati_nazioni end")
 
         if len(progetti_multi_localizzati):
             # aggrego in un territorio fittizio i progetti multilocalizzati non inclusi fino ad ora

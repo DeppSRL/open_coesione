@@ -21,7 +21,7 @@ class Command(BaseCommand):
                     dest='dryrun',
                     action='store_true',
                     default=False,
-                    help='Type of generation: aggregate|recipients'),
+                    help='Show generated urls'),
         make_option('--type',
                     dest='type',
                     default=None,

@@ -154,6 +154,15 @@
                         {{ facet.r_label|safe }}
                     </dd>
                 {% endif %}
+                {% if perc_pay_facets_enabled %}
+                    {% if facet.field == 'perc_pagamento' and facet_queries_perc_pay.is_selected %}
+                        <dt>Percentuale Pagamento</dt>
+                        <dd>
+                            <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
+                            {{ facet.r_label|safe }}
+                        </dd>
+                    {% endif %}
+                {% endif %}
             {% endfor %}
         {% else %}
             <h4>Filtra</h4>
@@ -235,6 +244,21 @@
                     {% endfor %}
                 {% endif %}
             </dl>
+
+            {% if perc_pay_facets_enabled %}
+            <dl>
+                {% if not facet_queries_perc_pay.is_selected %}
+                    <dt>Percentuali pagamento</dt>
+                    {% for range in facet_queries_perc_pay.ranges %}
+                        <dd>
+                            <a href="{{ base_url }}&selected_facets={{ range.key }}">
+                                {{ range.label|safe }}
+                            </a> ({{ range.count }})
+                        </dd>
+                    {% endfor %}
+                {% endif %}
+            </dl>
+            {% endif %}
 
         </div>
         <!-- End faceting -->

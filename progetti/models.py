@@ -449,7 +449,7 @@ class Progetto(TimeStampedModel):
         })
 
     def percentuale_pagamenti(self):
-        if not self.fin_totale_pubblico:
+        if not self.fin_totale_pubblico or not self.pagamento:
             return 0.0
         return (float(self.pagamento) or 0.0) / (float(self.fin_totale_pubblico) or 0.0) * 100.0
 

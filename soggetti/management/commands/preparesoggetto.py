@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from optparse import make_option
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.management.base import BaseCommand
 from django.test import RequestFactory
@@ -16,6 +17,14 @@ class Command(BaseCommand):
     help = "Extracts relevant information to build the soggetto page"
 
     logger = logging.getLogger('console')
+
+    option_list = BaseCommand.option_list + (
+        make_option('--clear-cache',
+                    action='store_true',
+                    dest='clearcache',
+                    default=False,
+                    help='Clear the cache for the soggetto, before extracting the data'),
+    )
 
     def handle(self, *args, **options):
 
@@ -44,20 +53,21 @@ class Command(BaseCommand):
 
         self.logger.info("Soggetto: {0}".format(soggetto.denominazione))
 
+        soggetto_path = '/soggetti/{0}/'.format(slug)
+        if options['clearcache']:
+            cache_key = "context/soggetti/{0}/".format(slug)
+            self.logger.info("Clearing the cache for key {0}".format(cache_key))
+            from django.core.cache import cache
+            cache.delete(cache_key)
+
         view = setup_view(
             SoggettoView(),
-            RequestFactory().get('/soggetti/{0}/'.format(slug)),
+            RequestFactory().get("/soggetti/{0}/".format(slug)),
             soggetto
         )
 
-
-        #pr = cProfile.Profile()
-        #pr.enable()
         context = view.get_context_data()
-        #pr.disable()
-        #ps = pstats.Stats(pr)
-        #ps.sort_stats('cumulative')
-        #ps.print_stats(.1)
+        self.logger.info("Context fetched::::")
 
 
 

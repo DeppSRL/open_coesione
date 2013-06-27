@@ -11,6 +11,7 @@ HAYSTACK_SITECONF = 'open_coesione.search_sites'
 HAYSTACK_SEARCH_ENGINE = ''
 HAYSTACK_SOLR_URL = ''
 
+
 # GeoDjango needs GDAL
 GDAL_LIBRARY_PATH = ''
 

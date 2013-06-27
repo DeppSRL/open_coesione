@@ -13,7 +13,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 
 from oc_search.forms import RangeFacetedSearchForm
-from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin
+from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin, FacetRangePercPayMixin
 from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo
@@ -204,13 +204,22 @@ class TemaCSVView(CSVView):
     filter_field = 'progetto__tema__tema_superiore'
 
 
-class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin):
+class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
+                         FacetRangePercPayMixin, FacetRangeCostoMixin,
+                         FacetRangeDateIntervalsMixin, TerritorioMixin):
     """
     This view allows faceted search and navigation of a progetto.
 
     It extends an extended version of the basic FacetedSearchView,
     """
     __name__ = 'ProgettoSearchView'
+
+    PERC_PAY_RANGES = {
+        '0-0TO25':   {'qrange': '[* TO 25.0]', 'r_label': 'da 0 al 25%'},
+        '1-25TO50':  {'qrange': '[25.001 TO 50.0]', 'r_label': 'dal 25% al 50%'},
+        '2-50TO75':  {'qrange': '[50.001 TO 75.0]', 'r_label': 'dal 50% al 75%'},
+        '3-75TO100': {'qrange': '[75.00 TO *]', 'r_label': 'oltre il 75%'},
+    }
 
     COST_RANGES = {
         '0-0TO1K':      {'qrange': '[* TO 1000]', 'r_label': 'da 0 a 1.000&euro;'},
@@ -253,6 +262,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         extended_selected_facets = super(ProgettoSearchView, self)._get_extended_selected_facets()
 
         # this comes from the Mixins
+        extended_selected_facets = self.add_perc_pay_extended_selected_facets(extended_selected_facets)
         extended_selected_facets = self.add_costo_extended_selected_facets(extended_selected_facets)
         extended_selected_facets = self.add_territorio_extended_selected_facets(extended_selected_facets)
         extended_selected_facets = self.add_date_interval_extended_selected_facets(extended_selected_facets)
@@ -302,6 +312,9 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
                 extra['soggetto'] = Soggetto.objects.get(slug=soggetto_slug)
             except ObjectDoesNotExist:
                 pass
+
+        # get data about perc pay and n_progetti range facets
+        extra['facet_queries_perc_pay'] = self.get_custom_facet_queries_perc_pay()
 
         # get data about custom costo and n_progetti range facets
         extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()
@@ -364,6 +377,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         extra['n_max_downloadable'] = settings.N_MAX_DOWNLOADABLE_RESULTS
 
+        extra['perc_pay_facets_enabled'] = getattr(settings, 'PERC_PAY_FACETS_ENABLED', False)
         return extra
 
 
