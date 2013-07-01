@@ -7,6 +7,7 @@ import logging
 
 from soggetti.models import Soggetto
 from soggetti.views import SoggettoView
+from open_coesione.utils import setup_view
 
 class Command(BaseCommand):
     """
@@ -24,6 +25,10 @@ class Command(BaseCommand):
                     dest='clearcache',
                     default=False,
                     help='Clear the cache for the soggetto, before extracting the data'),
+        make_option('--thematization',
+                    dest='thematization',
+                    default='',
+                    help='One of totale_costi, totale_pagamenti, totale_progetti'),
     )
 
     def handle(self, *args, **options):
@@ -38,12 +43,19 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        print("Verbosity: {0}".format(verbosity))
-
         if args:
             if len(args) > 1:
                 raise Exception("Please insert one slug")
             slug = args[0]
+
+            if options['thematization']:
+                thematization = "?tematizzazione={0}".format(options['thematization'])
+            else:
+                thematization = ""
+
+            if options['thematization'] not in ('', 'totale_costi', 'totale_pagamenti', 'totale_progetti'):
+                raise Exception("Wrong thematization. Choose one among 'totale_costi', 'totale_pagamenti', 'totale_progetti'")
+
             try:
                 soggetto = Soggetto.objects.get(slug=slug)
             except ObjectDoesNotExist:
@@ -51,34 +63,20 @@ class Command(BaseCommand):
         else:
             raise Exception("Please insert a slug for a soggetto")
 
-        self.logger.info("Soggetto: {0}".format(soggetto.denominazione))
+        self.logger.info("Soggetto: {0}, Tematizzazione: {1}".format(soggetto.denominazione, thematization))
 
-        soggetto_path = '/soggetti/{0}/'.format(slug)
+        # soggetto_path = '/soggetti/{0}/{1}'.format(slug, thematization)
         if options['clearcache']:
-            cache_key = "context/soggetti/{0}/".format(slug)
+            cache_key = "context/soggetti/{0}/{1}".format(slug, thematization)
             self.logger.info("Clearing the cache for key {0}".format(cache_key))
             from django.core.cache import cache
             cache.delete(cache_key)
 
         view = setup_view(
             SoggettoView(),
-            RequestFactory().get("/soggetti/{0}/".format(slug)),
+            RequestFactory().get("/soggetti/{0}/{1}".format(slug, thematization)),
             soggetto
         )
 
         context = view.get_context_data()
         self.logger.info("Context fetched::::")
-
-
-
-def setup_view(view, request, soggetto, *args, **kwargs):
-    """Mimic as_view() returned callable, but returns view instance.
-
-    args and kwargs are the same you would pass to ``reverse()``
-
-    """
-    view.request = request
-    view.object = soggetto
-    view.args = args
-    view.kwargs = kwargs
-    return view

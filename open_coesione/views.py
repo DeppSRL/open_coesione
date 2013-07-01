@@ -19,12 +19,12 @@ from django.core.cache import cache
 
 def cached_context(get_context_data):
     """
-    Questo decoratore viene usato per fare la cache del metodo get_context_data
-    chiamato da get() o post() nelle viste.
-    Si occupa di creare una chiave univoca per la richiesta,
-    dopodiche controlla se è presente in cache;
-    se lo è, restituisce il contesto precedentemente elaborato,
-    altrimenti lo genera e lo salva con quella chiave
+    This decorator is used to cache the ``get_context_data()`` method
+    called by a ``get()`` or ``post()`` in the views.
+    It generates a unique key for the request,
+    checks if the key is in the cache:
+    if it is, then it returns it,
+    else it will generate and save the key, before returning it.
     """
 
     def decorator(self, **kwargs):

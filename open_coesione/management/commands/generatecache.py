@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
+from django.core.management import call_command
 from django.db.models import Count
 from cache_generation.visitor import Visitor
 
@@ -22,6 +23,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Show generated urls'),
+        make_option('--clear-cache',
+                    action='store_true',
+                    dest='clearcache',
+                    default=False,
+                    help='Clear the cache, before extracting the data'),
         make_option('--type',
                     dest='type',
                     default=None,
@@ -36,7 +42,7 @@ class Command(BaseCommand):
                     help='Treshold for progetti.count to be considered a big recipient'),
     )
 
-    logger = logging.getLogger('cachegenerator')
+    logger = logging.getLogger('console')
     host = ''
     suffixes = [
      "",
@@ -150,26 +156,20 @@ class Command(BaseCommand):
 
     def handle_recipients(self, *args, **options):
         treshold = options['big_recipients_treshold']
-
-        v = Visitor()
-        v.set_logger(self.logger)
-
         self.logger.info("== regenerating cache for recipients with more than {0} projects".format(treshold))
-
         grandi_soggetti = Soggetto.objects.all().annotate(n=Count('progetto')).filter(n__gt=treshold).order_by('n')
         self.logger.info("== building urls list")
         for s in grandi_soggetti:
-            url = "{0}{1}".format(self.host, s.get_absolute_url())
-            self.logger.debug("{0};{1}".format(url, s.n))
-            for suffix in self.suffixes:
-                v.add_url("{0}{1}".format(url, suffix))
-
-
-        if self.dryrun:
-            v.display()
-        else:
-            self.logger.info("== visiting urls")
-            v.visit()
+            if self.dryrun:
+                self.logger.info("{0}; n_progetti: {1}".format(s.slug, s.progetti.count()))
+            else:
+                self.logger.info("{0}; n_progetti: {1}".format(s.slug, s.progetti.count()))
+                call_command('preparesoggetto', s.slug, clearcache=options['clearcache'], verbosity=options['verbosity'])
+                for thematization in ('totale_costi', 'totale_pagamenti', 'totale_progetti'):
+                    call_command('preparesoggetto', s.slug,
+                                 clearcache=options['clearcache'],
+                                 verbosity=options['verbosity'],
+                                 thematization=thematization)
 
 
 

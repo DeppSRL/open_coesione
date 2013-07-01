@@ -72,7 +72,7 @@ class ProgettoView(AccessControlView, DetailView):
 
         return context
 
-class TipologiaView(AggregatoView, DetailView):
+class TipologiaView(AccessControlView, AggregatoView, DetailView):
     context_object_name = 'tipologia'
 
     @cached_context

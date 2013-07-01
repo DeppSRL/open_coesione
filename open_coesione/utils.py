@@ -112,3 +112,17 @@ class UnicodeWriter:
     def writerows(self, rows):
         for row in rows:
             self.writerow(row)
+
+
+def setup_view(view, request, obj_instance, *args, **kwargs):
+    """Mimic as_view() returned callable, but returns view instance.
+
+    args and kwargs are the same you would pass to ``reverse()``
+
+    """
+    view.request = request
+    if obj_instance:
+        view.object = obj_instance
+    view.args = args
+    view.kwargs = kwargs
+    return view
