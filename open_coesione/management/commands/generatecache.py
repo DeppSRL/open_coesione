@@ -32,10 +32,6 @@ class Command(BaseCommand):
                     dest='type',
                     default=None,
                     help='Type of generation: aggregate|recipients'),
-        make_option('--host',
-                    dest='host',
-                    default='http://localhost:8020',
-                    help='Host prefix, http://DOMAIN, no slash at the end'),
         make_option('--big-recipients-treshold',
                     dest='big_recipients_treshold',
                     default='100',
@@ -43,18 +39,9 @@ class Command(BaseCommand):
     )
 
     logger = logging.getLogger('console')
-    host = ''
-    suffixes = [
-     "",
-     "?tematizzazione=totale_costi",
-     "?tematizzazione=totale_pagamenti",
-     "?tematizzazione=totale_progetti",
-    ]
-    map_suffixes = suffixes + ["?tematizzazione=totale_costi_procapite",]
 
     def handle(self, *args, **options):
 
-        self.host = options['host']
         self.dryrun = options['dryrun']
 
         verbosity = options['verbosity']
@@ -67,91 +54,93 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        if options['type'] == 'aggregate':
-            self.handle_aggregate(*args, **options)
-        elif options['type'] == 'recipients':
-            self.handle_recipients(*args, **options)
-        else:
-            self.logger.error("Wrong type %s. Select among 'aggregate' and 'recipients'." % options['type'])
-            exit(1)
+        cache_type = options['type']
+        if cache_type is None:
+            raise Exception("No --type option, choose among 'recipients, home', 'temi', 'nature', 'regioni', 'province'")
+        if cache_type not in ('recipients', 'home', 'temi', 'nature', 'regioni', 'province'):
+            raise Exception("Wrong --type option: choose among 'recipients', 'home', 'temi', 'nature', 'regioni', 'province'")
+
+        # invoke correct handler method,
+        # passes along the correct view class, url_name and tipo_territorio, if needed
+        handlers = {
+            'recipients': self.handle_recipients,
+            'home': self.handle_home,
+            'temi': self.handle_temi,
+            'nature': self.handle_nature,
+            'regioni': self.handle_regioni,
+            'province': self.handle_province,
+        }
+        handlers[cache_type](*args, **options)
 
 
-    def handle_aggregate(self, *args, **options):
-        v = Visitor()
-        v.set_logger(self.logger)
-
-        self.logger.info("== regenerating cache for aggregate pages")
-
+    def handle_home(self, *args, **options):
         self.logger.info("== regenerating cache for home page")
-        url = "{0}/".format(self.host)
-        self.logger.debug("{0}".format(url))
-        self.add_urls_to_visitor(page = "", visitor=v)
+        self._aggregate_cache_computation(
+            '', page_type='home',
+            clearcache=options['clearcache'], verbosity=options['verbosity']
+        )
 
+    def handle_temi(self, *args, **options):
         self.logger.info("== regenerating cache for temi")
         from progetti.models import Tema
-        temi = Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)
-        for t in temi:
-            url = "{0}/progetti/temi/{1}".format(self.host, t.slug)
-            self.logger.debug("{0}".format(url))
-            self.add_urls_to_visitor(page = "/temi/{0}".format(t.slug), visitor=v, prefix="progetti")
+        temi_slugs = (item['slug'] for item in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico).values('slug'))
+        for tema_slug in temi_slugs:
+            self._aggregate_cache_computation(
+                tema_slug, page_type='tema',
+                clearcache=options['clearcache'], verbosity=options['verbosity']
+            )
 
-
+    def handle_nature(self, *args, **options):
         self.logger.info("== regenerating cache for nature")
         from progetti.models import ClassificazioneAzione
-        nature = ClassificazioneAzione.objects.filter(tipo_classificazione=ClassificazioneAzione.TIPO.natura)
-        for n in nature:
-            url = "{0}/progetti/tipologie/{1}".format(self.host, n.slug)
-            self.logger.debug("{0}".format(url))
-            self.add_urls_to_visitor(page = "/tipologie/{0}".format(n.slug), visitor=v, prefix="progetti")
+        nature_slugs = (item['slug'] for item in ClassificazioneAzione.objects.filter(tipo_classificazione=ClassificazioneAzione.TIPO.natura).values('slug'))
+        for natura_slug in nature_slugs:
+            self._aggregate_cache_computation(
+                natura_slug, page_type='natura',
+                clearcache=options['clearcache'], verbosity=options['verbosity']
+            )
 
-
+    def handle_regioni(self, *args, **options):
         self.logger.info("== regenerating cache for regioni")
         from territori.models import Territorio
-        territori = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R)
-        for t in territori:
-            url = "{0}/territori/regioni/{1}".format(self.host, t.slug)
-            self.logger.debug("{0}".format(url))
-            self.add_urls_to_visitor(page = "/regioni/{0}".format(t.slug), visitor=v, prefix="territori")
+        territori_slugs = (item['slug'] for item in Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values('slug'))
+        for territorio_slug in territori_slugs:
+            self.logger.debug("    :: regione {0}".format(territorio_slug))
+            self._aggregate_cache_computation(
+                territorio_slug, page_type='regione',
+                clearcache=options['clearcache'], verbosity=options['verbosity'],
+                tipo_territorio='regione'
+            )
 
+
+    def handle_province(self, *args, **options):
         self.logger.info("== regenerating cache for province")
         from territori.models import Territorio
-        territori = Territorio.objects.filter(territorio=Territorio.TERRITORIO.P)
-        for t in territori:
-            url = "{0}/territori/province/{1}".format(self.host, t.slug)
-            self.logger.debug("{0}".format(url))
-            self.add_urls_to_visitor(page = "/province/{0}".format(t.slug), visitor=v, prefix="province")
+        territori_slugs = (item['slug'] for item in Territorio.objects.filter(territorio=Territorio.TERRITORIO.P).values('slug'))
+        for territorio_slug in territori_slugs:
+            self._aggregate_cache_computation(
+                territorio_slug, page_type='provincia',
+                clearcache=options['clearcache'], verbosity=options['verbosity'],
+                tipo_territorio='provincia'
+            )
 
-        if self.dryrun:
-            v.display()
+
+
+    def _aggregate_cache_computation(self, slug, page_type, clearcache, verbosity, tipo_territorio=None):
+        if not self.dryrun:
+            self.logger.info("== Executing prepareaggregate for {0}".format(slug))
+            for thematization in ('', 'totale_costi', 'totale_pagamenti', 'totale_progetti'):
+                call_command('prepareaggregate', slug,
+                             type=page_type,
+                             clearcache=clearcache,
+                             verbosity=verbosity,
+                             thematization=thematization,
+                             tipo_territorio=tipo_territorio)
         else:
-            self.logger.info("== visiting urls")
-            v.visit()
+            self.logger.info("== Blocking execution for {0}, due to --dryrun option".format(slug))
 
 
 
-    def add_urls_to_visitor(self, page, visitor, prefix=""):
-        """
-        adds all urls to the visitor object,
-        needed to correctly cache a page in all of its status and all related maps
-        """
-        for suffix in self.map_suffixes:
-            for location_type in ('regioni', 'province'):
-                visitor.add_url("{host}/territori/mapnik{page}/{location_type}.xml{suffix}".format(
-                    host=self.host,
-                    page=page,
-                    location_type=location_type,
-                    suffix=suffix))
-                visitor.add_url("{host}/territori/leaflet{page}/{location_type}.json{suffix}".format(
-                    host=self.host,
-                    page=page,
-                    location_type=location_type,
-                    suffix=suffix))
-        for suffix in self.suffixes:
-            visitor.add_url("{host}/{prefix}{page}{suffix}".format(
-                host=self.host,
-                page=page,
-                prefix=prefix,
-                suffix=suffix))
 
 
     def handle_recipients(self, *args, **options):
@@ -170,6 +159,7 @@ class Command(BaseCommand):
                                  clearcache=options['clearcache'],
                                  verbosity=options['verbosity'],
                                  thematization=thematization)
+
 
 
 

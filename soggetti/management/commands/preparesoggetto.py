@@ -2,6 +2,7 @@
 from optparse import make_option
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.management.base import BaseCommand
+from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 import logging
 
@@ -65,18 +66,21 @@ class Command(BaseCommand):
 
         self.logger.info("Soggetto: {0}, Tematizzazione: {1}".format(soggetto.denominazione, thematization))
 
-        # soggetto_path = '/soggetti/{0}/{1}'.format(slug, thematization)
+        # get the URL from the url_name, using the slug
+        url = reverse('soggetti_soggetto', kwargs={'slug': slug})
+
         if options['clearcache']:
-            cache_key = "context/soggetti/{0}/{1}".format(slug, thematization)
-            self.logger.info("Clearing the cache for key {0}".format(cache_key))
+            cache_key = "context{0}{1}".format(url, thematization)
+            self.logger.info("Clearing the cache for key {0}{1}".format(cache_key, thematization))
             from django.core.cache import cache
             cache.delete(cache_key)
 
         view = setup_view(
             SoggettoView(),
-            RequestFactory().get("/soggetti/{0}/{1}".format(slug, thematization)),
-            soggetto
+            RequestFactory().get("{0}{1}".format(url, thematization)),
+            slug=slug,
         )
+        view.object = view.get_object()
 
-        context = view.get_context_data()
+        context = view.get_context_data(*view.args, **view.kwargs)
         self.logger.info("Context fetched::::")

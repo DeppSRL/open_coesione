@@ -18,3 +18,4 @@ django.ini
 cache_generator.sh
 cache_generation.log
 media
+/log/*

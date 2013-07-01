@@ -137,6 +137,7 @@ class LeafletView(TemplateView):
             **response_kwargs
         )
 
+    @cached_context
     def get_context_data(self, **kwargs):
         context = super(LeafletView, self).get_context_data(**kwargs)
 
@@ -243,6 +244,7 @@ class MapnikView(TemplateView):
     # Manager for Progetti
     manager = Progetto.objects
 
+    @cached_context
     def get_context_data(self, **kwargs):
         context = super(MapnikView, self).get_context_data(**kwargs)
         context['territori_name'] = self.territori_name
@@ -366,11 +368,17 @@ class TerritorioView(AccessControlView, AggregatoView, DetailView):
         # Call the base implementation first to get a context
         context = super(TerritorioView, self).get_context_data(**kwargs)
 
+        logger = logging.getLogger('console')
+        logger.debug("get_aggregate_data start")
         context = self.get_aggregate_data(context, territorio=self.object)
 
+        logger.debug("top_progetti_per_costo start")
         context['top_progetti_per_costo'] = Progetto.objects.nel_territorio(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+
+        logger.debug("ultimi_progetti_conclusi start")
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().nel_territorio(self.object)[:5]
 
+        logger.debug("territori_piu_finanziati_pro_capite start")
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
             filters=self.object.get_cod_dict()
         )
