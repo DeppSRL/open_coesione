@@ -50,7 +50,7 @@ class Command(BaseCommand):
         csv_writer = utils.UnicodeWriter(sys.stdout, dialect=utils.excel_semicolon)
 
         ## which forma giuridica has more attuatori
-        self.logger.info(u"---- Che forma giuridica ha più attuatori?")
+        print(u"---- Che forma giuridica ha più attuatori?")
         # extract all forma_giuridicas related to attuatori
         fgs = FormaGiuridica.objects.filter(
             soggetto__ruolo__ruolo=Ruolo.RUOLO.attuatore
@@ -79,7 +79,7 @@ class Command(BaseCommand):
         ).distinct()
 
         ## which attuatore has more projects assigned
-        self.logger.info(u"---- Quali attuatori hanno più soggetti?")
+        print(u"---- Quali attuatori hanno più soggetti?")
         attuatori_n_projects_annotated = [(s.denominazione, s.slug, s.ruoli.count()) for s in attuatori]
         attuatori_n_projects_annotated.sort(key=lambda x: x[2], reverse=True)
         # print the top brasses
@@ -97,7 +97,7 @@ class Command(BaseCommand):
 
 
         ## which attuatore has more money assigned
-        self.logger.info(u"---- Quali attuatori hanno più finanziamenti?")
+        print(u"---- Quali attuatori hanno più finanziamenti?")
         attuatori_fin_annotated = [
             (s.denominazione, s.slug,
              sum(p.fin_totale_pubblico for p in s.progetti)) for s in attuatori
@@ -117,7 +117,7 @@ class Command(BaseCommand):
             ])
 
         ## which attuatore has projects in more different regions
-        self.logger.info(u"---- Quali attuatori hanno progetti in regioni differenti?")
+        print(u"---- Quali attuatori hanno progetti in regioni differenti?")
         attuatori_regioni_annotated = [
             (s.denominazione, s.slug, s.regioni) for s in attuatori
         ]
