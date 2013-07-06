@@ -3,6 +3,8 @@ from django.db import models
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
+from itertools import chain
+
 
 class CodiceAteco(models.Model):
     codice = models.CharField(max_length=16, primary_key=True)
@@ -56,6 +58,13 @@ class Soggetto(TimeStampedModel):
     @property
     def ruoli(self):
         return self.ruolo_set.all()
+
+    @property
+    def regioni(self):
+        """
+        Returns the set of different regions where this soggetto has progetti localized
+        """
+        return set(chain.from_iterable([list(p.regioni) for p in self.progetti]))
 
     def __unicode__(self):
         return u"%s" % (self.denominazione, )

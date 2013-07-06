@@ -25,11 +25,12 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--top',
                     dest='top',
-                    default='10',
+                    default='100',
                     help='top limit'),
     )
 
     logger = logging.getLogger('console')
+    unicode_writer = None
 
     def handle(self, *args, **options):
 
@@ -46,46 +47,93 @@ class Command(BaseCommand):
         ## get top value from options
         top = int(options['top'])
 
+        csv_writer = utils.UnicodeWriter(sys.stdout, dialect=utils.excel_semicolon)
+
         ## which forma giuridica has more attuatori
-        top_fg = FormaGiuridica.objects.filter(
-            soggetto__ruolo__ruolo=Ruolo.RUOLO.attuatore
-        ).annotate(num_soggetti=Count('soggetto')).order_by('-num_soggetti')[:top]
-
         self.logger.info(u"---- Che forma giuridica ha più attuatori?")
-        for fg in top_fg:
-            self.logger.info("{0}: {1}".format(
-                fg, fg.num_soggetti
-            ))
+        # extract all forma_giuridicas related to attuatori
+        fgs = FormaGiuridica.objects.filter(
+            soggetto__ruolo__ruolo=Ruolo.RUOLO.attuatore
+        ).distinct()
+        # annotate manually each forma giuridica, counting the number of soggetti
+        fgs_annotated = [(fg.denominazione, fg.soggetti.count()) for fg in fgs]
+        # sort based on number of sogetti, reversed
+        fgs_annotated.sort(key=lambda x: x[1], reverse=True)
+        # print the top brasses
+        csv_writer.writerow(
+            ['Denominazione', 'Numero soggetti']
+        )
 
+        if top == 0:
+            top = len(fgs_annotated)
+        for fg in fgs_annotated[:top]:
+            csv_writer.writerow([
+                fg[0],
+                "{0}".format(fg[1]),
+            ])
+
+
+        # fetch all soggetti that have attuatore Role
+        attuatori = Soggetto.objects.filter(
+            ruolo__ruolo=Ruolo.RUOLO.attuatore
+        ).distinct()
 
         ## which attuatore has more projects assigned
-        top_progetti = Soggetto.objects.filter(
-            ruolo__ruolo=Ruolo.RUOLO.attuatore
-        ).annotate(num_progetti=Count('ruolo')).order_by('-num_progetti')[:top]
-
         self.logger.info(u"---- Quali attuatori hanno più soggetti?")
-        for att in top_progetti:
-            self.logger.info("{0}: {1}".format(
-                att, att.num_progetti
-            ))
+        attuatori_n_projects_annotated = [(s.denominazione, s.slug, s.ruoli.count()) for s in attuatori]
+        attuatori_n_projects_annotated.sort(key=lambda x: x[2], reverse=True)
+        # print the top brasses
+        csv_writer.writerow(
+            ['Denominazione', 'Slug', 'Numero progetti']
+        )
+        if top == 0:
+            top = len(attuatori_n_projects_annotated)
+        for att in attuatori_n_projects_annotated[:top]:
+            csv_writer.writerow([
+                att[0],
+                att[1],
+                "{0}".format(att[2]),
+            ])
 
 
         ## which attuatore has more money assigned
-        top_finanziamenti = Soggetto.objects.filter(
-            ruolo__ruolo=Ruolo.RUOLO.attuatore
-        ).annotate(fin=Sum('ruolo__progetto__fin_totale_pubblico')).order_by('-fin')[:top]
-
         self.logger.info(u"---- Quali attuatori hanno più finanziamenti?")
-        for att in top_finanziamenti:
-            self.logger.info("{0}: {1}".format(
-                att, att.fin
-            ))
+        attuatori_fin_annotated = [
+            (s.denominazione, s.slug,
+             sum(p.fin_totale_pubblico for p in s.progetti)) for s in attuatori
+        ]
+        attuatori_fin_annotated.sort(key=lambda x: x[2], reverse=True)
+        # print the top brasses
+        csv_writer.writerow(
+            ['Denominazione', 'Slug', 'Finanziamento']
+        )
+        if top == 0:
+            top = len(attuatori_fin_annotated)
+        for att in attuatori_fin_annotated[:top]:
+            csv_writer.writerow([
+                att[0],
+                att[1],
+                "{0:.2f}".format(att[2]),
+            ])
 
-        """
-        attuatori_con_regione = Soggetto.objects.filter(
-            ruolo__ruolo=Ruolo.RUOLO.attuatore
-        ).values('slug', 'ruolo__progetto__territorio_set__cod_reg').distinct()
-        for att in attuatori_con_regione:
-        """
+        ## which attuatore has projects in more different regions
+        self.logger.info(u"---- Quali attuatori hanno progetti in regioni differenti?")
+        attuatori_regioni_annotated = [
+            (s.denominazione, s.slug, s.regioni) for s in attuatori
+        ]
+        attuatori_regioni_annotated.sort(key=lambda x: len(x[2]), reverse=True)
+        # print the top brasses
+        csv_writer.writerow(
+            ['Denominazione', 'Slug', 'Num Regioni', 'Regioni']
+        )
+        if top == 0:
+            top = len(attuatori_regioni_annotated)
+        for att in attuatori_regioni_annotated[:top]:
+            csv_writer.writerow([
+                att[0],
+                att[1],
+                str(len(att[2])),
+                ",".join(map(str,list(att[2]))),
+            ])
 
 

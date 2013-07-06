@@ -422,6 +422,13 @@ class Progetto(TimeStampedModel):
         return self.soggetto_set.filter(ruolo__ruolo=Ruolo.RUOLO.attuatore)
 
     @property
+    def regioni(self):
+        """
+        Return the set of regional codes, for the localization of a project
+        """
+        return set([t.cod_reg for t in self.territori])
+
+    @property
     def segnalazioni(self):
         return SegnalazioneProgetto.objects.filter(cup=self.cup, pubblicato=True)
 
