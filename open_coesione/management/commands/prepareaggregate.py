@@ -277,7 +277,7 @@ class Command(BaseCommand):
                 if kwargs['tipo_territorio'] == Territorio.TERRITORIO.P:
                     leaflet_urls.append(reverse(n['name'], kwargs={'ext': 'json', 'cod_prov': t.cod_prov}))
             else:
-                leaflet_url = reverse(n['name'], kwargs={'ext': 'json', 'slug': self.slug})
+                leaflet_urls.append(reverse(n['name'], kwargs={'ext': 'json', 'slug': self.slug}))
 
         # check the cache, and remove the keys, if asked
         if self.clearcache:
@@ -357,14 +357,14 @@ class Command(BaseCommand):
                     )
                 if kwargs['tipo_territorio'] == Territorio.TERRITORIO.P:
                     view = setup_view(
-                        mapnik_view(),
+                        leaflet_view(),
                         RequestFactory().get("{0}{1}".format(leaflet_url, self.thematization)),
                         cod_prov=t.cod_prov,
                         ext='json'
                     )
             else:
                 view = setup_view(
-                    mapnik_view(),
+                    leaflet_view(),
                     RequestFactory().get("{0}{1}".format(leaflet_url, self.thematization)),
                     slug=self.slug,
                     ext='json'
