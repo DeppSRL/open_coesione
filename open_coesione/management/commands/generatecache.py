@@ -56,9 +56,9 @@ class Command(BaseCommand):
 
         cache_type = options['type']
         if cache_type is None:
-            raise Exception("No --type option, choose among 'recipients, home', 'temi', 'nature', 'regioni', 'province'")
-        if cache_type not in ('recipients', 'home', 'temi', 'nature', 'regioni', 'province'):
-            raise Exception("Wrong --type option: choose among 'recipients', 'home', 'temi', 'nature', 'regioni', 'province'")
+            raise Exception("No --type option, choose among 'recipients, home', 'temi', 'nature', 'regioni', 'province', 'estero'")
+        if cache_type not in ('recipients', 'home', 'temi', 'nature', 'regioni', 'province', 'estero'):
+            raise Exception("Wrong --type option: choose among 'recipients', 'home', 'temi', 'nature', 'regioni', 'province', 'estero'")
 
         # invoke correct handler method,
         # passes along the correct view class, url_name and tipo_territorio, if needed
@@ -69,6 +69,7 @@ class Command(BaseCommand):
             'nature': self.handle_nature,
             'regioni': self.handle_regioni,
             'province': self.handle_province,
+            'estero': self.handle_estero,
         }
         handlers[cache_type](*args, **options)
 
@@ -99,6 +100,14 @@ class Command(BaseCommand):
                 natura_slug, page_type='natura',
                 clearcache=options['clearcache'], verbosity=options['verbosity']
             )
+
+    def handle_estero(self, *args, **options):
+        self.logger.info("== regenerating cache for ambito estero")
+        self._aggregate_cache_computation(
+            '', page_type='ambitoestero',
+            clearcache=options['clearcache'], verbosity=options['verbosity']
+        )
+
 
     def handle_regioni(self, *args, **options):
         self.logger.info("== regenerating cache for regioni")
