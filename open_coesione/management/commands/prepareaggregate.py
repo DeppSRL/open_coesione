@@ -8,7 +8,7 @@ import logging
 from open_coesione.views import HomeView
 from progetti.views import TipologiaView, TemaView
 from territori.models import Territorio
-from territori.views import TerritorioView, MapnikRegioniView, MapnikProvinceView, MapnikComuniView, LeafletView
+from territori.views import TerritorioView, MapnikRegioniView, MapnikProvinceView, MapnikComuniView, LeafletView, AmbitoNazionaleView, AmbitoEsteroView
 from django.core.cache import cache
 
 from open_coesione.utils import setup_view
@@ -64,7 +64,9 @@ class Command(BaseCommand):
 
 
         self.page_type = options['type']
-        if self.page_type != 'home':
+        if (self.page_type != 'home' and
+            self.page_type != 'ambitoestero' and
+            self.page_type != 'ambitonazionale'):
             if args:
                 if len(args) > 1:
                     raise Exception("Please insert just one slug")
@@ -155,6 +157,15 @@ class Command(BaseCommand):
                     { 'name':  'territori_leaflet_comuni_provincia' },
                 ),
             }),
+            'ambitoestero': (self.handle_ambito_estero, {
+                'aggregate_view_class': AmbitoEsteroView,
+                'url_name': 'territori_estero',
+            }),
+            # 'ambitonazionale': (self.handle_ambito, {
+            #     'aggregate_view_class': AmbitoNazionaleView,
+            #     'url_name': 'territori_nazionale',
+            # }),
+
         }
         handlers[self.page_type][0](**handlers[self.page_type][1])
 
@@ -210,6 +221,27 @@ class Command(BaseCommand):
             context = view.get_context_data()
             self.logger.info("context for {0}{1} fetched::::".format(leaflet_url, self.thematization))
 
+    def handle_ambito_estero(self, *args, **kwargs):
+        self.logger.info("{0} page, Thematization: {1}".format(self.page_type, self.thematization))
+
+        url_name = kwargs['url_name']
+        url = reverse(url_name)
+        req = RequestFactory().get("{0}{1}".format(url, self.thematization))
+
+        if self.clearcache:
+            cache_key = "context{0}{1}".format(url, self.thematization)
+            self.logger.info("Clearing the cache for key {0}".format(cache_key))
+            cache.delete(cache_key)
+
+
+        aggregate_view_class = kwargs['aggregate_view_class']
+        view = setup_view(
+            aggregate_view_class(),
+            req,
+        )
+
+        context = view.get_context_data(object_list=Territorio.objects.filter(territorio=Territorio.TERRITORIO.E))
+        self.logger.info("context for {0}{1} fetched::::".format(url, self.thematization))
 
     def handle_other(self, *args, **kwargs):
         self.logger.info("{0} page, Slug: {1}, Thematization: {2}".format(self.page_type, self.slug, self.thematization))

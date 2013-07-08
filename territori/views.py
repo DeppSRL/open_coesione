@@ -426,10 +426,15 @@ class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
         # Call the base implementation first to get a context
         context = super(AmbitoEsteroView, self).get_context_data(**kwargs)
 
+        logger = logging.getLogger('console')
+
         territori = self.queryset.all()
 
+        logger.debug("totale_costi start")
         context['totale_costi'] = Progetto.objects.totale_costi(territori=territori)
+        logger.debug("totale_pagamenti start")
         context['totale_pagamenti'] = Progetto.objects.totale_pagamenti(territori=territori)
+        logger.debug("totale_progetti start")
         context['totale_progetti'] = Progetto.objects.totale_progetti(territori=territori)
 
         context['percentuale_costi_pagamenti'] = "{0:.0%}".format(
@@ -467,12 +472,19 @@ class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
                 q[query_models[name]['filter_name']] = object
                 # make query and add totale to object
                 # object.tot = query_models[name]['manager'].filter( **q ).aggregate( tot=aggregate_field )['tot']
+                logger.debug("totale_{0}, models: {1}, object: {2} -- start".format(
+                    context['tematizzazione'],
+                    query_models[name],
+                    object
+                ))
+
                 object.tot = getattr(Progetto.objects, context['tematizzazione'])(**q)
                 # add object to right context
                 context[name].append( object )
 
-
+        logger.debug('top_progetti_per_costo start')
         context['top_progetti_per_costo'] = Progetto.objects.nei_territori(territori).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico').distinct()[:5]
+        logger.debug('last_progetti_conclusi start')
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().nei_territori( territori )[:5]
 
 #        context['nazioni_piu_finanziate'] = self.queryset.annotate(totale=models.Sum('progetto__fin_totale_pubblico')).filter( totale__isnull=False ).order_by('-totale')
@@ -480,6 +492,8 @@ class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
         progetti_multi_territorio = []
         multi_territori = {}
         # per ogni progetto multi-localizzato nel db
+        logger.debug('blob multiloc start')
+
         for progetto in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).select_related('territori'):
             # se ha nei suoi territori un territorio estero..
             if any([x in territori for x in progetto.territori]):
