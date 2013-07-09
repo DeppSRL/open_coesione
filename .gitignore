@@ -19,4 +19,4 @@ cache_generator.sh
 cache_generation.log
 media
 /log/*
-/static/csv/spesa_certificata/*
+/open_coesione/static/csv/spesa_certificata/*.csv
