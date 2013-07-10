@@ -128,10 +128,11 @@ class Command(BaseCommand):
             'Numero pagamenti inseriti': 0,
         }
 
+        c = 0
         for row in self.unicode_reader:
             # select a set of rows
             # with offset
-            c = self.unicode_reader.reader.line_num - 1
+            c += 1
             if c < int(options['offset']):
                 continue
                 # and limit
@@ -206,8 +207,9 @@ class Command(BaseCommand):
         updates = 0
         already_ok = 0
         not_found = 0
+        c = 0
         for r in self.unicode_reader:
-            c = self.unicode_reader.reader.line_num - 1
+            c += 1
             if c < int(options['offset']):
                 continue
 
@@ -261,8 +263,9 @@ class Command(BaseCommand):
         already_ok = 0
         not_found = 0
         duplicate = 0
+        c = 0
         for r in self.unicode_reader:
-            c = self.unicode_reader.reader.line_num - 1
+            c += 1
             if c < int(options['offset']):
                 continue
 
@@ -315,8 +318,9 @@ class Command(BaseCommand):
             FormaGiuridica.objects.all().delete()
             self.logger.info("Oggetti rimossi")
 
+        c = 0
         for r in self.unicode_reader:
-            c = self.unicode_reader.reader.line_num - 1
+            c += 1
             if c < int(options['offset']):
                 continue
 
@@ -452,10 +456,10 @@ class Command(BaseCommand):
             Localizzazione.objects.all().delete()
             self.logger.info("Oggetti rimossi")
 
-
+        c = 0
         for r in self.unicode_reader:
 
-            c = self.unicode_reader.reader.line_num
+            c += 1
             if c < int(options['offset']):
                 continue
 
@@ -591,9 +595,9 @@ class Command(BaseCommand):
             Tema.objects.all().delete()
             self.logger.info("Oggetti rimossi")
 
-
+        c = 0
         for r in self.unicode_reader:
-            c = self.unicode_reader.reader.line_num - 1
+            c += 1
             if c < int(options['offset']):
                 continue
 
@@ -1045,8 +1049,9 @@ class Command(BaseCommand):
             DeliberaCIPE.objects.all().delete()
             self.logger.info("Progetti CIPE rimossi")
 
+        c = 0
         for r in self.unicode_reader:
-            c = self.unicode_reader.reader.line_num - 1
+            c += 1
             if c < int(options['offset']):
                 continue
 

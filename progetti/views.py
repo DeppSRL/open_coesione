@@ -13,7 +13,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 
 from oc_search.forms import RangeFacetedSearchForm
-from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin
+from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin, FacetRangePercPayMixin
 from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo
@@ -24,6 +24,7 @@ from progetti.models import Tema, Fonte, SegnalazioneProgetto
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
+import logging
 
 class ProgettoView(AccessControlView, DetailView):
     model = Progetto
@@ -72,7 +73,7 @@ class ProgettoView(AccessControlView, DetailView):
 
         return context
 
-class TipologiaView(AggregatoView, DetailView):
+class TipologiaView(AccessControlView, AggregatoView, DetailView):
     context_object_name = 'tipologia'
 
     @cached_context
@@ -80,17 +81,20 @@ class TipologiaView(AggregatoView, DetailView):
         # Call the base implementation first to get a context
         context = super(TipologiaView, self).get_context_data(**kwargs)
 
+        logger = logging.getLogger('console')
+        logger.debug("get_aggregate_data start")
         context = self.get_aggregate_data(context, classificazione=self.object)
 
         context['numero_soggetti'] = Soggetto.objects.count()
-
-#        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
-#        context['map_legend_colors'] = settings.MAP_COLORS
         context['map_selector'] = 'nature/{0}/'.format(self.kwargs['slug'])
 
+        logger.debug("top_progetti_per_costo start")
         context['top_progetti_per_costo'] = Progetto.objects.con_natura(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+
+        logger.debug("ultimi_progetti_conclusi start")
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_natura(self.object)[:5]
 
+        logger.debug("territori_piu_finanziati_pro_capite start")
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
             filters={
                 'progetto__classificazione_azione__classificazione_superiore': self.object
@@ -110,14 +114,14 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
         # Call the base implementation first to get a context
         context = super(TemaView, self).get_context_data(**kwargs)
 
+        logger = logging.getLogger('console')
+        logger.debug("get_aggregate_data start")
         context = self.get_aggregate_data(context, tema=self.object)
 
         context['numero_soggetti'] = Soggetto.objects.count()
-
-#        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
-#        context['map_legend_colors'] = settings.MAP_COLORS
         context['map_selector'] = 'temi/{0}/'.format(self.kwargs['slug'])
 
+        logger.debug("build lista_indici_tema from csv file start")
         context['lista_indici_tema'] = []
         with open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))) as csvfile:
             reader = csv.DictReader(csvfile)
@@ -125,23 +129,18 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
                 context['lista_indici_tema'].append(line)
 
 
+        logger.debug("top_progetti_per_costo start")
         context['top_progetti_per_costo'] = Progetto.objects.con_tema(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+
+        logger.debug("ultimi_progetti_conclusi start")
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_tema(self.object)[:5]
 
+        logger.debug("territori_piu_finanziati_pro_capite start")
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
             filters={
                 'progetto__tema__tema_superiore': self.object
             }
         )
-#        def pro_capite_order(territorio):
-#            territorio.totale_pro_capite = territorio.totale / territorio.popolazione_totale
-#            return territorio.totale_pro_capite
-#
-#        context['territori_piu_finanziati_pro_capite'] = sorted( Territorio.objects
-#                                                         .filter( territorio=Territorio.TERRITORIO.C, progetto__tema__tema_superiore=self.object )
-#                                                         .annotate( totale=models.Sum('progetto__fin_totale_pubblico') )
-#                                                         .filter( totale__isnull=False ), key= pro_capite_order, reverse=True )[:5]
-#                                                         #.order_by('-totale')[:5]
 
         return context
 
@@ -204,13 +203,22 @@ class TemaCSVView(CSVView):
     filter_field = 'progetto__tema__tema_superiore'
 
 
-class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin):
+class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
+                         FacetRangePercPayMixin, FacetRangeCostoMixin,
+                         FacetRangeDateIntervalsMixin, TerritorioMixin):
     """
     This view allows faceted search and navigation of a progetto.
 
     It extends an extended version of the basic FacetedSearchView,
     """
     __name__ = 'ProgettoSearchView'
+
+    PERC_PAY_RANGES = {
+        '0-0TO25':   {'qrange': '[* TO 25.0]', 'r_label': 'da 0 al 25%'},
+        '1-25TO50':  {'qrange': '[25.001 TO 50.0]', 'r_label': 'dal 25% al 50%'},
+        '2-50TO75':  {'qrange': '[50.001 TO 75.0]', 'r_label': 'dal 50% al 75%'},
+        '3-75TO100': {'qrange': '[75.00 TO *]', 'r_label': 'oltre il 75%'},
+    }
 
     COST_RANGES = {
         '0-0TO1K':      {'qrange': '[* TO 1000]', 'r_label': 'da 0 a 1.000&euro;'},
@@ -253,6 +261,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         extended_selected_facets = super(ProgettoSearchView, self)._get_extended_selected_facets()
 
         # this comes from the Mixins
+        extended_selected_facets = self.add_perc_pay_extended_selected_facets(extended_selected_facets)
         extended_selected_facets = self.add_costo_extended_selected_facets(extended_selected_facets)
         extended_selected_facets = self.add_territorio_extended_selected_facets(extended_selected_facets)
         extended_selected_facets = self.add_date_interval_extended_selected_facets(extended_selected_facets)
@@ -302,6 +311,9 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
                 extra['soggetto'] = Soggetto.objects.get(slug=soggetto_slug)
             except ObjectDoesNotExist:
                 pass
+
+        # get data about perc pay and n_progetti range facets
+        extra['facet_queries_perc_pay'] = self.get_custom_facet_queries_perc_pay()
 
         # get data about custom costo and n_progetti range facets
         extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()
@@ -364,6 +376,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         extra['n_max_downloadable'] = settings.N_MAX_DOWNLOADABLE_RESULTS
 
+        extra['perc_pay_facets_enabled'] = getattr(settings, 'PERC_PAY_FACETS_ENABLED', False)
         return extra
 
 

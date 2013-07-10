@@ -112,3 +112,17 @@ class UnicodeWriter:
     def writerows(self, rows):
         for row in rows:
             self.writerow(row)
+
+
+def setup_view(view, request, *args, **kwargs):
+    """
+    Mimic as_view() returned callable, but returns view instance.
+    args and kwargs are the same you would pass to ``reverse()``
+
+    add slug=SLUG, and view.object = view.get_object() for classes that
+    inherit from detail view
+    """
+    view.request = request
+    view.args = args
+    view.kwargs = kwargs
+    return view

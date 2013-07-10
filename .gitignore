@@ -18,3 +18,5 @@ django.ini
 cache_generator.sh
 cache_generation.log
 media
+/log/*
+/open_coesione/static/csv/spesa_certificata/*.csv

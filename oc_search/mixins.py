@@ -33,9 +33,42 @@ class FacetRangeNProgettiMixin:
     def add_n_progetti_extended_selected_facets(self, extended_selected_facets):
         for selected_facet in extended_selected_facets:
             if selected_facet['field'] == 'n_progetti':
-                for range in self.N_PROGETTI_RANGES.keys():
-                    if selected_facet['label'] == self.N_PROGETTI_RANGES[range]['qrange']:
-                        selected_facet['r_label'] = self.N_PROGETTI_RANGES[range]['r_label']
+                for r in self.N_PROGETTI_RANGES.keys():
+                    if selected_facet['label'] == self.N_PROGETTI_RANGES[r]['qrange']:
+                        selected_facet['r_label'] = self.N_PROGETTI_RANGES[r]['r_label']
+        return extended_selected_facets
+
+
+class FacetRangePercPayMixin:
+    PERC_PAY_RANGES = {}
+
+    def get_custom_facet_queries_perc_pay(self):
+        """
+
+        """
+        selected_facets = self.request.GET.getlist('selected_facets')
+        facet_counts_queries = self.results.facet_counts().get('queries', {})
+
+        facets = {'is_selected': False, 'ranges': []}
+        for r in sorted(self.PERC_PAY_RANGES.keys()):
+            if "perc_pagamento:%s" % self.PERC_PAY_RANGES[r]['qrange'] in facet_counts_queries:
+                facets['ranges'].append({
+                    'key': "perc_pagamento:%s" % self.PERC_PAY_RANGES[r]['qrange'],
+                    'count': facet_counts_queries["perc_pagamento:%s" % self.PERC_PAY_RANGES[r]['qrange']],
+                    'label': self.PERC_PAY_RANGES[r]['r_label']
+                })
+                if "perc_pagamento:%s" % self.PERC_PAY_RANGES[r]['qrange'] in selected_facets:
+                    facets['is_selected'] = True
+
+        return facets
+
+
+    def add_perc_pay_extended_selected_facets(self, extended_selected_facets):
+        for selected_facet in extended_selected_facets:
+            if selected_facet['field'] == 'perc_pagamento':
+                for r in self.PERC_PAY_RANGES.keys():
+                    if selected_facet['label'] == self.PERC_PAY_RANGES[r]['qrange']:
+                        selected_facet['r_label'] = self.PERC_PAY_RANGES[r]['r_label']
         return extended_selected_facets
 
 

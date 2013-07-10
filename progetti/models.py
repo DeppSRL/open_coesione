@@ -422,6 +422,13 @@ class Progetto(TimeStampedModel):
         return self.soggetto_set.filter(ruolo__ruolo=Ruolo.RUOLO.attuatore)
 
     @property
+    def regioni(self):
+        """
+        Return the set of regional codes, for the localization of a project
+        """
+        return set([t.cod_reg for t in self.territori])
+
+    @property
     def segnalazioni(self):
         return SegnalazioneProgetto.objects.filter(cup=self.cup, pubblicato=True)
 
@@ -449,7 +456,7 @@ class Progetto(TimeStampedModel):
         })
 
     def percentuale_pagamenti(self):
-        if not self.fin_totale_pubblico:
+        if not self.fin_totale_pubblico or not self.pagamento:
             return 0.0
         return (float(self.pagamento) or 0.0) / (float(self.fin_totale_pubblico) or 0.0) * 100.0
 

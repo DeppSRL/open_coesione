@@ -60,6 +60,7 @@ class ProgettoIndex(SearchIndex):
     fonte = FacetCharField( model_attr='fonte__codice' )
     data_inizio = FacetDateField()
     costo = FacetFloatField(model_attr='fin_totale_pubblico')
+    perc_pagamento = FacetFloatField()
 
     # search result format is pre-rendered during index phase
     rendered = L10NCharField(use_template=True, indexed=False)
@@ -112,5 +113,7 @@ class ProgettoIndex(SearchIndex):
         else:
             return datetime.datetime.strptime('19700101', '%Y%m%d')
 
+    def prepare_perc_pagamento(self, obj):
+        return obj.percentuale_pagamenti()
 
 site.register(Progetto, ProgettoIndex)

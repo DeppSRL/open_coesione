@@ -1,4 +1,5 @@
 # coding=utf-8
+import logging
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse
@@ -17,15 +18,14 @@ from django.conf import settings
 from django.db import models
 from django.core.cache import cache
 
-
 def cached_context(get_context_data):
     """
-    Questo decoratore viene usato per fare la cache del metodo get_context_data
-    chiamato da get() o post() nelle viste.
-    Si occupa di creare una chiave univoca per la richiesta,
-    dopodiche controlla se è presente in cache;
-    se lo è, restituisce il contesto precedentemente elaborato,
-    altrimenti lo genera e lo salva con quella chiave
+    This decorator is used to cache the ``get_context_data()`` method
+    called by a ``get()`` or ``post()`` in the views.
+    It generates a unique key for the request,
+    checks if the key is in the cache:
+    if it is, then it returns it,
+    else it will generate and save the key, before returning it.
     """
 
     def decorator(self, **kwargs):
@@ -185,12 +185,12 @@ class HomeView(AccessControlView, AggregatoView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
 
+        logger = logging.getLogger('console')
+        logger.debug("get_aggregate_data start")
         context = self.get_aggregate_data(context)
 
+        logger.debug("top_progetti start")
         context['top_progetti'] = Progetto.objects.filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-
-        #context['ultimi_progetti_avviati'] = Progetto.objects.filter(data_inizio_effettiva__lte=datetime.now()).order_by('-data_inizio_effettiva')[:3]
-        #context['ultimi_progetti_conclusi'] = Progetto.objects.filter(data_fine_effettiva__lte=datetime.now()).order_by('-data_fine_effettiva')[:3]
 
         context['numero_soggetti'] = Soggetto.objects.count()
 

@@ -24,6 +24,10 @@ sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
         query_facet('costo', ProgettoSearchView.COST_RANGES['1-1KTO10K']['qrange']).\
         query_facet('costo', ProgettoSearchView.COST_RANGES['2-10KTO100K']['qrange']).\
         query_facet('costo', ProgettoSearchView.COST_RANGES['3-100KTOINF']['qrange']).\
+        query_facet('perc_pagamento', ProgettoSearchView.PERC_PAY_RANGES['0-0TO25']['qrange']).\
+        query_facet('perc_pagamento', ProgettoSearchView.PERC_PAY_RANGES['1-25TO50']['qrange']).\
+        query_facet('perc_pagamento', ProgettoSearchView.PERC_PAY_RANGES['2-50TO75']['qrange']).\
+        query_facet('perc_pagamento', ProgettoSearchView.PERC_PAY_RANGES['3-75TO100']['qrange']).\
         highlight().order_by('-costo')
 
 

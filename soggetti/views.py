@@ -13,6 +13,7 @@ from progetti.models import Progetto, Tema, ClassificazioneAzione, Ruolo
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
+import logging
 
 class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin):
     """
@@ -148,9 +149,12 @@ class SoggettoView(AggregatoView, DetailView):
         # Call the base implementation first to get a context
         context = super(SoggettoView, self).get_context_data(**kwargs)
 
+        logger = logging.getLogger('console')
+        logger.debug("get_aggregate_data start")
         context = self.get_aggregate_data(context, soggetto=self.object)
 
         # calcolo dei collaboratori con cui si spartiscono piu' soldi
+        logger.debug("top_collaboratori start")
         collaboratori = {}
         soggetti_ids = Soggetto.objects.exclude(pk=self.object.pk).filter(progetto__ruolo__soggetto=self.object).values('pk')
         for s in soggetti_ids:
@@ -172,74 +176,119 @@ class SoggettoView(AggregatoView, DetailView):
 
         context['top_collaboratori'] = top_collaboratori
 
+
         # calcolo dei progetti con piu' fondi
+        logger.debug("top_progetti start")
         context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
         """
         context['top_progetti'] = [
             Progetto.objects.get(pk=p['codice_locale'])
             for p in self.object.progetti.values('codice_locale', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]]
         """
+        logger.debug("top_progetti end")
 
         # calcolo dei comuni un cui questo soggetto ha operato di piu'
+        logger.debug("territori_piu_finanziati_pro_capite start")
         context['territori_piu_finanziati_pro_capite'] = Territorio.objects.comuni()\
             .filter(progetto__soggetto_set__pk=self.object.pk).defer('geom')\
             .annotate(totale=Sum('progetto__fin_totale_pubblico'))\
             .order_by('-totale')[:5]
 
-        pml_ids = cache.get('pml_ids')
-        if not pml_ids:
-            pml_ids = [p['pk'] for p in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).values('pk')]
-            cache.set('pml_ids', pml_ids)
-
-        soggetti_pml_ids = cache.get('soggetti_pml_ids')
-        if not soggetti_pml_ids:
-            soggetti_pml_ids = [s['pk'] for s in Soggetto.objects.filter(ruolo__progetto__codice_locale__in=pml_ids).values('pk')]
-            cache.set('soggetti_pml_ids', set(soggetti_pml_ids))
 
 
-        # query avanzata per evitare errori di calcolo
-        progetti_multi_localizzati = Progetto.objects.filter(pk__in=[ p_id for p_id in pml_ids if self.object.pk in soggetti_pml_ids ])
-
+        ## calcolo dei totali di finanziamenti per regione (e nazioni)
         context['lista_finanziamenti_per_regione'] = []
-        def tot(qs): return getattr(qs, context['tematizzazione'])()
-        def multi_localizzato_in_regione(p,r): return all( map(lambda t: t.cod_reg == r.cod_reg, p.territori) )
-        def multi_localizzato_in_nazione(p): return any(map(lambda t: t.territorio == 'N', p.territori)) and all(map(lambda t: t.territorio != 'E', p.territori))
+        logger.debug("lista_finanziamenti_per_regione start")
 
+        ## insieme dei progetti del soggetto che hanno multilocalizzazioni
+        ps_multiloc = Progetto.objects.del_soggetto(self.object).annotate(
+            tot=Count('territorio_set')
+        ).filter(tot__gt=1)
+
+
+        ## definizioni funzioni usate internamente
+        def tot(qs):
+            """
+            Calcolo totale a partire da queryset qs, il metodo è indicato in context['tematizzazione']
+            """
+            return getattr(qs, context['tematizzazione'])()
+
+        def multi_localizzato_in_regione(p,r):
+            """
+            Torna True se il progetto p
+             ha *tutte* le territorializzazioni in un unica regione
+            Torna False in caso contrario
+            """
+            return all( map(lambda t: t.cod_reg == r.cod_reg, p.territori) )
+
+        def multi_localizzato_in_nazione(p):
+            """
+            Torna True se il progetto p
+             ha almeno una territorializzazione nazionale e nessuna estera
+            Torna False in caso contrario
+            """
+            return any(map(lambda t: t.territorio == 'N', p.territori)) and \
+                   all(map(lambda t: t.territorio != 'E', p.territori))
+
+
+        ## costruzione lista per le regioni
+        logger.debug("::fetch dati_regioni start")
         for regione in Territorio.objects.regioni().defer('geom'):
 
-            progetti_multi_localizzati = filter(lambda p: not multi_localizzato_in_regione(p, regione), progetti_multi_localizzati)
+            logger.debug("::::regione {0}".format(regione))
 
-            queryset = Progetto.objects.nel_territorio( regione ).del_soggetto( self.object ).exclude(
-                # tutti i progetti in regione del miur NON multi localizzati
-                pk__in=progetti_multi_localizzati
+            # progetti del soggetto localizzati in territori della regione
+            psr = Progetto.objects.nel_territorio(regione).del_soggetto(self.object)
+
+            logger.debug("::::::filter start")
+            # elimina dai progetti multiloc del soggetto quelli localizzati esclusivamente nella regione
+            ps_multiloc = filter(lambda p: not multi_localizzato_in_regione(p, regione), ps_multiloc)
+
+
+            logger.debug("::::::queryset start")
+            # predispone la query per estrarre tutti i progetti del soggetto, localizzati nella regione,
+            # tranne quelli multilocalizzati anche in altre regioni oltre questa in considerazione
+            # questo serve a evitare di contare 2 volte progetti multilocalizzati in regioni differenti,
+            # nelle somme dei progetti regionali di un determinato soggetto
+            queryset = psr.exclude(
+                # tutti i progetti in regione del soggetto, NON multi localizzati in altre regioni
+                pk__in=ps_multiloc
             ).distinct()
 
+            logger.debug("::::::append tot start")
+            # calcola il totale richiesto dalla vista (totale_costi, totale_procapite, totale_progetti)
+            # e lo appende alla lista fei finanziamenti per regione
             context['lista_finanziamenti_per_regione'].append( ( regione, tot( queryset ) ) )
 
-        # rimuovo tutti i progetti multilocalizzati che fanno parte di
+        # rimuovo tutti i progetti multilocalizzati nazionali
+        ps_multiloc = filter(lambda p: not multi_localizzato_in_nazione(p), ps_multiloc)
 
-        progetti_multi_localizzati = filter(lambda p: not multi_localizzato_in_nazione(p), progetti_multi_localizzati)
-
+        logger.debug("::fetch dati_nazioni start")
         for nazione in Territorio.objects.filter(territorio__in=['N','E']).defer('geom').order_by('-territorio'):
 
             queryset = Progetto.objects.nel_territorio( nazione ).del_soggetto( self.object ).exclude(
-                # tutti i progetti in una nazione realizzati dal miur NON multi localizzati
-                pk__in=progetti_multi_localizzati
+                # tutti i progetti in una nazione realizzati dal soggetto NON multi localizzati nella nazione
+                # (e neanche nelle regioni, che sono già stati eliminati prima)
+                pk__in=ps_multiloc
             )
 
             context['lista_finanziamenti_per_regione'].append( ( nazione, tot( queryset ) ) )
+        logger.debug("::fetch dati_nazioni end")
 
-        if len(progetti_multi_localizzati):
+        if len(ps_multiloc):
             # aggrego in un territorio fittizio i progetti multilocalizzati non inclusi fino ad ora
             context['lista_finanziamenti_per_regione'].append(
                 (
                     Territorio(denominazione='In più territori', territorio='X'),
-                    tot( Progetto.objects.del_soggetto( self.object).filter(pk__in=progetti_multi_localizzati) )
+                    tot( Progetto.objects.del_soggetto( self.object).filter(pk__in=ps_multiloc) )
                 )
             )
+        logger.debug("lista_finanziamenti_per_regione stop")
+
 
         # calcolo i finanziamenti per ruolo del soggetto
         # preparo il filtro di aggregazione in base alla tematizzazione richiesta
+        logger.debug("lista_finanziamenti_per_ruolo start")
         aggregazione_ruolo = {
             'totale_costi': Sum('progetto__fin_totale_pubblico'),
             'totale_pagamenti': Sum('progetto__pagamento'),
@@ -288,6 +337,7 @@ class SoggettoView(AggregatoView, DetailView):
 
         # ordino il dict_finanziamenti_per_ruolo per i suoi valore (il totale)
         context['lista_finanziamenti_per_ruolo'] = sorted(dict_finanziamenti_per_ruolo.items(), key=lambda x: x[1], reverse=True)
+        logger.debug("lista_finanziamenti_per_ruolo stop")
 
         del dict_finanziamenti_per_ruolo
 
