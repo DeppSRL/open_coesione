@@ -24,4 +24,8 @@ urlpatterns = patterns('',
         LeafletView.as_view(filter='nature'), name='territori_leaflet_regioni_natura'),
     url(r'^nature/(?P<slug>[-\w]+)/province.(?P<ext>(json|html))$',
         LeafletView.as_view(filter='nature'), name='territori_leaflet_province_natura'),
+    url(r'^programmi/(?P<codice>[\w]+)/regioni.(?P<ext>(json|html))$',
+        LeafletView.as_view(filter='programmi'), name='territori_leaflet_regioni_programma'),
+    url(r'^programmi/(?P<codice>[\w]+)/province.(?P<ext>(json|html))$',
+        LeafletView.as_view(filter='programmi'), name='territori_leaflet_province_programma'),
 )

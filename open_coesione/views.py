@@ -131,6 +131,8 @@ class AggregatoView(object):
             query_filters = dict(territorio=filter['territorio'])
         elif 'soggetto' in filter:
             query_filters = dict(soggetto=filter['soggetto'])
+        elif 'programma' in filter:
+            query_filters = dict(programma=filter['programma'])
         elif 'tema' in filter:
             query_filters = dict(tema=filter['tema'])
             del query_models['temi_principali']

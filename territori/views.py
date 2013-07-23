@@ -11,7 +11,7 @@ from django.conf import settings
 from open_coesione import utils
 from open_coesione.data_classification import DataClassifier
 from open_coesione.views import AccessControlView, AggregatoView, cached_context
-from progetti.models import Progetto, Tema, ClassificazioneAzione
+from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo
 from progetti.views import CSVView
 from territori.models import Territorio
 import json
@@ -198,11 +198,18 @@ class LeafletView(TemplateView):
         tree = etree.parse(mapnik_xml, parser=etree.XMLParser())
         context['legend_html'] = tree.getroot()[0].text
 
-        # info_base_url for popup changes in case temi or nature filters are applied
+        # info_base_url for popup changes in case temi, nature or programmi filters are applied
         if self.filter:
+            if 'slug' in self.kwargs:
+                pk = self.kwargs['slug']
+            elif 'codice' in self.kwargs:
+                pk = self.kwargs['codice']
+            else:
+                raise Exception('slug or codice must be in kwargs')
+
             context['info_base_url'] = "/territori/info/{0}/{1}".format(
                 #Site.objects.get_current(),
-                self.filter, self.kwargs['slug']
+                self.filter, pk
             )
         else:
             context['info_base_url'] = "/territori/info".format(Site.objects.get_current())
@@ -214,7 +221,7 @@ class TilesConfigView(TemplateView):
 
     TEMATIZZAZIONI = (
         'totale_costi', 'totale_pagamenti', 'totale_progetti',
-        'totale_costi_procapite', 'totale_pagamenti_procapite', 'totale_progetti_procapite')
+        'totale_costi_procapite', 'totale_pagamenti_procapite')
 
     def get_context_data(self, **kwargs):
         context = super(TilesConfigView, self).get_context_data(**kwargs)
@@ -223,6 +230,7 @@ class TilesConfigView(TemplateView):
         context['province'] = Territorio.objects.filter(territorio='P')
         context['temi'] = Tema.objects.principali()
         context['nature'] = ClassificazioneAzione.objects.nature()
+        context['programmi'] = ProgrammaAsseObiettivo.objects.programmi()
         context['mapnik_base_url'] = "http://{0}/territori/mapnik".format(Site.objects.get_current())
         context['path_to_cache'] = settings.TILESTACHE_CACHE_PATH
 
@@ -278,18 +286,31 @@ class MapnikView(TemplateView):
         if self.filter == 'natura':
             natura = ClassificazioneAzione.objects.get(slug=self.kwargs['slug'])
 
+        # eventual filter on programma
+        programma = None
+        if self.filter == 'programma':
+            programma = ProgrammaAsseObiettivo.objects.get(pk=self.kwargs['codice'])
+
         # loop over all territories
         # foreach, invoke the tematizzazione method, with specified filters
         for t in self.queryset:
-            #data[t.codice] = float(getattr(self.manager, tematizzazione)(territorio=t))
             data[t.codice] = getattr(Progetto.objects, tematizzazione)(
                     territorio=t,
                     tema=tema,
-                    classificazione=natura
+                    classificazione=natura,
+                    programma=programma,
             )
 
         # DataClassifier instance
-        self.dc = DataClassifier(data.values(), classifier_args={'k': 5}, colors_map=self.colors)
+
+        # computes number of bins
+        n_bins = 5
+        n_values = sum([1 for d in data.values() if d > 0])
+        if n_values < 5:
+            n_bins = n_values
+        if n_values == 0:
+            n_bins = 1
+        self.dc = DataClassifier(data.values(), classifier_args={'k': n_bins}, colors_map=self.colors)
         context['classification_bins'] = self.dc.get_bins_ranges()
 
 
