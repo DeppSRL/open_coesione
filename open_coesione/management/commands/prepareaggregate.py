@@ -182,7 +182,14 @@ class Command(BaseCommand):
             # }),
 
         }
-        handlers[self.page_type][0](**handlers[self.page_type][1])
+        try:
+            handlers[self.page_type][0](**handlers[self.page_type][1])
+        except Exception as e:
+            self.logger.error(
+                "{0} catched. type: {1}, slug: {2}, thematization: {3}".format(
+                    e, self.page_type, self.slug, self.thematization
+                )
+            )
 
 
     def handle_home(self, *args, **kwargs):
