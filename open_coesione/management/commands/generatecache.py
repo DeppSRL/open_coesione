@@ -31,7 +31,7 @@ class Command(BaseCommand):
         make_option('--type',
                     dest='type',
                     default=None,
-                    help='Type of generation: aggregate|recipients'),
+                    help='Type of generation: recipients,home, temi, nature, regioni, province, estero, programmi'),
         make_option('--big-recipients-treshold',
                     dest='big_recipients_treshold',
                     default='100',
@@ -56,9 +56,9 @@ class Command(BaseCommand):
 
         cache_type = options['type']
         if cache_type is None:
-            raise Exception("No --type option, choose among 'recipients, home', 'temi', 'nature', 'regioni', 'province', 'estero'")
-        if cache_type not in ('recipients', 'home', 'temi', 'nature', 'regioni', 'province', 'estero'):
-            raise Exception("Wrong --type option: choose among 'recipients', 'home', 'temi', 'nature', 'regioni', 'province', 'estero'")
+            raise Exception("No --type option, choose among 'recipients, home', 'temi', 'nature', 'regioni', 'province', 'estero', 'programmi'")
+        if cache_type not in ('recipients', 'home', 'temi', 'nature', 'regioni', 'province', 'estero', 'programmi'):
+            raise Exception("Wrong --type option: choose among 'recipients', 'home', 'temi', 'nature', 'regioni', 'province', 'estero', 'programmi'")
 
         # invoke correct handler method,
         # passes along the correct view class, url_name and tipo_territorio, if needed
@@ -70,6 +70,7 @@ class Command(BaseCommand):
             'regioni': self.handle_regioni,
             'province': self.handle_province,
             'estero': self.handle_estero,
+            'programmi': self.handle_programmi,
         }
         handlers[cache_type](*args, **options)
 
@@ -98,6 +99,16 @@ class Command(BaseCommand):
         for natura_slug in nature_slugs:
             self._aggregate_cache_computation(
                 natura_slug, page_type='natura',
+                clearcache=options['clearcache'], verbosity=options['verbosity']
+            )
+
+    def handle_programmi(self, *args, **options):
+        self.logger.info("== regenerating cache for programmi")
+        from progetti.models import ProgrammaAsseObiettivo
+        codes = (item['codice'] for item in ProgrammaAsseObiettivo.objects.programmi().values('codice'))
+        for code in codes:
+            self._aggregate_cache_computation(
+                code, page_type='programma',
                 clearcache=options['clearcache'], verbosity=options['verbosity']
             )
 

@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
-from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager
+from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaAsseObiettivoManager
 from django.core.cache import cache
 import logging
 
@@ -43,6 +43,9 @@ class ClassificazioneQSN(models.Model):
 
 
 class ProgrammaAsseObiettivo(models.Model):
+
+    objects = ProgrammaAsseObiettivoManager()
+
     TIPO = Choices(
         ('PROGRAMMA_FS', 'programma', u'Programma FS'),
         ('ASSE', 'asse', u'Asse'),
@@ -68,6 +71,10 @@ class ProgrammaAsseObiettivo(models.Model):
     @property
     def progetti(self):
         return self.progetto_set
+
+    @property
+    def is_root(self):
+        return self.tipo_classificazione == ProgrammaAsseObiettivo.TIPO.programma
 
     def __unicode__(self):
         return unicode(self.descrizione[0:100])

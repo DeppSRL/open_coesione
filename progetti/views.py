@@ -73,6 +73,41 @@ class ProgettoView(AccessControlView, DetailView):
 
         return context
 
+class ProgrammaView(AccessControlView, AggregatoView, DetailView):
+    context_object_name = 'programma'
+    template_name = 'progetti/programma_detail.html'
+
+    @cached_context
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(ProgrammaView, self).get_context_data(**kwargs)
+
+        logger = logging.getLogger('console')
+        logger.debug("get_aggregate_data start")
+        context = self.get_aggregate_data(context, programma=self.object)
+
+        context['numero_soggetti'] = Soggetto.objects.count()
+        context['map_selector'] = 'programmi/{0}/'.format(self.kwargs['codice'])
+
+        logger.debug("top_progetti_per_costo start")
+        context['top_progetti_per_costo'] = Progetto.objects.con_programma(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+
+        logger.debug("ultimi_progetti_conclusi start")
+        context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_programma(self.object)[:5]
+
+        logger.debug("territori_piu_finanziati_pro_capite start")
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+            filters={
+                'progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore': self.object
+            }
+        )
+
+        return context
+
+    def get_object(self, queryset=None):
+        return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
+
+
 class TipologiaView(AccessControlView, AggregatoView, DetailView):
     context_object_name = 'tipologia'
 

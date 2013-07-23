@@ -23,4 +23,8 @@ urlpatterns = patterns('',
         MapnikRegioniView.as_view(filter='natura'), name='territori_mapnik_regioni_natura'),
     url(r'^nature/(?P<slug>[-\w]+)/province.xml$',
         MapnikProvinceView.as_view(filter='natura'), name='territori_mapnik_province_natura'),
+    url(r'^programmi/(?P<codice>[-\w]+)/regioni.xml$',
+        MapnikRegioniView.as_view(filter='programma'), name='territori_mapnik_regioni_programma'),
+    url(r'^programmi/(?P<codice>[-\w]+)/province.xml$',
+        MapnikProvinceView.as_view(filter='programma'), name='territori_mapnik_province_programma'),
 )

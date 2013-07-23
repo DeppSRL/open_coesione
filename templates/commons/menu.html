@@ -76,7 +76,7 @@
                     <li class="clearfix">
                       <ul>
                         {% for programma in lista_programmi.fesr %}
-                            <li><a href="{% url progetti_search %}?q=&fonte_fin={{ programma.codice }}">{{ programma.descrizione|cut:"FESR " }}</a></li>
+                            <li><a href="{% url progetti_programma programma.codice %}">{{ programma.descrizione|cut:"FESR " }}</a></li>
                         {% endfor %}
                       </ul>
                     </li>
@@ -88,7 +88,7 @@
                       <li class="clearfix">
                           <ul>
                               {% for programma in lista_programmi.fse %}
-                                  <li><a href="{% url progetti_search %}?q=&fonte_fin={{ programma.codice }}">{{ programma.descrizione|cut:"FSE " }}</a></li>
+                                  <li><a href="{% url progetti_programma programma.codice %}">{{ programma.descrizione|cut:"FSE " }}</a></li>
                               {% endfor %}
                           </ul>
                       </li>

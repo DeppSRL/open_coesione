@@ -6,7 +6,7 @@ from django.test import RequestFactory
 import logging
 
 from open_coesione.views import HomeView
-from progetti.views import TipologiaView, TemaView
+from progetti.views import TipologiaView, TemaView, ProgrammaView
 from territori.models import Territorio
 from territori.views import TerritorioView, MapnikRegioniView, MapnikProvinceView, MapnikComuniView, LeafletView, AmbitoNazionaleView, AmbitoEsteroView
 from django.core.cache import cache
@@ -21,6 +21,7 @@ class Command(BaseCommand):
     * home
     * tipologia
     * tema
+    * programma
     * territorio
 
     This mimics the process done during a standard http request,
@@ -30,7 +31,7 @@ class Command(BaseCommand):
 
     logger = logging.getLogger('console')
     thematization = ''
-    slug = ''
+    slug = '' #it may refer to a code, for programmi pages
     page_type = ''
     clearcache = False
 
@@ -47,7 +48,7 @@ class Command(BaseCommand):
         make_option('--type',
                     dest='type',
                     default='home',
-                    help='One of home, tema, tipologia, territorio'),
+                    help='One of home, tema, tipologia, programma, territorio'),
     )
 
     def handle(self, *args, **options):
@@ -129,6 +130,20 @@ class Command(BaseCommand):
                     { 'name':  'territori_leaflet_regioni_natura' },
                     { 'name':  'territori_leaflet_province_natura' },
                 ),
+            }),
+            'programma': (self.handle_other, {
+               'aggregate_view_class': ProgrammaView,
+               'url_name': 'progetti_programma',
+               'mapnik_url_names_views': (
+                   { 'name': 'territori_mapnik_regioni_programma',
+                     'view': MapnikRegioniView },
+                   { 'name': 'territori_mapnik_province_programma',
+                     'view': MapnikProvinceView },
+               ),
+               'leaflet_url_names': (
+                   { 'name': 'territori_leaflet_regioni_programma' },
+                   { 'name': 'territori_leaflet_province_programma' },
+               )
             }),
             'regione': (self.handle_other, {
                 'aggregate_view_class': TerritorioView,
@@ -253,7 +268,10 @@ class Command(BaseCommand):
 
         # get the URL from the url_name, using the slug
         url_name = kwargs['url_name']
-        url = reverse(url_name, kwargs={'slug': self.slug})
+        if 'programma' in url_name:
+            url = reverse(url_name, kwargs={'codice': self.slug})
+        else:
+            url = reverse(url_name, kwargs={'slug': self.slug})
 
         # build mapnik urls, and views arrays
         # considering territorio special case
@@ -267,7 +285,10 @@ class Command(BaseCommand):
                 if kwargs['tipo_territorio'] == Territorio.TERRITORIO.P:
                     mapnik_urls.append(reverse(nv['name'], kwargs={'cod_prov': t.cod_prov}))
             else:
-                mapnik_urls.append(reverse(nv['name'], kwargs={'slug': self.slug}))
+                if 'programma' in url_name:
+                    mapnik_urls.append(reverse(nv['name'], kwargs={'codice': self.slug}))
+                else:
+                    mapnik_urls.append(reverse(nv['name'], kwargs={'slug': self.slug}))
 
         leaflet_urls = []
         for n in leaflet_url_names:
@@ -277,7 +298,10 @@ class Command(BaseCommand):
                 if kwargs['tipo_territorio'] == Territorio.TERRITORIO.P:
                     leaflet_urls.append(reverse(n['name'], kwargs={'ext': 'json', 'cod_prov': t.cod_prov}))
             else:
-                leaflet_urls.append(reverse(n['name'], kwargs={'ext': 'json', 'slug': self.slug}))
+                if 'programma' in url_name:
+                    leaflet_urls.append(reverse(n['name'], kwargs={'ext': 'json', 'codice': self.slug}))
+                else:
+                    leaflet_urls.append(reverse(n['name'], kwargs={'ext': 'json', 'slug': self.slug}))
 
         # check the cache, and remove the keys, if asked
         if self.clearcache:
@@ -299,11 +323,18 @@ class Command(BaseCommand):
         # prepare the view
         view_instance = aggregate_view_class()
         req = RequestFactory().get("{0}{1}".format(url, self.thematization))
-        view = setup_view(
-            view_instance,
-            req,
-            slug=self.slug,
-        )
+        if 'programma' in url_name:
+            view = setup_view(
+                view_instance,
+                req,
+                codice=self.slug,
+            )
+        else:
+            view = setup_view(
+                view_instance,
+                req,
+                slug=self.slug,
+            )
 
         # add tipo_territorio to view, in case it's passed
         # since, it's needed to extract the Territorio instance
@@ -336,11 +367,19 @@ class Command(BaseCommand):
                         cod_prov=t.cod_prov,
                     )
             else:
-                view = setup_view(
-                    mapnik_view(),
-                    RequestFactory().get("{0}{1}".format(mapnik_url, self.thematization)),
-                    slug=self.slug,
-                )
+                if 'programma' in url_name:
+                    view = setup_view(
+                        mapnik_view(),
+                        RequestFactory().get("{0}{1}".format(mapnik_url, self.thematization)),
+                        codice=self.slug,
+                    )
+                else:
+                    view = setup_view(
+                        mapnik_view(),
+                        RequestFactory().get("{0}{1}".format(mapnik_url, self.thematization)),
+                        slug=self.slug,
+                    )
+
             context = view.get_context_data(*view.args, **view.kwargs)
             self.logger.info("context for {0}{1} fetched::::".format(mapnik_url, self.thematization))
 
@@ -363,11 +402,21 @@ class Command(BaseCommand):
                         ext='json'
                     )
             else:
-                view = setup_view(
-                    leaflet_view(),
-                    RequestFactory().get("{0}{1}".format(leaflet_url, self.thematization)),
-                    slug=self.slug,
-                    ext='json'
-                )
+                if 'programma' in url_name:
+                    view = setup_view(
+                        leaflet_view(),
+                        RequestFactory().get("{0}{1}".format(leaflet_url, self.thematization)),
+                        codice=self.slug,
+                        ext='json'
+                    )
+                else:
+                    view = setup_view(
+                        leaflet_view(),
+                        RequestFactory().get("{0}{1}".format(leaflet_url, self.thematization)),
+                        slug=self.slug,
+                        ext='json'
+                    )
+
+            self.logger.debug("fetching context for {0}{1}::::".format(leaflet_url, self.thematization))
             context = view.get_context_data(*view.args, **view.kwargs)
             self.logger.info("context for {0}{1} fetched::::".format(leaflet_url, self.thematization))
