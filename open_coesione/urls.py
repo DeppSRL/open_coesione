@@ -41,6 +41,7 @@ urlpatterns = patterns('',
     url(r'^contatti/', ContactView.as_view(template_name='flat/contatti.html'), name='oc_contatti'),
     url(r'^licenza/', TemplateView.as_view(template_name='flat/licenza.html')),
 
+    url(r'^a-scuola-di-opencoesione/', TemplateView.as_view(template_name='flat/a_scuola_di_opencoesione.html')),
     url(r'^cerca-un-progetto/', TemplateView.as_view(template_name='flat/cerca_progetto.html')),
     url(r'^cerca-un-soggetto/', TemplateView.as_view(template_name='flat/cerca_soggetto.html')),
     url(r'^monitora-un-tema-o-un-territorio/', TemplateView.as_view(template_name='flat/monitoring.html')),
