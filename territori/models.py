@@ -197,6 +197,10 @@ class Territorio(models.Model):
             natura = kwargs['natura']
             search_url += "&selected_facets=natura:{0}".format(natura.codice)
 
+        if 'programma' in kwargs:
+            programma = kwargs['programma']
+            search_url += "&selected_facets=fonte_fin:{0}".format(programma.codice)
+
         for t in self.get_hierarchy():
             d = t.get_cod_dict()
             key = d.keys()[0]
