@@ -80,8 +80,11 @@ class Command(BaseCommand):
         else:
             self.thematization = ""
 
-        if options['thematization'] not in ('', 'totale_costi', 'totale_pagamenti', 'totale_progetti'):
-            raise Exception("Wrong thematization. Choose one among 'totale_costi', 'totale_pagamenti', 'totale_progetti'")
+        if options['thematization'] not in ('', 'totale_costi', 'totale_pagamenti', 'totale_progetti', 'totale_costi_procapite'):
+            raise Exception(
+                "Wrong thematization {0}. Choose one among 'totale_costi', 'totale_pagamenti', 'totale_progetti', 'totale_costi_procapite'".format(
+                    options['thematization']
+                ))
 
         self.clearcache = options['clearcache']
 
@@ -106,6 +109,7 @@ class Command(BaseCommand):
             'tema': (self.handle_other, {
                 'aggregate_view_class': TemaView,
                 'url_name': 'progetti_tema',
+                'inner_filter': 'tema',
                 'mapnik_url_names_views': (
                     { 'name': 'territori_mapnik_regioni_tema',
                       'view': MapnikRegioniView },
@@ -120,6 +124,7 @@ class Command(BaseCommand):
             'natura': (self.handle_other, {
                 'aggregate_view_class': TipologiaView,
                 'url_name': 'progetti_tipologia',
+                'inner_filter': 'natura',
                 'mapnik_url_names_views': (
                     { 'name': 'territori_mapnik_regioni_natura',
                       'view': MapnikRegioniView },
@@ -132,18 +137,19 @@ class Command(BaseCommand):
                 ),
             }),
             'programma': (self.handle_other, {
-               'aggregate_view_class': ProgrammaView,
-               'url_name': 'progetti_programma',
-               'mapnik_url_names_views': (
-                   { 'name': 'territori_mapnik_regioni_programma',
-                     'view': MapnikRegioniView },
-                   { 'name': 'territori_mapnik_province_programma',
-                     'view': MapnikProvinceView },
-               ),
-               'leaflet_url_names': (
-                   { 'name': 'territori_leaflet_regioni_programma' },
-                   { 'name': 'territori_leaflet_province_programma' },
-               )
+                'aggregate_view_class': ProgrammaView,
+                'url_name': 'progetti_programma',
+                'inner_filter': 'programma',
+                'mapnik_url_names_views': (
+                    { 'name': 'territori_mapnik_regioni_programma',
+                      'view': MapnikRegioniView },
+                    { 'name': 'territori_mapnik_province_programma',
+                      'view': MapnikProvinceView },
+                ),
+                'leaflet_url_names': (
+                    { 'name': 'territori_leaflet_regioni_programma' },
+                    { 'name': 'territori_leaflet_province_programma' },
+                )
             }),
             'regione': (self.handle_other, {
                 'aggregate_view_class': TerritorioView,
@@ -269,6 +275,7 @@ class Command(BaseCommand):
         self.logger.info("{0} page, Slug: {1}, Thematization: {2}".format(self.page_type, self.slug, self.thematization))
         mapnik_url_names_views = kwargs['mapnik_url_names_views']
         leaflet_url_names = kwargs['leaflet_url_names']
+        inner_filter = kwargs.pop('inner_filter', None)
 
         if 'tipo_territorio' in kwargs:
             t = Territorio.objects.get(slug=self.slug)
@@ -334,13 +341,13 @@ class Command(BaseCommand):
             view = setup_view(
                 view_instance,
                 req,
-                codice=self.slug,
+                codice=self.slug, inner_filter=inner_filter
             )
         else:
             view = setup_view(
                 view_instance,
                 req,
-                slug=self.slug,
+                slug=self.slug, inner_filter=inner_filter
             )
 
         # add tipo_territorio to view, in case it's passed
@@ -359,52 +366,58 @@ class Command(BaseCommand):
 
         # repeat for mapnik urls
         for (k, mapnik_url) in enumerate(mapnik_urls):
+            mapnik_req = RequestFactory().get("{0}{1}".format(mapnik_url, self.thematization))
             mapnik_view = mapnik_views[k]
             if 'tipo_territorio' in kwargs:
                 if kwargs['tipo_territorio'] == Territorio.TERRITORIO.R:
                     view = setup_view(
                         mapnik_view(),
-                        RequestFactory().get("{0}{1}".format(mapnik_url, self.thematization)),
+                        mapnik_req,
                         cod_reg=t.cod_reg,
                     )
                 if kwargs['tipo_territorio'] == Territorio.TERRITORIO.P:
                     view = setup_view(
                         mapnik_view(),
-                        RequestFactory().get("{0}{1}".format(mapnik_url, self.thematization)),
+                        mapnik_req,
                         cod_prov=t.cod_prov,
                     )
             else:
                 if 'programma' in url_name:
                     view = setup_view(
                         mapnik_view(),
-                        RequestFactory().get("{0}{1}".format(mapnik_url, self.thematization)),
-                        codice=self.slug,
+                        mapnik_req,
+                        codice=self.slug, inner_filter=inner_filter
                     )
                 else:
                     view = setup_view(
                         mapnik_view(),
-                        RequestFactory().get("{0}{1}".format(mapnik_url, self.thematization)),
-                        slug=self.slug,
+                        mapnik_req,
+                        slug=self.slug, inner_filter=inner_filter
                     )
 
+            self.logger.debug("fetching context for {0}{1}::::".format(mapnik_url, self.thematization))
+            self.logger.debug("|-context args: {0}::::".format(view.args))
+            self.logger.debug("|-context kwargs: {0}::::".format(view.kwargs))
             context = view.get_context_data(*view.args, **view.kwargs)
             self.logger.info("context for {0}{1} fetched::::".format(mapnik_url, self.thematization))
 
+
         # repeat for leaflet urls
         for leaflet_url in leaflet_urls:
+            leaflet_req = RequestFactory().get("{0}{1}".format(leaflet_url, self.thematization))
             leaflet_view = LeafletView
             if 'tipo_territorio' in kwargs:
                 if kwargs['tipo_territorio'] == Territorio.TERRITORIO.R:
                     view = setup_view(
                         leaflet_view(),
-                        RequestFactory().get("{0}{1}".format(leaflet_url, self.thematization)),
+                        leaflet_req,
                         cod_reg=t.cod_reg,
                         ext='json',
                     )
                 if kwargs['tipo_territorio'] == Territorio.TERRITORIO.P:
                     view = setup_view(
                         leaflet_view(),
-                        RequestFactory().get("{0}{1}".format(leaflet_url, self.thematization)),
+                        leaflet_req,
                         cod_prov=t.cod_prov,
                         ext='json'
                     )
@@ -412,14 +425,14 @@ class Command(BaseCommand):
                 if 'programma' in url_name:
                     view = setup_view(
                         leaflet_view(),
-                        RequestFactory().get("{0}{1}".format(leaflet_url, self.thematization)),
+                        leaflet_req,
                         codice=self.slug,
                         ext='json'
                     )
                 else:
                     view = setup_view(
                         leaflet_view(),
-                        RequestFactory().get("{0}{1}".format(leaflet_url, self.thematization)),
+                        leaflet_req,
                         slug=self.slug,
                         ext='json'
                     )

@@ -149,7 +149,7 @@ class Command(BaseCommand):
     def _aggregate_cache_computation(self, slug, page_type, clearcache, verbosity, tipo_territorio=None):
         if not self.dryrun:
             self.logger.info("== Executing prepareaggregate for {0}".format(slug))
-            for thematization in ('', 'totale_costi', 'totale_pagamenti', 'totale_progetti'):
+            for thematization in ('', 'totale_costi', 'totale_costi_procapite', 'totale_pagamenti', 'totale_progetti'):
                 call_command('prepareaggregate', slug,
                              type=page_type,
                              clearcache=clearcache,

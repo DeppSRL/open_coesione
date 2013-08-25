@@ -124,5 +124,8 @@ def setup_view(view, request, *args, **kwargs):
     """
     view.request = request
     view.args = args
+
+    view.inner_filter = kwargs.pop('inner_filter', None)
     view.kwargs = kwargs
+
     return view
