@@ -227,7 +227,7 @@ class TilesConfigView(TemplateView):
 
     TEMATIZZAZIONI = (
         'totale_costi', 'totale_pagamenti', 'totale_progetti',
-        'totale_costi_procapite', 'totale_pagamenti_procapite')
+        'totale_costi_procapite')
 
     def get_context_data(self, **kwargs):
         context = super(TilesConfigView, self).get_context_data(**kwargs)
@@ -250,7 +250,7 @@ class MapnikView(TemplateView):
     territori_name = 'Territori'
     template_name = 'territori/mapnik.xml'
     queryset = Territorio.objects.all()
-    filter = None
+    inner_filter = None
 
     # Class-colors mapping
     colors = settings.MAP_COLORS
@@ -284,17 +284,17 @@ class MapnikView(TemplateView):
 
         # eventual filter on tema
         tema = None
-        if self.filter == 'tema':
+        if self.inner_filter == 'tema':
             tema = Tema.objects.get(slug=self.kwargs['slug'])
 
         # eventual filter on natura
         natura = None
-        if self.filter == 'natura':
+        if self.inner_filter == 'natura':
             natura = ClassificazioneAzione.objects.get(slug=self.kwargs['slug'])
 
         # eventual filter on programma
         programma = None
-        if self.filter == 'programma':
+        if self.inner_filter == 'programma':
             programma = ProgrammaAsseObiettivo.objects.get(pk=self.kwargs['codice'])
 
         # loop over all territories

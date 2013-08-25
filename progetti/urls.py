@@ -60,6 +60,7 @@ urlpatterns = patterns('',
 
     # programmi
     url(r'^programmi/(?P<codice>[\w]+)/$', ProgrammaView.as_view(), name='progetti_programma'),
+
     # csv comuni procapite per tema
     # TODO: url(r'^temi/(?P<slug>[\w-]+).csv$', cache_page(settings.CACHE_PAGE_DURATION_SECS, TemaCSVView.as_view(), key_prefix='temi'), name='progetti_tema_csv'),
 
