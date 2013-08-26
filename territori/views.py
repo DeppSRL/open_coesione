@@ -146,7 +146,7 @@ class AutocompleteView(JSONResponseMixin, TemplateView):
 
 class LeafletView(TemplateView):
     template_name = 'territori/leaflet.html'
-    filter = None
+    inner_filter = None
     layer = None
 
     def render_to_response(self, context, **response_kwargs):
@@ -230,7 +230,7 @@ class LeafletView(TemplateView):
         context['legend_html'] = tree.getroot()[0].text
 
         # info_base_url for popup changes in case temi, nature or programmi filters are applied
-        if self.filter:
+        if self.inner_filter:
             if 'slug' in self.kwargs:
                 pk = self.kwargs['slug']
             elif 'codice' in self.kwargs:
@@ -240,7 +240,7 @@ class LeafletView(TemplateView):
 
             context['info_base_url'] = "/territori/info/{0}/{1}".format(
                 #Site.objects.get_current(),
-                self.filter, pk
+                self.inner_filter, pk
             )
         else:
             context['info_base_url'] = "/territori/info".format(Site.objects.get_current())
