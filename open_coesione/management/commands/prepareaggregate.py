@@ -426,14 +426,14 @@ class Command(BaseCommand):
                     view = setup_view(
                         leaflet_view(),
                         leaflet_req,
-                        codice=self.slug,
+                        codice=self.slug, inner_filter=inner_filter,
                         ext='json'
                     )
                 else:
                     view = setup_view(
                         leaflet_view(),
                         leaflet_req,
-                        slug=self.slug,
+                        slug=self.slug, inner_filter=inner_filter,
                         ext='json'
                     )
 
