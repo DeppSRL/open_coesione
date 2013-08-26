@@ -8,12 +8,14 @@ from django.views.generic import ListView
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.conf import settings
+from django.core.cache import cache
 from open_coesione import utils
 from open_coesione.data_classification import DataClassifier
 from open_coesione.views import AccessControlView, AggregatoView, cached_context
 from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo
 from progetti.views import CSVView
 from territori.models import Territorio
+
 import json
 from lxml import etree
 import re
@@ -66,7 +68,6 @@ class InfoView(JSONResponseMixin, TemplateView):
 
         territorio_hierarchy = territorio.get_hierarchy()
 
-
         territori = territorio.get_breadcrumbs()
 
         tema = None
@@ -83,19 +84,43 @@ class InfoView(JSONResponseMixin, TemplateView):
 
         programma = None
         if self.filter == 'programmi':
-            programma = ProgrammaAsseObiettivo.objects.get(pk=kwargs['slug'])
+            programma = ProgrammaAsseObiettivo.objects.get(codice=kwargs['slug'])
             territori = [(t.denominazione, t.get_progetti_search_url(programma=programma))
                         for t in territorio_hierarchy]
 
-        popolazione_totale = (territorio.popolazione_totale if territorio else Territorio.objects.nazione().popolazione_totale) or 0
-        costo_totale = Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura, programma=programma) or 0
+        # prepare the cache key
+        tema_key = tema.slug if tema is not None else 'na'
+        natura_key = natura.slug if natura is not None else 'na'
+        programma_key = programma.codice if programma is not None else 'na'
+        cache_key = "terr:{0}_tema:{1}_natura:{2}_programma:{3}".format(
+            territorio.pk,
+            tema_key, natura_key, programma_key
+        )
 
+        # check vars existance in the cache, or compute and store them
+        cached_vars = cache.get(cache_key)
+        if cached_vars is None:
+            cached_vars = {
+                'popolazione_totale': (territorio.popolazione_totale if territorio else Territorio.objects.nazione().popolazione_totale) or 0,
+                'costo_totale': Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura, programma=programma) or 0,
+                'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura, programma=programma) or 0,
+                'pagamento_totale': Progetto.objects.totale_pagamenti(territorio=territorio, tema=tema, classificazione=natura, programma=programma) or 0,
+            }
+            cache.set(cache_key, cached_vars)
+
+        # extract cached vars to local variables for code-readability
+        n_progetti = cached_vars['n_progetti']
+        costo_totale = cached_vars['costo_totale']
+        pagamento_totale = cached_vars['pagamento_totale']
+        popolazione_totale = cached_vars['popolazione_totale']
+
+        # modify context
         context['territorio'] = {
             'denominazione': territorio.denominazione,
-            'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura, programma=programma) or 0,
+            'n_progetti': n_progetti,
             'costo': costo_totale,
             'costo_procapite': costo_totale / popolazione_totale if popolazione_totale else '',
-            'pagamento': Progetto.objects.totale_pagamenti(territorio=territorio, tema=tema, classificazione=natura, programma=programma) or 0,
+            'pagamento': pagamento_totale,
             'territori': territori
         }
 
