@@ -20,11 +20,14 @@ class DataClassifier:
 
 
     def get_class(self, value):
+        if value == 0:
+            return 'c0'
+
         for n, b in enumerate(self.dc.bins):
             if n == 0 and value <= self.dc.bins[n]:
-                return 'c0'
+                return 'c1'
             if self.dc.bins[n-1] < value <= self.dc.bins[n]:
-                return 'c%s' % n
+                return 'c%s' % (n + 1)
 
     def get_color(self, value):
         if not self.colors_map:
@@ -41,7 +44,7 @@ class DataClassifier:
         for n, b in enumerate(self.dc.bins):
 
             if n is 0:
-                bin_start = 0
+                bin_start = 1
             else:
                 bin_start = self.dc.bins[n-1]
             bin_end = b

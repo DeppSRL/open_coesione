@@ -122,8 +122,11 @@ function load_map_layer(data) {
         //console.log($(this).text());
         //intword
         $('li',this).each(function(){
-            var values = $(this).text().split(' - ')
-            $(this).text(intword(values[0].split('.').join('')) + ' - ' + intword(values[1].split('.').join('')));
+            if ($(this).text().indexOf('-') != -1)
+            {
+                var values = $(this).text().split(' - ')
+                $(this).text(intword(values[0].split('.').join('')) + ' - ' + intword(values[1].split('.').join('')));
+            }
         }).prepend($('<i />').addClass('icon-sign-blank'));
     });
 

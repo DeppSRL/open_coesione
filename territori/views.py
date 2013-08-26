@@ -306,6 +306,7 @@ class MapnikView(TemplateView):
 
         # build the collection of aggregated data for the map
         data = {}
+        nonzero_data = {}
 
         # eventual filter on tema
         tema = None
@@ -331,17 +332,17 @@ class MapnikView(TemplateView):
                     classificazione=natura,
                     programma=programma,
             )
+            if data[t.codice]:
+                nonzero_data[t.codice] = data[t.codice]
 
         # DataClassifier instance
 
         # computes number of bins
-        n_bins = 5
-        n_values = sum([1 for d in data.values() if d > 0])
-        if n_values < 5:
+        n_bins = 4
+        n_values = len(nonzero_data)
+        if n_values < 4:
             n_bins = n_values
-        if n_values == 0:
-            n_bins = 1
-        self.dc = DataClassifier(data.values(), classifier_args={'k': n_bins}, colors_map=self.colors)
+        self.dc = DataClassifier(nonzero_data.values(), classifier_args={'k': n_bins}, colors_map=self.colors)
         context['classification_bins'] = self.dc.get_bins_ranges()
 
 
