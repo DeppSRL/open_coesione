@@ -238,9 +238,16 @@ class LeafletView(TemplateView):
             else:
                 raise Exception('slug or codice must be in kwargs')
 
+            filter_plurals = {
+                'tema': 'temi',
+                'natura': 'nature',
+                'programma': 'programmi',
+            }
+
+            # convert inner_filter to its plural when creating info url
             context['info_base_url'] = "/territori/info/{0}/{1}".format(
-                #Site.objects.get_current(),
-                self.inner_filter, pk
+                filter_plurals[self.inner_filter],
+                pk
             )
         else:
             context['info_base_url'] = "/territori/info".format(Site.objects.get_current())
