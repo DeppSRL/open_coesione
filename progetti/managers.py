@@ -149,7 +149,13 @@ class ProgettiManager(models.Manager):
     def totale_costi_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programma=None):
         from territori.models import Territorio
         territorio = territorio or Territorio.objects.nazione()
-        return self.get_query_set().totale_costi(territorio, tema, tipo,classificazione, soggetto, territori, programma) / territorio.popolazione_totale
+
+        # check if no population defined (foreign countries)
+        # and avoid division by zero exception
+        if territorio.popolazione_totale is 0:
+            return 0
+        else:
+            return self.get_query_set().totale_costi(territorio, tema, tipo,classificazione, soggetto, territori, programma) / territorio.popolazione_totale
 
     def totale_pagamenti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programma=None):
         from territori.models import Territorio
