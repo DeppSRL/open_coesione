@@ -3,7 +3,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
 from django.db.models import Count
-from cache_generation.visitor import Visitor
 
 from optparse import make_option
 from soggetti.models import Soggetto
