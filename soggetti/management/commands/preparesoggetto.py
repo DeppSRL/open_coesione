@@ -64,14 +64,14 @@ class Command(BaseCommand):
         else:
             raise Exception("Please insert a slug for a soggetto")
 
-        self.logger.info("Soggetto: {0}, Tematizzazione: {1}".format(soggetto.denominazione, thematization))
+        self.logger.info(u"Soggetto: {0}, Tematizzazione: {1}".format(soggetto.denominazione, thematization))
 
         # get the URL from the url_name, using the slug
         url = reverse('soggetti_soggetto', kwargs={'slug': slug})
 
         if options['clearcache']:
             cache_key = "context{0}{1}".format(url, thematization)
-            self.logger.info("Clearing the cache for key {0}{1}".format(cache_key, thematization))
+            self.logger.info(u"Clearing the cache for key {0}{1}".format(cache_key, thematization))
             from django.core.cache import cache
             cache.delete(cache_key)
 
