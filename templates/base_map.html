@@ -308,7 +308,7 @@
                       {%  else %}
                           <td><a href="{{ tipologia.get_absolute_url }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a></td>
                       {% endif %}
-                    <td class="amount"><strong>{{ tipologia.tot|default:"0"|floatformat:"-2" }}</strong> {% if tematizzazione == 'totale_progetti' %}progetti{% else %}euro{% endif %}</td>
+                    <td class="amount"><strong>{{ tipologia.tot|default:"0"|floatformat:"0" }}</strong></td>
                   </tr>
                 {% endfor %}
               </table>
@@ -338,8 +338,7 @@
                       {%  else %}
                           <td><a href="{{ tema.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a></td>
                       {% endif %}
-                    <td class="amount"><strong>{{ tema.tot|default:"0"|floatformat:"-2" }}</strong> {% if tematizzazione == 'totale_progetti' %}progetti{% else %}euro{% endif %}</td>
-
+                    <td class="amount"><strong>{{ tema.tot|default:"0"|floatformat:"0" }}</strong></td>
                   </tr>
                 {% endfor %}
               </table>
@@ -347,6 +346,8 @@
             </div>
             {% endif %}
           </div>
+
+          <p class="muted">* Dati espressi in <strong>{% if tematizzazione == 'totale_progetti' %}numero di progetti{% else %}euro{% endif %}</strong></p>
 
         </div>
 

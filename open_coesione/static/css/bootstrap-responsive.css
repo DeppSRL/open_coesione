@@ -1,4 +1,3 @@
-@import url("http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic");
 /*!
  * Bootstrap v2.0.4
  * FontAwesome v2.0.2
@@ -660,14 +659,14 @@
     display: none;
   }
   .nav-collapse .nav .nav-header {
-    color: #ffffff;
+    color: #999999;
     text-shadow: none;
   }
   .nav-collapse .nav > li > a,
   .nav-collapse .dropdown-menu a {
     padding: 6px 15px;
     font-weight: bold;
-    color: #ffffff;
+    color: #999999;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
@@ -684,7 +683,7 @@
   }
   .nav-collapse .nav > li > a:hover,
   .nav-collapse .dropdown-menu a:hover {
-    background-color: #5b5955;
+    background-color: #222222;
   }
   .nav-collapse.in .btn-group {
     margin-top: 5px;
@@ -720,8 +719,8 @@
     float: none;
     padding: 9px 15px;
     margin: 9px 0;
-    border-top: 1px solid #5b5955;
-    border-bottom: 1px solid #5b5955;
+    border-top: 1px solid #222222;
+    border-bottom: 1px solid #222222;
     -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 1px 0 rgba(255,255,255,.1);
     -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 1px 0 rgba(255,255,255,.1);
     box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 1px 0 rgba(255,255,255,.1);
@@ -787,6 +786,12 @@
   #wrapper > section#main table td.amount,
   #wrapper > section#main table col.amount {
     white-space: normal;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  #wrapper > section#main table td.amount strong,
+  #wrapper > section#main table col.amount strong {
+    letter-spacing: -1px;
   }
 }
 @media (min-width: 1200px) {
