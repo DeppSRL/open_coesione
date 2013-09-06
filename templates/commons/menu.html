@@ -5,7 +5,19 @@
   <h2 class="hidden"><a name="menu"></a>Navigazione del sito</h2>
   <div class="navbar-inner">
     <div class="container">
-      <ul class="nav span6">
+      <form method="get" action="{% if soggetto %}{% url soggetti_search %}{% else %}{% url progetti_search %}{% endif %}" class="navbar-search form-search pull-right">
+        <select name="" class="input-small">
+            <option value="progetti"{% if progetto %} selected="selected"{% endif %}>Progetti</option>
+            <option value="soggetti"{% if soggetto %} selected="selected"{% endif %}>Soggetti</option>
+          </select>
+        <div class="input-append" style="margin-right: 5px;">
+          <input type="text"
+                 class="input-medium search-query"
+                 name="q" {% if form.q.value %}value="{{ form.q.value }}"{% endif %}
+                 placeholder="Cerca tra i {% if soggetto %}soggetti{% else %}progetti{% endif %}" /><button type="submit" class="btn"><i class="icon-search"></i></button>
+        </div>
+      </form>
+      <ul class="nav">
         <li class="dropdown{% if progetto or not soggetto and tema or tipologia or territorio   %} active{% endif %}">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Progetti <b class="caret"></b></a>
           <ul class="dropdown-menu">
@@ -115,19 +127,6 @@
         </li>
 
       </ul>
-
-        <form method="get" action="{% if soggetto %}{% url soggetti_search %}{% else %}{% url progetti_search %}{% endif %}" class="navbar-search form-search pull-right">
-          <div class="input-append">
-            <select name="" class="input-medium">
-              <option value="progetti"{% if progetto %} selected="selected"{% endif %}>Progetti</option>
-              <option value="soggetti"{% if soggetto %} selected="selected"{% endif %}>Soggetti</option>
-            </select>
-            <input type="text"
-                   class="input-medium search-query"
-                   name="q" {% if form.q.value %}value="{{ form.q.value }}"{% endif %}
-                   placeholder="Cerca tra i {% if soggetto %}soggetti{% else %}progetti{% endif %}" /><button type="submit" class="btn"><i class="icon-search"></i></button>
-          </div>
-        </form>
     </div>
   </div>
 </nav>
