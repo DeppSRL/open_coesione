@@ -225,7 +225,10 @@ class LeafletView(TemplateView):
         mapnik_xml_path = "%s.xml?tematizzazione=%s" % (re.sub(r'leaflet', 'mapnik', path), tematizzazione)
         MAPNIK_HOST = settings.MAPNIK_HOST or Site.objects.get_current()
         mapnik_xml_url = "http://%s%s" % (MAPNIK_HOST, mapnik_xml_path)
-        mapnik_xml = urllib.urlopen(mapnik_xml_url)
+        try:
+            mapnik_xml = urllib.urlopen(mapnik_xml_url)
+        except IOError:
+            raise Http404("Cannot retrieve mapnik xml")
         tree = etree.parse(mapnik_xml, parser=etree.XMLParser())
         context['legend_html'] = tree.getroot()[0].text
 
