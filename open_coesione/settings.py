@@ -159,6 +159,8 @@ INSTALLED_APPS = (
     # debug toolbar 3rd party panels
     'cache_panel',
     'disqus',
+    'rest_framework',
+    'api',
 )
 
 DEBUG_TOOLBAR_PANELS = (
@@ -315,3 +317,20 @@ TINYMCE_DEFAULT_CONFIG = {
     'theme_advanced_toolbar_location' : "top"
 }
 TINYMCE_SPELLCHECKER = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'PAGINATE_BY': 100,
+    'PAGINATE_BY_PARAM': 'page_size',
+}
+
+
+SOUTH_TESTS_MIGRATE = False

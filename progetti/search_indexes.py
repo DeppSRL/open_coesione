@@ -11,6 +11,7 @@ from django.conf import settings
 # user RealTimeSearchIndex once online
 
 class ProgettoIndex(SearchIndex):
+    slug = CharField(model_attr='slug', indexed=False)
     clp = CharField(model_attr='codice_locale')
     cup = CharField(model_attr='cup', null=True)
     titolo = CharField(model_attr='titolo_progetto')

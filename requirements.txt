@@ -1,5 +1,5 @@
 BeautifulSoup
-Django==1.4
+Django==1.4.6
 Fabric
 Jinja2
 PIL
@@ -33,9 +33,11 @@ django-classy-tags
 django-sekizai
 
 django-tinymce
-django-redis
+django-redis==3.2
 
 django-recaptcha
 django-disqus
+
+djangorestframework
 
 numpy

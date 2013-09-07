@@ -645,7 +645,6 @@ class ProgettoJSONSearchView(ProgettoSearchView):
         """
         Generates a CSV text preview (limited to 500 items) for search results
         """
-        import jsonpickle
         results = [r.object for r in self.get_results()]
 
         # send JSON out as plain text

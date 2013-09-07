@@ -108,6 +108,8 @@
 
     <field name="rendered" type="string" indexed="false" stored="true" multiValued="false" />
 
+    <field name="slug" type="string" indexed="false" stored="true" multiValued="false" />
+
     <field name="fondo" type="text" indexed="true" stored="true" multiValued="false" />
 
     <field name="fin_altro_pubblico" type="sfloat" indexed="true" stored="true" multiValued="false" />
@@ -181,6 +183,10 @@
     <field name="fin_regione" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
     <field name="descrizione" type="text" indexed="true" stored="true" multiValued="false" />
+
+    <field name="denominazione" type="string" indexed="false" stored="true" multiValued="false" />
+
+    <field name="codice_fiscale" type="string" indexed="false" stored="true" multiValued="false" />
 
     <field name="costo" type="sfloat" indexed="true" stored="true" multiValued="false" />
 

@@ -1,15 +1,14 @@
-import datetime
 from haystack.indexes import *
 from haystack import site
 
 from progetti.models import Ruolo, Tema, Progetto
 from soggetti.models import Soggetto
 
-from django.utils.translation import activate
-from django.conf import settings
-
 class SoggettoIndex(SearchIndex):
+    slug = CharField(model_attr='slug', indexed=False)
     text = CharField(document=True, use_template=True)
+    denominazione = CharField(model_attr='denominazione', indexed=False)
+    codice_fiscale = CharField(model_attr='codice_fiscale', indexed=False)
     territorio_com = MultiValueField(indexed=True, stored=True)
     territorio_prov = MultiValueField(indexed=True, stored=True)
     territorio_reg = MultiValueField(indexed=True, stored=True)
