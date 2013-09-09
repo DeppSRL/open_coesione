@@ -201,12 +201,25 @@ MAPNIK_HOST = False
 TILESTACHE_CACHE_PATH = ''
 TILESTACHE_URL = ''
 
-MAP_COLORS = {
+GRAY_MAP_COLORS = {
     'c0': '#eae7df',
     'c1': '#c9c7c3',
     'c2': '#969491',
     'c3': '#676462',
     'c4': '#2d2b2a',
+}
+
+# http://colorbrewer2.org/ color map
+# "#F7FCFD", "#E5F5F9", "#CCECE6", "#99D8C9", "#66C2A4", "#41AE76", "#238B45", "#005824"
+
+MAP_COLORS = {
+    'c0': '#eae7df',
+    'c1': '#D4EDE9',
+    'c2': '#A2D8CE',
+    'c3': '#7DB7B0',
+    'c4': '#3B7A74',
+    'c5': '#0E4644',
+
 }
 
 N_MAX_DOWNLOADABLE_RESULTS = 1000
