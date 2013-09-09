@@ -54,6 +54,9 @@ class ProgettoList(generics.ListAPIView):
     def get_queryset(self):
         natura = self.request.GET.get('natura', None)
         tema = self.request.GET.get('tema', None)
+        cod_reg = self.request.GET.get('cod_reg', None)
+        cod_prov = self.request.GET.get('cod_prov', None)
+        cod_com = self.request.GET.get('cod_com', None)
 
         ret_sqs = progetti_sqs.all()
 
@@ -61,6 +64,13 @@ class ProgettoList(generics.ListAPIView):
             ret_sqs = ret_sqs.filter(natura=natura)
         if tema:
             ret_sqs = ret_sqs.filter(tema=tema)
+
+        if cod_reg:
+            ret_sqs = ret_sqs.filter(territorio_reg=cod_reg)
+        if cod_prov:
+            ret_sqs = ret_sqs.filter(territorio_prov=cod_prov)
+        if cod_com:
+            ret_sqs = ret_sqs.filter(territorio_com=cod_com)
 
         return ret_sqs
 

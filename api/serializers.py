@@ -139,7 +139,7 @@ class SoggettoModelSerializer(serializers.ModelSerializer):
 
 class FiltersField(serializers.Field):
     """
-    Field that returns urls for progetti or soggetti with a given tema.
+    Field that returns urls for progetti or soggetti with a given tema or natura.
     """
     filter_name = ''
 
