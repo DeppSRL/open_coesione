@@ -15,6 +15,7 @@ urlpatterns = patterns('api.views',
     url(r'^temi$', TemaList.as_view(), name='api-tema-list'),
     url(r'^nature$', NaturaList.as_view(), name='api-natura-list'),
     url(r'^territori$', TerritorioList.as_view(), name='api-territorio-list'),
+    url(r'^programmi$', ProgrammiList.as_view(), name='api-programma-list'),
 
     url(r'custom$', MyCustomView.as_view(), name='a-custom-view'),
 )

@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from progetti.models import Progetto, Tema
+from progetti.models import Progetto, Tema, ProgrammaAsseObiettivo
 from progetti.urls import sqs as progetti_sqs
 from soggetti.urls import sqs as soggetti_sqs
 from api.serializers import *
@@ -23,6 +23,7 @@ def api_root(request, format=None):
         'temi': reverse('api-tema-list', request=request, format=format),
         'nature': reverse('api-natura-list', request=request, format=format),
         'territori': reverse('api-territorio-list', request=request, format=format),
+        'programmi': reverse('api-programma-list', request=request, format=format),
         'custom': reverse('a-custom-view', request=request, format=format),
     })
 
@@ -57,6 +58,7 @@ class ProgettoList(generics.ListAPIView):
         cod_reg = self.request.GET.get('cod_reg', None)
         cod_prov = self.request.GET.get('cod_prov', None)
         cod_com = self.request.GET.get('cod_com', None)
+        programma = self.request.GET.get('programma', None)
 
         ret_sqs = progetti_sqs.all()
 
@@ -72,6 +74,9 @@ class ProgettoList(generics.ListAPIView):
         if cod_com:
             ret_sqs = ret_sqs.filter(territorio_com=cod_com)
 
+        if programma:
+            ret_sqs = ret_sqs.filter(fonte_fin=programma)
+
         return ret_sqs
 
 
@@ -79,9 +84,6 @@ class ProgettoList(generics.ListAPIView):
 class ProgettoDetail(generics.RetrieveAPIView):
     queryset = Progetto.objects.all()
     serializer_class = ProgettoModelSerializer
-
-
-
 
 
 class SoggettoList(generics.ListAPIView):
@@ -181,6 +183,35 @@ class TerritorioList(generics.ListAPIView):
         return ret_qs
 
 
+class ProgrammiList(generics.ListAPIView):
+    """
+    List of all programmi operativi.
+
+    Can be filtered by ``descrizione`` GET parameter, to extract all items containing a given substring, case-insensitive.
+
+    Examples
+    ========
+
+    To filter ``FSE`` and ``FESR`` groups::
+
+        GET api/programmi?descrizione=FSE
+        GET api/programmi?descrizione=FESR
+
+    To get all programmi for a given region
+
+        GET api/programmi?descrizione=Lazio
+
+    """
+    serializer_class = ProgrammaModelSerializer
+
+    def get_queryset(self):
+        ret_qs = ProgrammaAsseObiettivo.objects.filter(tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma)
+
+        descrizione = self.request.GET.get('descrizione', None)
+        if descrizione:
+            ret_qs = ret_qs.filter(descrizione__icontains=descrizione)
+
+        return ret_qs
 
 class MyCustomView(APIView):
     """

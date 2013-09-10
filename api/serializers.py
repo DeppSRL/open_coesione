@@ -4,7 +4,7 @@ from territori.models import Territorio
 
 __author__ = 'guglielmo'
 from rest_framework import serializers, pagination
-from progetti.models import Progetto, Tema, ClassificazioneAzione
+from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo
 
 
 class FacetsField(serializers.Field):
@@ -192,3 +192,10 @@ class TerritorioModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Territorio
         fields = ('denominazione', 'denominazione_ted', 'territorio', 'slug', 'cod_reg', 'cod_prov', 'cod_com')
+
+
+class ProgrammaModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProgrammaAsseObiettivo
+
