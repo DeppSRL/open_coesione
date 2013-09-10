@@ -214,12 +214,11 @@ GRAY_MAP_COLORS = {
 
 MAP_COLORS = {
     'c0': '#eae7df',
-    'c1': '#D4EDE9',
-    'c2': '#A2D8CE',
-    'c3': '#7DB7B0',
-    'c4': '#3B7A74',
-    'c5': '#0E4644',
-
+    'c1': '#d1e2d6',
+    'c2': '#b6d9c4',
+    'c3': '#97bba6',
+    'c4': '#54816a',
+    'c5': '#0f5433',
 }
 
 N_MAX_DOWNLOADABLE_RESULTS = 1000
