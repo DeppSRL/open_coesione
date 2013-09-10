@@ -124,8 +124,13 @@ function load_map_layer(data) {
         $('li',this).each(function(){
             if ($(this).text().indexOf('-') != -1)
             {
-                var values = $(this).text().split(' - ')
+                var values = $(this).text().split(' - ');
                 $(this).text(intword(values[0].split('.').join('')) + ' - ' + intword(values[1].split('.').join('')));
+            }
+            else if ($(this).text().indexOf('fino a') != -1)
+            {
+                var values = $(this).text().split('fino a ');
+                $(this).text('fino a ' + intword(values[1].split('.').join('')));
             }
         }).prepend($('<i />').addClass('icon-sign-blank'));
     });
