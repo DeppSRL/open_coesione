@@ -348,9 +348,9 @@ class MapnikView(TemplateView):
         # DataClassifier instance
 
         # computes number of bins
-        n_bins = 4
+        n_bins = 5
         n_values = len(nonzero_data)
-        if n_values < 4:
+        if n_values < 5:
             n_bins = n_values
         self.dc = DataClassifier(nonzero_data.values(), classifier_args={'k': n_bins}, colors_map=self.colors)
         context['classification_bins'] = self.dc.get_bins_ranges()
