@@ -104,13 +104,6 @@ class AggregatoView(object):
         )
 
 
-        # create tematizzazione field
-        # aggregate_field = {
-        #     'totale_costi': Sum('progetto_set__fin_totale_pubblico'),
-        #     'totale_pagamenti': Sum('progetto_set__pagamento'),
-        #     'totale_progetti': Count('progetto_set')
-        # }[ context['tematizzazione'] ]
-
         query_models = {
             'temi_principali' : {
                 'manager': Tema.objects,

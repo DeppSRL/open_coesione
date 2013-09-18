@@ -53,6 +53,10 @@ class ProgettoIndex(SearchIndex):
     territorio_reg = MultiValueField(indexed=True, stored=True)
 
     soggetto = MultiValueField(indexed=True, stored=True)
+    territorio = MultiValueField(indexed=False, stored=True)
+    natura_slug = MultiValueField(indexed=False, stored=True)
+    tema_slug = MultiValueField(indexed=False, stored=True)
+
     fonte_fin = CharField(indexed=True, stored=False)
 
     # faceting fields
@@ -72,6 +76,11 @@ class ProgettoIndex(SearchIndex):
             return codice
         else:
             return 'ND'
+    def prepare_natura_slug(self, obj):
+        return obj.classificazione_azione.classificazione_superiore.slug
+
+    def prepare_tema_slug(self, obj):
+        return obj.tema.tema_superiore.slug
 
     def prepare_tema(self, obj):
         return obj.tema.codice.split('.')[0]
@@ -90,6 +99,9 @@ class ProgettoIndex(SearchIndex):
 
     def prepare_soggetto(self, obj):
         return [s['slug'] for s in obj.soggetto_set.values('slug').distinct()]
+
+    def prepare_territorio(self, obj):
+        return [t['slug'] for t in obj.territorio_set.values('slug').distinct()]
 
     def prepare_fonte_fin(self, obj):
         return obj.fonte_fin.pk

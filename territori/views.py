@@ -1,4 +1,5 @@
 from django.contrib.sites.models import Site
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Count
 from django.template.defaultfilters import slugify
@@ -314,6 +315,7 @@ class MapnikView(TemplateView):
         # build the collection of aggregated data for the map
         data = {}
         nonzero_data = {}
+        slugged_data = {}
 
         # eventual filter on tema
         tema = None
@@ -341,6 +343,9 @@ class MapnikView(TemplateView):
             )
             if data[t.codice]:
                 nonzero_data[t.codice] = data[t.codice]
+            slugged_data[t.slug] = data[t.codice]
+
+        context['data'] = slugged_data
 
         # DataClassifier instance
 
@@ -446,9 +451,12 @@ class TerritorioView(AccessControlView, AggregatoView, DetailView):
         return context
 
     def get_object(self, queryset=None):
-        return (Territorio.objects.get(slug= slugify(self.kwargs['slug']) , territorio= self.tipo_territorio)
-            if 'slug' in self.kwargs
-            else Territorio.objects.get(territorio= self.tipo_territorio))
+        try:
+            return (Territorio.objects.get(slug= slugify(self.kwargs['slug']) , territorio= self.tipo_territorio)
+                if 'slug' in self.kwargs
+                else Territorio.objects.get(territorio=self.tipo_territorio))
+        except ObjectDoesNotExist:
+            return None
 
 
 class RegioneView(TerritorioView):
@@ -483,6 +491,10 @@ class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
 
     @cached_context
     def get_context_data(self, **kwargs):
+        # add object_list to kwargs, to make the get_context_data work in the setup_view environment
+        # used in cache generators scripts and in the API
+        kwargs['object_list'] = self.object_list if hasattr(self, 'object_list') else None
+
         # Call the base implementation first to get a context
         context = super(AmbitoEsteroView, self).get_context_data(**kwargs)
 

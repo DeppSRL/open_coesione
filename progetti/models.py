@@ -578,9 +578,15 @@ class Ruolo(TimeStampedModel):
         ('3', 'destinatario', 'Destinatario'),
         ('4', 'realizzatore', 'Realizzatore')
     )
+
     soggetto = models.ForeignKey('soggetti.Soggetto', verbose_name=u'Soggetto')
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
     ruolo = models.CharField(max_length=1, choices=RUOLO)
+
+    @classmethod
+    def inv_ruoli_dict(cls):
+        # build an inverse dictionary for the ruoli, code => descr
+        return dict((cls.RUOLO._choice_dict[k], k) for k in cls.RUOLO._choice_dict)
 
     @property
     def soggetti(self):

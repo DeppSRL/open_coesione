@@ -12,6 +12,8 @@ class SoggettoIndex(SearchIndex):
     territorio_com = MultiValueField(indexed=True, stored=True)
     territorio_prov = MultiValueField(indexed=True, stored=True)
     territorio_reg = MultiValueField(indexed=True, stored=True)
+    tema_slug = MultiValueField(indexed=False, stored=True)
+    ruolo_descr = MultiValueField(indexed=False, stored=True)
 
     # faceting fields
     ruolo = FacetMultiValueField()
@@ -23,10 +25,23 @@ class SoggettoIndex(SearchIndex):
     rendered = CharField(use_template=True, indexed=False)
 
     def prepare_ruolo(self, obj):
+        """
+        Returns all ruoli (as code) for the given object
+        """
         return [r['ruolo'] for r in Ruolo.objects.filter(soggetto=obj).values('ruolo').distinct()]
 
+    def prepare_ruolo_descr(self, obj):
+        """
+        Returns all ruoli (as descriptions) for the given subject
+        """
+        return [Ruolo.inv_ruoli_dict()[r['ruolo']] for r in Ruolo.objects.filter(soggetto=obj).values('ruolo').distinct()]
+
     def prepare_tema(self, obj):
-        return [t['codice'] for t in Tema.objects.filter(tema_set__progetto_set__soggetto_set=obj).distinct().values('codice')]
+        return [t['codice'] for t in Tema.objects.filter(tema_set__progetto_set__soggetto_set=obj).values('codice').distinct()]
+
+    def prepare_tema_slug(self, obj):
+        return [t['slug'] for t in Tema.objects.filter(tema_set__progetto_set__soggetto_set=obj).values('slug').distinct()]
+
 
     def prepare_costo(self, obj):
         return Progetto.objects.totale_costi(soggetto=obj)

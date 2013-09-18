@@ -154,7 +154,7 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
         context = self.get_aggregate_data(context, tema=self.object)
 
         context['numero_soggetti'] = Soggetto.objects.count()
-        context['map_selector'] = 'temi/{0}/'.format(self.kwargs['slug'])
+        context['map_selector'] = 'temi/{0}/'.format(kwargs['slug'])
 
         logger.debug("build lista_indici_tema from csv file start")
         context['lista_indici_tema'] = []
@@ -179,7 +179,7 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
 
         return context
 
-    def get_object(self, queryset=None):
+    def get_object(self, queryset=None, **kwargs):
         return Tema.objects.get(slug=self.kwargs.get('slug'))
 
 class CSVView(AggregatoView, DetailView):

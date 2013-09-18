@@ -7,6 +7,38 @@ from rest_framework import serializers, pagination
 from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo
 
 
+class FiltersField(serializers.Field):
+    """
+    Field that returns urls for progetti or soggetti with a given tema or natura.
+    """
+    filter_name = ''
+
+    def __init__(self, filter_name):
+        self.filter_name = filter_name
+        super(FiltersField, self).__init__(self)
+
+    def field_to_native(self, obj, field_name):
+        request = self.context.get('request')
+        req_format = self.context.get('format', None)
+        progetti_filter_url = "{0}?{1}={2}".format(
+                reverse('api-progetto-list', request=request, format=req_format),
+                self.filter_name,
+                obj.slug
+            )
+        soggetti_filter_url = "{0}?{1}={2}".format(
+                reverse('api-soggetto-list', request=request, format=req_format),
+                self.filter_name,
+                obj.slug
+            )
+
+        ret = {
+            'progetti': progetti_filter_url,
+            'soggetti': soggetti_filter_url,
+        }
+
+        return ret
+
+
 class FacetsField(serializers.Field):
     """
     Field that returns info about the facets.
@@ -36,137 +68,12 @@ class FacetsField(serializers.Field):
         return ret
 
 
-
 class SoggettoSlugField(serializers.RelatedField):
     def to_native(self, value):
         return reverse('api-soggetto-detail', kwargs={'slug': value}, request=self.context.get('request'), format=self.context.get('format'))
 
 
-class ProgettoSearchResultSerializer(serializers.Serializer):
-    """
-    """
 
-    slug = serializers.HyperlinkedIdentityField(view_name='api-progetto-detail')
-    clp = serializers.CharField(max_length=200)
-    cup = serializers.CharField(max_length=100)
-    titolo = serializers.CharField(required=False)
-    fin_totale_pubblico = serializers.FloatField()
-    pagamento = serializers.FloatField()
-    soggetto = SoggettoSlugField(many=True)
-    tema = serializers.RelatedField()
-    natura = serializers.RelatedField()
-
-    def get_field_key(self, field_name):
-        """
-        Transform inner solr field names into meaningful keys
-        """
-        fields_map = {
-            'clp': 'codice_locale',
-            'slug': 'url',
-            'titolo': 'titolo_progetto',
-        }
-        if field_name in fields_map:
-            return fields_map[field_name]
-        else:
-            return field_name
-
-
-
-class PaginatedProgettoSerializer(pagination.PaginationSerializer):
-    """
-    Serializes page objects of user querysets.
-    """
-    page_size = serializers.Field(source='paginator.per_page')
-    current_page = serializers.Field(source='number')
-    last_page = serializers.Field(source='paginator.num_pages')
-    facet_counts = FacetsField()
-
-    class Meta:
-        object_serializer_class = ProgettoSearchResultSerializer
-
-
-class ProgettoModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Progetto
-        depth = 1
-
-
-
-
-class SoggettoSearchResultSerializer(serializers.Serializer):
-    """
-    """
-
-    slug = serializers.HyperlinkedIdentityField(view_name='api-soggetto-detail')
-    denominazione = serializers.CharField(required=False)
-    tema = serializers.RelatedField(many=True)
-    ruolo = serializers.RelatedField(many=True)
-    costo = serializers.FloatField()
-    n_progetti = serializers.IntegerField()
-
-    def get_field_key(self, field_name):
-        """
-        Transform inner solr field names into meaningful keys
-        """
-        fields_map = {
-            'slug': 'url',
-        }
-        if field_name in fields_map:
-            return fields_map[field_name]
-        else:
-            return field_name
-
-
-class PaginatedSoggettoSerializer(pagination.PaginationSerializer):
-    """
-    Serializes page objects of user querysets.
-    """
-    page_size = serializers.Field(source='paginator.per_page')
-    current_page = serializers.Field(source='number')
-    last_page = serializers.Field(source='paginator.num_pages')
-    facet_counts = FacetsField()
-
-    class Meta:
-        object_serializer_class = SoggettoSearchResultSerializer
-
-
-class SoggettoModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Soggetto
-        depth = 1
-
-
-
-class FiltersField(serializers.Field):
-    """
-    Field that returns urls for progetti or soggetti with a given tema or natura.
-    """
-    filter_name = ''
-
-    def __init__(self, filter_name):
-        self.filter_name = filter_name
-        super(FiltersField, self).__init__(self)
-
-    def field_to_native(self, obj, field_name):
-        request = self.context.get('request')
-        req_format = self.context.get('format', None)
-        progetti_filter_url = "{0}?{1}={2}".format(
-                reverse('api-progetto-list', request=request, format=req_format),
-                self.filter_name,
-                obj.codice
-            )
-        soggetti_filter_url = "{0}?{1}={2}".format(
-                reverse('api-soggetto-list', request=request, format=req_format),
-                self.filter_name,
-                obj.codice
-            )
-
-        ret = {
-            'progetti': progetti_filter_url,
-            'soggetti': soggetti_filter_url,
-        }
-
-        return ret
 
 
 class TemaModelSerializer(serializers.ModelSerializer):
@@ -194,8 +101,118 @@ class TerritorioModelSerializer(serializers.ModelSerializer):
         fields = ('denominazione', 'denominazione_ted', 'territorio', 'slug', 'cod_reg', 'cod_prov', 'cod_com')
 
 
+class SoggettoModelSerializer(serializers.ModelSerializer):
+    territorio =  TerritorioModelSerializer()
+    class Meta:
+        exclude = ('id', 'created', 'modified')
+        model = Soggetto
+        depth = 1
+
 class ProgrammaModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProgrammaAsseObiettivo
+
+
+class ProgettoModelSerializer(serializers.ModelSerializer):
+    territorio_set = TerritorioModelSerializer(many=True)
+    soggetto_set = serializers.HyperlinkedRelatedField(view_name='api-soggetto-detail', many=True)
+
+    class Meta:
+        exclude = ('territorio', 'created', 'modified', )
+        model = Progetto
+        depth = 1
+
+
+
+class ProgettoSearchResultSerializer(serializers.Serializer):
+    """
+    """
+
+    slug = serializers.HyperlinkedIdentityField(view_name='api-progetto-detail')
+    clp = serializers.CharField(max_length=200)
+    cup = serializers.CharField(max_length=100)
+    titolo = serializers.CharField(required=False)
+    fin_totale_pubblico = serializers.FloatField()
+    pagamento = serializers.FloatField()
+    soggetto = SoggettoSlugField(many=True)
+    territorio = serializers.RelatedField(many=True)
+    tema_slug = serializers.CharField()
+    natura_slug = serializers.CharField()
+
+    def get_field_key(self, field_name):
+        """
+        Transform inner solr field names into meaningful keys
+        """
+        fields_map = {
+            'clp': 'codice_locale',
+            'slug': 'url',
+            'titolo': 'titolo_progetto',
+            'territorio': 'territori',
+            'soggetto': 'soggetti',
+            'tema_slug': 'tema',
+            'natura_slug': 'natura',
+        }
+        if field_name in fields_map:
+            return fields_map[field_name]
+        else:
+            return field_name
+
+
+
+class PaginatedProgettoSerializer(pagination.PaginationSerializer):
+    """
+    Serializes page objects of user querysets.
+    """
+    page_size = serializers.Field(source='paginator.per_page')
+    current_page = serializers.Field(source='number')
+    last_page = serializers.Field(source='paginator.num_pages')
+    facet_counts = FacetsField()
+
+    class Meta:
+        object_serializer_class = ProgettoSearchResultSerializer
+
+
+
+class SoggettoSearchResultSerializer(serializers.Serializer):
+    """
+    """
+
+    slug = serializers.HyperlinkedIdentityField(view_name='api-soggetto-detail')
+    denominazione = serializers.CharField(required=False)
+    tema_slug = serializers.RelatedField(many=True)
+    ruolo_descr = serializers.RelatedField(many=True)
+    costo = serializers.FloatField()
+    n_progetti = serializers.IntegerField()
+
+    def get_field_key(self, field_name):
+        """
+        Transform inner solr field names into meaningful keys
+        """
+        fields_map = {
+            'slug': 'url',
+            'tema_slug': 'tema',
+            'ruolo_descr': 'ruolo',
+        }
+        if field_name in fields_map:
+            return fields_map[field_name]
+        else:
+            return field_name
+
+
+class PaginatedSoggettoSerializer(pagination.PaginationSerializer):
+    """
+    Serializes page objects of user querysets.
+    """
+    page_size = serializers.Field(source='paginator.per_page')
+    current_page = serializers.Field(source='number')
+    last_page = serializers.Field(source='paginator.num_pages')
+    facet_counts = FacetsField()
+
+    class Meta:
+        object_serializer_class = SoggettoSearchResultSerializer
+
+
+
+
 
