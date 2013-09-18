@@ -142,11 +142,17 @@
 
     <field name="territorio_tipo" type="text" indexed="true" stored="true" multiValued="true" />
 
+    <field name="territorio" type="string" indexed="false" stored="true" multiValued="true" />
+
     <field name="clp" type="text" indexed="true" stored="true" multiValued="false" />
 
     <field name="fonte" type="string" indexed="true" stored="true" multiValued="false" />
 
     <field name="natura" type="string" indexed="true" stored="true" multiValued="false" />
+
+    <field name="natura_slug" type="string" indexed="false" stored="true" multiValued="true" />
+
+    <field name="tema_slug" type="string" indexed="false" stored="true" multiValued="true" />
 
     <field name="territorio_com" type="text" indexed="true" stored="true" multiValued="true" />
 
@@ -161,6 +167,8 @@
     <field name="territorio_prov" type="text" indexed="true" stored="true" multiValued="true" />
 
     <field name="ruolo" type="string" indexed="true" stored="true" multiValued="true" />
+
+    <field name="ruolo_descr" type="string" indexed="false" stored="true" multiValued="true" />
 
     <field name="fin_provincia" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
