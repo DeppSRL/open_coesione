@@ -91,7 +91,9 @@
                   {% if regione.cod_reg %}<a href="{% url progetti_search %}?q=&soggetto={{ soggetto.slug }}&territorio_reg={{ regione.cod_reg }}">{{ regione.denominazione }}</a>
                   {% else %}{{ regione.denominazione }}{% endif %}
               </th>
-              <td class="amount"><strong>{{ totale|default:"0"|intcomma }}</strong> {% if tematizzazione == 'totale_progetti' %}progetti{% else %}euro{% endif %}</td>
+              <td class="amount">
+                  <strong>{{ tema.tot|default:"0"|floatformat:"0" }}</strong>
+              </td>
             </tr>
           {% endif %}
         {% endfor %}
@@ -111,11 +113,7 @@
           <tr>
             <th>{{ ruolo }}</th>
             <td class="amount">
-              {% if tematizzazione == 'totale_progetti' %}
-              <strong>{{ finanziamento|default:"0"|floatformat:"0" }}</strong> progetti
-              {% else %}
-              <strong>{{ finanziamento|default:"0"|intcomma }}</strong> euro
-              {% endif %}
+              <strong>{{ finanziamento|default:"0"|floatformat:"0" }}</strong>
             </td>
           </tr>
         {% endfor %}
