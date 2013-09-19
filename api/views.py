@@ -135,7 +135,7 @@ class ProgettoList(generics.ListAPIView):
         )
         if sort_field and sort_field in sortable_fields:
             # reset default order_by parameter set in progetti.search_querysets.sqs definition
-            ret_sqs.query.order_by = [sort_field]
+            ret_sqs.query.order_by = []
             ret_sqs = ret_sqs.order_by(sort_field)
 
         return ret_sqs
@@ -184,7 +184,7 @@ class SoggettoList(generics.ListAPIView):
         if self.paginate_by_param:
             query_params = self.request.QUERY_PARAMS
             try:
-                return min(int(query_params[self.paginate_by_param]), self.paginate_by)
+                return min(int(query_params.get(self.paginate_by_param, settings.REST_FRAMEWORK['PAGINATE_BY'])), self.paginate_by)
             except (KeyError, ValueError):
                 pass
 
@@ -192,15 +192,14 @@ class SoggettoList(generics.ListAPIView):
 
 
     def get_queryset(self):
-        tema_slug = self.request.GET.get('tema', None)
-        ruolo = self.request.GET.get('ruolo', None)
-
         ret_sqs = soggetti_sqs.all()
 
+        tema_slug = self.request.QUERY_PARAMS.get('tema', None)
         if tema_slug:
             tema = Tema.objects.get(slug=tema_slug)
             ret_sqs = ret_sqs.filter(tema=tema.codice)
 
+        ruolo = self.request.QUERY_PARAMS.get('ruolo', None)
         if ruolo:
             ruolo_code = Ruolo.inv_ruoli_dict[ruolo]
             ret_sqs = ret_sqs.filter(ruolo=ruolo_code)
@@ -212,7 +211,7 @@ class SoggettoList(generics.ListAPIView):
         )
         if sort_field and sort_field in sortable_fields:
             # reset default order_by parameter set in soggetti.search_querysets.sqs definition
-            ret_sqs.query.order_by = [sort_field]
+            ret_sqs.query.order_by = []
             ret_sqs = ret_sqs.order_by(sort_field)
 
         return ret_sqs

@@ -341,7 +341,15 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'PAGINATE_BY': 100,
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '12/minute', # 1 req every 5 seconds
+        'user': '1/second'
+    },
+    'PAGINATE_BY': 25,
     'PAGINATE_BY_PARAM': 'page_size',
 }
 
