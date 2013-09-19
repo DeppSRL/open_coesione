@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import RequestFactory
 from rest_framework import status, generics
@@ -21,7 +22,19 @@ from territori.views import AmbitoNazionaleView, AmbitoEsteroView, RegioneView, 
 @api_view(('GET',))
 def api_root(request, format=None):
     """
-    This is the root entry-point of the OpenCoesione API.
+    This is the root entry-point of the OpenCoesione APIs.
+
+    The APIs are read-only, freely accessible to all through HTTP requests at ``http://www.opencoesione.gov/api``.
+
+    Responses are emitted in both **browseable-HTML** and **JSON** formats (``http://www.opencoesione.gov/api/.json``)
+
+    To serve all requests and avoid slow responses or downtimes due to misuse, we limit the requests rate.
+    When accessing the API **anonymously**, your client is limited to **12 requests per minute** from the same IP.
+    You can contact us to become an **authenticated API user** (it's still free),
+    then the rate-limit would be lifted to **1 request per second**.
+
+    If for some reasons, you need to scrape all the Open Coesione data, please consider a bulk **CSV download**.
+    See the ``http://www.opencoesione.gov.it/open-data/`` page in the web site.
     """
     return Response(
         SortedDict([
@@ -42,7 +55,11 @@ class ProgettoList(generics.ListAPIView):
     Progetti can be filtered through ``natura``, ``tema`` and ``territorio`` filters in the GET query-string parameters.
     Filters use slugs, and multiple filters can be built.
 
-    Slugs values to be used in the filters are shown in the progetto list.
+    Slugs values to be used in the filters are shown in the progetto list, and the complete lists can be extracted at:
+
+    * ``/api/temi``
+    * ``/api/nature``
+    * ``/api/territori``
 
     Examples
     ========
@@ -55,9 +72,20 @@ class ProgettoList(generics.ListAPIView):
     * ``/api/progetti?natura=incentivi-alle-imprese&tema=istruzione&territorio=roma-comune``
 
 
-    The results are paginated, by default to 100 items per page.
+    The results are paginated by default to 25 items per page.
     The number of items per page can be changed through the ``page_size`` GET parameter.
     100 is the maximum value allowed for the page_size parameter.
+
+    Results are sorted by default by descending costs (``-costo``).
+    You can change the sorting order, using the ``order_by`` GET parameter.
+    These are the possible values:
+
+    * ``-costo`` (default), ``costo``
+    * ``-pagamento``, ``pagamento``
+    * ``-perc_pagamento``, ``perc_pagamento``
+
+    a minus (-) in front of the field name indicates a *descending* order criterion.
+
     """
     pagination_serializer_class = PaginatedProgettoSerializer
     serializer_class = ProgettoSearchResultSerializer
@@ -66,7 +94,7 @@ class ProgettoList(generics.ListAPIView):
         if self.paginate_by_param:
             query_params = self.request.QUERY_PARAMS
             try:
-                return min(int(query_params[self.paginate_by_param]), self.paginate_by)
+                return min(int(query_params.get(self.paginate_by_param, settings.REST_FRAMEWORK['PAGINATE_BY'])), self.paginate_by)
             except (KeyError, ValueError):
                 pass
 
@@ -74,21 +102,20 @@ class ProgettoList(generics.ListAPIView):
 
 
     def get_queryset(self):
-        natura_slug = self.request.GET.get('natura', None)
-        tema_slug = self.request.GET.get('tema', None)
-        territorio_slug = self.request.GET.get('territorio', None)
-        programma = self.request.GET.get('programma', None)
 
         ret_sqs = progetti_sqs.all()
 
+        natura_slug = self.request.QUERY_PARAMS.get('natura', None)
         if natura_slug:
             natura = ClassificazioneAzione.objects.get(slug=natura_slug)
             ret_sqs = ret_sqs.filter(natura=natura.codice)
 
+        tema_slug = self.request.QUERY_PARAMS.get('tema', None)
         if tema_slug:
             tema = Tema.objects.get(slug=tema_slug)
             ret_sqs = ret_sqs.filter(tema=tema.codice)
 
+        territorio_slug = self.request.QUERY_PARAMS.get('territorio', None)
         if territorio_slug:
             territorio = Territorio.objects.get(slug=territorio_slug)
 
@@ -96,8 +123,20 @@ class ProgettoList(generics.ListAPIView):
             ret_sqs = ret_sqs.filter(territorio_prov=territorio.cod_prov)
             ret_sqs = ret_sqs.filter(territorio_com=territorio.cod_com)
 
+        programma = self.request.QUERY_PARAMS.get('programma', None)
         if programma:
             ret_sqs = ret_sqs.filter(fonte_fin=programma)
+
+        sort_field = self.request.QUERY_PARAMS.get('order_by')
+        sortable_fields = (
+            'costo',
+            '-pagamento', 'pagamento',
+            '-perc_pagamento', 'perc_pagamento'
+        )
+        if sort_field and sort_field in sortable_fields:
+            # reset default order_by parameter set in progetti.search_querysets.sqs definition
+            ret_sqs.query.order_by = [sort_field]
+            ret_sqs = ret_sqs.order_by(sort_field)
 
         return ret_sqs
 
@@ -125,9 +164,18 @@ class SoggettoList(generics.ListAPIView):
     * ``/api/soggetti?tema=istruzione&ruolo=attuatore``
 
 
-    The results are paginated, by default to 100 items per page.
+    The results are paginated by default to 25 items per page.
     The number of items per page can be changed through the ``page_size`` GET parameter.
     100 is the maximum value allowed for the page_size parameter.
+
+    Results are sorted by default by descending total projects' costs (``-costo``).
+    You can change the sorting order, using the ``order_by`` GET parameter.
+    These are the possible values:
+
+    * ``-costo`` (default)
+    * ``-n_progetti``, ``n_progetti``
+
+    a minus (-) in front of the field name indicates a *descending* order criterion.
     """
     pagination_serializer_class = PaginatedSoggettoSerializer
     serializer_class = SoggettoSearchResultSerializer
@@ -156,6 +204,16 @@ class SoggettoList(generics.ListAPIView):
         if ruolo:
             ruolo_code = Ruolo.inv_ruoli_dict[ruolo]
             ret_sqs = ret_sqs.filter(ruolo=ruolo_code)
+
+        sort_field = self.request.QUERY_PARAMS.get('order_by')
+        sortable_fields = (
+            'costo',
+            '-n_progetti', 'n_progetti',
+        )
+        if sort_field and sort_field in sortable_fields:
+            # reset default order_by parameter set in soggetti.search_querysets.sqs definition
+            ret_sqs.query.order_by = [sort_field]
+            ret_sqs = ret_sqs.order_by(sort_field)
 
         return ret_sqs
 

@@ -144,6 +144,7 @@ class ProgettoSearchResultSerializer(serializers.Serializer):
     titolo = serializers.CharField(required=False)
     fin_totale_pubblico = serializers.FloatField()
     pagamento = serializers.FloatField()
+    perc_pagamento = serializers.FloatField()
     soggetto = SoggettoSlugField(many=True)
     territorio = serializers.RelatedField(many=True)
     tema_slug = serializers.CharField()
