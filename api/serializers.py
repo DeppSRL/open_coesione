@@ -4,7 +4,7 @@ from territori.models import Territorio
 
 __author__ = 'guglielmo'
 from rest_framework import serializers, pagination
-from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo
+from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, Ruolo
 
 
 class FiltersField(serializers.Field):
@@ -51,19 +51,28 @@ class FacetsField(serializers.Field):
         else:
             return {}
 
+        temi_list = Tema.objects.filter(tipo_tema='sintetico').values('codice', 'slug').order_by('codice')
+        temi_inv_dict = dict([(t['codice'], t['slug']) for t in temi_list])
+
+        nature_list = ClassificazioneAzione.objects.filter(tipo_classificazione='natura').values('codice', 'slug').order_by('codice')
+        nature_inv_dict = dict([(n['codice'], n['slug']) for n in nature_list])
+        nature_inv_dict.update({'ND': 'non-definito'})
+
+        ruoli_inv_dict = Ruolo.inv_ruoli_dict()
+
         ret = {}
         nature = []
         temi = []
         ruoli = []
 
         if 'natura' in facet_counts['fields']:
-            ret['natura'] = ["{0} ({1})".format(i[0], i[1]) for i in facet_counts['fields']['natura'] if i[1]]
+            ret['natura'] = ["{0} ({1})".format(nature_inv_dict[i[0]], i[1]) for i in facet_counts['fields']['natura'] if i[1]]
 
         if 'tema' in facet_counts['fields']:
-            ret['tema'] = ["{0} ({1})".format(i[0], i[1]) for i in facet_counts['fields']['tema'] if i[1]]
+            ret['tema'] = ["{0} ({1})".format(temi_inv_dict[i[0]], i[1]) for i in facet_counts['fields']['tema'] if i[1]]
 
         if 'ruolo' in facet_counts['fields']:
-            ret['ruolo'] = ["{0} ({1})".format(i[0], i[1]) for i in facet_counts['fields']['ruolo'] if i[1]]
+            ret['ruolo'] = ["{0} ({1})".format(ruoli_inv_dict[i[0]], i[1]) for i in facet_counts['fields']['ruolo'] if i[1]]
 
         return ret
 
