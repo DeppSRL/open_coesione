@@ -2284,7 +2284,7 @@ ul.icons li .icon-large:before {
 .open {
   *z-index: 1000;
 }
-.open  > .dropdown-menu {
+.open > .dropdown-menu {
   display: block;
 }
 .pull-right > .dropdown-menu {
@@ -4469,7 +4469,7 @@ a.block-chart {
   bottom: 35px;
   background-color: #70cabf;
 }
-.block-chart .bar-vertical  > span {
+.block-chart .bar-vertical > span {
   position: absolute;
   bottom: 0;
   width: 100%;
@@ -4733,6 +4733,8 @@ a.block-chart {
   -webkit-box-shadow: 0 0 0;
   -moz-box-shadow: 0 0 0;
   box-shadow: 0 0 0;
+  padding-left: 0;
+  padding-right: 0;
 }
 .navbar-full-width a {
   color: #000000;
@@ -4760,7 +4762,7 @@ a.block-chart {
 .navbar-full-width .dropdown-menu .submenu .submenu-show a {
   font-weight: normal;
 }
-.navbar-full-width .dropdown-menu .submenu .submenu-show  > li  > ul {
+.navbar-full-width .dropdown-menu .submenu .submenu-show > li > ul {
   list-style: none;
   margin: 0;
   float: left;
@@ -4779,37 +4781,37 @@ a.block-chart {
 .navbar-full-width .nav {
   border-left: 1px solid #ffffff;
 }
-.navbar-full-width .nav  > li {
+.navbar-full-width .nav > li {
   border-right: 1px solid #ffffff;
 }
-.navbar-full-width .nav  > li:hover,
-.navbar-full-width .nav  > li.active {
+.navbar-full-width .nav > li:hover,
+.navbar-full-width .nav > li.active {
   background-color: #16453c;
 }
-.navbar-full-width .nav  > li:hover.violet,
-.navbar-full-width .nav  > li.active.violet {
+.navbar-full-width .nav > li:hover.violet,
+.navbar-full-width .nav > li.active.violet {
   background-color: #630f4d;
 }
-.navbar-full-width .nav  > li:hover.brown,
-.navbar-full-width .nav  > li.active.brown {
+.navbar-full-width .nav > li:hover.brown,
+.navbar-full-width .nav > li.active.brown {
   background-color: #564509;
 }
-.navbar-full-width .nav  > li .dropdown-menu {
+.navbar-full-width .nav > li .dropdown-menu {
   background-color: #afe0d8;
 }
-.navbar-full-width .nav  > li.violet .dropdown-menu {
+.navbar-full-width .nav > li.violet .dropdown-menu {
   background-color: #edd0e5;
 }
-.navbar-full-width .nav  > li.violet .dropdown-menu a:hover {
+.navbar-full-width .nav > li.violet .dropdown-menu a:hover {
   background-color: #630f4d;
 }
-.navbar-full-width .nav  > li.brown .dropdown-menu {
+.navbar-full-width .nav > li.brown .dropdown-menu {
   background-color: #e7e7c2;
 }
-.navbar-full-width .nav  > li.brown .dropdown-menu a:hover {
+.navbar-full-width .nav > li.brown .dropdown-menu a:hover {
   background-color: #564509;
 }
-.navbar-full-width .nav  > li.dropdown > dropdown-menu {
+.navbar-full-width .nav > li.dropdown > dropdown-menu {
   left: 0;
   right: 0;
 }
@@ -5146,10 +5148,10 @@ section h2.title span {
 #wrapper > header a.flag.flag-ue:hover {
   background-position: 0 0;
 }
-#wrapper > header  > div > .container {
+#wrapper > header > div > .container {
   position: relative;
 }
-#wrapper > header  > div > .container #blog_info {
+#wrapper > header > div > .container #blog_info {
   position: absolute;
   top: -14px;
   background-color: #eae9e5;
@@ -5159,15 +5161,15 @@ section h2.title span {
 #wrapper > section#main {
   min-height: 300px;
 }
-#wrapper > section#main  > div.container,
-#wrapper > section#main  > div.area {
+#wrapper > section#main > div.container,
+#wrapper > section#main > div.area {
   /*padding-top: 10px;*/
   padding-bottom: 10px;
 }
-#wrapper > section#main  > div.container:first-child {
+#wrapper > section#main > div.container:first-child {
   padding-bottom: 0;
 }
-#wrapper > section#main  > div.area {
+#wrapper > section#main > div.area {
   padding-top: 30px;
 }
 #wrapper > section#main table td.amount,
@@ -5203,20 +5205,20 @@ section h2.title span {
   margin-bottom: 0;
   border: 0;
 }
-.tabbable.boxed .nav-tabs  > li {
+.tabbable.boxed .nav-tabs > li {
   text-transform: uppercase;
   border-right: 2px solid #ffffff;
   background-color: #c9c7c3;
   margin-bottom: 0;
 }
-.tabbable.boxed .nav-tabs  > li.active {
+.tabbable.boxed .nav-tabs > li.active {
   background-color: #f7f6f1;
   margin-bottom: -1px;
 }
-.tabbable.boxed .nav-tabs  > li.active a {
+.tabbable.boxed .nav-tabs > li.active a {
   color: #000000;
 }
-.tabbable.boxed .nav-tabs  > li  > a {
+.tabbable.boxed .nav-tabs > li > a {
   border: 0;
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
@@ -5226,7 +5228,7 @@ section h2.title span {
   color: #005652;
   background-color: transparent;
 }
-.tabbable.boxed .nav-tabs  > li  > a:hover {
+.tabbable.boxed .nav-tabs > li > a:hover {
   background-color: #f7f6f1;
 }
 ul.spaced {

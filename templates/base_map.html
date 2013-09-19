@@ -256,41 +256,38 @@
 
         <div class="span6">
 
-          <div class="row">
-
+          {% if territorio or programma or tema or tipologia %}
+          <div class="page-header">
             {% if territorio %}
-              <div class="span6">
-              <h1 class="title black" style="margin-bottom: 0;"><span>{% if territorio.territorio != 'N' %}{{ territorio.get_territorio_display }} {% if territorio.territorio != 'R' %}di {% endif %}{% endif %}{{ territorio }}</span></h1>
+						<h1 class="title black" style="margin-bottom: 0;"><span>{% if territorio.territorio != 'N' %}{{ territorio.get_territorio_display }} {% if territorio.territorio != 'R' %}di {% endif %}{% endif %}{{ territorio }}</span></h1>
               <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{{ territorio|progetti_search_url }}">Vai a tutti i progetti</a></p>
-              </div>
-            {% endif %}
-
+	          {% endif %}
             {% if programma %}
-              <div class="span6">
-                <h1 class="title black" style="margin-bottom: 0;"><span>Programma: {{ programma.descrizione }}</span></h1>
+	            <h1 class="title black" style="margin-bottom: 0;"><span>Programma: {{ programma.descrizione }}</span></h1>
                 <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=fonte_fin:{{ programma.codice }}">Vai a tutti i progetti</a></p>
-              </div>
             {% endif %}
-
             {% if tema %}
-              <div class="span6">
-                <h1 class="title black" style="margin-bottom: 0;"><span>Tema: {{ tema.short_label }}</span></h1>
+	            <h1 class="title black" style="margin-bottom: 0;"><span>Tema: {{ tema.short_label }}</span></h1>
                 <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}">Vai a tutti i progetti</a></p>
-              </div>
-              <div class="span3">{{ tema.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
+	          {% endif %}
+            {% if tipologia %}
+	            <h1 class="title black" style="margin-bottom: 0;"><span>Natura: {{ tipologia.short_label }}</span></h1>
+                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}">Vai a tutti i progetti</a></p>
+	          {% endif %}
+          </div>
+          {% endif %}
 
+          <div class="row-fluid">
+            {% if tema %}
+              <div class="span6">{{ tema.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
             {% endif %}
 
             {% if tipologia %}
-              <div class="span6">
-                <h1 class="title black" style="margin-bottom: 0;"><span>Natura: {{ tipologia.short_label }}</span></h1>
-                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}">Vai a tutti i progetti</a></p>
-              </div>
-              <div class="span3">{{ tipologia.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
+              <div class="span6">{{ tipologia.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
             {% endif %}
 
             {% if nature_principali %}
-            <div class="span3">
+            <div class="span6">
               <h4>Natura dell'investimento</h4>
 
               <p>Cosa si fa con i progetti?</p>
@@ -311,7 +308,7 @@
                       {%  else %}
                           <td><a href="{{ tipologia.get_absolute_url }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a></td>
                       {% endif %}
-                    <td class="amount"><strong>{{ tipologia.tot|default:"0"|floatformat:"-2" }}</strong> {% if tematizzazione == 'totale_progetti' %}progetti{% else %}euro{% endif %}</td>
+                    <td class="amount"><strong>{{ tipologia.tot|default:"0"|floatformat:"0" }}</strong></td>
                   </tr>
                 {% endfor %}
               </table>
@@ -320,7 +317,7 @@
             {% endif %}
 
             {% if temi_principali %}
-            <div class="span3">
+            <div class="span6">
               <h4>Temi</h4>
 
               <p>In quali settori si interviene?</p>
@@ -341,8 +338,7 @@
                       {%  else %}
                           <td><a href="{{ tema.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a></td>
                       {% endif %}
-                    <td class="amount"><strong>{{ tema.tot|default:"0"|floatformat:"-2" }}</strong> {% if tematizzazione == 'totale_progetti' %}progetti{% else %}euro{% endif %}</td>
-
+                    <td class="amount"><strong>{{ tema.tot|default:"0"|floatformat:"0" }}</strong></td>
                   </tr>
                 {% endfor %}
               </table>
@@ -350,6 +346,8 @@
             </div>
             {% endif %}
           </div>
+
+          <p>* Dati espressi in <strong>{% if tematizzazione == 'totale_progetti' %}numero di progetti{% else %}euro{% endif %}</strong></p>
 
         </div>
 
