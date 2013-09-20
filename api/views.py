@@ -50,7 +50,7 @@ def api_root(request, format=None):
 
 class ProgettoList(generics.ListAPIView):
     """
-    List all **progetti**, showing relevant data.
+    List of all **progetti**.
 
     Progetti can be filtered through ``natura``, ``tema`` and ``territorio`` filters in the GET query-string parameters.
     Filters use slugs, and multiple filters can be built.
@@ -149,7 +149,7 @@ class ProgettoDetail(generics.RetrieveAPIView):
 
 class SoggettoList(generics.ListAPIView):
     """
-    List all **soggetti**, showing relevant data.
+    List of all **soggetti**.
 
     Soggetti can be filtered through ``tema`` and ``ruolo`` filters in the GET query-string parameters.
     Filters use slugs, and multiple filters can be built.
