@@ -1352,8 +1352,8 @@ class Command(BaseCommand):
 
                 # add cups to CUP table
                 if len(cups_progetto) > 0:
-                    for c in cups_progetto:
-                        c = c.strip()
+                    for cup in cups_progetto:
+                        cup = cup.strip()
                         if c not in p.cups_progetto.all():
                             p.cups_progetto.create(cup=c)
 
