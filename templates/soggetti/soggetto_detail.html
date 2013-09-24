@@ -92,7 +92,7 @@
                   {% else %}{{ regione.denominazione }}{% endif %}
               </th>
               <td class="amount">
-                  <strong>{{ tema.tot|default:"0"|floatformat:"0" }}</strong>
+                  <strong>{{ totale|default:"0"|floatformat:"0" }}</strong>
               </td>
             </tr>
           {% endif %}
