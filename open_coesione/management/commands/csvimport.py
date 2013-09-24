@@ -1084,9 +1084,9 @@ class Command(BaseCommand):
                         }
                 )
                 if created:
-                    self.logger.info("Aggiunta delibera: %s" % (delibera,))
+                    self.logger.info(u"Aggiunta delibera: %s" % (delibera,))
                 else:
-                    self.logger.debug("Trovata delibera: %s" % (delibera,))
+                    self.logger.debug(u"Trovata delibera: %s" % (delibera,))
 
             except DatabaseError as e:
                 self.logger.error("In fetch di delibera per prog. con codice locale:%s. %s" %
@@ -1118,9 +1118,9 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunto programma: %s" % (programma,))
+                    self.logger.info(u"Aggiunto programma: %s" % (programma,))
                 else:
-                    self.logger.debug("Trovato programma: %s" % (programma,))
+                    self.logger.debug(u"Trovato programma: %s" % (programma,))
 
                 created = False
                 programma_asse, created = ProgrammaAsseObiettivo.objects.get_or_create(
@@ -1132,9 +1132,9 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunto asse: %s" % (programma_asse,))
+                    self.logger.info(u"Aggiunto asse: %s" % (programma_asse,))
                 else:
-                    self.logger.debug("Trovato asse: %s" % (programma_asse,))
+                    self.logger.debug(u"Trovato asse: %s" % (programma_asse,))
 
                 created = False
                 programma_asse_obiettivo, created = ProgrammaAsseObiettivo.objects.get_or_create(
@@ -1146,9 +1146,9 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.debug("Aggiunto obiettivo: %s" % (programma_asse_obiettivo,))
+                    self.logger.debug(u"Aggiunto obiettivo: %s" % (programma_asse_obiettivo,))
                 else:
-                    self.logger.debug("Trovato obiettivo: %s" % (programma_asse_obiettivo,))
+                    self.logger.debug(u"Trovato obiettivo: %s" % (programma_asse_obiettivo,))
 
 
             except DatabaseError as e:
@@ -1169,12 +1169,12 @@ class Command(BaseCommand):
                 )
 
                 if created:
-                    self.logger.info("Aggiunto tema sintetico: %s" % (tema_sintetico,))
+                    self.logger.info(u"Aggiunto tema sintetico: %s" % (tema_sintetico,))
                 else:
-                    self.logger.debug("Trovato tema sintetico: %s" % (tema_sintetico,))
+                    self.logger.debug(u"Trovato tema sintetico: %s" % (tema_sintetico,))
 
             except ObjectDoesNotExist as e:
-                self.logger.error("While reading tema sintetico %s in %s. %s" % (r['DPS_TEMA_SINTETICO'], codice_locale, e))
+                self.logger.error(u"While reading tema sintetico %s in %s. %s" % (r['DPS_TEMA_SINTETICO'], codice_locale, e))
                 continue
 
             try:
@@ -1188,9 +1188,9 @@ class Command(BaseCommand):
                         }
                 )
                 if created:
-                    self.logger.info("Aggiunto tema: %s" % (tema_prioritario.codice,))
+                    self.logger.info(u"Aggiunto tema: %s" % (tema_prioritario.codice,))
                 else:
-                    self.logger.debug("Trovato tema: %s" % (tema_prioritario.codice,))
+                    self.logger.debug(u"Trovato tema: %s" % (tema_prioritario.codice,))
 
             except DatabaseError as e:
                 self.logger.error("In fetch di tema prioritario (00) per codice locale:%s. %s" %
@@ -1207,12 +1207,12 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunta fonte: %s" % (fonte,))
+                    self.logger.info(u"Aggiunta fonte: %s" % (fonte,))
                 else:
-                    self.logger.debug("Trovata fonte: %s" % (fonte,))
+                    self.logger.debug(u"Trovata fonte: %s" % (fonte,))
 
             except DatabaseError as e:
-                self.logger.error("In fetch della fonte %s per codice locale:%s. %s" %
+                self.logger.error(u"In fetch della fonte %s per codice locale:%s. %s" %
                                   (r['FONDO'], codice_locale, e))
                 continue
 
@@ -1240,9 +1240,9 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunta classificazione azione natura: %s" % (natura.codice,))
+                    self.logger.info(u"Aggiunta classificazione azione natura: %s" % (natura.codice,))
                 else:
-                    self.logger.debug("Trovata classificazione azione natura: %s" % (natura.codice,))
+                    self.logger.debug(u"Trovata classificazione azione natura: %s" % (natura.codice,))
 
                 created = False
                 natura_tipologia, created = ClassificazioneAzione.objects.get_or_create(
@@ -1254,12 +1254,12 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunta classificazione azione natura_tipologia: %s" % (natura_tipologia.codice,))
+                    self.logger.info(u"Aggiunta classificazione azione natura_tipologia: %s" % (natura_tipologia.codice,))
                 else:
-                    self.logger.debug("Trovata classificazione azione natura_tipologia: %s" % (natura_tipologia.codice,))
+                    self.logger.debug(u"Trovata classificazione azione natura_tipologia: %s" % (natura_tipologia.codice,))
 
             except DatabaseError as e:
-                self.logger.error("In fetch di natura-tipologia per codice locale:%s. %s" % (codice_locale, e))
+                self.logger.error(u"In fetch di natura-tipologia per codice locale:%s. %s" % (codice_locale, e))
                 continue
 
             # classificazione oggetto
@@ -1273,7 +1273,7 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunta classificazione oggetto settore: %s" % (settore.codice,))
+                    self.logger.info(u"Aggiunta classificazione oggetto settore: %s" % (settore.codice,))
 
                 created = False
                 settore_sottosettore, created = ClassificazioneOggetto.objects.get_or_create(
@@ -1285,10 +1285,10 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunta classificazione oggetto settore_sottosettore: %s" %
+                    self.logger.info(u"Aggiunta classificazione oggetto settore_sottosettore: %s" %
                                      (settore_sottosettore.codice,))
                 else:
-                    self.logger.debug("Trovata classificazione oggetto settore_sottosettore: %s" %
+                    self.logger.debug(u"Trovata classificazione oggetto settore_sottosettore: %s" %
                                       (settore_sottosettore.codice,))
 
                 created = False
@@ -1301,14 +1301,14 @@ class Command(BaseCommand):
                     }
                 )
                 if created:
-                    self.logger.info("Aggiunta classificazione oggetto settore_sottosettore_categoria: %s" %
+                    self.logger.info(u"Aggiunta classificazione oggetto settore_sottosettore_categoria: %s" %
                                      (settore_sottosettore_categoria.codice,))
                 else:
-                    self.logger.debug("Trovata classificazione oggetto settore_sottosettore_categoria: %s" %
+                    self.logger.debug(u"Trovata classificazione oggetto settore_sottosettore_categoria: %s" %
                                       (settore_sottosettore_categoria.codice,))
 
             except DatabaseError as e:
-                self.logger.error("In fetch di settore-sottosettore-categoria per codice locale:%s. %s" %
+                self.logger.error(u"In fetch di settore-sottosettore-categoria per codice locale:%s. %s" %
                                   (codice_locale, e))
                 continue
 
@@ -1334,7 +1334,7 @@ class Command(BaseCommand):
                 )
 
                 if created:
-                    self.logger.info("%s: Creazione progetto nuovo: %s" % (c, p.codice_locale))
+                    self.logger.info(u"%s: Creazione progetto nuovo: %s" % (c, p.codice_locale))
                 else:
                     # modifica di tutti i campi del progetto, in base ai valori del CSV
                     p.cup = cup_main
@@ -1352,8 +1352,8 @@ class Command(BaseCommand):
 
                 # add cups to CUP table
                 if len(cups_progetto) > 0:
-                    for c in cups_progetto:
-                        c = c.strip()
+                    for cup in cups_progetto:
+                        cup = cup.strip()
                         if c not in p.cups_progetto.all():
                             p.cups_progetto.create(cup=c)
 
@@ -1370,9 +1370,9 @@ class Command(BaseCommand):
 
 
                     if created:
-                        self.logger.info("%s: Delibera %s associata a progetto: %s" % (c, delibera, p.codice_locale))
+                        self.logger.info(u"%s: Delibera %s associata a progetto: %s" % (c, delibera, p.codice_locale))
                     else:
-                        self.logger.info("%s: Associazione tra delibera %s e progetto %s trovata e non modificata" %
+                        self.logger.info(u"%s: Associazione tra delibera %s e progetto %s trovata e non modificata" %
                                          (c, delibera, p.codice_locale))
 
                 # data aggiornamento è l'ultima data pubblicazione delibera cipe,
