@@ -39,5 +39,5 @@ django-recaptcha
 django-disqus
 
 djangorestframework
-
+markdown
 numpy
