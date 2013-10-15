@@ -138,7 +138,7 @@ var line_chart_options = {
             year: '%Y'
         },
         min: Date.UTC(1994, 1, 1),
-        max: Date.UTC(2012, 1, 1)
+        max: Date.UTC((new Date()).getFullYear(), 1, 1)
     },
     yAxis: {
         title: {
