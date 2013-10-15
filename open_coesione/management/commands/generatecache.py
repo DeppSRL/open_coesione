@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import subprocess
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
@@ -172,12 +173,18 @@ class Command(BaseCommand):
                 self.logger.info("{0}; n_progetti: {1}".format(s.slug, s.progetti.count()))
             else:
                 self.logger.info("{0}; n_progetti: {1}".format(s.slug, s.progetti.count()))
-                call_command('preparesoggetto', s.slug, clearcache=options['clearcache'], verbosity=options['verbosity'])
+                subprocess.call(
+                    ["python",  "manage.py",  "preparesoggetto", s.slug,
+                    "--clear-cache" if options['clearcache'] else "",
+                    "--verbosity={0}".format(options['verbosity'])])
+
+
                 for thematization in ('totale_costi', 'totale_pagamenti', 'totale_progetti'):
-                    call_command('preparesoggetto', s.slug,
-                                 clearcache=options['clearcache'],
-                                 verbosity=options['verbosity'],
-                                 thematization=thematization)
+                    subprocess.call(
+                        ["python",  "manage.py",  "preparesoggetto", s.slug,
+                        "--clear-cache" if options['clearcache'] else "",
+                        "--verbosity={0}".format(options['verbosity']),
+                        "--thematization={0}".format(thematization)])
 
 
 

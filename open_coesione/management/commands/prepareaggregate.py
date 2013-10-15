@@ -48,7 +48,7 @@ class Command(BaseCommand):
         make_option('--type',
                     dest='type',
                     default='home',
-                    help='One of home, tema, tipologia, programma, territorio'),
+                    help='One of home, tema, natura, programma, territorio'),
     )
 
     def handle(self, *args, **options):
