@@ -20,9 +20,14 @@ cache_generation.log
 media
 apitest.py
 /log/*
+
+# istat_dps_update - related ignore instuctions
 /open_coesione/static/csv/spesa_certificata/*.csv
 /open_coesione/static/csv/indicatori
 /open_coesione/static/csv/temaind
 /open_coesione/static/csv/temi.csv
 /open_coesione/static/csv/regioni.csv
+/open_coesione/.current
+/open_coesione/Indicatori_regionali_*.zip
+
 
