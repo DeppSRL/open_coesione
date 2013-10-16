@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.test import RequestFactory
 from rest_framework import status, generics
 from rest_framework.decorators import api_view
