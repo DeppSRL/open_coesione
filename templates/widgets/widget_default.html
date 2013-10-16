@@ -66,36 +66,17 @@
 						<ul class="unstyled">
 							{% for result in result_set.results %}
 								<li class="media">
-                  <span class="pull-left">
-                    <img class="lazy img-polaroid"
-                         src="{% static 'img/politico-portrait.png' %}"
-                         data-original="http://parlamento17.openpolis.it/images/parlamentari/thumb/{{ result.anagrafica.id }}.jpeg"
-                         width="40" height="53">
-                    <noscript><img
-                        class="img-polaroid"
-                        src="http://parlamento17.openpolis.it/images/parlamentari/thumb/{{ result.anagrafica.id }}.jpeg"
-                        width="40" height="53"></noscript>
-                  </span>
 
 									<div class="media-body">
 										<h5 class="media-heading">
-											{{ result.anagrafica.nome }} {{ result.anagrafica.cognome }}
+											{{ result.titolo_progetto }}
 											<a href="#" onclick="return false;" data-toggle="collapse"
 											   data-target="#metadata-{{ forloop.counter }}">
 												<i class="icon-info"></i></a>
 										</h5>
 
 										<p>
-											Gruppo: <abbr title="{{ result.gruppo.nome }}"
-											              data-toggle="tooltip">{{ result.gruppo.acronimo }}</abbr>
-											| Carica: {{ result.carica.tipo_carica }}
-											| Inizio: {{ result.carica.data_inizio }}
-											{% if result.carica.data_fine %}
-												| Fine: {{ result.carica.data_fine }}
-											{% endif %}
-											{% if result.carica.circoscrizione %}
-												| Circoscrizione: {{ result.carica.circoscrizione }}
-											{% endif %}
+											...
 										</p>
 
 										<div class="muted collapse" id="metadata-{{ forloop.counter }}">{{ result }}</div>

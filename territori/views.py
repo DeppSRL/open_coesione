@@ -141,6 +141,7 @@ class AutocompleteView(JSONResponseMixin, TemplateView):
             'cod_com': territorio.cod_com,
             'cod_prov': territorio.cod_prov,
             'cod_reg': territorio.cod_reg,
+            'slug': territorio.slug,
         } for territorio in territori]
         return context
 

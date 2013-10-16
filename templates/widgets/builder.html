@@ -80,7 +80,6 @@
 			};
 			$('#widget-builder').find('input, select').filter('[name]').not(':checkbox').each(function (ix, el) {
 				var name = $(el).attr('name');
-				console.log('provo a prendere', el, name, name && name[0] != '_', $(el).val() != '');
 				if (name && name[0] != '_' && $(el).val() != '') {
 					inputParams[name] = $(el).val();
 				}
@@ -143,7 +142,8 @@
 							response($.map(data.territori, function (item) {
 								return {
 									label: item.denominazione,
-									id: item.id
+									id: item.id,
+									slug: item.slug
 								}
 							}));
 						}
@@ -151,8 +151,7 @@
 			},
 			minLength: 2,
 			select: function (event, ui) {
-				console.log('territorio selezionato', ui);
-				$('#id_territorio').val(ui.item.id);
+				$('#id_territorio').val(ui.item.slug);
 			},
 			open: function () {
 				$(this).removeClass("ui-corner-all").addClass("ui-corner-top");
