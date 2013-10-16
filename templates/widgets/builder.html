@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% load sekizai_tags %}
+
+
+{% block page_title %}Widgets{% endblock %}
+
+
+{% block container %}
+<div class="container">
+	<div class="page-header">
+		<h2>Widget di Opencoesione</h2>
+	</div>
+	<div class="row">
+		<div class="span4">
+			<form id="widget-builder">
+			  <fieldset>
+			    <legend>Configurazione</legend>
+			    <label for="id_title">Titolo</label>
+			    <input type="text" name="title" id="id_title">
+
+				  <label for="id_territorio">Territorio</label>
+				  <select name="territorio" id="id_territorio">
+					  <option value="">---</option>
+					  {% for territorio in lista_regioni %}
+					  <option value="{{ territorio.pk }}">{{ territorio }}</option>
+					  {% endfor %}
+				  </select>
+
+				  <label for="id_tema">Tema</label>
+				  <select name="tema" id="id_tema">
+					  <option value="">---</option>
+					  {% for tema in lista_temi_principali %}
+					  <option value="{{ tema.pk }}">{{ tema }}</option>
+					  {% endfor %}
+				  </select>
+
+				  <label for="id_natura">Natura</label>
+				  <select name="natura" id="id_natura">
+					  <option value="">---</option>
+					  {% for natura in lista_tipologie_principali %}
+					  <option value="{{ natura.pk }}">{{ natura }}</option>
+					  {% endfor %}
+				  </select>
+
+			    <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Genera</button>
+            <button type="reset" class="btn">Reset</button>
+          </div>
+			  </fieldset>
+			</form>
+		</div>
+		<div class="span8">
+
+			<form>
+				<fieldset>
+					<legend>Anteprima</legend>
+					<div class="well" id="embed_code_preview"></div>
+          <textarea name="embed_code" id="id_embed_code" rows="4" class="input-block-level"></textarea>
+          <div class="muted">Copia e incolla il codice nell'HTML del tuo sito.</div>
+				</fieldset>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block js_content %}
+{{ block.super }}
+{% addtoblock "js_script" %}
+	<script type="text/javascript" src="{{ STATIC_URL }}js/underscore-min.js"></script>
+{% endaddtoblock %}
+<script type="text/javascript">
+
+	$(function () {
+
+		if (!window.location.origin)
+			window.location.origin = window.location.protocol + "//" + window.location.host;
+
+		var collectParams = function () {
+			var inputParams = {
+				base_url: window.location.origin
+			};
+			$('#widget-builder').find('input, select').not(':checkbox').each(function (ix, el) {
+				if ($(el).val() != '') {
+					inputParams[$(el).attr('name')] = $(el).val();
+				}
+			});
+			return inputParams;
+		};
+
+		var createEmbedDiv = function (params) {
+			var el = _.reduce(_.keys(params), function (memory, key) {
+				return memory + ' data-' + key + '="' + params[key] + '"';
+			}, '<div class="widget-opencoesione"');
+			el += '></div>';
+			return el;
+		};
+
+		var createEmbedScript = function () {
+			var url = "http://{{ request.get_host }}{{ STATIC_URL }}js/widgets.js";
+			return '<script id="opencoesione-loader" src="' + url + '" async ><\/script>';
+		};
+
+		var embedCode = function (params) {
+			var code = createEmbedDiv(params || {}) + createEmbedScript();
+			$('#embed_code_preview').empty().html(code);
+			return code;
+		};
+
+		var embed_textarea = $('#id_embed_code');
+		embed_textarea.on('click', function () {
+			$(this).focus();
+			$(this).select();
+		});
+
+		var loadWidget = function () {
+			embed_textarea.val(embedCode(collectParams()));
+		};
+
+		$('#widget-builder').on('submit', function () {
+			loadWidget();
+			return false;
+		});
+
+		// start all
+		loadWidget();
+	});
+
+</script>
+{% endblock js_content %}

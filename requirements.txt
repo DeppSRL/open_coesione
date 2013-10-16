@@ -41,3 +41,4 @@ django-disqus
 djangorestframework
 markdown
 numpy
+requests==2.0.0

@@ -5,6 +5,7 @@ import os
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 REPO_ROOT = os.path.abspath(os.path.dirname(PROJECT_ROOT))
 DPS_ISTAT_ROOT = os.path.join(REPO_ROOT, "dati", "istat")
+API_URL = None
 
 # Haystack talks with solr
 HAYSTACK_SITECONF = 'open_coesione.search_sites'
@@ -159,8 +160,10 @@ INSTALLED_APPS = (
     # debug toolbar 3rd party panels
     'cache_panel',
     'disqus',
+    # API applications
     'rest_framework',
     'api',
+    'widgets',
 )
 
 DEBUG_TOOLBAR_PANELS = (
