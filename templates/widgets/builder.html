@@ -20,12 +20,8 @@
 			    <input type="text" name="title" id="id_title">
 
 				  <label for="id_territorio">Territorio</label>
-				  <select name="territorio" id="id_territorio">
-					  <option value="">---</option>
-					  {% for territorio in lista_regioni %}
-					  <option value="{{ territorio.pk }}">{{ territorio }}</option>
-					  {% endfor %}
-				  </select>
+				  <input type="hidden" name="territorio" id="id_territorio"/>
+				  <input type="text" id="territorio_selector" placeholder="Cerca un territorio..."/>
 
 				  <label for="id_tema">Tema</label>
 				  <select name="tema" id="id_tema">
@@ -55,7 +51,7 @@
 			<form>
 				<fieldset>
 					<legend>Anteprima</legend>
-					<div class="well" id="embed_code_preview"></div>
+					<div class="well text-center" id="embed_code_preview"></div>
           <textarea name="embed_code" id="id_embed_code" rows="4" class="input-block-level"></textarea>
           <div class="muted">Copia e incolla il codice nell'HTML del tuo sito.</div>
 				</fieldset>
@@ -82,9 +78,11 @@
 			var inputParams = {
 				base_url: window.location.origin
 			};
-			$('#widget-builder').find('input, select').not(':checkbox').each(function (ix, el) {
-				if ($(el).val() != '') {
-					inputParams[$(el).attr('name')] = $(el).val();
+			$('#widget-builder').find('input, select').filter('[name]').not(':checkbox').each(function (ix, el) {
+				var name = $(el).attr('name');
+				console.log('provo a prendere', el, name, name && name[0] != '_', $(el).val() != '');
+				if (name && name[0] != '_' && $(el).val() != '') {
+					inputParams[name] = $(el).val();
 				}
 			});
 			return inputParams;
@@ -123,6 +121,47 @@
 			loadWidget();
 			return false;
 		});
+
+
+		/*
+		 * Autocompleter for the map input field
+		 */
+
+		$('#territorio_selector').focus(function () {
+			if ($(this)._cleared) return;
+			$(this).val('');
+			$(this)._cleared = true;
+		});
+
+
+		$("#territorio_selector").autocomplete({
+			source: function (request, response) {
+				$.getJSON(
+						"/territori/autocomplete/",
+						{'query': request.term },
+						function (data) {
+							response($.map(data.territori, function (item) {
+								return {
+									label: item.denominazione,
+									id: item.id
+								}
+							}));
+						}
+				);
+			},
+			minLength: 2,
+			select: function (event, ui) {
+				console.log('territorio selezionato', ui);
+				$('#id_territorio').val(ui.item.id);
+			},
+			open: function () {
+				$(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+			},
+			close: function () {
+				$(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+			}
+		}).css('z-index', 10000);
+
 
 		// start all
 		loadWidget();
