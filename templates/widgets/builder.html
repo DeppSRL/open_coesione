@@ -9,7 +9,7 @@
 {% block container %}
 <div class="container">
 	<div class="page-header">
-		<h2>Widget di Opencoesione</h2>
+		<h2>Widgets di Opencoesione</h2>
 	</div>
 	<div class="row">
 		<div class="span4">
@@ -22,22 +22,23 @@
 				  <label for="id_territorio">Territorio</label>
 				  <input type="hidden" name="territorio" id="id_territorio"/>
 				  <input type="text" id="territorio_selector" placeholder="Cerca un territorio..."/>
+				  <input type="hidden" name="widget" value="territorio"/>
 
-				  <label for="id_tema">Tema</label>
-				  <select name="tema" id="id_tema">
-					  <option value="">---</option>
-					  {% for tema in lista_temi_principali %}
-					  <option value="{{ tema.pk }}">{{ tema }}</option>
-					  {% endfor %}
-				  </select>
-
-				  <label for="id_natura">Natura</label>
-				  <select name="natura" id="id_natura">
-					  <option value="">---</option>
-					  {% for natura in lista_tipologie_principali %}
-					  <option value="{{ natura.pk }}">{{ natura }}</option>
-					  {% endfor %}
-				  </select>
+{#				  <label for="id_tema">Tema</label>#}
+{#				  <select name="tema" id="id_tema">#}
+{#					  <option value="">---</option>#}
+{#					  {% for tema in lista_temi_principali %}#}
+{#					  <option value="{{ tema.pk }}">{{ tema.short_label }}</option>#}
+{#					  {% endfor %}#}
+{#				  </select>#}
+{##}
+{#				  <label for="id_natura">Natura</label>#}
+{#				  <select name="natura" id="id_natura">#}
+{#					  <option value="">---</option>#}
+{#					  {% for natura in lista_tipologie_principali %}#}
+{#					  <option value="{{ natura.pk }}">{{ natura.short_label }}</option>#}
+{#					  {% endfor %}#}
+{#				  </select>#}
 
 			    <div class="form-actions">
             <button type="submit" class="btn btn-primary">Genera</button>

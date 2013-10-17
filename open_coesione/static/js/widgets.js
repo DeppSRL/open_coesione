@@ -31,7 +31,8 @@
         });
         var width = paramsEmbed['width'] || 460,
             height = paramsEmbed['height'] || 400,
-            url = paramsEmbed['base_url'] + '/widgets/default/?' + encodeQueryData(paramsEmbed);
+            widget = paramsEmbed['widget'],
+            url = paramsEmbed['base_url'] + '/widgets/' + widget +'/?' + encodeQueryData(paramsEmbed);
         el.innerHTML = '<iframe allowtransparency="true" frameBorder="0" scrolling="no" ' +
             'style="border: none; max-width: 100%; min-width: 180px;" ' +
             'width="'+width+'" height="'+height+'" ' +
