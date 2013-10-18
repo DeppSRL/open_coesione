@@ -93,7 +93,7 @@
                 {% if latest_entry %}
                   <div id="blog_info">
                     {{ latest_entry.published_at|date:'d/m/Y' }} - <strong>{{ latest_entry.title }}</strong> >
-                    <a href="{% url blog_home %}">Leggi le novità</a>.
+                    <a href="{% url 'blog_home' %}">Leggi le novità</a>.
                   </div>
                 {% endif %}
                 {% endblock %}

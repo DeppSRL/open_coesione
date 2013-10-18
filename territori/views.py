@@ -157,8 +157,10 @@ class LeafletView(TemplateView):
         if self.kwargs['ext'] == 'json':
             response_kwargs['content_type'] = 'application/json'
             context['tilestache_url'] = settings.TILESTACHE_URL
+            serializable_context = context.copy()
+            serializable_context.pop('view', None)
             return HttpResponse(
-                json.dumps(context),
+                json.dumps(serializable_context),
                 **response_kwargs
             )
 
@@ -177,11 +179,12 @@ class LeafletView(TemplateView):
         # - nation
         # - region
         # - province
-        if 'cod_reg' in context['params']:
+
+        if 'params' in context and 'cod_reg' in context['params']:
             codice = context['params']['cod_reg']
             area = Territorio.objects.get(territorio=Territorio.TERRITORIO.R, cod_reg=codice).geom
             context['zoom'] = { 'min' : 7, 'max' : 10 }
-        elif 'cod_prov' in context['params']:
+        elif 'params' in context and 'cod_prov' in context['params']:
             codice = context['params']['cod_prov']
             area = Territorio.objects.get(territorio=Territorio.TERRITORIO.P, cod_prov=codice).geom
             context['zoom'] = { 'min' : 8, 'max' : 11 }
@@ -398,7 +401,7 @@ class MapnikProvinceView(MapnikView):
 
     def refine_context(self, context):
         #super(MapnikProvinceView, self).refine_context(context)
-        if 'cod_reg' in context['params']:
+        if 'params' in context and 'cod_reg' in context['params']:
             cod_reg = context['params']['cod_reg']
             self.queryset = Territorio.objects.filter(territorio='P', cod_reg=cod_reg)
             self.territori_name = 'regioni_%s_province' % cod_reg
@@ -414,11 +417,11 @@ class MapnikComuniView(MapnikView):
 
     def refine_context(self, context):
         #super(MapnikComuniView, self).refine_context(context)
-        if 'cod_reg' in context['params']:
+        if 'params' in context and 'cod_reg' in context['params']:
             cod_reg = context['params']['cod_reg']
             self.queryset = Territorio.objects.filter(territorio='C', cod_reg=cod_reg)
             self.territori_name = 'regioni_%s_comuni' % cod_reg
-        elif 'cod_prov' in context['params']:
+        elif 'params' in context and 'cod_prov' in context['params']:
             cod_prov = context['params']['cod_prov']
             self.queryset = Territorio.objects.filter(territorio='C', cod_prov=cod_prov)
             self.territori_name = 'province_%s_comuni' % cod_prov

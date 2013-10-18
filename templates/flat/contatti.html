@@ -30,7 +30,7 @@
       <p class="well">Grazie per averci contattato, la nostra redazione leggerà il tuo messaggio il prima possibile</p>
     {% else %}
 
-    <form action="{% url oc_contatti %}" id="" method="post" class="form-horizontal">
+    <form action="{% url 'oc_contatti' %}" id="" method="post" class="form-horizontal">
       {% csrf_token %}
       <div class="row-fluid clearfix">
         <fieldset class="span6">
