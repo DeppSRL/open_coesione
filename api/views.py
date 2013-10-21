@@ -344,8 +344,8 @@ def api_aggregati_territori_list(request, format=None):
     Shows URLs linking to aggregated regioni and province pages.
     """
     ret = SortedDict([
-        ('ambito-estero', reverse('api-aggregati-territorio-detail', request=request, format=format, kwargs={'slug': 'ambito-estero'})),
-        ('ambito-nazionale', reverse('api-aggregati-territorio-detail', request=request, format=format, kwargs={'slug': 'ambito-nazionale'})),
+        ('ambito_estero', reverse('api-aggregati-territorio-detail', request=request, format=format, kwargs={'slug': 'ambito-estero'})),
+        ('ambito_nazionale', reverse('api-aggregati-territorio-detail', request=request, format=format, kwargs={'slug': 'ambito-nazionale'})),
         ('regioni', get_regioni_list(request, format)),
         ('provincie', get_province_list(request, format)),
     ])
