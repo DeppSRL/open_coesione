@@ -1,0 +1,7 @@
+<label for="id_natura">Natura</label>
+<select name="natura" id="id_natura">
+  <option value="">---</option>
+  {% for natura in lista_tipologie_principali %}
+  <option value="{{ natura.pk }}">{{ natura.short_label }}</option>
+  {% endfor %}
+</select>

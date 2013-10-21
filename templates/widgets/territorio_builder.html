@@ -1,0 +1,39 @@
+{% extends 'widgets/builder.html' %}
+
+
+{% block configuration %}
+<label for="id_territorio">Territorio</label>
+<input type="hidden" name="territorio" id="id_territorio"/>
+<input type="text" id="territorio_selector" placeholder="Cerca un territorio..."/>
+
+<label class="checkbox">
+  <input type="checkbox" name="components" value="show_totali">
+  Mostra i dati totali dei pagamenti, finanziamenti e numero progetti.
+</label>
+
+<label class="checkbox">
+  <input type="checkbox" name="components" value="totali">
+  Mostra i dati relativi ai temi.
+</label>
+
+<label class="checkbox">
+  <input type="checkbox" name="components" value="nature">
+  Mostra i dati relativi alle nature.
+</label>
+
+<label class="checkbox">
+  <input type="checkbox" name="components" value="pro_capite">
+  Mostra i dati del finanziamento pro-capite.
+</label>
+
+<label class="checkbox">
+  <input type="checkbox" name="components" value="progetti_conclusi">
+  Mostra gli ultimi progetti conclusi
+</label>
+
+<label class="checkbox">
+  <input type="checkbox" name="components" value="top_finanziamenti">
+  Mostra i progetti più costosi
+</label>
+
+{% endblock %}

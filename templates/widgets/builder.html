@@ -16,34 +16,26 @@
 			<form id="widget-builder">
 			  <fieldset>
 			    <legend>Configurazione</legend>
-			    <label for="id_title">Titolo</label>
-			    <input type="text" name="title" id="id_title">
 
-				  <label for="id_territorio">Territorio</label>
-				  <input type="hidden" name="territorio" id="id_territorio"/>
-				  <input type="text" id="territorio_selector" placeholder="Cerca un territorio..."/>
-				  <input type="hidden" name="widget" value="territorio"/>
-
-{#				  <label for="id_tema">Tema</label>#}
-{#				  <select name="tema" id="id_tema">#}
-{#					  <option value="">---</option>#}
-{#					  {% for tema in lista_temi_principali %}#}
-{#					  <option value="{{ tema.pk }}">{{ tema.short_label }}</option>#}
-{#					  {% endfor %}#}
-{#				  </select>#}
-{##}
-{#				  <label for="id_natura">Natura</label>#}
-{#				  <select name="natura" id="id_natura">#}
-{#					  <option value="">---</option>#}
-{#					  {% for natura in lista_tipologie_principali %}#}
-{#					  <option value="{{ natura.pk }}">{{ natura.short_label }}</option>#}
-{#					  {% endfor %}#}
-{#				  </select>#}
-
+          {% if widget %}
+          {% block configuration %}{% endblock %}
 			    <div class="form-actions">
+            <input type="hidden" name="widget" value="{{ widget }}"/>
             <button type="submit" class="btn btn-primary">Genera</button>
             <button type="reset" class="btn">Reset</button>
           </div>
+          {% else %}
+            <p>
+              Seleziona il widget che vuoi creare:
+            </p>
+            <ul>
+              <li><a href="?widget=territorio">per territorio</a></li>
+              <li><a href="?widget=tema">per tema</a></li>
+              <li><a href="?widget=natura">per natura</a></li>
+              <li><a href="?widget=progetto">per progetto</a></li>
+              <li><a href="?widget=soggetto">per soggetto</a></li>
+            </ul>
+          {% endif %}
 			  </fieldset>
 			</form>
 		</div>
@@ -51,10 +43,12 @@
 
 			<form>
 				<fieldset>
+          {% if widget %}
 					<legend>Anteprima</legend>
 					<div class="well text-center" id="embed_code_preview"></div>
           <textarea name="embed_code" id="id_embed_code" rows="4" class="input-block-level"></textarea>
           <div class="muted">Copia e incolla il codice nell'HTML del tuo sito.</div>
+          {% endif %}
 				</fieldset>
 			</form>
 		</div>
@@ -70,7 +64,7 @@
 {% endaddtoblock %}
 <script type="text/javascript">
 
-	$(function () {
+
 
 		if (!window.location.origin)
 			window.location.origin = window.location.protocol + "//" + window.location.host;
@@ -79,18 +73,30 @@
 			var inputParams = {
 				base_url: window.location.origin
 			};
-			$('#widget-builder').find('input, select').filter('[name]').not(':checkbox').each(function (ix, el) {
-				var name = $(el).attr('name');
-				if (name && name[0] != '_' && $(el).val() != '') {
-					inputParams[name] = $(el).val();
-				}
-			});
-			return inputParams;
+      _.each($('#widget-builder').serializeArray(), function(el){
+        if (el.name != undefined && el.name != '') {
+          console.log(el.name, _.has(inputParams, el.name), inputParams);
+          if (_.has(inputParams, el.name)) {
+            if (_.isArray(inputParams[el.name])) {
+              inputParams[el.name].push(el.value);
+            } else {
+              inputParams[el.name] = [inputParams[el.name], el.value];
+            }
+          } else {
+            inputParams[el.name] = el.value;
+          }
+        }
+      });
+      return inputParams;
 		};
+
+    var formatValue = function(value) {
+      return _.escape(_.isArray(value) ? value.join(',') : value);
+    };
 
 		var createEmbedDiv = function (params) {
 			var el = _.reduce(_.keys(params), function (memory, key) {
-				return memory + ' data-' + key + '="' + params[key] + '"';
+				return memory + ' data-' + key + '="' + formatValue(params[key]) + '"';
 			}, '<div class="widget-opencoesione"');
 			el += '></div>';
 			return el;
@@ -116,6 +122,8 @@
 		var loadWidget = function () {
 			embed_textarea.val(embedCode(collectParams()));
 		};
+
+  $(function () {
 
 		$('#widget-builder').on('submit', function () {
 			loadWidget();
