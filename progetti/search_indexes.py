@@ -121,8 +121,8 @@ class ProgettoIndex(SearchIndex):
     def prepare_data_inizio(self, obj):
         if obj.data_inizio_effettiva:
             return obj.data_inizio_effettiva
-        elif obj.data_inizio_prevista:
-            return obj.data_inizio_prevista
+        #elif obj.data_inizio_prevista:
+        #    return obj.data_inizio_prevista
         else:
             return datetime.datetime.strptime('19700101', '%Y%m%d')
 
