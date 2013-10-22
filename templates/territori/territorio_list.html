@@ -33,7 +33,7 @@
 
             <tr>
               <th>{{ nazione.denominazione }}</th>
-              <td class="amount"><strong>{{ totale|default:"0"|intcomma }}</strong> {% if tematizzazione == 'totale_progetti' %}progetti{% else %}euro{% endif %}</td>
+              <td class="amount"><strong>{{ totale|default:"0"|floatformat:"0" }}</strong></td>
             </tr>
 
         {% endfor %}
