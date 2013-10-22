@@ -1354,8 +1354,9 @@ class Command(BaseCommand):
                 if len(cups_progetto) > 0:
                     for cup in cups_progetto:
                         cup = cup.strip()
-                        if c not in p.cups_progetto.all():
-                            p.cups_progetto.create(cup=c)
+                        if cup not in p.cups_progetto.all():
+                            p.cups_progetto.create(cup=cup)
+
 
                 # add delibera to project
                 if cipe_flag and delibera:
