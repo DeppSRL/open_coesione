@@ -1158,6 +1158,8 @@ class Command(BaseCommand):
             # tema
             dps_tema = self._normalizza_tema(r['DPS_TEMA_SINTETICO'])
 
+            # eccezione tema COMPETITIVITÀ PER LE IMPRESE => TODO
+
             try:
                 created = False
                 tema_sintetico, created = Tema.objects.get_or_create(
@@ -1348,14 +1350,14 @@ class Command(BaseCommand):
                     p.dps_flag_cup = 1
                     p.costo = costo
                     p.save()
-                    self.logger.info("%s: Progetto trovato e non modificato: %s" % (c, p.codice_locale))
+                    self.logger.info("%s: Progetto trovato e modificato: %s" % (c, p.codice_locale))
 
                 # add cups to CUP table
                 if len(cups_progetto) > 0:
                     for cup in cups_progetto:
                         cup = cup.strip()
-                        if c not in p.cups_progetto.all():
-                            p.cups_progetto.create(cup=c)
+                        if cup not in p.cups_progetto.all():
+                            p.cups_progetto.create(cup=cup)
 
                 # add delibera to project
                 if cipe_flag and delibera:
