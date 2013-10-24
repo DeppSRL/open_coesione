@@ -329,7 +329,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'theme': "advanced",
     'cleanup_on_startup': True,
     'custom_undo_redo_levels': 10,
-    'theme_advanced_toolbar_location' : "top"
+    'theme_advanced_toolbar_location': "top"
 }
 TINYMCE_SPELLCHECKER = True
 
@@ -349,8 +349,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'
     ),
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '12/minute', # 1 req every 5 seconds
-        'user': '1/second'
+        'anon': '12/minute',  # 1 req every 5 seconds
+        'user': '1000/second',  # un-throttled  (default: '1/second')
     },
     'PAGINATE_BY': 25,
     'PAGINATE_BY_PARAM': 'page_size',
