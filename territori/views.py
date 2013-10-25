@@ -34,8 +34,11 @@ class JSONResponseMixin(object):
         Returns a JSON response, transforming 'context' to make the payload.
         """
         response_kwargs['content_type'] = 'application/json'
+        serializable_context = context.copy()
+        if 'view' in serializable_context:
+            del serializable_context['view']
         return self.response_class(
-            json.dumps(context),
+            json.dumps(serializable_context),
             **response_kwargs
         )
 
