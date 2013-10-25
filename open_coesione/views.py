@@ -249,15 +249,6 @@ class ContactView(TemplateView):
 
     def get_context_data(self, **kwargs):
 
-#        if self.request.method == 'POST': # If the form has been submitted...
-#            form = ContactForm( self.request.POST ) # A form bound to the POST data
-#            if form.is_valid(): # All validation rules pass
-#                # Process the data in form.cleaned_data
-#                form.send_mail()
-#                return HttpResponseRedirect( reverse('oc_contatti') ) # Redirect after POST
-#        else:
-#            form = ContactForm() # An unbound form
-
         return {
             'contact_form' : ContactForm() if self.request.method == 'GET' else ContactForm( self.request.POST ),
             'contact_form_submitted' : self.request.GET.get('completed','') == 'true'

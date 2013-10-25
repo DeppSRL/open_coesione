@@ -694,9 +694,8 @@ class SegnalaDescrizioneView(FormView):
 
     def form_valid(self, form):
 
-        form.send_mail()
-
         form.save()
+        form.send_mail()
 
         return super(SegnalaDescrizioneView, self).form_valid(form)
 
