@@ -57,7 +57,7 @@ class ClassificazioneAzioneAdmin(ClassificazioneAdmin):
 
 
 class SegnalazioneAdmin(admin.ModelAdmin):
-    list_display = ('email', 'cup', 'is_cipe')
+    list_display = ('email', 'cup', 'is_cipe', 'modified')
     list_filter = ('is_cipe', )
     search_fields = ('email', 'cup')
     fieldsets = (

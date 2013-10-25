@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Email da {{ utente }}</title>
+</head>
+<body>
+    <header>
+      <h1>Segnalazione relativa al progetto con CUP: {{ cup}}</h1>
+      <strong>Inviata dall'utente:{{ utente }}</strong>
+      <br>
+      <i>{{ organizzazione }}</i>
+      <p>
+          <a href="{{ segnalazione_url }}">link alla segnalazione</a>
+          (backend, è necessario autenticarsi)
+      </p>
+      {% if progetto_url %}
+          <p><a href="{{ progetto_url }}">link al progetto</a> (frontend)</p>
+      {% endif %}
+    </header>
+
+    {% if descrizione.value %}
+        <h4>{{ descrizione.label }}</h4>
+        <p>{{ descrizione.value }}</p>
+    {% endif %}
+
+    {% if come_lo_conosci.value %}
+        <h4>{{ come_lo_conosci.label }}</h4>
+        <p>{{ come_lo_conosci.value }}</p>
+    {% endif %}
+
+    {% if come_migliorare.value %}
+        <h4>{{ come_migliorare.label }}</h4>
+        <p>{{ come_migliorare.value }}</p>
+    {% endif %}
+
+    {% if risultati_conseguiti.value %}
+        <h4>{{ risultati_conseguiti.label }}</h4>
+        <p>{{ risultati_conseguiti.value }}</p>
+    {% endif %}
+
+    {% if effetti_sul_territorio %}
+        <h4>{{ effetti_sul_territorio.label }}</h4>
+        <p>{{ effetti_sul_territorio.value }}</p>
+    {% endif %}
+
+    {% if cosa_piace.value %}
+        <h4>{{ cosa_piace.label }}</h4>
+        <p>{{ cosa_piace.value }}</p>
+    {% endif %}
+
+    {% if cosa_non_piace.value %}
+        <h4>{{ cosa_non_piace.label }}</h4>
+        <p>{{ cosa_non_piace.value }}</p>
+    {% endif %}
+
+   {% if quanto_utiel.value %}
+        <h4>{{ quanto_utile.label }}</h4>
+        <p>{{ quanto_utile.value }}</p>
+   {% endif %}
+
+
+
+
+
+</body>
+</html>
