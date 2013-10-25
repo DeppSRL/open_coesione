@@ -9,6 +9,7 @@
 	<tr><td>{{ aggregati.totali.costi|floatformat:'2' }}</td><td>{{ aggregati.totali.pagamenti|floatformat:'2' }}</td><td>{{ aggregati.totali.progetti}}</td></tr
 	</table>
 
+	{% if params.show_temi %}
 	<table class="table">
 	{% for slug, tema in aggregati.temi.items %}
 	<tr>
@@ -17,7 +18,9 @@
 	</tr>
 	{% endfor %}
 	</table>
+	{% endif %}
 
+	{% if params.show_nature %}
 	<table class="table">
 	{% for slug, natura in aggregati.nature.items %}
 	<tr>
@@ -26,6 +29,7 @@
 	</tr>
 	{% endfor %}
 	</table>
+	{% endif %}
 
 <ul class="unstyled">
 

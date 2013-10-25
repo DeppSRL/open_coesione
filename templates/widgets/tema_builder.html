@@ -1,7 +1,0 @@
-<label for="id_tema">Tema</label>
-<select name="tema" id="id_tema">
-  <option value="">---</option>
-  {% for tema in lista_temi_principali %}
-  <option value="{{ tema.pk }}">{{ tema.short_label }}</option>
-  {% endfor %}
-</select>

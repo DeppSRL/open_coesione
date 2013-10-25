@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block container %}
+<div class="container">
+	{% if widget %}
+	<div class="page-header">
+		<h2>{% block widget_title %}{{ widget.title }}{% endblock %}</h2>
+	</div>
+	{% endif %}
+	<div class="row">
+		<div class="span4">
+			<form id="widget-builder" action="." method="get">
+			  <fieldset>
+			    {% if widget %}
+				  <legend>Configurazione</legend>
+          {{ widget.get_form.as_p }}
+			    <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Genera</button>
+            <button type="reset" class="btn">Reset</button>
+          </div>
+          {% else %}
+            <p>
+              Seleziona il widget che vuoi creare:
+            </p>
+            <ul>
+							{% for code, title in available_widgets %}
+							<li><a href="{% url widgets-build widget=code %}">{{ title }}</a></li>
+							{% endfor %}
+						</ul>
+          {% endif %}
+			  </fieldset>
+			</form>
+		</div>
+		<div class="span8">
+
+			<form>
+				<fieldset>
+          {% if widget %}
+					<legend>Anteprima</legend>
+					<div class="well text-center" id="embed_code_preview">{{ widget.get_embed_code }}</div>
+          <textarea name="embed_code" id="id_embed_code" rows="4" class="input-block-level">{{ widget.get_embed_code }}</textarea>
+          <div class="muted">Copia e incolla il codice nell'HTML del tuo sito.</div>
+          {% endif %}
+				</fieldset>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

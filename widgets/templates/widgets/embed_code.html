@@ -1,0 +1,3 @@
+{% load staticfiles %}
+<div class="oc-widget" data-widget="{{ widget.code }}" data-base_url="//{{ widget.request.get_host }}"{% for key, value in widget.get_form.cleaned_data.items %}{% if value %} data-{{ key }}="{{ value|escape }}"{% endif %}{% endfor %}></div>
+<script id="oc-loader" src="//{{ widget.request.get_host }}{% static 'js/widgets.js' %}" async></script>
