@@ -78,6 +78,9 @@ class AggregateWidget(Widget):
     def get_topic_choices(self):
         pass
 
+    def get_topic(self):
+        return self.request.GET.get(self.API_TOPIC, self.INITIAL_TOPIC[0])
+
     def get_title(self):
         choices = self.get_topic_choices()
         if self.EXCLUDE_TITLE:

@@ -4,12 +4,10 @@
   <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet">
   <link href="{{ STATIC_URL }}css/bootstrap-responsive.css" rel="stylesheet">
   <style type="text/css">
-    table#widget-container > thead td, table#widget-container > tfoot td {
-      color: #ffffff;
-      background-color: #005652;
-    }
-  table#widget-container > thead td { font-size: 20px; }
-  table#widget-container > tfoot td { font-size: 12px; }
+    table#widget-container { background-color: #005652; }
+    table#widget-container > thead td { font-size: 20px; color: #ffffff; }
+    table#widget-container > tfoot td { font-size: 12px; color: #ffffff; }
+    table#widget-container > tbody td { background-color: #ffffff; }
   </style>
 {% endblock %}
 

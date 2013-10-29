@@ -1,5 +1,6 @@
 # coding=utf-8
 from __future__ import absolute_import
+from territori.models import Territorio
 from open_coesione.widgets import AggregateWidget
 from widgets.models import Widget
 from django import forms
@@ -18,6 +19,9 @@ class TerritorioWidget(AggregateWidget):
     INITIAL_TOPIC = 'roma-comune', 'Roma'
     API_PATH = 'territori/'
     API_TOPIC = 'territorio'
+
+    def get_title(self):
+        return "{0}: {1}".format(self.title, Territorio.objects.get(slug=self.get_topic()).denominazione)
 
 
 #class TerritorioWidget(Widget):
