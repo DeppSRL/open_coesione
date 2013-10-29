@@ -133,7 +133,10 @@ class AutocompleteView(JSONResponseMixin, TemplateView):
         # Call the base implementation first to get a context
         context = super(AutocompleteView, self).get_context_data(**kwargs)
         query = self.request.GET['query']
-        territori = Territorio.objects.filter(denominazione__istartswith=query).order_by('-popolazione_totale')[0:20]
+        if query.startswith('='):
+            territori = Territorio.objects.filter(slug=query[1:])
+        else:
+            territori = Territorio.objects.filter(denominazione__istartswith=query).order_by('-popolazione_totale')[0:20]
         context['territori'] = [{
             'denominazione': territorio.nome_con_provincia,
             'url': territorio.get_absolute_url(),
