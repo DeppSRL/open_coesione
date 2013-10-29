@@ -146,6 +146,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'open_coesione',
     'sekizai',
+    'bootstrapform',
     'south',
     'haystack',
     'progetti',
@@ -358,3 +359,9 @@ REST_FRAMEWORK = {
 
 
 SOUTH_TESTS_MIGRATE = False
+
+WIDGETS = [
+    'territori.widgets.TerritorioWidget',
+    'progetti.widgets.TemaWidget',
+    'progetti.widgets.NaturaWidget',
+]
