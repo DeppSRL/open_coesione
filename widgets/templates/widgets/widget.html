@@ -1,8 +1,15 @@
-{% load staticfiles %}
+{% load staticfiles %}{% spaceless %}
 <!DOCTYPE html>
 <html>
 <head>
-	<title>{% block widget_title %}{{ widget.get_title }}{% endblock %}</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	{% endspaceless %}<title>{% block widget_title %}{{ widget.get_title }}{% endblock %}</title>
+	<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
+    <script type="text/javascript" src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <script type="text/javascript" src="/static/js/css3-mediaqueries.js"></script>
+  <![endif]-->
 	{% block widget_styles %}
   <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css"
 	      rel="stylesheet">
