@@ -3,6 +3,8 @@
 {% load sekizai_tags %}
 {% load bootstrap %}
 
+{% block page_title %}{{ block.super }}Widget{% if widget %} {{ widget.title }}{% endif %}{% endblock %}
+
 {% block container %}
 {% addtoblock "css_link" %}
 <style type="text/css">
