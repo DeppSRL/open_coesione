@@ -130,7 +130,9 @@ class ProgettoList(generics.ListAPIView):
         sortable_fields = (
             'costo',
             '-pagamento', 'pagamento',
-            '-perc_pagamento', 'perc_pagamento'
+            '-perc_pagamento', 'perc_pagamento',
+            '-data_fine_effettiva', 'data_fine_effettiva',
+            '-data_inizio_effettiva', 'data_inizio_effettiva'
         )
         if sort_field and sort_field in sortable_fields:
             # reset default order_by parameter set in progetti.search_querysets.sqs definition
