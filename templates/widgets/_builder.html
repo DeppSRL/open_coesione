@@ -2,21 +2,25 @@
 
 {% load sekizai_tags %}
 
+
+{% block page_title %}Widgets{% endblock %}
+
+
 {% block container %}
 <div class="container">
-	{% if widget %}
 	<div class="page-header">
-		<h2>{% block widget_title %}{{ widget.title }}{% endblock %}</h2>
+		<h2>Widgets di Opencoesione</h2>
 	</div>
-	{% endif %}
 	<div class="row">
 		<div class="span4">
-			<form id="widget-builder" action="." method="get">
+			<form id="widget-builder">
 			  <fieldset>
-			    {% if widget %}
-				  <legend>Configurazione</legend>
-          {{ widget.get_form.as_p }}
+			    <legend>Configurazione</legend>
+
+          {% if widget %}
+          {% block configuration %}{% endblock %}
 			    <div class="form-actions">
+            <input type="hidden" name="widget" value="{{ widget }}"/>
             <button type="submit" class="btn btn-primary">Genera</button>
             <button type="reset" class="btn">Reset</button>
           </div>
@@ -25,10 +29,12 @@
               Seleziona il widget che vuoi creare:
             </p>
             <ul>
-							{% for code, title in available_widgets %}
-							<li><a href="{% url widgets-build widget=code %}">{{ title }}</a></li>
-							{% endfor %}
-						</ul>
+              <li><a href="?widget=territorio">per territorio</a></li>
+              <li><a href="?widget=tema">per tema</a></li>
+              <li><a href="?widget=natura">per natura</a></li>
+              <li><a href="?widget=progetto">per progetto</a></li>
+              <li><a href="?widget=soggetto">per soggetto</a></li>
+            </ul>
           {% endif %}
 			  </fieldset>
 			</form>
@@ -39,8 +45,8 @@
 				<fieldset>
           {% if widget %}
 					<legend>Anteprima</legend>
-					<div class="well text-center" id="embed_code_preview">{{ widget.get_embed_code }}</div>
-          <textarea name="embed_code" id="id_embed_code" rows="4" class="input-block-level">{{ widget.get_embed_code }}</textarea>
+					<div class="well text-center" id="embed_code_preview"></div>
+          <textarea name="embed_code" id="id_embed_code" rows="4" class="input-block-level"></textarea>
           <div class="muted">Copia e incolla il codice nell'HTML del tuo sito.</div>
           {% endif %}
 				</fieldset>
@@ -119,60 +125,54 @@
 
   $(function () {
 
-{#		$('#widget-builder').on('submit', function () {#}
-{#			loadWidget();#}
-{#			return false;#}
-{#		});#}
+		$('#widget-builder').on('submit', function () {
+			loadWidget();
+			return false;
+		});
 
 
 		/*
 		 * Autocompleter for the map input field
 		 */
 
-	  var $territorio = $('#id_territorio');
-		if ( $territorio ) {
-			var $territorio_select = $('<input type="name" id="territorio_selector" />');
-			$territorio.hide().after($territorio_select);
+		$('#territorio_selector').focus(function () {
+			if ($(this)._cleared) return;
+			$(this).val('');
+			$(this)._cleared = true;
+		});
 
-			$('#territorio_selector').focus(function () {
-				if ($(this)._cleared) return;
-				$(this).val('');
-				$(this)._cleared = true;
-			});
 
-			$("#territorio_selector").autocomplete({
-				source: function (request, response) {
-					$.getJSON(
-							"/territori/autocomplete/",
-							{'query': request.term },
-							function (data) {
-								response($.map(data.territori, function (item) {
-									return {
-										label: item.denominazione,
-										id: item.id,
-										slug: item.slug
-									}
-								}));
-							}
-					);
-				},
-				minLength: 2,
-				select: function (event, ui) {
-					$('#id_territorio').val(ui.item.slug);
-				},
-				open: function () {
-					$(this).removeClass("ui-corner-all").addClass("ui-corner-top");
-				},
-				close: function () {
-					$(this).removeClass("ui-corner-top").addClass("ui-corner-all");
-				}
-			}).css('z-index', 10000);
-		}
-
+		$("#territorio_selector").autocomplete({
+			source: function (request, response) {
+				$.getJSON(
+						"/territori/autocomplete/",
+						{'query': request.term },
+						function (data) {
+							response($.map(data.territori, function (item) {
+								return {
+									label: item.denominazione,
+									id: item.id,
+									slug: item.slug
+								}
+							}));
+						}
+				);
+			},
+			minLength: 2,
+			select: function (event, ui) {
+				$('#id_territorio').val(ui.item.slug);
+			},
+			open: function () {
+				$(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+			},
+			close: function () {
+				$(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+			}
+		}).css('z-index', 10000);
 
 
 		// start all
-		//loadWidget();
+		loadWidget();
 	});
 
 </script>

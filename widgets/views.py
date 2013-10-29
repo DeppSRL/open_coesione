@@ -1,8 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.http import Http404
 from django.utils import importlib
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView
 
 
 __author__ = 'daniele'
@@ -61,7 +60,7 @@ class WidgetBuilderView(TemplateView, WidgetSelectorMixin):
     This class renders a template with a widget builder if its name is provided
     in GET parameters. Else it shows a list of available widget builders.
     """
-    template_name = 'widgets/widget_builder.html'
+    template_name = 'widgets/builder.html'
 
     def get_context_data(self, **kwargs):
 

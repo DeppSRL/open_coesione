@@ -2,6 +2,23 @@
  * Created by daniele on 16/10/13.
  */
 
+if (typeof String.prototype.endsWith !== 'function') {
+    String.prototype.endsWith = function(suffix) {
+        return this.indexOf(suffix, this.length - suffix.length) !== -1;
+    };
+}
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function (fn, scope) {
+        'use strict';
+        var i, len;
+        for (i = 0, len = this.length; i < len; ++i) {
+            if (i in this) {
+                fn.call(scope, this[i], i, this);
+            }
+        }
+    };
+}
+
 !(function(d, w){
 
     if (!w.console) w.console = {};
@@ -21,6 +38,17 @@
     Opencoesione.loadWidget = function(el){
         // extract all data params
         // https://gist.github.com/remy/362081
+//        var regex = /^data-(.+)/,
+//            paramsEmbed = [],
+//            list_regex = /^\[(.+)\]$/,
+//            match, value_match;
+//
+//        [].forEach.call(el.attributes, function(attr){
+//            if (match = attr.name.match(regex)) {
+//                paramsEmbed.push(match[1] + '=' + encodeQueryData(attr.value));
+//                //paramsEmbed[match[1]] = attr.value;
+//            }
+//        });
         var regex = /^data-(.+)/,
             paramsEmbed = {},
             match;
@@ -45,8 +73,15 @@
     */
     var encodeQueryData = Opencoesione.encodeQueryData = function(data) {
        var ret = [];
-       for (var d in data)
-          ret.push(encodeURIComponent(d) + "=" + encodeURIComponent(data[d]));
+       for (var d in data) {
+           if ( d.endsWith('_set') ) {
+               data[d].split(',').forEach(function(val){
+                   ret.push(encodeURIComponent(d) + "=" + encodeURIComponent(val));
+               })
+           } else {
+                ret.push(encodeURIComponent(d) + "=" + encodeURIComponent(data[d]));
+           }
+       }
        return ret.join("&");
     };
 
