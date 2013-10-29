@@ -1,24 +1,35 @@
 {% extends 'base.html' %}
 
 {% load sekizai_tags %}
+{% load bootstrap %}
 
 {% block container %}
+{% addtoblock "css_link" %}
+<style type="text/css">
+#widget-builder ul { list-style: none; margin-left: 0;}
+#widget-builder.form-horizontal .control-label { width: 90px; }
+#widget-builder.form-horizontal .controls { margin-left: 110px; }
+#widget-builder.form-horizontal input[type=text] { width: 190px; }
+</style>
+{% endaddtoblock %}
+
+
 <div class="container">
 	{% if widget %}
 	<div class="page-header">
-		<h2>{% block widget_title %}{{ widget.title }}{% endblock %}</h2>
+		<h2><a href="{% url widgets-select %}" class="muted">Widgets</a> &raquo; {% block widget_title %}{{ widget.title }}{% endblock %}</h2>
 	</div>
 	{% endif %}
 	<div class="row">
-		<div class="span4">
-			<form id="widget-builder" action="." method="get">
+    <div class="span4">
+      <form id="widget-builder" class="form-horizontal" action="." method="get">
 			  <fieldset>
 			    {% if widget %}
 				  <legend>Configurazione</legend>
-          {{ widget.get_form.as_p }}
+          {{ widget.get_form|bootstrap }}
 			    <div class="form-actions">
             <button type="submit" class="btn btn-primary">Genera</button>
-            <button type="reset" class="btn">Reset</button>
+{#            <button type="reset" class="btn">Reset</button>#}
           </div>
           {% else %}
             <p>
@@ -38,9 +49,9 @@
 			<form>
 				<fieldset>
           {% if widget %}
-					<legend>Anteprima</legend>
+					<legend id="preview">Anteprima</legend>
 					<div class="well text-center" id="embed_code_preview">{{ widget.get_embed_code }}</div>
-          <textarea name="embed_code" id="id_embed_code" rows="4" class="input-block-level">{{ widget.get_embed_code }}</textarea>
+          <textarea name="embed_code" id="id_embed_code" rows="4" class="input-block-level">{{ widget.get_embed_code|force_escape }}</textarea>
           <div class="muted">Copia e incolla il codice nell'HTML del tuo sito.</div>
           {% endif %}
 				</fieldset>
@@ -129,32 +140,39 @@
 		 * Autocompleter for the map input field
 		 */
 
-	  var $territorio = $('#id_territorio');
+	  var $territorio = $('#id_territorio'),
+        load_territorio = function(slug, callback) {
+          $.getJSON(
+							"/territori/autocomplete/",
+							{'query': slug },
+							callback
+					);
+        };
 		if ( $territorio ) {
-			var $territorio_select = $('<input type="name" id="territorio_selector" />');
+			var $territorio_select = $('<input type="text" id="territorio_selector" />');
 			$territorio.hide().after($territorio_select);
 
-			$('#territorio_selector').focus(function () {
-				if ($(this)._cleared) return;
-				$(this).val('');
-				$(this)._cleared = true;
+			$territorio_select.on('click', function () {
+				$(this).select()
 			});
+
+      if ($territorio.val()) {
+        load_territorio('=' + $territorio.val(), function(data){
+          $territorio_select.val(data.territori[0].denominazione)
+        })
+      };
 
 			$("#territorio_selector").autocomplete({
 				source: function (request, response) {
-					$.getJSON(
-							"/territori/autocomplete/",
-							{'query': request.term },
-							function (data) {
-								response($.map(data.territori, function (item) {
-									return {
-										label: item.denominazione,
-										id: item.id,
-										slug: item.slug
-									}
-								}));
-							}
-					);
+          load_territorio(request.term, function(data){
+            response($.map(data.territori, function (item) {
+              return {
+                label: item.denominazione,
+                id: item.id,
+                slug: item.slug
+              }
+            }));
+          });
 				},
 				minLength: 2,
 				select: function (event, ui) {
