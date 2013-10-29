@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.http import HttpResponse
 from django.utils import importlib
 from django.views.generic import TemplateView
 
@@ -85,6 +86,16 @@ class WidgetView(TemplateView, WidgetSelectorMixin):
             **response_kwargs
         )
 
+    def get(self, request, *args, **kwargs):
+        response = super(WidgetView, self).get(request, *args, **kwargs)
+        # add CORS
+        if isinstance(response, HttpResponse):
+            response['Access-Control-Allow-Origin'] = '*'
+            response['Access-Control-Max-Age'] = '120'
+            response['Access-Control-Allow-Credentials'] = 'true'
+            response['Access-Control-Allow-Methods'] = 'HEAD, GET, OPTIONS, POST, DELETE'
+            response['Access-Control-Allow-Headers'] = 'origin, content-type, accept, x-requested-with'
+        return response
 
 #class WidgetView(TemplateView, WidgetSelectorMixin):
 #    """
