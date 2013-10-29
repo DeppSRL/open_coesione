@@ -44,7 +44,7 @@
       <table class="table"><tbody>
       {% for slug, natura in aggregati.nature.items %}
       <tr>
-        <td><a href="{% url progetti_tema slug=slug %}" target="_blank">{{ natura.label }}</a></td>
+        <td><a href="{% url progetti_tipologia slug=slug %}" target="_blank">{{ natura.label }}</a></td>
         <td class="amount totale_costi"><strong>{{ natura.totali.costi|floatformat:'2' }}</strong></td>
         <td class="amount totale_pagamenti"><strong>{{ natura.totali.pagamenti|floatformat:'2' }}</strong></td>
         <td class="amount totale_progetti"><strong>{{ natura.totali.progetti }}</strong></td>
@@ -60,7 +60,7 @@
       <table class="table"><tbody>
       {% for slug, tema in aggregati.temi.items %}
       <tr>
-        <td><a href="{% url progetti_tipologia slug=slug %}" target="_blank">{{ tema.label }}</a></td>
+        <td><a href="{% url progetti_tema slug=slug %}" target="_blank">{{ tema.label }}</a></td>
         <td class="amount totale_costi"><strong>{{ tema.totali.costi|floatformat:'2' }}</strong></td>
         <td class="amount totale_pagamenti"><strong>{{ tema.totali.pagamenti|floatformat:'2' }}</strong></td>
         <td class="amount totale_progetti"><strong>{{ tema.totali.progetti }}</strong></td>
