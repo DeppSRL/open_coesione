@@ -486,8 +486,8 @@ class AggregatoView(APIView):
                 RequestFactory().get("{0}?tematizzazione=totale_{1}".format(self.get_aggregate_page_url(), thematization)),
                 *args, **kwargs
             )
-            if hasattr(view, 'get_object'):
-                page_view.object = getattr(view, 'get_object')()
+            if hasattr(page_view, 'get_object'):
+                page_view.object = getattr(page_view, 'get_object')()
             context = page_view.get_context_data(*args, **kwargs)
 
             self.update_totali(context, thematization)
@@ -602,10 +602,16 @@ class AggregatoTerritorioDetailView(AggregatoView):
             return "/territori/{0}/{1}/".format(self.pluralize_tipo(tipo), slug)
 
     def get_extra_context(self):
+        if self.get_tipo() == 'estero':
+            return SortedDict([
+                ('nome_territorio', 'Ambito Estero'),
+                ('tipo_territorio', Territorio.TERRITORIO.E),
+                ('popolazione', ''),
+            ])
         territorio = self.get_territorio()
         return SortedDict([
-            ('nome-territorio', territorio.denominazione),
-            ('tipo-territorio', territorio.territorio),
+            ('nome_territorio', territorio.denominazione),
+            ('tipo_territorio', territorio.territorio),
             ('popolazione', territorio.popolazione_totale),
         ])
 
@@ -616,7 +622,7 @@ class AggregatoTerritorioDetailView(AggregatoView):
             return []
 
         selected_territorio = Territorio.objects.get(slug=self.get_slug())
-        
+
         if tipo == 'regione':
             mapnik_kwargs = {'cod_reg': selected_territorio.cod_reg}
             return [
