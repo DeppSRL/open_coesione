@@ -117,10 +117,12 @@ class ProgettoList(generics.ListAPIView):
         territorio_slug = self.request.QUERY_PARAMS.get('territorio', None)
         if territorio_slug:
             territorio = Territorio.objects.get(slug=territorio_slug)
-
-            ret_sqs = ret_sqs.filter(territorio_reg=territorio.cod_reg)
-            ret_sqs = ret_sqs.filter(territorio_prov=territorio.cod_prov)
-            ret_sqs = ret_sqs.filter(territorio_com=territorio.cod_com)
+            if territorio.territorio == Territorio.TERRITORIO.R:
+                ret_sqs = ret_sqs.filter(territorio_reg=territorio.cod_reg)
+            if territorio.territorio == Territorio.TERRITORIO.P:
+                ret_sqs = ret_sqs.filter(territorio_prov=territorio.cod_prov)
+            if territorio.territorio == Territorio.TERRITORIO.C:
+                ret_sqs = ret_sqs.filter(territorio_com=territorio.cod_com)
 
         programma = self.request.QUERY_PARAMS.get('programma', None)
         if programma:
