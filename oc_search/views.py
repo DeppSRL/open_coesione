@@ -20,8 +20,13 @@ class ExtendedFacetedSearchView(SearchView):
             form_kwargs = {}
 
         # This way the form can always receive a list containing zero or more
-        # facet expressions:
-        form_kwargs['selected_facets'] = self.request.GET.getlist('selected_facets')
+        # facet expressions.
+        # form_kwargs can contain the selected_facets, since ProgettoSearchView
+        # sets a default initial facet (is_active:1)
+        if 'selected_facets' in form_kwargs:
+            form_kwargs['selected_facets'] += self.request.GET.getlist('selected_facets')
+        else:
+            form_kwargs['selected_facets'] = self.request.GET.getlist('selected_facets')
 
         return super(ExtendedFacetedSearchView, self).build_form(form_kwargs)
 

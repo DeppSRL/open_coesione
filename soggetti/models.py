@@ -38,6 +38,10 @@ class FormaGiuridica(models.Model):
         verbose_name_plural = "Forme giuridiche"
 
 
+class SoggettiManager(models.Manager):
+    def get_query_set(self):
+        return models.query.QuerySet(self.model, using=self._db).filter(ruolo__progetto__active_flag=True).distinct()
+
 class Soggetto(TimeStampedModel):
     codice_fiscale = models.CharField(max_length=16)
     denominazione = models.CharField(max_length=512)
@@ -50,6 +54,9 @@ class Soggetto(TimeStampedModel):
     rappresentante_legale = models.CharField(max_length=300, null=True, blank=True)
     indirizzo = models.CharField(max_length=300, null=True, blank=True)
     cap = models.CharField(max_length=5, null=True, blank=True)
+
+    objects = SoggettiManager()
+    fullobjects = models.Manager()
 
     @property
     def progetti(self):

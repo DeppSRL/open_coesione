@@ -355,3 +355,5 @@ REST_FRAMEWORK = {
 
 
 SOUTH_TESTS_MIGRATE = False
+
+TEST_RUNNER = 'open_coesione.testing.DatabaselessTestRunner'

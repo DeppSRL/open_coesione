@@ -61,5 +61,11 @@ class SoggettoIndex(SearchIndex):
         if obj.territorio:
             return obj.territorio.cod_com
 
+    #def index_queryset(self):
+    #    """
+    #    Use the FullSoggettiManager, that does not hide soggetti related to inactive progetti
+    #    """
+    #    return self.model.fullobjects.all()
+
 
 site.register(Soggetto, SoggettoIndex)

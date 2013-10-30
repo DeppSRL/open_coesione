@@ -29,6 +29,8 @@ import logging
 class ProgettoView(AccessControlView, DetailView):
     model = Progetto
     context_object_name = 'progetto'
+    queryset = Progetto.fullobjects.get_query_set()
+
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
@@ -41,15 +43,9 @@ class ProgettoView(AccessControlView, DetailView):
         if self.object.data_fine_prevista and self.object.data_inizio_prevista:
             context['durata_progetto_prevista'] = (self.object.data_fine_prevista - self.object.data_inizio_prevista).days
 
-#        context['giorni_alla_fine'] = (
-#            (date.today() - self.object.data_fine_prevista).days
-#            if self.object.data_fine_prevista else ''
-#            )
-#        if context['giorni_alla_fine'] and context['giorni_alla_fine'] < 0:
-#            context['giorni_alla_fine'] = ''
         numero_collaboratori = 5
         if self.object.territori:
-            altri_progetti_nei_territori = Progetto.objects.exclude(codice_locale=self.object.codice_locale).nei_territori( self.object.territori ).distinct().order_by('-fin_totale_pubblico')
+            altri_progetti_nei_territori = Progetto.fullobjects.exclude(codice_locale=self.object.codice_locale).nei_territori( self.object.territori ).distinct().order_by('-fin_totale_pubblico')
             context['stesso_tema'] = altri_progetti_nei_territori.con_tema(self.object.tema)[:numero_collaboratori]
             context['stessa_natura'] = altri_progetti_nei_territori.con_natura(self.object.classificazione_azione)[:numero_collaboratori]
             context['stessi_attuatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.attuatori)[:numero_collaboratori]
@@ -61,15 +57,6 @@ class ProgettoView(AccessControlView, DetailView):
         context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
 
         context['segnalazioni_pubblicate'] = self.object.segnalazioni
-
-
-#        primo_territorio = self.object.territori[0] or None
-#
-#        context['map'] = {
-#            'extent': "[{{lon: {0}, lat: {1}}},{{lon: {2}, lat: {3}}}]".format( *Territorio.objects.filter(territorio='R').extent() ),
-#            'poi': simplejson.dumps( primo_territorio.geom.centroid.coords if primo_territorio else False ),
-#            'pois' : simplejson.dumps( [t.geom.centroid.coords for t in self.object.territori] ),
-#        }
 
         return context
 
@@ -283,7 +270,15 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
 
     def build_form(self, form_kwargs=None):
         if form_kwargs is None:
-            form_kwargs = {}
+            form_kwargs = {  }
+
+        # the is_active:1 facet is selected by default
+        # and is substituted by is_active:0 when explicitly requested
+        # by clicking on the "See archive" link in the progetti page
+        if 'is_active:0' in self.request.GET.getlist('selected_facets'):
+            form_kwargs = {'selected_facets': ['is_active:0']}
+        else:
+            form_kwargs = {'selected_facets': ['is_active:1']}
 
         return super(ProgettoSearchView, self).build_form(form_kwargs)
 

@@ -143,6 +143,7 @@ class SoggettiView(AggregatoView, TemplateView):
 class SoggettoView(AggregatoView, DetailView):
     model = Soggetto
     context_object_name = 'soggetto'
+    queryset = Soggetto.fullobjects.get_query_set()
 
     @cached_context
     def get_context_data(self, **kwargs):

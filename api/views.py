@@ -398,6 +398,8 @@ def get_comuni_provincia_list(request, format=None, provincia=None):
 class AggregatoView(APIView):
     """
     Base aggregated data view. Used to show home page data, and as a base for other pages.
+
+    Set ``with_territori`` GET parameter to ``False`` to de-activate territori list (useful for speeding testing)
     """
 
     totali = {}
@@ -478,6 +480,13 @@ class AggregatoView(APIView):
         if hasattr(view, 'get_object'):
             view.object = getattr(view, 'get_object')()
 
+        with_territori = self.request.QUERY_PARAMS.get('with_territori', None)
+        if not with_territori or with_territori.lower == 'true' or with_territori == '1' or with_territori.lower == 'yes':
+            with_territori = True
+        else:
+            with_territori = False
+
+
         for thematization in ('costi', 'pagamenti', 'progetti'):
             page_view = setup_view(
                 view,
@@ -494,14 +503,17 @@ class AggregatoView(APIView):
             if 'nature_principali' in context:
                 self.update_nature(format, context, thematization)
 
-            for (mapnik_view_name, mapnik_url_name, tipo_territori, mapnik_kwargs) in self.get_mapnik_names():
-                map_view = setup_view(
-                     mapnik_view_name(),
-                     RequestFactory().get("{0}?tematizzazione=totale_{1}".format(reverse(mapnik_url_name, *args, kwargs=mapnik_kwargs), thematization)),
-                     *args, **kwargs
-                )
-                map_context = map_view.get_context_data(*args, **mapnik_kwargs)
-                self.update_territori(tipo_territori, format,  map_context, thematization)
+            print "with_territori: ", with_territori
+
+            if with_territori:
+                for (mapnik_view_name, mapnik_url_name, tipo_territori, mapnik_kwargs) in self.get_mapnik_names():
+                    map_view = setup_view(
+                         mapnik_view_name(),
+                         RequestFactory().get("{0}?tematizzazione=totale_{1}".format(reverse(mapnik_url_name, *args, kwargs=mapnik_kwargs), thematization)),
+                         *args, **kwargs
+                    )
+                    map_context = map_view.get_context_data(*args, **mapnik_kwargs)
+                    self.update_territori(tipo_territori, format,  map_context, thematization)
 
         aggregated_data = SortedDict([
             ('totali', self.totali),

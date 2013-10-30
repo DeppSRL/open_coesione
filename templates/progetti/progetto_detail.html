@@ -208,8 +208,18 @@
 {% block container %}
 
   <div class="container" id="progetto-container">
+
+    {% if not progetto.active_flag %}
+        <div class="alert alert-block text-center" style="margin-bottom: 0;">
+            <h3><strong>Attenzione!!!</strong> Questo progetto <strong>non è più attivo</strong>.</h3>
+            <p>Cerca tra le <a href="{% url 'faq-it' %}">domande frequenti</a>, cosa significa.</p>
+        </div>
+    {% endif %}
+
+
     <article id="progetto"  class="row">
       <div class="span6" id="content">
+
 
         <header>
           {% if progetto.cup and not progetto.cipe_flag %}<h2>CUP: {{ progetto.cup }}</h2>{% endif %}
@@ -289,39 +299,32 @@
           </h1>
 
           <div class="row">
-            <div class="span3">
 
-              {% for programmatore in progetto.programmatori %}
+            <div class="span3">
+              {% for programmatore in progetto.full_programmatori %}
                 {% if forloop.first %}<h4 class="title">Programmatore</h4>{% endif %}
-                {% if not forloop.first %}, {% endif %}<a href="{{ programmatore.get_absolute_url }}"><strong>{{ programmatore }}</strong></a>
+                {% if not forloop.first %}, {% endif %}
+                {% if programmatore.progetti %}
+                    <a href="{{ programmatore.get_absolute_url }}"><strong>{{ programmatore }}</strong></a>
+                {% else %}
+                    <strong>{{ programmatore }}</strong>
+                {% endif %}
               {% empty %}&nbsp;{% endfor %}
-
             </div>
+
             <div class="span3">
-              {% for attuatore in progetto.attuatori %}
+              {% for attuatore in progetto.full_attuatori %}
                 {% if forloop.first %}
                   <h4 class="title">Attuatore</h4>
                 {% else %}, {% endif %}
-                <a href="{{ attuatore.get_absolute_url }}"><strong>{{ attuatore }}</strong></a>
+                {% if attuatore.progetti %}
+                    <a href="{{ attuatore.get_absolute_url }}"><strong>{{ attuatore }}</strong></a>
+                {% else %}
+                    <strong>{{ attuatore }}</strong>
+                {% endif %} 
               {% endfor %}
-
             </div>
-{#            <div class="span6">#}
-{#              <dl class="data">#}
-{#                {% for destinatario in progetto.destinatarii %}#}
-{#                  {% if forloop.first %}#}
-{#                    <dt>Destinatario</dt>#}
-{#                  {% endif %}#}
-{#                  <dd><a href="{{ destinatario.get_absolute_url }}">{{ destinatario }}</a></dd>#}
-{#                {% endfor %}#}
-{#                {% for realizzatore in progetto.realizzatori %}#}
-{#                  {% if forloop.first %}#}
-{#                    <dt>Realizzatore</dt>#}
-{#                  {% endif %}#}
-{#                <dd><a href="{{ realizzatore.get_absolute_url }}">{{ realizzatore }}</a></dd>#}
-{#                {% endfor %}#}
-{#              </dl>#}
-{#            </div>#}
+
           </div>
 
         </section>
