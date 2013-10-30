@@ -58,13 +58,6 @@ class Widget(object):
         }
 
     def get_defaults(self):
-        #query = QueryDict('', mutable=True)
-        #for key, val in self.get_initial().items():
-        #    if isinstance(val, (set, list)):
-        #        query.setlist(key, val)
-        #    else:
-        #        query.setdefault(key, val)
-        #query.update(self.get_initial())
         return dict_to_querydict(self.get_initial())
 
     def get_form(self):
