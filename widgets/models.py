@@ -66,10 +66,11 @@ class Widget(object):
         return self.form
 
     def get_embed_code(self):
-        if self.form.is_bound and not self.form.is_valid():
+        form = self.get_form()
+        if form.is_bound and not form.is_valid():
             return ''
         data = {}
-        for key, val in self.form.cleaned_data.items():
+        for key, val in form.cleaned_data.items():
             if isinstance(val, (list, set)):
                 if not key.endswith('_set'):
                     raise ImproperlyConfigured("Multi value form field '{0}.{1}' "
