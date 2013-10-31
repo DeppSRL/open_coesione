@@ -364,4 +364,7 @@ WIDGETS = [
     'territori.widgets.TerritorioWidget',
     'progetti.widgets.TemaWidget',
     'progetti.widgets.NaturaWidget',
+    'progetti.widgets.ProgettoWidget',
+    'progetti.widgets.ProgettiWidget',
+    'soggetti.widgets.SoggettoWidget',
 ]
