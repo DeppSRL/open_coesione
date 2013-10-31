@@ -56,17 +56,13 @@
 	<div class="page-header">
 		<h3>Seleziona un widget</h3>
 	</div>
-
-
-		<div class="row">
-			<div class="span12">
-
-				{% for code, title in available_widgets %}
-				<a class="btn" href="{% url widgets-build widget=code %}">{{ title }}</a>
-				{% endfor %}
-
-			</div>
+	<div class="row">
+		<div class="span12">
+			{% for code, title in available_widgets %}
+			<a class="btn" href="{% url widgets-build widget=code %}">{{ title }}</a>
+			{% endfor %}
 		</div>
+	</div>
 	{% endif %}
 </div>
 {% endblock %}
