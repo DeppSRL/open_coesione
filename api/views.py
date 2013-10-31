@@ -69,7 +69,7 @@ class ProgettoList(generics.ListAPIView):
     * ``/api/progetti?natura=incentivi-alle-imprese&tema=istruzione``
     * ``/api/progetti?territorio=palermo-comune``
     * ``/api/progetti?natura=incentivi-alle-imprese&tema=istruzione&territorio=roma-comune``
-
+    * ``/api/progetti?soggetto=miur``
 
     The results are paginated by default to 25 items per page.
     The number of items per page can be changed through the ``page_size`` GET parameter.
@@ -82,6 +82,8 @@ class ProgettoList(generics.ListAPIView):
     * ``-costo`` (default), ``costo``
     * ``-pagamento``, ``pagamento``
     * ``-perc_pagamento``, ``perc_pagamento``
+    * ``-data_inizio_effettiva``, ``data_inizio_effettiva``
+    * ``-data_fine_effettiva``, ``data_fine_effettiva``
 
     a minus (-) in front of the field name indicates a *descending* order criterion.
 
@@ -127,6 +129,10 @@ class ProgettoList(generics.ListAPIView):
         programma = self.request.QUERY_PARAMS.get('programma', None)
         if programma:
             ret_sqs = ret_sqs.filter(fonte_fin=programma)
+
+        soggetto = self.request.QUERY_PARAMS.get('soggetto', None)
+        if soggetto:
+            ret_sqs = ret_sqs.filter(soggetto=soggetto)
 
         sort_field = self.request.QUERY_PARAMS.get('order_by')
         sortable_fields = (
