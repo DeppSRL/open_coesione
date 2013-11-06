@@ -475,8 +475,10 @@ class AggregatoView(APIView):
         """
 
         view = self.get_aggregate_page_view_class()(kwargs=kwargs)
-        if hasattr(view, 'get_object'):
-            view.object = getattr(view, 'get_object')()
+
+
+        if self.kwargs['slug'] == 'ambito-nazionale':
+            del kwargs['slug']
 
         for thematization in ('costi', 'pagamenti', 'progetti'):
             page_view = setup_view(
@@ -484,6 +486,8 @@ class AggregatoView(APIView):
                 RequestFactory().get("{0}?tematizzazione=totale_{1}".format(self.get_aggregate_page_url(), thematization)),
                 *args, **kwargs
             )
+            if hasattr(page_view, 'get_object'):
+                page_view.object = getattr(page_view, 'get_object')()
             context = page_view.get_context_data(*args, **kwargs)
 
             self.update_totali(context, thematization)
@@ -548,6 +552,9 @@ class AggregatoTerritorioDetailView(AggregatoView):
         return self.kwargs['slug']
 
     def get_territorio(self):
+        tipo = self.get_tipo()
+        if tipo == 'nazionale':
+            return Territorio.objects.nazione()
         return Territorio.objects.get(slug=self.get_slug())
 
     def get_tipo(self):
@@ -589,22 +596,31 @@ class AggregatoTerritorioDetailView(AggregatoView):
     def get_aggregate_page_url(self):
         slug = self.get_slug()
         tipo = self.get_tipo()
-        if tipo is 'ambito-estero' and tipo is 'ambito-nazionale':
+        if tipo is 'estero' and tipo is 'nazionale':
             return "/territori/{0}/".format(slug)
         else:
             return "/territori/{0}/{1}/".format(self.pluralize_tipo(tipo), slug)
 
     def get_extra_context(self):
+        if self.get_tipo() == 'estero':
+            return SortedDict([
+                ('nome_territorio', 'Ambito Estero'),
+                ('tipo_territorio', Territorio.TERRITORIO.E),
+                ('popolazione', ''),
+            ])
         territorio = self.get_territorio()
         return SortedDict([
-            ('nome-territorio', territorio.denominazione),
-            ('tipo-territorio', territorio.territorio),
+            ('nome_territorio', territorio.denominazione),
+            ('tipo_territorio', territorio.territorio),
             ('popolazione', territorio.popolazione_totale),
         ])
 
 
     def get_mapnik_names(self):
         tipo = self.get_tipo()
+        if tipo in ('nazionale', 'estero'):
+            return []
+
         selected_territorio = Territorio.objects.get(slug=self.get_slug())
 
         if tipo == 'regione':
@@ -619,7 +635,5 @@ class AggregatoTerritorioDetailView(AggregatoView):
                 (MapnikComuniView, 'territori_mapnik_comuni_provincia', 'comuni', mapnik_kwargs)
             ]
         elif tipo == 'comune':
-            return []
-
-
-
+            pass
+        return []
