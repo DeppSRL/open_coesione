@@ -132,8 +132,8 @@ class Command(BaseCommand):
         soggetti = Soggetto.objects.filter(slug__isnull=True)
         self.logger.info("{0} soggetti will be slugified".format(soggetti.count()))
         for n, soggetto in enumerate(soggetti):
-            if soggetto.codice_fiscale.strip() == '':
-                soggetto.slug = slugify(u"{0}".format(soggetto.denominazione ))
+            if soggetto.codice_fiscale.strip() == '' or soggetto.codice_fiscale.strip() == '*CODICE FISCALE*':
+                soggetto.slug = slugify(u"{0}-{1}".format(soggetto.denominazione, soggetto.pk ))
             else:
                 soggetto.slug = slugify(u"{0}-{1}".format(soggetto.denominazione, soggetto.codice_fiscale.strip() ))
 
