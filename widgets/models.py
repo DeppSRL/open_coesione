@@ -43,7 +43,7 @@ class Widget(object):
         return form
 
     def build_form_fields(self, form):
-        form.fields['title'] = forms.CharField(label='Titolo', max_length=200)
+        form.fields['title'] = forms.CharField(label='Titolo', max_length=200, required=False)
         form.fields['height'] = forms.IntegerField(label='Altezza', min_value=100, initial=460, required=False)
         form.fields['width'] = forms.IntegerField(label='Larghezza', min_value=100, initial=400, required=False)
 

@@ -44,7 +44,7 @@
       {% block widget_header %}
 			<thead class="{% block widget_header_class %}{% endblock %}">
 			<tr>
-				<td><b>{% block widget_header_title %}{{ widget.get_title }}{% endblock %}</b></td>
+				<td><b>{% block widget_header_title %}{{ params.title|default:widget.get_title }}{% endblock %}</b></td>
 			</tr>
 			</thead>
       {% endblock widget_header %}
