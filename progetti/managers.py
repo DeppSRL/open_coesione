@@ -1,6 +1,7 @@
 from datetime import datetime
 from django.db import models
 from django.http import HttpResponseNotFound
+import math
 
 
 class ProgettiQuerySet(models.query.QuerySet):
@@ -88,10 +89,10 @@ class ProgettiQuerySet(models.query.QuerySet):
         return self.filter(soggetto_set__pk=soggetto.pk)
 
     def totale_costi(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programma=None):
-        return float(sum([l['fin_totale_pubblico'] for l in self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programma).filter(fin_totale_pubblico__isnull=False).values('codice_locale', 'fin_totale_pubblico')]) or 0.0)
+        return math.floor(float(sum([l['fin_totale_pubblico'] for l in self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programma).filter(fin_totale_pubblico__isnull=False).values('codice_locale', 'fin_totale_pubblico')]) or 0.0))
 
     def totale_pagamenti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programma=None):
-        return float(sum([l['pagamento'] for l in self.totali(territorio, tema, tipo,classificazione, soggetto, territori, programma).filter(pagamento__isnull=False).values('codice_locale', 'pagamento')]) or 0.0)
+        return math.floor(float(sum([l['pagamento'] for l in self.totali(territorio, tema, tipo,classificazione, soggetto, territori, programma).filter(pagamento__isnull=False).values('codice_locale', 'pagamento')]) or 0.0))
 
     def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programma=None):
         return self.totali(territorio, tema, tipo,classificazione, soggetto, territori, programma).count()
@@ -155,12 +156,12 @@ class ProgettiManager(models.Manager):
         if territorio.popolazione_totale is 0:
             return 0
         else:
-            return self.get_query_set().totale_costi(territorio, tema, tipo,classificazione, soggetto, territori, programma) / territorio.popolazione_totale
+            return math.floor(self.get_query_set().totale_costi(territorio, tema, tipo,classificazione, soggetto, territori, programma) / territorio.popolazione_totale)
 
     def totale_pagamenti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programma=None):
         from territori.models import Territorio
         territorio = territorio or Territorio.objects.nazione()
-        return self.get_query_set().totale_pagamenti(territorio, tema, tipo,classificazione, soggetto, territori, programma) / territorio.popolazione_totale
+        return math.floor(self.get_query_set().totale_pagamenti(territorio, tema, tipo,classificazione, soggetto, territori, programma) / territorio.popolazione_totale)
 
     def totale_progetti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programma=None):
         from territori.models import Territorio
