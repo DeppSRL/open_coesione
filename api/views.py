@@ -477,7 +477,7 @@ class AggregatoView(APIView):
         view = self.get_aggregate_page_view_class()(kwargs=kwargs)
 
 
-        if self.kwargs['slug'] == 'ambito-nazionale':
+        if 'slug' in self.kwargs and self.kwargs['slug'] == 'ambito-nazionale':
             del kwargs['slug']
 
         for thematization in ('costi', 'pagamenti', 'progetti'):
