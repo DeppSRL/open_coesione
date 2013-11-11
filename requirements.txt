@@ -42,3 +42,5 @@ djangorestframework
 markdown
 numpy
 requests==2.0.0
+-e git://github.com/DeppSRL/django-widgets.git#egg=django-widgets
+
