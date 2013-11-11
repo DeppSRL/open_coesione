@@ -486,6 +486,8 @@ class AggregatoView(APIView):
         else:
             with_territori = False
 
+        if 'slug' in self.kwargs and self.kwargs['slug'] == 'ambito-nazionale':
+            del kwargs['slug']
 
         for thematization in ('costi', 'pagamenti', 'progetti'):
             page_view = setup_view(
