@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.db import models
+from django.db.models import Sum
 from django.http import HttpResponseNotFound
 import math
 
@@ -89,10 +90,10 @@ class ProgettiQuerySet(models.query.QuerySet):
         return self.filter(soggetto_set__pk=soggetto.pk)
 
     def totale_costi(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programma=None):
-        return math.floor(float(sum([l['fin_totale_pubblico'] for l in self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programma).filter(fin_totale_pubblico__isnull=False).values('codice_locale', 'fin_totale_pubblico')]) or 0.0))
+        return math.floor(float(self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programma).aggregate(s=Sum('fin_totale_pubblico'))['s'] or 0.0))
 
-    def totale_pagamenti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programma=None):
-        return math.floor(float(sum([l['pagamento'] for l in self.totali(territorio, tema, tipo,classificazione, soggetto, territori, programma).filter(pagamento__isnull=False).values('codice_locale', 'pagamento')]) or 0.0))
+    def totale_pagamenti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programma=None):        # return math.floor(float(sum([l['pagamento'] for l in self.totali(territorio, tema, tipo,classificazione, soggetto, territori, programma).filter(pagamento__isnull=False).values('codice_locale', 'pagamento')]) or 0.0))
+        return math.floor(float(self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programma).aggregate(s=Sum('pagamento'))['s'] or 0.0))
 
     def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programma=None):
         return self.totali(territorio, tema, tipo,classificazione, soggetto, territori, programma).count()
