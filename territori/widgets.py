@@ -13,7 +13,7 @@ __author__ = 'daniele'
 class TerritorioWidget(AggregateWidget):
 
     code = 'territorio'
-    title = 'Territorio'
+    name = 'Territorio'
 
     EXCLUDE_TITLE = True
     INITIAL_TOPIC = 'roma-comune', 'Roma'

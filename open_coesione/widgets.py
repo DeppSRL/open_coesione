@@ -13,8 +13,6 @@ class AggregateWidget(Widget):
     code = ''
     title = ""
 
-    EXCLUDE_TITLE = False
-
     _COMPONENTS = (
         ('temi', 'Classificazione per tema'),
         ('nature', 'Visualizza le nature'),
@@ -33,8 +31,8 @@ class AggregateWidget(Widget):
 
     def get_context_data(self):
         context = super(AggregateWidget, self).get_context_data()
-        if self.get_form().is_valid():
-            cleaned_data = self.get_form().cleaned_data
+        if self.is_valid():
+            cleaned_data = self.data
             url = 'aggregati'
             topic = cleaned_data.get(self.API_TOPIC, None)
             if topic:
@@ -55,19 +53,13 @@ class AggregateWidget(Widget):
 
         return context
 
-    def build_form_fields(self, form):
-        #form.fields['tematizzazione'] = forms.ChoiceField(
-        #    label='Tematizzazione',
-        #    initial='costi',
-        #    choices=(('costi', 'Costi'), ('pagamenti', 'Pagamenti'), ('progetti', 'Progetti'))
-        #)
+    def get_form(self):
+        form = super(AggregateWidget, self).get_form()
         form.fields[self.API_TOPIC] = self.get_topic_field()
-        super(AggregateWidget, self).build_form_fields(form)
         form.fields['component_set'] = forms.MultipleChoiceField(
             label="Componenti da visualizzare", required=False, choices=self.COMPONENTS,
             widget=forms.CheckboxSelectMultiple)
-        if self.EXCLUDE_TITLE:
-            del form.fields['title']
+        return form
 
     def get_topic_field(self):
         choices = self.get_topic_choices()
@@ -79,34 +71,25 @@ class AggregateWidget(Widget):
         pass
 
     def get_topic(self):
-        return self.request.GET.get(self.API_TOPIC, self.INITIAL_TOPIC[0])
+        return self.raw_data.get(self.API_TOPIC, self.INITIAL_TOPIC[0])
 
     def get_title(self):
         choices = self.get_topic_choices()
-        if self.EXCLUDE_TITLE:
-            if choices:
-                if self.API_TOPIC in self.request.GET and self.request.GET[self.API_TOPIC]:
-                    return "{0}: {1}".format(self.title, filter(lambda x: x[0] == self.request.GET[self.API_TOPIC], choices)[0][1])
-                else:
-                    return "{0}: {1}".format(self.title, choices[0][1])
-            return self.title
-        return self.request.GET.get('title', "{0}: {1}".format(self.title, choices[0][1]) if choices else self.title)
+        if choices:
+            if self.API_TOPIC in self.raw_data and self.raw_data.get(self.API_TOPIC):
+                return "{0}: {1}".format(self.name, filter(lambda x: x[0] == self.raw_data.get(self.API_TOPIC), choices)[0][1])
+            else:
+                return "{0}: {1}".format(self.name, choices[0][1])
+        return self.title
 
     def get_initial(self):
         initial = super(AggregateWidget, self).get_initial()
+        choices = self.get_topic_choices()
+
         initial.update({
-            'title': self.title,
+            'title': self.get_title(),
             'component_set': [x[0] for x in self.COMPONENTS],
+            self.API_TOPIC: (choices[0] if choices else getattr(self, 'INITIAL_TOPIC'))[0]
         })
-        initial_topic, initial_topic_label = self.get_initial_topic()
-        if initial_topic:
-            initial[self.API_TOPIC] = initial_topic
-            initial['title'] += ": {1}".format(self.title, initial_topic_label)
 
         return initial
-
-    def get_initial_topic(self):
-        choices = self.get_topic_choices()
-        if choices:
-            return choices[0]
-        return self.INITIAL_TOPIC

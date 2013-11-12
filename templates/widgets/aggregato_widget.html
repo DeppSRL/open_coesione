@@ -33,7 +33,7 @@
 <div class="container-fluid">
   <div id="statistics" class="row-fluid">
 
-    {% if 'nature' in params.component_set %}
+    {% if 'nature' in widget.data.component_set %}
     <div class="span6">
       <h3>Natura dell'investimento</h3>
       <table class="table"><tbody>
@@ -49,7 +49,7 @@
     </div>
     {% endif %}
 
-    {% if 'temi' in params.component_set %}
+    {% if 'temi' in widget.data.component_set %}
     <div class="span6">
       <h3>Temi</h3>
       <table class="table"><tbody>
@@ -67,7 +67,7 @@
 
   </div>
   <div class="row-fluid">
-    {% if 'top_progetti' in params.component_set %}
+    {% if 'top_progetti' in widget.data.component_set %}
     <div class="span3">
       <h3>Progetti con maggiori finanziamenti</h3>
       <table class="table">
@@ -83,7 +83,7 @@
     </div>
     {% endif %}
 
-    {% if 'progetti_conclusi' in params.component_set %}
+    {% if 'progetti_conclusi' in widget.data.component_set %}
     <div class="span3">
       <h3>Ultimi progetti conclusi</h3>
       <table class="table">

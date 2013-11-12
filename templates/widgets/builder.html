@@ -3,7 +3,7 @@
 {% load sekizai_tags %}
 {% load bootstrap %}
 
-{% block page_title %}{{ block.super }}Widget{% if widget %} {{ widget.title }}{% endif %}{% endblock %}
+{% block page_title %}{{ block.super }}Widget{% if widget %} {{ widget.name }}{% endif %}{% endblock %}
 
 {% block container %}
 {% addtoblock "css_link" %}
@@ -19,7 +19,7 @@
 <div class="container">
 	{% if widget %}
 	<div class="page-header">
-		<h2><a href="{% url widgets-select %}" class="muted">Widgets</a> &raquo; {% block widget_title %}{{ widget.title }}{% endblock %}</h2>
+		<h2><a href="{% url widgets-select %}" class="muted">Widgets</a> &raquo; {% block widget_title %}{{ widget.name }}{% endblock %}</h2>
 	</div>
 
 	<div class="row">

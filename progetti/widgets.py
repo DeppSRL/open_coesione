@@ -13,9 +13,8 @@ __author__ = 'daniele'
 class TemaWidget(AggregateWidget):
 
     code = 'tema'
-    title = 'Tema'
+    name = 'Tema'
 
-    EXCLUDE_TITLE = True
     EXCLUDED_COMPONENT = 'temi'
     API_PATH = 'temi/'
     API_TOPIC = 'tema'
@@ -29,9 +28,8 @@ class TemaWidget(AggregateWidget):
 class NaturaWidget(AggregateWidget):
 
     code = 'natura'
-    title = 'Natura'
+    name = 'Natura'
 
-    EXCLUDE_TITLE = True
     EXCLUDED_COMPONENT = 'nature'
     API_PATH = 'nature/'
     API_TOPIC = 'natura'
@@ -45,19 +43,19 @@ class NaturaWidget(AggregateWidget):
 class ProgettoWidget(Widget):
 
     code = "progetto"
-    title = "Progetto"
+    name = "Progetto"
 
     def get_context_data(self):
         context = super(ProgettoWidget, self).get_context_data()
-        if self.get_form().is_valid():
-            cleaned_data = self.get_form().cleaned_data
+        if self.is_valid():
+            cleaned_data = self.get_data()
             context['progetto'] = request('progetti/{0}'.format(cleaned_data['progetto']))
         return context
 
-    def build_form_fields(self, form):
+    def get_form(self):
+        form = super(ProgettoWidget, self).get_form()
         form.fields['progetto'] = forms.CharField()
-        super(ProgettoWidget, self).build_form_fields(form)
-        del form.fields['title']
+        return form
 
     def get_initial(self):
         initial = super(ProgettoWidget, self).get_initial()
@@ -68,19 +66,20 @@ class ProgettoWidget(Widget):
 class ProgettiWidget(Widget):
 
     code = 'progetti'
-    title = "Progetti"
+    name = "Progetti"
 
     def get_context_data(self):
         context = super(ProgettiWidget, self).get_context_data()
-        if self.get_form().is_valid():
-            cleaned_data = self.get_form().cleaned_data
+        if self.is_valid():
+            cleaned_data = self.get_data()
             order_by = cleaned_data['order_by']
             if cleaned_data['desc']:
                 order_by = '-{0}'.format(order_by)
             context['progetti'] = request('progetti', order_by=order_by)
         return context
 
-    def build_form_fields(self, form):
+    def get_form(self):
+        form = super(ProgettiWidget, self).get_form()
         form.fields['order_by'] = forms.ChoiceField(label='Ordinamento', choices=(
             ('costo', 'Costo totale'),
             ('pagamento', 'Pagamenti totali'),
@@ -89,7 +88,7 @@ class ProgettiWidget(Widget):
             ('data_fine_effettiva', 'Data di fine'),
         ))
         form.fields['desc'] = forms.BooleanField(label='Decrescente', required=False)
-        super(ProgettiWidget, self).build_form_fields(form)
+        return form
 
     def get_initial(self):
         initial = super(ProgettiWidget, self).get_initial()
