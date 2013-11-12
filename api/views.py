@@ -13,6 +13,7 @@ from progetti.urls import sqs as progetti_sqs
 from progetti.views import TemaView, TipologiaView
 from soggetti.urls import sqs as soggetti_sqs
 from api.serializers import *
+from soggetti.views import SoggettoView
 from territori.models import Territorio
 from django.utils.datastructures import SortedDict
 from territori.views import AmbitoNazionaleView, AmbitoEsteroView, RegioneView, ProvinciaView, ComuneView, MapnikProvinceView, MapnikRegioniView, MapnikComuniView
@@ -224,12 +225,6 @@ class SoggettoList(generics.ListAPIView):
             ret_sqs = ret_sqs.order_by(sort_field)
 
         return ret_sqs
-
-
-class SoggettoDetail(generics.RetrieveAPIView):
-    queryset = Soggetto.objects.all()
-    serializer_class = SoggettoModelSerializer
-
 
 
 
@@ -632,4 +627,66 @@ class AggregatoTerritorioDetailView(AggregatoView):
             return []
 
 
+
+class SoggettoDetail(AggregatoView, generics.RetrieveAPIView):
+    queryset = Soggetto.objects.all()
+    serializer_class = SoggettoModelSerializer
+
+    def get_aggregate_page_view_class(self):
+        return SoggettoView
+
+    def get_aggregate_page_url(self):
+        return "/soggetti/{0}/".format(self.kwargs['slug'])
+
+    def update_territori(self, tipo_territorio, format, context, thematization):
+        for (territorio, v) in context['lista_finanziamenti_per_regione']:
+            t = territorio.slug
+            if not self.territori.get(tipo_territorio, None):
+                self.territori[tipo_territorio] = SortedDict()
+            if not self.territori[tipo_territorio].get(t, None):
+                self.territori[tipo_territorio][t] = {
+                    'link': reverse('api-aggregati-territorio-detail', request=self.request, format=format, kwargs={'slug': t}),
+                    'totali': {}
+                }
+            self.territori[tipo_territorio][t]['totali'][thematization] = v
+
+    def get(self, request, format=None, *args, **kwargs):
+        """
+        this code is a copy of AggregatoView.get
+        without mapnik requests
+        """
+
+        response = generics.RetrieveAPIView.get(self, request, format=format, *args, **kwargs)
+
+        view = self.get_aggregate_page_view_class()(kwargs=kwargs)
+        if hasattr(view, 'get_object'):
+            view.object = getattr(view, 'get_object')()
+
+        for thematization in ('costi', 'pagamenti', 'progetti'):
+            page_view = setup_view(
+                view,
+                RequestFactory().get("{0}?tematizzazione=totale_{1}".format(self.get_aggregate_page_url(), thematization)),
+                *args, **kwargs
+            )
+            context = page_view.get_context_data(*args, **kwargs)
+
+            self.update_totali(context, thematization)
+
+            if 'temi_principali' in context:
+                self.update_temi(format, context, thematization)
+
+            if 'nature_principali' in context:
+                self.update_nature(format, context, thematization)
+
+            self.update_territori('regioni', format,  context, thematization)
+
+        aggregated_data = SortedDict([
+            ('totali', self.totali),
+            ('temi', self.temi),
+            ('nature', self.nature),
+            ('territori', self.territori),
+        ])
+
+        response.data['aggregati'] = aggregated_data
+        return response
 
