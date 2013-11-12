@@ -88,7 +88,7 @@
           {% if totale > 0  %}
             <tr>
               <th>
-                  {% if regione.cod_reg %}<a href="{% url progetti_search %}?q=&soggetto={{ soggetto.slug }}&territorio_reg={{ regione.cod_reg }}">{{ regione.denominazione }}</a>
+                  {% if regione.cod_reg %}<a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}&territorio_reg={{ regione.cod_reg }}">{{ regione.denominazione }}</a>
                   {% else %}{{ regione.denominazione }}{% endif %}
               </th>
               <td class="amount">

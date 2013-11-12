@@ -260,7 +260,7 @@
           </p>
         {% endif %}
 
-        <a href="{% url progetti_segnalazione %}?{% if progetto.cipe_flag %}clp={{ progetto.codice_locale }}{% else %}cup={{ progetto.cup }}{% endif %}"
+        <a href="{% url 'progetti_segnalazione' %}?{% if progetto.cipe_flag %}clp={{ progetto.codice_locale }}{% else %}cup={{ progetto.cup }}{% endif %}"
            id="banner_segnalazione_progetto" class="baloons-block">
           <i></i>
           <p>
@@ -275,7 +275,7 @@
 
           <p>I protagonisti raccontano:
           {% for segnalazione in segnalazioni_pubblicate %}
-            <a href="{% url progetto_segnalazione_pubblicata segnalazione.pk %}">{{ segnalazione.utente }}</a>{% if forloop.last %}.{% else %},{% endif %}
+            <a href="{% url 'progetto_segnalazione_pubblicata segnalazione.pk' %}">{{ segnalazione.utente }}</a>{% if forloop.last %}.{% else %},{% endif %}
           {% endfor %}
           </p>
         </div>

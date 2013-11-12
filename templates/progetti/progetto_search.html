@@ -23,17 +23,17 @@
                 <p class="span4">
                     scarica i risultati della ricerca<br/>
                     <a style="font-weight: normal;"
-                       href="{%  url progetti_search_csv %}?{{ request.META.QUERY_STRING }}"
+                       href="{% url 'progetti_search_csv' %}?{{ request.META.QUERY_STRING }}"
                        title="scarica il file dei progetti, con i nomi delle localit&agrave;"
                             >csv progetti</a><a
-                        href="{%  url progetti_search_csv %}?{{ request.META.QUERY_STRING }}"
+                        href="{% url 'progetti_search_csv' %}?{{ request.META.QUERY_STRING }}"
                         title="scarica il file dei progetti, con i nomi delle localit&agrave;"
                         ><img src="{{ STATIC_URL }}img/download.png"/></a> |
                     <a style="font-weight: normal;"
-                       href="{%  url progetti_search_csv_loc %}?{{ request.META.QUERY_STRING }}"
+                       href="{% url 'progetti_search_csv_loc' %}?{{ request.META.QUERY_STRING }}"
                        title="scarica il file dei codici delle localt&agrave;"
                             >csv localit&agrave;</a><a
-                        href="{%  url progetti_search_csv_loc %}?{{ request.META.QUERY_STRING }}"
+                        href="{% url 'progetti_search_csv_loc' %}?{{ request.META.QUERY_STRING }}"
                         title="scarica il file dei codici delle localit&agrave;"
                         ><img src="{{ STATIC_URL }}img/download.png"/></a> |
                     <a style="font-weight: normal;"
@@ -87,7 +87,7 @@
 {% block sidebar %}
   <div class="flat_content">
         <h4>Cerca tra i progetti</h4>
-        <form method="get" action="{% url progetti_search %}" class="form-search form-condensed">
+        <form method="get" action="{% url 'progetti_search' %}" class="form-search form-condensed">
           <div class="control-group input-append">
             {%  spaceless %}
             <input id="query" type="text" class="input-medium search-query" name="{{ form.q.html_name }}"

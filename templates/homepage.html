@@ -21,7 +21,7 @@
           <br>
           La descrizione che se ne ricava non è sempre sufficiente per comprendere in che cosa consiste il progetto e
           quali effetti ha prodotto. Se conosci un progetto finanziato dalle politiche di coesione che ritieni meritevole
-          di attenzione, <a href="{% url progetti_segnalazione %}">vai qui</a> per raccontarlo.
+          di attenzione, <a href="{% url 'progetti_segnalazione' %}">vai qui</a> per raccontarlo.
           <br>
           Vorremo costruire una galleria di testimonianze sulle politiche di coesione.
         </p>
@@ -39,7 +39,7 @@
 
         <hr>
 
-        <form class="form-search content" method="get" action="{% url soggetti_search %}">
+        <form class="form-search content" method="get" action="{% url 'soggetti_search' %}">
           <h5>Cerca tra i soggetti</h5>
           <div class="input-append" >
             <input type="text" name="q" class="input-medium search-query" placeholder="Inserisci una parola"><button type="submit" class="btn"><i class="icon-search"></i></button>

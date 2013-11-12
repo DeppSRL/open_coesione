@@ -8,6 +8,7 @@ Recreated by Haisheng HU <hanson2010@gmail.com> on Jun 3, 2012
 '''
 
 from django import template
+from django.core.paginator import EmptyPage
 
 register = template.Library()
 
@@ -55,11 +56,17 @@ def digg_paginator(context):
         del(params['page'])
     get_params = params.urlencode()
 
+    try:
+        prev_page = page_obj.previous_page_number()
+        next_page = page_obj.next_page_number()
+    except EmptyPage:
+        prev_page = 0
+        next_page = 0
     return {
         'pages': pages,
         'page': page,
-        'previous': page_obj.previous_page_number(),
-        'next': page_obj.next_page_number(),
+        'previous': prev_page,
+        'next': next_page,
         'has_previous': page_obj.has_previous(),
         'has_next': page_obj.has_next(),
         'page_range': page_range,
@@ -71,35 +78,3 @@ def digg_paginator(context):
     }
  
 register.inclusion_tag("commons/digg_paginator.html", takes_context=True)(digg_paginator)
-
-'''
-Create digg_paginator.html in template folder as below. Then you can remix it and shine it by CSS.
-
-{% spaceless %}
-  {% if has_previous %}
-    <li><a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ previous }}">&laquo; Prev</a></li>
-  {% endif %}
-  {% if not in_leading_range %}
-    {% for p in pages_outside_trailing_range %}
-      <li><a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ p }}">{{ p }}</a></li>
-    {% endfor %}
-    <li><span class="ellipsis">...</span></li>
-  {% endif %}
-  {% for p in page_range %}
-    {% if p == page %}
-      <li><span class="active">{{ p }}</span></li>
-    {% else %}
-      <li><a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ p }}">{{ p }}</a></li>
-    {% endif %}
-  {% endfor %}
-  {% if not in_trailing_range %}
-    <li><span class="ellipsis">...</span></li>
-    {% for p in pages_outside_leading_range reversed %}
-      <li><a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ p }}">{{ p }}</a></li>
-    {% endfor %}
-  {% endif %}
-  {% if has_next %}
-    <li><a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ next }}">Next &raquo;</a></li>
-  {% endif %}
-{% endspaceless %}
-'''
