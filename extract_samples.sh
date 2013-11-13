@@ -28,6 +28,6 @@ head -n 1 pagamenti_$DATE.csv > pagamenti_sample.csv
 popd
 
 echo extract related records and append them to sample csv files
-django-admin.py extractsamplesrelated --sample=progetti_sample.csv --type=loc localizzazioni_sorted.csv >> $DATA_ROOT/localizzazioni_sample.csv
-django-admin.py extractsamplesrelated --sample=progetti_sample.csv --type=rec soggetti_sorted.csv >> $DATA_ROOT/soggetti_sample.csv
-django-admin.py extractsamplesrelated --sample=progetti_sample.csv --type=pay pagamenti_sorted.csv >> $DATA_ROOT/pagamenti_sample.csv
+python manage.py  extractsamplesrelated --sample=progetti_sample.csv --type=loc localizzazioni_sorted.csv >> $DATA_ROOT/localizzazioni_sample.csv
+python manage.py extractsamplesrelated --sample=progetti_sample.csv --type=rec soggetti_sorted.csv >> $DATA_ROOT/soggetti_sample.csv
+python manage.py extractsamplesrelated --sample=progetti_sample.csv --type=pay pagamenti_sorted.csv >> $DATA_ROOT/pagamenti_sample.csv
