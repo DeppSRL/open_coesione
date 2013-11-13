@@ -41,6 +41,9 @@ django-disqus
 djangorestframework
 markdown
 numpy
+
+werkzeug
+
 requests==2.0.0
 -e git://github.com/DeppSRL/django-widgets.git#egg=django-widgets
 

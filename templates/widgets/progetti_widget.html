@@ -7,7 +7,7 @@
     <tbody>
     {% for result in progetti.results %}
     <tr>
-      <td><a href="{% url progetti_progetto slug=result.codice_locale|slugify %}" target="_blank">{{ result.titolo_progetto }}</a></td>
+      <td><a href="{% url 'progetti_progetto' slug=result.codice_locale|slugify %}" target="_blank">{{ result.titolo_progetto }}</a></td>
       <td class="amount"><strong>{{ result.fin_totale_pubblico }}</strong></td>
     </tr>
     {% endfor %}

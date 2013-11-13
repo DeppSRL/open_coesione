@@ -23,8 +23,8 @@
 {% endblock %}
 
 {% block widget_container %}
-{% if widget.get_form.errors|length > 0 %}
-  <div class="text-error">{{ widget.get_form.errors }}</div>
+{% if widget.form.errors|length > 0 %}
+  <div class="text-error">{{ widget.form.errors }}</div>
 {% else %}
   {{ block.super }}
 {% endif %}
