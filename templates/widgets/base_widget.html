@@ -21,11 +21,3 @@
 {% block widget_credits %}
 <a href="http://opencoesione.gov.it" class="muted" target="_blank"><i>Dati forniti da Opencoesione.gov.it</i></a>
 {% endblock %}
-
-{% block widget_container %}
-{% if widget.get_form.errors|length > 0 %}
-  <div class="text-error">{{ widget.get_form.errors }}</div>
-{% else %}
-  {{ block.super }}
-{% endif %}
-{% endblock %}
