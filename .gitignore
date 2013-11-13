@@ -9,6 +9,7 @@ media/medialibrary
 build
 GIS/tiles
 *.sql
+*.rdb
 sitestatic
 */migrations/*
 dati

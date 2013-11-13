@@ -1,0 +1,37 @@
+{% extends 'widgets/base_widget.html' %}
+
+{% block widget_content %}
+<h3>{{ progetto.titolo_progetto }} <small>{{ progetto.fondo_comunitario }}</small></h3>
+	<b>{{ progetto.fin_totale_pubblico }}</b>
+<ul>
+	{% for territorio in progetto.territorio_set %}
+	<li>{{ territorio.denominazione }}</li>
+	{% endfor %}
+</ul>
+
+	<h5>soggetto_set</h5>
+<ul>
+	{% for soggetto in progetto.soggetto_set %}
+	<li>{{ soggetto }}</li>
+	{% endfor %}
+</ul>
+
+	<h5>tema</h5>
+	{{ progetto.tema }}
+
+	<h5>fonte</h5>
+	{{ progetto.fonte }}
+
+	<h5>classificazione_qsn</h5>
+	{{ progetto.classificazione_qsn }}
+
+	<h5>programma_asse_obiettivo</h5>
+	{{ progetto.programma_asse_obiettivo }}
+
+	<h5>classificazione_azione</h5>
+	{{ progetto.classificazione_azione }}
+
+	<h5>classificazione_oggetto</h5>
+	{{ progetto.classificazione_oggetto }}
+
+{% endblock %}
