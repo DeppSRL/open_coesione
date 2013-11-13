@@ -30,6 +30,7 @@ urlpatterns = patterns('',
 
     # api
     url(r'^api/', include('api.urls')),
+    url(r'^widgets/', include('widgets.urls')),
 
     # list of urls to cache
     url(r'^full_cache_generator.txt$', CGView.as_view(), name='full_cache_generator'),

@@ -1,0 +1,17 @@
+{% extends 'widgets/base_widget.html' %}
+
+{% block widget_content %}
+
+	<h3>Lista progetti</h3>
+  <table class="table">
+    <tbody>
+    {% for result in progetti.results %}
+    <tr>
+      <td><a href="{% url progetti_progetto slug=result.codice_locale|slugify %}" target="_blank">{{ result.titolo_progetto }}</a></td>
+      <td class="amount"><strong>{{ result.fin_totale_pubblico }}</strong></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
