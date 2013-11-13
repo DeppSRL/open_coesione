@@ -43,9 +43,11 @@
 				<fieldset>
 
 					<legend id="preview">Anteprima</legend>
-					<div class="well text-center" id="embed_code_preview">{{ widget.get_embed_code }}</div>
+          <div class="well text-center" id="embed_code_preview">{{ widget.get_embed_code }}</div>
+          {% if widget.is_valid %}
           <textarea name="embed_code" id="id_embed_code" rows="4" class="input-block-level">{{ widget.get_embed_code|force_escape }}</textarea>
           <div class="muted">Copia e incolla il codice nell'HTML del tuo sito.</div>
+          {% endif %}
 
 				</fieldset>
 			</form>

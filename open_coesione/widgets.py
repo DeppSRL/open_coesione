@@ -11,7 +11,6 @@ __author__ = 'joke2k'
 class AggregateWidget(Widget):
 
     code = ''
-    title = ""
 
     _COMPONENTS = (
         ('temi', 'Classificazione per tema'),
@@ -87,7 +86,6 @@ class AggregateWidget(Widget):
         choices = self.get_topic_choices()
 
         initial.update({
-            'title': self.get_title(),
             'component_set': [x[0] for x in self.COMPONENTS],
             self.API_TOPIC: (choices[0] if choices else getattr(self, 'INITIAL_TOPIC'))[0]
         })

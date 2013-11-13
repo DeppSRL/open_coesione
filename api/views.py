@@ -705,5 +705,3 @@ class SoggettoDetail(AggregatoView, generics.RetrieveAPIView):
 
         response.data['aggregati'] = aggregated_data
         return response
-
->>>>>>> 4ee7cc8bd7cb04a0d041854f83b116cf5ea28a6b
