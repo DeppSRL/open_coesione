@@ -187,12 +187,12 @@ class LeafletView(TemplateView):
         # - region
         # - province
 
-        if 'params' in context and 'cod_reg' in context['params']:
-            codice = context['params']['cod_reg']
+        if 'cod_reg' in context:
+            codice = context['cod_reg']
             area = Territorio.objects.get(territorio=Territorio.TERRITORIO.R, cod_reg=codice).geom
             context['zoom'] = { 'min' : 7, 'max' : 10 }
-        elif 'params' in context and 'cod_prov' in context['params']:
-            codice = context['params']['cod_prov']
+        elif 'cod_prov' in context:
+            codice = context['cod_prov']
             area = Territorio.objects.get(territorio=Territorio.TERRITORIO.P, cod_prov=codice).geom
             context['zoom'] = { 'min' : 8, 'max' : 11 }
         else:
