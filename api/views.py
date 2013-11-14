@@ -1,3 +1,4 @@
+# coding=utf-8
 from django.conf import settings
 from django.test import RequestFactory
 from rest_framework import status, generics
@@ -704,4 +705,40 @@ class SoggettoDetail(AggregatoView, generics.RetrieveAPIView):
         ])
 
         response.data['aggregati'] = aggregated_data
+
+        # preparo i territori più finanziati
+        response.data['territori_piu_finanziati_pro_capite'] = sorted([
+            {
+                'link': reverse('api-aggregati-territorio-detail', request=self.request, format=format, kwargs={'slug': t.slug}),
+                'territorio': t.denominazione,
+                'slug': t.slug,
+                'pro_capite': t.totale,
+            }
+            # per ogni territorio
+            for t in context['territori_piu_finanziati_pro_capite']
+        # ordinati per il totale pro capite
+        ], key=lambda x: x['pro_capite'], reverse=True)
+
+        # preparo la classifica dei collaboratori
+        response.data['top_collaboratori'] = sorted([
+            {
+                'link': reverse('api-soggetto-detail', request=self.request, format=format, kwargs={'slug': s['soggetto'].slug}),
+                'soggetto': s['soggetto'].denominazione,
+                'slug': s['soggetto'].slug,
+                'numero_progetti': s['numero'],
+            }
+            for s in context['top_collaboratori']
+        # ordinati per il numero di progetti
+        ], key=lambda x: x['numero_progetti'], reverse=True)
+
+        # preparo la classifica dei progetti
+        response.data['top_progetti'] = sorted([
+            {
+                'link': reverse('api-progetto-detail', request=self.request, format=format, kwargs={'slug': p.slug}),
+                'titolo_progetto': p.titolo_progetto,
+                'slug': p.slug,
+                'fin_totale_pubblico': p.fin_totale_pubblico,
+            }
+            for p in context['top_progetti']
+        ], key=lambda x: x['fin_totale_pubblico'], reverse=True)
         return response
