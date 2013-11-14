@@ -1,28 +1,23 @@
 {% extends 'widgets/aggregato_widget.html' %}
 
 {% block widget_content %}
-	<h2><a href="{% url 'soggetti_soggetto' slug=soggetto.slug %}">{{ soggetto.denominazione }}</a></h2>
-	<dl>
-		<dt>Codice Fiscale</dt><dd>{{ soggetto.codice_fiscale }}</dd>
-		<dt>Forma giuridica: {{ soggetto.forma_giuridica.codice }}</dt><dd>{{ soggetto.forma_giuridica.denominazione }}</dd>
-		<dt>Indirizzo</dt><dd>{{ soggetto.indirizzo }} - {{ soggetto.cap }}</dd>
-		<dt>Rappresentante legale</dt><dd>{{ soggetto.rappresentante_legale }}</dd>
-		<dt>Codice ATECO: {{ soggetto.codice_ateco.codice }}</dt><dd>{{ soggetto.codice_ateco.descrizione }}</dd>
-	</dl>
 
-	{{ block.super }}
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<dl>
+				<dt>Codice Fiscale</dt><dd>{{ soggetto.codice_fiscale }}</dd>
+				<dt>Forma giuridica: {{ soggetto.forma_giuridica.codice }}</dt><dd>{{ soggetto.forma_giuridica.denominazione }}</dd>
+				<dt>Indirizzo</dt><dd>{{ soggetto.indirizzo }} - {{ soggetto.cap }}</dd>
+				<dt>Rappresentante legale</dt><dd>{{ soggetto.rappresentante_legale }}</dd>
+				<dt>Codice ATECO: {{ soggetto.codice_ateco.codice }}</dt><dd>{{ soggetto.codice_ateco.descrizione }}</dd>
+			</dl>
+		</div>
+	</div>
+</div>
 
-{#	<h3>Progetti con maggiori finanziamenti</h3>#}
-{#  <table class="table">#}
-{#    <tbody>#}
-{#    {% for progetto in soggetto.top_progetti %}#}
-{#    <tr>#}
-{#      <td><a href="{% url 'progetti_progetto' slug=progetto.slug %}" target="_blank">{{ progetto.progetto }}</a></td>#}
-{#      <td class="amount"><strong>{{ progetto.fin_totale_pubblico }}</strong></td>#}
-{#    </tr>#}
-{#    {% endfor %}#}
-{#    </tbody>#}
-{#  </table>#}
+{{ block.super }}
+
 <div class="container-fluid">
 	<div class="row-fluid">
     {% if 'top_collaboratori' in widget.data.component_set %}
