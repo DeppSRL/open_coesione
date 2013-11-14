@@ -12,7 +12,7 @@
 {% endblock %}
 
 
-{% block widget_container %}
+{% block widget_content %}
 <div class="block-container clearfix">
   <a href="#totale_costi" class="block-chart block-active" data-dataset="totale_costi" title="{{ aggregati.totali.costi|floatformat:'2' }}">
     <strong class="title">Finanziamenti monitorati</strong>
@@ -104,7 +104,7 @@
 
 </div>
 
-{% endblock widget_container %}
+{% endblock widget_content %}
 
 {% block widget_extra %}
   {{ block.super }}
