@@ -10,3 +10,14 @@ def key(d, key_name):
         value = "(%s)"%key_name
     return value
 key = register.filter('key', key)
+
+
+@register.filter
+def topic(project, topic_name):
+    try:
+        topic_name = {
+            'costo': 'fin_totale_pubblico',
+        }[topic_name]
+    except KeyError:
+        pass
+    return project.get(topic_name, '')
