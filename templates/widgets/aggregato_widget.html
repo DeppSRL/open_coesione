@@ -12,7 +12,7 @@
 {% endblock %}
 
 
-{% block widget_content %}
+{% block widget_container %}
 <div class="block-container clearfix">
   <a href="#totale_costi" class="block-chart block-active" data-dataset="totale_costi" title="{{ aggregati.totali.costi|floatformat:'2' }}">
     <strong class="title">Finanziamenti monitorati</strong>
@@ -39,7 +39,7 @@
       <table class="table"><tbody>
       {% for slug, natura in aggregati.nature.items %}
       <tr>
-        <td><a href="{% url progetti_tipologia slug=slug %}" target="_blank">{{ natura.label }}</a></td>
+        <td><a href="{% url 'progetti_tipologia' slug=slug %}" target="_blank">{{ natura.label }}</a></td>
         <td class="amount totale_costi"><strong>{{ natura.totali.costi|floatformat:'2' }}</strong></td>
         <td class="amount totale_pagamenti"><strong>{{ natura.totali.pagamenti|floatformat:'2' }}</strong></td>
         <td class="amount totale_progetti"><strong>{{ natura.totali.progetti }}</strong></td>
@@ -55,7 +55,7 @@
       <table class="table"><tbody>
       {% for slug, tema in aggregati.temi.items %}
       <tr>
-        <td><a href="{% url progetti_tema slug=slug %}" target="_blank">{{ tema.label }}</a></td>
+        <td><a href="{% url 'progetti_tema' slug=slug %}" target="_blank">{{ tema.label }}</a></td>
         <td class="amount totale_costi"><strong>{{ tema.totali.costi|floatformat:'2' }}</strong></td>
         <td class="amount totale_pagamenti"><strong>{{ tema.totali.pagamenti|floatformat:'2' }}</strong></td>
         <td class="amount totale_progetti"><strong>{{ tema.totali.progetti }}</strong></td>
@@ -74,7 +74,7 @@
         <tbody>
         {% for result in top_progetti.results %}
         <tr>
-          <td><a href="{% url progetti_progetto slug=result.codice_locale|slugify %}" target="_blank">{{ result.titolo_progetto }}</a></td>
+          <td><a href="{% url 'progetti_progetto' slug=result.codice_locale|slugify %}" target="_blank">{{ result.titolo_progetto }}</a></td>
           <td class="amount"><strong>{{ result.fin_totale_pubblico }}</strong></td>
         </tr>
         {% endfor %}
@@ -90,7 +90,7 @@
         <tbody>
         {% for result in progetti_conclusi.results %}
         <tr>
-          <td><a href="{% url progetti_progetto slug=result.codice_locale|slugify %}" target="_blank">{{ result.titolo_progetto }}</a></td>
+          <td><a href="{% url 'progetti_progetto' slug=result.codice_locale|slugify %}" target="_blank">{{ result.titolo_progetto }}</a></td>
           <td class="amount"><strong>{{ result.fin_totale_pubblico }}</strong></td>
         </tr>
         {% endfor %}
@@ -104,7 +104,7 @@
 
 </div>
 
-{% endblock widget_content %}
+{% endblock widget_container %}
 
 {% block widget_extra %}
   {{ block.super }}

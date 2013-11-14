@@ -21,7 +21,7 @@ class TerritorioWidget(AggregateWidget):
     API_TOPIC = 'territorio'
 
     def get_title(self):
-        return "{0}: {1}".format(self.title, Territorio.objects.get(slug=self.get_topic()).denominazione)
+        return "{0}".format(Territorio.objects.get(slug=self.get_topic()).denominazione)
 
 
 #class TerritorioWidget(Widget):

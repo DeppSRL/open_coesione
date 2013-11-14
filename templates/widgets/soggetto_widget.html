@@ -1,7 +1,7 @@
 {% extends 'widgets/base_widget.html' %}
 
 {% block widget_content %}
-	<h2><a href="{% url soggetti_soggetto slug=soggetto.slug %}">{{ soggetto.denominazione }}</a></h2>
+	<h2><a href="{% url 'soggetti_soggetto' slug=soggetto.slug %}">{{ soggetto.denominazione }}</a></h2>
 	<dl>
 		<dt>Codice Fiscale</dt><dd>{{ soggetto.codice_fiscale }}</dd>
 		<dt>Forma giuridica: {{ soggetto.forma_giuridica.codice }}</dt><dd>{{ soggetto.forma_giuridica.denominazione }}</dd>
@@ -15,7 +15,7 @@
     <tbody>
     {% for result in top_progetti.results %}
     <tr>
-      <td><a href="{% url progetti_progetto slug=result.codice_locale|slugify %}" target="_blank">{{ result.titolo_progetto }}</a></td>
+      <td><a href="{% url 'progetti_progetto' slug=result.codice_locale|slugify %}" target="_blank">{{ result.titolo_progetto }}</a></td>
       <td class="amount"><strong>{{ result.fin_totale_pubblico }}</strong></td>
     </tr>
     {% endfor %}
