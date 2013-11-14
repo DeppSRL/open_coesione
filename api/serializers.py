@@ -137,8 +137,8 @@ class ProgettoModelSerializer(serializers.ModelSerializer):
 class ProgettoSearchResultSerializer(serializers.Serializer):
     """
     """
-
-    slug = serializers.HyperlinkedIdentityField(view_name='api-progetto-detail')
+    slug = serializers.CharField()
+    progetto_url = serializers.HyperlinkedIdentityField(view_name='api-progetto-detail')
     clp = serializers.CharField(max_length=200)
     cup = serializers.CharField(max_length=100)
     titolo = serializers.CharField(required=False)
@@ -149,6 +149,8 @@ class ProgettoSearchResultSerializer(serializers.Serializer):
     territorio = serializers.RelatedField(many=True)
     tema_slug = serializers.CharField()
     natura_slug = serializers.CharField()
+    data_inizio_effettiva = serializers.DateField()
+    data_fine_effettiva = serializers.DateField()
 
     def get_field_key(self, field_name):
         """
@@ -156,7 +158,7 @@ class ProgettoSearchResultSerializer(serializers.Serializer):
         """
         fields_map = {
             'clp': 'codice_locale',
-            'slug': 'url',
+            'progetto_url': 'url',
             'titolo': 'titolo_progetto',
             'territorio': 'territori',
             'soggetto': 'soggetti',
