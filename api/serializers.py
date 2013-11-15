@@ -4,7 +4,7 @@ from territori.models import Territorio
 
 __author__ = 'guglielmo'
 from rest_framework import serializers, pagination
-from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, Ruolo
+from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, Ruolo, PagamentoProgetto
 
 
 class FiltersField(serializers.Field):
@@ -82,9 +82,6 @@ class SoggettoSlugField(serializers.RelatedField):
         return reverse('api-soggetto-detail', kwargs={'slug': value}, request=self.context.get('request'), format=self.context.get('format'))
 
 
-
-
-
 class TemaModelSerializer(serializers.ModelSerializer):
     filters = FiltersField('tema')
 
@@ -111,7 +108,7 @@ class TerritorioModelSerializer(serializers.ModelSerializer):
 
 
 class SoggettoModelSerializer(serializers.ModelSerializer):
-    territorio =  TerritorioModelSerializer()
+    territorio = TerritorioModelSerializer()
     class Meta:
         exclude = ('id', 'created', 'modified')
         model = Soggetto
@@ -123,9 +120,31 @@ class ProgrammaModelSerializer(serializers.ModelSerializer):
         model = ProgrammaAsseObiettivo
 
 
+class PagamentoProgettoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PagamentoProgetto
+        fields = ('data', 'ammontare')
+
+
+class RuoloProgettoSerializer(serializers.ModelSerializer):
+    soggetto = serializers.HyperlinkedRelatedField(view_name='api-soggetto-detail')
+
+    def to_native(self, obj):
+        result = super(RuoloProgettoSerializer, self).to_native(obj)
+        result.update({
+            'label': obj.get_ruolo_display(),
+        })
+        return result
+
+    class Meta:
+        model = Ruolo
+        fields = ('ruolo', 'soggetto')
+
+
 class ProgettoModelSerializer(serializers.ModelSerializer):
     territorio_set = TerritorioModelSerializer(many=True)
-    soggetto_set = serializers.HyperlinkedRelatedField(view_name='api-soggetto-detail', many=True)
+    pagamenti = PagamentoProgettoSerializer(many=True)
+    ruolo_set = RuoloProgettoSerializer(many=True)
 
     class Meta:
         exclude = ('territorio', 'created', 'modified', )
