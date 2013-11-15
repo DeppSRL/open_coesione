@@ -99,7 +99,7 @@ class NaturaModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClassificazioneAzione
-        exclude = ('descrizione_estesa', 'slug', 'priorita', 'tipo_classificazione', 'classificazione_superiore')
+        exclude = ('descrizione_estesa', 'priorita', 'tipo_classificazione', 'classificazione_superiore')
         depth = 1
 
 
