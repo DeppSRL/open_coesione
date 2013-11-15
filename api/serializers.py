@@ -132,7 +132,10 @@ class RuoloProgettoSerializer(serializers.ModelSerializer):
     def to_native(self, obj):
         result = super(RuoloProgettoSerializer, self).to_native(obj)
         result.update({
-            'label': obj.get_ruolo_display(),
+            'codice': result['ruolo'],
+            'ruolo': obj.get_ruolo_display(),
+            'slug': obj.soggetto.slug,
+            'soggetto_label': obj.soggetto.denominazione
         })
         return result
 
