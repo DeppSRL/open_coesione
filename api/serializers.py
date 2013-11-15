@@ -90,7 +90,7 @@ class TemaModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tema
-        exclude = ('descrizione_estesa', 'slug', 'tema_superiore', 'tipo_tema')
+        exclude = ('descrizione_estesa', 'tema_superiore', 'tipo_tema')
         depth = 1
 
 
