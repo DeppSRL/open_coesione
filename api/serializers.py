@@ -4,7 +4,7 @@ from territori.models import Territorio
 
 __author__ = 'guglielmo'
 from rest_framework import serializers, pagination
-from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, Ruolo, PagamentoProgetto
+from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, Ruolo, PagamentoProgetto, ClassificazioneQSN
 
 
 class FiltersField(serializers.Field):
@@ -114,13 +114,23 @@ class SoggettoModelSerializer(serializers.ModelSerializer):
         model = Soggetto
         depth = 1
 
+
 class ProgrammaModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProgrammaAsseObiettivo
 
 
+class ClassificazioneQSNModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ClassificazioneQSN
+
+
 class PagamentoProgettoSerializer(serializers.ModelSerializer):
+    data = serializers.DateField()
+    ammontare = serializers.DecimalField()
+
     class Meta:
         model = PagamentoProgetto
         fields = ('data', 'ammontare')
