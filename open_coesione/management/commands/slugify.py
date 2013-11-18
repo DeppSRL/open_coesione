@@ -23,16 +23,16 @@ NOTE:
 """
 import csv
 from optparse import make_option
-
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
-from django.db import transaction
 from django.template.defaultfilters import slugify
 from progetti.models import Tema, ClassificazioneAzione, Progetto
 from territori.models import Territorio
-from progetti.models import Progetto
 from soggetti.models import Soggetto
 
 import logging
+
+
 
 class Command(BaseCommand):
     help = "Create slugs for Territori"
@@ -132,12 +132,39 @@ class Command(BaseCommand):
         soggetti = Soggetto.objects.filter(slug__isnull=True)
         self.logger.info("{0} soggetti will be slugified".format(soggetti.count()))
         for n, soggetto in enumerate(soggetti):
-            if soggetto.codice_fiscale.strip() == '':
-                soggetto.slug = slugify(u"{0}".format(soggetto.denominazione ))
+
+            if soggetto.codice_fiscale.strip() == '' or soggetto.codice_fiscale.strip() == '*CODICE FISCALE*':
+
+                # handles non-existing or masked codice_fiscale cases
+
+                # get the basic slug, from the denominazione field
+                slug = slugify(u"{0}".format(soggetto.denominazione))
+
+                try:
+
+                    # look for soggetti starting with the same basic slug
+                    # in case no other soggetti are found, raise ObjectDoesNotExist
+                    latest_slug = Soggetto.objects.filter(slug__contains=slug).latest('slug').slug
+
+                    # transform the last bit of the slug into an integer
+                    # in case it's not an integer, raise a ValueError if not an integer
+                    # may happen for slugs generated in different ways, before this algorithm was implemented
+                    last_index = int(latest_slug.split('-')[-1:][0])
+
+                    # set slug, with increased last_index
+                    soggetto.slug = "{0}-{1}".format(slug, last_index+1)
+
+                except (ValueError, ObjectDoesNotExist):
+
+                    # generate slug, with an added "-1", to start the series
+                    soggetto.slug = "{0}-1".format(slug)
             else:
+
+                # generate the slug using the codice_fiscale field
                 soggetto.slug = slugify(u"{0}-{1}".format(soggetto.denominazione, soggetto.codice_fiscale.strip() ))
 
             soggetto.save()
+
             if n%100 == 0:
                 self.logger.debug(n)
 

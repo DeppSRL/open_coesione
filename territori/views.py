@@ -136,7 +136,10 @@ class AutocompleteView(JSONResponseMixin, TemplateView):
         # Call the base implementation first to get a context
         context = super(AutocompleteView, self).get_context_data(**kwargs)
         query = self.request.GET['query']
-        territori = Territorio.objects.filter(denominazione__istartswith=query).order_by('-popolazione_totale')[0:20]
+        if query.startswith('='):
+            territori = Territorio.objects.filter(slug=query[1:])
+        else:
+            territori = Territorio.objects.filter(denominazione__istartswith=query).order_by('-popolazione_totale')[0:20]
         context['territori'] = [{
             'denominazione': territorio.nome_con_provincia,
             'url': territorio.get_absolute_url(),
@@ -144,6 +147,7 @@ class AutocompleteView(JSONResponseMixin, TemplateView):
             'cod_com': territorio.cod_com,
             'cod_prov': territorio.cod_prov,
             'cod_reg': territorio.cod_reg,
+            'slug': territorio.slug,
         } for territorio in territori]
         return context
 
@@ -183,12 +187,12 @@ class LeafletView(TemplateView):
         # - region
         # - province
 
-        if 'params' in context and 'cod_reg' in context['params']:
-            codice = context['params']['cod_reg']
+        if 'cod_reg' in context:
+            codice = context['cod_reg']
             area = Territorio.objects.get(territorio=Territorio.TERRITORIO.R, cod_reg=codice).geom
             context['zoom'] = { 'min' : 7, 'max' : 10 }
-        elif 'params' in context and 'cod_prov' in context['params']:
-            codice = context['params']['cod_prov']
+        elif 'cod_prov' in context:
+            codice = context['cod_prov']
             area = Territorio.objects.get(territorio=Territorio.TERRITORIO.P, cod_prov=codice).geom
             context['zoom'] = { 'min' : 8, 'max' : 11 }
         else:
@@ -404,8 +408,8 @@ class MapnikProvinceView(MapnikView):
 
     def refine_context(self, context):
         #super(MapnikProvinceView, self).refine_context(context)
-        if 'params' in context and 'cod_reg' in context['params']:
-            cod_reg = context['params']['cod_reg']
+        if 'cod_reg' in context:
+            cod_reg = context['cod_reg']
             self.queryset = Territorio.objects.filter(territorio='P', cod_reg=cod_reg)
             self.territori_name = 'regioni_%s_province' % cod_reg
         else:
@@ -420,12 +424,12 @@ class MapnikComuniView(MapnikView):
 
     def refine_context(self, context):
         #super(MapnikComuniView, self).refine_context(context)
-        if 'params' in context and 'cod_reg' in context['params']:
-            cod_reg = context['params']['cod_reg']
+        if 'cod_reg' in context:
+            cod_reg = context['cod_reg']
             self.queryset = Territorio.objects.filter(territorio='C', cod_reg=cod_reg)
             self.territori_name = 'regioni_%s_comuni' % cod_reg
-        elif 'params' in context and 'cod_prov' in context['params']:
-            cod_prov = context['params']['cod_prov']
+        elif 'cod_prov' in context:
+            cod_prov = context['cod_prov']
             self.queryset = Territorio.objects.filter(territorio='C', cod_prov=cod_prov)
             self.territori_name = 'province_%s_comuni' % cod_prov
         else:

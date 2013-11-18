@@ -5,6 +5,7 @@ import os
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 REPO_ROOT = os.path.abspath(os.path.dirname(PROJECT_ROOT))
 DPS_ISTAT_ROOT = os.path.join(REPO_ROOT, "dati", "istat")
+API_URL = None
 
 # Haystack talks with solr
 HAYSTACK_SITECONF = 'open_coesione.search_sites'
@@ -145,6 +146,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'open_coesione',
     'sekizai',
+    'bootstrapform',
     'south',
     'haystack',
     'progetti',
@@ -159,8 +161,10 @@ INSTALLED_APPS = (
     # debug toolbar 3rd party panels
     'cache_panel',
     'disqus',
+    # API applications
     'rest_framework',
     'api',
+    'widgets',
 )
 
 DEBUG_TOOLBAR_PANELS = (
@@ -326,7 +330,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'theme': "advanced",
     'cleanup_on_startup': True,
     'custom_undo_redo_levels': 10,
-    'theme_advanced_toolbar_location' : "top"
+    'theme_advanced_toolbar_location': "top"
 }
 TINYMCE_SPELLCHECKER = True
 
@@ -346,8 +350,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'
     ),
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '12/minute', # 1 req every 5 seconds
-        'user': '1/second'
+        'anon': '12/minute',  # 1 req every 5 seconds
+        'user': '1000/second',  # un-throttled  (default: '1/second')
     },
     'PAGINATE_BY': 25,
     'PAGINATE_BY_PARAM': 'page_size',
@@ -357,3 +361,12 @@ REST_FRAMEWORK = {
 SOUTH_TESTS_MIGRATE = False
 
 TEST_RUNNER = 'open_coesione.testing.DatabaselessTestRunner'
+
+WIDGETS = [
+    'territori.widgets.TerritorioWidget',
+    'progetti.widgets.TemaWidget',
+    'progetti.widgets.NaturaWidget',
+    'progetti.widgets.ProgettoWidget',
+    'progetti.widgets.ProgettiWidget',
+    'soggetti.widgets.SoggettoWidget',
+]

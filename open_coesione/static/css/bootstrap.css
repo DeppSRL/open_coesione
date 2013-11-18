@@ -1508,8 +1508,8 @@ table .span24 {
     */
 @font-face {
   font-family: 'FontAwesome';
-  src: url('../font/fontawesome/fontawesome-webfont.eot');
-  src: url('../font/fontawesome/fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('../font/fontawesome/fontawesome-webfont.woff') format('woff'), url('../font/fontawesome/fontawesome-webfont.ttf') format('truetype'), url('../font/fontawesome/fontawesome-webfont.svg#FontAwesome') format('svg');
+  src: url('bootstrap/../../font/fontawesome/fontawesome-webfont.eot');
+  src: url('bootstrap/../../font/fontawesome/fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('bootstrap/../../font/fontawesome/fontawesome-webfont.woff') format('woff'), url('bootstrap/../../font/fontawesome/fontawesome-webfont.ttf') format('truetype'), url('bootstrap/../../font/fontawesome/fontawesome-webfont.svg#FontAwesome') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -5141,11 +5141,19 @@ section h2.title span {
   background-position: 0 0;
 }
 #wrapper > header a.flag.flag-ue {
-  width: 63px;
-  height: 42px;
-  background: url('../img/header/flag-ue.png') no-repeat right;
+  width: 94px;
+  height: 45px;
+  background: url('../img/header/flag-ue-new.png') no-repeat right;
 }
 #wrapper > header a.flag.flag-ue:hover {
+  background-position: 0 0;
+}
+#wrapper > header a.flag.pon-gat {
+  width: 93px;
+  height: 45px;
+  background: url('../img/header/pon-gat.png') no-repeat right;
+}
+#wrapper > header a.flag.pon-gat:hover {
   background-position: 0 0;
 }
 #wrapper > header > div > .container {

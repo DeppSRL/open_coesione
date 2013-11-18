@@ -1,0 +1,25 @@
+{% extends 'widgets/base_widget.html' %}
+
+{% block widget_content %}
+	<h2><a href="{% url 'soggetti_soggetto' slug=soggetto.slug %}">{{ soggetto.denominazione }}</a></h2>
+	<dl>
+		<dt>Codice Fiscale</dt><dd>{{ soggetto.codice_fiscale }}</dd>
+		<dt>Forma giuridica: {{ soggetto.forma_giuridica.codice }}</dt><dd>{{ soggetto.forma_giuridica.denominazione }}</dd>
+		<dt>Indirizzo</dt><dd>{{ soggetto.indirizzo }} - {{ soggetto.cap }}</dd>
+		<dt>Rappresentante legale</dt><dd>{{ soggetto.rappresentante_legale }}</dd>
+		<dt>Codice ATECO: {{ soggetto.codice_ateco.codice }}</dt><dd>{{ soggetto.codice_ateco.descrizione }}</dd>
+	</dl>
+
+	<h3>Progetti con maggiori finanziamenti</h3>
+  <table class="table">
+    <tbody>
+    {% for result in top_progetti.results %}
+    <tr>
+      <td><a href="{% url 'progetti_progetto' slug=result.codice_locale|slugify %}" target="_blank">{{ result.titolo_progetto }}</a></td>
+      <td class="amount"><strong>{{ result.fin_totale_pubblico }}</strong></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
