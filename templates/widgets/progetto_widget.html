@@ -1,37 +1,320 @@
 {% extends 'widgets/base_widget.html' %}
 
+{% load humanize %}
+
 {% block widget_content %}
-<h3>{{ progetto.titolo_progetto }} <small>{{ progetto.fondo_comunitario }}</small></h3>
-	<b>{{ progetto.fin_totale_pubblico }}</b>
-<ul>
-	{% for territorio in progetto.territorio_set %}
-	<li>{{ territorio.denominazione }}</li>
-	{% endfor %}
-</ul>
 
-	<h5>soggetto_set</h5>
-<ul>
-	{% for soggetto in progetto.soggetto_set %}
-	<li>{{ soggetto }}</li>
-	{% endfor %}
-</ul>
+<div class="container-fluid">
 
-	<h5>tema</h5>
-	{{ progetto.tema }}
+  <div class="row-fluid">
+    <div class="span6">
 
-	<h5>fonte</h5>
-	{{ progetto.fonte }}
+      <header>
+        {% if progetto.cup and not progetto.cipe_flag %}<h5>CUP: {{ progetto.cup }}</h5>{% endif %}
+        <h3>{{ progetto.titolo_progetto }}</h3>
+        {% if progetto.ultimo_aggiornamento %}
+        <p class="muted">Data di aggiornamento: <strong>{{ progetto.ultimo_aggiornamento|date:"d.m.Y" }}</strong></p>
+        {% endif %}
+      </header>
 
-	<h5>classificazione_qsn</h5>
-	{{ progetto.classificazione_qsn }}
+      <ul class="unstyled">
+        <li>
+          <a href="{% url 'progetti_tipologia' slug=progetto.classificazione_azione.classificazione_superiore.slug %}">
+            {{ progetto.classificazione_azione.classificazione_superiore.short_label|upper }}
+          </a>
+          {%  if not progetto.cipe_flag %}-
+          {{ progetto.classificazione_azione.descrizione|upper }}
+          {%  endif %}
+        </li>
+        <li>
+          <a href="{% url 'progetti_tema' slug=progetto.tema.tema_superiore.slug %}">
+            {{ progetto.tema.tema_superiore.short_label|upper }}
+          </a>
+          {%  if not progetto.cipe_flag %}-
+          {{ progetto.tema.descrizione|upper }}
+          {%  endif %}
+        </li>
+      </ul>
 
-	<h5>programma_asse_obiettivo</h5>
-	{{ progetto.programma_asse_obiettivo }}
+      {% if progetto.descrizione %}
+        <div class="baloons-block" style="padding-top: 2px;">
+            <p style="margin-left: 0;">
 
-	<h5>classificazione_azione</h5>
-	{{ progetto.classificazione_azione }}
+            <strong>Sintesi del progetto</strong>
 
-	<h5>classificazione_oggetto</h5>
-	{{ progetto.classificazione_oggetto }}
+            {% if progetto.fonte_descrizione %}
+                {% if progetto.fonte_url %}
+                    (FONTE: <a href="{{ progetto.fonte_url }}" class="no-pull-right">{{ progetto.fonte_descrizione }}</a>)
+                {% else %}
+                    (<span class="no-pull-right">{{ progetto.fonte_descrizione }}</span>)
+                {% endif %}
+            {% endif %}
+
+            </p>
+
+        </div>
+        <p id="project_description">
+          {{ progetto.descrizione }}
+        </p>
+      {% endif %}
+
+    </div>
+
+    <div class="span6">
+
+      <h3 class="title"><span>Soggetti</span></h3>
+
+      <div class="row-fluid">
+        <div class="span6">
+
+          {% for programmatore in progetto.programmatori %}
+            {% if forloop.first %}<h4 class="title">Programmatore</h4>{% endif %}
+            {% if not forloop.first %}, {% endif %}<a href="{% url 'soggetti_soggetto' slug=programmatore.slug %}"><strong>{{ programmatore.soggetto_label }}</strong></a>
+          {% empty %}&nbsp;{% endfor %}
+
+        </div>
+        <div class="span6">
+          {% for attuatore in progetto.attuatori %}
+            {% if forloop.first %}
+              <h4 class="title">Attuatore</h4>
+            {% else %}, {% endif %}
+            <a href="{% url 'soggetti_soggetto' slug=attuatore.slug %}"><strong>{{ attuatore.soggetto_label }}</strong></a>
+          {% endfor %}
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  {% if not progetto.cipe_flag %}
+  <h3 class="title"><span>Tempi</span></h3>
+  <ul class="unstyled">
+    <li>Inizio previsto <strong>{{ progetto.data_inizio_prevista|default:"Dato non disponibile" }}</strong></li>
+    <li>Inizio effettivo <strong>{{ progetto.data_inizio_effettiva|default:"Dato non disponibile" }}</strong></li>
+    <li>Fine prevista <strong>{{ progetto.data_fine_prevista|default:"Dato non disponibile" }}</strong></li>
+    <li>Fine effettiva <strong>{{ progetto.data_fine_effettiva|default:"Dato non disponibile" }}</strong></li>
+  </ul>
+  {% endif %}
+
+  <h3 class="title"><span>Territori</span></h3>
+  {% for territorio in progetto.territorio_set %}
+    {% if territorio.territorio == 'N' %}
+      <a href="{% url 'territori_nazionale' %}">{{ territorio.denominazione }}</a>
+    {% elif territorio.territorio == 'E' %}
+      <a href="{% url 'territori_estero' %}">{{ territorio.denominazione }}</a>
+    {% elif territorio.territorio == 'C' %}
+      <a href="{% url 'territori_comune' slug=territorio.slug %}">{{ territorio.denominazione }}</a>
+    {% elif territorio.territorio == 'P' %}
+      <a href="{% url 'territori_provincia' slug=territorio.slug %}">{{ territorio.denominazione }}</a>
+    {% elif territorio.territorio == 'R' %}
+      <a href="{% url 'territori_regione' slug=territorio.slug %}">{{ territorio.denominazione }}</a>
+    {% endif %}{% if not forloop.last %}, {% endif %}
+  {% endfor %}
+
+  {%  if not progetto.cipe_flag %}
+  <h3>Priorità QSN</h3>
+  <p>{{ progetto.classificazione_qsn.classificazione_superiore.classificazione_superiore.descrizione }}</p>
+  <h3>Obiettivo generale QSN</h3><p>{{ progetto.classificazione_qsn.classificazione_superiore.descrizione }}</p>
+  <h3>Obiettivo specifico QSN</h3><p>{{ progetto.classificazione_qsn.descrizione }}</p>
+  {%  endif %}
+
+  <div class="row">
+    <div class="span6">
+      <h1 class="title" style="margin-left:25px;"><span>Risorse pubbliche</span></h1>
+    </div>
+  </div>
+  <div class="row-fluid">
+    <div class="span6">
+      {%  if progetto.cipe_flag %}
+        <h3 style="color: #4b6dbc">Assegnazione CIPE</h3>
+      {%  else %}
+        <h3>Finanziamento</h3>
+      {% endif %}
+      <table class="table">
+        {% if progetto.fin_ue %}
+          <tr><th>Unione europea</th><td class="amount"><strong>{{ progetto.fin_ue|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_stato_fondo_rotazione %}
+          <tr><th>Co-finanziamento nazionale</th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.cipe_flag %}
+          <tr><th>Stato: {{ progetto.fonte.descrizione }}</th><td class="amount"><strong>{{ progetto.fin_totale_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_stato_altri_provvedimenti %}
+          <tr><th>Stato: altri provvedimenti</th><td class="amount"><strong>{{ progetto.fin_stato_altri_provvedimenti|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_regione %}
+          <tr><th>Regione</th><td class="amount"><strong>{{ progetto.fin_regione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_provincia %}
+          <tr><th>Provincia</th><td class="amount"><strong>{{ progetto.fin_provincia|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_comune %}
+          <tr><th>Comune</th><td class="amount"><strong>{{ progetto.fin_comune|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_altro_pubblico %}
+          <tr><th>Altra fonte pubblica</th><td class="amount"><strong>{{ progetto.fin_altro_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+      </table>
+
+      {% if progetto.fin_stato_estero or progetto.fin_privato or progetto.fin_da_reperire %}
+      <section>
+        <h4 class="title"><span>Altre risorse</span></h4>
+
+        <table class="table">
+          {% if progetto.fin_stato_estero %}
+            <tr>
+              <th>Stati Esteri</th>
+              <td class="amount"><strong>{{ progetto.fin_stato_estero|intcomma }}</strong> euro</td>
+            </tr>
+          {% endif %}
+          {% if progetto.fin_privato %}
+            <tr>
+              <th>Privati</th>
+              <td class="amount"><strong>{{ progetto.fin_privato|intcomma }}</strong> euro</td>
+            </tr>
+          {% endif %}
+          {% if progetto.fin_da_reperire %}
+            <tr>
+              <th>Da reperire</th>
+              <td class="amount"><strong>{{ progetto.fin_da_reperire|intcomma }}</strong> euro</td>
+            </tr>
+          {% endif %}
+        </table>
+
+      </section>
+      {% endif %}
+
+    </div>
+
+    <div class="span6">
+      {%  if not progetto.cipe_flag %}
+        <h3>Pagamenti effettuati</h3>
+        {% if progetto.pagamenti %}
+        <table id="payments_chart_table" class="table">
+          {% for pagamento in progetto.pagamenti %}
+            <tr><th>{{ pagamento.data|date:"N Y" }}</th><td>{{ pagamento.ammontare|floatformat:"2" }}</td><td>{{ pagamento.percentuale|floatformat:"2" }}</td></tr>
+          {% endfor %}
+        </table>
+        {% endif %}
+      {%  endif %}
+    </div>
+  </div>
+
+  {% if progetto.fondo_comunitario == 'fse' or progetto.fondo_comunitario == 'fesr' or progetto.cipe_flag %}
+    <section>
+
+      <dl class="data">
+        {% if progetto.costo %}
+          <dt>Costo</dt>
+          <dd>{{ progetto.costo|floatformat:2|intcomma }} euro</dd>
+        {% endif %}
+
+
+        <dt>
+          {% if progetto.fondo_comunitario == 'fse' %}
+            Fondo Strutturale Europeo (FSE)
+          {% elif progetto.fondo_comunitario == 'fesr' %}
+            Fondo Europeo di Sviluppo Regionale (FESR)
+          {% elif progetto.cipe_flag  %}
+            {{ progetto.fonte.descrizione }}
+          {% endif %}
+        </dt>
+        <dd>
+          {% if progetto.cipe_flag  %}
+            <p id="claim">
+              Questo progetto ha ricevuto un’assegnazione di risorse dal Fondo Sviluppo e Coesione tramite una delibera CIPE. Non sono ancora disponibili i dati di monitoraggio sull’attuazione.
+            </p>
+          {% else %}
+            {{ progetto.fonte.descrizione }}
+          {% endif %}
+        </dd>
+
+        <dt>Programma</dt>
+        <dd>
+          <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}" target="_blank">
+            {{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}
+          </a>
+        </dd>
+        {% if not progetto.cipe_flag %}
+          <dt>Asse</dt>
+          <dd>{{ progetto.programma_asse_obiettivo.classificazione_superiore.descrizione }}</dd>
+          <dt>Obiettivo</dt>
+          <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
+        {%  endif %}
+
+        {%  if progetto.cipe_flag %}
+
+          <table>
+            <tr>
+              <td><dt>Delibere CIPE</dt></td>
+              <td style="padding-left: 0.5em">Assegnazioni</td>
+            </tr>
+            {% for assegnazione in progetto.assegnazioni_delibere %}
+              <tr>
+                <td>
+                  <a href="{{ assegnazione.delibera.url }}">
+                    Numero {{ assegnazione.delibera.num }} del {{ assegnazione.delibera.anno }},
+                    pubblicata sulla Gazz.U. del
+                    {{ assegnazione.delibera.data_pubblicazione|date:'d/m/Y' }}
+                  </a>
+                </td>
+                <td style="padding-left: 0.5em">
+                  {{ assegnazione.finanziamento|floatformat:"2" }} euro
+                </td>
+              </tr>
+            {% endfor %}
+          </table>
+        {%  endif %}
+
+        {% if progetto.note and progetto.note != '' %}
+          <dt>Note</dt>
+          <dd>{{ progetto.note|linebreaks }}</dd>
+        {% endif %}
+      </dl>
+    </section>
+  {% endif %}
+
+
+
+
+
+</div>
+
+
+{#<h3>{{ progetto.titolo_progetto }} <small>{{ progetto.fondo_comunitario }}</small></h3>#}
+{#	<b>{{ progetto.fin_totale_pubblico }}</b>#}
+{#<ul>#}
+{#	{% for territorio in progetto.territorio_set %}#}
+{#	<li>{{ territorio.denominazione }}</li>#}
+{#	{% endfor %}#}
+{#</ul>#}
+{##}
+{#	<h5>soggetto_set</h5>#}
+{#<ul>#}
+{#	{% for soggetto in progetto.soggetto_set %}#}
+{#	<li>{{ soggetto }}</li>#}
+{#	{% endfor %}#}
+{#</ul>#}
+{##}
+{#	<h5>tema</h5>#}
+{#	{{ progetto.tema }}#}
+{##}
+{#	<h5>fonte</h5>#}
+{#	{{ progetto.fonte }}#}
+{##}
+{#	<h5>classificazione_qsn</h5>#}
+{#	{{ progetto.classificazione_qsn }}#}
+{##}
+{#	<h5>programma_asse_obiettivo</h5>#}
+{#	{{ progetto.programma_asse_obiettivo }}#}
+{##}
+{#	<h5>classificazione_azione</h5>#}
+{#	{{ progetto.classificazione_azione }}#}
+{##}
+{#	<h5>classificazione_oggetto</h5>#}
+{#	{{ progetto.classificazione_oggetto }}#}
 
 {% endblock %}

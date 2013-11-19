@@ -1,3 +1,4 @@
+# coding=utf-8
 from django.conf import settings
 from django.test import RequestFactory
 from rest_framework import status, generics
@@ -8,7 +9,7 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from open_coesione.utils import setup_view
 from open_coesione.views import HomeView
-from progetti.models import Progetto, Tema, ProgrammaAsseObiettivo, Ruolo
+from progetti.models import Progetto, Tema, ProgrammaAsseObiettivo, Ruolo, ClassificazioneQSN
 from progetti.urls import sqs as progetti_sqs
 from progetti.views import TemaView, TipologiaView
 from soggetti.urls import sqs as soggetti_sqs
@@ -45,6 +46,7 @@ def api_root(request, format=None):
             ('nature', reverse('api-natura-list', request=request, format=format)),
             ('territori', reverse('api-territorio-list', request=request, format=format)),
             ('programmi', reverse('api-programma-list', request=request, format=format)),
+            ('classificazioni', reverse('api-classificazione-list', request=request, format=format)),
         ])
     )
 
@@ -303,19 +305,58 @@ class ProgrammiList(generics.ListAPIView):
 
         GET api/programmi?descrizione=Lazio
 
+    To filter on codice::
+
+        GET api/programmmi?codice=2007IT052PO012
+
     """
     serializer_class = ProgrammaModelSerializer
 
     def get_queryset(self):
-        ret_qs = ProgrammaAsseObiettivo.objects.filter(tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma)
+        ret_qs = ProgrammaAsseObiettivo.objects.all()
 
         descrizione = self.request.GET.get('descrizione', None)
         if descrizione:
             ret_qs = ret_qs.filter(descrizione__icontains=descrizione)
 
+        codice = self.request.GET.get('codice', None)
+        if codice:
+            if codice.startswith('^'):
+                ret_qs = ret_qs.filter(codice__startswith=codice[1:])
+            elif ',' in codice:
+                ret_qs = ret_qs.filter(codice__in=codice.split(','))
+            else:
+                ret_qs = ret_qs.filter(codice=codice)
+
         return ret_qs
 
 
+class ClassificazioneList(generics.ListAPIView):
+    """
+    List of all classificazioni of quadro strategico nazionale (QSN).
+
+    Can be filtered by ``descrizione`` GET parameter, to extract all items containing a given substring, case-insensitive.
+
+    Examples
+    ========
+
+    To get all classificazioni for a given topic
+
+        GET api/classificazioni?descrizione=occupazione
+
+    """
+    serializer_class = ClassificazioneQSNModelSerializer
+    model = ClassificazioneQSN
+    paginate_by = 100
+
+    #def get_queryset(self):
+    #    ret_qs = ClassificazioneQSN.objects.filter(tipo_classificazione=ClassificazioneQSN.TIPO.priorita)
+    #
+    #    descrizione = self.request.GET.get('descrizione', None)
+    #    if descrizione:
+    #        ret_qs = ret_qs.filter(descrizione__icontains=descrizione)
+    #
+    #    return ret_qs
 
 @api_view(('GET',))
 def api_aggregati_temi_list(request, format=None):
@@ -718,4 +759,40 @@ class SoggettoDetail(AggregatoView, generics.RetrieveAPIView):
         ])
 
         response.data['aggregati'] = aggregated_data
+
+        # preparo i territori più finanziati
+        response.data['territori_piu_finanziati_pro_capite'] = sorted([
+            {
+                'link': reverse('api-aggregati-territorio-detail', request=self.request, format=format, kwargs={'slug': t.slug}),
+                'territorio': t.denominazione,
+                'slug': t.slug,
+                'pro_capite': t.totale,
+            }
+            # per ogni territorio
+            for t in context['territori_piu_finanziati_pro_capite']
+        # ordinati per il totale pro capite
+        ], key=lambda x: x['pro_capite'], reverse=True)
+
+        # preparo la classifica dei collaboratori
+        response.data['top_collaboratori'] = sorted([
+            {
+                'link': reverse('api-soggetto-detail', request=self.request, format=format, kwargs={'slug': s['soggetto'].slug}),
+                'soggetto': s['soggetto'].denominazione,
+                'slug': s['soggetto'].slug,
+                'numero_progetti': s['numero'],
+            }
+            for s in context['top_collaboratori']
+        # ordinati per il numero di progetti
+        ], key=lambda x: x['numero_progetti'], reverse=True)
+
+        # preparo la classifica dei progetti
+        response.data['top_progetti'] = sorted([
+            {
+                'link': reverse('api-progetto-detail', request=self.request, format=format, kwargs={'slug': p.slug}),
+                'titolo_progetto': p.titolo_progetto,
+                'slug': p.slug,
+                'fin_totale_pubblico': p.fin_totale_pubblico,
+            }
+            for p in context['top_progetti']
+        ], key=lambda x: x['fin_totale_pubblico'], reverse=True)
         return response

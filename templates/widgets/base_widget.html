@@ -10,7 +10,7 @@
     table#widget-container > tbody > tr > td { background-color: #ffffff; }
 	  table#widget-container > tbody > tr:first-child > td { padding: 0;}
 	  #stream .table td { border-left: 0; }
-	  #stream .table td.amount { text-align: right; }
+	  #stream .table td.amount { text-align: right; white-space: nowrap; }
 	  #stream h1, #stream h2, #stream h3, #stream h4 { margin-left: 5px; }
 	  #stream .container-fluid { margin:0; }
   </style>
@@ -20,12 +20,4 @@
 
 {% block widget_credits %}
 <a href="http://opencoesione.gov.it" class="muted" target="_blank"><i>Dati forniti da Opencoesione.gov.it</i></a>
-{% endblock %}
-
-{% block widget_container %}
-{% if widget.form.errors|length > 0 %}
-  <div class="text-error">{{ widget.form.errors }}</div>
-{% else %}
-  {{ block.super }}
-{% endif %}
 {% endblock %}
