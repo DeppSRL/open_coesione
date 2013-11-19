@@ -24,7 +24,7 @@ class SoggettoWidget(AggregateWidget):
         ('top_collaboratori', 'Visualizza i 5 soggetti con cui collabora di più'),
     )
 
-    INITIAL_TOPIC = 'miur', 'MIUR'
+    INITIAL_TOPIC = 'miur-97429780584', 'MIUR'
 
     def get_context_data(self):
         context = Widget.get_context_data(self)
@@ -38,16 +38,6 @@ class SoggettoWidget(AggregateWidget):
                 'results': context['soggetto'].pop('territori_piu_finanziati_pro_capite')
             }
         return context
-
-    def get_form(self):
-        form = super(SoggettoWidget, self).get_form()
-        form.fields['soggetto'] = forms.CharField()
-        return form
-
-    def get_initial(self):
-        initial = super(SoggettoWidget, self).get_initial()
-        initial['soggetto'] = 'miur-97429780584'
-        return initial
 
     def get_title(self):
         return '{0}: {1}'.format(self.title, Soggetto.objects.get(slug=self.get_topic()).denominazione)
