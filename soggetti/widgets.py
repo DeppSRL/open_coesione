@@ -29,5 +29,5 @@ class SoggettoWidget(Widget):
 
     def get_initial(self):
         initial = super(SoggettoWidget, self).get_initial()
-        initial['soggetto'] = 'miur'
+        initial['soggetto'] = 'miur-97429780584'
         return initial
