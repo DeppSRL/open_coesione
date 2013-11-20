@@ -639,7 +639,9 @@ class Ruolo(TimeStampedModel):
     class Meta:
         verbose_name = "Ruolo"
         verbose_name_plural = "Ruoli"
-
+        index_together = [
+            ["progetto", "soggetto", "ruolo"],
+        ]
 
 class SegnalazioneProgetto(TimeStampedModel):
 

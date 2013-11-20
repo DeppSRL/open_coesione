@@ -5,7 +5,7 @@ Jinja2
 PIL
 PyYAML
 Pygments
-South
+South>=0.8.3
 Sphinx
 django-debug-toolbar
 django-cache-panel

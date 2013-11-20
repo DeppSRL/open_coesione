@@ -44,7 +44,7 @@ class SoggettiManager(models.Manager):
 
 class Soggetto(TimeStampedModel):
     codice_fiscale = models.CharField(max_length=16)
-    denominazione = models.CharField(max_length=512)
+    denominazione = models.CharField(max_length=512, db_index=True)
     slug = models.CharField(max_length=300, blank=True, null=True)
     forma_giuridica = models.ForeignKey(FormaGiuridica,
                                         db_column='forma_giuridica', null=True, blank=True)
