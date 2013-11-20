@@ -328,6 +328,9 @@ class Command(BaseCommand):
                (c - int(options['offset']) > int(options['limit'])):
                 break
 
+            if c % 1000 == 0:
+                self.logger.info("...{0}...".format(c))
+
             # codice locale progetto (ID del record)
             try:
                 progetto = Progetto.objects.get(pk=r['COD_LOCALE_PROGETTO'])
