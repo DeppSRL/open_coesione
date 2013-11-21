@@ -95,8 +95,10 @@ class Command(BaseCommand):
             self.handle_rec(*args, **options)
         elif options['type'] == 'cups':
             self.handle_cups(*args, **options)
-        elif options['type'] == 'desc':
-            self.handle_desc(*args, **options)
+        elif options['type'] == 'ponrec':
+            self.handle_desc_ponrec(*args, **options)
+        elif options['type'] == 'pongat':
+            self.handle_desc_pongat(*args, **options)
         elif options['type'] == 'pay':
             self.handle_payments(*args, **options)
         else:
@@ -237,7 +239,7 @@ class Command(BaseCommand):
 
         self.logger.info("Fine: %s cup aggiornati, %s non necessitavano aggiornamento e %s progetti non sono stati trovati" % (updates, already_ok, not_found))
 
-    def handle_desc(self, *args, **options):
+    def handle_desc_ponrec(self, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
         self.logger.info("Encoding: %s" % self.encoding)
         self.logger.info("Limit: %s" % options['limit'])
@@ -303,6 +305,78 @@ class Command(BaseCommand):
 
         self.logger.info(
             "Fine: %s descrizioni aggiornate, %s sintesi da importare erano vuote, %s progetti non sono stati trovati tramite il codice progetto locale, %s progetti si riferiscono a un CUP non univoco" %
+            (updates, already_ok, not_found, duplicate)
+        )
+
+    def handle_desc_pongat(self, *args, **options):
+        """
+        PONREG descriptions import, from
+        http://www.dps.tesoro.it/documentazione/QSN/docs/PO/Elenco_Beneficiari_PON_GAT_dati_31_AGOSTO_2013.csv
+        """
+        self.logger.info("Inizio import da %s" % self.csv_file)
+        self.logger.info("Encoding: %s" % self.encoding)
+        self.logger.info("Limit: %s" % options['limit'])
+        self.logger.info("Offset: %s" % options['offset'])
+
+        # read csv file, changing the default field delimiter
+        try:
+            self.unicode_reader = utils.UnicodeDictReader(
+                open(self.csv_file, 'r'),
+                delimiter=';', encoding=self.encoding
+            )
+        except IOError:
+            self.logger.error("It was impossible to open file %s" % self.csv_file)
+            exit(1)
+        except csv.Error, e:
+            self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
+
+        if options['delete']:
+            self.logger.error("Could not revert descriptions updates.")
+            exit(1)
+
+        updates = 0
+        already_ok = 0
+        not_found = 0
+        duplicate = 0
+        c = 0
+        for r in self.unicode_reader:
+            c += 1
+            if c < int(options['offset']):
+                continue
+
+            if int(options['limit']) and \
+                    (c - int(options['offset']) > int(options['limit'])):
+                break
+
+            CUP = r['CUP'].strip()
+            try:
+                progetto = Progetto.objects.get(cup=CUP)
+                self.logger.debug("%s - Progetto: %s" % (c, progetto.pk))
+            except ObjectDoesNotExist:
+                self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, CUP))
+                not_found += 1
+                continue
+            except MultipleObjectsReturned:
+                self.logger.warning(u"%s - Più progetti con CUP: %s, skip" % (c, CUP))
+                duplicate += 1
+                continue
+
+
+            sintesi = r['Sintesi intervento'].strip()
+
+            if sintesi:
+                self.logger.info(u"Aggiornamento descrizione per il progetto %s" % progetto)
+                progetto.descrizione = sintesi
+                progetto.fonte_descrizione = 'Open Data PON GAT'
+                progetto.fonte_url = 'http://www.dps.tesoro.it/QSN/Pon_governance/qsn_pongovernance_elencobeneficiari.asp'
+                progetto.save()
+                updates += 1
+            else:
+                self.logger.info(u"Sintesi vuota per il progetto %s" % progetto)
+                already_ok += 1
+
+        self.logger.info(
+            "Fine: %s descrizioni aggiornate, %s sintesi da importare erano vuote, %s progetti non sono stati trovati tramite il CUP, %s progetti si riferiscono a un CUP non univoco" %
             (updates, already_ok, not_found, duplicate)
         )
 
