@@ -314,7 +314,7 @@ class Command(BaseCommand):
 
         # check whether to remove records
         if options['delete']:
-            Soggetto.objects.all().delete()
+            Soggetto.fullobjects.all().delete()
             FormaGiuridica.objects.all().delete()
             self.logger.info("Oggetti rimossi")
 
@@ -385,7 +385,7 @@ class Command(BaseCommand):
             try:
 
                 # fetch del soggetto, attraverso la sua denominazione esatta
-                soggetto = Soggetto.objects.get(denominazione__iexact=denominazione)
+                soggetto = Soggetto.fullobjects.get(denominazione__iexact=denominazione)
 
                 # controllo campo per campo se ci sono state variazioni
                 edited = False
@@ -417,7 +417,7 @@ class Command(BaseCommand):
             except ObjectDoesNotExist:
                 # creazione nuovo soggetto, se non esistente
                 try:
-                    soggetto = Soggetto.objects.create(
+                    soggetto = Soggetto.fullobjects.create(
                         denominazione=denominazione,
                         codice_fiscale=codice_fiscale,
                         forma_giuridica=forma_giuridica,
@@ -1438,12 +1438,12 @@ class Command(BaseCommand):
 
         denominazione = soggetto_field.strip()
         try:
-            soggetto = Soggetto.objects.get(denominazione__iexact=denominazione)
+            soggetto = Soggetto.fullobjects.get(denominazione__iexact=denominazione)
             self.logger.debug(u"%s: Soggetto trovato e non modificato: %s" % (c, soggetto.denominazione))
             return soggetto
         except ObjectDoesNotExist:
             try:
-                soggetto = Soggetto.objects.create(
+                soggetto = Soggetto.fullobjects.create(
                     denominazione=denominazione,
                     codice_fiscale='',
                 )
