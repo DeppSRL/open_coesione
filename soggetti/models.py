@@ -69,8 +69,9 @@ class Soggetto(TimeStampedModel):
 
     @property
     def has_progetti(self):
-        p = self.progetto_set.all()[0]
-        return p is not None
+        progetti = self.progetto_set.all()
+
+        return len(progetti) > 0
 
 
     @property
