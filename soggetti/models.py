@@ -55,12 +55,23 @@ class Soggetto(TimeStampedModel):
     indirizzo = models.CharField(max_length=300, null=True, blank=True)
     cap = models.CharField(max_length=5, null=True, blank=True)
 
-    objects = SoggettiManager()
+    objects = models.Manager()
+    filteredobjects = SoggettiManager()
     fullobjects = models.Manager()
 
     @property
     def progetti(self):
         return self.progetto_set.all()
+
+    @property
+    def n_progetti(self):
+        return self.progetto_set.count()
+
+    @property
+    def has_progetti(self):
+        p = self.progetto_set.all()[0]
+        return p is not None
+
 
     @property
     def ruoli(self):

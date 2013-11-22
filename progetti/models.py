@@ -329,13 +329,13 @@ class Progetto(TimeStampedModel):
                                      db_column='cod_locale_progetto')
 
     cup = models.CharField(max_length=15, blank=True)
-    active_flag = models.BooleanField(default=True)
+    active_flag = models.BooleanField(default=True, db_index=True)
 
     titolo_progetto = models.TextField()
     descrizione = models.TextField(blank=True, null=True)
     fonte_descrizione = models.TextField(blank=True, null=True)
     fonte_url = models.URLField(blank=True, null=True)
-    slug = models.CharField(max_length=128, blank=True, null=True)
+    slug = models.CharField(max_length=128, blank=True, null=True, db_index=True)
     classificazione_qsn = models.ForeignKey('ClassificazioneQSN',
                                             related_name='progetto_set',
                                             db_column='classificazione_qsn',
