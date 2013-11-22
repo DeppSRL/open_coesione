@@ -18,13 +18,10 @@ from territori.models import Territorio
 
 class Command(BaseCommand):
     """
-    Poiticians anagraphical data and their current and past charges are imported from the
-    openpolitici database.
+    Data are imported from their CSV sources.
 
-    An openpolis location id MUST be passed along to specify the location.
-
-    Data may be compared or re-written. By default they're compared,
-    to overwrite use the --overwrite option.
+    Data are inserted by ``get_or_create``, so basically, import operations
+    are isomorphic.
     """
     help = "Import data from csv"
 
