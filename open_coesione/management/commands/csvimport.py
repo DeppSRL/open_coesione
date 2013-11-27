@@ -1007,7 +1007,7 @@ class Command(BaseCommand):
             # progetto
             try:
                 # fetch o creazione del progetto, basandosi sul codice locale
-                p, created = Progetto.objects.get_or_create(
+                p, created = Progetto.fullobjects.get_or_create(
                     codice_locale=codice_locale,
                     defaults={
                         'classificazione_qsn': qsn_obiettivo_specifico,
