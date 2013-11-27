@@ -52,70 +52,70 @@ class Command(BaseCommand):
     data = {
         'convergenza_fse': {
             'programmi': [
-                { 'descr': 'POR CONV FSE CAMPANIA', 'label': 'Por Campania'},
-                { 'descr': 'POR CONV FSE CALABRIA', 'label': 'Por Calabria' },
-                { 'descr': 'POR CONV FSE SICILIA', 'label': 'Por Sicilia' },
-                { 'descr': 'POR CONV FSE BASILICATA', 'label': 'Por Basilicata' },
-                { 'descr': 'POR CONV FSE PUGLIA', 'label': 'Por Puglia' },
-                { 'descr': 'PON CONV FSE GOVERNANCE E AZIONI DI SISTEMA', 'label': 'Pon GAS' },
-                { 'descr': 'PON CONV FSE COMPETENZE PER LO SVILUPPO', 'label': 'Pon Istruzione' },
+                { 'descr': u'POR CONV FSE CAMPANIA', 'label': 'Por Campania'},
+                { 'descr': u'POR CONV FSE CALABRIA', 'label': 'Por Calabria' },
+                { 'descr': u'POR CONV FSE SICILIA', 'label': 'Por Sicilia' },
+                { 'descr': u'POR CONV FSE BASILICATA', 'label': 'Por Basilicata' },
+                { 'descr': u'POR CONV FSE PUGLIA', 'label': 'Por Puglia' },
+                { 'descr': u'PON CONV FSE GOVERNANCE E AZIONI DI SISTEMA', 'label': 'Pon GAS' },
+                { 'descr': u'PON CONV FSE COMPETENZE PER LO SVILUPPO', 'label': 'Pon Istruzione' },
             ]
         },
         'convergenza_fesr': {
             'programmi': [
-                { 'descr': 'POIN CONV FESR ATTRATTORI CULTURALI, NATURALI E TURISMO', 'label': 'Poin Attrattori' },
-                { 'descr': 'POIN CONV FESR ENERGIE RINNOVABILI E RISPARMIO ENERGETICO', 'label': 'Poin Energie' },
-                { 'descr': 'PON CONV FESR GOVERNANCE E ASSISTENZA TECNICA', 'label': 'Pon GAT' },
-                { 'descr': "PON CONV FESR ISTRUZIONE - AMBIENTI PER L'APPRENDIMENTO", 'label': 'Pon Istruzione' },
+                { 'descr': u'POIN CONV FESR ATTRATTORI CULTURALI, NATURALI E TURISMO', 'label': 'Poin Attrattori' },
+                { 'descr': u'POIN CONV FESR ENERGIE RINNOVABILI E RISPARMIO ENERGETICO', 'label': 'Poin Energie' },
+                { 'descr': u'PON CONV FESR GOVERNANCE E ASSISTENZA TECNICA', 'label': 'Pon GAT' },
+                { 'descr': u"PON CONV FESR ISTRUZIONE - AMBIENTI PER L'APPRENDIMENTO", 'label': 'Pon Istruzione' },
                 { 'descr': u'PON CONV FESR RETI E MOBILITÀ', 'label': 'Pon Reti' },
                 { 'descr': u'PON CONV FESR RICERCA E COMPETITIVITÀ', 'label': 'Pon Ricerca' },
-                { 'descr': 'PON CONV FESR SICUREZZA', 'label': 'Pon Sicurezza' },
-                { 'descr': 'POR CONV FESR CALABRIA', 'label': 'Por Calabria' },
-                { 'descr': 'POR CONV FESR CAMPANIA', 'label': 'Por Campania' },
-                { 'descr': 'POR CONV FESR PUGLIA', 'label': 'Por Puglia' },
-                { 'descr': 'POR CONV FESR SICILIA', 'label': 'Por Sicilia' },
-                { 'descr': 'POR CONV FESR BASILICATA', 'label': 'Por Basilicata' },
+                { 'descr': u'PON CONV FESR SICUREZZA', 'label': 'Pon Sicurezza' },
+                { 'descr': u'POR CONV FESR CALABRIA', 'label': 'Por Calabria' },
+                { 'descr': u'POR CONV FESR CAMPANIA', 'label': 'Por Campania' },
+                { 'descr': u'POR CONV FESR PUGLIA', 'label': 'Por Puglia' },
+                { 'descr': u'POR CONV FESR SICILIA', 'label': 'Por Sicilia' },
+                { 'descr': u'POR CONV FESR BASILICATA', 'label': 'Por Basilicata' },
             ]
         },
         'competitivita_fse': {
             'programmi': [
-                { 'descr': 'POR CRO FSE ABRUZZO', 'label': 'Por Abruzzo' },
-                { 'descr': 'POR CRO FSE EMILIA ROMAGNA', 'label': 'Por Emilia Romagna' },
-                { 'descr': 'POR CRO FSE FRIULI VENEZIA GIULIA', 'label': 'Por Friuli enezia Giulia' },
-                { 'descr': 'POR CRO FSE LAZIO', 'label': 'Por Lazio' },
-                { 'descr': 'POR CRO FSE LIGURIA', 'label': 'Por Liguria' },
-                { 'descr': 'POR CRO FSE LOMBARDIA', 'label': 'Por Lombardia' },
-                { 'descr': 'POR CRO FSE MARCHE', 'label': 'Por Marche' },
-                { 'descr': 'POR CRO FSE MOLISE', 'label': 'Por Molise' },
-                { 'descr': 'POR CRO FSE PA BOLZANO', 'label': 'Por PA Bolzano' },
-                { 'descr': 'POR CRO FSE PA TRENTO', 'label': 'Por PA Trento' },
-                { 'descr': 'POR CRO FSE PIEMONTE', 'label': 'Por Piemonte' },
-                { 'descr': 'POR CRO FSE TOSCANA', 'label': 'Por Toscana' },
-                { 'descr': 'POR CRO FSE UMBRIA', 'label': 'Por Umbria' },
-                { 'descr': "POR CRO FSE VALLE D'AOSTA", 'label': 'Por VdA' },
-                { 'descr': 'POR CRO FSE VENETO', 'label': 'Por Veneto' },
-                { 'descr': 'POR CRO FSE SARDEGNA', 'label': 'Por Sardegna' },
-                { 'descr': 'PON CRO FSE AZIONI DI SISTEMA', 'label': 'Pon AS' },
+                { 'descr': u'POR CRO FSE ABRUZZO', 'label': 'Por Abruzzo' },
+                { 'descr': u'POR CRO FSE EMILIA ROMAGNA', 'label': 'Por Emilia Romagna' },
+                { 'descr': u'POR CRO FSE FRIULI VENEZIA GIULIA', 'label': 'Por Friuli enezia Giulia' },
+                { 'descr': u'POR CRO FSE LAZIO', 'label': 'Por Lazio' },
+                { 'descr': u'POR CRO FSE LIGURIA', 'label': 'Por Liguria' },
+                { 'descr': u'POR CRO FSE LOMBARDIA', 'label': 'Por Lombardia' },
+                { 'descr': u'POR CRO FSE MARCHE', 'label': 'Por Marche' },
+                { 'descr': u'POR CRO FSE MOLISE', 'label': 'Por Molise' },
+                { 'descr': u'POR CRO FSE PA BOLZANO', 'label': 'Por PA Bolzano' },
+                { 'descr': u'POR CRO FSE PA TRENTO', 'label': 'Por PA Trento' },
+                { 'descr': u'POR CRO FSE PIEMONTE', 'label': 'Por Piemonte' },
+                { 'descr': u'POR CRO FSE TOSCANA', 'label': 'Por Toscana' },
+                { 'descr': u'POR CRO FSE UMBRIA', 'label': 'Por Umbria' },
+                { 'descr': u"POR CRO FSE VALLE D'AOSTA", 'label': 'Por VdA' },
+                { 'descr': u'POR CRO FSE VENETO', 'label': 'Por Veneto' },
+                { 'descr': u'POR CRO FSE SARDEGNA', 'label': 'Por Sardegna' },
+                { 'descr': u'PON CRO FSE AZIONI DI SISTEMA', 'label': 'Pon AS' },
             ]
         },
         'competitivita_fesr': {
             'programmi': [
-                { 'descr': 'POR CRO FESR ABRUZZO', 'label': 'Por Abruzzo' },
-                { 'descr': 'POR CRO FESR EMILIA ROMAGNA', 'label': 'Por Emilia Romagna' },
-                { 'descr': 'POR CRO FESR FRIULI VENEZIA GIULIA', 'label': 'Por Friuli Venezia Giulia' },
-                { 'descr': 'POR CRO FESR LAZIO', 'label': 'Por Lazio' },
-                { 'descr': 'POR CRO FESR LIGURIA', 'label': 'Por Liguria' },
-                { 'descr': 'POR CRO FESR LOMBARDIA', 'label': 'Por Lombardia' },
-                { 'descr': 'POR CRO FESR MARCHE', 'label': 'Por Marche' },
-                { 'descr': 'POR CRO FESR MOLISE', 'label': 'Por Molise' },
-                { 'descr': 'POR CRO FESR PA BOLZANO', 'label': 'Por PA Bolzano' },
-                { 'descr': 'POR CRO FESR PA TRENTO', 'label': 'Por PA Trento' },
-                { 'descr': 'POR CRO FESR PIEMONTE', 'label': 'Por Piemonte' },
-                { 'descr': 'POR CRO FESR TOSCANA', 'label': 'Por Toscana' },
-                { 'descr': 'POR CRO FESR UMBRIA', 'label': 'Por Umbria' },
-                { 'descr': "POR CRO FESR VALLE D'AOSTA", 'label': 'Por VdA' },
-                { 'descr': 'POR CRO FESR VENETO', 'label': 'Por Veneto' },
-                { 'descr': 'POR CRO FESR SARDEGNA', 'label': 'Por Sardegna' },
+                { 'descr': u'POR CRO FESR ABRUZZO', 'label': 'Por Abruzzo' },
+                { 'descr': u'POR CRO FESR EMILIA ROMAGNA', 'label': 'Por Emilia Romagna' },
+                { 'descr': u'POR CRO FESR FRIULI VENEZIA GIULIA', 'label': 'Por Friuli Venezia Giulia' },
+                { 'descr': u'POR CRO FESR LAZIO', 'label': 'Por Lazio' },
+                { 'descr': u'POR CRO FESR LIGURIA', 'label': 'Por Liguria' },
+                { 'descr': u'POR CRO FESR LOMBARDIA', 'label': 'Por Lombardia' },
+                { 'descr': u'POR CRO FESR MARCHE', 'label': 'Por Marche' },
+                { 'descr': u'POR CRO FESR MOLISE', 'label': 'Por Molise' },
+                { 'descr': u'POR CRO FESR PA BOLZANO', 'label': 'Por PA Bolzano' },
+                { 'descr': u'POR CRO FESR PA TRENTO', 'label': 'Por PA Trento' },
+                { 'descr': u'POR CRO FESR PIEMONTE', 'label': 'Por Piemonte' },
+                { 'descr': u'POR CRO FESR TOSCANA', 'label': 'Por Toscana' },
+                { 'descr': u'POR CRO FESR UMBRIA', 'label': 'Por Umbria' },
+                { 'descr': u"POR CRO FESR VALLE D'AOSTA", 'label': 'Por VdA' },
+                { 'descr': u'POR CRO FESR VENETO', 'label': 'Por Veneto' },
+                { 'descr': u'POR CRO FESR SARDEGNA', 'label': 'Por Sardegna' },
             ]
         },
 
@@ -128,7 +128,8 @@ class Command(BaseCommand):
         # read first csv file
         try:
             self.unicode_reader = utils.UnicodeDictReader(
-                open(self.csv_file, 'r'), delimiter=',', encoding=self.encoding
+                open(self.csv_file, 'r'), encoding=self.encoding,
+                dialect=utils.excel_semicolon
             )
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.csv_file)
@@ -136,7 +137,6 @@ class Command(BaseCommand):
         except csv.Error, e:
             self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
 
-        self.encoding = options['encoding']
 
         verbosity = options['verbosity']
         if verbosity == '0':
@@ -160,6 +160,7 @@ class Command(BaseCommand):
             c += 1
 
             descr = u" ".join([i for i in row['DPS_DESCRIZIONE_PROGRAMMA'].split(" ") if i])
+
 
             if descr != 'TOTALE':
                 self.logger.debug(u"  {0} - {1}".format(c, descr))
