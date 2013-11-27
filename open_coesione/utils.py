@@ -7,18 +7,19 @@ from django.core.mail.backends.filebased import EmailBackend
 import os
 
 
-class UTF8Recoder:
+class EncodedRecoder:
     """
-    Iterator that reads an encoded stream and reencodes the input to UTF-8
+    Iterator that reads an encoded stream and reencodes the input to the specified encoding
     """
-    def __init__(self, f, encoding):
+    def __init__(self, f, encoding="utf-8"):
         self.reader = codecs.getreader(encoding)(f)
+        self.encoding = encoding
 
     def __iter__(self):
         return self
 
     def next(self):
-        return self.reader.next().encode("utf-8")
+        return self.reader.next().encode(self.encoding)
 
 
 class UnicodeDictReader:
@@ -28,12 +29,13 @@ class UnicodeDictReader:
     """
 
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
-        f = UTF8Recoder(f, encoding)
+        f = EncodedRecoder(f, encoding)
         self.reader = csv.DictReader(f, dialect=dialect, **kwds)
+        self.encoding = encoding
 
     def next(self):
         row = self.reader.next()
-        return dict((k, unicode(s, "utf-8")) for k, s in row.iteritems() if s is not None)
+        return dict((k, s.decode(self.encoding)) for k, s in row.iteritems() if s is not None)
 
     @property
     def columns(self):
@@ -50,11 +52,12 @@ class UnicodeDictWriter(object):
         self.writer = csv.DictWriter(self.queue, fieldnames, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
+        self.encoding = encoding
 
     def _unicode_row(self):
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()
-        data = data.decode("utf-8")
+        data = data.decode(self.encoding)
         # ... and reencode it into the target encoding
         data = self.encoder.encode(data)
         # write to the target stream
@@ -67,11 +70,11 @@ class UnicodeDictWriter(object):
         self.writerow(header)
 
     def writerow(self, D):
-        self.writer.writerow(dict([(k, v.encode("utf-8")) for k, v in D.items()]))
+        self.writer.writerow(dict([(k, v.encode(self.encoding)) for k, v in D.items()]))
         self._unicode_row()
 
     def writerow_list(self, L):
-        self.writer.writer.writerow([v.encode("utf-8") for v in L])
+        self.writer.writer.writerow([v.encode(self.encoding) for v in L])
         self._unicode_row()
 
     def writerows(self, rows):
@@ -99,12 +102,13 @@ class UnicodeWriter:
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
+        self.encoding = encoding
 
     def writerow(self, row):
-        self.writer.writerow([s.encode("utf-8") for s in row])
+        self.writer.writerow([s.encode(self.encoding) for s in row])
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()
-        data = data.decode("utf-8")
+        data = data.decode(self.encoding)
         # ... and reencode it into the target encoding
         data = self.encoder.encode(data)
         # write to the target stream

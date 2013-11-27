@@ -75,8 +75,8 @@ class Command(BaseCommand):
         else:
             clps = clps[offset:]
 
-        # get all listed progetti
-        p = Progetto.objects.filter(pk__in=clps)
+        # get all listed progetti, among the active, excluding CIPE
+        p = Progetto.objects.filter(pk__in=clps).exclude(cipe_flag=True)
         self.logger.info('{0} progetti matching'.format(p.count()))
 
         # bulk update, if not dryrun
