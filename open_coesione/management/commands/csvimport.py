@@ -1102,7 +1102,7 @@ class Command(BaseCommand):
                         self.logger.info("%s: Progetto trovato, sovrascritto e ri-attivato: %s" % (c, p.codice_locale))
                     else:
                         self.logger.info("%s: Progetto trovato e sovrascritto: %s" % (c, p.codice_locale))
-                        p.save()
+                    p.save()
 
                 # remove local variable p from the namespace,
                 #may free some memory
