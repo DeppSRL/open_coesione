@@ -407,7 +407,7 @@ class Command(BaseCommand):
                 progetto = Progetto.objects.get(pk=r['COD_LOCALE_PROGETTO'])
                 self.logger.debug("%s - Progetto: %s" % (c, progetto.codice_locale))
             except ObjectDoesNotExist:
-                self.logger.warning("%s - Progetto non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
+                self.logger.warning("%s - Progetto attivo non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
                 continue
 
             # lookup o creazione forma giuridica
@@ -1097,8 +1097,12 @@ class Command(BaseCommand):
                     p.dps_flag_date_previste = r['DPS_FLAG_COERENZA_DATE_PREV']
                     p.dps_flag_date_effettive = r['DPS_FLAG_COERENZA_DATE_EFF']
                     p.dps_flag_cup = r['DPS_FLAG_CUP']
-                    p.save()
-                    self.logger.info("%s: Progetto trovato e sovrascritto: %s" % (c, p.codice_locale))
+                    if not p.active_flag:
+                        p.active_flag = True
+                        self.logger.info("%s: Progetto trovato, sovrascritto e ri-attivato: %s" % (c, p.codice_locale))
+                    else:
+                        self.logger.info("%s: Progetto trovato e sovrascritto: %s" % (c, p.codice_locale))
+                        p.save()
 
                 # remove local variable p from the namespace,
                 #may free some memory
@@ -1393,7 +1397,7 @@ class Command(BaseCommand):
 
             # progetto
             try:
-                p, created = Progetto.objects.get_or_create(
+                p, created = Progetto.fullobjects.get_or_create(
                     codice_locale=codice_locale,
                     defaults={
                         'cup': cup_main,
