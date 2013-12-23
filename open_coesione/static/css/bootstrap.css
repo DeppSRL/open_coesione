@@ -893,31 +893,31 @@ input[type="checkbox"][readonly] {
 .control-group.warning > label,
 .control-group.warning .help-block,
 .control-group.warning .help-inline {
-  color: #c09853;
+  color: #5b5955;
 }
 .control-group.warning .checkbox,
 .control-group.warning .radio,
 .control-group.warning input,
 .control-group.warning select,
 .control-group.warning textarea {
-  color: #c09853;
-  border-color: #c09853;
+  color: #5b5955;
+  border-color: #5b5955;
 }
 .control-group.warning .checkbox:focus,
 .control-group.warning .radio:focus,
 .control-group.warning input:focus,
 .control-group.warning select:focus,
 .control-group.warning textarea:focus {
-  border-color: #a47e3c;
-  -webkit-box-shadow: 0 0 6px #dbc59e;
-  -moz-box-shadow: 0 0 6px #dbc59e;
-  box-shadow: 0 0 6px #dbc59e;
+  border-color: #413f3c;
+  -webkit-box-shadow: 0 0 6px #8f8c87;
+  -moz-box-shadow: 0 0 6px #8f8c87;
+  box-shadow: 0 0 6px #8f8c87;
 }
 .control-group.warning .input-prepend .add-on,
 .control-group.warning .input-append .add-on {
-  color: #c09853;
+  color: #5b5955;
   background-color: #fcf8e3;
-  border-color: #c09853;
+  border-color: #5b5955;
 }
 .control-group.error > label,
 .control-group.error .help-block,
@@ -2959,7 +2959,7 @@ input[type="submit"].btn.btn-mini {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
-  color: #c09853;
+  color: #5b5955;
 }
 .alert-heading {
   color: inherit;
