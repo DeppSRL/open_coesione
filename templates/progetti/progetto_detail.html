@@ -212,7 +212,9 @@
     {% if not progetto.active_flag %}
         <div class="alert alert-block text-center" style="margin-bottom: 0;">
             <h3><strong>Attenzione!!!</strong> Questo progetto <strong>non è più attivo</strong>.</h3>
+            {% comment %}
             <p>Cerca tra le <a href="{% url 'faq-it' %}">domande frequenti</a>, cosa significa.</p>
+            {% endcomment %}
         </div>
     {% endif %}
 
