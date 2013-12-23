@@ -179,12 +179,12 @@ class SoggettoView(AggregatoView, DetailView):
 
         # calcolo dei progetti con piu' fondi
         logger.debug("top_progetti start")
-        context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
-        """
+        #context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
         context['top_progetti'] = [
             Progetto.objects.get(pk=p['codice_locale'])
-            for p in self.object.progetti.values('codice_locale', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]]
-        """
+            for p in self.object.progetti.values(
+                'codice_locale', 'fin_totale_pubblico'
+            ).distinct().order_by('-fin_totale_pubblico')[:5]]
         logger.debug("top_progetti end")
 
         # calcolo dei comuni un cui questo soggetto ha operato di piu'
