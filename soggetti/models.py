@@ -61,8 +61,7 @@ class Soggetto(TimeStampedModel):
 
     @property
     def progetti(self):
-        raise Exception("Code is used.")
-        # return self.progetto_set.all()
+        return self.progetto_set.all()
 
     @property
     def n_progetti(self):
