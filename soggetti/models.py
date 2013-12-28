@@ -69,7 +69,13 @@ class Soggetto(TimeStampedModel):
 
     @property
     def has_progetti(self):
-        return self.n_progetti > 0
+        try:
+            a = self.progetti[0]
+            return True
+        except IndexError:
+            return False
+
+        # return self.n_progetti > 0
 
 
     @property
