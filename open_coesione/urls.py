@@ -57,7 +57,12 @@ urlpatterns = patterns('',
 
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html')),
     url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),
-    url(r'^spesa-certificata/', SpesaCertificataView.as_view(template_name='flat/spesa_certificata.html')),
+    url(r'^spesa-certificata/',
+        SpesaCertificataView.as_view(template_name='flat/spesa_certificata.html'),
+                                     name='flat-spesa-certificata'),
+    url(r'^spesa-certificata-grafici/',
+        SpesaCertificataView.as_view(template_name='flat/spesa_certificata_grafici.html'),
+                                     name='flat-spesa-certificata-grafici'),
 
     url(r'^rassegna-stampa/', PressView.as_view()),
 

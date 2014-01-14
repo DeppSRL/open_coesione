@@ -230,7 +230,7 @@ class FondiView(RisorseView):
 
 
 class SpesaCertificataView(RisorseView):
-    template_name = 'flat/spesa_certificata.html'
+    template_name = 'flat/spesa_certificata_grafici.html'
 
     def get_context_data(self, **kwargs):
 
