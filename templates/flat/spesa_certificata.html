@@ -9,24 +9,42 @@
     <div class="flat_content">
         <h1>Avanzamento della spesa certificata all’UE per i Programmi cofinanziati dai Fondi Strutturali - Totale Italia</h1>
 
-        <p>(% della spesa certificata all’UE rispetto alla dotazione finanziaria disponibile)</p>
+        <p>(% della spesa certificata all’UE rispetto alla dotazione finanziaria disponibile – aggiornamento al 31 dicembre 2013)</p>
 
         <p>
-            <img src="{{ STATIC_URL }}img/spesa_certificata_20131231.jpg"/>
+            <figure>
+                <img src="{{ STATIC_URL }}img/spesa_certificata_20131231.jpg"/>
+                <figcaption>
+                    Nota: Gli obiettivi nazionali sono stati definiti dal Comitato QSN
+                    del 9 aprile 2013, gli obiettivi comunitari sono quelli definiti dalla regola &ldquo;n+2&rdquo;
+                </figcaption>
+            </figure>
+
         </p>
 
         <p>
             Scarica dati e metadati per ciascun Programma Operativo su:
             <ul>
-                <li>dotazione finanziaria complessiva e spesa certificata alla CE (xls, 43 Kb)
-                    (<a href="{{ STATIC_URL }}xls/1_Dotazioni_Certificazioni_20131231.xlsx">aggiornamento al 31 dicembre 2013</a>)</li>
-                <li>target di spesa certificata (xls, 44 Kb)
-                    (<a href="{{ STATIC_URL }}xls/2_Target_Risultati_20131231.xlsx">aggiornamento al 31 dicembre 2013</a>)</li>
+                <li><a href="{{ STATIC_URL }}xls/1_Dotazioni_Certificazioni_20131231.xlsx">
+                    dotazione finanziaria complessiva e spesa certificata alla CE </a>
+                    (xls, 43 Kb)
+                    (aggiornamento al 31 dicembre 2013)</li>
+                <li><a href="{{ STATIC_URL }}xls/2_Target_Risultati_20131231.xlsx">
+                    target di spesa certificata</a> (xls, 44 Kb)
+                    (aggiornamento al 31 dicembre 2013)</li>
             </ul>
         </p>
 
         <p><a href="{% url 'flat-spesa-certificata-grafici' %}">Visualizza i grafici interattivi per ciascun Programma Operativo</a></p>
 
+        <p>
+            Leggi le &ldquo;Pillole di OpenCoesione&rdquo; con approfondimenti sui risultati raggiunti
+            <ul>
+                <li><a href="{{ STATIC_URL }}pdf/Pillola OpenCoesione n.3 - La spesa certificata al 31 dicembre 2013.pdf">
+                    La certificazione della spesa dei Fondi Strutturali all’UE al 31/12/2013
+                </a></li>
+            </ul>
+        </p>
         <h1>Cos’è la spesa certificata all’UE?</h1>
         <p>
             La spesa certificata all’UE corrisponde alle richieste di rimborso delle spese sostenute
@@ -42,14 +60,18 @@
 
         <h1>Quali regole per il ciclo di programmazione 2007-2013?</h1>
         <p>
-            Per il periodo 2007-2013 vale l’obbligo comunitario della regola nota come “n+2”
-            (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1083:IT:NOT">art. 93 del Regolamento CE 1083/2006</a>),
+            Per il periodo 2007-2013 vale l’obbligo comunitario della regola nota come &ldquo;n+2&rdquo;
+            (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1083:IT:NOT">
+                art. 93 del Regolamento CE 1083/2006
+            </a>),
             pertanto le certificazioni alla Commissione devono essere presentate entro il
             31 dicembre del secondo anno successivo a quello dell’impegno nell’ambito del Programma.
             Tra gli effetti di questa regola, quindi, c’è anche quello di aver fissato al
-            31 dicembre 2015 la chiusura contabile del ciclo 2007-2013.
+            31 dicembre 2015 il termine ultimo di ammissibilità della spesa
+            rendicontabile alla Commissione per il ciclo 2007-2013.
         </p>
 
+        {%  comment %}
         <h1>Cosa sono i target infra-annuali?</h1>
         <p>
             Tra le misure di accelerazione dell’attuazione dei Programmi Operativi dei Fondi Strutturali 2007-2013,
@@ -69,11 +91,14 @@
             50 milioni di euro che seguono un particolare iter autorizzativo da parte della
             Commissione – per i quali sono previste specifiche deroghe proprio per la regola dell’n+2.
         </p>
+        {%  endcomment %}
 
         <h1>Quali regole per il ciclo di programmazione 2014-2020?</h1>
         <p>
             Per il periodo 2014-2020 vale la cosiddetta regola “n+3”
-            (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0320:0469:IT:pdf">art. 136 del Regolamento CE 1303/2013</a>),
+            (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0320:0469:IT:pdf">
+                art. 136 del Regolamento CE 1303/2013
+            </a>),
             pertanto le certificazioni alla Commissione devono essere presentate entro il 31 dicembre
             del terzo anno successivo a quello dell’impegno nell’ambito del Programma.
             Non sono previste deroghe per i Grandi Progetti.
