@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import codecs
 import os
+import re
 from django.core.management.base import BaseCommand
 
 from open_coesione import utils
@@ -243,21 +244,24 @@ class Command(BaseCommand):
 
         """
         data = []
+
         for d in self.dates:
             datum = {
                 'date': datetime.strptime(d, '%Y%m%d').strftime('%d/%m/%Y')
             }
 
-            target_key = 'TARGET {0}'.format(d)
-            target_estimate_key = 'STIMA TARGET {0}'.format(d)
-            if target_key in row:
-                datum['target'] = row[target_key].strip()
-            elif target_estimate_key in row:
-                datum['target'] = row[target_estimate_key].strip()
+            target_keys = ('TARGET {0}'.format(d),
+                           'TARGET NAZIONALE {0}'.format(d),
+                           'TARGET UE {0}'.format(d),
+                           'STIMA TARGET {0}'.format(d))
+            for target_key in target_keys:
+                if target_key in row:
+                    datum['target'] = row[target_key].strip()
 
-            result_key = 'RISULTATO {0}'.format(d)
-            if result_key in row:
-                datum['result'] = row[result_key].strip()
+            result_keys = ('RISULTATO {0}'.format(d),)
+            for result_key in result_keys:
+                if result_key in row:
+                    datum['result'] = row[result_key].strip()
 
             data.append(datum)
 

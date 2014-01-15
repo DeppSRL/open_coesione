@@ -165,64 +165,33 @@
         <h1>Spesa certificata UE - Risultati e obiettivi per i singoli Programmi Operativi</h1>
 
         <p>
-            I dati sui pagamenti complessivi e sui pagamenti rendicontabili all'Unione Europea dei singoli progetti,
-            desumibili dai sistemi di monitoraggio riportati in OpenCoesione e nei
-            <a href="http://www.dps.tesoro.it/opencoesione/dati_attuazione.asp">dataset scaricabili qui</a>,
-            si riferiscono alla data di aggiornamento indicata di volta in volta.
-            Non sempre corrispondono al valore più recente di certificazione ufficiale delle spese alla
-            Commissione europea – informazione rilevanti ai fini della
-            <a href="http://europa.eu/legislation_summaries/regional_policy/provisions_and_instruments/l60014_it.htm">
-                regola nota come "n+2"
-            </a>.
-            I Regolamenti CE prevedono infatti per ogni annualità contabile delle risorse impegnate
-            per ciascun fondo (i.e., FSE, FESR) e programma operativo (PO) sul bilancio comunitario disimpegni
-            automatici della quota di risorse che non risultino effettivamente
-            spese  e certificate alla Commissione entro il 31 dicembre del secondo
-            anno successivo a quello dell'impegno nell'ambito del programma.
-            Il disimpegno delle risorse comunitarie comporta anche la parallela riduzione
-            di disponibilità delle relative risorse di cofinanziamento nazionale.
-        </p>
-        <p>
-            Tra le misure di accelerazione dell'attuazione dei programmi operativi dei fondi strutturali 2007-2013,
-            a partire dalla Delibera CIPE n.1/2011
-            (<a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E110001.pdf">scarica qui il PDF</a>)
-            sono stati previsti target delle spese effettivamente sostenute e certificate infrannuali.
-            Oltre alla data del 31 dicembre di ciascun anno, la spesa certificata viene pertanto monitorata
-            anche al 31 maggio e al 31 ottobre.
-        </p>
-        <p>
-            Ulteriori informazioni e dati sulle dotazioni dei programmi, sulla spesa, sui target annuali e
-            infrannuali possono essere
-            <a href="http://www.dps.tesoro.it/qsn/Spesa_certificata/spesa_certificata.asp">scaricati qui</a>.
+            Qui di seguito si riportano i grafici dei singoli Programmi Operativi,
+            in sezioni distinte per Area Obiettivo (Competitività, Convergenza) e Fondo (FESR, FSE).
+            Per selezionare il grafico di interesse, scegliere dal menu a tendina nella sezione di riferimento.
         </p>
 
         {% for tipo_di_spesa, csv_file in chart_tables %}
         <div id="chart_{{ tipo_di_spesa }}" class="chart_container">
 
         {% for row in csv_file %}
-        {% if forloop.first %}
-        <div class="chart_canvas"></div>
-        <form action="#">
-            <div class="text-center">
-                <select class="span3 chart_selector">
-                </select>
-            </div>
-        </form>
-        <table class="chart_table hide">
-            <thead>
-            <tr>
-                {% for value in row %}
-                <th>{{ value }}</th>
-                {% endfor %}
-            </tr>
-            </thead>
-            <tbody>
-        {% else %}
-
-{#        {% if forloop.revcounter == 2 %}#}
-{#            </tbody>#}
-{#            <tfoot>#}
-{#        {% endif %}#}
+            {% if forloop.first %}
+            <div class="chart_canvas"></div>
+            <form action="#">
+                <div class="text-center">
+                    <select class="span3 chart_selector">
+                    </select>
+                </div>
+            </form>
+            <table class="chart_table hide">
+                <thead>
+                <tr>
+                    {% for value in row %}
+                    <th>{{ value }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+            {% else %}
 
             <tr>
                 {% for value in row %}
@@ -230,12 +199,11 @@
                 {% endfor %}
             </tr>
 
-        {% endif %}
+            {% endif %}
 
-        {% if forloop.last %}
-{#            </tfoot>#}
-        </table>
-        {% endif %}
+            {% if forloop.last %}
+            </table>
+            {% endif %}
         {% endfor %}
 
 
