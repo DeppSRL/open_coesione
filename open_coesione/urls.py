@@ -37,7 +37,6 @@ urlpatterns = patterns('',
     url(r'^maps_cache_generator.txt$', CGView.as_view(filter='maps'), name='maps_cache_generator'),
     url(r'^pages_cache_generator.txt$', CGView.as_view(filter='pages'), name='pages_cache_generator'),
 
-
     # pre-csm page routes
     url(r'^progetto/$', TemplateView.as_view(template_name='flat/progetto.html')),
     url(r'^progetto/en/$', TemplateView.as_view(template_name='flat/progetto_en.html')),
@@ -57,6 +56,7 @@ urlpatterns = patterns('',
 
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html')),
     url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),
+    url(r'^api-faq/', RisorseView.as_view(template_name='flat/api.html')),
     url(r'^spesa-certificata/',
         SpesaCertificataView.as_view(template_name='flat/spesa_certificata.html'),
                                      name='flat-spesa-certificata'),
