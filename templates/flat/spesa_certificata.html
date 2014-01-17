@@ -4,244 +4,116 @@
 {% block page_title %}Fonti di finanziamento{% endblock %}
 
 
-{% block js_content %}
-
-    {{ block.super }}
-
-    {% addtoblock "js_script" %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>
-    {% endaddtoblock %}
-
-    <script type="text/javascript">
-
-        var charts = {};
-        var chart_series = {};
-
-        function trimtext( el ) {
-            return $(el).text().trim();
-        }
-
-        function readTextValues( list ) {
-            return $(list).map(function(){ return trimtext(this) });
-        }
-
-        function readFloatValues( list ) {
-            return $(filterValues(list)).map(function(){ var value = parseFloat(trimtext(this).replace(',','.')); return isNaN(value) ? 0.0 : value });
-        }
-
-        function filterValues( list ) {
-            return jQuery.grep( list, function(el,i) { return i >= 4  });
-        }
-
-        function buildChart( container, table ) {
-            var first_row = table.find('tbody tr:first-child td')
-            var title = $(first_row[0]).text().trim();
-            var fondo = $(first_row[2]).text().trim();
-            var headers = readTextValues(table.find('thead th'));
-            var date_list = filterValues( headers );
-
-            // console.log('create chart', title, fondo, '~ headers:', headers, '~ date:', date_list);
-
-            return new Highcharts.Chart({
-                chart: {
-                    renderTo: container[0],
-                    type: 'column',
-                    marginTop: 60,
-                    backgroundColor: null
-                },
-                title: {
-                    text: title + ' : ' + fondo
-                },
-                subtitle: {
-                    text: ''
-                },
-                xAxis: {
-                    categories: date_list,
-                    labels: {
-                        rotation: -45,
-                        align: 'right'
-                    }
-                },
-                yAxis: {
-                    min: 0,
-                    title: {
-                        text: 'Spesa Certificata'
-                    }
-                },
-                legend: {
-                    layout: 'vertical',
-                    backgroundColor: '#FFFFFF',
-                    align: 'left',
-                    verticalAlign: 'top',
-                    x: 100,
-                    y: 70,
-                    floating: true,
-                    shadow: true
-                },
-                tooltip: {
-                    formatter: function() {
-
-                        return ''+
-                                this.series.name + ' '+
-                                this.x +': '+ this.y +' ';
-                    }
-                },
-                plotOptions: {
-                    column: {
-                        pointPadding: 0.2,
-                        borderWidth: 0
-                    }
-                },
-                series: [],
-                credits: { enabled: false }
-            });
-        }
-
-
-        $(document).ready(function() {
-
-            $('div.chart_container').each(function(ix,el){
-                var $el = $(el);
-                var chart_name = $el.attr('id').replace(/^chart_/,'');
-                var container = $el.find('.chart_canvas');
-                var table = $el.find('table.chart_table');
-                var selector = $el.find('select.chart_selector');
-
-                //console.log(chart_name, container, table, selector);
-
-                charts[ chart_name ] = buildChart( container, table );
-
-                chart_series[chart_name] = {};
-                var programma_op, primo_programma_op;
-                table.find('tbody tr, tfoot tr').each(function(){
-                    var row = $(this).find('td');
-                    programma_op = trimtext(row[1]);
-                    if (!primo_programma_op) { primo_programma_op = programma_op; }
-                    var tipo = trimtext(row[3]);
-                    if (!(programma_op in chart_series[chart_name])) {
-                        chart_series[chart_name][programma_op] = {}
-                    }
-                    chart_series[chart_name][ programma_op ][ tipo ] = readFloatValues(row);
-                });
-
-                jQuery.each(chart_series[chart_name],function(key,v){
-                    selector.append($('<option>', { value : key })
-                            .text(key));
-                });
-
-                selector.change(function(){
-
-                    var programma_op = $('option:selected',this).val();
-
-                   // console.log(chart_series[chart_name][programma_op])
-                    if (charts[ chart_name ].series.length == 2) {
-                        charts[ chart_name ].series[0].setData(chart_series[chart_name][programma_op][charts[ chart_name ].series[0].name], false);
-                        charts[ chart_name ].series[1].setData(chart_series[chart_name][programma_op][charts[ chart_name ].series[1].name]);
-{#                        jQuery.each(.series, function(k,v) { v.destroy(); });#}
-                    }
-                    else {
-                        jQuery.each( chart_series[chart_name][programma_op], function(key,value) {
-                            charts[ chart_name ].addSeries( {
-                                name: key,
-                                data: value
-                            } )
-                        });
-                    }
-                    charts[ chart_name ].setTitle({},{ text: programma_op });
-                });
-
-                selector.val( primo_programma_op ).change();
-
-            });
-
-        });
-    </script>
-{% endblock %}
-
 {% block content %}
 
     <div class="flat_content">
-        <h1>Spesa certificata UE</h1>
+        <h1>Avanzamento della spesa certificata all’UE per i Programmi cofinanziati dai Fondi Strutturali - Totale Italia</h1>
+
+        <p>(% della spesa certificata all’UE rispetto alla dotazione finanziaria disponibile – aggiornamento al 31 dicembre 2013)</p>
 
         <p>
-            I dati sui pagamenti complessivi e sui pagamenti rendicontabili all'Unione Europea dei singoli progetti,
-            desumibili dai sistemi di monitoraggio riportati in OpenCoesione e nei
-            <a href="http://www.dps.tesoro.it/opencoesione/dati_attuazione.asp">dataset scaricabili qui</a>,
-            si riferiscono alla data di aggiornamento indicata di volta in volta.
-            Non sempre corrispondono al valore più recente di certificazione ufficiale delle spese alla
-            Commissione europea – informazione rilevanti ai fini della
-            <a href="http://europa.eu/legislation_summaries/regional_policy/provisions_and_instruments/l60014_it.htm">
-                regola nota come "n+2"
-            </a>.
-            I Regolamenti CE prevedono infatti per ogni annualità contabile delle risorse impegnate
-            per ciascun fondo (i.e., FSE, FESR) e programma operativo (PO) sul bilancio comunitario disimpegni
-            automatici della quota di risorse che non risultino effettivamente
-            spese  e certificate alla Commissione entro il 31 dicembre del secondo
-            anno successivo a quello dell'impegno nell'ambito del programma.
-            Il disimpegno delle risorse comunitarie comporta anche la parallela riduzione
-            di disponibilità delle relative risorse di cofinanziamento nazionale.
+            <figure>
+                <img src="{{ STATIC_URL }}img/spesa_certificata_20131231.jpg"/>
+                <figcaption>
+                    Nota: Gli obiettivi nazionali sono stati definiti dal Comitato QSN
+                    del 9 aprile 2013, gli obiettivi comunitari sono quelli definiti dalla regola &ldquo;n+2&rdquo;
+                </figcaption>
+            </figure>
+
         </p>
+
         <p>
-            Tra le misure di accelerazione dell'attuazione dei programmi operativi dei fondi strutturali 2007-2013,
-            a partire dalla Delibera CIPE n.1/2011
-            (<a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E110001.pdf">scarica qui il PDF</a>)
-            sono stati previsti target delle spese effettivamente sostenute e certificate infrannuali.
-            Oltre alla data del 31 dicembre di ciascun anno, la spesa certificata viene pertanto monitorata
-            anche al 31 maggio e al 31 ottobre.
+            Scarica dati e metadati per ciascun Programma Operativo su:
+            <ul>
+                <li><a href="{{ STATIC_URL }}xls/1_Dotazioni_Certificazioni_20131231.xlsx">
+                    dotazione finanziaria complessiva e spesa certificata alla CE </a>
+                    (xls, 43 Kb)
+                    (aggiornamento al 31 dicembre 2013)</li>
+                <li><a href="{{ STATIC_URL }}xls/2_Target_Risultati_20131231.xlsx">
+                    target di spesa certificata</a> (xls, 44 Kb)
+                    (aggiornamento al 31 dicembre 2013)</li>
+            </ul>
         </p>
+
+        <p><a href="{% url 'flat-spesa-certificata-grafici' %}">Visualizza i grafici interattivi per ciascun Programma Operativo</a></p>
+
         <p>
-            Ulteriori informazioni e dati sulle dotazioni dei programmi, sulla spesa, sui target annuali e
-            infrannuali possono essere
-            <a href="http://www.dps.tesoro.it/qsn/Spesa_certificata/spesa_certificata.asp">scaricati qui</a>.
+            Leggi le &ldquo;Pillole di OpenCoesione&rdquo; con approfondimenti sui risultati raggiunti
+            <ul>
+                <li><a href="{{ STATIC_URL }}pdf/Pillola OpenCoesione n.3 - La spesa certificata al 31 dicembre 2013.pdf">
+                    La certificazione della spesa dei Fondi Strutturali all’UE al 31/12/2013
+                </a></li>
+            </ul>
+        </p>
+        <h1>Cos’è la spesa certificata all’UE?</h1>
+        <p>
+            La spesa certificata all’UE corrisponde alle richieste di rimborso delle spese sostenute
+            che vengono presentate alla Commissione Europea dalle Amministrazioni titolari dei
+            Programmi cofinanziati dai Fondi Strutturali.
+            Tali richieste, per ogni annualità contabile delle risorse impegnate sul bilancio
+            comunitario per ciascun Fondo (FSE, FESR) e Programma Operativo, sono da presentare
+            entro un determinato periodo di tempo, specificamente stabilito per ciascun periodo
+            di programmazione. Le risorse che non risultino certificate alla Commissione entro
+            i termini prestabiliti sono soggette a disimpegno automatico, cioè alla riduzione del
+            finanziamento comunitario e del corrispondente cofinanziamento nazionale del Programma.
         </p>
 
-        {% for tipo_di_spesa, csv_file in chart_tables %}
-        <div id="chart_{{ tipo_di_spesa }}" class="chart_container">
+        <h1>Quali regole per il ciclo di programmazione 2007-2013?</h1>
+        <p>
+            Per il periodo 2007-2013 vale l’obbligo comunitario della regola nota come &ldquo;n+2&rdquo;
+            (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1083:IT:NOT">
+                art. 93 del Regolamento CE 1083/2006
+            </a>),
+            pertanto le certificazioni alla Commissione devono essere presentate entro il
+            31 dicembre del secondo anno successivo a quello dell’impegno nell’ambito del Programma.
+            Tra gli effetti di questa regola, quindi, c’è anche quello di aver fissato al
+            31 dicembre 2015 il termine ultimo di ammissibilità della spesa
+            rendicontabile alla Commissione per il ciclo 2007-2013.
+        </p>
 
-        {% for row in csv_file %}
-        {% if forloop.first %}
-        <div class="chart_canvas"></div>
-        <form action="#">
-            <div class="text-center">
-                <select class="span3 chart_selector">
-                </select>
-            </div>
-        </form>
-        <table class="chart_table hide">
-            <thead>
-            <tr>
-                {% for value in row %}
-                <th>{{ value }}</th>
-                {% endfor %}
-            </tr>
-            </thead>
-            <tbody>
-        {% else %}
+        {%  comment %}
+        <h1>Cosa sono i target infra-annuali?</h1>
+        <p>
+            Tra le misure di accelerazione dell’attuazione dei Programmi Operativi dei Fondi Strutturali 2007-2013,
+            adottate a livello nazionale e introdotte a partire dalla
+            <a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E110001.pdf">Delibera CIPE n. 1/2011</a>,
+            per evitare il disimpegno automatico derivante dalla regola dell’n+2,
+            sono stati previsti anche target infra-annuali delle spese certificate.
+            Oltre alla data del 31 dicembre, la spesa certificata viene pertanto verificata anche al
+            31 maggio e al 31 ottobre di ciascun anno fino al 2015. Il mancato raggiungimento dei target
+            infra-annuali comporta la riprogrammazione delle risorse assegnate al Programma per un
+            importo calcolato sulla soglia annuale e graduato in funzione della distanza della spesa
+            certificata dal target prestabilito. I target infra-annuali sono definiti in base ad
+            appropriate percentuali (stabilite in sede di Comitato nazionale per il coordinamento e
+            la sorveglianza della politica regionale unitaria) delle soglie da raggiungere al 31 dicembre.
+            Il calcolo dei target dipende anche, per ciascun Programma, dal piano
+            finanziario dei Grandi Progetti – ovvero i progetti di importo superiore ai
+            50 milioni di euro che seguono un particolare iter autorizzativo da parte della
+            Commissione – per i quali sono previste specifiche deroghe proprio per la regola dell’n+2.
+        </p>
+        {%  endcomment %}
 
-{#        {% if forloop.revcounter == 2 %}#}
-{#            </tbody>#}
-{#            <tfoot>#}
-{#        {% endif %}#}
+        <h1>Quali regole per il ciclo di programmazione 2014-2020?</h1>
+        <p>
+            Per il periodo 2014-2020 vale la cosiddetta regola “n+3”
+            (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0320:0469:IT:pdf">
+                art. 136 del Regolamento CE 1303/2013
+            </a>),
+            pertanto le certificazioni alla Commissione devono essere presentate entro il 31 dicembre
+            del terzo anno successivo a quello dell’impegno nell’ambito del Programma.
+            Non sono previste deroghe per i Grandi Progetti.
+        </p>
 
-            <tr>
-                {% for value in row %}
-                <td>{{ value }}</td>
-                {% endfor %}
-            </tr>
-
-        {% endif %}
-
-        {% if forloop.last %}
-{#            </tfoot>#}
-        </table>
-        {% endif %}
-        {% endfor %}
-
-
-        </div>
-        <hr>
-        {% endfor %}
+        <h1>Qual è la differenza tra spesa certificata e spesa monitorata?</h1>
+        <p>
+            Per il periodo 2007-2013 il sistema di rendicontazione all’UE della spesa per i
+            Programmi finanziati dai Fondi Strutturali è diverso da quello di monitoraggio puntuale
+            dei progetti, da cui provengono i dati pubblicati su OpenCoesione. In generale,
+            un pagamento rendicontabile viene inserito nel sistema di monitoraggio dei progetti
+            quando è stato effettuato e può essere portato a rendicontazione anche in un secondo momento.
+            Pertanto la somma dei pagamenti rendicontabili all’UE di ciascun Programma possono non
+            corrispondere al valore più recente di certificazione ufficiale delle spese alla Commissione Europea.
+        </p>
 
     </div>
 

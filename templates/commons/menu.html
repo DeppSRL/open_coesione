@@ -5,7 +5,7 @@
   <h2 class="hidden"><a name="menu"></a>Navigazione del sito</h2>
   <div class="navbar-inner">
     <div class="container">
-      <form method="get" action="{% if soggetto %}{% url soggetti_search %}{% else %}{% url progetti_search %}{% endif %}" class="navbar-search form-search pull-right">
+      <form method="get" action="{% if soggetto %}{% url 'soggetti_search' %}{% else %}{% url 'progetti_search' %}{% endif %}" class="navbar-search form-search pull-right">
         <select name="" class="input-small">
             <option value="progetti"{% if progetto %} selected="selected"{% endif %}>Progetti</option>
             <option value="soggetti"{% if soggetto %} selected="selected"{% endif %}>Soggetti</option>
@@ -63,8 +63,8 @@
                     {% for regione in colonne_regioni.2 %}
                       <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
                     {% endfor %}
-                    <li><a href="{% url territori_nazionale %}">Ambito nazionale</a></li>
-                    <li><a href="{% url territori_estero %}">Ambito estero</a></li>
+                    <li><a href="{% url 'territori_nazionale' %}">Ambito nazionale</a></li>
+                    <li><a href="{% url 'territori_estero' %}">Ambito estero</a></li>
                   </ul>
                 </li>
                 <li class="divider"></li>
@@ -88,7 +88,7 @@
                     <li class="clearfix">
                       <ul>
                         {% for programma in lista_programmi.fesr %}
-                            <li><a href="{% url progetti_programma programma.codice %}">{{ programma.descrizione|cut:"FESR " }}</a></li>
+                            <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione|cut:"FESR " }}</a></li>
                         {% endfor %}
                       </ul>
                     </li>
@@ -100,7 +100,7 @@
                       <li class="clearfix">
                           <ul>
                               {% for programma in lista_programmi.fse %}
-                                  <li><a href="{% url progetti_programma programma.codice %}">{{ programma.descrizione|cut:"FSE " }}</a></li>
+                                  <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione|cut:"FSE " }}</a></li>
                               {% endfor %}
                           </ul>
                       </li>
@@ -113,8 +113,8 @@
         <li class="dropdown violet{% if soggetto %} active{% endif %}">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Soggetti <b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <li><a href="{% url soggetti_search %}?q=&selected_facets=ruolo:1">Programmatore</a></li>
-            <li><a href="{% url soggetti_search %}?q=&selected_facets=ruolo:2">Attuatore</a></li>
+            <li><a href="{% url 'soggetti_search' %}?q=&selected_facets=ruolo:1">Programmatore</a></li>
+            <li><a href="{% url 'soggetti_search' %}?q=&selected_facets=ruolo:2">Attuatore</a></li>
           </ul>
         </li>
         <li class="dropdown brown{% if risorsa %} active{% endif %}">

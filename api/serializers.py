@@ -4,7 +4,7 @@ from territori.models import Territorio
 
 __author__ = 'guglielmo'
 from rest_framework import serializers, pagination
-from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, Ruolo
+from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, Ruolo, PagamentoProgetto, ClassificazioneQSN
 
 
 class FiltersField(serializers.Field):
@@ -82,15 +82,12 @@ class SoggettoSlugField(serializers.RelatedField):
         return reverse('api-soggetto-detail', kwargs={'slug': value}, request=self.context.get('request'), format=self.context.get('format'))
 
 
-
-
-
 class TemaModelSerializer(serializers.ModelSerializer):
     filters = FiltersField('tema')
 
     class Meta:
         model = Tema
-        exclude = ('descrizione_estesa', 'slug', 'tema_superiore', 'tipo_tema')
+        exclude = ('descrizione_estesa', 'tema_superiore', 'tipo_tema')
         depth = 1
 
 
@@ -99,7 +96,7 @@ class NaturaModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClassificazioneAzione
-        exclude = ('descrizione_estesa', 'slug', 'priorita', 'tipo_classificazione', 'classificazione_superiore')
+        exclude = ('descrizione_estesa', 'priorita', 'tipo_classificazione', 'classificazione_superiore')
         depth = 1
 
 
@@ -111,11 +108,12 @@ class TerritorioModelSerializer(serializers.ModelSerializer):
 
 
 class SoggettoModelSerializer(serializers.ModelSerializer):
-    territorio =  TerritorioModelSerializer()
+    territorio = TerritorioModelSerializer()
     class Meta:
         exclude = ('id', 'created', 'modified')
         model = Soggetto
         depth = 1
+
 
 class ProgrammaModelSerializer(serializers.ModelSerializer):
 
@@ -123,9 +121,43 @@ class ProgrammaModelSerializer(serializers.ModelSerializer):
         model = ProgrammaAsseObiettivo
 
 
+class ClassificazioneQSNModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ClassificazioneQSN
+
+
+class PagamentoProgettoSerializer(serializers.ModelSerializer):
+    data = serializers.DateField()
+    ammontare = serializers.DecimalField()
+
+    class Meta:
+        model = PagamentoProgetto
+        fields = ('data', 'ammontare')
+
+
+class RuoloProgettoSerializer(serializers.ModelSerializer):
+    soggetto = serializers.HyperlinkedRelatedField(view_name='api-soggetto-detail')
+
+    def to_native(self, obj):
+        result = super(RuoloProgettoSerializer, self).to_native(obj)
+        result.update({
+            'codice': result['ruolo'],
+            'ruolo': obj.get_ruolo_display(),
+            'slug': obj.soggetto.slug,
+            'soggetto_label': obj.soggetto.denominazione
+        })
+        return result
+
+    class Meta:
+        model = Ruolo
+        fields = ('ruolo', 'soggetto')
+
+
 class ProgettoModelSerializer(serializers.ModelSerializer):
     territorio_set = TerritorioModelSerializer(many=True)
-    soggetto_set = serializers.HyperlinkedRelatedField(view_name='api-soggetto-detail', many=True)
+    pagamenti = PagamentoProgettoSerializer(many=True)
+    ruolo_set = RuoloProgettoSerializer(many=True)
 
     class Meta:
         exclude = ('territorio', 'created', 'modified', )
@@ -137,8 +169,8 @@ class ProgettoModelSerializer(serializers.ModelSerializer):
 class ProgettoSearchResultSerializer(serializers.Serializer):
     """
     """
-
-    slug = serializers.HyperlinkedIdentityField(view_name='api-progetto-detail')
+    slug = serializers.CharField()
+    progetto_url = serializers.HyperlinkedIdentityField(view_name='api-progetto-detail')
     clp = serializers.CharField(max_length=200)
     cup = serializers.CharField(max_length=100)
     titolo = serializers.CharField(required=False)
@@ -149,6 +181,8 @@ class ProgettoSearchResultSerializer(serializers.Serializer):
     territorio = serializers.RelatedField(many=True)
     tema_slug = serializers.CharField()
     natura_slug = serializers.CharField()
+    data_inizio_effettiva = serializers.DateField()
+    data_fine_effettiva = serializers.DateField()
 
     def get_field_key(self, field_name):
         """
@@ -156,7 +190,7 @@ class ProgettoSearchResultSerializer(serializers.Serializer):
         """
         fields_map = {
             'clp': 'codice_locale',
-            'slug': 'url',
+            'progetto_url': 'url',
             'titolo': 'titolo_progetto',
             'territorio': 'territori',
             'soggetto': 'soggetti',

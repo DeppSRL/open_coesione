@@ -1,0 +1,124 @@
+{% extends 'widgets/base_widget.html' %}
+
+{% load humanize %}
+
+{% block widget_extra_styles %}
+  {{ block.super }}
+  <style type="text/css">
+  .block-container .block-chart { width: 33.3%; max-width: 200px; min-height: 100px; border-left:0; box-shadow: none; }
+  .block-chart p { font-size: 16px; line-height: 18px;}
+  .block-chart.block-active .icon-undo { display: none; }
+  </style>
+{% endblock %}
+
+
+{% block widget_content %}
+<div class="block-container clearfix">
+  <a href="#totale_costi" class="block-chart block-active" data-dataset="totale_costi" title="{{ aggregati.totali.costi|floatformat:'2' }}">
+    <strong class="title">Finanziamenti monitorati</strong>
+    <p>{{ aggregati.totali.costi|intword }} <span>di euro</span></p>
+    <i class="icon-undo"></i>
+  </a>
+  <a href="#totale_pagamenti" class="block-chart" data-dataset="totale_pagamenti" title="{{ aggregati.totali.pagamenti|floatformat:'2' }}">
+    <strong class="title">Pagamenti monitorati</strong>
+    <p>{{ aggregati.totali.pagamenti|intword }} <span>di euro</span></p>
+    <i class="icon-undo"></i>
+  </a>
+  <a href="#totale_progetti" class="block-chart" data-dataset="totale_progetti" title="{{ aggregati.totali.progetti|floatformat:'2' }}">
+    <strong class="title">Progetti monitorati</strong>
+    <p>{{ aggregati.totali.progetti|intcomma }}</p>
+    <i class="icon-undo"></i>
+  </a>
+</div>
+<div class="container-fluid">
+  <div id="statistics" class="row-fluid">
+
+    {% if 'nature' in widget.data.component_set %}
+    <div class="span6">
+      <h3>Natura dell'investimento</h3>
+      <table class="table"><tbody>
+      {% for slug, natura in aggregati.nature.items %}
+      <tr>
+        <td><a href="{% url 'progetti_tipologia' slug=slug %}" target="_blank">{{ natura.label }}</a></td>
+        <td class="amount totale_costi"><strong>{{ natura.totali.costi|floatformat:'2' }}</strong></td>
+        <td class="amount totale_pagamenti"><strong>{{ natura.totali.pagamenti|floatformat:'2' }}</strong></td>
+        <td class="amount totale_progetti"><strong>{{ natura.totali.progetti }}</strong></td>
+      </tr>
+      {% endfor %}
+      </tbody></table>
+    </div>
+    {% endif %}
+
+    {% if 'temi' in widget.data.component_set %}
+    <div class="span6">
+      <h3>Temi</h3>
+      <table class="table"><tbody>
+      {% for slug, tema in aggregati.temi.items %}
+      <tr>
+        <td><a href="{% url 'progetti_tema' slug=slug %}" target="_blank">{{ tema.label }}</a></td>
+        <td class="amount totale_costi"><strong>{{ tema.totali.costi|floatformat:'2' }}</strong></td>
+        <td class="amount totale_pagamenti"><strong>{{ tema.totali.pagamenti|floatformat:'2' }}</strong></td>
+        <td class="amount totale_progetti"><strong>{{ tema.totali.progetti }}</strong></td>
+      </tr>
+      {% endfor %}
+      </tbody></table>
+    </div>
+    {% endif %}
+
+  </div>
+  <div class="row-fluid">
+    {% if 'top_progetti' in widget.data.component_set %}
+    <div class="span3">
+      <h3>Progetti con maggiori finanziamenti</h3>
+      <table class="table">
+        <tbody>
+        {% for result in top_progetti.results %}
+        <tr>
+          <td><a href="{% url 'progetti_progetto' slug=result.slug %}" target="_blank">{{ result.titolo_progetto }}</a></td>
+          <td class="amount"><strong>{{ result.fin_totale_pubblico }}</strong></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if 'progetti_conclusi' in widget.data.component_set %}
+    <div class="span3">
+      <h3>Ultimi progetti conclusi</h3>
+      <table class="table">
+        <tbody>
+        {% for result in progetti_conclusi.results %}
+        <tr>
+          <td><a href="{% url 'progetti_progetto' slug=result.slug %}" target="_blank">{{ result.titolo_progetto }}</a></td>
+          <td class="amount"><strong>{{ result.fin_totale_pubblico }}</strong></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+  </div>
+
+
+</div>
+
+{% endblock widget_content %}
+
+{% block widget_extra %}
+  {{ block.super }}
+<script type="text/javascript">
+
+  $(function(){
+    $('.block-chart').on('click', function(){
+      var selection_class = '.' + $(this).data('dataset');
+      $('#statistics').find(selection_class).each(function(){
+        $(this).show().siblings('.amount').hide();
+      });
+      $(this).addClass('block-active').siblings('.block-chart').removeClass('block-active');
+    });
+    $('#statistics').find('td.totale_pagamenti, td.totale_progetti').hide()
+  })
+</script>
+{% endblock %}

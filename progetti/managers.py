@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.db import models
+from django.db.models import Sum
 from django.http import HttpResponseNotFound
 import math
 
@@ -106,7 +107,7 @@ class ProgettiManager(models.Manager):
     tipo=None
 
     def get_query_set(self):
-        return ProgettiQuerySet(self.model, using=self._db) # note the `using` parameter, new in 1.2
+        return ProgettiQuerySet(self.model, using=self._db).filter(active_flag=True) # note the `using` parameter, new in 1.2
 
     def conclusi(self, date=datetime.now() ):
         return self.get_query_set().conclusi(date)
@@ -171,9 +172,12 @@ class ProgettiManager(models.Manager):
 #    def totale_risorse_stanziate(self, territorio=None, tema=None, tipo=None,classificazione=None):
 #        return self.totali(territorio, tema, tipo,classificazione).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0
 
+class FullProgettiManager(ProgettiManager):
+    def get_query_set(self):
+        return ProgettiQuerySet(self.model, using=self._db) # note the `using` parameter, new in 1.2
+
 
 class TemiManager(models.Manager):
-
     def principali(self):
         return self.get_query_set().filter(tipo_tema=self.model.TIPO.sintetico)
 

@@ -1,0 +1,98 @@
+{% extends 'base_two_columns.html' %}
+
+{% block page_title %}API{% endblock %}
+
+{% block content %}
+  <div class="flat_content">
+    <h1>Cosa è l'API di OpenCoesione?</h1>
+    <p>
+        L'<strong><abbr title="Application Programming Interface">API</abbr></strong> di OpenCoesione
+        è un'interfaccia applicativa che permette a qualunque <em>componente software</em> esterno
+        di accedere ai dati di OpenCoesione.<br/>
+
+        I componenti software possono essere sviluppati da terze parti, utilizzando
+        qualsiasi tecnologia. Si veda oltre per il tipo di licenza d'uso
+        legata ai dati.<br/>
+
+        L'API di OpenCoesione adotta <a href="http://www.html.it/pag/19596/i-principi-dellarchitettura-restful/">l'architettura REST</a>.
+        <br/>
+    </p>
+
+    <h1>Chi può accedervi e come?</h1>
+    <p>
+        Tutti possono accedere alla API, partendo dalla url
+        <a href="http://www.opencoesione.gov.it">http://www.opencoesione.gov.it/api</a>.
+        <br/>
+
+        L'API è navigabile con i browser (Internet Explorer, Firefox, Safari, Chrome, ...)
+        atraverso dei link ipertestuali, come un normale sito web.<br/>
+
+        E' possibile accedere con un utenza anonima o una registrata. Entrambe le tipologie di utenze
+        possono accedere a tutti i dati, ma le limitazioni sul numero di richieste per minuto sono
+        differenti. Si veda la domanda sulle limitazioni più oltre.<br/>
+
+        Per ottenere una username e password, basta contattarci.
+    </p>
+
+    <h1>In che formato sono disponibili i dati?</h1>
+    <p>
+        I dati sono disponibili in formato HTML e in formato <a href="http://www.json.org/">JSON</a>.<br/>
+
+        Il formato HTML permette la <em>navigazione</em> tra i dati e la visualizzazione della documentazione integrata
+        (in lingua inglese), che descrive l'utilizzo avanzato, a beneficio degli sviluppatori.<br/>
+
+        Il formato JSON è invece di facile interpretazione da parte dei software, rimanendo comunque leggibile.<br/>
+
+        Le risorse sono presentate in formato HTML, se non altrimenti specificato e
+        per accedere al formato JSON di una risorsa, basta aggiungere <code>.json</code>.
+
+        <br/><br/>
+        Un esempio:
+        <ul>
+            <li><code>http://opencoesione.gov.it/api/progetti</code> (HTML)</li>
+            <li><code>http://opencoesione.gov.it/api/progetti.json</code> (JSON)</li>
+        </ul>
+
+
+    </p>
+
+    <h1>Quali dati sono disponibili?</h1>
+    <p>
+        Sono esposte queste <em>risorse</em> principali:
+        <ul>
+            <li><strong>Progetti</strong> - Elenco dei progetti, filtrabili per tema, natura o territorio</li>
+            <li><strong>Soggetti</strong> - Elenco dei soggetti, filtrabili per tema e ruolo</li>
+            <li><strong>Aggregati</strong> - Informazioni aggregate, rispecchiano le informazioni mostrate nelle pagine del sito.</li>
+        </ul>
+
+        Per semplificare il lavoro degli sviluppatori, sono disponibili anche
+        degli elenchi accessori:
+        <ul>
+            <li><strong>Nature</strong> - Elenco delle nature dei progetti</li>
+            <li><strong>Temi</strong> - Elenco dei temi dei progetti</li>
+            <li><strong>Territori</strong> - Elenco dei territori </li>
+            <li><strong>Programmi</strong> - Elenco dei programmi operativi</li>
+            <li><strong>Classificazioni</strong> - Elenco classificazioni del <abbr title="Quadro Strategico Nazionale">QSN</abbr></li>
+        </ul>
+    </p>
+
+
+    <h1>Esistono limitazioni nel numero di richieste per minuto?</h1>
+    <p>
+        Gli utenti anonimi possono effettuare dodici richieste al minuto, mentre per gli utenti autenticati, questo limite
+        sale a 120 richieste al minuto.
+    </p>
+
+    <h1>Che licenza d'uso hanno i dati?</h1>
+    <p>
+        I dati sono ... [SPECIFICARE LICENZA D'UTILIZZO].
+    </p>
+
+    <h1>E' disponibile una documentazione dettagliata?</h1>
+    <p>
+        Sì, navigando la API attraverso un browser, per ogni risorsa sono indicati i filtri e gli ordinamenti disponibili
+        e sono illustrate le modalità con cui gli sviluppatori possono accedere alle informazioni necessarie.
+    </p>
+
+  </div>
+{%  endblock %}

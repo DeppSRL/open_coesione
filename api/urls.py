@@ -5,7 +5,7 @@ from django.conf.urls import patterns, url, include
 __author__ = 'guglielmo'
 
 urlpatterns = patterns('api.views',
-    url(r'^$', 'api_root'),
+    url(r'^$', 'api_root', name='api-root'),
     url(r'^progetti$', ProgettoList.as_view(), name='api-progetto-list'),
     url(r'^progetti/(?P<slug>[\w-]+)$', ProgettoDetail.as_view(), name='api-progetto-detail'),
 
@@ -26,6 +26,7 @@ urlpatterns = patterns('api.views',
     url(r'^nature$', NaturaList.as_view(), name='api-natura-list'),
     url(r'^territori$', TerritorioList.as_view(), name='api-territorio-list'),
     url(r'^programmi$', ProgrammiList.as_view(), name='api-programma-list'),
+    url(r'^classificazioni$', ClassificazioneList.as_view(), name='api-classificazione-list'),
 
 )
 

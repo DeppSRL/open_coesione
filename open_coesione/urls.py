@@ -30,12 +30,12 @@ urlpatterns = patterns('',
 
     # api
     url(r'^api/', include('api.urls')),
+    url(r'^widgets/', include('widgets.urls')),
 
     # list of urls to cache
     url(r'^full_cache_generator.txt$', CGView.as_view(), name='full_cache_generator'),
     url(r'^maps_cache_generator.txt$', CGView.as_view(filter='maps'), name='maps_cache_generator'),
     url(r'^pages_cache_generator.txt$', CGView.as_view(filter='pages'), name='pages_cache_generator'),
-
 
     # pre-csm page routes
     url(r'^progetto/$', TemplateView.as_view(template_name='flat/progetto.html')),
@@ -51,12 +51,18 @@ urlpatterns = patterns('',
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
     url(r'^info-disponibili/', TemplateView.as_view(template_name='flat/info_disponibili.html')),
     url(r'^open-data/', TemplateView.as_view(template_name='flat/open_data.html')),
-    url(r'^faq/$', TemplateView.as_view(template_name='flat/faq.html')),
-    url(r'^faq/en/$', TemplateView.as_view(template_name='flat/faq_en.html')),
+    url(r'^faq/$', TemplateView.as_view(template_name='flat/faq.html'), name='faq-it'),
+    url(r'^faq/en/$', TemplateView.as_view(template_name='flat/faq_en.html'), name='faq-en'),
 
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html')),
     url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),
-    url(r'^spesa-certificata/', SpesaCertificataView.as_view(template_name='flat/spesa_certificata.html')),
+    url(r'^api-faq/', RisorseView.as_view(template_name='flat/api.html')),
+    url(r'^spesa-certificata/',
+        SpesaCertificataView.as_view(template_name='flat/spesa_certificata.html'),
+                                     name='flat-spesa-certificata'),
+    url(r'^spesa-certificata-grafici/',
+        SpesaCertificataView.as_view(template_name='flat/spesa_certificata_grafici.html'),
+                                     name='flat-spesa-certificata-grafici'),
 
     url(r'^rassegna-stampa/', PressView.as_view()),
 

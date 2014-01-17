@@ -21,7 +21,7 @@
           <br>
           La descrizione che se ne ricava non è sempre sufficiente per comprendere in che cosa consiste il progetto e
           quali effetti ha prodotto. Se conosci un progetto finanziato dalle politiche di coesione che ritieni meritevole
-          di attenzione, <a href="{% url progetti_segnalazione %}">vai qui</a> per raccontarlo.
+          di attenzione, <a href="{% url 'progetti_segnalazione' %}">vai qui</a> per raccontarlo.
           <br>
           Vorremo costruire una galleria di testimonianze sulle politiche di coesione.
         </p>
@@ -39,7 +39,7 @@
 
         <hr>
 
-        <form class="form-search content" method="get" action="{% url soggetti_search %}">
+        <form class="form-search content" method="get" action="{% url 'soggetti_search' %}">
           <h5>Cerca tra i soggetti</h5>
           <div class="input-append" >
             <input type="text" name="q" class="input-medium search-query" placeholder="Inserisci una parola"><button type="submit" class="btn"><i class="icon-search"></i></button>
@@ -143,21 +143,17 @@
 
             <h1 class='title'><span>Spesa Certificata UE</span></h1>
             <p>
-                La spesa complessiva certificata all'UE al 31 maggio 2013 è pari a
-                <strong>19.786</strong> milioni di euro, con un incremento di 1.492 milioni di euro
-                rispetto al 31 dicembre 2012.
+                La spesa complessiva certificata all'UE al 31 dicembre 2013 è pari a 25.158 milioni di euro,
+                con un incremento di 2,5 miliardi rispetto alla precedente scadenza del 31 ottobre e di 6,8
+                miliardi su base annua.
             </p>
             <p>
-                Complessivamente l'avanzamento al 31 maggio 2013 della spesa certificata all'UE per i Programmi finanziati
-                con i Fondi Strutturali comunitari è pari al <strong>40,0%</strong>, mentre 46 dei 52 Programmi hanno raggiunto
-                il target o sono entro la soglia di tolleranza, cioè entro il 5 per cento in meno rispetto al target.
-                Non hanno raggiunto i risultati previsti il POIN Attrattori culturali, naturali e turismo,
-                il POIN Energie rinnovabili e risparmio energetico, il PON Ricerca e Competitività,
-                i due POR FESR ed FSE Lazio e il POR FESR Piemonte.
+                Tutti i 52 Programmi Operativi hanno superato i target di spesa comunitari,
+                raggiungendo nel complesso il 52,7% delle risorse programmate ed evitando il disimpegno automatico
+                delle risorse legato alla scadenza di fine anno.
             </p>
             <p>
-                Per vedere i dettagli <a href="/spesa-certificata">vai qui</a> e per scaricare tutti i dati
-                <a href="http://www.dps.tesoro.it/qsn/Spesa_certificata/spesa_certificata.asp">vai qui</a>
+                Per approfondimenti, dati e grafici <a href="{% url 'flat-spesa-certificata' %}">vai qui</a>.
             </p>
 
         </section>

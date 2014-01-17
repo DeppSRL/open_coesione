@@ -30,7 +30,7 @@
           Vorremo costruire una galleria di testimonianze sulle politiche di coesione.
         </p>
 
-        <form id="contact-form" action="{% url progetti_segnalazione %}" class="form-horizontal" method="post">{% csrf_token %}
+        <form id="contact-form" action="{% url 'progetti_segnalazione' %}" class="form-horizontal" method="post">{% csrf_token %}
           <fieldset>
 
             {% for field in form.visible_fields %}

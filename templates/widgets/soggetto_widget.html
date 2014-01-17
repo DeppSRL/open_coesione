@@ -1,0 +1,57 @@
+{% extends 'widgets/aggregato_widget.html' %}
+
+{% block widget_content %}
+
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<dl>
+				<dt>Codice Fiscale</dt><dd>{{ soggetto.codice_fiscale }}</dd>
+				<dt>Forma giuridica: {{ soggetto.forma_giuridica.codice }}</dt><dd>{{ soggetto.forma_giuridica.denominazione }}</dd>
+				<dt>Indirizzo</dt><dd>{{ soggetto.indirizzo }} - {{ soggetto.cap }}</dd>
+				<dt>Rappresentante legale</dt><dd>{{ soggetto.rappresentante_legale }}</dd>
+				<dt>Codice ATECO: {{ soggetto.codice_ateco.codice }}</dt><dd>{{ soggetto.codice_ateco.descrizione }}</dd>
+			</dl>
+		</div>
+	</div>
+</div>
+
+{{ block.super }}
+
+<div class="container-fluid">
+	<div class="row-fluid">
+    {% if 'top_collaboratori' in widget.data.component_set %}
+    <div class="span3">
+      <h3>I soggetti con cui lavora di più</h3>
+      <table class="table">
+        <tbody>
+        {% for result in top_collaboratori.results %}
+        <tr>
+          <td><a href="{% url 'soggetti_soggetto' slug=result.slug %}" target="_blank">{{ result.soggetto }}</a></td>
+          <td class="amount"><strong>{{ result.numero_progetti }}</strong></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if 'territori_piu_finanziati_pro_capite' in widget.data.component_set %}
+    <div class="span3">
+      <h3>Comuni con più finanziamenti procapite</h3>
+      <table class="table">
+        <tbody>
+        {% for result in territori_piu_finanziati_pro_capite.results %}
+        <tr>
+          <td><a href="{% url 'territori_comune' slug=result.slug %}" target="_blank">{{ result.territorio }}</a></td>
+          <td class="amount"><strong>{{ result.pro_capite }}</strong></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

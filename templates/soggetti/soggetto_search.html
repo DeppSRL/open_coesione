@@ -66,7 +66,7 @@
 {% block sidebar %}
     <div class="flat_content">
         <h4>Cerca tra i soggetti</h4>
-        <form method="get" action="{% url soggetti_search %}" class="form-search form-condensed">
+        <form method="get" action="{% url 'soggetti_search' %}" class="form-search form-condensed">
             <div class="control-group input-append">
               {%  spaceless %}
                 <input id="query" type="text" class="input-medium search-query" name="{{ form.q.html_name }}"

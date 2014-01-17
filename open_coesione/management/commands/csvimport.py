@@ -18,13 +18,10 @@ from territori.models import Territorio
 
 class Command(BaseCommand):
     """
-    Poiticians anagraphical data and their current and past charges are imported from the
-    openpolitici database.
+    Data are imported from their CSV sources.
 
-    An openpolis location id MUST be passed along to specify the location.
-
-    Data may be compared or re-written. By default they're compared,
-    to overwrite use the --overwrite option.
+    Data are inserted by ``get_or_create``, so basically, import operations
+    are isomorphic.
     """
     help = "Import data from csv"
 
@@ -95,8 +92,10 @@ class Command(BaseCommand):
             self.handle_rec(*args, **options)
         elif options['type'] == 'cups':
             self.handle_cups(*args, **options)
-        elif options['type'] == 'desc':
-            self.handle_desc(*args, **options)
+        elif options['type'] == 'ponrec':
+            self.handle_desc_ponrec(*args, **options)
+        elif options['type'] == 'pongat':
+            self.handle_desc_pongat(*args, **options)
         elif options['type'] == 'pay':
             self.handle_payments(*args, **options)
         else:
@@ -237,7 +236,7 @@ class Command(BaseCommand):
 
         self.logger.info("Fine: %s cup aggiornati, %s non necessitavano aggiornamento e %s progetti non sono stati trovati" % (updates, already_ok, not_found))
 
-    def handle_desc(self, *args, **options):
+    def handle_desc_ponrec(self, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
         self.logger.info("Encoding: %s" % self.encoding)
         self.logger.info("Limit: %s" % options['limit'])
@@ -306,6 +305,78 @@ class Command(BaseCommand):
             (updates, already_ok, not_found, duplicate)
         )
 
+    def handle_desc_pongat(self, *args, **options):
+        """
+        PONREG descriptions import, from
+        http://www.dps.tesoro.it/documentazione/QSN/docs/PO/Elenco_Beneficiari_PON_GAT_dati_31_AGOSTO_2013.csv
+        """
+        self.logger.info("Inizio import da %s" % self.csv_file)
+        self.logger.info("Encoding: %s" % self.encoding)
+        self.logger.info("Limit: %s" % options['limit'])
+        self.logger.info("Offset: %s" % options['offset'])
+
+        # read csv file, changing the default field delimiter
+        try:
+            self.unicode_reader = utils.UnicodeDictReader(
+                open(self.csv_file, 'r'),
+                delimiter=';', encoding=self.encoding
+            )
+        except IOError:
+            self.logger.error("It was impossible to open file %s" % self.csv_file)
+            exit(1)
+        except csv.Error, e:
+            self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
+
+        if options['delete']:
+            self.logger.error("Could not revert descriptions updates.")
+            exit(1)
+
+        updates = 0
+        already_ok = 0
+        not_found = 0
+        duplicate = 0
+        c = 0
+        for r in self.unicode_reader:
+            c += 1
+            if c < int(options['offset']):
+                continue
+
+            if int(options['limit']) and \
+                    (c - int(options['offset']) > int(options['limit'])):
+                break
+
+            CUP = r['CUP'].strip()
+            try:
+                progetto = Progetto.objects.get(cup=CUP)
+                self.logger.debug("%s - Progetto: %s" % (c, progetto.pk))
+            except ObjectDoesNotExist:
+                self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, CUP))
+                not_found += 1
+                continue
+            except MultipleObjectsReturned:
+                self.logger.warning(u"%s - Più progetti con CUP: %s, skip" % (c, CUP))
+                duplicate += 1
+                continue
+
+
+            sintesi = r['Sintesi intervento'].strip()
+
+            if sintesi:
+                self.logger.info(u"Aggiornamento descrizione per il progetto %s" % progetto)
+                progetto.descrizione = sintesi
+                progetto.fonte_descrizione = 'Open Data PON GAT'
+                progetto.fonte_url = 'http://www.dps.tesoro.it/QSN/Pon_governance/qsn_pongovernance_elencobeneficiari.asp'
+                progetto.save()
+                updates += 1
+            else:
+                self.logger.info(u"Sintesi vuota per il progetto %s" % progetto)
+                already_ok += 1
+
+        self.logger.info(
+            "Fine: %s descrizioni aggiornate, %s sintesi da importare erano vuote, %s progetti non sono stati trovati tramite il CUP, %s progetti si riferiscono a un CUP non univoco" %
+            (updates, already_ok, not_found, duplicate)
+        )
+
     def handle_rec(self, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
         self.logger.info("Encoding: %s" % self.encoding)
@@ -314,7 +385,7 @@ class Command(BaseCommand):
 
         # check whether to remove records
         if options['delete']:
-            Soggetto.objects.all().delete()
+            Soggetto.fullobjects.all().delete()
             FormaGiuridica.objects.all().delete()
             self.logger.info("Oggetti rimossi")
 
@@ -328,12 +399,15 @@ class Command(BaseCommand):
                (c - int(options['offset']) > int(options['limit'])):
                 break
 
+            if c % 1000 == 0:
+                self.logger.info("...{0}...".format(c))
+
             # codice locale progetto (ID del record)
             try:
                 progetto = Progetto.objects.get(pk=r['COD_LOCALE_PROGETTO'])
                 self.logger.debug("%s - Progetto: %s" % (c, progetto.codice_locale))
             except ObjectDoesNotExist:
-                self.logger.warning("%s - Progetto non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
+                self.logger.warning("%s - Progetto attivo non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
                 continue
 
             # lookup o creazione forma giuridica
@@ -382,7 +456,7 @@ class Command(BaseCommand):
             try:
 
                 # fetch del soggetto, attraverso la sua denominazione esatta
-                soggetto = Soggetto.objects.get(denominazione__iexact=denominazione)
+                soggetto = Soggetto.fullobjects.get(denominazione__iexact=denominazione)
 
                 # controllo campo per campo se ci sono state variazioni
                 edited = False
@@ -414,7 +488,7 @@ class Command(BaseCommand):
             except ObjectDoesNotExist:
                 # creazione nuovo soggetto, se non esistente
                 try:
-                    soggetto = Soggetto.objects.create(
+                    soggetto = Soggetto.fullobjects.create(
                         denominazione=denominazione,
                         codice_fiscale=codice_fiscale,
                         forma_giuridica=forma_giuridica,
@@ -933,7 +1007,7 @@ class Command(BaseCommand):
             # progetto
             try:
                 # fetch o creazione del progetto, basandosi sul codice locale
-                p, created = Progetto.objects.get_or_create(
+                p, created = Progetto.fullobjects.get_or_create(
                     codice_locale=codice_locale,
                     defaults={
                         'classificazione_qsn': qsn_obiettivo_specifico,
@@ -1023,8 +1097,12 @@ class Command(BaseCommand):
                     p.dps_flag_date_previste = r['DPS_FLAG_COERENZA_DATE_PREV']
                     p.dps_flag_date_effettive = r['DPS_FLAG_COERENZA_DATE_EFF']
                     p.dps_flag_cup = r['DPS_FLAG_CUP']
+                    if not p.active_flag:
+                        p.active_flag = True
+                        self.logger.info("%s: Progetto trovato, sovrascritto e ri-attivato: %s" % (c, p.codice_locale))
+                    else:
+                        self.logger.info("%s: Progetto trovato e sovrascritto: %s" % (c, p.codice_locale))
                     p.save()
-                    self.logger.info("%s: Progetto trovato e sovrascritto: %s" % (c, p.codice_locale))
 
                 # remove local variable p from the namespace,
                 #may free some memory
@@ -1157,6 +1235,8 @@ class Command(BaseCommand):
 
             # tema
             dps_tema = self._normalizza_tema(r['DPS_TEMA_SINTETICO'])
+
+            # eccezione tema COMPETITIVITÀ PER LE IMPRESE => TODO
 
             try:
                 created = False
@@ -1317,7 +1397,7 @@ class Command(BaseCommand):
 
             # progetto
             try:
-                p, created = Progetto.objects.get_or_create(
+                p, created = Progetto.fullobjects.get_or_create(
                     codice_locale=codice_locale,
                     defaults={
                         'cup': cup_main,
@@ -1348,7 +1428,7 @@ class Command(BaseCommand):
                     p.dps_flag_cup = 1
                     p.costo = costo
                     p.save()
-                    self.logger.info("%s: Progetto trovato e non modificato: %s" % (c, p.codice_locale))
+                    self.logger.info("%s: Progetto trovato e modificato: %s" % (c, p.codice_locale))
 
                 # add cups to CUP table
                 if len(cups_progetto) > 0:
@@ -1356,7 +1436,6 @@ class Command(BaseCommand):
                         cup = cup.strip()
                         if cup not in p.cups_progetto.all():
                             p.cups_progetto.create(cup=cup)
-
 
                 # add delibera to project
                 if cipe_flag and delibera:
@@ -1434,12 +1513,12 @@ class Command(BaseCommand):
 
         denominazione = soggetto_field.strip()
         try:
-            soggetto = Soggetto.objects.get(denominazione__iexact=denominazione)
+            soggetto = Soggetto.fullobjects.get(denominazione__iexact=denominazione)
             self.logger.debug(u"%s: Soggetto trovato e non modificato: %s" % (c, soggetto.denominazione))
             return soggetto
         except ObjectDoesNotExist:
             try:
-                soggetto = Soggetto.objects.create(
+                soggetto = Soggetto.fullobjects.create(
                     denominazione=denominazione,
                     codice_fiscale='',
                 )
