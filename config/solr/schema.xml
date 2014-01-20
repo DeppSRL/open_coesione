@@ -104,6 +104,8 @@
     <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
     
 
+    <field name="is_active" type="boolean" indexed="true" stored="true" multiValued="false" />
+
     <field name="n_progetti" type="slong" indexed="true" stored="true" multiValued="false" />
 
     <field name="rendered" type="string" indexed="false" stored="true" multiValued="false" />

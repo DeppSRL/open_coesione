@@ -12,10 +12,10 @@ import os
 class Command(LabelCommand):
     """
     Task to extract data related to a sample of all projects.
-    The sample of projects can be extracted thewourh:
+    The sample of projects can be extracted through:
 
-    # head -n 1 progetti_20120630.csv > progetti_sample.csv
-    # tail -n +2 progetti_20120630.csv | shuf -n 10000 | sort >> progetti_sample.csv
+    head -n 1 progetti_YYYYMMDD.csv > progetti_sample.csv
+    tail -n +2 progetti_YYYYMMDD.csv | shuf -n 10 | sort >> progetti_sample.csv
 
     """
     args = "<filename>"

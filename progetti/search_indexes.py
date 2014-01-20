@@ -2,11 +2,7 @@ import datetime
 from haystack.indexes import *
 from haystack import site
 from oc_search.fields import L10NCharField
-
 from progetti.models import Progetto, Ruolo
-
-from django.utils.translation import activate
-from django.conf import settings
 
 # user RealTimeSearchIndex once online
 
@@ -63,6 +59,7 @@ class ProgettoIndex(SearchIndex):
     natura = FacetCharField( )
     tema = FacetCharField( )
     fonte = FacetCharField( model_attr='fonte__codice' )
+    is_active = FacetBooleanField( model_attr='active_flag' )
     data_inizio = FacetDateField()
     costo = FacetFloatField(model_attr='fin_totale_pubblico')
     perc_pagamento = FacetFloatField()
@@ -128,5 +125,12 @@ class ProgettoIndex(SearchIndex):
 
     def prepare_perc_pagamento(self, obj):
         return obj.percentuale_pagamenti()
+
+    def index_queryset(self):
+        """
+        Use the FullProgettiManager, that does not hide inactive projects
+        """
+        return self.model.fullobjects.all()
+
 
 site.register(Progetto, ProgettoIndex)

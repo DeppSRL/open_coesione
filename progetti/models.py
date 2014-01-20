@@ -5,9 +5,10 @@ from django.db import models
 from django.utils.functional import cached_property
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
-from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaAsseObiettivoManager
+from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaAsseObiettivoManager, FullProgettiManager
 from django.core.cache import cache
 import logging
+from soggetti.models import Soggetto
 
 logger = logging.getLogger('oc')
 
@@ -285,6 +286,7 @@ class ClassificazioneOggetto(models.Model):
 class Progetto(TimeStampedModel):
 
     objects = ProgettiManager()    # override the default manager
+    fullobjects = FullProgettiManager()
 
     DPS_FLAG_CUP = Choices(
         ('0', u'CUP non valido'),
@@ -319,16 +321,21 @@ class Progetto(TimeStampedModel):
         ('CONVERGENZA', 'convergenza', u'Convergenza'),
         ('COOPERAZIONE', 'cooperazione', u'Cooperazione territoriale europea')
     )
-
+    ACTIVE_FLAG = Choices(
+        (1, 'attivo', u'Attivo'),
+        (0, 'inattivo', u'Non attivo')
+    )
     codice_locale = models.CharField(max_length=100, primary_key=True,
                                      db_column='cod_locale_progetto')
 
     cup = models.CharField(max_length=15, blank=True)
+    active_flag = models.BooleanField(default=True, db_index=True)
+
     titolo_progetto = models.TextField()
     descrizione = models.TextField(blank=True, null=True)
     fonte_descrizione = models.TextField(blank=True, null=True)
     fonte_url = models.URLField(blank=True, null=True)
-    slug = models.CharField(max_length=128, blank=True, null=True)
+    slug = models.CharField(max_length=128, blank=True, null=True, db_index=True)
     classificazione_qsn = models.ForeignKey('ClassificazioneQSN',
                                             related_name='progetto_set',
                                             db_column='classificazione_qsn',
@@ -427,6 +434,27 @@ class Progetto(TimeStampedModel):
     @property
     def attuatori(self):
         return self.soggetto_set.filter(ruolo__ruolo=Ruolo.RUOLO.attuatore)
+
+
+    #
+    # extract soggetti using the fullobjects manager
+    #
+    @property
+    def full_soggetti(self):
+        return Soggetto.fullobjects.filter(progetto__pk=self).distinct()
+
+    @property
+    def full_programmatori(self):
+        return self.full_soggetti.filter(ruolo__ruolo=Ruolo.RUOLO.programmatore)
+
+    @property
+    def full_destinatari(self):
+        return self.full_soggetti.filter(ruolo__ruolo=Ruolo.RUOLO.destinatario)
+
+    @property
+    def full_attuatori(self):
+        return self.full_soggetti.filter(ruolo__ruolo=Ruolo.RUOLO.attuatore)
+
 
     @property
     def regioni(self):
@@ -568,6 +596,10 @@ class Localizzazione(TimeStampedModel):
     class Meta:
         verbose_name_plural = "Localizzazioni"
 
+class RuoloManager(models.Manager):
+    def get_query_set(self):
+        return models.query.QuerySet(self.model, using=self._db).filter(progetto__active_flag=True).distinct()
+
 class Ruolo(TimeStampedModel):
     """
     The role of the recipient in the project.
@@ -583,10 +615,15 @@ class Ruolo(TimeStampedModel):
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
     ruolo = models.CharField(max_length=1, choices=RUOLO)
 
+    #objects = RuoloManager()
+    #fullobjects = models.Manager()
+
     @classmethod
     def inv_ruoli_dict(cls):
         # build an inverse dictionary for the ruoli, code => descr
         return dict((cls.RUOLO._choice_dict[k], k) for k in cls.RUOLO._choice_dict)
+
+
 
     @property
     def soggetti(self):
@@ -602,7 +639,9 @@ class Ruolo(TimeStampedModel):
     class Meta:
         verbose_name = "Ruolo"
         verbose_name_plural = "Ruoli"
-
+        index_together = [
+            ["progetto", "soggetto", "ruolo"],
+        ]
 
 class SegnalazioneProgetto(TimeStampedModel):
 

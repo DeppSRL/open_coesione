@@ -33,7 +33,9 @@ def cached_context(get_context_data):
         context = cache.get(key)
         if context is None:
             context = get_context_data(self, **kwargs)
-            cache.set(key, context)
+            serializable_context = context.copy()
+            serializable_context.pop('view', None)
+            cache.set(key, serializable_context)
         return context
     return decorator
 
@@ -228,7 +230,7 @@ class FondiView(RisorseView):
 
 
 class SpesaCertificataView(RisorseView):
-    template_name = 'flat/spesa_certificata.html'
+    template_name = 'flat/spesa_certificata_grafici.html'
 
     def get_context_data(self, **kwargs):
 

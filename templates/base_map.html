@@ -230,7 +230,7 @@
         {% if soggetto %}
           <div class="span12">
             <h1 class="title violet" style="margin-bottom: 0;"><span>{{ soggetto.denominazione }}</span></h1>
-            <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&soggetto={{ soggetto.slug }}">Tutti i progetti</a></p>
+            <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}">Tutti i progetti</a></p>
             <ul class="unstyled">
             {% if soggetto.forma_giuridica %}<li>{{ soggetto.forma_giuridica }}</li>{% endif %}
             {% if soggetto.indirizzo %}<li>{{ soggetto.indirizzo }}</li>{% endif %}
@@ -264,15 +264,15 @@
 	          {% endif %}
             {% if programma %}
 	            <h1 class="title black" style="margin-bottom: 0;"><span>Programma: {{ programma.descrizione }}</span></h1>
-                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=fonte_fin:{{ programma.codice }}">Vai a tutti i progetti</a></p>
+                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&selected_facets=fonte_fin:{{ programma.codice }}">Vai a tutti i progetti</a></p>
             {% endif %}
             {% if tema %}
 	            <h1 class="title black" style="margin-bottom: 0;"><span>Tema: {{ tema.short_label }}</span></h1>
-                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}">Vai a tutti i progetti</a></p>
+                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}">Vai a tutti i progetti</a></p>
 	          {% endif %}
             {% if tipologia %}
 	            <h1 class="title black" style="margin-bottom: 0;"><span>Natura: {{ tipologia.short_label }}</span></h1>
-                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}">Vai a tutti i progetti</a></p>
+                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}">Vai a tutti i progetti</a></p>
 	          {% endif %}
           </div>
           {% endif %}
@@ -300,11 +300,11 @@
                       {% if territorio %}
                           <td><a href="{{ territorio|progetti_search_url_by_natura:tipologia }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  elif tema %}
-                        <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                        <td><a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  elif soggetto %}
-                        <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}&soggetto={{ soggetto.slug }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                        <td><a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&soggetto={{ soggetto.slug }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  elif programma %}
-                        <td><a href="{% url progetti_search %}?q=&selected_facets=natura:{{ tipologia.codice }}&fonte_fin={{ programma.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                        <td><a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&fonte_fin={{ programma.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  else %}
                           <td><a href="{{ tipologia.get_absolute_url }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a></td>
                       {% endif %}
@@ -330,11 +330,11 @@
                       {% if territorio %}
                           <td><a href="{{ territorio|progetti_search_url_by_tema:tema }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
                       {%  elif tipologia %}
-                          <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
+                          <td><a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
                       {%  elif soggetto %}
-                          <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}&soggetto={{ soggetto.slug }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                          <td><a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&soggetto={{ soggetto.slug }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  elif programma %}
-                          <td><a href="{% url progetti_search %}?q=&selected_facets=tema:{{ tema.codice }}&fonte_fin={{ programma.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
+                          <td><a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&fonte_fin={{ programma.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
                       {%  else %}
                           <td><a href="{{ tema.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a></td>
                       {% endif %}
@@ -444,14 +444,14 @@
           </table>
 
           {% if tema %}
-            <a href="{% url progetti_tema_csv slug=tema.slug %}">Scarica i dati di tutti i comuni</a>
+            <a href="{% url 'progetti_tema_csv' slug=tema.slug %}">Scarica i dati di tutti i comuni</a>
           {% elif tipologia %}
-            <a href="{% url progetti_tipologia_csv slug=tipologia.slug %}">Scarica i dati di tutti i comuni</a>
+            <a href="{% url 'progetti_tipologia_csv' slug=tipologia.slug %}">Scarica i dati di tutti i comuni</a>
           {% elif territorio %}
             {% if territorio.territorio == 'P' %}
-              <a href="{% url progetti_provincia_csv slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>
+              <a href="{% url 'progetti_provincia_csv' slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>
             {% elif territorio.territorio == 'R' %}
-              <a href="{% url progetti_regione_csv slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>
+              <a href="{% url 'progetti_regione_csv' slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>
             {% endif %}
           {% endif %}
 

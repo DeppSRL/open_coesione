@@ -178,17 +178,17 @@ class SoggettoView(AggregatoView, DetailView):
 
 
         # calcolo dei progetti con piu' fondi
-        logger.debug("top_progetti start")
-        context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
-        """
+        # logger.debug("top_progetti start")
+        #context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
         context['top_progetti'] = [
             Progetto.objects.get(pk=p['codice_locale'])
-            for p in self.object.progetti.values('codice_locale', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]]
-        """
-        logger.debug("top_progetti end")
+            for p in self.object.progetti.values(
+                'codice_locale', 'fin_totale_pubblico'
+            ).distinct().order_by('-fin_totale_pubblico')[:5]]
+        # logger.debug("top_progetti end")
 
         # calcolo dei comuni un cui questo soggetto ha operato di piu'
-        logger.debug("territori_piu_finanziati_pro_capite start")
+        # logger.debug("territori_piu_finanziati_pro_capite start")
         context['territori_piu_finanziati_pro_capite'] = Territorio.objects.comuni()\
             .filter(progetto__soggetto_set__pk=self.object.pk).defer('geom')\
             .annotate(totale=Sum('progetto__fin_totale_pubblico'))\
@@ -198,7 +198,7 @@ class SoggettoView(AggregatoView, DetailView):
 
         ## calcolo dei totali di finanziamenti per regione (e nazioni)
         context['lista_finanziamenti_per_regione'] = []
-        logger.debug("lista_finanziamenti_per_regione start")
+        # logger.debug("lista_finanziamenti_per_regione start")
 
         ## insieme dei progetti del soggetto che hanno multilocalizzazioni
         ps_multiloc = Progetto.objects.del_soggetto(self.object).annotate(
@@ -232,20 +232,20 @@ class SoggettoView(AggregatoView, DetailView):
 
 
         ## costruzione lista per le regioni
-        logger.debug("::fetch dati_regioni start")
+        # logger.debug("::fetch dati_regioni start")
         for regione in Territorio.objects.regioni().defer('geom'):
 
-            logger.debug("::::regione {0}".format(regione))
+            # logger.debug("::::regione {0}".format(regione))
 
             # progetti del soggetto localizzati in territori della regione
             psr = Progetto.objects.nel_territorio(regione).del_soggetto(self.object)
 
-            logger.debug("::::::filter start")
+            # logger.debug("::::::filter start")
             # elimina dai progetti multiloc del soggetto quelli localizzati esclusivamente nella regione
             ps_multiloc = filter(lambda p: not multi_localizzato_in_regione(p, regione), ps_multiloc)
 
 
-            logger.debug("::::::queryset start")
+            # logger.debug("::::::queryset start")
             # predispone la query per estrarre tutti i progetti del soggetto, localizzati nella regione,
             # tranne quelli multilocalizzati anche in altre regioni oltre questa in considerazione
             # questo serve a evitare di contare 2 volte progetti multilocalizzati in regioni differenti,
@@ -255,7 +255,7 @@ class SoggettoView(AggregatoView, DetailView):
                 pk__in=ps_multiloc
             ).distinct()
 
-            logger.debug("::::::append tot start")
+            # logger.debug("::::::append tot start")
             # calcola il totale richiesto dalla vista (totale_costi, totale_procapite, totale_progetti)
             # e lo appende alla lista fei finanziamenti per regione
             context['lista_finanziamenti_per_regione'].append( ( regione, tot( queryset ) ) )
@@ -263,7 +263,7 @@ class SoggettoView(AggregatoView, DetailView):
         # rimuovo tutti i progetti multilocalizzati nazionali
         ps_multiloc = filter(lambda p: not multi_localizzato_in_nazione(p), ps_multiloc)
 
-        logger.debug("::fetch dati_nazioni start")
+        # logger.debug("::fetch dati_nazioni start")
         for nazione in Territorio.objects.filter(territorio__in=['N','E']).defer('geom').order_by('-territorio'):
 
             queryset = Progetto.objects.nel_territorio( nazione ).del_soggetto( self.object ).exclude(
@@ -273,7 +273,7 @@ class SoggettoView(AggregatoView, DetailView):
             )
 
             context['lista_finanziamenti_per_regione'].append( ( nazione, tot( queryset ) ) )
-        logger.debug("::fetch dati_nazioni end")
+        # logger.debug("::fetch dati_nazioni end")
 
         if len(ps_multiloc):
             # aggrego in un territorio fittizio i progetti multilocalizzati non inclusi fino ad ora
@@ -283,12 +283,12 @@ class SoggettoView(AggregatoView, DetailView):
                     tot( Progetto.objects.del_soggetto( self.object).filter(pk__in=ps_multiloc) )
                 )
             )
-        logger.debug("lista_finanziamenti_per_regione stop")
+        # logger.debug("lista_finanziamenti_per_regione stop")
 
 
         # calcolo i finanziamenti per ruolo del soggetto
         # preparo il filtro di aggregazione in base alla tematizzazione richiesta
-        logger.debug("lista_finanziamenti_per_ruolo start")
+        # logger.debug("lista_finanziamenti_per_ruolo start")
         aggregazione_ruolo = {
             'totale_costi': Sum('progetto__fin_totale_pubblico'),
             'totale_pagamenti': Sum('progetto__pagamento'),
@@ -337,7 +337,7 @@ class SoggettoView(AggregatoView, DetailView):
 
         # ordino il dict_finanziamenti_per_ruolo per i suoi valore (il totale)
         context['lista_finanziamenti_per_ruolo'] = sorted(dict_finanziamenti_per_ruolo.items(), key=lambda x: x[1], reverse=True)
-        logger.debug("lista_finanziamenti_per_ruolo stop")
+        # logger.debug("lista_finanziamenti_per_ruolo stop")
 
         del dict_finanziamenti_per_ruolo
 

@@ -8,6 +8,7 @@ sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
         facet('natura').\
         facet('tema').\
         facet('fonte').\
+        facet('is_active').\
         query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2013']['qrange']).\
         query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2012']['qrange']).\
         query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2011']['qrange']).\

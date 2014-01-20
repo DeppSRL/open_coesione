@@ -1,17 +1,17 @@
 BeautifulSoup
-Django==1.4.6
+Django==1.5.5
 Fabric
 Jinja2
 PIL
 PyYAML
 Pygments
-South
+South>=0.8.3
 Sphinx
 django-debug-toolbar
 django-cache-panel
 django-extensions
-django-haystack
-django-model-utils
+django-haystack<2.0
+django-model-utils<1.5
 django-tastypie
 docutils
 httplib2
@@ -33,7 +33,7 @@ django-classy-tags
 django-sekizai
 
 django-tinymce
-django-redis==3.2
+django-redis==3.3
 
 django-recaptcha
 django-disqus
@@ -41,3 +41,9 @@ django-disqus
 djangorestframework
 markdown
 numpy
+
+werkzeug
+
+requests==2.0.0
+-e git://github.com/DeppSRL/django-widgets.git#egg=django-widgets
+

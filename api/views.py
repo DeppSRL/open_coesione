@@ -1,3 +1,4 @@
+# coding=utf-8
 from django.conf import settings
 from django.test import RequestFactory
 from rest_framework import status, generics
@@ -8,11 +9,12 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from open_coesione.utils import setup_view
 from open_coesione.views import HomeView
-from progetti.models import Progetto, Tema, ProgrammaAsseObiettivo, Ruolo
+from progetti.models import Progetto, Tema, ProgrammaAsseObiettivo, Ruolo, ClassificazioneQSN
 from progetti.urls import sqs as progetti_sqs
 from progetti.views import TemaView, TipologiaView
 from soggetti.urls import sqs as soggetti_sqs
 from api.serializers import *
+from soggetti.views import SoggettoView
 from territori.models import Territorio
 from django.utils.datastructures import SortedDict
 from territori.views import AmbitoNazionaleView, AmbitoEsteroView, RegioneView, ProvinciaView, ComuneView, MapnikProvinceView, MapnikRegioniView, MapnikComuniView
@@ -44,6 +46,7 @@ def api_root(request, format=None):
             ('nature', reverse('api-natura-list', request=request, format=format)),
             ('territori', reverse('api-territorio-list', request=request, format=format)),
             ('programmi', reverse('api-programma-list', request=request, format=format)),
+            ('classificazioni', reverse('api-classificazione-list', request=request, format=format)),
         ])
     )
 
@@ -69,7 +72,7 @@ class ProgettoList(generics.ListAPIView):
     * ``/api/progetti?natura=incentivi-alle-imprese&tema=istruzione``
     * ``/api/progetti?territorio=palermo-comune``
     * ``/api/progetti?natura=incentivi-alle-imprese&tema=istruzione&territorio=roma-comune``
-
+    * ``/api/progetti?soggetto=miur``
 
     The results are paginated by default to 25 items per page.
     The number of items per page can be changed through the ``page_size`` GET parameter.
@@ -82,6 +85,8 @@ class ProgettoList(generics.ListAPIView):
     * ``-costo`` (default), ``costo``
     * ``-pagamento``, ``pagamento``
     * ``-perc_pagamento``, ``perc_pagamento``
+    * ``-data_inizio_effettiva``, ``data_inizio_effettiva``
+    * ``-data_fine_effettiva``, ``data_fine_effettiva``
 
     a minus (-) in front of the field name indicates a *descending* order criterion.
 
@@ -117,20 +122,28 @@ class ProgettoList(generics.ListAPIView):
         territorio_slug = self.request.QUERY_PARAMS.get('territorio', None)
         if territorio_slug:
             territorio = Territorio.objects.get(slug=territorio_slug)
-
-            ret_sqs = ret_sqs.filter(territorio_reg=territorio.cod_reg)
-            ret_sqs = ret_sqs.filter(territorio_prov=territorio.cod_prov)
-            ret_sqs = ret_sqs.filter(territorio_com=territorio.cod_com)
+            if territorio.territorio == Territorio.TERRITORIO.R:
+                ret_sqs = ret_sqs.filter(territorio_reg=territorio.cod_reg)
+            if territorio.territorio == Territorio.TERRITORIO.P:
+                ret_sqs = ret_sqs.filter(territorio_prov=territorio.cod_prov)
+            if territorio.territorio == Territorio.TERRITORIO.C:
+                ret_sqs = ret_sqs.filter(territorio_com=territorio.cod_com)
 
         programma = self.request.QUERY_PARAMS.get('programma', None)
         if programma:
             ret_sqs = ret_sqs.filter(fonte_fin=programma)
 
+        soggetto = self.request.QUERY_PARAMS.get('soggetto', None)
+        if soggetto:
+            ret_sqs = ret_sqs.filter(soggetto=soggetto)
+
         sort_field = self.request.QUERY_PARAMS.get('order_by')
         sortable_fields = (
             'costo',
             '-pagamento', 'pagamento',
-            '-perc_pagamento', 'perc_pagamento'
+            '-perc_pagamento', 'perc_pagamento',
+            '-data_fine_effettiva', 'data_fine_effettiva',
+            '-data_inizio_effettiva', 'data_inizio_effettiva'
         )
         if sort_field and sort_field in sortable_fields:
             # reset default order_by parameter set in progetti.search_querysets.sqs definition
@@ -216,12 +229,6 @@ class SoggettoList(generics.ListAPIView):
         return ret_sqs
 
 
-class SoggettoDetail(generics.RetrieveAPIView):
-    queryset = Soggetto.objects.all()
-    serializer_class = SoggettoModelSerializer
-
-
-
 
 class TemaList(generics.ListAPIView):
     """
@@ -298,19 +305,58 @@ class ProgrammiList(generics.ListAPIView):
 
         GET api/programmi?descrizione=Lazio
 
+    To filter on codice::
+
+        GET api/programmmi?codice=2007IT052PO012
+
     """
     serializer_class = ProgrammaModelSerializer
 
     def get_queryset(self):
-        ret_qs = ProgrammaAsseObiettivo.objects.filter(tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma)
+        ret_qs = ProgrammaAsseObiettivo.objects.all()
 
         descrizione = self.request.GET.get('descrizione', None)
         if descrizione:
             ret_qs = ret_qs.filter(descrizione__icontains=descrizione)
 
+        codice = self.request.GET.get('codice', None)
+        if codice:
+            if codice.startswith('^'):
+                ret_qs = ret_qs.filter(codice__startswith=codice[1:])
+            elif ',' in codice:
+                ret_qs = ret_qs.filter(codice__in=codice.split(','))
+            else:
+                ret_qs = ret_qs.filter(codice=codice)
+
         return ret_qs
 
 
+class ClassificazioneList(generics.ListAPIView):
+    """
+    List of all classificazioni of quadro strategico nazionale (QSN).
+
+    Can be filtered by ``descrizione`` GET parameter, to extract all items containing a given substring, case-insensitive.
+
+    Examples
+    ========
+
+    To get all classificazioni for a given topic
+
+        GET api/classificazioni?descrizione=occupazione
+
+    """
+    serializer_class = ClassificazioneQSNModelSerializer
+    model = ClassificazioneQSN
+    paginate_by = 100
+
+    #def get_queryset(self):
+    #    ret_qs = ClassificazioneQSN.objects.filter(tipo_classificazione=ClassificazioneQSN.TIPO.priorita)
+    #
+    #    descrizione = self.request.GET.get('descrizione', None)
+    #    if descrizione:
+    #        ret_qs = ret_qs.filter(descrizione__icontains=descrizione)
+    #
+    #    return ret_qs
 
 @api_view(('GET',))
 def api_aggregati_temi_list(request, format=None):
@@ -344,8 +390,8 @@ def api_aggregati_territori_list(request, format=None):
     Shows URLs linking to aggregated regioni and province pages.
     """
     ret = SortedDict([
-        ('ambito-estero', reverse('api-aggregati-territorio-detail', request=request, format=format, kwargs={'slug': 'ambito-estero'})),
-        ('ambito-nazionale', reverse('api-aggregati-territorio-detail', request=request, format=format, kwargs={'slug': 'ambito-nazionale'})),
+        ('ambito_estero', reverse('api-aggregati-territorio-detail', request=request, format=format, kwargs={'slug': 'ambito-estero'})),
+        ('ambito_nazionale', reverse('api-aggregati-territorio-detail', request=request, format=format, kwargs={'slug': 'ambito-nazionale'})),
         ('regioni', get_regioni_list(request, format)),
         ('provincie', get_province_list(request, format)),
     ])
@@ -398,6 +444,8 @@ def get_comuni_provincia_list(request, format=None, provincia=None):
 class AggregatoView(APIView):
     """
     Base aggregated data view. Used to show home page data, and as a base for other pages.
+
+    Set ``with_territori`` GET parameter to ``False`` to de-activate territori list (useful for speeding testing)
     """
 
     totali = {}
@@ -480,6 +528,15 @@ class AggregatoView(APIView):
         if 'slug' in self.kwargs and self.kwargs['slug'] == 'ambito-nazionale':
             del kwargs['slug']
 
+        with_territori = self.request.QUERY_PARAMS.get('with_territori', None)
+        if not with_territori or with_territori.lower == 'true' or with_territori == '1' or with_territori.lower == 'yes':
+            with_territori = True
+        else:
+            with_territori = False
+
+        if 'slug' in self.kwargs and self.kwargs['slug'] == 'ambito-nazionale':
+            del kwargs['slug']
+
         for thematization in ('costi', 'pagamenti', 'progetti'):
             page_view = setup_view(
                 view,
@@ -498,14 +555,17 @@ class AggregatoView(APIView):
             if 'nature_principali' in context:
                 self.update_nature(format, context, thematization)
 
-            for (mapnik_view_name, mapnik_url_name, tipo_territori, mapnik_kwargs) in self.get_mapnik_names():
-                map_view = setup_view(
-                     mapnik_view_name(),
-                     RequestFactory().get("{0}?tematizzazione=totale_{1}".format(reverse(mapnik_url_name, *args, kwargs=mapnik_kwargs), thematization)),
-                     *args, **kwargs
-                )
-                map_context = map_view.get_context_data(*args, **mapnik_kwargs)
-                self.update_territori(tipo_territori, format,  map_context, thematization)
+            print "with_territori: ", with_territori
+
+            if with_territori:
+                for (mapnik_view_name, mapnik_url_name, tipo_territori, mapnik_kwargs) in self.get_mapnik_names():
+                    map_view = setup_view(
+                         mapnik_view_name(),
+                         RequestFactory().get("{0}?tematizzazione=totale_{1}".format(reverse(mapnik_url_name, *args, kwargs=mapnik_kwargs), thematization)),
+                         *args, **kwargs
+                    )
+                    map_context = map_view.get_context_data(*args, **mapnik_kwargs)
+                    self.update_territori(tipo_territori, format,  map_context, thematization)
 
         aggregated_data = SortedDict([
             ('totali', self.totali),
@@ -635,5 +695,104 @@ class AggregatoTerritorioDetailView(AggregatoView):
                 (MapnikComuniView, 'territori_mapnik_comuni_provincia', 'comuni', mapnik_kwargs)
             ]
         elif tipo == 'comune':
-            pass
-        return []
+            return []
+
+
+
+class SoggettoDetail(AggregatoView, generics.RetrieveAPIView):
+    queryset = Soggetto.objects.all()
+    serializer_class = SoggettoModelSerializer
+
+    def get_aggregate_page_view_class(self):
+        return SoggettoView
+
+    def get_aggregate_page_url(self):
+        return "/soggetti/{0}/".format(self.kwargs['slug'])
+
+    def update_territori(self, tipo_territorio, format, context, thematization):
+        for (territorio, v) in context['lista_finanziamenti_per_regione']:
+            t = territorio.slug
+            if not self.territori.get(tipo_territorio, None):
+                self.territori[tipo_territorio] = SortedDict()
+            if not self.territori[tipo_territorio].get(t, None):
+                self.territori[tipo_territorio][t] = {
+                    'link': reverse('api-aggregati-territorio-detail', request=self.request, format=format, kwargs={'slug': t}),
+                    'totali': {}
+                }
+            self.territori[tipo_territorio][t]['totali'][thematization] = v
+
+    def get(self, request, format=None, *args, **kwargs):
+        """
+        this code is a copy of AggregatoView.get
+        without mapnik requests
+        """
+
+        response = generics.RetrieveAPIView.get(self, request, format=format, *args, **kwargs)
+
+        view = self.get_aggregate_page_view_class()(kwargs=kwargs)
+        if hasattr(view, 'get_object'):
+            view.object = getattr(view, 'get_object')()
+
+        for thematization in ('costi', 'pagamenti', 'progetti'):
+            page_view = setup_view(
+                view,
+                RequestFactory().get("{0}?tematizzazione=totale_{1}".format(self.get_aggregate_page_url(), thematization)),
+                *args, **kwargs
+            )
+            context = page_view.get_context_data(*args, **kwargs)
+
+            self.update_totali(context, thematization)
+
+            if 'temi_principali' in context:
+                self.update_temi(format, context, thematization)
+
+            if 'nature_principali' in context:
+                self.update_nature(format, context, thematization)
+
+            self.update_territori('regioni', format,  context, thematization)
+
+        aggregated_data = SortedDict([
+            ('totali', self.totali),
+            ('temi', self.temi),
+            ('nature', self.nature),
+            ('territori', self.territori),
+        ])
+
+        response.data['aggregati'] = aggregated_data
+
+        # preparo i territori più finanziati
+        response.data['territori_piu_finanziati_pro_capite'] = sorted([
+            {
+                'link': reverse('api-aggregati-territorio-detail', request=self.request, format=format, kwargs={'slug': t.slug}),
+                'territorio': t.denominazione,
+                'slug': t.slug,
+                'pro_capite': t.totale,
+            }
+            # per ogni territorio
+            for t in context['territori_piu_finanziati_pro_capite']
+        # ordinati per il totale pro capite
+        ], key=lambda x: x['pro_capite'], reverse=True)
+
+        # preparo la classifica dei collaboratori
+        response.data['top_collaboratori'] = sorted([
+            {
+                'link': reverse('api-soggetto-detail', request=self.request, format=format, kwargs={'slug': s['soggetto'].slug}),
+                'soggetto': s['soggetto'].denominazione,
+                'slug': s['soggetto'].slug,
+                'numero_progetti': s['numero'],
+            }
+            for s in context['top_collaboratori']
+        # ordinati per il numero di progetti
+        ], key=lambda x: x['numero_progetti'], reverse=True)
+
+        # preparo la classifica dei progetti
+        response.data['top_progetti'] = sorted([
+            {
+                'link': reverse('api-progetto-detail', request=self.request, format=format, kwargs={'slug': p.slug}),
+                'titolo_progetto': p.titolo_progetto,
+                'slug': p.slug,
+                'fin_totale_pubblico': p.fin_totale_pubblico,
+            }
+            for p in context['top_progetti']
+        ], key=lambda x: x['fin_totale_pubblico'], reverse=True)
+        return response

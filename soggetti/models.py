@@ -38,9 +38,13 @@ class FormaGiuridica(models.Model):
         verbose_name_plural = "Forme giuridiche"
 
 
+class SoggettiManager(models.Manager):
+    def get_query_set(self):
+        return models.query.QuerySet(self.model, using=self._db).filter(ruolo__progetto__active_flag=True).distinct()
+
 class Soggetto(TimeStampedModel):
     codice_fiscale = models.CharField(max_length=16)
-    denominazione = models.CharField(max_length=512)
+    denominazione = models.CharField(max_length=512, db_index=True)
     slug = models.CharField(max_length=300, blank=True, null=True)
     forma_giuridica = models.ForeignKey(FormaGiuridica,
                                         db_column='forma_giuridica', null=True, blank=True)
@@ -51,9 +55,28 @@ class Soggetto(TimeStampedModel):
     indirizzo = models.CharField(max_length=300, null=True, blank=True)
     cap = models.CharField(max_length=5, null=True, blank=True)
 
+    objects = models.Manager()
+    filteredobjects = SoggettiManager()
+    fullobjects = models.Manager()
+
     @property
     def progetti(self):
         return self.progetto_set.all()
+
+    @property
+    def n_progetti(self):
+        return self.progetto_set.count()
+
+    @property
+    def has_progetti(self):
+        try:
+            a = self.progetti[0]
+            return True
+        except IndexError:
+            return False
+
+        # return self.n_progetti > 0
+
 
     @property
     def ruoli(self):
