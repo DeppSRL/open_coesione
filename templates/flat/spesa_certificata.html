@@ -1,7 +1,7 @@
 {% extends 'base_two_columns.html' %}
 {% load sekizai_tags %}
 
-{% block page_title %}Fonti di finanziamento{% endblock %}
+{% block page_title %}Spesa certificata all'UE{% endblock %}
 
 
 {% block content %}
@@ -12,7 +12,7 @@
         <p>(% della spesa certificata all’UE rispetto alla dotazione finanziaria disponibile – aggiornamento al 31 dicembre 2013)</p>
 
         <p>
-            <figure>
+            <figure style="-webkit-margin-start: 0;">
                 <img src="{{ STATIC_URL }}img/spesa_certificata_20131231.jpg"/>
                 <figcaption>
                     Nota: Gli obiettivi nazionali sono stati definiti dal Comitato QSN
@@ -22,9 +22,9 @@
 
         </p>
 
-        <p>
-            Scarica dati e metadati per ciascun Programma Operativo su:
-            <ul>
+        <p style="margin-left: 1em;">
+            <b>Scarica</b> dati e metadati per ciascun Programma Operativo su:
+            <ul style="margin-left: 40px;">
                 <li><a href="{{ STATIC_URL }}xls/1_Dotazioni_Certificazioni_20131231.xlsx">
                     dotazione finanziaria complessiva e spesa certificata alla CE </a>
                     (xls, 43 Kb)
@@ -35,10 +35,13 @@
             </ul>
         </p>
 
-        <p><a href="{% url 'flat-spesa-certificata-grafici' %}">Visualizza i grafici interattivi per ciascun Programma Operativo</a></p>
+        <p style="margin-left: 1em;">
+            <b>Visualizza</b> i <a href="{% url 'flat-spesa-certificata-grafici' %}">grafici interattivi</a>
+            per ciascun Programma Operativo
+        </p>
 
-        <p>
-            Leggi le &ldquo;Pillole di OpenCoesione&rdquo; con approfondimenti sui risultati raggiunti
+        <p style="margin-left: 1em;">
+            <b>Leggi</b> le &ldquo;Pillole di OpenCoesione&rdquo; con approfondimenti sui risultati raggiunti
             <ul>
                 <li><a href="{{ STATIC_URL }}pdf/Pillola OpenCoesione n.3 - La spesa certificata al 31 dicembre 2013.pdf">
                     La certificazione della spesa dei Fondi Strutturali all’UE al 31/12/2013
@@ -61,9 +64,7 @@
         <h1>Quali regole per il ciclo di programmazione 2007-2013?</h1>
         <p>
             Per il periodo 2007-2013 vale l’obbligo comunitario della regola nota come &ldquo;n+2&rdquo;
-            (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1083:IT:NOT">
-                art. 93 del Regolamento CE 1083/2006
-            </a>),
+            (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1083:IT:NOT">art. 93 del Regolamento CE 1083/2006</a>),
             pertanto le certificazioni alla Commissione devono essere presentate entro il
             31 dicembre del secondo anno successivo a quello dell’impegno nell’ambito del Programma.
             Tra gli effetti di questa regola, quindi, c’è anche quello di aver fissato al
@@ -96,9 +97,7 @@
         <h1>Quali regole per il ciclo di programmazione 2014-2020?</h1>
         <p>
             Per il periodo 2014-2020 vale la cosiddetta regola “n+3”
-            (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0320:0469:IT:pdf">
-                art. 136 del Regolamento CE 1303/2013
-            </a>),
+            (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0320:0469:IT:pdf">art. 136 del Regolamento CE 1303/2013</a>),
             pertanto le certificazioni alla Commissione devono essere presentate entro il 31 dicembre
             del terzo anno successivo a quello dell’impegno nell’ambito del Programma.
             Non sono previste deroghe per i Grandi Progetti.

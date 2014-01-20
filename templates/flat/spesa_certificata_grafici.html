@@ -1,7 +1,7 @@
 {% extends 'base_two_columns.html' %}
 {% load sekizai_tags %}
 
-{% block page_title %}Fonti di finanziamento{% endblock %}
+{% block page_title %}Grafici spesa certificata all'UE{% endblock %}
 
 
 {% block js_content %}
@@ -168,6 +168,11 @@
             Qui di seguito si riportano i grafici dei singoli Programmi Operativi,
             in sezioni distinte per Area Obiettivo (Competitività, Convergenza) e Fondo (FESR, FSE).
             Per selezionare il grafico di interesse, scegliere dal menu a tendina nella sezione di riferimento.
+        </p>
+
+        <p>
+            I target riportati nei grafici sono quelli nazionali, generalmente più ambiziosi di quelli comunitari e fissati,
+            oltre che al 31 dicembre di ciascun anno, anche al 31 maggio e al 31 ottobre, a partire da ottobre 2011.
         </p>
 
         {% for tipo_di_spesa, csv_file in chart_tables %}
