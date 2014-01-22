@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
-from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaAsseObiettivoManager, FullProgettiManager
+from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaAsseObiettivoManager, FullProgettiManager, ProgrammaLineaAzioneManager
 from django.core.cache import cache
 import logging
 from soggetti.models import Soggetto
@@ -83,6 +83,50 @@ class ProgrammaAsseObiettivo(models.Model):
     class Meta:
         verbose_name_plural = "Programmi - Assi - Obiettivi operativi"
         db_table = 'progetti_programma_asse_obiettivo'
+
+class ProgrammaLineaAzione(models.Model):
+    """
+    Classificazione alternativa a ProgrammaAsseObiettivo,
+    per progetti in attuazione nel contesto FSC.
+    """
+    objects = ProgrammaLineaAzioneManager()
+
+    TIPO = Choices(
+        ('PROGRAMMA', 'programma', u'Programma'),
+        ('LINEA', 'asse', u'Linea'),
+        ('AZIONE', 'azione', u'Azione')
+    )
+    classificazione_superiore = models.ForeignKey('ProgrammaLineaAzione', default=None,
+                                                  related_name='classificazione_set',
+                                                  db_column='classificazione_superiore',
+                                                  null=True, blank=True)
+    codice = models.CharField(max_length=32, primary_key=True)
+    descrizione = models.TextField()
+    tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
+    url_riferimento = models.URLField(max_length=255, blank=True, null=True)
+
+
+    @property
+    def programma(self):
+        p = self
+        while p.classificazione_superiore is not None:
+            p = p.classificazione_superiore
+        return p
+
+    @property
+    def progetti(self):
+        return self.progetto_set
+
+    @property
+    def is_root(self):
+        return self.tipo_classificazione == ProgrammaLineaAzione.TIPO.programma
+
+    def __unicode__(self):
+        return unicode(self.descrizione[0:100])
+
+    class Meta:
+        verbose_name_plural = "Programmi - Linee - Azioni"
+        db_table = 'progetti_programma_linea_azione'
 
 
 class Tema(models.Model):
@@ -333,8 +377,6 @@ class Progetto(TimeStampedModel):
 
     titolo_progetto = models.TextField()
     descrizione = models.TextField(blank=True, null=True)
-    fonte_descrizione = models.TextField(blank=True, null=True)
-    fonte_url = models.URLField(blank=True, null=True)
     slug = models.CharField(max_length=128, blank=True, null=True, db_index=True)
     classificazione_qsn = models.ForeignKey('ClassificazioneQSN',
                                             related_name='progetto_set',
@@ -344,6 +386,11 @@ class Progetto(TimeStampedModel):
     programma_asse_obiettivo = models.ForeignKey('ProgrammaAsseObiettivo',
                                                  related_name='progetto_set',
                                                  db_column='programma_asse_progetto',
+                                                 null=True, blank=True)
+
+    programma_linea_azione = models.ForeignKey('ProgrammaLineaAzione',
+                                                 related_name='progetto_set',
+                                                 db_column='programma_linea_azione',
                                                  null=True, blank=True)
 
     obiettivo_sviluppo = models.CharField(max_length=16,
@@ -359,8 +406,13 @@ class Progetto(TimeStampedModel):
                              null=True, blank=True)
 
     fonte = models.ForeignKey('Fonte',
-                              related_name='progetto_set',
+                              related_name='progetto_correlato_set',
+                              blank=True, null=True,
                               db_column='fonte')
+    fonte_set = models.ManyToManyField('Fonte', related_name='progetto_set', db_table='progetti_progetto_has_fonte')
+
+    fonte_descrizione = models.TextField(blank=True, null=True)
+    fonte_url = models.URLField(blank=True, null=True)
 
     classificazione_azione = models.ForeignKey('ClassificazioneAzione',
                                                related_name='progetto_set',
@@ -378,10 +430,17 @@ class Progetto(TimeStampedModel):
     cipe_data_pubblicazione = models.DateField(null=True, blank=True)
     cipe_flag = models.BooleanField(default=False)
 
+
+
+
     note = models.TextField(null=True, blank=True)
 
     fin_totale = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_totale_pubblico = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True, db_index=True)
+    fin_totale_pubblico_netto = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True, db_index=True)
+    economie_totali = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True, db_index=True)
+    economie_totali_pubbliche = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True, db_index=True)
+
     fin_ue = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_stato_fondo_rotazione = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_stato_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
@@ -397,8 +456,8 @@ class Progetto(TimeStampedModel):
     costo = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     costo_ammesso = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     pagamento = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
-    pagamento_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     pagamento_ammesso = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    pagamento_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
 
     data_inizio_prevista = models.DateField(null=True, blank=True)
     data_fine_prevista = models.DateField(null=True, blank=True)
