@@ -221,6 +221,12 @@ class Intesa(models.Model):
         verbose_name_plural = "Intese istituzionali"
 
 class Fonte(models.Model):
+    TIPO = Choices(
+        ('FS', 'FS', 'fs'),
+        ('FSC', 'FSC', 'fsc'),
+    )
+
+    tipo_fonte = models.CharField(max_length=4, choices=TIPO, blank=True, null=True)
     codice = models.CharField(max_length=8, primary_key=True)
     descrizione = models.TextField()
     short_label = models.CharField(max_length=64, blank=True, null=True)

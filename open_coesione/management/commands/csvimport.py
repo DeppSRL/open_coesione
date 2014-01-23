@@ -909,11 +909,19 @@ class Command(BaseCommand):
 
             # fonte
             try:
+                if 'FSC' in r['DPS_COD_FONTE']:
+                    tipo_fonte = Fonte.TIPO.fsc
+                elif 'FS' in r['DPS_COD_FONTE']:
+                    tipo_fonte = Fonte.TIPO.fs
+                else:
+                    tipo_fonte = None
+
                 created = False
                 fonte, created = Fonte.objects.get_or_create(
                     codice="%s" % (r['DPS_COD_FONTE']),
                     defaults={
                         'descrizione': r['DPS_DESCR_FONTE'],
+                        'tipo_fonte': tipo_fonte,
                         }
                 )
                 if created:
