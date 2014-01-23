@@ -106,7 +106,7 @@ class Command(LabelCommand):
                 "DPS_CODICE_FISCALE_SOGG","DPS_DENOMINAZIONE_SOGG",
                 "COD_FORMA_GIURIDICA_SOGG","DESCR_FORMA_GIURIDICA_SOGG",
                 "COD_COMUNE_SEDE_SOGG","INDIRIZZO_SOGG","CAP_SOGG",
-                "DESCRIZIONE_ATECO_SOGG", "COD_ATECO_SOGG"
+                "COD_ATECO_SOGG", "DESCRIZIONE_ATECO_SOGG"
             ]
         elif options['type'] == 'pay':
             headers = [
