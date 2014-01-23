@@ -93,7 +93,7 @@ class ProgrammaLineaAzione(models.Model):
 
     TIPO = Choices(
         ('PROGRAMMA', 'programma', u'Programma'),
-        ('LINEA', 'asse', u'Linea'),
+        ('LINEA', 'linea', u'Linea'),
         ('AZIONE', 'azione', u'Azione')
     )
     classificazione_superiore = models.ForeignKey('ProgrammaLineaAzione', default=None,
