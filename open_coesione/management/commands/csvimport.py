@@ -758,7 +758,7 @@ class Command(BaseCommand):
             # programma, asse, obiettivo
             programma_asse_obiettivo = None
             keywords = [
-                'DPS_CODICE_PROGAMMA', 'PO_CODICE_ASSE', 'PO_COD_OBIETTIVO_OPERATIVO',
+                'DPS_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_COD_OBIETTIVO_OPERATIVO',
                 'DPS_DESCRIZIONE_PROGRAMMA', 'PO_DENOMINAZIONE_ASSE', 'PO_OBIETTIVO_OPERATIVO'
             ]
             if all(k in r for k in keywords):
@@ -813,7 +813,7 @@ class Command(BaseCommand):
             # programma, linea azione
             programma_linea_azione = None
             keywords = [
-                'DPS_CODICE_PROGAMMA', 'COD_LINEA', 'COD_AZIONE',
+                'DPS_CODICE_PROGRAMMA', 'COD_LINEA', 'COD_AZIONE',
                 'DPS_DESCRIZIONE_PROGRAMMA', 'DESCR_LINEA', 'DESCR_AZIONE'
             ]
             if all(k in r for k in keywords):

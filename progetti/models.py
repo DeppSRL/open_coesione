@@ -222,8 +222,8 @@ class Intesa(models.Model):
 
 class Fonte(models.Model):
     TIPO = Choices(
-        ('FS', 'FS', 'fs'),
-        ('FSC', 'FSC', 'fsc'),
+        ('FS', 'fs', 'FS'),
+        ('FSC', 'fsc', 'FSC'),
     )
 
     tipo_fonte = models.CharField(max_length=4, choices=TIPO, blank=True, null=True)
@@ -479,6 +479,35 @@ class Progetto(TimeStampedModel):
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
+
+    @property
+    def fonti(self):
+        return self.fonte_set.all()
+
+    def fonte_fs_qs(self):
+        return self.fonte_set.filter(tipo_fonte=Fonte.TIPO.fs)
+
+    def fonte_fsc_qs(self):
+        return self.fonte_set.filter(tipo_fonte=Fonte.TIPO.fsc)
+
+    @property
+    def is_fonte_fs_flag(self):
+        return self.fonte_fs_qs().count() > 0
+
+    @property
+    def is_fonte_fsc_flag(self):
+        return self.fonte_fsc_qs().count() > 0
+
+    @property
+    def fonte_fs_descrizione(self):
+        if self.is_fonte_fs_flag:
+            return self.fonte_fs_qs()[0].descrizione
+
+    @property
+    def fonte_fsc_descrizione(self):
+        if self.is_fonte_fsc_flag:
+            return self.fonte_fsc_qs()[0].descrizione
+
 
     @property
     def territori(self):

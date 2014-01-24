@@ -475,14 +475,14 @@
                   </div>
               {%  endif %}
 
-              {% if progetto.pagamenti %}
-              <p style="text-align:center ;"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></p>
-
-              <table id="payments_chart_table" class="hide">
-                {% for pagamento in progetto.pagamenti %}
-                <tr><th>{{ pagamento.data|date:"N Y" }}</th><td>{{ pagamento.ammontare|floatformat:"2" }}</td><td>{{ pagamento.percentuale|floatformat:"2" }}</td></tr>
-                {% endfor %}
-              </table>
+              {% if progetto.pagamenti or total_economie %}
+                  <p style="text-align:center ;"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></p>
+                  <p style="text-align:center ;">Economie totali: {{ total_economie }}</p>
+                  <table id="payments_chart_table" class="hide">
+                    {% for pagamento in progetto.pagamenti %}
+                    <tr><th>{{ pagamento.data|date:"N Y" }}</th><td>{{ pagamento.ammontare|floatformat:"2" }}</td><td>{{ pagamento.percentuale|floatformat:"2" }}</td></tr>
+                    {% endfor %}
+                  </table>
               {% endif %}
 
             </div>
@@ -490,49 +490,75 @@
 
         </section>
 
-        {% if progetto.fondo_comunitario == 'fse' or progetto.fondo_comunitario == 'fesr' or progetto.cipe_flag %}
+
+        <!-- classificazione fondo - programma - asse/linea - obiettivo/azione -->
         <section>
 
           <dl class="data">
-              {% if progetto.costo %}
-                  <dt>Costo</dt>
-                  <dd>{{ progetto.costo|floatformat:2|intcomma }} euro</dd>
-              {% endif %}
+            {% if progetto.costo %}
+                <dt>Costo</dt>
+                <dd>{{ progetto.costo|floatformat:2|intcomma }} euro</dd>
+            {% endif %}
 
-
-              <dt>
-              {% if progetto.fondo_comunitario == 'fse' %}
-                Fondo Strutturale Europeo (FSE)
-              {% elif progetto.fondo_comunitario == 'fesr' %}
-                Fondo Europeo di Sviluppo Regionale (FESR)
-              {% elif progetto.cipe_flag  %}
-                {{ progetto.fonte.descrizione }}
-              {% endif %}
-            </dt>
-            <dd>
-              {% if progetto.cipe_flag  %}
-                <p id="claim">
-                  Questo progetto ha ricevuto un’assegnazione di risorse dal Fondo Sviluppo e Coesione tramite una delibera CIPE. Non sono ancora disponibili i dati di monitoraggio sull’attuazione.
-                </p>
-              {% else %}
-                {{ progetto.fonte.descrizione }}
-              {% endif %}
-            </dd>
-
-            <dt>Programma</dt>
-            <dd>
-              <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}" target="_blank">
-                {{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}
-              </a>
-            </dd>
             {% if not progetto.cipe_flag %}
+
+              {% if progetto.is_fonte_fs_flag %}
+
+                <dt>
+                  {% if progetto.fondo_comunitario == 'fse' %}
+                    Fondo Strutturale Europeo (FSE)
+                  {% elif progetto.fondo_comunitario == 'fesr' %}
+                    Fondo Europeo di Sviluppo Regionale (FESR)
+                  {% endif %}
+                </dt>
+                <dd>{{ progetto.fonte_fs_descrizione }}</dd>
+
+                <dt>Programma</dt>
+                <dd>
+                  <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}" target="_blank">
+                    {{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}
+                  </a>
+                </dd>
+
                 <dt>Asse</dt>
                 <dd>{{ progetto.programma_asse_obiettivo.classificazione_superiore.descrizione }}</dd>
+
                 <dt>Obiettivo</dt>
                 <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
-            {%  endif %}
+              {% endif %}
 
-            {%  if progetto.cipe_flag %}
+              {% if progetto.is_fonte_fsc_flag %}
+                <dt></dt>
+                <dd>{{ progetto.fonte_fsc_descrizione }}</dd>
+
+                <dt>Programma</dt>
+                <dd>
+                    <a href="{{ progetto.programma_linea_azione.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}" target="_blank">
+                      {{ progetto.programma_linea_azione.classificazione_superiore.classificazione_superiore.descrizione }}
+                    </a>
+                </dd>
+
+                <dt>Linea</dt>
+                <dd>{{ progetto.programma_linea_azione.classificazione_superiore.descrizione }}</dd>
+
+                <dt>Azione</dt>
+                <dd>{{ progetto.programma_linea_azione.descrizione }}</dd>
+              {% endif %}
+
+            {% else %}
+
+                <dt>{{ progetto.fonte.descrizione }}</dt>
+                <dd><p id="claim">
+                    Questo progetto ha ricevuto un’assegnazione di risorse dal Fondo Sviluppo
+                    e Coesione tramite una delibera CIPE. Non sono ancora disponibili i dati di monitoraggio sull’attuazione.
+                </p></dd>
+
+                <dt>Programma</dt>
+                <dd>
+                  <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}" target="_blank">
+                    {{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}
+                  </a>
+                </dd>
 
                 <table>
                     <tr>
@@ -562,7 +588,6 @@
             {% endif %}
           </dl>
         </section>
-        {% endif %}
 
 
         {% if progetto.fin_stato_estero or progetto.fin_privato or progetto.fin_da_reperire %}
