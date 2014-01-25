@@ -1091,7 +1091,6 @@ class Command(BaseCommand):
                         'titolo_progetto': r['DPS_TITOLO_PROGETTO'],
                         'cup': r['CUP'].strip(),
                         'obiettivo_sviluppo': obiettivo_sviluppo,
-                        'fondo_comunitario': fondo_comunitario,
                         'tema': tema_prioritario,
                         'classificazione_azione': natura_tipologia,
                         'classificazione_oggetto': settore_sottosettore_categoria,
@@ -1140,7 +1139,6 @@ class Command(BaseCommand):
                     p.titolo_progetto = r['DPS_TITOLO_PROGETTO']
                     p.cup = r['CUP'].strip()
                     p.obiettivo_sviluppo = obiettivo_sviluppo
-                    p.fondo_comunitario = fondo_comunitario
                     p.tema = tema_prioritario
                     p.classificazione_azione = natura_tipologia
                     p.classificazione_oggetto = settore_sottosettore_categoria
@@ -1191,11 +1189,13 @@ class Command(BaseCommand):
                 # no need to save the project, after adding
                 p.fonte_set.add(fonte)
 
-                # modify classification
+                # overlapping variables are not overwritten
                 if programma_asse_obiettivo:
                     p.programma_asse_obiettivo = programma_asse_obiettivo
                 if programma_linea_azione:
                     p.programma_linea_azione = programma_linea_azione
+                if fondo_comunitario:
+                    p.fondo_comunitario = fondo_comunitario
                 p.save()
 
 
