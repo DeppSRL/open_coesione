@@ -477,7 +477,9 @@
 
               {% if progetto.pagamenti or total_economie %}
                   <p style="text-align:center ;"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></p>
-                  <p style="text-align:center ;">Economie totali: {{ total_economie }}</p>
+                  {% if total_economie %}
+                    <p style="text-align:center ;">Economie totali: {{ total_economie }}</p>
+                  {% endif %}
                   <table id="payments_chart_table" class="hide">
                     {% for pagamento in progetto.pagamenti %}
                     <tr><th>{{ pagamento.data|date:"N Y" }}</th><td>{{ pagamento.ammontare|floatformat:"2" }}</td><td>{{ pagamento.percentuale|floatformat:"2" }}</td></tr>
@@ -528,7 +530,7 @@
               {% endif %}
 
               {% if progetto.is_fonte_fsc_flag %}
-                <dt></dt>
+                <dt>Fondo per lo Sviluppo e la Coesione</dt>
                 <dd>{{ progetto.fonte_fsc_descrizione }}</dd>
 
                 <dt>Programma</dt>
