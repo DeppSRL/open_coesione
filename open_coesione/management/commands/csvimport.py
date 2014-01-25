@@ -1090,8 +1090,6 @@ class Command(BaseCommand):
                         'classificazione_qsn': qsn_obiettivo_specifico,
                         'titolo_progetto': r['DPS_TITOLO_PROGETTO'],
                         'cup': r['CUP'].strip(),
-                        'programma_asse_obiettivo': programma_asse_obiettivo,
-                        'programma_linea_azione': programma_linea_azione,
                         'obiettivo_sviluppo': obiettivo_sviluppo,
                         'fondo_comunitario': fondo_comunitario,
                         'tema': tema_prioritario,
@@ -1141,8 +1139,6 @@ class Command(BaseCommand):
                     p.classificazione_qsn = qsn_obiettivo_specifico
                     p.titolo_progetto = r['DPS_TITOLO_PROGETTO']
                     p.cup = r['CUP'].strip()
-                    p.programma_asse_obiettivo = programma_asse_obiettivo
-                    p.programma_linea_azione = programma_linea_azione
                     p.obiettivo_sviluppo = obiettivo_sviluppo
                     p.fondo_comunitario = fondo_comunitario
                     p.tema = tema_prioritario
@@ -1194,6 +1190,14 @@ class Command(BaseCommand):
                 # adding more than once does no harm (no duplicates, no errors)
                 # no need to save the project, after adding
                 p.fonte_set.add(fonte)
+
+                # modify classification
+                if programma_asse_obiettivo:
+                    p.programma_asse_obiettivo = programma_asse_obiettivo
+                if programma_linea_azione:
+                    p.programma_linea_azione = programma_linea_azione
+                p.save()
+
 
                 # remove local variable p from the namespace,
                 #may free some memory

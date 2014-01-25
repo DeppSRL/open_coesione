@@ -602,7 +602,12 @@ class Progetto(TimeStampedModel):
         return the first level of programma_asse_obiettivo classification
         which is used in the fonte_fin filtering of search results
         """
-        return self.programma_asse_obiettivo.programma
+        if self.programma_asse_obiettivo:
+            return self.programma_asse_obiettivo.programma
+        elif self.programma_linea_azione:
+            return self.programma_linea_azione.programma
+        else:
+            return None
 
     def save(self, force_insert=False, force_update=False, using=None):
         # force re-computation of finanziamento totale and notes from delibere
