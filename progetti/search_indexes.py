@@ -12,7 +12,6 @@ class ProgettoIndex(SearchIndex):
     cup = CharField(model_attr='cup', null=True)
     titolo = CharField(model_attr='titolo_progetto')
     descrizione = CharField(model_attr='descrizione', null=True)
-    fonte_descr = CharField(model_attr='fonte__descrizione', null=True)
     tema_descr = CharField(model_attr='tema__tema_superiore__descrizione', null=True)
     natura_descr = CharField(model_attr='classificazione_azione__classificazione_superiore__descrizione', null=True)
     fin_totale_pubblico = FloatField(model_attr='fin_totale_pubblico', null=True)
@@ -58,7 +57,7 @@ class ProgettoIndex(SearchIndex):
     # faceting fields
     natura = FacetCharField( )
     tema = FacetCharField( )
-    fonte = FacetCharField( model_attr='fonte__codice' )
+    fonte = MultiValueField()
     is_active = FacetBooleanField( model_attr='active_flag' )
     data_inizio = FacetDateField()
     costo = FacetFloatField(model_attr='fin_totale_pubblico')
@@ -82,6 +81,9 @@ class ProgettoIndex(SearchIndex):
     def prepare_tema(self, obj):
         return obj.tema.codice.split('.')[0]
 
+    def prepare_fonte(self, obj):
+        return [f.codice for f in obj.fonti]
+
     def prepare_territorio_tipo(self, obj):
         return [t.territorio for t in obj.territori]
 
@@ -101,7 +103,10 @@ class ProgettoIndex(SearchIndex):
         return [t['slug'] for t in obj.territorio_set.values('slug').distinct()]
 
     def prepare_fonte_fin(self, obj):
-        return obj.fonte_fin.pk
+        if obj.fonte_fin:
+            return obj.fonte_fin.pk
+        else:
+            return ''
 
     def prepare_soggetti_programmatori(self, obj):
         return [s['soggetto__denominazione'] for s in obj.ruolo_set.filter(ruolo=Ruolo.RUOLO.programmatore).values('soggetto__denominazione')]

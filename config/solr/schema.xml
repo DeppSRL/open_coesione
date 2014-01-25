@@ -118,8 +118,6 @@
 
     <field name="fin_stato_altri_provvedimenti" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
-    <field name="fonte_descr" type="text" indexed="true" stored="true" multiValued="false" />
-
     <field name="fin_ue" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
     <field name="data_aggiornamento" type="date" indexed="true" stored="true" multiValued="false" />
@@ -148,7 +146,7 @@
 
     <field name="clp" type="text" indexed="true" stored="true" multiValued="false" />
 
-    <field name="fonte" type="string" indexed="true" stored="true" multiValued="false" />
+    <field name="fonte" type="string" indexed="true" stored="true" multiValued="true" />
 
     <field name="natura" type="string" indexed="true" stored="true" multiValued="false" />
 
