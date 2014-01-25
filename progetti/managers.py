@@ -202,3 +202,8 @@ class ProgrammaAsseObiettivoManager(models.Manager):
 
     def programmi(self):
         return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.programma)
+
+class ProgrammaLineaAzioneManager(models.Manager):
+
+    def programmi(self):
+        return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.programma)

@@ -52,9 +52,12 @@ class ProgettoView(AccessControlView, DetailView):
             context['stessi_programmatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.programmatori)[:numero_collaboratori]
 
         context['total_cost'] = float(self.object.fin_totale_pubblico) if self.object.fin_totale_pubblico else 0.0
+        context['total_net_cost'] = float(self.object.fin_totale_pubblico_netto) if self.object.fin_totale_pubblico_netto else context['total_cost']
+        context['total_economie'] = float(self.object.economie_totali_pubbliche) if self.object.economie_totali_pubbliche else 0.0
         context['total_cost_paid'] = float(self.object.pagamento) if self.object.pagamento else 0.0
+
         # calcolo della percentuale del finanziamento erogato
-        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
+        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_net_cost'] if context['total_net_cost'] > 0.0 else 0.0)
 
         context['segnalazioni_pubblicate'] = self.object.segnalazioni
 

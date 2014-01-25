@@ -731,77 +731,139 @@ class Command(BaseCommand):
 
 
             # obiettivo sviluppo
-            field = re.sub(' +',' ',r['QSN_AREA_OBIETTIVO_UE'].encode('ascii', 'ignore')).strip()
-            if field :
-                try:
-                    obiettivo_sviluppo = [k for k, v in dict(Progetto.OBIETTIVO_SVILUPPO).iteritems() if v.encode('ascii', 'ignore') == field][0]
-                    self.logger.debug("Trovato obiettivo sviluppo: %s" % obiettivo_sviluppo)
-                except IndexError as e:
-                    self.logger.error("Could not find  obiettivo sviluppo %s in %s." % (field, codice_locale))
-                    continue
-            else:
-                obiettivo_sviluppo = ''
+            obiettivo_sviluppo = ''
+            if 'QSN_AREA_OBIETTIVO_UE' in r:
+                field = re.sub(' +',' ',r['QSN_AREA_OBIETTIVO_UE'].encode('ascii', 'ignore')).strip()
+                if field :
+                    try:
+                        obiettivo_sviluppo = [k for k, v in dict(Progetto.OBIETTIVO_SVILUPPO).iteritems() if v.encode('ascii', 'ignore') == field][0]
+                        self.logger.debug("Trovato obiettivo sviluppo: %s" % obiettivo_sviluppo)
+                    except IndexError as e:
+                        self.logger.error("Could not find  obiettivo sviluppo %s in %s." % (field, codice_locale))
+                        continue
 
 
             # fondo comunitario
-            if r['QSN_FONDO_COMUNITARIO'].strip():
-                try:
-                    fondo_comunitario = [k for k, v in dict(Progetto.FONDO_COMUNITARIO).iteritems() if v == r['QSN_FONDO_COMUNITARIO']][0]
-                    self.logger.debug("Trovato fondo comunitario: %s" % fondo_comunitario)
-                except IndexError as e:
-                    self.logger.error("While reading fondo comunitario %s in %s. %s" % (r['QSN_FONDO_COMUNITARIO'], codice_locale, e))
-                    continue
-            else:
-                fondo_comunitario = None
+            fondo_comunitario = ''
+            if 'QSN_FONDO_COMUNITARIO' in r:
+                if r['QSN_FONDO_COMUNITARIO'].strip():
+                    try:
+                        fondo_comunitario = [k for k, v in dict(Progetto.FONDO_COMUNITARIO).iteritems() if v == r['QSN_FONDO_COMUNITARIO']][0]
+                        self.logger.debug("Trovato fondo comunitario: %s" % fondo_comunitario)
+                    except IndexError as e:
+                        self.logger.error("While reading fondo comunitario %s in %s. %s" % (r['QSN_FONDO_COMUNITARIO'], codice_locale, e))
+                        continue
 
 
             # programma, asse, obiettivo
-            try:
-                created = False
-                programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
-                    codice=r['DPS_CODICE_PROGRAMMA'],
-                    tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma,
-                    defaults={
-                        'descrizione':r['DPS_DESCRIZIONE_PROGRAMMA']
-                    }
-                )
-                if created:
-                    self.logger.info("Aggiunto programma: %s" % (programma,))
-                else:
-                    self.logger.debug("Trovato programma: %s" % (programma,))
+            programma_asse_obiettivo = None
+            keywords = [
+                'DPS_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_COD_OBIETTIVO_OPERATIVO',
+                'DPS_DESCRIZIONE_PROGRAMMA', 'PO_DENOMINAZIONE_ASSE', 'PO_OBIETTIVO_OPERATIVO'
+            ]
+            if all(k in r for k in keywords):
+                try:
+                    created = False
+                    programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
+                        codice=r['DPS_CODICE_PROGRAMMA'],
+                        tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma,
+                        defaults={
+                            'descrizione':r['DPS_DESCRIZIONE_PROGRAMMA']
+                        }
+                    )
+                    if created:
+                        self.logger.info("Aggiunto programma: %s" % (programma,))
+                    else:
+                        self.logger.debug("Trovato programma: %s" % (programma,))
 
-                created = False
-                programma_asse, created = ProgrammaAsseObiettivo.objects.get_or_create(
-                    codice="%s/%s" % (r['DPS_CODICE_PROGRAMMA'], r['PO_CODICE_ASSE']),
-                    tipo_classificazione=ProgrammaAsseObiettivo.TIPO.asse,
-                    defaults={
-                        'descrizione':r['PO_DENOMINAZIONE_ASSE'],
-                        'classificazione_superiore': programma
-                    }
-                )
-                if created:
-                    self.logger.info("Aggiunto asse: %s" % (programma_asse,))
-                else:
-                    self.logger.debug("Trovato asse: %s" % (programma_asse,))
+                    created = False
+                    programma_asse, created = ProgrammaAsseObiettivo.objects.get_or_create(
+                        codice="%s/%s" % (r['DPS_CODICE_PROGRAMMA'], r['PO_CODICE_ASSE']),
+                        tipo_classificazione=ProgrammaAsseObiettivo.TIPO.asse,
+                        defaults={
+                            'descrizione':r['PO_DENOMINAZIONE_ASSE'],
+                            'classificazione_superiore': programma
+                        }
+                    )
+                    if created:
+                        self.logger.info("Aggiunto asse: %s" % (programma_asse,))
+                    else:
+                        self.logger.debug("Trovato asse: %s" % (programma_asse,))
 
-                created = False
-                programma_asse_obiettivo, created = ProgrammaAsseObiettivo.objects.get_or_create(
-                    codice="%s/%s/%s" % (r['DPS_CODICE_PROGRAMMA'], r['PO_CODICE_ASSE'], r['PO_COD_OBIETTIVO_OPERATIVO']),
-                    tipo_classificazione=ProgrammaAsseObiettivo.TIPO.obiettivo,
-                    defaults={
-                        'descrizione':r['PO_OBIETTIVO_OPERATIVO'],
-                        'classificazione_superiore': programma_asse
-                    }
-                )
-                if created:
-                    self.logger.debug("Aggiunto obiettivo: %s" % (programma_asse_obiettivo,))
-                else:
-                    self.logger.debug("Trovato obiettivo: %s" % (programma_asse_obiettivo,))
+                    created = False
+                    programma_asse_obiettivo, created = ProgrammaAsseObiettivo.objects.get_or_create(
+                        codice="%s/%s/%s" % (r['DPS_CODICE_PROGRAMMA'], r['PO_CODICE_ASSE'], r['PO_COD_OBIETTIVO_OPERATIVO']),
+                        tipo_classificazione=ProgrammaAsseObiettivo.TIPO.obiettivo,
+                        defaults={
+                            'descrizione':r['PO_OBIETTIVO_OPERATIVO'],
+                            'classificazione_superiore': programma_asse
+                        }
+                    )
+                    if created:
+                        self.logger.debug("Aggiunto obiettivo: %s" % (programma_asse_obiettivo,))
+                    else:
+                        self.logger.debug("Trovato obiettivo: %s" % (programma_asse_obiettivo,))
 
 
-            except DatabaseError as e:
-                self.logger.error("In fetch di programma-asse-obiettivo per codice locale:%s. %s" % (codice_locale, e))
-                continue
+                except DatabaseError as e:
+                    self.logger.error("In fetch di programma-asse-obiettivo per codice locale:%s. %s" % (codice_locale, e))
+                    continue
+
+
+            # programma, linea azione
+            programma_linea_azione = None
+            keywords = [
+                'DPS_CODICE_PROGRAMMA', 'COD_LINEA', 'COD_AZIONE',
+                'DPS_DESCRIZIONE_PROGRAMMA', 'DESCR_LINEA', 'DESCR_AZIONE'
+            ]
+            if all(k in r for k in keywords):
+                try:
+                    created = False
+                    programma, created = ProgrammaLineaAzione.objects.get_or_create(
+                        codice=r['DPS_CODICE_PROGRAMMA'],
+                        tipo_classificazione=ProgrammaLineaAzione.TIPO.programma,
+                        defaults={
+                            'descrizione':r['DPS_DESCRIZIONE_PROGRAMMA']
+                        }
+                    )
+                    if created:
+                        self.logger.info("Aggiunto programma (linea-azione): %s" % (programma,))
+                    else:
+                        self.logger.debug("Trovato programma (linea-azione): %s" % (programma,))
+
+                    created = False
+                    programma_linea, created = ProgrammaLineaAzione.objects.get_or_create(
+                        codice="%s/%s" % (r['DPS_CODICE_PROGRAMMA'], r['COD_LINEA']),
+                        tipo_classificazione=ProgrammaLineaAzione.TIPO.linea,
+                        defaults={
+                            'descrizione':r['DESCR_LINEA'],
+                            'classificazione_superiore': programma
+                        }
+                    )
+                    if created:
+                        self.logger.info("Aggiunta linea: %s" % (programma_linea,))
+                    else:
+                        self.logger.debug("Trovata linea: %s" % (programma_linea,))
+
+                    created = False
+                    programma_linea_azione, created = ProgrammaLineaAzione.objects.get_or_create(
+                        codice="%s/%s/%s" % (r['DPS_CODICE_PROGRAMMA'], r['COD_LINEA'], r['COD_AZIONE']),
+                        tipo_classificazione=ProgrammaLineaAzione.TIPO.azione,
+                        defaults={
+                            'descrizione':r['DESCR_AZIONE'],
+                            'classificazione_superiore': programma_linea
+                        }
+                    )
+                    if created:
+                        self.logger.debug("Aggiunta azione: %s" % (programma_linea_azione,))
+                    else:
+                        self.logger.debug("Trovata azione: %s" % (programma_linea_azione,))
+
+
+                except DatabaseError as e:
+                    self.logger.error("In fetch di programma-linea-azione per codice locale:%s. %s" % (codice_locale, e))
+                    continue
+
 
             # tema
             try:
@@ -847,11 +909,19 @@ class Command(BaseCommand):
 
             # fonte
             try:
+                if 'FSC' in r['DPS_COD_FONTE']:
+                    tipo_fonte = Fonte.TIPO.fsc
+                elif 'FS' in r['DPS_COD_FONTE']:
+                    tipo_fonte = Fonte.TIPO.fs
+                else:
+                    tipo_fonte = None
+
                 created = False
                 fonte, created = Fonte.objects.get_or_create(
                     codice="%s" % (r['DPS_COD_FONTE']),
                     defaults={
                         'descrizione': r['DPS_DESCR_FONTE'],
+                        'tipo_fonte': tipo_fonte,
                         }
                 )
                 if created:
@@ -978,6 +1048,11 @@ class Command(BaseCommand):
             # totale finanziamento
             fin_totale_pubblico = Decimal(r['FINANZ_TOTALE_PUBBLICO'].replace(',','.')) if r['FINANZ_TOTALE_PUBBLICO'].strip() else None
 
+            # aggiustamenti dovuti alle economie
+            fin_totale_pubblico_netto = Decimal(r['DPS_FINANZ_TOT_PUB_NETTO'].replace(',','.')) if r['DPS_FINANZ_TOT_PUB_NETTO'].strip() else None
+            economie_totali = Decimal(r['ECONOMIE_TOTALI'].replace(',','.')) if r['ECONOMIE_TOTALI'].strip() else None
+            economie_totali_pubbliche = Decimal(r['ECONOMIE_TOTALI_PUBBLICHE'].replace(',','.')) if r['ECONOMIE_TOTALI_PUBBLICHE'].strip() else None
+
             fin_ue = Decimal(r['FINANZ_UE'].replace(',','.')) if r['FINANZ_UE'].strip() else None
             fin_stato_fondo_rotazione = Decimal(r['FINANZ_STATO_FONDO_DI_ROTAZIONE'].replace(',','.')) if r['FINANZ_STATO_FONDO_DI_ROTAZIONE'].strip() else None
             fin_stato_fsc = Decimal(r['FINANZ_STATO_FSC'].replace(',','.')) if r['FINANZ_STATO_FSC'].strip() else None
@@ -990,9 +1065,11 @@ class Command(BaseCommand):
             fin_privato = Decimal(r['FINANZ_PRIVATO'].replace(',','.')) if r['FINANZ_PRIVATO'].strip() else None
             fin_da_reperire = Decimal(r['FINANZ_DA_REPERIRE'].replace(',','.')) if r['FINANZ_DA_REPERIRE'].strip() else None
 
-            costo_ammesso = Decimal(r['COSTO_RENDICONTABILE_UE'].replace(',','.')) if r['COSTO_RENDICONTABILE_UE'].strip() else None
             pagamento = Decimal(r['TOT_PAGAMENTI'].replace(',','.')) if r['TOT_PAGAMENTI'].strip() else None
-            pagamento_ammesso = Decimal(r['TOT_PAGAMENTI_RENDICONTABILI_UE'].replace(',','.')) if r['TOT_PAGAMENTI_RENDICONTABILI_UE'].strip() else None
+            pagamento_fsc = Decimal(r['TOT_PAGAMENTI_FSC'].replace(',','.')) if 'TOT_PAGAMENTI_FSC' in r and r['TOT_PAGAMENTI_FSC'].strip() else None
+
+            costo_ammesso = Decimal(r['COSTO_RENDICONTABILE_UE'].replace(',','.')) if 'COSTO_RENDICONTABILE_UE' in r and r['COSTO_RENDICONTABILE_UE'].strip() else None
+            pagamento_ammesso = Decimal(r['TOT_PAGAMENTI_RENDICONTABILI_UE'].replace(',','.')) if 'TOT_PAGAMENTI_RENDICONTABILI_UE' in r and r['TOT_PAGAMENTI_RENDICONTABILI_UE'].strip() else None
 
             # date
             data_inizio_prevista = datetime.datetime.strptime(r['DATA_INIZIO_PREVISTA'], '%Y%m%d') if r['DATA_INIZIO_PREVISTA'].strip() else None
@@ -1014,10 +1091,10 @@ class Command(BaseCommand):
                         'titolo_progetto': r['DPS_TITOLO_PROGETTO'],
                         'cup': r['CUP'].strip(),
                         'programma_asse_obiettivo': programma_asse_obiettivo,
+                        'programma_linea_azione': programma_linea_azione,
                         'obiettivo_sviluppo': obiettivo_sviluppo,
                         'fondo_comunitario': fondo_comunitario,
                         'tema': tema_prioritario,
-                        'fonte': fonte,
                         'classificazione_azione': natura_tipologia,
                         'classificazione_oggetto': settore_sottosettore_categoria,
                         'cipe_num_delibera': cipe_num_delibera,
@@ -1027,6 +1104,9 @@ class Command(BaseCommand):
                         'note': cipe_note,
                         'cipe_flag': cipe_flag,
                         'fin_totale_pubblico': fin_totale_pubblico,
+                        'fin_totale_pubblico_netto': fin_totale_pubblico_netto,
+                        'economie_totali': economie_totali,
+                        'economie_totali_pubbliche': economie_totali_pubbliche,
                         'fin_ue': fin_ue,
                         'fin_stato_fondo_rotazione': fin_stato_fondo_rotazione,
                         'fin_stato_fsc': fin_stato_fsc,
@@ -1041,6 +1121,7 @@ class Command(BaseCommand):
                         'costo_ammesso': costo_ammesso,
                         'pagamento': pagamento,
                         'pagamento_ammesso': pagamento_ammesso,
+                        'pagamento_fsc': pagamento_fsc,
                         'data_inizio_prevista': data_inizio_prevista,
                         'data_fine_prevista': data_fine_prevista,
                         'data_inizio_effettiva': data_inizio_effettiva,
@@ -1061,10 +1142,10 @@ class Command(BaseCommand):
                     p.titolo_progetto = r['DPS_TITOLO_PROGETTO']
                     p.cup = r['CUP'].strip()
                     p.programma_asse_obiettivo = programma_asse_obiettivo
+                    p.programma_linea_azione = programma_linea_azione
                     p.obiettivo_sviluppo = obiettivo_sviluppo
                     p.fondo_comunitario = fondo_comunitario
                     p.tema = tema_prioritario
-                    p.fonte = fonte
                     p.classificazione_azione = natura_tipologia
                     p.classificazione_oggetto = settore_sottosettore_categoria
                     p.cipe_num_delibera = cipe_num_delibera
@@ -1074,6 +1155,9 @@ class Command(BaseCommand):
                     p.note = cipe_note
                     p.cipe_flag = cipe_flag
                     p.fin_totale_pubblico = fin_totale_pubblico
+                    p.fin_totale_pubblico_netto = fin_totale_pubblico_netto
+                    p.economie_totali = economie_totali
+                    p.economie_totali_pubbliche = economie_totali_pubbliche
                     p.fin_ue = fin_ue
                     p.fin_stato_fondo_rotazione = fin_stato_fondo_rotazione
                     p.fin_stato_fsc = fin_stato_fsc
@@ -1088,6 +1172,7 @@ class Command(BaseCommand):
                     p.costo_ammesso = costo_ammesso
                     p.pagamento = pagamento
                     p.pagamento_ammesso = pagamento_ammesso
+                    p.pagamento_fsc = pagamento_fsc
                     p.data_inizio_prevista = data_inizio_prevista
                     p.data_fine_prevista = data_fine_prevista
                     p.data_inizio_effettiva = data_inizio_effettiva
@@ -1103,6 +1188,12 @@ class Command(BaseCommand):
                     else:
                         self.logger.info("%s: Progetto trovato e sovrascritto: %s" % (c, p.codice_locale))
                     p.save()
+
+                # add fonte to project
+                # a single project may have more than one fonte
+                # adding more than once does no harm (no duplicates, no errors)
+                # no need to save the project, after adding
+                p.fonte_set.add(fonte)
 
                 # remove local variable p from the namespace,
                 #may free some memory
@@ -1429,6 +1520,12 @@ class Command(BaseCommand):
                     p.costo = costo
                     p.save()
                     self.logger.info("%s: Progetto trovato e modificato: %s" % (c, p.codice_locale))
+
+                # add fonte to project
+                # a single project may have more than one fonte
+                # adding more than once does no harm (no duplicates, no errors)
+                # no need to save the project, after adding
+                p.fonte_set.add(fonte)
 
                 # add cups to CUP table
                 if len(cups_progetto) > 0:
