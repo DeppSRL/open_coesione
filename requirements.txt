@@ -18,7 +18,7 @@ httplib2
 lxml
 mimeparse
 pycrypto
-pysolr
+pysolr==2.1.0
 python-dateutil
 ssh
 uuid
