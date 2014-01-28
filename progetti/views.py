@@ -61,7 +61,9 @@ class ProgettoView(AccessControlView, DetailView):
 
         context['segnalazioni_pubblicate'] = self.object.segnalazioni
 
-        context['overlapping_projects'] = Progetto.fullobjects.filter(overlapping_projects=self)
+        overlapping = Progetto.fullobjects.filter(overlapping_projects=self.object)
+        context['n_overlapping_projects'] = overlapping.count()
+        context['overlapping_projects'] = overlapping
 
         return context
 

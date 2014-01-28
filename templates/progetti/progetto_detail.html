@@ -208,39 +208,44 @@
 {% block container %}
 
   <div class="container" id="progetto-container">
-
     {% if not progetto.active_flag %}
         <div class="alert alert-block text-center" style="margin-bottom: 0;">
             <h3><strong>Attenzione!!!</strong> Questo progetto <strong>non è più attivo</strong>.</h3>
             {% comment %}
             <p>Cerca tra le <a href="{% url 'faq-it' %}">domande frequenti</a>, cosa significa.</p>
             {% endcomment %}
-            {% if overlapping_projects and cipe_flag%}
-                Quest'assegnazione è in attuazione
-                {% if overlapping_projects|length_is: "1" %}
-                    nel progetto {% url 'progetti-progetto' overlapping_projects.0.slug %}
+            {% if overlapping_projects and progetto.cipe_flag%}
+              <div class="text-left">
+                Quest'assegnazione CIPE è in attuazione
+                {% if n_overlapping_projects == 1 %}
+                    {% for overlapping_project in overlapping_projects %}
+                      nel progetto <a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a>
+                    {% endfor %}
                 {% else %}
                     in questi progetti: <br>
                     <ul>
                     {% for overlapping_project in overlapping_projects %}
-                        <li>{% url 'progetti-progetto' overlapping_project.slug %}</li>
+                        <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
                     {% endfor %}
                     </ul>
                 {% endif %}
+              </div>
             {% endif %}
         </div>
     {% endif %}
 
-    {% if overlapping_projects and not cipe_flag%}
-      <div class="alert alert-info text-center" style="margin-bottom: 0;">
+    {% if overlapping_projects and not progetto.cipe_flag%}
+      <div class="alert alert-info text-left" style="margin-bottom: 0;">
         Questo progetto attua
-        {% if overlapping_projects|length_is: "1" %}
-            l'assegnazione CIPE {% url 'progetti-progetto' overlapping_projects.0.slug %}
+        {% if n_overlapping_projects == 1 %}
+            {% for overlapping_project in overlapping_projects %}
+              l'assegnazione CIPE <a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a>
+            {% endfor %}
         {% else %}
             queste assegnazioni CIPE: <br>
             <ul>
             {% for overlapping_project in overlapping_projects %}
-                <li>{% url 'progetti-progetto' overlapping_project.slug %}</li>
+                <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
             {% endfor %}
             </ul>
         {% endif %}
