@@ -61,6 +61,8 @@ class ProgettoView(AccessControlView, DetailView):
 
         context['segnalazioni_pubblicate'] = self.object.segnalazioni
 
+        context['overlapping_projects'] = Progetto.fullobjects.filter(overlapping_projects=self)
+
         return context
 
 class ProgrammaView(AccessControlView, AggregatoView, DetailView):
@@ -171,6 +173,7 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
 
     def get_object(self, queryset=None, **kwargs):
         return Tema.objects.get(slug=self.kwargs.get('slug'))
+
 
 class CSVView(AggregatoView, DetailView):
 

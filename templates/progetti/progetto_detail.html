@@ -215,7 +215,36 @@
             {% comment %}
             <p>Cerca tra le <a href="{% url 'faq-it' %}">domande frequenti</a>, cosa significa.</p>
             {% endcomment %}
+            {% if overlapping_projects and cipe_flag%}
+                Quest'assegnazione è in attuazione
+                {% if overlapping_projects|length_is: "1" %}
+                    nel progetto {% url 'progetti-progetto' overlapping_projects.0.slug %}
+                {% else %}
+                    in questi progetti: <br>
+                    <ul>
+                    {% for overlapping_project in overlapping_projects %}
+                        <li>{% url 'progetti-progetto' overlapping_project.slug %}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endif %}
         </div>
+    {% endif %}
+
+    {% if overlapping_projects and not cipe_flag%}
+      <div class="alert alert-info text-center" style="margin-bottom: 0;">
+        Questo progetto attua
+        {% if overlapping_projects|length_is: "1" %}
+            l'assegnazione CIPE {% url 'progetti-progetto' overlapping_projects.0.slug %}
+        {% else %}
+            queste assegnazioni CIPE: <br>
+            <ul>
+            {% for overlapping_project in overlapping_projects %}
+                <li>{% url 'progetti-progetto' overlapping_project.slug %}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+      </div>
     {% endif %}
 
 
