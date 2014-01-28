@@ -381,6 +381,8 @@ class Progetto(TimeStampedModel):
     cup = models.CharField(max_length=15, blank=True)
     active_flag = models.BooleanField(default=True, db_index=True)
 
+    overlapping_projects = models.ManyToManyField('self')
+
     titolo_progetto = models.TextField()
     descrizione = models.TextField(blank=True, null=True)
     slug = models.CharField(max_length=128, blank=True, null=True, db_index=True)
@@ -626,6 +628,8 @@ class Progetto(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = "Progetti"
+
+
 
 
 class ProgettoDeliberaCIPE(models.Model):

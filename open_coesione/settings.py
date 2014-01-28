@@ -299,7 +299,7 @@ LOGGING = {
         'csvimport': {
             'handlers': ['console', 'import_logfile'],
             'level': 'DEBUG',
-            'propagate': True,
+            'propagate': False,
         },
         'console': {
             'handlers': ['console'],
