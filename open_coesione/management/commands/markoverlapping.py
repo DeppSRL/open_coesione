@@ -80,13 +80,13 @@ class Command(BaseCommand):
 
             # codice locale progetto (ID del record)
             try:
-                p = Progetto.objects.get(pk=r['COD_LOCALE_PROGETTO'])
+                p = Progetto.fullobjects.get(pk=r['COD_LOCALE_PROGETTO'])
             except ObjectDoesNotExist:
                 self.logger.warning("%s - Progetto non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
                 continue
 
             try:
-                p_cipe = Progetto.objects.get(pk=r['COD_DIPE'])
+                p_cipe = Progetto.fullobjects.get(pk=r['COD_DIPE'])
             except ObjectDoesNotExist:
                 self.logger.warning("%s - Assegnazione CIPE non trovata: %s, skipping" % (c, r['COD_DIPE']))
                 continue
