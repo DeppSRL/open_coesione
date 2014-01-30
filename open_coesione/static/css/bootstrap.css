@@ -5622,6 +5622,8 @@ hr.big.dark {
   height: 200px;
   color: #808080;
   font-size: 11px;
+  border: 1px dotted;
+  padding-left: 1em;
 }
 #informativa h2 {
   font-size: 13px;
