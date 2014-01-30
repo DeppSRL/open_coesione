@@ -11,12 +11,12 @@ class NLContactForm(forms.Form):
 
     first_name = forms.CharField(max_length= 80, label='Nome', required=False)
     last_name = forms.CharField(max_length= 80, label='Cognome', required=False)
-    email = forms.EmailField()
+    email = forms.EmailField(label="Email *")
     title = forms.CharField(max_length=80, label='Qualifica', required=False)
     role = forms.CharField(max_length=80, label='Ruolo', required=False)
-    user_type = forms.TypedChoiceField(choices=USER_TYPES, label='Tipologia di utente', empty_value= '-----')
+    user_type = forms.TypedChoiceField(choices=USER_TYPES, label='Tipologia di utente *', empty_value= '-----')
     notes = forms.CharField(widget=forms.Textarea, label='Note', required=False, help_text="Note su questo contatto")
-    privacy = forms.BooleanField(required=True, help_text="Autorizzazione all'utilizzo dei dati personali.")
+    privacy = forms.BooleanField(required=True, label='Autorizzazione utilizzo dati personali *')
 
     def execute(self):
         email = self.cleaned_data.get('email','')
@@ -31,9 +31,14 @@ class NLContactForm(forms.Form):
             'notes': self.cleaned_data.get('notes', ''),
         }
 
-        # TODO: change this, must be resilient to change to the URL
-        source = Fonte.objects.get(uri='http://www.opencoesione.gov.it/iscrizione-newsletter')
-
+        # source is fixed for this website
+        source, created = Fonte.objects.get_or_create(
+            slug='opencoesione',
+            defaults={
+                'name': 'Opencoesione',
+                'uri': 'http://www.opencoesione.gov.it/iscrizione-newsletter'
+            }
+        )
         contact, created = Contatto.objects.get_or_create(
             email=email,
             defaults=contatto_defaults_dict

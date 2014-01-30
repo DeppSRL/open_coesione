@@ -60,6 +60,7 @@ class Iscrizione(Timestampable, models.Model):
 
 class Fonte(models.Model):
     name = models.CharField('nome', max_length=512)
+    slug = models.SlugField('slug', max_length=256)
     uri = models.URLField(unique=True, blank=True, null=True)
 
     class Meta:

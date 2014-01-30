@@ -41,7 +41,7 @@ urlpatterns = patterns('',
     # pre-csm page routes
     url(r'^progetto/$', TemplateView.as_view(template_name='flat/progetto.html')),
     url(r'^progetto/en/$', TemplateView.as_view(template_name='flat/progetto_en.html')),
-    url(r'^privacy/', TemplateView.as_view(template_name='flat/privacy.html')),
+    url(r'^privacy/', TemplateView.as_view(template_name='flat/privacy.html'), name='oc_privacy'),
     url(r'^contatti/', ContactView.as_view(template_name='flat/contatti.html'), name='oc_contatti'),
     url(r'^licenza/', TemplateView.as_view(template_name='flat/licenza.html')),
     url(r'^iscrizione-newsletter/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),

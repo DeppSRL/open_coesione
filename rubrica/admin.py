@@ -100,8 +100,9 @@ class ContactAdmin(admin.ModelAdmin):
 
 
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_filter = ('source__name', 'role', 'user_type', 'title', 'created_at')
-    search_fields = ('contact__email', 'contact__first_name', 'contact__last_name')
+    list_filter = ('source__name', 'user_type', 'created_at')
+    search_fields = ('contact__email', 'contact__first_name', 'contact__last_name', 'role', 'title')
+    list_display = ('email', 'user_type', 'role', 'title', 'created_at', 'source')
     actions = [
         export_select_fields_csv_action("Esporta i selezionati in formato CSV",
              fields=[
