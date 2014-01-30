@@ -23,10 +23,10 @@
             ogni nuovo numero della Newsletter, utilizzare il form sottostante.
         </p>
 
-        <form action="{% url 'rubrica-newsletter' %}" id="" method="post" class="form-horizontal">
+        <form action="{% url 'rubrica-newsletter' %}" id="newsletter-form" method="post" class="form-horizontal">
           {% csrf_token %}
           <div class="row-fluid clearfix">
-            <fieldset class="span6">
+            <fieldset class="span10">
               {% for field in nl_form %}
                   <div class="control-group {% if field.errors %}error{% endif %}">
                     <label for="{{ field.html_name }}" class="control-label">{{ field.label }}:</label>

@@ -15,8 +15,8 @@ class NLContactForm(forms.Form):
     title = forms.CharField(max_length=80, label='Qualifica', required=False)
     role = forms.CharField(max_length=80, label='Ruolo', required=False)
     user_type = forms.TypedChoiceField(choices=USER_TYPES, label='Tipologia di utente *', empty_value= '-----')
-    notes = forms.CharField(widget=forms.Textarea, label='Note', required=False, help_text="Note su questo contatto")
-    privacy = forms.BooleanField(required=True, label='Autorizzazione utilizzo dati personali *')
+    notes = forms.CharField(widget=forms.Textarea, label='Note', required=False, help_text="Spazio per delle note libere")
+    privacy = forms.BooleanField(required=True, label='Autorizzazione all\'utilizzo dei dati personali *')
 
     def execute(self):
         email = self.cleaned_data.get('email','')
