@@ -3,6 +3,7 @@ from django.contrib.gis import admin
 from django.conf import settings
 from django.views.generic.base import TemplateView
 from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView, PressView, SpesaCertificataView
+from rubrica.views import NLContactView
 
 admin.autodiscover()
 
@@ -43,7 +44,7 @@ urlpatterns = patterns('',
     url(r'^privacy/', TemplateView.as_view(template_name='flat/privacy.html')),
     url(r'^contatti/', ContactView.as_view(template_name='flat/contatti.html'), name='oc_contatti'),
     url(r'^licenza/', TemplateView.as_view(template_name='flat/licenza.html')),
-
+    url(r'^iscrizione-newsletter/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
     url(r'^a-scuola-di-opencoesione/', TemplateView.as_view(template_name='flat/a_scuola_di_opencoesione.html')),
     url(r'^cerca-un-progetto/', TemplateView.as_view(template_name='flat/cerca_progetto.html')),
     url(r'^cerca-un-soggetto/', TemplateView.as_view(template_name='flat/cerca_soggetto.html')),

@@ -1,0 +1,45 @@
+{% extends 'base_two_columns.html' %}
+
+{% block page_title %}Iscrizione alla newsletter{% endblock %}
+
+{% block content %}
+  <div class="flat_content">
+    <h1>Iscrizione alla newsletter</h1>
+
+    <hr>
+
+    {% if nl_form_submitted %}
+        <p class="well">Grazie per averci inviato i tuoi contatti, riceverai al più presto una nostra mail</p>
+    {% else %}
+        <p>
+          Iscriviti ...
+        </p>
+
+        <form action="{% url 'rubrica-newsletter' %}" id="" method="post" class="form-horizontal">
+          {% csrf_token %}
+          <div class="row-fluid clearfix">
+            <fieldset class="span6">
+              {% for field in nl_form %}
+                  <div class="control-group {% if field.errors %}error{% endif %}">
+                    <label for="{{ field.html_name }}" class="control-label">{{ field.label }}:</label>
+                    <div class="controls">
+                      {{ field }}
+                      {% if field.help_text %}<div class="help-block">{{ field.help_text }}</div>{% endif %}
+                      {% if field.errors %}<div class="help-block">{{ field.errors }}</div>{% endif %}
+                    </div>
+                  </div>
+              {% endfor %}
+            </fieldset>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-info" type="submit">Invia</button>
+            <button class="btn" type="reset">Annulla</button>
+          </div>
+        </form>
+  {% endif %}
+
+  </div>
+
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

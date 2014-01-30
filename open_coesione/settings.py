@@ -152,6 +152,7 @@ INSTALLED_APPS = (
     'progetti',
     'territori',
     'soggetti',
+    'rubrica',
     'open_coesione',
     'oc_search',
     'blog',
