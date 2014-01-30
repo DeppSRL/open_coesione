@@ -5626,3 +5626,15 @@ hr.big.dark {
 #informativa h2 {
   font-size: 13px;
 }
+#newsletter-form.form-horizontal .control-label {
+  width: 160px;
+}
+#newsletter-form.form-horizontal .controls {
+  margin-left: 180px;
+}
+#newsletter-form.form-horizontal input {
+  width: 50%;
+}
+#newsletter-form.form-horizontal textarea {
+  width: 70%;
+}
