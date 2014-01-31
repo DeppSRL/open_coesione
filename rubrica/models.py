@@ -30,8 +30,35 @@ class Contatto(models.Model):
     def __unicode__(self):
         return self.email
 
+class IscrizioneManager(models.Manager):
+
+    @classmethod
+    def add_iscrizione_complessa(cls, source_dict, contact_dict, iscrizione_dict):
+
+        if source_dict:
+            source, created = Fonte.objects.get_or_create(
+                slug=source_dict['slug'],
+                defaults=source_dict,
+            )
+        else:
+            source = None
+
+        contact, created = Contatto.objects.get_or_create(
+            email=contact_dict['email'],
+            defaults=contact_dict
+        )
+
+        i = Iscrizione(**iscrizione_dict)
+        i.contact = contact
+        i.source = source
+        i.save()
+
+        return i
 
 class Iscrizione(Timestampable, models.Model):
+
+    objects = IscrizioneManager()
+
     TYPES = Choices(
         ('cittadino', 'Cittadino'),
         ('sviluppatore', 'Sviluppatore'),
@@ -40,7 +67,7 @@ class Iscrizione(Timestampable, models.Model):
     )
 
     contact = models.ForeignKey('Contatto', verbose_name='contatto')
-    source = models.ForeignKey('Fonte', verbose_name='fonte')
+    source = models.ForeignKey('Fonte', verbose_name='fonte', blank=True, null=True)
     title = models.CharField('qualifica', max_length=100, blank=True, null=True)
     role = models.CharField('ruolo', max_length=100, blank=True, null=True)
     user_type = models.CharField('tipologia utente', max_length=16, choices=TYPES, blank=True, null=True)

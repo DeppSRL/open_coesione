@@ -1,6 +1,6 @@
 # coding=utf-8
 from django import forms
-from rubrica.models import Contatto, Iscrizione, Fonte
+from rubrica.models import Contatto, Iscrizione, Fonte, IscrizioneManager
 
 
 class NLContactForm(forms.Form):
@@ -19,8 +19,13 @@ class NLContactForm(forms.Form):
     privacy = forms.BooleanField(required=True, label='Autorizzazione all\'utilizzo dei dati personali *')
 
     def execute(self):
-        email = self.cleaned_data.get('email','')
-        contatto_defaults_dict = {
+        source_dict = {
+            'slug': 'opencoesione',
+            'name': 'Opencoesione',
+            'uri': 'http://www.opencoesione.gov.it/iscrizione-newsletter'
+        }
+        contact_dict = {
+            'email': self.cleaned_data.get('email', ''),
             'first_name': self.cleaned_data.get('first_name',''),
             'last_name': self.cleaned_data.get('last_name',''),
         }
@@ -31,23 +36,10 @@ class NLContactForm(forms.Form):
             'notes': self.cleaned_data.get('notes', ''),
         }
 
-        # source is fixed for this website
-        source, created = Fonte.objects.get_or_create(
-            slug='opencoesione',
-            defaults={
-                'name': 'Opencoesione',
-                'uri': 'http://www.opencoesione.gov.it/iscrizione-newsletter'
-            }
-        )
-        contact, created = Contatto.objects.get_or_create(
-            email=email,
-            defaults=contatto_defaults_dict
+        i = IscrizioneManager.add_iscrizione_complessa(
+            source_dict, contact_dict, iscrizione_dict,
         )
 
-        i = Iscrizione(**iscrizione_dict)
-        i.contact = contact
-        i.source = source
-        i.save()
 
 
 

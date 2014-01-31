@@ -70,7 +70,6 @@ class Command(BaseCommand):
         except csv.Error, e:
             self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
 
-        self.encoding = options['encoding']
 
         verbosity = options['verbosity']
         if verbosity == '0':
