@@ -263,6 +263,8 @@
         </div>
         <!-- End faceting -->
 
+
+        {% comment %}
         <div>
             {% if request.GET.selected_facets  %}
                 <h4><a href="{%  url 'progetti_search' %}">Visualizza i progetti attivi</a></h4>
@@ -270,6 +272,7 @@
                 <h4><a href="{%  url 'progetti_search' %}?selected_facets=is_active:0">Visualizza i progetti non attivi</a></h4>
             {% endif %}
         </div>
+        {% endcomment %}
 
     {% endif %}
   </div>
