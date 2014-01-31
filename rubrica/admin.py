@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin.filters import RelatedFieldListFilter, AllValuesFieldListFilter
 from django.http import HttpResponse
 from .models import Fonte, Contatto, Iscrizione
 import csv
@@ -85,6 +86,14 @@ def export_select_fields_csv_action(description="Export selected objects as CSV 
     return export_as_csv
 
 
+class FonteListFilter(AllValuesFieldListFilter):
+    """
+    Must use a custom filter class, just to change the human readable title in the right sidebar
+    """
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        super(FonteListFilter, self).__init__(field, request, params, model, model_admin, field_path)
+        self.title = 'fonte'
+
 class SourceAdmin(admin.ModelAdmin):
     pass
 
@@ -100,7 +109,7 @@ class ContactAdmin(admin.ModelAdmin):
 
 
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_filter = ('source__name', 'user_type', 'created_at')
+    list_filter = (('source__name', FonteListFilter), 'user_type', 'created_at')
     search_fields = ('contact__email', 'contact__first_name', 'contact__last_name', 'role', 'title')
     list_display = ('email', 'user_type', 'role', 'title', 'created_at', 'source')
     actions = [

@@ -11,8 +11,8 @@ class Timestampable(models.Model):
     An abstract base class model that provides self-updating
     ``created`` and ``modified`` fields.
     """
-    created_at = AutoCreatedField(_('creation time'))
-    updated_at = AutoLastModifiedField(_('last modification time'))
+    created_at = AutoCreatedField('data di creazione')
+    updated_at = AutoLastModifiedField('data di modifica')
 
     class Meta:
         abstract = True
