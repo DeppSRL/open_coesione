@@ -7,6 +7,7 @@ __author__ = 'guglielmo'
 sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
         facet('natura').\
         facet('tema').\
+        facet('tipo_progetto').\
         facet('fonte').\
         facet('is_active').\
         query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2013']['qrange']).\

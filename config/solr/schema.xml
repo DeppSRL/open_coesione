@@ -154,6 +154,8 @@
 
     <field name="tema_slug" type="string" indexed="false" stored="true" multiValued="true" />
 
+    <field name="tipo_progetto" type="string" indexed="true" stored="true" multiValued="false" />
+
     <field name="territorio_com" type="text" indexed="true" stored="true" multiValued="true" />
 
     <field name="fin_stato_estero" type="sfloat" indexed="true" stored="true" multiValued="false" />

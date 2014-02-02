@@ -338,6 +338,11 @@ class Progetto(TimeStampedModel):
     objects = ProgettiManager()    # override the default manager
     fullobjects = FullProgettiManager()
 
+    TIPI_PROGETTO = Choices(
+        ('PM', 'progetto_monitorato', u'Progetto monitorato'),
+        ('CIPE', 'assegnazione_cipe', u'Assegnazione CIPE'),
+    )
+
     DPS_FLAG_CUP = Choices(
         ('0', u'CUP non valido'),
         ('1', u'CUP valido'),
@@ -481,6 +486,13 @@ class Progetto(TimeStampedModel):
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
+
+    @property
+    def tipo_progetto(self):
+        if self.cipe_flag:
+            return self.TIPI_PROGETTO.assegnazione_cipe
+        else:
+            return self.TIPI_PROGETTO.progetto_monitorato
 
     @property
     def fonti(self):

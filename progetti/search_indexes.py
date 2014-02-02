@@ -58,6 +58,7 @@ class ProgettoIndex(SearchIndex):
     natura = FacetCharField( )
     tema = FacetCharField( )
     fonte = MultiValueField()
+    tipo_progetto = FacetCharField( )
     is_active = FacetBooleanField( model_attr='active_flag' )
     data_inizio = FacetDateField()
     costo = FacetFloatField(model_attr='fin_totale_pubblico')
@@ -80,6 +81,9 @@ class ProgettoIndex(SearchIndex):
 
     def prepare_tema(self, obj):
         return obj.tema.codice.split('.')[0]
+
+    def prepare_tipo_progetto(self, obj):
+        return obj.tipo_progetto
 
     def prepare_fonte(self, obj):
         return [f.codice for f in obj.fonti]

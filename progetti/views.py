@@ -387,6 +387,18 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
             extra['tema']['descrizione'][codice] = c.descrizione
             extra['tema']['short_label'][codice] = c.short_label
 
+        # definizione struttura dati per visualizzazione faccette tipo progetto
+        extra['tipo_progetto'] = {
+            'descrizione': {},
+            'short_label': {}
+        }
+        for c in Progetto.TIPI_PROGETTO:
+            codice, descrizione = c
+
+            extra['tipo_progetto']['descrizione'][codice] = descrizione
+            extra['tipo_progetto']['short_label'][codice] = descrizione
+
+
         extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
 
         # definizione struttura dati per visualizzazione faccette fonte
