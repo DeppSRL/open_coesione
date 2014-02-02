@@ -1373,17 +1373,26 @@ class Command(BaseCommand):
 
             # fonte
             try:
+                tipo_fonte = Fonte.TIPO.fsc
                 created = False
+                if r['FONDO'][-2:] == '06':
+                    codice = 'FSC0006'
+                elif r['FONDO'][-2:] == '13':
+                    codice = 'FSC0713'
+                else:
+                    codice = ''
+
                 fonte, created = Fonte.objects.get_or_create(
-                    descrizione="%s" % (r['FONDO']),
-                    defaults = {
-                        'codice': 'COD_' + r['FONDO'][-2:],
-                    }
+                    codice=codice,
+                    defaults={
+                        'descrizione': r['FONDO'],
+                        'tipo_fonte': tipo_fonte,
+                        }
                 )
                 if created:
-                    self.logger.info(u"Aggiunta fonte: %s" % (fonte,))
+                    self.logger.info("Aggiunta fonte: %s" % (fonte,))
                 else:
-                    self.logger.debug(u"Trovata fonte: %s" % (fonte,))
+                    self.logger.debug("Trovata fonte: %s" % (fonte,))
 
             except DatabaseError as e:
                 self.logger.error(u"In fetch della fonte %s per codice locale:%s. %s" %
