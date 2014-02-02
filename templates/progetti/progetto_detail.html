@@ -478,7 +478,7 @@
                 {% if progetto.fin_stato_fondo_rotazione %}
                   <tr><th>
                       Fondo di Rotazione
-                      {% if progetto.is_fonte_fs %}
+                      {% if progetto.is_fonte_fs_flag and progetto.fonte_fs_codice == "FS0713" %}
                         (Co-finanziamento nazionale)
                       {% endif %}
                   </th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>

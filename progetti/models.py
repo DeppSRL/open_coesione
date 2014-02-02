@@ -510,6 +510,16 @@ class Progetto(TimeStampedModel):
         if self.is_fonte_fsc_flag:
             return self.fonte_fsc_qs()[0].descrizione
 
+    @property
+    def fonte_fs_codice(self):
+        if self.is_fonte_fs_flag:
+            return self.fonte_fs_qs()[0].codice
+
+    @property
+    def fonte_fsc_descrizione(self):
+        if self.is_fonte_fsc_flag:
+            return self.fonte_fsc_qs()[0].codice
+
 
     @property
     def territori(self):
