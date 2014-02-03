@@ -10,6 +10,7 @@
 
 {% addtoblock "js_script" %}
   <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/humanize.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>
 {% endaddtoblock %}
 
@@ -180,8 +181,8 @@
       tooltip: {
         formatter: function() {
           return '<b>'+ this.x +'</b><br/>'+
-              this.series.name +': '+ this.y +'<br/>'+
-              'Costo pubblico: '+ this.point.stackTotal;
+              this.series.name +': '+ number_format(this.y/1000, 0, ",", ".") +'<br/>'+
+              'Costo pubblico: '+ number_format(this.point.stackTotal/1000, 0, ",", ".");
         }
       },
       series: [{
