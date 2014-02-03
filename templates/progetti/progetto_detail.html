@@ -625,7 +625,9 @@
                         </ul>
                     {% endif %}
                 </dd>
-                <dd>{{ progetto.note|linebreaks }}</dd>
+                {% if progetto.note %}
+                    <dd>{{ progetto.note|linebreaks }}</dd>
+                {% endif %}
             {% endif %}
           </dl>
         </section>
