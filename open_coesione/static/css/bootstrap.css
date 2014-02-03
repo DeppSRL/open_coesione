@@ -5135,7 +5135,7 @@ section h2.title span {
 #sidebar section {
   margin: 10px 0 20px 0;
 }
-article.non_active {
+.non_active {
   background-color: #FCF8E3!important;
 }
 #wrapper > header {

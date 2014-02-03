@@ -207,7 +207,7 @@
 
 {% block container %}
 
-  <div class="container" id="progetto-container">
+  <div class="container {% if not progetto.active_flag %}non_active{% endif %}" id="progetto-container">
     {% if not progetto.active_flag %}
         <div class="alert alert-block text-center" style="margin-bottom: 0;">
             <h3><strong>Attenzione!!!</strong> Questo progetto <strong>non è più attivo</strong>.</h3>
