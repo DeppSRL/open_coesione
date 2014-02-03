@@ -84,9 +84,13 @@
 
 {% endblock %}
 
+{% block article_added_class %}{% if search_within_non_active %}non_active{% endif %}{% endblock article_added_class%}
+
 {% block sidebar %}
   <div class="flat_content">
-        <h4>Cerca tra i progetti</h4>
+        <h4>
+            Cerca tra i progetti {% if search_within_non_active %}non attivi{% endif %}
+        </h4>
         <form method="get" action="{% url 'progetti_search' %}" class="form-search form-condensed">
           <div class="control-group input-append">
             {%  spaceless %}
@@ -286,11 +290,11 @@
         </div>
         <!-- End faceting -->
 
-        <div>
-            {% if request.GET.selected_facets  %}
-                <h4><a href="{%  url 'progetti_search' %}">Visualizza i progetti attivi</a></h4>
+        <div style="margin-top: 200px;">
+            {% if search_within_non_active  %}
+                <dl><dt><a href="{%  url 'progetti_search' %}">Visualizza tutti i progetti attivi</a></dt></dl>
             {% else %}
-                <h4><a href="{%  url 'progetti_search' %}?selected_facets=is_active:0">Visualizza i progetti non attivi</a></h4>
+                <dl><dt><a href="{%  url 'progetti_search' %}?selected_facets=is_active:0">Visualizza tutti i progetti non attivi</a></dt></dl>
             {% endif %}
         </div>
 

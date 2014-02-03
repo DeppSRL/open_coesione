@@ -2,6 +2,7 @@ import StringIO
 import csv
 import json
 import zipfile
+import urllib
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
@@ -420,6 +421,11 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             page_obj = paginator.page(paginator.num_pages)
+
+
+        selected_facets = self.request.GET.getlist('selected_facets')
+        extra['search_within_non_active'] = 'is_active:0' in selected_facets
+
 
         extra['paginator'] = paginator
         extra['page_obj'] = page_obj

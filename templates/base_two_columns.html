@@ -5,7 +5,7 @@
 {% endspaceless %}{% endblock %}
 
 {% block container %}
-    <article class="container">
+    <article class="container {% block article_added_class %}{% endblock article_added_class %}">
       <div class="row">
         <!-- LEFT-COL -->
         <div class="span8" id="content">
