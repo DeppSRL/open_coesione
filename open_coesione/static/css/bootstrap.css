@@ -5173,36 +5173,6 @@ section h2.title span {
   color: #5b5955;
   border: 1px solid #CCC;
 }
-#wrapper > header a.flag {
-  display: block;
-  text-indent: -99999px;
-  float: right;
-  margin-left: 15px;
-}
-#wrapper > header a.flag.flag-ita {
-  width: 43px;
-  height: 45px;
-  background: url('../img/header/flag-ita.png') no-repeat right;
-}
-#wrapper > header a.flag.flag-ita:hover {
-  background-position: 0 0;
-}
-#wrapper > header a.flag.flag-ue {
-  width: 94px;
-  height: 45px;
-  background: url('../img/header/flag-ue-new.png') no-repeat right;
-}
-#wrapper > header a.flag.flag-ue:hover {
-  background-position: 0 0;
-}
-#wrapper > header a.flag.pon-gat {
-  width: 93px;
-  height: 45px;
-  background: url('../img/header/pon-gat.png') no-repeat right;
-}
-#wrapper > header a.flag.pon-gat:hover {
-  background-position: 0 0;
-}
 #wrapper > header > div > .container {
   position: relative;
 }
@@ -5241,11 +5211,64 @@ section h2.title span {
 #wrapper > footer h1 {
   font-size: 24px;
 }
+#wrapper > footer #ue-pon-logos .logo-container {
+  width: 201px;
+  height: 60px;
+}
+#wrapper > footer #ue-pon-logos .logo-container.float-right {
+  float: right;
+}
+#wrapper > footer #ue-pon-logos .logo-container.float-left {
+  float: left;
+}
+#wrapper > footer #pon-disclaimer {
+  color: #ffffff;
+  font-size: 16px;
+  margin: 2em 0;
+}
 #wrapper > footer a {
   color: #ffffff;
 }
 #wrapper > footer a:hover {
   text-decoration: underline;
+}
+#wrapper > footer a.flag {
+  display: block;
+  text-indent: -99999px;
+  float: right;
+  margin-left: 15px;
+  width: 201px;
+  height: 60px;
+}
+#wrapper > footer a.flag.flag-ue {
+  background: url('../img/footer/eu.png') no-repeat right;
+}
+#wrapper > footer a.flag.flag-ue:hover {
+  background-position: 0 0;
+}
+#wrapper > footer a.flag.pon-gat {
+  background: url('../img/footer/pon.png') no-repeat right;
+}
+#wrapper > footer a.flag.pon-gat:hover {
+  background-position: 0 0;
+}
+#wrapper > footer a.flag.flag-dps {
+  background: url('../img/footer/dps.png') no-repeat right;
+}
+#wrapper > footer a.flag.flag-dps:hover {
+  background-position: 0 0;
+}
+#wrapper > footer a.flag.flag-rgs {
+  background: url('../img/footer/rgs.png') no-repeat right;
+}
+#wrapper > footer a.flag.flag-rgs:hover {
+  background-position: 0 0;
+}
+#wrapper > footer a.flag.flag-cipe {
+  background: url('../img/footer/cipe.png') no-repeat right;
+}
+#wrapper > footer a.flag.flag-cipe:hover {
+  background-position: 0 0;
 }
 .tabbable.boxed .content {
   padding: 10px;
