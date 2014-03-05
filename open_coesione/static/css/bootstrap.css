@@ -5212,8 +5212,8 @@ section h2.title span {
   font-size: 24px;
 }
 #wrapper > footer #ue-pon-logos .logo-container {
-  width: 201px;
-  height: 60px;
+  width: 200px;
+  height: 75px;
 }
 #wrapper > footer #ue-pon-logos .logo-container.float-right {
   float: right;
@@ -5223,8 +5223,14 @@ section h2.title span {
 }
 #wrapper > footer #pon-disclaimer {
   color: #ffffff;
-  font-size: 16px;
-  margin: 2em 0;
+  font-size: 11px;
+  margin: 1em 0;
+}
+#wrapper > footer #data-disclaimer {
+  font-size: 11px;
+  float: right;
+  padding-right: 2em;
+  margin-top: 1em;
 }
 #wrapper > footer a {
   color: #ffffff;
@@ -5241,12 +5247,16 @@ section h2.title span {
   height: 60px;
 }
 #wrapper > footer a.flag.flag-ue {
+  width: 200px;
+  height: 75px;
   background: url('../img/footer/eu.png') no-repeat right;
 }
 #wrapper > footer a.flag.flag-ue:hover {
   background-position: 0 0;
 }
 #wrapper > footer a.flag.pon-gat {
+  width: 200px;
+  height: 75px;
   background: url('../img/footer/pon.png') no-repeat right;
 }
 #wrapper > footer a.flag.pon-gat:hover {
