@@ -18,4 +18,4 @@ sqs = SearchQuerySet().filter(django_ct='soggetti.soggetto').\
     query_facet('n_progetti', SoggettoSearchView.N_PROGETTI_RANGES['2-100TO1K']['qrange']).\
     query_facet('n_progetti', SoggettoSearchView.N_PROGETTI_RANGES['3-1KTO10K']['qrange']).\
     query_facet('n_progetti', SoggettoSearchView.N_PROGETTI_RANGES['4-10KTOINF']['qrange']).\
-    highlight().result_class(PatchedSearchResult)
+    highlight().order_by('-costo').result_class(PatchedSearchResult)
