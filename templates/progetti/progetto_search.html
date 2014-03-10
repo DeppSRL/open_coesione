@@ -214,6 +214,8 @@
                 {% endif %}
             </dl>
 
+            {% comment %}
+            <!-- commented following a client request -->
             <dl>
                 {% if facets.fields.tipo_progetto and not facets.fields.tipo_progetto.is_field_selected %}
                     <dt>Tipo progetto</dt>
@@ -229,6 +231,7 @@
                     {% endfor %}
                 {% endif %}
             </dl>
+            {% endcomment %}
 
             <dl>
                 {% if facets.fields.fonte and not facets.fields.fonte.is_field_selected %}
@@ -290,6 +293,8 @@
         </div>
         <!-- End faceting -->
 
+        {% comment %}
+        <!-- commented following a client request -->
         <div style="margin-top: 200px;">
             {% if search_within_non_active  %}
                 <dl><dt><a href="{%  url 'progetti_search' %}">Visualizza tutti i progetti attivi</a></dt></dl>
@@ -297,6 +302,7 @@
                 <dl><dt><a href="{%  url 'progetti_search' %}?selected_facets=is_active:0">Visualizza tutti i progetti non attivi</a></dt></dl>
             {% endif %}
         </div>
+        {% endcomment %}
 
     {% endif %}
   </div>
