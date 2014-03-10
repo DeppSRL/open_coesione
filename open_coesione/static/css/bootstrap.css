@@ -5176,6 +5176,20 @@ section h2.title span {
   color: #5b5955;
   border: 1px solid #CCC;
 }
+#wrapper > header a.flag {
+  display: block;
+  text-indent: -99999px;
+  float: right;
+  margin-left: 15px;
+}
+#wrapper > header a.flag.flag-dps {
+  width: 252px;
+  height: 70px;
+  background: url('../img/header/dps.png') no-repeat right;
+}
+#wrapper > header a.flag.flag-dps:hover {
+  background-position: 0 0;
+}
 #wrapper > header > div > .container {
   position: relative;
 }
