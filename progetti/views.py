@@ -666,6 +666,8 @@ class SegnalaDescrizioneView(FormView):
                 context['progetto'] = Progetto.objects.get(**params)
             except Progetto.DoesNotExist:
                 pass
+            except Progetto.MultipleObjectsReturned:
+                pass
         return context
 
     def get_initial(self):
