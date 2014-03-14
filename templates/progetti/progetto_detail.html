@@ -219,9 +219,9 @@
                 {% else %}
                     dei progetti
                 {% endif %}
-                in attuazione:
+                in attuazione
               </h3>
-              <ul>
+              <ul class="spaced">
               {% for overlapping_project in overlapping_projects %}
                 <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
               {% endfor %}
@@ -244,7 +244,14 @@
           <h1>{{ progetto.titolo_progetto }}</h1>
         </header>
 
-        <p>Data di aggiornamento: <strong>{{ progetto.ultimo_aggiornamento|date:"d.m.Y" }}</strong></p>
+        <p>
+        {% if progetto.cipe_flag %}
+          Data di ultimo stanziamento:
+        {% else %}
+          Data di aggiornamento:
+        {% endif %}
+        <strong>{{ progetto.ultimo_aggiornamento|date:"d.m.Y" }}</strong>
+        </p>
 
         <ul class="unstyled">
           <li>
