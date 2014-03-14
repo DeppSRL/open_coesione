@@ -48,7 +48,7 @@ class Command(BaseCommand):
                     help='Delete records, before importing new'),
         make_option('--encoding',
                     dest='encoding',
-                    default='iso-8859-1',
+                    default='utf8',
                     help='set character encoding of input file')
     )
 
