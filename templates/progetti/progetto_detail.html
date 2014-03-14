@@ -614,7 +614,8 @@
                     Questo progetto attua
                     {% if n_overlapping_projects == 1 %}
                         {% for overlapping_project in overlapping_projects %}
-                          l'assegnazione CIPE <a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a>
+                          l'assegnazione CIPE <br>
+                          <a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a>
                         {% endfor %}
                     {% else %}
                         queste assegnazioni CIPE: <br>
