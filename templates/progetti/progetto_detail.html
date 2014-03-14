@@ -210,34 +210,34 @@
   <div class="container {% if not progetto.active_flag %}non_active{% endif %}" id="progetto-container">
     {% if not progetto.active_flag %}
         <div class="alert alert-block text-center" style="margin-bottom: 0;">
-            <h3><strong>Attenzione!!!</strong> Questo progetto <strong>non è più attivo</strong>.</h3>
-            {% comment %}
-            <p>Cerca tra le <a href="{% url 'faq-it' %}">domande frequenti</a>, cosa significa.</p>
-            {% endcomment %}
             {% if overlapping_projects and progetto.cipe_flag%}
-              <div class="text-left">
-                Attenzione!!! Questa assegnazione CIPE è passata in attuazione
-                e viene quindi conteggiata nel piano finanziario
+              <h3>
+                Attenzione!!! Questa assegnazione CIPE viene
+                  conteggiata nel piano finanziario
                 {% if n_overlapping_projects == 1 %}
-                    {% for overlapping_project in overlapping_projects %}
-                      del progetto in attuazione: <a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a>
-                    {% endfor %}
+                      del progetto
                 {% else %}
-                    dei progetti in attuazione: <br>
-                    <ul>
-                    {% for overlapping_project in overlapping_projects %}
-                        <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
-                    {% endfor %}
-                    </ul>
+                    dei progetti
                 {% endif %}
-              </div>
+                in attuazione:
+              </h3>
+              <ul>
+              {% for overlapping_project in overlapping_projects %}
+                <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
+              {% endfor %}
+              </ul>
+            {% else %}
+              <h3><strong>Attenzione!!!</strong> Questo progetto <strong>non è più attivo</strong>.</h3>
+              {% comment %}
+              <p>Cerca tra le <a href="{% url 'faq-it' %}">domande frequenti</a>, cosa significa.</p>
+              {% endcomment %}
             {% endif %}
         </div>
     {% endif %}
 
+
     <article id="progetto"  class="row">
       <div class="span6" id="content">
-
 
         <header>
           {% if progetto.cup and not progetto.cipe_flag %}<h2>CUP: {{ progetto.cup }}</h2>{% endif %}
@@ -466,7 +466,7 @@
                   </th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
                 {% if progetto.fin_stato_fsc %}
-                  <tr><th>Stato: FSC</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                  <tr><th>Stato: Fondo per lo Sviluppo e la Coesione 2007-2013</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
                 {% if progetto.cipe_flag %}
                   <tr><th>Stato: {{ progetto.fonte.descrizione }}</th><td class="amount"><strong>{{ progetto.fin_totale_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
@@ -554,7 +554,7 @@
               {% endif %}
 
               {% if progetto.is_fonte_fsc_flag %}
-                <dt>Fondo per lo Sviluppo e la Coesione</dt>
+                <dt>Fondo per lo Sviluppo e la Coesione 2007-2013</dt>
                 <dd>{{ progetto.fonte_fsc_descrizione }}</dd>
 
                 <dt>Programma</dt>
