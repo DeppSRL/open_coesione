@@ -227,7 +227,8 @@
               {% endfor %}
               </ul>
             {% else %}
-              <h3><strong>Attenzione!!!</strong> Questo progetto <strong>non è più attivo</strong>.</h3>
+              <h3><strong>Attenzione!!!</strong> Questo progetto <strong>non è più attivo</strong>
+                  e viene pertanto escluso da conteggi e ricerche.</h3>
               {% comment %}
               <p>Cerca tra le <a href="{% url 'faq-it' %}">domande frequenti</a>, cosa significa.</p>
               {% endcomment %}
@@ -493,6 +494,9 @@
                 {% if progetto.fin_altro_pubblico %}
                   <tr><th>Altra fonte pubblica</th><td class="amount"><strong>{{ progetto.fin_altro_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
+                {% if total_economie %}
+                  <tr><th>Economie totali</th><td class="amount"><strong>{{ total_economie|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% endif %}
               </table>
             </div>
 
@@ -508,9 +512,6 @@
 
               {% if progetto.pagamenti or total_economie %}
                   <p style="text-align:center ;"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></p>
-                  {% if total_economie %}
-                    <p style="text-align:center ;">Economie totali: {{ total_economie }}</p>
-                  {% endif %}
                   <table id="payments_chart_table" class="hide">
                     {% for pagamento in progetto.pagamenti %}
                     <tr><th>{{ pagamento.data|date:"N Y" }}</th><td>{{ pagamento.ammontare|floatformat:"2" }}</td><td>{{ pagamento.percentuale|floatformat:"2" }}</td></tr>
