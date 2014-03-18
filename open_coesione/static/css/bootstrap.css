@@ -5343,6 +5343,9 @@ ul.spaced {
 ul.spaced li {
   margin-bottom: 10px;
 }
+ul.spaced#overlapping-projects li {
+  margin-bottoom: 2px;
+}
 .highcharts-container {
   overflow: visible !important;
 }
