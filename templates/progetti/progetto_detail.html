@@ -158,7 +158,7 @@
         },
         yAxis: {
           title: { text: '% pagamenti' },
-          min: 0, max: 110
+          min: 0, max: 100
         },
         series: [{
           name: 'Pagamenti',
@@ -505,7 +505,7 @@
               {%  endif %}
 
               {% if progetto.pagamenti or total_economie %}
-                  <table class="table" id="finanziamento_chart_table" style="margin-left: 15px; width: 91%;">
+                  <table class="table" id="pagamenti_riassunto_chart_table" style="margin-left: 15px; width: 91%;">
                     <tr><td colspan="2"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></td></tr>
                     {% if total_economie %}
                       <tr><th>Economie</th><td class="amount"><strong>{{ total_economie|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
