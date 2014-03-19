@@ -539,7 +539,7 @@ class Progetto(TimeStampedModel):
             return self.fonte_fs_qs()[0].codice
 
     @property
-    def fonte_fsc_descrizione(self):
+    def fonte_fsc_codice(self):
         if self.is_fonte_fsc_flag:
             return self.fonte_fsc_qs()[0].codice
 
