@@ -455,6 +455,7 @@ class Progetto(TimeStampedModel):
     economie_totali_pubbliche = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True, db_index=True)
 
     fin_ue = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_stato_pac = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_stato_fondo_rotazione = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_stato_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_stato_altri_provvedimenti = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
@@ -516,6 +517,16 @@ class Progetto(TimeStampedModel):
     def fonte_fs_descrizione(self):
         if self.is_fonte_fs_flag:
             return self.fonte_fs_qs()[0].descrizione
+
+    @property
+    def fonte_fs_label(self):
+        if self.is_fonte_fs_flag:
+            return self.fonte_fs_qs()[0].short_label
+
+    @property
+    def fonte_fsc_label(self):
+        if self.is_fonte_fsc_flag:
+            return self.fonte_fsc_qs()[0].short_label
 
     @property
     def fonte_fsc_descrizione(self):

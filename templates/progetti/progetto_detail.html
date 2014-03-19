@@ -212,7 +212,7 @@
         <div class="alert alert-block text-center" style="margin-bottom: 0;">
             {% if overlapping_projects and progetto.cipe_flag%}
               <h3>
-                Attenzione!!! Questa assegnazione CIPE viene
+                Questa assegnazione CIPE viene
                   conteggiata nel piano finanziario
                 {% if n_overlapping_projects == 1 %}
                       del progetto
@@ -227,7 +227,7 @@
               {% endfor %}
               </ul>
             {% else %}
-              <h3><strong>Attenzione!!!</strong> Questo progetto <strong>non è più attivo</strong>
+              <h3>Questo progetto <strong>non è più attivo</strong>
                   e viene pertanto escluso da conteggi e ricerche.</h3>
               {% comment %}
               <p>Cerca tra le <a href="{% url 'faq-it' %}">domande frequenti</a>, cosa significa.</p>
@@ -477,10 +477,13 @@
                   <tr><th>Stato: Fondo per lo Sviluppo e la Coesione 2007-2013</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
                 {% if progetto.cipe_flag %}
-                  <tr><th>Stato: {{ progetto.fonte.descrizione }}</th><td class="amount"><strong>{{ progetto.fin_totale_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                  <tr><th>Stato: {{ progetto.fonte.short_label }}</th><td class="amount"><strong>{{ progetto.fin_totale_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
                 {% if progetto.fin_stato_altri_provvedimenti %}
                   <tr><th>Stato: altri provvedimenti</th><td class="amount"><strong>{{ progetto.fin_stato_altri_provvedimenti|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% endif %}
+                {% if progetto.fin_stato_pac %}
+                  <tr><th>Stato: Fondo di Rotazione (Piano d’Azione per la Coesione)</th><td class="amount"><strong>{{ progetto.fin_stato_pac|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
                 {% if progetto.fin_regione %}
                   <tr><th>Regione</th><td class="amount"><strong>{{ progetto.fin_regione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
@@ -493,9 +496,6 @@
                 {% endif %}
                 {% if progetto.fin_altro_pubblico %}
                   <tr><th>Altra fonte pubblica</th><td class="amount"><strong>{{ progetto.fin_altro_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
-                {% endif %}
-                {% if total_economie %}
-                  <tr><th>Economie totali</th><td class="amount"><strong>{{ total_economie|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
               </table>
             </div>
@@ -511,7 +511,13 @@
               {%  endif %}
 
               {% if progetto.pagamenti or total_economie %}
-                  <p style="text-align:center ;"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></p>
+                  <table class="table" id="finanziamento_chart_table" style="margin-left: 15px; width: 91%;">
+                    <tr><td colspan="2"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></td></tr>
+                    {% if total_economie %}
+                      <tr><th>Economie</th><td class="amount"><strong>{{ total_economie|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                    {% endif %}
+                  </table>
+                  <p style="text-align:center ;"></p>
                   <table id="payments_chart_table" class="hide">
                     {% for pagamento in progetto.pagamenti %}
                     <tr><th>{{ pagamento.data|date:"N Y" }}</th><td>{{ pagamento.ammontare|floatformat:"2" }}</td><td>{{ pagamento.percentuale|floatformat:"2" }}</td></tr>
@@ -562,7 +568,7 @@
               {% endif %}
 
               {% if progetto.is_fonte_fsc_flag %}
-                <dt>Fondo per lo Sviluppo e la Coesione 2007-2013</dt>
+                <dt>{{ progetto.fonte_fsc_label }}</dt>
                 <dd>{{ progetto.fonte_fsc_descrizione }}</dd>
 
                 <dt>Programma</dt>

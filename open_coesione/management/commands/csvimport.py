@@ -1054,6 +1054,7 @@ class Command(BaseCommand):
 
             fin_ue = Decimal(r['FINANZ_UE'].replace(',','.')) if r['FINANZ_UE'].strip() else None
             fin_stato_fondo_rotazione = Decimal(r['FINANZ_STATO_FONDO_DI_ROTAZIONE'].replace(',','.')) if r['FINANZ_STATO_FONDO_DI_ROTAZIONE'].strip() else None
+            fin_stato_pac = Decimal(r['FINANZ_STATO_PAC'].replace(',','.')) if r['FINANZ_STATO_PAC'].strip() else None
             fin_stato_fsc = Decimal(r['FINANZ_STATO_FSC'].replace(',','.')) if r['FINANZ_STATO_FSC'].strip() else None
             fin_stato_altri_provvedimenti = Decimal(r['FINANZ_STATO_ALTRI_PROVVEDIMENTI'].replace(',','.')) if r['FINANZ_STATO_ALTRI_PROVVEDIMENTI'].strip() else None
             fin_regione = Decimal(r['FINANZ_REGIONE'].replace(',','.')) if r['FINANZ_REGIONE'].strip() else None
@@ -1105,6 +1106,7 @@ class Command(BaseCommand):
                         'economie_totali_pubbliche': economie_totali_pubbliche,
                         'fin_ue': fin_ue,
                         'fin_stato_fondo_rotazione': fin_stato_fondo_rotazione,
+                        'fin_stato_pac': fin_stato_pac,
                         'fin_stato_fsc': fin_stato_fsc,
                         'fin_stato_altri_provvedimenti': fin_stato_altri_provvedimenti,
                         'fin_regione': fin_regione,
@@ -1153,6 +1155,7 @@ class Command(BaseCommand):
                     p.economie_totali_pubbliche = economie_totali_pubbliche
                     p.fin_ue = fin_ue
                     p.fin_stato_fondo_rotazione = fin_stato_fondo_rotazione
+                    p.fin_stato_pac = fin_stato_pac
                     p.fin_stato_fsc = fin_stato_fsc
                     p.fin_stato_altri_provvedimenti = fin_stato_altri_provvedimenti
                     p.fin_regione = fin_regione
