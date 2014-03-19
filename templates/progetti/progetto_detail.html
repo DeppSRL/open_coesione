@@ -212,16 +212,10 @@
         <div class="alert alert-block text-center" style="margin-bottom: 0;">
             {% if overlapping_projects and progetto.cipe_flag%}
               <h3>
-                Questa assegnazione CIPE viene
-                  conteggiata nel piano finanziario
-                {% if n_overlapping_projects == 1 %}
-                      del progetto
-                {% else %}
-                    dei progetti
-                {% endif %}
-                in attuazione
+                Questa assegnazione CIPE viene conteggiata nel piano finanziario
+                dei progetti in attuazione:
               </h3>
-              <ul class="spaced">
+              <ul class="spaced" id="overlapping-projects">
               {% for overlapping_project in overlapping_projects %}
                 <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
               {% endfor %}
@@ -623,22 +617,17 @@
 
 
             {% if progetto.note or overlapping_projects and not progetto.cipe_flag %}
+                <br>
                 <dt>Note</dt>
                 <dd>
-                    Questo progetto attua
-                    {% if n_overlapping_projects == 1 %}
-                        {% for overlapping_project in overlapping_projects %}
-                          l'assegnazione CIPE <br>
-                          <a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a>
-                        {% endfor %}
-                    {% else %}
-                        queste assegnazioni CIPE: <br>
+                    {% if overlapping_projects %}
+                        Questo progetto attua queste assegnazioni CIPE:<br>
                         <ul>
                         {% for overlapping_project in overlapping_projects %}
-                            <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
+                          <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
                         {% endfor %}
                         </ul>
-                    {% endif %}
+                   {% endif %}
                 </dd>
                 {% if progetto.note %}
                     <dd>{{ progetto.note|linebreaks }}</dd>
