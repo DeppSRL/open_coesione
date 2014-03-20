@@ -327,7 +327,7 @@ class OpendataView(TemplateView):
         ])
 
 
-        sections = SortedDict([
+        fs_sections = SortedDict([
             ('prog', { 'name': 'progetti',
                        'complete_file': self.get_complete_file('progetti_FS0713', data_date),
                        'regional_files': self.get_regional_files('prog', 'progetti', regions, data_date),
@@ -354,8 +354,28 @@ class OpendataView(TemplateView):
             ),
         ])
 
-        context['sections'] = sections
+        fsc_sections = SortedDict([
+            ('prog', { 'name': 'progetti',
+                       'complete_file': self.get_complete_file('progetti_FSC0713', data_date),
+                }
+            ),
+            ('sog', { 'name': 'soggetti',
+                      'complete_file': self.get_complete_file('soggetti_FSC0713', data_date),
+                }
+            ),
+            ('loc', { 'name': 'localizzazioni',
+                      'complete_file': self.get_complete_file('localizzazioni_FSC0713', data_date),
+                }
+            ),
+            ('pag', { 'name': 'pagamenti',
+                      'complete_file': self.get_complete_file('pagamenti_FSC0713', data_date),
+                }
+            ),
+        ])
+
         context['data_date'] = data_date
+        context['fs_sections'] = fs_sections
+        context['fsc_sections'] = fsc_sections
         return  context
 
     def get_complete_file(self, section_name, data_date):

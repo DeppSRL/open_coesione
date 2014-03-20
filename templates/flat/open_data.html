@@ -54,16 +54,17 @@
       delle informazioni rilevate nella Banca Dati per il monitoraggio unitario 2007-2013.
     </p>
 
-    <h3>GLI OPEN DATA SUI FONDI STRUTTURALI EUROPEI 2007/2013</h3>
-
-    <p>
-        Testo di presentazione
-    </p>
 
     <div class="span10" id="open-data-download">
 
-        {% for section_code, section in sections.items %}
-        <table class="table">
+        <h3>GLI OPEN DATA SUI FONDI STRUTTURALI EUROPEI 2007/2013</h3>
+
+        <p>
+            Testo di presentazione dati FS0713
+        </p>
+
+        {% for section_code, section in fs_sections.items %}
+        <table class="table" id="fs0713">
             <thead>
             <tr>
                 <td class="label">{{ section.name|capfirst }}</td>
@@ -116,6 +117,29 @@
             </tr>
             </tbody>
             -->
+
+        </table>
+        {% endfor %}
+
+
+        <h3>GLI OPEN DATA SUI FONDI FSC 2007/2013</h3>
+
+        <p>
+            Testo di presentazione dati FSC0713
+        </p>
+
+        {% for section_code, section in fsc_sections.items %}
+        <table class="table" id="fsc0713">
+            <thead>
+            <tr>
+                <td class="label">{{ section.name|capfirst }}</td>
+                <td>
+                    <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.complete_file.file_name }}">
+                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            </thead>
 
         </table>
         {% endfor %}
