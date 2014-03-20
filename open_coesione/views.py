@@ -1,9 +1,9 @@
 # coding=utf-8
-from collections import OrderedDict
 import logging
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse
+from django.utils.datastructures import SortedDict
 from django.views.generic import ListView
 
 import os
@@ -286,7 +286,7 @@ class OpendataView(TemplateView):
         context = super(OpendataView, self).get_context_data(**kwargs)
         data_date = '20131231'
 
-        regions = OrderedDict([
+        regions = SortedDict([
             ('VDA', 'Valle d\'Aosta'),
             ('PIE', 'Piemonte'),
             ('LOM', 'Lombardia'),
@@ -310,7 +310,7 @@ class OpendataView(TemplateView):
             ('MULTI', 'Multi-regionali'),
         ])
 
-        themes = OrderedDict([
+        themes = SortedDict([
             ('AGENDA_DIGITALE', 'Agenda digitale'),
             ('AMBIENTE', 'Ambiente'),
             ('CULTURA_TURISMO', 'Cultura e turismo'),
@@ -327,7 +327,7 @@ class OpendataView(TemplateView):
         ])
 
 
-        sections = OrderedDict([
+        sections = SortedDict([
             ('prog', { 'name': 'progetti',
                        'complete_file': self.get_complete_file('progetti_FS0713', data_date),
                        'regional_files': self.get_regional_files('prog', 'progetti', regions, data_date),
