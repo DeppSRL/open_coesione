@@ -359,7 +359,7 @@ class OpendataView(TemplateView):
         return  context
 
     def get_complete_file(self, section_name, data_date):
-        file_name = "{}_{}.zip".format(section_name, data_date)
+        file_name = "{0}_{1}.zip".format(section_name, data_date)
         file_path = os.path.join(settings.MEDIA_ROOT, "open_data", data_date, file_name)
         file_size = os.stat(file_path).st_size
         return {
@@ -371,7 +371,7 @@ class OpendataView(TemplateView):
     def get_theme_files(selfself, section_code, section_name, themes, data_date):
         files = []
         for theme_code, theme_name in themes.items():
-            file_name = "{}_{}_{}.zip".format(section_code, theme_code, data_date)
+            file_name = "{0}_{1}_{2}.zip".format(section_code, theme_code, data_date)
             file_path = os.path.join(settings.MEDIA_ROOT, "open_data", data_date, section_name, file_name)
             file_size = os.stat(file_path).st_size
             files.append({
@@ -384,7 +384,7 @@ class OpendataView(TemplateView):
     def get_regional_files(self, section_code, section_name, regions, data_date):
         files = []
         for reg_code, reg_name in regions.items():
-            file_name = "{}_{}_{}.zip".format(section_code, reg_code, data_date)
+            file_name = "{0}_{1}_{2}.zip".format(section_code, reg_code, data_date)
             file_path = os.path.join(settings.MEDIA_ROOT, "open_data", data_date, section_name, file_name)
             file_size = os.stat(file_path).st_size
             files.append({
