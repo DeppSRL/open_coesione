@@ -1,4 +1,5 @@
 # coding=utf-8
+from collections import OrderedDict
 import logging
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
@@ -275,3 +276,120 @@ class PressView(ListView):
     template_name = 'flat/press_review.html'
     queryset = PressReview.objects.all().order_by('-published_at')
 
+
+class OpendataView(TemplateView):
+    """
+    Basic template view with an extended context, containing the pointers
+    to the downloadable files.
+    """
+    def get_context_data(self, **kwargs):
+        context = super(OpendataView, self).get_context_data(**kwargs)
+        data_date = '20131231'
+
+        regions = OrderedDict([
+            ('VDA', 'Valle d\'Aosta'),
+            ('PIE', 'Piemonte'),
+            ('LOM', 'Lombardia'),
+            ('TN_BZ', 'Trento e Bolzano'),
+            ('VEN', 'Veneto'),
+            ('FVG', 'Friuli-Venezia Giulia'),
+            ('LIG', 'Liguria'),
+            ('EMR', 'Emilia-Romagna'),
+            ('TOS', 'Toscana'),
+            ('UMB', 'Umbria'),
+            ('MAR', 'Marche'),
+            ('LAZ', 'Lazio'),
+            ('ABR', 'Abruzzo'),
+            ('CAM', 'Campania'),
+            ('MOL', 'Molise'),
+            ('PUG', 'Puglia'),
+            ('CAL', 'Calabria'),
+            ('BAS', 'Basilicata'),
+            ('SIC', 'Sicilia'),
+            ('SAR', 'Sardegna'),
+            ('MULTI', 'Multi-regionali'),
+        ])
+
+        themes = OrderedDict([
+            ('AGENDA_DIGITALE', 'Agenda digitale'),
+            ('AMBIENTE', 'Ambiente'),
+            ('CULTURA_TURISMO', 'Cultura e turismo'),
+            ('COMPETITIVITA_IMPRESE', u'Competitività imprese'),
+            ('ENERGIA', 'Energia'),
+            ('INCLUSIONE_SOCIALE', 'Inclusione sociale'),
+            ('ISTRUZIONE', 'Istruzione'),
+            ('OCCUPAZIONE', 'Occupazione'),
+            ('RAFFORZAMENTO_PA', 'Rafforzamento PA'),
+            ('RICERCA_INNOVAZIONE', 'Ricerca e innovazione'),
+            ('CITTA_RURALE', 'Città e aree rurali'),
+            ('INFANZIA_ANZIANI', 'Infanzia e anziani'),
+            ('TRASPORTI', 'Trasporti'),
+        ])
+
+
+        sections = OrderedDict([
+            ('prog', { 'name': 'progetti',
+                       'complete_file': self.get_complete_file('progetti_FS0713', data_date),
+                       'regional_files': self.get_regional_files('prog', 'progetti', regions, data_date),
+                       'theme_files': self.get_theme_files('prog', 'progetti', themes, data_date)
+                }
+            ),
+            ('sog', { 'name': 'soggetti',
+                      'complete_file': self.get_complete_file('soggetti_FS0713', data_date),
+                      'regional_files': self.get_regional_files('sog', 'soggetti', regions, data_date),
+                      'theme_files': self.get_theme_files('sog', 'soggetti', themes, data_date)
+                }
+            ),
+            ('loc', { 'name': 'localizzazioni',
+                      'complete_file': self.get_complete_file('localizzazioni_FS0713', data_date),
+                      'regional_files': self.get_regional_files('loc', 'localizzazioni', regions, data_date),
+                      'theme_files': self.get_theme_files('loc', 'localizzazioni', themes, data_date)
+                }
+            ),
+            ('pag', { 'name': 'pagamenti',
+                      'complete_file': self.get_complete_file('pagamenti_FS0713', data_date),
+                      'regional_files': self.get_regional_files('pag', 'pagamenti', regions, data_date),
+                      'theme_files': self.get_theme_files('pag', 'pagamenti', themes, data_date)
+                }
+            ),
+        ])
+
+        context['sections'] = sections
+        context['data_date'] = data_date
+        return  context
+
+    def get_complete_file(self, section_name, data_date):
+        file_name = "{}_{}.zip".format(section_name, data_date)
+        file_path = os.path.join(settings.MEDIA_ROOT, "open_data", data_date, file_name)
+        file_size = os.stat(file_path).st_size
+        return {
+            'file_name': file_name,
+            'file_size': file_size
+        }
+
+
+    def get_theme_files(selfself, section_code, section_name, themes, data_date):
+        files = []
+        for theme_code, theme_name in themes.items():
+            file_name = "{}_{}_{}.zip".format(section_code, theme_code, data_date)
+            file_path = os.path.join(settings.MEDIA_ROOT, "open_data", data_date, section_name, file_name)
+            file_size = os.stat(file_path).st_size
+            files.append({
+                'theme_name': theme_name,
+                'file_name': file_name,
+                'file_size': file_size
+            })
+        return files
+
+    def get_regional_files(self, section_code, section_name, regions, data_date):
+        files = []
+        for reg_code, reg_name in regions.items():
+            file_name = "{}_{}_{}.zip".format(section_code, reg_code, data_date)
+            file_path = os.path.join(settings.MEDIA_ROOT, "open_data", data_date, section_name, file_name)
+            file_size = os.stat(file_path).st_size
+            files.append({
+                'region_name': reg_name,
+                'file_name': file_name,
+                'file_size': file_size
+            })
+        return files

@@ -2,7 +2,8 @@ from django.conf.urls import patterns, include, url
 from django.contrib.gis import admin
 from django.conf import settings
 from django.views.generic.base import TemplateView
-from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView, PressView, SpesaCertificataView
+from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView, PressView, SpesaCertificataView, \
+    OpendataView
 from rubrica.views import NLContactView
 
 admin.autodiscover()
@@ -51,7 +52,7 @@ urlpatterns = patterns('',
     url(r'^monitora-un-tema-o-un-territorio/', TemplateView.as_view(template_name='flat/monitoring.html')),
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
     url(r'^info-disponibili/', TemplateView.as_view(template_name='flat/info_disponibili.html')),
-    url(r'^open-data/', TemplateView.as_view(template_name='flat/open_data.html')),
+    url(r'^open-data/', OpendataView.as_view(template_name='flat/open_data.html')),
     url(r'^faq/$', TemplateView.as_view(template_name='flat/faq.html'), name='faq-it'),
     url(r'^faq/en/$', TemplateView.as_view(template_name='flat/faq_en.html'), name='faq-en'),
 

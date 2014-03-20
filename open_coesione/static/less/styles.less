@@ -706,3 +706,32 @@ hr.big {
   }
 }
 
+#open-data-download {
+  .table td {
+    text-align: right;
+    width: 29%;
+  }
+  .table td.label {
+    text-align: left;
+    width: 13%;
+  }
+  .table tbody tr {
+    border-bottom: 1px dotted lightgray;
+  }
+
+  .table tbody td {
+    border-bottom: 0;
+  }
+
+  .table tbody.collapse {
+    display: none;
+
+    &.in { display: block }
+  }
+
+  .table td.switcher.selected {
+    background-color: lightgray;
+  }
+
+}
+

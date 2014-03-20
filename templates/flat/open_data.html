@@ -1,4 +1,5 @@
-{% extends 'base_two_columns.html' %}
+{% extends 'base_one_column.html' %}
+{% load sekizai_tags %}
 
 {% block page_title %}Open data{% endblock %}
 
@@ -7,12 +8,7 @@
   <div class="flat_content">
     <h1>Open data</h1>
 
-    <p><strong>Scarica i dati:</strong></p>
-
-    <ul class="spaced" style="margin-left: 20px;">
-      <li><a href="http://www.dps.tesoro.it/opencoesione/">Dipartimento per lo Sviluppo e la coesione economica</a>, per i Fondi Strutturali 2007/2013.</li>
-      <li><a href="http://www.cipecomitato.it/it/opendata.html">Dipartimento per la programmazione e il coordinamento della politica economica</a>, per il Fondo Sviluppo e Coesione.</li>
-    </ul>
+    <h3>Scarica i dati</h3>
 
     <p>
       I dati sono rilasciati con la licenza <a href="http://www.creativecommons.org/licenses/by-sa/3.0/it/deed.it">CC BY-SA 3.0</a>.
@@ -58,7 +54,103 @@
       delle informazioni rilevate nella Banca Dati per il monitoraggio unitario 2007-2013.
     </p>
 
+    <h3>GLI OPEN DATA SUI FONDI STRUTTURALI EUROPEI 2007/2013</h3>
+
+    <p>
+        Testo di presentazione
+    </p>
+
+    <div class="span10" id="open-data-download">
+
+        {% for section_code, section in sections.items %}
+        <table class="table">
+            <thead>
+            <tr>
+                <td class="label">{{ section.name|capfirst }}</td>
+                <td>
+                    <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.complete_file.file_name }}">
+                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+                <td class="switcher"><a href="#"  data-target="#{{ section.name }}-reg">Regioni [<i class="icon-chevron-down"></i>]</a></td>
+                <!--<td class="switcher"><a href="#" data-target="#{{ section.name }}-prog">Programmi  [<i class="icon-chevron-down"></i>]</a></td>-->
+                <td class="switcher"><a href="#" data-target="#{{ section.name }}-temi">Temi [<i class="icon-chevron-down"></i>]</a></td>
+            </tr>
+            </thead>
+
+            <tbody class="collapse" id="{{ section.name }}-reg">
+            {% for file in section.regional_files %}
+            <tr>
+                <td class="label"></td>
+                <td colspan="3">
+                    <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.name }}/{{ file.file_name }}">
+                        {{ file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+
+            <tbody class="collapse" id="{{ section.name }}-temi">
+            {% for file in section.theme_files %}
+            <tr>
+                <td class="label"></td>
+                <td colspan="3">
+                    <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.name }}/{{ file.file_name }}">
+                        {{ file.theme_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+
+            <!--
+            <tbody class="collapse" id="{{ section.name }}-prog">
+            <tr>
+                <td class="label"></td>
+                <td colspan="4"><a href="#">ProgA [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
+            </tr>
+            <tr>
+                <td class="label"></td>
+                <td colspan="4"><a href="#">ProgB [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
+            </tr>
+            </tbody>
+            -->
+
+        </table>
+        {% endfor %}
+
+    </div>
+
+
   </div>
+
+
+    {% addtoblock "js_script" %}
+      <script type='text/javascript'>//<![CDATA[
+      $(window).load(function(){
+        jQuery('.switcher a').click(function(){
+            to_show = !jQuery(this).parent().hasClass('selected');
+            jQuery('.collapse').each( function() {
+                jQuery(this).hide();
+            });
+            jQuery('.switcher a').each( function() {
+                jQuery(this).children('i').removeClass('icon-chevron-up');
+                jQuery(this).children('i').addClass('icon-chevron-down');
+                jQuery(this).parent().removeClass('selected');
+            });
+
+            if (to_show) {
+                jQuery(this).children('i').removeClass('icon-chevron-down');
+                jQuery(this).children('i').addClass('icon-chevron-up');
+                jQuery(this).parent().addClass('selected');
+                jQuery(this.dataset['target']).show();
+            }
+            return false;
+        });
+      });//]]>
+      </script>
+    {% endaddtoblock %}
 
 {% endblock %}
 
