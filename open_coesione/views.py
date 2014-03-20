@@ -329,25 +329,25 @@ class OpendataView(TemplateView):
 
         fs_sections = SortedDict([
             ('prog', { 'name': 'progetti',
-                       'complete_file': self.get_complete_file('progetti_FS0713', data_date),
+                       'complete_file': self.get_complete_file('progetti_FS0713_{0}.zip'.format(data_date), data_date),
                        'regional_files': self.get_regional_files('prog', 'progetti', regions, data_date),
                        'theme_files': self.get_theme_files('prog', 'progetti', themes, data_date)
                 }
             ),
             ('sog', { 'name': 'soggetti',
-                      'complete_file': self.get_complete_file('soggetti_FS0713', data_date),
+                      'complete_file': self.get_complete_file('soggetti_FS0713_{0}.zip'.format(data_date), data_date),
                       'regional_files': self.get_regional_files('sog', 'soggetti', regions, data_date),
                       'theme_files': self.get_theme_files('sog', 'soggetti', themes, data_date)
                 }
             ),
             ('loc', { 'name': 'localizzazioni',
-                      'complete_file': self.get_complete_file('localizzazioni_FS0713', data_date),
+                      'complete_file': self.get_complete_file('localizzazioni_FS0713_{0}.zip'.format(data_date), data_date),
                       'regional_files': self.get_regional_files('loc', 'localizzazioni', regions, data_date),
                       'theme_files': self.get_theme_files('loc', 'localizzazioni', themes, data_date)
                 }
             ),
             ('pag', { 'name': 'pagamenti',
-                      'complete_file': self.get_complete_file('pagamenti_FS0713', data_date),
+                      'complete_file': self.get_complete_file('pagamenti_FS0713_{0}.zip'.format(data_date), data_date),
                       'regional_files': self.get_regional_files('pag', 'pagamenti', regions, data_date),
                       'theme_files': self.get_theme_files('pag', 'pagamenti', themes, data_date)
                 }
@@ -356,29 +356,44 @@ class OpendataView(TemplateView):
 
         fsc_sections = SortedDict([
             ('prog', { 'name': 'progetti',
-                       'complete_file': self.get_complete_file('progetti_FSC0713', data_date),
+                       'complete_file': self.get_complete_file('progetti_FSC0713_{0}.zip'.format(data_date), data_date),
                 }
             ),
             ('sog', { 'name': 'soggetti',
-                      'complete_file': self.get_complete_file('soggetti_FSC0713', data_date),
+                      'complete_file': self.get_complete_file('soggetti_FSC0713_{0}.zip'.format(data_date), data_date),
                 }
             ),
             ('loc', { 'name': 'localizzazioni',
-                      'complete_file': self.get_complete_file('localizzazioni_FSC0713', data_date),
+                      'complete_file': self.get_complete_file('localizzazioni_FSC0713_{0}.zip'.format(data_date), data_date),
                 }
             ),
             ('pag', { 'name': 'pagamenti',
-                      'complete_file': self.get_complete_file('pagamenti_FSC0713', data_date),
+                      'complete_file': self.get_complete_file('pagamenti_FSC0713_{0}.zip'.format(data_date), data_date),
                 }
             ),
         ])
 
-        metadata_file = self.get_metadati_file(data_date)
+        cipe_date = '20121231'
+        cipe_sections = SortedDict([
+            ('prog', { 'name': 'progetti',
+                       'complete_file': self.get_complete_file("assegnazioni_CIPE_{0}.zip".format(cipe_date), data_date),
+                }
+            ),
+            ('loc', { 'name': 'localizzazioni',
+                      'complete_file': self.get_complete_file("localizzazioni_CIPE_{0}.zip".format(cipe_date), data_date),
+                }
+            ),
+        ])
+
+        metadata_file = self.get_complete_file("metadati_attuazione.xls", data_date)
 
         context['data_date'] = data_date
         context['fs_sections'] = fs_sections
         context['fsc_sections'] = fsc_sections
-        context['metadata_file'] = metadata_file
+        context['cipe_sections'] = cipe_sections
+        context['fs_metadata_file'] = metadata_file
+        context['fsc_metadata_file'] = metadata_file
+        context['cipe_metadata_file'] = metadata_file
         return  context
 
     def get_metadati_file(self, data_date):
@@ -390,8 +405,7 @@ class OpendataView(TemplateView):
             'file_size': file_size
         }
 
-    def get_complete_file(self, section_name, data_date, extension='zip'):
-        file_name = "{0}_{1}.{2}".format(section_name, data_date, extension)
+    def get_complete_file(self, file_name, data_date):
         file_path = os.path.join(settings.MEDIA_ROOT, "open_data", data_date, file_name)
         file_size = os.stat(file_path).st_size
         return {

@@ -129,8 +129,8 @@
         {% endfor %}
 
         <p>Ultimo aggiornamento: febbraio 2014 su dati al 31/12/2013</p>
-        <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ metadata_file.file_name }}">
-           [<i class="icon-download-alt"></i> zip/csv {{ metadata_file.file_size|filesizeformat }}]
+        <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ fs_metadata_file.file_name }}">
+           [<i class="icon-download-alt"></i> zip/csv {{ fs_metadata_file.file_size|filesizeformat }}]
         </a></p>
 
         <hr>
@@ -158,9 +158,40 @@
         {% endfor %}
 
         <p>Ultimo aggiornamento: febbraio 2014 su dati al 31/12/2013</p>
-        <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ metadata_file.file_name }}">
-           [<i class="icon-download-alt"></i> zip/csv {{ metadata_file.file_size|filesizeformat }}]
+        <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ fsc_metadata_file.file_name }}">
+           [<i class="icon-download-alt"></i> zip/csv {{ fsc_metadata_file.file_size|filesizeformat }}]
         </a></p>
+
+
+        <hr>
+
+        <h3>GLI OPEN DATA SULLE ASSEGNAZIONI CIPE 2007/2013</h3>
+
+        <p>
+            Testo di presentazione dati CIPE 2017/2013
+        </p>
+
+        {% for section_code, section in cipe_sections.items %}
+        <table class="table" id="cipe0713">
+            <thead>
+            <tr>
+                <td class="label">{{ section.name|capfirst }}</td>
+                <td>
+                    <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.complete_file.file_name }}">
+                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            </thead>
+
+        </table>
+        {% endfor %}
+
+        <p>Ultimo aggiornamento: dati al 31/12/2012</p>
+        <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ cipe_metadata_file.file_name }}">
+           [<i class="icon-download-alt"></i> zip/csv {{ cipe_metadata_file.file_size|filesizeformat }}]
+        </a></p>
+
 
     </div>
 
