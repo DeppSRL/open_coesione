@@ -61,7 +61,12 @@
         <h3>GLI OPEN DATA SUI FONDI STRUTTURALI EUROPEI 2007/2013</h3>
 
         <p>
-            Testo di presentazione dati FS0713
+            Gli Open Data sull'attuazione si riferiscono ai singoli progetti finanziati dalle politiche di coesione e
+            sono organizzati in forma relazionale: "Progetti" è il dataset principale e può essere scaricato anche da solo,
+            mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari collegate al dataset principale
+            attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
+            È possibile scaricare i dati in formato CSV compresso, sia per l'insieme dei progetti,
+            sia suddivisi secondo la regione di localizzazione dell'intervento.
         </p>
 
         {% for section_code, section in fs_sections.items %}
@@ -84,11 +89,12 @@
             {% for file in section.regional_files %}
             <tr>
                 <td class="label"></td>
-                <td colspan="3">
+                <td colspan="2">
                     <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.name }}/{{ file.file_name }}">
                         {{ file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
                     </a>
                 </td>
+                <td class="label"></td>
             </tr>
             {% endfor %}
             </tbody>
@@ -174,12 +180,14 @@
                 jQuery(this).children('i').removeClass('icon-chevron-up');
                 jQuery(this).children('i').addClass('icon-chevron-down');
                 jQuery(this).parent().removeClass('selected');
+                jQuery(this).parent().parent().removeClass('selected');
             });
 
             if (to_show) {
                 jQuery(this).children('i').removeClass('icon-chevron-down');
                 jQuery(this).children('i').addClass('icon-chevron-up');
                 jQuery(this).parent().addClass('selected');
+                jQuery(this).parent().parent().addClass('selected');
                 jQuery(this.dataset['target']).show();
             }
             return false;

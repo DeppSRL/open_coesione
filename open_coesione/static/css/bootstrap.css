@@ -5716,3 +5716,6 @@ hr.big.dark {
 #open-data-download .table td.switcher.selected {
   background-color: lightgray;
 }
+#open-data-download .table tr.selected {
+  background-color: #e6e6e6;
+}
