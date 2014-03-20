@@ -5693,3 +5693,26 @@ hr.big.dark {
 #newsletter-form.form-horizontal textarea {
   width: 70%;
 }
+#open-data-download .table td {
+  text-align: right;
+  width: 29%;
+}
+#open-data-download .table td.label {
+  text-align: left;
+  width: 13%;
+}
+#open-data-download .table tbody tr {
+  border-bottom: 1px dotted lightgray;
+}
+#open-data-download .table tbody td {
+  border-bottom: 0;
+}
+#open-data-download .table tbody.collapse {
+  display: none;
+}
+#open-data-download .table tbody.collapse.in {
+  display: block;
+}
+#open-data-download .table td.switcher.selected {
+  background-color: lightgray;
+}
