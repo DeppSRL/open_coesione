@@ -54,6 +54,7 @@
       delle informazioni rilevate nella Banca Dati per il monitoraggio unitario 2007-2013.
     </p>
 
+    <hr>
 
     <div class="span10" id="open-data-download">
 
@@ -121,6 +122,12 @@
         </table>
         {% endfor %}
 
+        <p>Ultimo aggiornamento: febbraio 2014 su dati al 31/12/2013</p>
+        <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ metadata_file.file_name }}">
+           [<i class="icon-download-alt"></i> zip/csv {{ metadata_file.file_size|filesizeformat }}]
+        </a></p>
+
+        <hr>
 
         <h3>GLI OPEN DATA SUI FONDI FSC 2007/2013</h3>
 
@@ -143,6 +150,11 @@
 
         </table>
         {% endfor %}
+
+        <p>Ultimo aggiornamento: febbraio 2014 su dati al 31/12/2013</p>
+        <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ metadata_file.file_name }}">
+           [<i class="icon-download-alt"></i> zip/csv {{ metadata_file.file_size|filesizeformat }}]
+        </a></p>
 
     </div>
 

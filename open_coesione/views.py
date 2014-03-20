@@ -373,13 +373,25 @@ class OpendataView(TemplateView):
             ),
         ])
 
+        metadata_file = self.get_metadati_file(data_date)
+
         context['data_date'] = data_date
         context['fs_sections'] = fs_sections
         context['fsc_sections'] = fsc_sections
+        context['metadata_file'] = metadata_file
         return  context
 
-    def get_complete_file(self, section_name, data_date):
-        file_name = "{0}_{1}.zip".format(section_name, data_date)
+    def get_metadati_file(self, data_date):
+        file_name = "metadati_attuazione.xls"
+        file_path = os.path.join(settings.MEDIA_ROOT, "open_data", data_date, file_name)
+        file_size = os.stat(file_path).st_size
+        return {
+            'file_name': file_name,
+            'file_size': file_size
+        }
+
+    def get_complete_file(self, section_name, data_date, extension='zip'):
+        file_name = "{0}_{1}.{2}".format(section_name, data_date, extension)
         file_path = os.path.join(settings.MEDIA_ROOT, "open_data", data_date, file_name)
         file_size = os.stat(file_path).st_size
         return {
