@@ -117,22 +117,19 @@
 
         <hr class="big">
 
-        <h1 class='title'><span>Piano di Azione per la Coesione</span></h1>
-        <p>
-          A partire dal 2011 il Governo ha varato un Piano di Azione per la Coesione
-          per l’accelerazione e la riqualificazione nell’impiego delle risorse programmate
-          per il periodo 2007-2013, concentrando gli interventi su un numero limitato di priorità,
-          fra cui:
-        </p>
-        <ul>
-          <li>Scuola</li>
-          <li>Sicurezza e Giustizia</li>
-          <li>Mobilità</li>
-          <li>Cura degli anziani e dell’infanzia</li>
-        </ul>
-
-        <p><i class="icon-chevron-right"></i> <a href="/pac/">Approfondisci</a></p>
-
+        <h1 class='title'><span>Pillole di Open Coesione</span></h1>
+        <table class="table">
+          {% for pillola in latest_pillole %}
+            <tr>
+              <td>
+                  <a href="{{ MEDIA_URL }}{{ pillola.file.name }}">{{ pillola.title }}</a><br/>
+                  <p>
+                      {{ pillola.description|safe }}
+                  </p>
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
       </section>
 
     </div>

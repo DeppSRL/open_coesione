@@ -42,3 +42,16 @@ class PressReview(models.Model):
     class Meta:
         verbose_name_plural = "Rassegna stampa"
         verbose_name = "Articolo"
+
+
+class Pillola(models.Model):
+
+    title = models.CharField(max_length=200, verbose_name='Titolo')
+    description = models.TextField(max_length=1024, verbose_name='Descrizione', blank=True, null=True)
+    file = models.FileField(upload_to='pillole', blank=True, null=True)
+
+    published_at = models.DateField(verbose_name='Data di pubblicazione')
+
+    class Meta:
+        verbose_name_plural = "Pillole"
+        verbose_name = "Pillola"
