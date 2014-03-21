@@ -1,200 +1,213 @@
-{% extends 'base_one_column.html' %}
+{% extends 'base.html' %}
 {% load sekizai_tags %}
 
 {% block page_title %}Open data{% endblock %}
 
-{% block content %}
+{% block container %}
 
-  <div class="flat_content">
-    <h1>Open data</h1>
+  <div class="container" id="open-data-download">
 
-    <h3>Scarica i dati</h3>
+    <div class="row">
+        <div class="span12">
 
-    <p>
-      I dati sono rilasciati con la licenza <a href="http://www.creativecommons.org/licenses/by-sa/3.0/it/deed.it">CC BY-SA 3.0</a>.
-    </p>
+            <h1>Open data</h1>
 
-    <p>
-      <strong>Le informazioni presenti nei cataloghi dei dati scaricabili sono maggiori di quelle visualizzate sul sito OpenCoesione.</strong>
-    </p>
+            <h3>Scarica i dati</h3>
 
-    <p>
-      La pratica di pubblicare dati in modalità “aperta” si va rapidamente diffondendo nella Pubblica Amministrazione.
-      I portali e le iniziative di open data che hanno lo scopo di favorire l’open government, cioè una prassi di
-      amministrazione del bene pubblico trasparente e accessibile, si moltiplicano.
-    </p>
+            <p>
+              I dati sono rilasciati con la licenza <a href="http://www.creativecommons.org/licenses/by-sa/3.0/it/deed.it">CC BY-SA 3.0</a>.
+            </p>
 
-    <p>
-      OpenCoesione persegue lo spirito di tali iniziative. La maggiore tracciabilità e accessibilità di dati sulla
-      destinazione dei fondi per le politiche di coesione viene affiancata da altre informazioni sullo stato dei
-      territori e sulle tematiche principali su cui le politiche intervengono.
-    </p>
+            <p>
+              <strong>Le informazioni presenti nei cataloghi dei dati scaricabili sono maggiori di quelle visualizzate sul sito OpenCoesione.</strong>
+            </p>
 
-    <p>
-      La pubblicazione e diffusione di queste informazioni - sull’impiego delle risorse, sui soggetti che le ricevono e
-      su quelli che le utilizzano, sui luoghi verso i quali le risorse affluiscono - consente ai cittadini organizzati
-      nelle diverse forme della partecipazione alla vita sociale o semplicemente interessati a conoscere quali
-      interventi sono in attuazione nel proprio vicinato di contribuire a un monitoraggio più diffuso e esprimere
-      un’opinione più informata sia in rapporto alla programmazione
-      (adeguatezza delle politiche a rispondere alla domanda dei territori)
-      sia in rapporto all’attuazione
-      (capacità delle amministrazione di utilizzare le risorse, implementare le politiche e produrre gli effetti desiderati).
-    </p>
+            <p>
+              La pratica di pubblicare dati in modalità “aperta” si va rapidamente diffondendo nella Pubblica Amministrazione.
+              I portali e le iniziative di open data che hanno lo scopo di favorire l’open government, cioè una prassi di
+              amministrazione del bene pubblico trasparente e accessibile, si moltiplicano.
+            </p>
 
-    <p>
-      Su questo portale i dati relativi alle politiche di coesione sono accessibili attraverso un sistema di
-      navigazione e interrogazione, che si poggia in buona parte sui cataloghi "open data" del
-      Dipartimento per lo Sviluppo e la coesione economica e del Comitato Interministeriale per la Programmazione Economica,
-      curate dal relativo Dipartimento.
-    </p>
+            <p>
+              OpenCoesione persegue lo spirito di tali iniziative. La maggiore tracciabilità e accessibilità di dati sulla
+              destinazione dei fondi per le politiche di coesione viene affiancata da altre informazioni sullo stato dei
+              territori e sulle tematiche principali su cui le politiche intervengono.
+            </p>
 
-    <p>
-      Le amministrazioni regionali e centrali che gestiscono i fondi sono la fonte principale dell’informazione.
-      Sono chiamate a perseguire proprie strategie di apertura dei dati e a migliorare la qualità e tempestività
-      delle informazioni rilevate nella Banca Dati per il monitoraggio unitario 2007-2013.
-    </p>
+            <p>
+              La pubblicazione e diffusione di queste informazioni - sull’impiego delle risorse, sui soggetti che le ricevono e
+              su quelli che le utilizzano, sui luoghi verso i quali le risorse affluiscono - consente ai cittadini organizzati
+              nelle diverse forme della partecipazione alla vita sociale o semplicemente interessati a conoscere quali
+              interventi sono in attuazione nel proprio vicinato di contribuire a un monitoraggio più diffuso e esprimere
+              un’opinione più informata sia in rapporto alla programmazione
+              (adeguatezza delle politiche a rispondere alla domanda dei territori)
+              sia in rapporto all’attuazione
+              (capacità delle amministrazione di utilizzare le risorse, implementare le politiche e produrre gli effetti desiderati).
+            </p>
 
-    <hr>
+            <p>
+              Su questo portale i dati relativi alle politiche di coesione sono accessibili attraverso un sistema di
+              navigazione e interrogazione, che si poggia in buona parte sui cataloghi "open data" del
+              Dipartimento per lo Sviluppo e la coesione economica e del Comitato Interministeriale per la Programmazione Economica,
+              curate dal relativo Dipartimento.
+            </p>
 
-    <div class="span10" id="open-data-download">
-
-        <h3>GLI OPEN DATA SUI FONDI STRUTTURALI EUROPEI 2007/2013</h3>
-
-        <p>
-            Gli Open Data sull'attuazione si riferiscono ai singoli progetti finanziati dalle politiche di coesione e
-            sono organizzati in forma relazionale: "Progetti" è il dataset principale e può essere scaricato anche da solo,
-            mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari collegate al dataset principale
-            attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
-            È possibile scaricare i dati in formato CSV compresso, sia per l'insieme dei progetti,
-            sia suddivisi secondo la regione di localizzazione dell'intervento.
-        </p>
-
-        {% for section_code, section in fs_sections.items %}
-        <table class="table" id="fs0713">
-            <thead>
-            <tr>
-                <td class="label">{{ section.name|capfirst }}</td>
-                <td>
-                    <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.complete_file.file_name }}">
-                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-                <td class="switcher"><a href="#"  data-target="#{{ section.name }}-reg">Regioni [<i class="icon-chevron-down"></i>]</a></td>
-                <!--<td class="switcher"><a href="#" data-target="#{{ section.name }}-prog">Programmi  [<i class="icon-chevron-down"></i>]</a></td>-->
-                <td class="switcher"><a href="#" data-target="#{{ section.name }}-temi">Temi [<i class="icon-chevron-down"></i>]</a></td>
-            </tr>
-            </thead>
-
-            <tbody class="collapse" id="{{ section.name }}-reg">
-            {% for file in section.regional_files %}
-            <tr>
-                <td class="label"></td>
-                <td colspan="2">
-                    <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.name }}/{{ file.file_name }}">
-                        {{ file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-                <td class="label"></td>
-            </tr>
-            {% endfor %}
-            </tbody>
-
-            <tbody class="collapse" id="{{ section.name }}-temi">
-            {% for file in section.theme_files %}
-            <tr>
-                <td class="label"></td>
-                <td colspan="3">
-                    <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.name }}/{{ file.file_name }}">
-                        {{ file.theme_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-
-            <!--
-            <tbody class="collapse" id="{{ section.name }}-prog">
-            <tr>
-                <td class="label"></td>
-                <td colspan="4"><a href="#">ProgA [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
-            </tr>
-            <tr>
-                <td class="label"></td>
-                <td colspan="4"><a href="#">ProgB [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
-            </tr>
-            </tbody>
-            -->
-
-        </table>
-        {% endfor %}
-
-        <p>Ultimo aggiornamento: febbraio 2014 su dati al 31/12/2013</p>
-        <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ fs_metadata_file.file_name }}">
-           [<i class="icon-download-alt"></i> zip/csv {{ fs_metadata_file.file_size|filesizeformat }}]
-        </a></p>
-
-        <hr>
-
-        <h3>GLI OPEN DATA SUI FONDI FSC 2007/2013</h3>
-
-        <p>
-            Testo di presentazione dati FSC0713
-        </p>
-
-        {% for section_code, section in fsc_sections.items %}
-        <table class="table" id="fsc0713">
-            <thead>
-            <tr>
-                <td class="label">{{ section.name|capfirst }}</td>
-                <td>
-                    <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.complete_file.file_name }}">
-                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
-            </thead>
-
-        </table>
-        {% endfor %}
-
-        <p>Ultimo aggiornamento: febbraio 2014 su dati al 31/12/2013</p>
-        <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ fsc_metadata_file.file_name }}">
-           [<i class="icon-download-alt"></i> zip/csv {{ fsc_metadata_file.file_size|filesizeformat }}]
-        </a></p>
-
-
-        <hr>
-
-        <h3>GLI OPEN DATA SULLE ASSEGNAZIONI CIPE 2007/2013</h3>
-
-        <p>
-            Testo di presentazione dati CIPE 2017/2013
-        </p>
-
-        {% for section_code, section in cipe_sections.items %}
-        <table class="table" id="cipe0713">
-            <thead>
-            <tr>
-                <td class="label">{{ section.name|capfirst }}</td>
-                <td>
-                    <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.complete_file.file_name }}">
-                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
-            </thead>
-
-        </table>
-        {% endfor %}
-
-        <p>Ultimo aggiornamento: dati al 31/12/2012</p>
-        <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ cipe_metadata_file.file_name }}">
-           [<i class="icon-download-alt"></i> zip/csv {{ cipe_metadata_file.file_size|filesizeformat }}]
-        </a></p>
-
-
+            <p>
+              Le amministrazioni regionali e centrali che gestiscono i fondi sono la fonte principale dell’informazione.
+              Sono chiamate a perseguire proprie strategie di apertura dei dati e a migliorare la qualità e tempestività
+              delle informazioni rilevate nella Banca Dati per il monitoraggio unitario 2007-2013.
+            </p>
+        </div>
     </div>
 
+
+    <div class="row">
+        <div class="span12">
+
+            <h3>GLI OPEN DATA SUI FONDI STRUTTURALI EUROPEI 2007/2013</h3>
+
+            <p>
+                Gli Open Data sull'attuazione si riferiscono ai singoli progetti finanziati dalle politiche di coesione e
+                sono organizzati in forma relazionale: "Progetti" è il dataset principale e può essere scaricato anche da solo,
+                mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari collegate al dataset principale
+                attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
+                È possibile scaricare i dati in formato CSV compresso, sia per l'insieme dei progetti,
+                sia suddivisi secondo la regione di localizzazione dell'intervento.
+            </p>
+
+            {% for section_code, section in fs_sections.items %}
+            <table class="table" id="fs0713">
+                <thead>
+                <tr>
+                    <td class="label">{{ section.name|capfirst }}</td>
+                    <td>
+                        <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.complete_file.file_name }}">
+                            [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                    <td class="switcher"><a href="#"  data-target="#{{ section.name }}-reg">Regioni [<i class="icon-chevron-down"></i>]</a></td>
+                    <!--<td class="switcher"><a href="#" data-target="#{{ section.name }}-prog">Programmi  [<i class="icon-chevron-down"></i>]</a></td>-->
+                    <td class="switcher"><a href="#" data-target="#{{ section.name }}-temi">Temi [<i class="icon-chevron-down"></i>]</a></td>
+                </tr>
+                </thead>
+
+                <tbody class="collapse" id="{{ section.name }}-reg">
+                {% for file in section.regional_files %}
+                <tr>
+                    <td class="label"></td>
+                    <td colspan="2">
+                        <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.name }}/{{ file.file_name }}">
+                            {{ file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                    <td class="label"></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+
+                <tbody class="collapse" id="{{ section.name }}-temi">
+                {% for file in section.theme_files %}
+                <tr>
+                    <td class="label"></td>
+                    <td colspan="3">
+                        <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.name }}/{{ file.file_name }}">
+                            {{ file.theme_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+
+                <!--
+                <tbody class="collapse" id="{{ section.name }}-prog">
+                <tr>
+                    <td class="label"></td>
+                    <td colspan="4"><a href="#">ProgA [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
+                </tr>
+                <tr>
+                    <td class="label"></td>
+                    <td colspan="4"><a href="#">ProgB [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
+                </tr>
+                </tbody>
+                -->
+
+            </table>
+            {% endfor %}
+
+            <p>Ultimo aggiornamento: febbraio 2014 su dati al 31/12/2013</p>
+            <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ fs_metadata_file.file_name }}">
+               [<i class="icon-download-alt"></i> zip/csv {{ fs_metadata_file.file_size|filesizeformat }}]
+            </a></p>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="span12">
+
+            <h3>GLI OPEN DATA SUI FONDI FSC 2007/2013</h3>
+
+            <p>
+                Testo di presentazione dati FSC0713
+            </p>
+
+            {% for section_code, section in fsc_sections.items %}
+            <table class="table" id="fsc0713">
+                <thead>
+                <tr>
+                    <td class="label">{{ section.name|capfirst }}</td>
+                    <td>
+                        <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.complete_file.file_name }}">
+                            [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                </tr>
+                </thead>
+
+            </table>
+            {% endfor %}
+
+            <p>Ultimo aggiornamento: febbraio 2014 su dati al 31/12/2013</p>
+            <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ fsc_metadata_file.file_name }}">
+               [<i class="icon-download-alt"></i> zip/csv {{ fsc_metadata_file.file_size|filesizeformat }}]
+            </a></p>
+
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="span12">
+
+            <h3>GLI OPEN DATA SULLE ASSEGNAZIONI CIPE 2007/2013</h3>
+
+            <p>
+                Testo di presentazione dati CIPE 2017/2013
+            </p>
+
+            {% for section_code, section in cipe_sections.items %}
+            <table class="table" id="cipe0713">
+                <thead>
+                <tr>
+                    <td class="label">{{ section.name|capfirst }}</td>
+                    <td>
+                        <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.complete_file.file_name }}">
+                            [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                </tr>
+                </thead>
+
+            </table>
+            {% endfor %}
+
+            <p>Ultimo aggiornamento: dati al 31/12/2012</p>
+            <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ cipe_metadata_file.file_name }}">
+               [<i class="icon-download-alt"></i> zip/csv {{ cipe_metadata_file.file_size|filesizeformat }}]
+            </a></p>
+
+        </div>
+    </div>
 
   </div>
 
