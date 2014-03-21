@@ -10,7 +10,7 @@ import os
 from django.views.generic.base import TemplateView
 from django.db.models import Count, Sum
 from open_coesione.forms import ContactForm
-from open_coesione.models import PressReview
+from open_coesione.models import PressReview, Pillola
 from open_coesione.settings import PROJECT_ROOT
 from progetti.models import Progetto, Tema, ClassificazioneAzione, DeliberaCIPE
 from soggetti.models import Soggetto
@@ -186,6 +186,8 @@ class HomeView(AccessControlView, AggregatoView, TemplateView):
         logger = logging.getLogger('console')
         logger.debug("get_aggregate_data start")
         context = self.get_aggregate_data(context)
+
+        context['latest_pillole'] = Pillola.objects.order_by('-published_at')[:3]
 
         logger.debug("top_progetti start")
         context['top_progetti'] = Progetto.objects.filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
