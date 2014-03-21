@@ -179,21 +179,25 @@ class AggregatoView(object):
 class HomeView(AccessControlView, AggregatoView, TemplateView):
     template_name = 'homepage.html'
 
-    @cached_context
-    def get_context_data(self, **kwargs):
-        context = super(HomeView, self).get_context_data(**kwargs)
 
-        logger = logging.getLogger('console')
-        logger.debug("get_aggregate_data start")
-        context = self.get_aggregate_data(context)
+    def get_context_data(self, **kwargs):
+
+        ##
+        # low-level caching, to allow adding latest_pillole
+        # out of the cached context (fast-refresh)
+        ##
+        key = 'context' + self.request.get_full_path()
+        context = cache.get(key)
+        if context is None:
+            context = super(HomeView, self).get_context_data(**kwargs)
+            context = self.get_aggregate_data(context)
+            context['top_progetti'] = Progetto.objects.filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+            context['numero_soggetti'] = Soggetto.objects.count()
+            serializable_context = context.copy()
+            serializable_context.pop('view', None)
+            cache.set(key, serializable_context)
 
         context['latest_pillole'] = Pillola.objects.order_by('-published_at')[:3]
-
-        logger.debug("top_progetti start")
-        context['top_progetti'] = Progetto.objects.filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-
-        context['numero_soggetti'] = Soggetto.objects.count()
-
         return context
 
 
