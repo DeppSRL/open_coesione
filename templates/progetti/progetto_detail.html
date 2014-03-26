@@ -468,16 +468,16 @@
                   </th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
                 {% if progetto.fin_stato_fsc %}
-                  <tr><th>Stato: Fondo per lo Sviluppo e la Coesione 2007-2013</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                  <tr><th>Fondo per lo Sviluppo e la Coesione 2007-2013</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% endif %}
+                {% if progetto.fin_stato_pac %}
+                  <tr><th>Fondo di Rotazione (Piano d’Azione per la Coesione)</th><td class="amount"><strong>{{ progetto.fin_stato_pac|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
                 {% if progetto.cipe_flag %}
                   <tr><th>Stato: {{ progetto.fonte.short_label }}</th><td class="amount"><strong>{{ progetto.fin_totale_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
                 {% if progetto.fin_stato_altri_provvedimenti %}
                   <tr><th>Stato: altri provvedimenti</th><td class="amount"><strong>{{ progetto.fin_stato_altri_provvedimenti|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
-                {% endif %}
-                {% if progetto.fin_stato_pac %}
-                  <tr><th>Stato: Fondo di Rotazione (Piano d’Azione per la Coesione)</th><td class="amount"><strong>{{ progetto.fin_stato_pac|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
                 {% if progetto.fin_regione %}
                   <tr><th>Regione</th><td class="amount"><strong>{{ progetto.fin_regione|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
@@ -621,7 +621,7 @@
                 <dt>Note</dt>
                 <dd>
                     {% if overlapping_projects %}
-                        Questo progetto attua queste assegnazioni CIPE:<br>
+                        Questo progetto attua le assegnazioni CIPE:<br>
                         <ul>
                         {% for overlapping_project in overlapping_projects %}
                           <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
