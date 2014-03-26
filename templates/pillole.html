@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Pillole di Open Coesione{% endblock %}
+
+{% block container %}
+  <div class="container">
+    <div class="row">
+      <div class="span12" id="pillole" style="margin-top: 2em;">
+
+        {% for pillola in object_list %}
+          <article id="pillola-{{ pillola.pk }}">
+            <header>
+              <h1>{{ pillola.title }}
+                <small>{{ pillola.published_at|date:'d/m/Y' }}</small></h1>
+            </header>
+
+            <div>
+              {{ pillola.description|safe }}
+              <br>
+              {% if pillola.file %}
+                <a href="{{ pillola.file.url }}"><i class="icon-download-alt"></i> scarica il file</a> ({{ pillola.file.name|slice:"-3:"|lower }}, {{ pillola.file.size|filesizeformat }})
+              {% endif %}
+
+            </div>
+          </article>
+
+            <hr>
+        {% endfor %}
+
+      </div>
+    </div>
+  </div>
+{% endblock %}

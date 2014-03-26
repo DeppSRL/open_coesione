@@ -3,7 +3,7 @@ from django.contrib.gis import admin
 from django.conf import settings
 from django.views.generic.base import TemplateView
 from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView, PressView, SpesaCertificataView, \
-    OpendataView
+    OpendataView, PilloleView
 from rubrica.views import NLContactView
 
 admin.autodiscover()
@@ -29,6 +29,9 @@ urlpatterns = patterns('',
 
     # blog
     url(r'^news/', include('blog.urls')),
+
+    # pilole
+    url(r'^pillole$', PilloleView.as_view(), name='pillole'),
 
     # api
     url(r'^api/', include('api.urls')),

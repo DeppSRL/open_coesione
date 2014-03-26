@@ -41,6 +41,11 @@ def cached_context(get_context_data):
     return decorator
 
 
+class PilloleView(ListView):
+    model = Pillola
+    template_name = "pillole.html"
+
+
 class AccessControlView(object):
     """
     Define access control for the view
