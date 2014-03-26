@@ -45,6 +45,12 @@ class PilloleView(ListView):
     model = Pillola
     template_name = "pillole.html"
 
+    def get_queryset(self):
+        queryset = super(PilloleView, self).get_queryset()
+        return queryset.order_by('-published_at')
+
+
+
 
 class AccessControlView(object):
     """
