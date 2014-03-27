@@ -11,16 +11,19 @@
           <article id="pillola-{{ pillola.pk }}">
             <header>
               <h1>{{ pillola.title }}
-                <small>{{ pillola.published_at|date:'d/m/Y' }}</small></h1>
+                <small>{{ pillola.published_at|date:'d/m/Y' }}</small>
+                  {% if pillola.file %}
+                    <small>
+                      <a href="{{ pillola.file.url }}"><i class="icon-download-alt"></i> scarica il file</a>
+                        <span style="color:black;">({{ pillola.file.name|slice:"-3:"|lower }}, {{ pillola.file.size|filesizeformat }})</span>
+                    </small>
+                  {% endif %}
+              </h1>
             </header>
 
             <div>
               {{ pillola.description|safe }}
               <br>
-              {% if pillola.file %}
-                <a href="{{ pillola.file.url }}"><i class="icon-download-alt"></i> scarica il file</a> ({{ pillola.file.name|slice:"-3:"|lower }}, {{ pillola.file.size|filesizeformat }})
-              {% endif %}
-
             </div>
           </article>
 
