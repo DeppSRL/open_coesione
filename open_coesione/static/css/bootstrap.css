@@ -5693,6 +5693,11 @@ hr.big.dark {
 #newsletter-form.form-horizontal textarea {
   width: 70%;
 }
+#open-data-download h1,
+#open-data-download h2,
+#open-data-download h3 {
+  text-transform: none;
+}
 #open-data-download .table td {
   text-align: right;
   width: 29%;
