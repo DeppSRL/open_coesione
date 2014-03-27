@@ -3,7 +3,7 @@ from django.contrib.gis import admin
 from django.conf import settings
 from django.views.generic.base import TemplateView
 from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView, PressView, SpesaCertificataView, \
-    OpendataView, PilloleView
+    OpendataView, PilloleView, OpendataRedirectView
 from rubrica.views import NLContactView
 
 admin.autodiscover()
@@ -55,7 +55,6 @@ urlpatterns = patterns('',
     url(r'^monitora-un-tema-o-un-territorio/', TemplateView.as_view(template_name='flat/monitoring.html')),
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
     url(r'^info-disponibili/', TemplateView.as_view(template_name='flat/info_disponibili.html')),
-    url(r'^open-data/', OpendataView.as_view(template_name='flat/open_data.html')),
     url(r'^faq/$', TemplateView.as_view(template_name='flat/faq.html'), name='faq-it'),
     url(r'^faq/en/$', TemplateView.as_view(template_name='flat/faq_en.html'), name='faq-en'),
 
@@ -70,6 +69,10 @@ urlpatterns = patterns('',
                                      name='flat-spesa-certificata-grafici'),
 
     url(r'^rassegna-stampa/', PressView.as_view()),
+
+    url(r'^open-data/(?P<path>.+)$', OpendataRedirectView.as_view()),
+    url(r'^open-data/$', OpendataView.as_view(template_name='flat/open_data.html')),
+
 
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login'),
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),

@@ -1,212 +1,412 @@
-{% extends 'base.html' %}
+{% extends 'base_two_columns.html' %}
 {% load sekizai_tags %}
 
 {% block page_title %}Open data{% endblock %}
 
-{% block container %}
+{% block content %}
 
-  <div class="container" id="open-data-download">
+  <div class="flat_content" id="open-data-download">
 
-    <div class="row">
-        <div class="span12">
+    <h1>Open data</h1>
 
-            <h1>Open data</h1>
-
-            <h3>Scarica i dati</h3>
-
-            <p>
-              I dati sono rilasciati con la licenza <a href="http://www.creativecommons.org/licenses/by-sa/3.0/it/deed.it">CC BY-SA 3.0</a>.
-            </p>
-
-            <p>
-              <strong>Le informazioni presenti nei cataloghi dei dati scaricabili sono maggiori di quelle visualizzate sul sito OpenCoesione.</strong>
-            </p>
-
-            <p>
-              La pratica di pubblicare dati in modalità “aperta” si va rapidamente diffondendo nella Pubblica Amministrazione.
-              I portali e le iniziative di open data che hanno lo scopo di favorire l’open government, cioè una prassi di
-              amministrazione del bene pubblico trasparente e accessibile, si moltiplicano.
-            </p>
-
-            <p>
-              OpenCoesione persegue lo spirito di tali iniziative. La maggiore tracciabilità e accessibilità di dati sulla
-              destinazione dei fondi per le politiche di coesione viene affiancata da altre informazioni sullo stato dei
-              territori e sulle tematiche principali su cui le politiche intervengono.
-            </p>
-
-            <p>
-              La pubblicazione e diffusione di queste informazioni - sull’impiego delle risorse, sui soggetti che le ricevono e
-              su quelli che le utilizzano, sui luoghi verso i quali le risorse affluiscono - consente ai cittadini organizzati
-              nelle diverse forme della partecipazione alla vita sociale o semplicemente interessati a conoscere quali
-              interventi sono in attuazione nel proprio vicinato di contribuire a un monitoraggio più diffuso e esprimere
-              un’opinione più informata sia in rapporto alla programmazione
-              (adeguatezza delle politiche a rispondere alla domanda dei territori)
-              sia in rapporto all’attuazione
-              (capacità delle amministrazione di utilizzare le risorse, implementare le politiche e produrre gli effetti desiderati).
-            </p>
-
-            <p>
-              Su questo portale i dati relativi alle politiche di coesione sono accessibili attraverso un sistema di
-              navigazione e interrogazione, che si poggia in buona parte sui cataloghi "open data" del
-              Dipartimento per lo Sviluppo e la coesione economica e del Comitato Interministeriale per la Programmazione Economica,
-              curate dal relativo Dipartimento.
-            </p>
-
-            <p>
-              Le amministrazioni regionali e centrali che gestiscono i fondi sono la fonte principale dell’informazione.
-              Sono chiamate a perseguire proprie strategie di apertura dei dati e a migliorare la qualità e tempestività
-              delle informazioni rilevate nella Banca Dati per il monitoraggio unitario 2007-2013.
-            </p>
-        </div>
-    </div>
+    <h3>Scarica i dati</h3>
 
 
-    <div class="row">
-        <div class="span12">
+    <p>
+        È disponibile in formato aperto un insieme di dati collegati alle politiche di coesione, di cui una parte,
+        relativa al monitoraggio dei progetti in attuazione e al contesto territoriale, è direttamente navigabile nel
+        portale (sono segnalati con *).
+    </p>
 
-            <h3>GLI OPEN DATA SUI FONDI STRUTTURALI EUROPEI 2007/2013</h3>
+    <p>
+        <b>Attenzione</b>: le informazioni presenti nei dataset sono maggiori di quelle visualizzate sul sito e di quelle
+        scaricabili dai risultati delle ricerche e dei filtri.
+    </p>
 
-            <p>
-                Gli Open Data sull'attuazione si riferiscono ai singoli progetti finanziati dalle politiche di coesione e
-                sono organizzati in forma relazionale: "Progetti" è il dataset principale e può essere scaricato anche da solo,
-                mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari collegate al dataset principale
-                attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
-                È possibile scaricare i dati in formato CSV compresso, sia per l'insieme dei progetti,
-                sia suddivisi secondo la regione di localizzazione dell'intervento.
-            </p>
+    <p>
+      Tutti i dati sono rilasciati con licenza <a href="http://www.creativecommons.org/licenses/by-sa/3.0/it/deed.it">CC BY-SA 3.0</a>
+      e in formato CSV compresso (leggibile da Excel), quando non altrimenti specificato.
+    </p>
 
-            {% for section_code, section in fs_sections.items %}
-            <table class="table" id="fs0713">
-                <thead>
-                <tr>
-                    <td class="label">{{ section.name|capfirst }}</td>
-                    <td>
-                        <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.complete_file.file_name }}">
-                            [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
-                        </a>
-                    </td>
-                    <td class="switcher"><a href="#"  data-target="#{{ section.name }}-reg">Regioni [<i class="icon-chevron-down"></i>]</a></td>
-                    <!--<td class="switcher"><a href="#" data-target="#{{ section.name }}-prog">Programmi  [<i class="icon-chevron-down"></i>]</a></td>-->
-                    <td class="switcher"><a href="#" data-target="#{{ section.name }}-temi">Temi [<i class="icon-chevron-down"></i>]</a></td>
-                </tr>
-                </thead>
+    <h3 class="h3-switcher">
+        <a href="#" data-target="#fs0713-content" id="fs0713-title">
+            GLI OPEN DATA SUI FONDI STRUTTURALI EUROPEI 2007/2013 <i class="icon-chevron-down"></i>
+        </a>
+    </h3>
 
-                <tbody class="collapse" id="{{ section.name }}-reg">
-                {% for file in section.regional_files %}
-                <tr>
-                    <td class="label"></td>
-                    <td colspan="2">
-                        <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.name }}/{{ file.file_name }}">
-                            {{ file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
-                        </a>
-                    </td>
-                    <td class="label"></td>
-                </tr>
-                {% endfor %}
-                </tbody>
+    <div id="fs0713-content">
+        <p>
+            Sono scaricabili dati riferiti ai singoli progetti finanziati con Fondi Strutturali, organizzati in
+            forma relazionale: "Progetti" è il dataset principale e può essere scaricato anche da solo,
+            mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari collegate al
+            dataset principale attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
+        </p>
 
-                <tbody class="collapse" id="{{ section.name }}-temi">
-                {% for file in section.theme_files %}
-                <tr>
-                    <td class="label"></td>
-                    <td colspan="3">
-                        <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.name }}/{{ file.file_name }}">
-                            {{ file.theme_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
+        <p>
+            I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
+            Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_XXX"
+            associato a ciascuno di essi.
+        </p>
 
-                <!--
-                <tbody class="collapse" id="{{ section.name }}-prog">
-                <tr>
-                    <td class="label"></td>
-                    <td colspan="4"><a href="#">ProgA [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
-                </tr>
-                <tr>
-                    <td class="label"></td>
-                    <td colspan="4"><a href="#">ProgB [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
-                </tr>
-                </tbody>
-                -->
+        <p>
+            I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che gestiscono i fondi,
+            aggiungendo alcune variabili (identificabili nei dataset con il suffisso DPS_) che facilitano leggibilità e
+            coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
+            <a href="#">file di raccordo</a> (XLS, xxx Mb) con i temi prioritari UE e con la classificazione CUP.
+            L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
+        </p>
 
-            </table>
+        {% for section_code, section in fs_sections.items %}
+        <table class="table" id="fs0713">
+            <thead>
+            <tr>
+                <td class="label">{{ section.name|capfirst }}</td>
+                <td>
+                    <a href="/open-data/{{ section.complete_file.file_name }}">
+                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+                <td class="switcher"><a href="#"  data-target="#{{ section.name }}-reg">Regioni [<i class="icon-chevron-down"></i>]</a></td>
+                <!--<td class="switcher"><a href="#" data-target="#{{ section.name }}-prog">Programmi  [<i class="icon-chevron-down"></i>]</a></td>-->
+                <!--<td class="switcher"><a href="#" data-target="#{{ section.name }}-temi">Temi [<i class="icon-chevron-down"></i>]</a></td>-->
+            </tr>
+            </thead>
+
+            <tbody class="collapse" id="{{ section.name }}-reg">
+            {% for file in section.regional_files %}
+            <tr>
+                <td class="label"></td>
+                <td colspan="2">
+                    <a href="/open-data/{{ section.name }}/{{ file.file_name }}">
+                        {{ file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
             {% endfor %}
+            </tbody>
 
-            <p>Ultimo aggiornamento: febbraio 2014 su dati al 31/12/2013</p>
-            <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ fs_metadata_file.file_name }}">
-               [<i class="icon-download-alt"></i> zip/csv {{ fs_metadata_file.file_size|filesizeformat }}]
-            </a></p>
-        </div>
+            {%  comment %}
+            <!--
+            <tbody class="collapse" id="{{ section.name }}-temi">
+            {% for file in section.theme_files %}
+            <tr>
+                <td class="label"></td>
+                <td colspan="3">
+                    <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.name }}/{{ file.file_name }}">
+                        {{ file.theme_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+
+            <tbody class="collapse" id="{{ section.name }}-prog">
+            <tr>
+                <td class="label"></td>
+                <td colspan="4"><a href="#">ProgA [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
+            </tr>
+            <tr>
+                <td class="label"></td>
+                <td colspan="4"><a href="#">ProgB [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
+            </tr>
+            </tbody>
+            -->
+            {% endcomment %}
+
+        </table>
+        {% endfor %}
+
+        <table class="table">
+            <tr>
+                <td class="label">Metadati </td>
+                <td>
+                    <a href="/open-data/{{ fs_metadata_file.file_name }}">
+                        [<i class="icon-download-alt"></i> xls {{ fs_metadata_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+
+
+        <p>Ultimo aggiornamento: marzo 2014 su dati al 31/12/2013</p>
+
+        <hr/>
+
     </div>
 
 
-    <div class="row">
-        <div class="span12">
+    <h3 class="h3-switcher">
+        <a href="#" data-target="#fsc0713-content" id="fsc0713-title">
+            GLI OPEN DATA SUI FONDI FSC 2007/2013 <i class="icon-chevron-down"></i>
+        </a>
+    </h3>
 
-            <h3>GLI OPEN DATA SUI FONDI FSC 2007/2013</h3>
+    <div id="fsc0713-content">
 
-            <p>
-                Testo di presentazione dati FSC0713
-            </p>
+        <p>
+            Sono scaricabili dati riferiti ai singoli progetti finanziati con il Fondo nazionale per lo Sviluppo e la
+            Coesione (FSC), organizzati in forma relazionale: "Progetti" è il dataset principale e può essere scaricato
+            anche da solo, mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari
+            collegate al dataset principale attraverso un campo chiave che identifica lo stesso progetto nelle diverse
+            tabelle.
+        </p>
 
+        <p>
+            I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
+            Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_XXX"
+            associato a ciascuno di essi.
+        </p>
+
+        <p>
+            I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi,
+            aggiungendo alcune variabili (identificabili nei dataset con il suffisso DPS_) che facilitano leggibilità e
+            coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
+            <a href="#">file di raccordo</a> (XLS, xxx Mb) con i temi prioritari UE e con la classificazione CUP.
+            L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
+        </p>
+
+        <table class="table" id="fsc0713">
+            <thead>
             {% for section_code, section in fsc_sections.items %}
-            <table class="table" id="fsc0713">
-                <thead>
-                <tr>
-                    <td class="label">{{ section.name|capfirst }}</td>
-                    <td>
-                        <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.complete_file.file_name }}">
-                            [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
-                        </a>
-                    </td>
-                </tr>
-                </thead>
-
-            </table>
+            <tr>
+                <td class="label">{{ section.name|capfirst }}</td>
+                <td>
+                    <a href="/open-data/{{ section.complete_file.file_name }}">
+                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
             {% endfor %}
+            </thead>
+            <tr>
+                <td class="label">Metadati </td>
+                <td>
+                    <a href="/open-data/{{ fsc_metadata_file.file_name }}">
+                        [<i class="icon-download-alt"></i> xls {{ fsc_metadata_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+        </table>
 
-            <p>Ultimo aggiornamento: febbraio 2014 su dati al 31/12/2013</p>
-            <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ fsc_metadata_file.file_name }}">
-               [<i class="icon-download-alt"></i> zip/csv {{ fsc_metadata_file.file_size|filesizeformat }}]
-            </a></p>
+        <p>Ultimo aggiornamento: marzo 2014 su dati al 31/12/2013</p>
 
-        </div>
+        <hr/>
+
     </div>
 
 
-    <div class="row">
-        <div class="span12">
+    <h3 class="h3-switcher">
+        <a href="#" data-target="#cipe0713-content" id="cipe0713-title">
+            GLI OPEN DATA SULLE ASSEGNAZIONI CIPE 2007/2013 <i class="icon-chevron-down"></i>
+        </a>
+    </h3>
 
-            <h3>GLI OPEN DATA SULLE ASSEGNAZIONI CIPE 2007/2013</h3>
+    <div id="cipe0713-content">
 
-            <p>
-                Testo di presentazione dati CIPE 2017/2013
-            </p>
+        <p>
+            La fonte delle assegnazioni del Fondo nazionale per lo Sviluppo e la Coesione (FSC) a destinazione
+            nazionale e regionale sono le Delibere CIPE, che riguardano le informazioni disponibili al momento in
+            cui è stata assunta la decisione di finanziamento e non hanno caratteristica di monitoraggio. I dati sono
+            scaricabili anche dal sito del CIPE, senza l’attribuzione del tema sintetico con cui sono visualizzati su
+            OpenCoesione. Consulta il file di raccordo (XLS, xxx Mb) con i temi prioritari UE e con la classificazione
+            CUP.
+        </p>
 
+        <table class="table" id="cipe0713">
+            <thead>
             {% for section_code, section in cipe_sections.items %}
-            <table class="table" id="cipe0713">
-                <thead>
-                <tr>
-                    <td class="label">{{ section.name|capfirst }}</td>
-                    <td>
-                        <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.complete_file.file_name }}">
-                            [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
-                        </a>
-                    </td>
-                </tr>
-                </thead>
-
-            </table>
+            <tr>
+                <td class="label">{{ section.name|capfirst }}</td>
+                <td>
+                    <a href="/open-data/{{ section.complete_file.file_name }}">
+                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
             {% endfor %}
+            <tr>
+                <td class="label">Metadati </td>
+                <td>
+                    <a href="/open-data/{{ cipe_metadata_file.file_name }}">
+                        [<i class="icon-download-alt"></i> xls {{ cipe_metadata_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            </thead>
+        </table>
 
-            <p>Ultimo aggiornamento: dati al 31/12/2012</p>
-            <p>Metadati <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ cipe_metadata_file.file_name }}">
-               [<i class="icon-download-alt"></i> zip/csv {{ cipe_metadata_file.file_size|filesizeformat }}]
-            </a></p>
+        <p>Ultimo aggiornamento: marzo 2014 su dati al 31/12/2013</p>
 
-        </div>
+        <hr/>
+
+    </div>
+
+
+
+
+
+
+
+
+
+    <h3 class="h3-switcher">
+        <a href="#" data-target="#spesa-content" id="spesa-title">
+            GLI OPEN DATA SULLE RISORSE FINANZIARIE DEI FS E SPESA CERTIFICATA <i class="icon-chevron-down"></i>
+        </a>
+    </h3>
+
+    <div id="spesa-content">
+
+        <p>
+            La <a href="/spesa-certificata">spesa certificata all’UE</a> corrisponde alle richieste
+            di rimborso delle spese sostenute che vengono
+            presentate alla Commissione Europea dalle Amministrazioni titolari dei Programmi cofinanziati dai Fondi
+            Strutturali. I dati vengono aggiornate in concomitanza all'adozione o all'aggiornamento di ciascun atto
+            programmatorio e alle scadenze per la certificazione. Visualizza i
+            <a href="/spesa-certificata-grafici/">grafici interattivi</a> per ciascun Programma
+            Operativo.
+        </p>
+
+        <table class="table" id="spesa">
+            <thead>
+            <tr>
+                <td class="label" style="width: 50%">Dotazione finanziaria complessiva e spesa certificata alla CE </td>
+                <td>
+                    <a href="/open-data/{{ spesa_dotazione_file.file_name }}">
+                        [<i class="icon-download-alt"></i> xlsx {{ spesa_dotazione_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td class="label" style="width: 50%">Target di spesa certificata </td>
+                <td>
+                    <a href="/open-data/{{ spesa_target_file.file_name }}">
+                        [<i class="icon-download-alt"></i> xlsx {{ spesa_target_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            </thead>
+        </table>
+
+        <p>Ultimo aggiornamento: dati al 31/12/2013</p>
+
+        <hr/>
+
+    </div>
+
+
+
+
+
+    <h3 class="h3-switcher">
+        <a href="#" data-target="#istat-content" id="istat-title">
+            GLI OPEN DATA SUGLI INDICATORI TERRITORIALI DI CONTESTO DPS/Istat <i class="icon-chevron-down"></i>
+        </a>
+    </h3>
+
+    <div id="istat-content">
+
+        <p>
+            Gli indicatori territoriali di contesto contengono le statistiche presenti nella banca dati DPS-Istat, composta
+            da circa 200 variabili in serie storica annuale a partire generalmente dal 1995, articolate per area tematica
+            e per priorità dei diversi cicli di programmazione e aggiornate con cadenza mensile. I dati sono scaricabili
+            anche dal <a href="http://www.istat.it/it/archivio/16777">sito Istat</a>, con disaggregazioni per territorio (regionali, provinciali e comunali), priorità e asse,
+            senza l’attribuzione del tema sintetico con cui sono visualizzati su OpenCoesione.
+            La <a href="http://www.istat.it/it/note-legali">licenza utilizzata da Istat</a> è CC BY 3.0.
+        </p>
+
+        <table class="table" id="istat">
+            <thead>
+            <tr>
+                <td class="label" style="width: 50%">Indicatori territoriali di contesto *</td>
+                <td>
+                    <a href="/open-data/{{ istat_data_file.file_name }}">
+                        [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Metadati</td>
+                <td>
+                    <a href="/open-data/{{ istat_metadata_file.file_name }}">
+                        [<i class="icon-download-alt"></i> xls {{ istat_metadata_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            </thead>
+
+        </table>
+
+        <p>Ultimo aggiornamento: marzo 2014 su dati al 31/12/2013 ove disponibili</p>
+
+        <hr/>
+
+    </div>
+
+
+
+
+
+    <h3 class="h3-switcher">
+        <a href="#" data-target="#cpt-content" id="cpt-title">
+            GLI OPEN DATA SUI CONTI PUBBLICI TERRITORIALI (CPT) <i class="icon-chevron-down"></i>
+        </a>
+    </h3>
+
+    <div id="cpt-content">
+
+        <p>
+            Il dataset dei <a href="http://www.dps.tesoro.it/cpt/cpt.asp">Conti Pubblici Territoriali (CPT)</a> contiene
+            informazioni sui flussi finanziari (entrate e spese
+            in conto corrente e in conto capitale) della Pubblica Amministrazione e del Settore Pubblico Allargato
+            articolate per settori di intervento, livello di governo e categoria economica in serie storica annuale a
+            partire dal 1996, aggiornata con cadenza annuale.
+        </p>
+
+        <table class="table" id="cpt">
+            <thead>
+            <tr>
+                <td class="label" style="width: 20%">Pubblica amministrazione</td>
+                <td>
+                    Entrate <a href="/open-data/{{ cpt_pa_in_file.file_name }}">
+                        [<i class="icon-download-alt"></i> zip/csv {{ cpt_pa_in_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+                <td>
+                    Uscite <a href="/open-data/{{ cpt_pa_out_file.file_name }}">
+                        [<i class="icon-download-alt"></i> zip/csv {{ cpt_pa_out_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td class="label" style="width: 20%">Settore pubblico allargato</td>
+                <td>
+                    Entrate <a href="/open-data/{{ cpt_spa_in_file.file_name }}">
+                        [<i class="icon-download-alt"></i> zip/csv {{ cpt_spa_in_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+                <td>
+                    Uscite <a href="/open-data/{{ cpt_spa_out_file.file_name }}">
+                        [<i class="icon-download-alt"></i> zip/csv {{ cpt_spa_out_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Metadati</td>
+                <td></td>
+                <td>
+                    <a href="/open-data/{{ cpt_metadata_file.file_name }}">
+                        [<i class="icon-download-alt"></i> xls {{ cpt_metadata_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            </thead>
+
+        </table>
+
+        <p>Ultimo aggiornamento: marzo 2013 su dati al 31/12/2011 ove disponibili</p>
+
     </div>
 
   </div>
@@ -215,6 +415,29 @@
     {% addtoblock "js_script" %}
       <script type='text/javascript'>//<![CDATA[
       $(window).load(function(){
+        jQuery('.h3-switcher a').each( function() {
+            jQuery(this).children('i').removeClass('icon-chevron-up');
+            jQuery(this).children('i').addClass('icon-chevron-down');
+            jQuery(this).parent().removeClass('selected');
+            jQuery(this.dataset['target']).hide();
+        }).click(function(){
+            to_show = !jQuery(this).parent().hasClass('selected');
+            jQuery('.h3-switcher a').each( function() {
+                jQuery(this).children('i').removeClass('icon-chevron-up');
+                jQuery(this).children('i').addClass('icon-chevron-down');
+                jQuery(this).parent().removeClass('selected');
+                jQuery(this.dataset['target']).hide();
+            });
+
+            if (to_show) {
+                jQuery(this).children('i').removeClass('icon-chevron-down');
+                jQuery(this).children('i').addClass('icon-chevron-up');
+                jQuery(this).parent().addClass('selected');
+                jQuery(this.dataset['target']).show();
+            }
+            return false;
+
+        });
         jQuery('.switcher a').click(function(){
             to_show = !jQuery(this).parent().hasClass('selected');
             jQuery('.collapse').each( function() {
@@ -242,4 +465,31 @@
 
 {% endblock %}
 
-{% block sidebar %}{% endblock %}
+{% block sidebar %}
+
+    <div class="flat_content">
+        <p>
+            Per open data (letteralmente "dati aperti") si intendono informazioni pubblicate in formato tale che siano:
+        </p>
+
+            <ul>
+                <li>accessibili (soprattutto via internet) senza limitazioni secondo l'identità o lo scopo dell'utente;</li>
+                <li>elaborabili da un'applicazione informatica senza che sia necessaria la disponibilità di uno specifico software;</li>
+                <li>accompagnati da licenze che non pongano restrizioni sull'uso e sul riuso.</li>
+            </ul>
+
+        <p>
+            Per ulteriori informazioni sulla strategia nazionale di open data consulta il portale nazionale dati.gov.it
+        </p>
+
+        <p>
+            Le informazioni sull'attuazione della programmazione 2007-2013 sono raccolte in un unico sistema
+            di monitoraggio, amministrato dalla Ragioneria Generale dello Stato (Ministero dell'Economia).
+        </p>
+
+        <p>
+            I dataset pubblicati su OpenCoesione offrono una restituzione parziale di  questo monitoraggio in una forma adatta
+            a rispondere agli interessi conoscitivi dei cittadini.
+        </p>
+    </div>
+{% endblock %}
