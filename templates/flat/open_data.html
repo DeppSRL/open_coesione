@@ -52,7 +52,7 @@
             I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che gestiscono i fondi,
             aggiungendo alcune variabili (identificabili nei dataset con il suffisso DPS_) che facilitano leggibilità e
             coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
-            <a href="#">file di raccordo</a> (XLS, xxx Mb) con i temi prioritari UE e con la classificazione CUP.
+            <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb) con i temi prioritari UE e con la classificazione CUP.
             L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
         </p>
 
@@ -60,9 +60,9 @@
         <table class="table" id="fs0713">
             <thead>
             <tr>
-                <td class="label">{{ section.name|capfirst }}</td>
+                <td class="label">{{ section.name|capfirst }} *</td>
                 <td>
-                    <a href="/open-data/{{ section.complete_file.file_name }}">
+                    <a href="/opendata/{{ section.complete_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -77,7 +77,7 @@
             <tr>
                 <td class="label"></td>
                 <td colspan="2">
-                    <a href="/open-data/{{ section.name }}/{{ file.file_name }}">
+                    <a href="/opendata/{{ section.name }}/{{ file.file_name }}">
                         {{ file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -120,7 +120,7 @@
             <tr>
                 <td class="label">Metadati </td>
                 <td>
-                    <a href="/open-data/{{ fs_metadata_file.file_name }}">
+                    <a href="/opendata/{{ fs_metadata_file.file_name }}">
                         [<i class="icon-download-alt"></i> xls {{ fs_metadata_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -162,7 +162,7 @@
             I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi,
             aggiungendo alcune variabili (identificabili nei dataset con il suffisso DPS_) che facilitano leggibilità e
             coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
-            <a href="#">file di raccordo</a> (XLS, xxx Mb) con i temi prioritari UE e con la classificazione CUP.
+            <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb) con i temi prioritari UE e con la classificazione CUP.
             L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
         </p>
 
@@ -170,9 +170,9 @@
             <thead>
             {% for section_code, section in fsc_sections.items %}
             <tr>
-                <td class="label">{{ section.name|capfirst }}</td>
+                <td class="label">{{ section.name|capfirst }} *</td>
                 <td>
-                    <a href="/open-data/{{ section.complete_file.file_name }}">
+                    <a href="/opendata/{{ section.complete_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -182,7 +182,7 @@
             <tr>
                 <td class="label">Metadati </td>
                 <td>
-                    <a href="/open-data/{{ fsc_metadata_file.file_name }}">
+                    <a href="/opendata/{{ fsc_metadata_file.file_name }}">
                         [<i class="icon-download-alt"></i> xls {{ fsc_metadata_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -209,17 +209,17 @@
             nazionale e regionale sono le Delibere CIPE, che riguardano le informazioni disponibili al momento in
             cui è stata assunta la decisione di finanziamento e non hanno caratteristica di monitoraggio. I dati sono
             scaricabili anche dal sito del CIPE, senza l’attribuzione del tema sintetico con cui sono visualizzati su
-            OpenCoesione. Consulta il file di raccordo (XLS, xxx Mb) con i temi prioritari UE e con la classificazione
-            CUP.
+            OpenCoesione. Consulta il <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb)
+            con i temi prioritari UE e con la classificazione CUP.
         </p>
 
         <table class="table" id="cipe0713">
             <thead>
             {% for section_code, section in cipe_sections.items %}
             <tr>
-                <td class="label">{{ section.name|capfirst }}</td>
+                <td class="label">{{ section.name|capfirst }} *</td>
                 <td>
-                    <a href="/open-data/{{ section.complete_file.file_name }}">
+                    <a href="/opendata/{{ section.complete_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -228,7 +228,7 @@
             <tr>
                 <td class="label">Metadati </td>
                 <td>
-                    <a href="/open-data/{{ cipe_metadata_file.file_name }}">
+                    <a href="/opendata/{{ cipe_metadata_file.file_name }}">
                         [<i class="icon-download-alt"></i> xls {{ cipe_metadata_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -273,7 +273,7 @@
             <tr>
                 <td class="label" style="width: 50%">Dotazione finanziaria complessiva e spesa certificata alla CE </td>
                 <td>
-                    <a href="/open-data/{{ spesa_dotazione_file.file_name }}">
+                    <a href="/opendata/{{ spesa_dotazione_file.file_name }}">
                         [<i class="icon-download-alt"></i> xlsx {{ spesa_dotazione_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -281,7 +281,7 @@
             <tr>
                 <td class="label" style="width: 50%">Target di spesa certificata </td>
                 <td>
-                    <a href="/open-data/{{ spesa_target_file.file_name }}">
+                    <a href="/opendata/{{ spesa_target_file.file_name }}">
                         [<i class="icon-download-alt"></i> xlsx {{ spesa_target_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -321,7 +321,7 @@
             <tr>
                 <td class="label" style="width: 50%">Indicatori territoriali di contesto *</td>
                 <td>
-                    <a href="/open-data/{{ istat_data_file.file_name }}">
+                    <a href="/opendata/{{ istat_data_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -329,7 +329,7 @@
             <tr>
                 <td class="label">Metadati</td>
                 <td>
-                    <a href="/open-data/{{ istat_metadata_file.file_name }}">
+                    <a href="/opendata/{{ istat_metadata_file.file_name }}">
                         [<i class="icon-download-alt"></i> xls {{ istat_metadata_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -369,12 +369,12 @@
             <tr>
                 <td class="label" style="width: 20%">Pubblica amministrazione</td>
                 <td>
-                    Entrate <a href="/open-data/{{ cpt_pa_in_file.file_name }}">
+                    Entrate <a href="/opendata/{{ cpt_pa_in_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_pa_in_file.file_size|filesizeformat }}]
                     </a>
                 </td>
                 <td>
-                    Uscite <a href="/open-data/{{ cpt_pa_out_file.file_name }}">
+                    Uscite <a href="/opendata/{{ cpt_pa_out_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_pa_out_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -382,12 +382,12 @@
             <tr>
                 <td class="label" style="width: 20%">Settore pubblico allargato</td>
                 <td>
-                    Entrate <a href="/open-data/{{ cpt_spa_in_file.file_name }}">
+                    Entrate <a href="/opendata/{{ cpt_spa_in_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_spa_in_file.file_size|filesizeformat }}]
                     </a>
                 </td>
                 <td>
-                    Uscite <a href="/open-data/{{ cpt_spa_out_file.file_name }}">
+                    Uscite <a href="/opendata/{{ cpt_spa_out_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_spa_out_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -396,7 +396,7 @@
                 <td class="label">Metadati</td>
                 <td></td>
                 <td>
-                    <a href="/open-data/{{ cpt_metadata_file.file_name }}">
+                    <a href="/opendata/{{ cpt_metadata_file.file_name }}">
                         [<i class="icon-download-alt"></i> xls {{ cpt_metadata_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -408,6 +408,8 @@
         <p>Ultimo aggiornamento: marzo 2013 su dati al 31/12/2011 ove disponibili</p>
 
     </div>
+
+    <p style="margin-top: 2em;"></p>
 
   </div>
 
@@ -464,6 +466,9 @@
     {% endaddtoblock %}
 
 {% endblock %}
+
+
+
 
 {% block sidebar %}
 

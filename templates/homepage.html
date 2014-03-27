@@ -114,15 +114,22 @@
 
       </section>
       <section class="span6">
-
         <hr class="big">
 
-        <h1 class='title'><span>Pillole di Open Coesione</span></h1>
+        <h1 class='title'><span>Pillole di OpenCoesione</span></h1>
+
+        <p>Le Pillole di OpenCoesione propongono approfondimenti e spunti di
+            riflessione sulle politiche di coesione. Consultale per una chiave di
+            lettura di cosa ci raccontano i dati.</p>
+
         <table class="table">
           {% for pillola in latest_pillole %}
             <tr>
               <td>
-                  <a href="{{ MEDIA_URL }}{{ pillola.file.name }}">{{ pillola.title }}</a><br/>
+                  <a href="{{ MEDIA_URL }}{{ pillola.file.name }}">{{ pillola.title }}</a>
+                  (<a href="{{ pillola.file.url }}"><i class="icon-download-alt"></i> scarica il file</a>
+                  <span style="color:black;">{{ pillola.file.name|slice:"-3:"|lower }}: {{ pillola.file.size|filesizeformat }}</span>)
+                  <br/>
                   <p>
                       {{ pillola.description|safe }}
                   </p>
@@ -130,6 +137,8 @@
             </tr>
           {% endfor %}
         </table>
+
+        <p>Vai a <a href="/pillole">tutte le pillole di OpenCoesione</a> </p>
       </section>
 
     </div>

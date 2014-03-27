@@ -6,6 +6,16 @@
   <div class="container">
     <div class="row">
       <div class="span12" id="pillole" style="margin-top: 2em;">
+        <p>
+            Le Pillole di OpenCoesione sono brevi testi che propongono spunti di
+            riflessione sulle politiche di coesione.
+            Alcune di esse accompagnano gli aggiornamenti bimestrali dei dati sui progetti
+            di OpenCoesione fornendo una lettura generale dei principali cambiamenti
+            avvenuti nel corso del bimestre. Altre approfondiscono specifici aspetti
+            rilevanti in modo da favorire la comprensione del mondo dei progetti
+            in attuazione e delle politiche di coesione più in generale.
+        </p>
+        <hr>
 
         {% for pillola in object_list %}
           <article id="pillola-{{ pillola.pk }}">
@@ -27,7 +37,7 @@
             </div>
           </article>
 
-            <hr>
+          <hr>
         {% endfor %}
 
       </div>

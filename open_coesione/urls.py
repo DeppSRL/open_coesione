@@ -70,8 +70,8 @@ urlpatterns = patterns('',
 
     url(r'^rassegna-stampa/', PressView.as_view()),
 
-    url(r'^open-data/(?P<path>.+)$', OpendataRedirectView.as_view()),
-    url(r'^open-data/$', OpendataView.as_view(template_name='flat/open_data.html')),
+    url(r'^opendata/(?P<path>.+)$', OpendataRedirectView.as_view()),
+    url(r'^opendata/$', OpendataView.as_view(template_name='flat/open_data.html')),
 
 
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login'),
