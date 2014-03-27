@@ -25,7 +25,8 @@
 
     <p>
       Tutti i dati sono rilasciati con licenza <a href="http://www.creativecommons.org/licenses/by-sa/3.0/it/deed.it">CC BY-SA 3.0</a>
-      e in formato CSV compresso (leggibile da Excel), quando non altrimenti specificato.
+      e in <a href="http://it.wikipedia.org/wiki/Comma-separated_values">formato CSV</a>
+      compresso (leggibile da Excel), quando non altrimenti specificato.
     </p>
 
     <h3 class="h3-switcher">
@@ -48,6 +49,7 @@
             I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
             Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_XXX"
             associato a ciascuno di essi.
+            L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
         </p>
 
         <p>
@@ -55,7 +57,6 @@
             aggiungendo alcune variabili (identificabili nei dataset con il suffisso DPS_) che facilitano leggibilità e
             coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
             <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb) con i temi prioritari UE e con la classificazione CUP.
-            L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
         </p>
 
         {% for section_code, section in fs_sections.items %}
@@ -146,7 +147,7 @@
 
         <p>
             Sono scaricabili dati riferiti ai singoli progetti finanziati con il
-            <a href="/fonti-di-finanziamento/#fondi-europei">Fondo nazionale per lo Sviluppo e la
+            <a href="/fonti-di-finanziamento/#fondi-nazionali">Fondo nazionale per lo Sviluppo e la
             Coesione (FSC)</a>, organizzati in forma relazionale: "Progetti" è il dataset principale e può essere scaricato
             anche da solo, mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari
             collegate al dataset principale attraverso un campo chiave che identifica lo stesso progetto nelle diverse
@@ -157,14 +158,15 @@
             I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
             Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_XXX"
             associato a ciascuno di essi.
+            L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
         </p>
 
         <p>
             I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi,
             aggiungendo alcune variabili (identificabili nei dataset con il suffisso DPS_) che facilitano leggibilità e
             coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
-            <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb) con i temi prioritari UE e con la classificazione CUP.
-            L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
+            <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb)
+            con i temi prioritari UE e con la classificazione CUP.
         </p>
 
         <table class="table" id="fsc0713">
@@ -204,7 +206,7 @@
 
         <p>
             La fonte delle assegnazioni del
-            <a href="/fonti-di-finanziamento/#fondi-europei">Fondo nazionale per lo Sviluppo e la Coesione (FSC)</a>
+            <a href="/fonti-di-finanziamento/#fondi-nazionali">Fondo nazionale per lo Sviluppo e la Coesione (FSC)</a>
             a destinazione
             nazionale e regionale sono le <a href="http://www.cipecomitato.it/it">Delibere CIPE</a>,
             che riguardano le informazioni disponibili al momento in
@@ -252,7 +254,7 @@
 
     <h3 class="h3-switcher">
         <a href="#" data-target="#spesa-content" id="spesa-title">
-            Open data sulle Risorse Finanziare dei FS e spesa certificata 2007/2013 <i class="icon-chevron-down"></i>
+            Open data sulle risorse finanziarie dei FS e spesa certificata 2007/2013 <i class="icon-chevron-down"></i>
         </a>
     </h3>
 
@@ -262,7 +264,7 @@
             La <a href="/spesa-certificata">spesa certificata all’UE</a> corrisponde alle richieste
             di rimborso delle spese sostenute che vengono
             presentate alla Commissione Europea dalle Amministrazioni titolari dei Programmi cofinanziati dai Fondi
-            Strutturali. I dati vengono aggiornate in concomitanza all'adozione o all'aggiornamento di ciascun atto
+            Strutturali. I dati vengono aggiornati in concomitanza all'adozione o all'aggiornamento di ciascun atto
             programmatorio e alle scadenze per la certificazione. Visualizza i
             <a href="/spesa-certificata-grafici/">grafici interattivi</a> per ciascun Programma
             Operativo.

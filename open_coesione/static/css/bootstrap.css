@@ -5249,6 +5249,11 @@ section h2.title span {
   text-align: center;
   clear: both;
 }
+#wrapper > footer div.data-disclaimer {
+  width: 200px;
+  float: right;
+  margin-left: 15px;
+}
 #wrapper > footer a {
   color: #ffffff;
 }
