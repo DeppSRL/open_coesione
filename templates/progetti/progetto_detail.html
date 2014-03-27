@@ -620,7 +620,7 @@
                 <br>
                 <dt>Note</dt>
                 <dd>
-                    {% if overlapping_projects %}
+                    {% if overlapping_projects and not progetto.cipe_flag %}
                         Questo progetto attua le assegnazioni CIPE:<br>
                         <ul>
                         {% for overlapping_project in overlapping_projects %}
