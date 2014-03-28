@@ -7,15 +7,12 @@
 
   <div class="flat_content" id="open-data-download">
 
-    <h1>Open data</h1>
-
-    <h3>Scarica i dati</h3>
-
+    <h1>Scarica gli Open data</h1>
 
     <p>
         È disponibile in formato aperto un insieme di dati collegati alle politiche di coesione, di cui una parte,
         relativa al monitoraggio dei progetti in attuazione e al contesto territoriale, è direttamente navigabile nel
-        portale (sono segnalati con *).
+        portale (i dati non navigabili sono segnalati con *).
     </p>
 
     <p>
@@ -63,7 +60,7 @@
         <table class="table" id="fs0713">
             <thead>
             <tr>
-                <td class="label">{{ section.name|capfirst }} *</td>
+                <td class="label">{{ section.name|capfirst }}</td>
                 <td>
                     <a href="/opendata/{{ section.complete_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
@@ -173,7 +170,7 @@
             <thead>
             {% for section_code, section in fsc_sections.items %}
             <tr>
-                <td class="label">{{ section.name|capfirst }} *</td>
+                <td class="label">{{ section.name|capfirst }}</td>
                 <td>
                     <a href="/opendata/{{ section.complete_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
@@ -221,7 +218,7 @@
             <thead>
             {% for section_code, section in cipe_sections.items %}
             <tr>
-                <td class="label">{{ section.name|capfirst }} *</td>
+                <td class="label">{{ section.name|capfirst }}</td>
                 <td>
                     <a href="/opendata/{{ section.complete_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
@@ -254,7 +251,7 @@
 
     <h3 class="h3-switcher">
         <a href="#" data-target="#spesa-content" id="spesa-title">
-            Open data sulle risorse finanziarie dei FS e spesa certificata 2007/2013 <i class="icon-chevron-down"></i>
+            Open data sulle risorse finanziarie dei Fondi Strutturali e spesa certificata 2007/2013 <i class="icon-chevron-down"></i>
         </a>
     </h3>
 
@@ -273,7 +270,7 @@
         <table class="table" id="spesa">
             <thead>
             <tr>
-                <td class="label" style="width: 50%">Dotazione finanziaria complessiva e spesa certificata alla CE </td>
+                <td class="label" style="width: 50%">Dotazione finanziaria complessiva e spesa certificata alla CE *</td>
                 <td>
                     <a href="/opendata/{{ spesa_dotazione_file.file_name }}">
                         [<i class="icon-download-alt"></i> xlsx {{ spesa_dotazione_file.file_size|filesizeformat }}]
@@ -281,7 +278,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="label" style="width: 50%">Target di spesa certificata </td>
+                <td class="label" style="width: 50%">Target di spesa certificata *</td>
                 <td>
                     <a href="/opendata/{{ spesa_target_file.file_name }}">
                         [<i class="icon-download-alt"></i> xlsx {{ spesa_target_file.file_size|filesizeformat }}]
@@ -291,8 +288,8 @@
             </thead>
         </table>
 
-        <p>Ultimo aggiornamento: dati al 31/12/2013</p>
-
+        <p>Ultimo aggiornamento: dati al 31/12/2013.<br>
+            I dati non navigabili sono segnalati con *.</p>
     </div>
 
 
@@ -301,7 +298,7 @@
 
     <h3 class="h3-switcher">
         <a href="#" data-target="#istat-content" id="istat-title">
-            Open data sugli indicatori territoriali di contesto DPS/Istat
+            Open data sugli indicatori territoriali di contesto DPS-Istat
             <i class="icon-chevron-down"></i>
         </a>
     </h3>
@@ -320,7 +317,7 @@
         <table class="table" id="istat">
             <thead>
             <tr>
-                <td class="label" style="width: 50%">Indicatori territoriali di contesto *</td>
+                <td class="label" style="width: 50%">Indicatori territoriali di contesto</td>
                 <td>
                     <a href="/opendata/{{ istat_data_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]
@@ -349,7 +346,7 @@
 
     <h3 class="h3-switcher">
         <a href="#" data-target="#cpt-content" id="cpt-title">
-            Open data sui conti pubblici territoriali (CPT) <i class="icon-chevron-down"></i>
+            Open data sui Conti Pubblici Territoriali (CPT) <i class="icon-chevron-down"></i>
         </a>
     </h3>
 
@@ -366,7 +363,7 @@
         <table class="table" id="cpt">
             <thead>
             <tr>
-                <td class="label" style="width: 20%">Pubblica amministrazione</td>
+                <td class="label" style="width: 20%">Pubblica amministrazione *</td>
                 <td>
                     Entrate <a href="/opendata/{{ cpt_pa_in_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_pa_in_file.file_size|filesizeformat }}]
@@ -379,7 +376,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="label" style="width: 20%">Settore pubblico allargato</td>
+                <td class="label" style="width: 20%">Settore pubblico allargato *</td>
                 <td>
                     Entrate <a href="/opendata/{{ cpt_spa_in_file.file_name }}">
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_spa_in_file.file_size|filesizeformat }}]
@@ -404,7 +401,8 @@
 
         </table>
 
-        <p>Ultimo aggiornamento: marzo 2013 su dati al 31/12/2011 ove disponibili</p>
+        <p>Ultimo aggiornamento: marzo 2013 su dati al 31/12/2011 ove disponibili.<br>
+        I dati non navigabili sono segnalati con *.</p>
 
     </div>
 
@@ -420,21 +418,21 @@
             jQuery(this).children('i').removeClass('icon-chevron-up');
             jQuery(this).children('i').addClass('icon-chevron-down');
             jQuery(this).parent().removeClass('selected');
-            jQuery(this.dataset['target']).hide();
+            jQuery(this.getAttribute('data-target')).hide();
         }).click(function(){
             to_show = !jQuery(this).parent().hasClass('selected');
             jQuery('.h3-switcher a').each( function() {
                 jQuery(this).children('i').removeClass('icon-chevron-up');
                 jQuery(this).children('i').addClass('icon-chevron-down');
                 jQuery(this).parent().removeClass('selected');
-                jQuery(this.dataset['target']).hide();
+                jQuery(this.getAttribute('data-target')).hide();
             });
 
             if (to_show) {
                 jQuery(this).children('i').removeClass('icon-chevron-down');
                 jQuery(this).children('i').addClass('icon-chevron-up');
                 jQuery(this).parent().addClass('selected');
-                jQuery(this.dataset['target']).show();
+                jQuery(this.getAttribute('data-target')).show();
             }
             return false;
 
@@ -456,7 +454,7 @@
                 jQuery(this).children('i').addClass('icon-chevron-up');
                 jQuery(this).parent().addClass('selected');
                 jQuery(this).parent().parent().addClass('selected');
-                jQuery(this.dataset['target']).show();
+                jQuery(this.getAttribute('data-target')).show();
             }
             return false;
         });

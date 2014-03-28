@@ -127,8 +127,8 @@
             <tr>
               <td>
                   <a href="{{ MEDIA_URL }}{{ pillola.file.name }}">{{ pillola.title }}</a>
-                  (<a href="{{ pillola.file.url }}"><i class="icon-download-alt"></i> scarica il file</a>
-                  <span style="color:black;">{{ pillola.file.name|slice:"-3:"|lower }}: {{ pillola.file.size|filesizeformat }}</span>)
+                  (<a href="{{ pillola.file.url }}"><i class="icon-download-alt"></i>
+                  <span style="color:black;">{{ pillola.file.name|slice:"-3:"|lower }}: {{ pillola.file.size|filesizeformat }}</span></a>)
                   <br/>
                   <p>
                       {{ pillola.description|safe }}
