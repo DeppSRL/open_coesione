@@ -126,8 +126,8 @@
           {% for pillola in latest_pillole %}
             <tr>
               <td>
-                  <a href="{{ MEDIA_URL }}{{ pillola.file.name }}">{{ pillola.title }}</a>
-                  (<a href="{{ pillola.file.url }}"><i class="icon-download-alt"></i>
+                  <a href="/{{ pillola.file.name }}">{{ pillola.title }}</a>
+                  (<a href="/{{ pillola.file.name }}"><i class="icon-download-alt"></i>
                   <span style="color:black;">{{ pillola.file.name|slice:"-3:"|lower }}: {{ pillola.file.size|filesizeformat }}</span></a>)
                   <br/>
                   <p>
@@ -138,7 +138,7 @@
           {% endfor %}
         </table>
 
-        <p>Vai a <a href="/pillole">tutte le pillole di OpenCoesione</a> </p>
+        <p>Vai a <a href="{% url 'pillole' %}">tutte le Pillole di OpenCoesione</a> </p>
       </section>
 
     </div>

@@ -24,7 +24,7 @@
                 <small>{{ pillola.published_at|date:'d/m/Y' }}</small>
                   {% if pillola.file %}
                     <small>
-                      <a href="{{ pillola.file.url }}"><i class="icon-download-alt"></i>
+                      <a href="/{{ pillola.file.name }}"><i class="icon-download-alt"></i>
                         <span style="color:black;">{{ pillola.file.name|slice:"-3:"|lower }}, {{ pillola.file.size|filesizeformat }}</span></a>
                     </small>
                   {% endif %}

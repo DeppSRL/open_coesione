@@ -3,7 +3,7 @@ from django.contrib.gis import admin
 from django.conf import settings
 from django.views.generic.base import TemplateView
 from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView, PressView, SpesaCertificataView, \
-    OpendataView, PilloleView, OpendataRedirectView
+    OpendataView, PilloleView, OpendataRedirectView, PilloleRedirectView
 from rubrica.views import NLContactView
 
 admin.autodiscover()
@@ -31,7 +31,8 @@ urlpatterns = patterns('',
     url(r'^news/', include('blog.urls')),
 
     # pilole
-    url(r'^pillole$', PilloleView.as_view(), name='pillole'),
+    url(r'^pillole/(?P<path>.+)$', PilloleRedirectView.as_view(), name='pillole_clean'),
+    url(r'^pillole/$', PilloleView.as_view(), name='pillole'),
 
     # api
     url(r'^api/', include('api.urls')),
@@ -70,8 +71,8 @@ urlpatterns = patterns('',
 
     url(r'^rassegna-stampa/', PressView.as_view()),
 
-    url(r'^opendata/(?P<path>.+)$', OpendataRedirectView.as_view()),
-    url(r'^opendata/$', OpendataView.as_view(template_name='flat/open_data.html')),
+    url(r'^opendata/(?P<path>.+)$', OpendataRedirectView.as_view(), name='opendata_clean'),
+    url(r'^opendata/$', OpendataView.as_view(template_name='flat/open_data.html'), name='opendata'),
 
 
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login'),

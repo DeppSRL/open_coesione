@@ -466,6 +466,13 @@ class OpendataView(TemplateView):
             })
         return files
 
+
+class PilloleRedirectView(RedirectView):
+
+   def get_redirect_url(self, **kwargs):
+        return "/media/pillole/{0}".format(kwargs['path'])
+
+
 class OpendataRedirectView(RedirectView):
 
    def get_redirect_url(self, **kwargs):
