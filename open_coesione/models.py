@@ -1,5 +1,7 @@
 # coding=utf-8
 from django.db import models
+from django.dispatch import receiver
+import os
 
 class ContactMessage(models.Model):
 
@@ -55,3 +57,39 @@ class Pillola(models.Model):
     class Meta:
         verbose_name_plural = "Pillole"
         verbose_name = "Pillola"
+
+
+
+
+# These two auto-delete files from filesystem when they are unneeded:
+@receiver(models.signals.post_delete, sender=Pillola)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+@receiver(models.signals.pre_save, sender=Pillola)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """Deletes file from filesystem
+    when corresponding `Pillola` object is changed.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = Pillola.objects.get(pk=instance.pk).file
+    except Pillola.DoesNotExist:
+        return False
+
+    if not hasattr(old_file, 'file'):
+        return False
+
+    new_file = instance.file
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+

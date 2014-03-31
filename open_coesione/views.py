@@ -47,7 +47,7 @@ class PilloleView(ListView):
 
     def get_queryset(self):
         queryset = super(PilloleView, self).get_queryset()
-        return queryset.order_by('-published_at')
+        return queryset.order_by('-published_at', '-id')
 
 
 
@@ -208,7 +208,7 @@ class HomeView(AccessControlView, AggregatoView, TemplateView):
             serializable_context.pop('view', None)
             cache.set(key, serializable_context)
 
-        context['latest_pillole'] = Pillola.objects.order_by('-published_at')[:3]
+        context['latest_pillole'] = Pillola.objects.order_by('-published_at', '-id')[:3]
         return context
 
 
