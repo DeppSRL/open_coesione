@@ -18,6 +18,7 @@ class ProgettoIndex(SearchIndex):
     fin_ue = FloatField(model_attr='fin_ue', null=True)
     fin_stato_fondo_rotazione = FloatField(model_attr='fin_stato_fondo_rotazione', null=True)
     fin_stato_fsc = FloatField(model_attr='fin_stato_fsc', null=True)
+    fin_stato_pac = FloatField(model_attr='fin_stato_pac', null=True)
     fin_stato_altri_provvedimenti = FloatField(model_attr='fin_stato_altri_provvedimenti', null=True)
     fin_regione = FloatField(model_attr='fin_regione', null=True)
     fin_provincia = FloatField(model_attr='fin_provincia', null=True)
