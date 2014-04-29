@@ -61,7 +61,7 @@ urlpatterns = patterns('',
 
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html')),
     url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),
-    url(r'^api-faq/', RisorseView.as_view(template_name='flat/api.html')),
+    url(r'^api-faq/', RisorseView.as_view(template_name='flat/api.html'), name='api-faq'),
     url(r'^spesa-certificata/',
         SpesaCertificataView.as_view(template_name='flat/spesa_certificata.html'),
                                      name='flat-spesa-certificata'),
