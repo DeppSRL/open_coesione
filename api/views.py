@@ -37,7 +37,7 @@ def api_root(request, format=None):
     You can request a username/password to authenticate,
     by writing an email to the following address: opencoesione@dps.gov.it.
 
-    If for some reasons, you need to scrape all the Open Coesione data, please consider a bulk **CSV download**.
+    If for some reasons, you need to scrape all the OpenCoesione data, please consider a bulk **CSV download**.
     See the ``http://www.opencoesione.gov.it/open-data/`` page in the web site.
     """
     return Response(
