@@ -34,6 +34,8 @@ def api_root(request, format=None):
     You can contact us to become an **authenticated API user** (it's still free),
     then the rate-limit would be lifted to **1 request per second**.
 
+    Authentication is done through HTTP Basic Authentication.
+
     You can request a username/password to authenticate,
     by writing an email to the following address: opencoesione@dps.gov.it.
 
