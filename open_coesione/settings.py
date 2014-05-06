@@ -371,3 +371,5 @@ WIDGETS = [
     'progetti.widgets.ProgettiWidget',
     'soggetti.widgets.SoggettoWidget',
 ]
+
+BIG_SOGGETTI_THRESHOLD = 50

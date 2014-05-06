@@ -150,7 +150,7 @@ class SoggettoView(AggregatoView, DetailView):
 
         # look for context in cache,
         # only for soggetti with a high number of progetti
-        if self.model.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
+        if self.object.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
             key = 'context' + self.request.get_full_path()
             context = cache.get(key)
             if context is not None:
@@ -354,7 +354,7 @@ class SoggettoView(AggregatoView, DetailView):
 
         # store context in cache,
         # only for soggetti with a high number of progetti
-        if self.model.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
+        if self.object.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
             serializable_context = context.copy()
             serializable_context.pop('view', None)
             cache.set(key, serializable_context)

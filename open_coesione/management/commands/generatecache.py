@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import subprocess
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
 from django.db.models import Count
@@ -34,7 +33,7 @@ class Command(BaseCommand):
                     help='Type of generation: recipients,home, temi, nature, regioni, province, estero, programmi'),
         make_option('--big-recipients-treshold',
                     dest='big_recipients_treshold',
-                    default='100',
+                    default='50',
                     help='Treshold for progetti.count to be considered a big recipient'),
     )
 
