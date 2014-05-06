@@ -61,7 +61,7 @@ def digg_paginator(context):
         next_page = page_obj.next_page_number()
     except EmptyPage:
         prev_page = 0
-        next_page = 0
+        next_page = 2
     return {
         'pages': pages,
         'page': page,

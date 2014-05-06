@@ -2,6 +2,7 @@ import StringIO
 import csv
 import json
 import zipfile
+import urllib
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
@@ -52,11 +53,18 @@ class ProgettoView(AccessControlView, DetailView):
             context['stessi_programmatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.programmatori)[:numero_collaboratori]
 
         context['total_cost'] = float(self.object.fin_totale_pubblico) if self.object.fin_totale_pubblico else 0.0
+        context['total_net_cost'] = float(self.object.fin_totale_pubblico_netto) if self.object.fin_totale_pubblico_netto else context['total_cost']
+        context['total_economie'] = float(self.object.economie_totali_pubbliche) if self.object.economie_totali_pubbliche else 0.0
         context['total_cost_paid'] = float(self.object.pagamento) if self.object.pagamento else 0.0
+
         # calcolo della percentuale del finanziamento erogato
-        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_cost'] if context['total_cost'] > 0.0 else 0.0)
+        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_net_cost'] if context['total_net_cost'] > 0.0 else 0.0)
 
         context['segnalazioni_pubblicate'] = self.object.segnalazioni
+
+        overlapping = Progetto.fullobjects.filter(overlapping_projects=self.object)
+        context['n_overlapping_projects'] = overlapping.count()
+        context['overlapping_projects'] = overlapping
 
         return context
 
@@ -168,6 +176,7 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
 
     def get_object(self, queryset=None, **kwargs):
         return Tema.objects.get(slug=self.kwargs.get('slug'))
+
 
 class CSVView(AggregatoView, DetailView):
 
@@ -379,6 +388,18 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
             extra['tema']['descrizione'][codice] = c.descrizione
             extra['tema']['short_label'][codice] = c.short_label
 
+        # definizione struttura dati per visualizzazione faccette tipo progetto
+        extra['tipo_progetto'] = {
+            'descrizione': {},
+            'short_label': {}
+        }
+        for c in Progetto.TIPI_PROGETTO:
+            codice, descrizione = c
+
+            extra['tipo_progetto']['descrizione'][codice] = descrizione
+            extra['tipo_progetto']['short_label'][codice] = descrizione
+
+
         extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
 
         # definizione struttura dati per visualizzazione faccette fonte
@@ -400,6 +421,11 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             page_obj = paginator.page(paginator.num_pages)
+
+
+        selected_facets = self.request.GET.getlist('selected_facets')
+        extra['search_within_non_active'] = 'is_active:0' in selected_facets
+
 
         extra['paginator'] = paginator
         extra['page_obj'] = page_obj
@@ -455,13 +481,14 @@ class CSVSearchResultsWriterMixin(object):
         writer.writerow([
             'COD_LOCALE_PROGETTO', 'CUP',
             'DPS_TITOLO_PROGETTO',
-            'DPS_TEMA_SINTETICO', 'CUP_DESCR_NATURA ',
-            'FIN_UE',
-            'FIN_STATO_FONDO_ROTAZIONE', 'FIN_STATO_FSC', 'FIN_STATO_ALTRI_PROVVEDIMENTI',
-            'FIN_REGIONE', 'FIN_PROVINCIA', 'FIN_COMUNE',
-            'FIN_ALTRO_PUBBLICO', 'FIN_STATO_ESTERO',
-            'FIN_PRIVATO', 'FIN_DA_REPERIRE',
-            'FIN_TOTALE_PUBBLICO',
+            'DPS_TEMA_SINTETICO', 'CUP_DESCR_NATURA',
+            'TIPO_PROGETTO',
+            'FINANZ_UE',
+            'FINANZ_STATO_FONDO_ROTAZIONE', 'FINANZ_STATO_FSC', 'FINANZ_STATO_PAC', 'FINANZ_STATO_ALTRI_PROVVEDIMENTI',
+            'FINANZ_REGIONE', 'FINANZ_PROVINCIA', 'FINANZ_COMUNE',
+            'FINANZ_ALTRO_PUBBLICO', 'FINANZ_STATO_ESTERO',
+            'FINANZ_PRIVATO', 'FINANZ_DA_REPERIRE',
+            'FINANZ_TOTALE_PUBBLICO',
             'TOT_PAGAMENTI',
             'QSN_FONDO_COMUNITARIO',
             'DPS_DATA_INIZIO_PREVISTA', 'DPS_DATA_FINE_PREVISTA',
@@ -494,9 +521,11 @@ class CSVSearchResultsWriterMixin(object):
                 unicode(r.titolo).encode('latin1', 'ignore'),
                 unicode(r.tema_descr).encode('latin1', 'ignore'),
                 unicode(r.natura_descr).encode('latin1', 'ignore'),
+                unicode(dict(Progetto.TIPI_PROGETTO)[r.tipo_progetto]).encode('latin1', 'ignore'),
                 locale.format("%.2f", r.fin_ue) if r.fin_ue is not None else "",
                 locale.format("%.2f", r.fin_stato_fondo_rotazione) if r.fin_stato_fondo_rotazione is not None else "",
                 locale.format("%.2f", r.fin_stato_fsc) if r.fin_stato_fsc is not None else "", 
+                locale.format("%.2f", r.fin_stato_pac) if r.fin_stato_pac is not None else "",
                 locale.format("%.2f", r.fin_stato_altri_provvedimenti) if r.fin_stato_altri_provvedimenti is not None else "",
                 locale.format("%.2f", r.fin_regione) if r.fin_regione is not None else "", 
                 locale.format("%.2f", r.fin_provincia) if r.fin_provincia is not None else "", 

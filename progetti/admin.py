@@ -5,6 +5,10 @@ class ProgrammaAsseObiettivoAdmin(admin.ModelAdmin):
     search_fields = ['descrizione',]
     list_filter = ('tipo_classificazione',)
 
+class ProgrammaLineaAzioneAdmin(admin.ModelAdmin):
+    search_fields = ['descrizione',]
+    list_filter = ('tipo_classificazione',)
+
 class LocalizzazioneInline(admin.TabularInline):
     model = Localizzazione
     raw_id_fields = ('progetto', 'territorio', )
@@ -83,6 +87,7 @@ admin.site.register(ClassificazioneQSN, ClassificazioneAdmin)
 admin.site.register(ClassificazioneAzione, ClassificazioneAzioneAdmin)
 admin.site.register(ClassificazioneOggetto, ClassificazioneAdmin)
 admin.site.register(ProgrammaAsseObiettivo, ProgrammaAsseObiettivoAdmin)
+admin.site.register(ProgrammaLineaAzione, ProgrammaLineaAzioneAdmin)
 admin.site.register(Tema, TemaAdmin)
 admin.site.register(Fonte)
 admin.site.register(DeliberaCIPE)

@@ -139,6 +139,10 @@ section h1.title, section h2.title {
 
 }
 
+.non_active {
+  background-color: #FCF8E3!important;
+}
+
 // custom main navbar
 #wrapper > header {
   padding-top: 1em;
@@ -271,6 +275,12 @@ section h1.title, section h2.title {
     clear: both;
   }
 
+  div.data-disclaimer {
+    width: 200px;
+    float: right;
+    margin-left: 15px;
+  }
+
   a {
     color: @white;
   }
@@ -374,6 +384,12 @@ ul.spaced {
   li {
     margin-bottom: 10px;
   }
+
+  &#overlapping-projects li {
+    margin-bottom: 2px;
+  }
+
+
 }
 
 
@@ -668,3 +684,86 @@ hr.big {
     }
   }
 }
+
+#informativa {
+  overflow: auto;
+  height: 200px;
+  color: #808080;
+  font-size: 11px;
+  border: 1px dotted;
+  padding-left: 1em;
+  h2 {
+    font-size: 13px;
+  }
+}
+
+#newsletter-form.form-horizontal {
+  .control-label {
+    width: 160px;
+  }
+  .controls {
+    margin-left: 180px;
+  }
+  input {
+    width: 50%;
+  }
+  textarea {
+    width: 70%;
+  }
+}
+
+#open-data-download {
+  h1, h2, h3 {
+    text-transform: none;
+  }
+
+  .table td {
+    text-align: right;
+    width: 29%;
+  }
+  .table td.label {
+    text-align: left;
+    width: 13%;
+  }
+
+  .table tbody tr {
+    border-bottom: 1px dotted lightgray;
+  }
+
+  .table tbody td {
+    border-bottom: 0;
+  }
+
+  .table tbody.collapse {
+    display: none;
+
+    &.in { display: block }
+  }
+
+  .table td.switcher.selected {
+    background-color: lightgray;
+  }
+
+  .table tr.selected {
+    background-color: #e6e6e6;
+  }
+
+  .row {
+    margin-top: 2em;
+  }
+
+  h3.h3-switcher {
+    margin-top: 1em;
+    padding-left: 0.3em;
+  }
+
+  h3.h3-switcher.selected {
+    background-color: lightgray;
+  }
+
+  h3.h3-switcher.selected + div {
+    border: 1px solid whitesmoke;
+    padding: 0.5em;
+  }
+}
+

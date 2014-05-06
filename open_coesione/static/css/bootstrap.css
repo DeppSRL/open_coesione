@@ -5135,6 +5135,9 @@ section h2.title span {
 #sidebar section {
   margin: 10px 0 20px 0;
 }
+.non_active {
+  background-color: #FCF8E3!important;
+}
 #wrapper > header {
   padding-top: 1em;
   background-image: url('../img/site-bg.png');
@@ -5246,6 +5249,11 @@ section h2.title span {
   text-align: center;
   clear: both;
 }
+#wrapper > footer div.data-disclaimer {
+  width: 200px;
+  float: right;
+  margin-left: 15px;
+}
 #wrapper > footer a {
   color: #ffffff;
 }
@@ -5339,6 +5347,9 @@ ul.spaced {
 }
 ul.spaced li {
   margin-bottom: 10px;
+}
+ul.spaced#overlapping-projects li {
+  margin-bottom: 2px;
 }
 .highcharts-container {
   overflow: visible !important;
@@ -5663,4 +5674,72 @@ hr.big.dark {
   background-image: linear-gradient(top, #005652, #005652);
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#005652', endColorstr='#005652', GradientType=0);
+}
+#informativa {
+  overflow: auto;
+  height: 200px;
+  color: #808080;
+  font-size: 11px;
+  border: 1px dotted;
+  padding-left: 1em;
+}
+#informativa h2 {
+  font-size: 13px;
+}
+#newsletter-form.form-horizontal .control-label {
+  width: 160px;
+}
+#newsletter-form.form-horizontal .controls {
+  margin-left: 180px;
+}
+#newsletter-form.form-horizontal input {
+  width: 50%;
+}
+#newsletter-form.form-horizontal textarea {
+  width: 70%;
+}
+#open-data-download h1,
+#open-data-download h2,
+#open-data-download h3 {
+  text-transform: none;
+}
+#open-data-download .table td {
+  text-align: right;
+  width: 29%;
+}
+#open-data-download .table td.label {
+  text-align: left;
+  width: 13%;
+}
+#open-data-download .table tbody tr {
+  border-bottom: 1px dotted lightgray;
+}
+#open-data-download .table tbody td {
+  border-bottom: 0;
+}
+#open-data-download .table tbody.collapse {
+  display: none;
+}
+#open-data-download .table tbody.collapse.in {
+  display: block;
+}
+#open-data-download .table td.switcher.selected {
+  background-color: lightgray;
+}
+#open-data-download .table tr.selected {
+  background-color: #e6e6e6;
+}
+#open-data-download .row {
+  margin-top: 2em;
+}
+#open-data-download h3.h3-switcher {
+  margin-top: 1em;
+  padding-left: 0.3em;
+}
+#open-data-download h3.h3-switcher.selected {
+  background-color: lightgray;
+}
+#open-data-download h3.h3-switcher.selected + div {
+  border: 1px solid whitesmoke;
+  padding: 0.5em;
 }

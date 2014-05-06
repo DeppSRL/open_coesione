@@ -152,6 +152,7 @@ INSTALLED_APPS = (
     'progetti',
     'territori',
     'soggetti',
+    'rubrica',
     'open_coesione',
     'oc_search',
     'blog',
@@ -299,7 +300,7 @@ LOGGING = {
         'csvimport': {
             'handlers': ['console', 'import_logfile'],
             'level': 'DEBUG',
-            'propagate': True,
+            'propagate': False,
         },
         'console': {
             'handlers': ['console'],

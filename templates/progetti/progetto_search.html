@@ -48,7 +48,7 @@
                 <p class="span4">
                     La tua ricerca supera i {{ n_max_downloadable }} progetti.<br/>
                     Puoi scaricare tutti gli open data
-                    <a href="http://opencoesione.gov.it/open-data/">qui</a>
+                    <a href="{% url 'opendata' %}">qui</a>
                 </p>
 
             {% endif %} 
@@ -84,9 +84,13 @@
 
 {% endblock %}
 
+{% block article_added_class %}{% if search_within_non_active %}non_active{% endif %}{% endblock article_added_class%}
+
 {% block sidebar %}
   <div class="flat_content">
-        <h4>Cerca tra i progetti</h4>
+        <h4>
+            Cerca tra i progetti {% if search_within_non_active %}non attivi{% endif %}
+        </h4>
         <form method="get" action="{% url 'progetti_search' %}" class="form-search form-condensed">
           <div class="control-group input-append">
             {%  spaceless %}
@@ -131,6 +135,13 @@
                     <dd>
                         <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
                         {{ tema.short_label|key:facet.r_label|safe }}
+                    </dd>
+                {% endif %}
+                {% if facet.field == 'tipo_progetto' and facets.fields.tipo_progetto.is_field_selected %}
+                    <dt>Tipo progetto</dt>
+                    <dd>
+                        <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
+                        {{ tipo_progetto.short_label|key:facet.r_label|safe }}
                     </dd>
                 {% endif %}
                 {% if facet.field == 'fonte' and facets.fields.fonte.is_field_selected %}
@@ -203,6 +214,25 @@
                 {% endif %}
             </dl>
 
+            {% comment %}
+            <!-- commented following a client request -->
+            <dl>
+                {% if facets.fields.tipo_progetto and not facets.fields.tipo_progetto.is_field_selected %}
+                    <dt>Tipo progetto</dt>
+                    {% for t in facets.fields.tipo_progetto.counts %}
+                        {% if t.1 %}
+                            <dd>
+                                {% if not t.2 %}
+                                    <a href="{{ base_url }}&selected_facets=tipo_progetto:{{ t.0|urlencode }}"
+                                       title="{{ tipo_progetto.descrizione|key:t.0 }}">{{ tipo_progetto.short_label|key:t.0 }}</a> ({{ t.1 }})
+                                {% endif %}
+                            </dd>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </dl>
+            {% endcomment %}
+
             <dl>
                 {% if facets.fields.fonte and not facets.fields.fonte.is_field_selected %}
                     <dt>Fonte</dt>
@@ -263,13 +293,13 @@
         </div>
         <!-- End faceting -->
 
-
         {% comment %}
-        <div>
-            {% if request.GET.selected_facets  %}
-                <h4><a href="{%  url 'progetti_search' %}">Visualizza i progetti attivi</a></h4>
+        <!-- commented following a client request -->
+        <div style="margin-top: 200px;">
+            {% if search_within_non_active  %}
+                <dl><dt><a href="{%  url 'progetti_search' %}">Visualizza tutti i progetti attivi</a></dt></dl>
             {% else %}
-                <h4><a href="{%  url 'progetti_search' %}?selected_facets=is_active:0">Visualizza i progetti non attivi</a></h4>
+                <dl><dt><a href="{%  url 'progetti_search' %}?selected_facets=is_active:0">Visualizza tutti i progetti non attivi</a></dt></dl>
             {% endif %}
         </div>
         {% endcomment %}
