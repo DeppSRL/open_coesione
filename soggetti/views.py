@@ -1,4 +1,5 @@
 # coding=utf-8
+from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.cache import cache
 from django.views.generic.base import TemplateView
@@ -140,12 +141,21 @@ class SoggettiView(AggregatoView, TemplateView):
     #raise Exception("Class SoggettiView needs to be implemented")
     pass
 
+
 class SoggettoView(AggregatoView, DetailView):
     model = Soggetto
     context_object_name = 'soggetto'
 
-    @cached_context
     def get_context_data(self, **kwargs):
+
+        # look for context in cache,
+        # only for soggetti with a high number of progetti
+        if self.model.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
+            key = 'context' + self.request.get_full_path()
+            context = cache.get(key)
+            if context is not None:
+                return context
+
         # Call the base implementation first to get a context
         context = super(SoggettoView, self).get_context_data(**kwargs)
 
@@ -340,5 +350,13 @@ class SoggettoView(AggregatoView, DetailView):
         # logger.debug("lista_finanziamenti_per_ruolo stop")
 
         del dict_finanziamenti_per_ruolo
+
+
+        # store context in cache,
+        # only for soggetti with a high number of progetti
+        if self.model.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
+            serializable_context = context.copy()
+            serializable_context.pop('view', None)
+            cache.set(key, serializable_context)
 
         return context
