@@ -166,6 +166,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'api',
     'widgets',
+    'idioticon',
 )
 
 DEBUG_TOOLBAR_PANELS = (
