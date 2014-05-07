@@ -3,6 +3,7 @@
 {% load i18n %}
 {% load utils %}
 {% load digg_paginator %}
+{% load popover_info %}
 
 {% block page_title %}Elenco progetti {% endblock page_title %}
 {% block page_description %}Elenco dei progetti, navigabile a faccette, con possibilità di ricerca testuale.{% endblock page_description %}
@@ -21,7 +22,7 @@
             
             {% if n_results < n_max_downloadable %}
                 <p class="span4">
-                    scarica i risultati della ricerca<br/>
+                    scarica i risultati della ricerca {% popover_info 'download-risultati-ricerca' width="400px" %}<br/>
                     <a style="font-weight: normal;"
                        href="{% url 'progetti_search_csv' %}?{{ request.META.QUERY_STRING }}"
                        title="scarica il file dei progetti, con i nomi delle localit&agrave;"

@@ -1,0 +1,32 @@
+/* Info popovers styles */
+a[rel=info-popover] i {
+  font-size: 20px;
+  color: #999999;
+}
+a[rel=info-popover]:hover i {
+  color: #005652;
+  text-decoration: none;
+}
+.popover {
+    z-index: 1000000!important;
+}
+.popover .popover-inner {
+  border: 1px solid #999999 !important;
+  padding: 0!important;
+  background-color: #ffffff;
+}
+
+.popover .popover-title {
+  margin: 2px;
+  color: #fff;
+  background-color: #676462;
+  font-weight: bold;
+}
+
+.popover .popover-content {
+    font-weight: normal;
+}
+
+.popover .popover-content p {
+    margin-top: 6px;
+}
