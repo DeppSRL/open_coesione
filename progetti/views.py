@@ -199,7 +199,7 @@ class CSVView(AggregatoView, DetailView):
             writer.writerow([
                 unicode(city.denominazione),
                 unicode(provincie[city.cod_prov]),
-                '{0:.2f}'.format( city.totale / city.popolazione_totale if city in comuni_con_pro_capite else .0).replace('.', ',')
+                '{0:.2f}'.format( city.totale / city.popolazione_totale if city.popolazione_totale else .0).replace('.', ',')
             ])
             comuni.remove(city)
 
