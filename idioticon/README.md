@@ -8,15 +8,17 @@ The content can be easily managed by administrators in the backend.
 
 Prerequisites
 =============
-django-idioticon is based on bootstrap,
-so Bootstrap's CSS and Javascript need to be correctly loaded in the html pages
+django-idioticon is based on bootstrap. Both version 2 and 3 are supported,
+although you need to vary the installation.
+
+Bootstrap's CSS and Javascript need to be correctly loaded in the html pages
 where the popovers appear.
 
 Installation
 ============
 Install, or upgrade django-tinymce with::
 
-    pip install django-tinymce
+    pip install --upgrade django-tinymce
 
 Install the idioticon module, by downloading it and copying it as a django app, within your project.
 
@@ -44,21 +46,26 @@ in all the templates where you want idioticons to appear. This can be done with:
     {% load popover_info %}
 
 
-Load the popover css file, by adding this line in thebase html template::
+Load the popover css file, by adding this line in the base html template::
 
     <link href="{{ STATIC_URL }}css/popover.css" rel="stylesheet">
 
+Check your bootstrap's version and add this lines to the base html template, if using Bootstrap 2::
 
-Enable the popovers, by adding a javascript line in the ``$(document).ready`` section
-of your (possibly global) template javascript::
+    <link href="{{ STATIC_URL }}css/popover.css" rel="stylesheet">
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrapx-clickover.js"></script>
+
+
+Enable the popovers, by adding a javascript ``$(document).ready`` section
+in your base template javascript::
 
     !function($){
         $(document).ready(function(){
-
-            ...
-
-            // enable popovers
+            // enable popovers (bootstrap 3)
             $('a[rel=info-popover]').popover();
+
+            // enable clickovers (bootstrap 2)
+            $('a[rel=info-popover]').clickover();
         });
     }(jQuery);
 
