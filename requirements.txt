@@ -1,8 +1,7 @@
 BeautifulSoup
-Django==1.5.5
-Fabric
+Django==1.5.7
 Jinja2
-PIL
+Pillow
 PyYAML
 Pygments
 South>=0.8.3
@@ -41,9 +40,13 @@ django-disqus
 djangorestframework
 markdown
 numpy
+scipy
+pysal
 
 werkzeug
 
 requests==2.0.0
 -e git://github.com/DeppSRL/django-widgets.git#egg=django-widgets
+
+csvkit==0.7.3
 
