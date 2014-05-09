@@ -1072,10 +1072,10 @@ class Command(BaseCommand):
             pagamento_ammesso = Decimal(r['TOT_PAGAMENTI_RENDICONTABILI_UE'].replace(',','.')) if 'TOT_PAGAMENTI_RENDICONTABILI_UE' in r and r['TOT_PAGAMENTI_RENDICONTABILI_UE'].strip() else None
 
             # date
-            data_inizio_prevista = datetime.datetime.strptime(r['DATA_INIZIO_PREVISTA'], '%Y%m%d') if r['DATA_INIZIO_PREVISTA'].strip() else None
-            data_fine_prevista = datetime.datetime.strptime(r['DATA_FINE_PREVISTA'], '%Y%m%d') if r['DATA_FINE_PREVISTA'].strip() else None
-            data_inizio_effettiva = datetime.datetime.strptime(r['DATA_INIZIO_EFFETTIVA'], '%Y%m%d') if r['DATA_INIZIO_EFFETTIVA'].strip() else None
-            data_fine_effettiva = datetime.datetime.strptime(r['DATA_FINE_EFFETTIVA'], '%Y%m%d') if r['DATA_FINE_EFFETTIVA'].strip() else None
+            data_inizio_prevista = datetime.datetime.strptime(r['DPS_DATA_INIZIO_PREVISTA'], '%Y%m%d') if r['DPS_DATA_INIZIO_PREVISTA'].strip() else None
+            data_fine_prevista = datetime.datetime.strptime(r['DPS_DATA_FINE_PREVISTA'], '%Y%m%d') if r['DPS_DATA_FINE_PREVISTA'].strip() else None
+            data_inizio_effettiva = datetime.datetime.strptime(r['DPS_DATA_INIZIO_EFFETTIVA'], '%Y%m%d') if r['DPS_DATA_INIZIO_EFFETTIVA'].strip() else None
+            data_fine_effettiva = datetime.datetime.strptime(r['DPS_DATA_FINE_EFFETTIVA'], '%Y%m%d') if r['DPS_DATA_FINE_EFFETTIVA'].strip() else None
 
             # data ultimo aggiornamento progetto
             data_aggiornamento = datetime.datetime.strptime(r['DATA_AGGIORNAMENTO'], '%Y%m%d') if r['DATA_AGGIORNAMENTO'].strip() else None
