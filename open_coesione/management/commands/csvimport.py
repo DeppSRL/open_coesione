@@ -1129,6 +1129,7 @@ class Command(BaseCommand):
                         'dps_flag_date_previste': r['DPS_FLAG_COERENZA_DATE_PREV'],
                         'dps_flag_date_effettive': r['DPS_FLAG_COERENZA_DATE_EFF'],
                         'dps_flag_cup': r['DPS_FLAG_CUP'],
+                        'dps_flag_pac': r['DPS_FLAG_PAC'],
                     }
                 )
 
@@ -1178,6 +1179,7 @@ class Command(BaseCommand):
                     p.dps_flag_date_previste = r['DPS_FLAG_COERENZA_DATE_PREV']
                     p.dps_flag_date_effettive = r['DPS_FLAG_COERENZA_DATE_EFF']
                     p.dps_flag_cup = r['DPS_FLAG_CUP']
+                    p.dps_flag_pac = r['DPS_FLAG_PAC']
                     if not p.active_flag:
                         p.active_flag = True
                         self.logger.info("%s: Progetto trovato, sovrascritto e ri-attivato: %s" % (c, p.codice_locale))
