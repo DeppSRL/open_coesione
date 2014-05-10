@@ -912,6 +912,8 @@ class Command(BaseCommand):
                     tipo_fonte = Fonte.TIPO.fsc
                 elif 'FS' in r['DPS_COD_FONTE']:
                     tipo_fonte = Fonte.TIPO.fs
+                elif r['DPS_COD_FONTE'] == 'PAC':
+                    tipo_fonte = Fonte.TIPO.pac
                 else:
                     tipo_fonte = None
 
