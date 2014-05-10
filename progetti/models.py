@@ -224,6 +224,7 @@ class Fonte(models.Model):
     TIPO = Choices(
         ('FS', 'fs', 'FS'),
         ('FSC', 'fsc', 'FSC'),
+        ('PAC', 'pac', 'PAC')
     )
 
     tipo_fonte = models.CharField(max_length=4, choices=TIPO, blank=True, null=True)
