@@ -561,9 +561,9 @@
                 <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
               {% endif %}
 
-              {% if progetto.is_fonte_fsc_flag %}
-                <dt>{{ progetto.fonte_fsc_label }}</dt>
-                <dd>{{ progetto.fonte_fsc_descrizione }}</dd>
+              {% if progetto.is_fonte_fsc_flag or progetto.is_fonte_pac_flag %}
+                <dt>{{ progetto.fonte_pac_label }}</dt>
+                <dd>{{ progetto.fonte_pac_descrizione }}</dd>
 
                 <dt>Programma</dt>
                 <dd>
