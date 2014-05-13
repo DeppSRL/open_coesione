@@ -9,14 +9,12 @@ from progetti.models import Progetto
 
 class Command(BaseCommand):
     """
-    All projects having CLP in the list read from the CSV file,
-    are **de-activated**.
+    All projects listed in the csv-file are **de-activated**,
+    and the ``data_ultimo_rilascio`` field is populated.
 
-    De-activation means that the ``active_flag`` is set to False.
-
-    This is performed through a bulk update.
+    De-activation here means that the ``active_flag`` is set to False.
     """
-    help = "Deactivate progetti, read data from csv"
+    help = "Deactivate progetti, listd in csv files"
 
     option_list = BaseCommand.option_list + (
         make_option('--csv-file',
