@@ -1,6 +1,9 @@
+import csv
 import logging
 from optparse import make_option
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import BaseCommand
+from open_coesione import utils
 from progetti.models import Progetto
 
 
@@ -18,7 +21,7 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--csv-file',
                     dest='csvfile',
-                    default='./clp_deactivate.csv',
+                    default='./progetti_inattivi.csv',
                     help='Select csv file'),
         make_option('--limit',
                     dest='limit',
@@ -41,15 +44,20 @@ class Command(BaseCommand):
 
         f = None
 
-        # read csv file
+        # read first csv file
         try:
             f = open(self.csv_file, 'r')
+            self.unicode_reader = utils.UnicodeDictReader(f, delimiter=';', encoding='utf8')
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.csv_file)
             exit(1)
+        except csv.Error, e:
+            self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
+
 
         offset = options['offset']
         limit = options['limit']
+        dryrun = options['dryrun']
 
         verbosity = options['verbosity']
         if verbosity == '0':
@@ -61,26 +69,27 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        # put lines of csv file into a list
-        clps = f.readlines()
-        self.logger.info('{0} lines read from {1}'.format(len(clps), self.csv_file))
+        n = 0
+        for r in self.unicode_reader:
+            c = self.unicode_reader.reader.line_num - 1
+            if c < int(offset):
+                continue
 
-        # remove \n and quotes from each line
-        clps = map(lambda x: x.rstrip()[1:-1], clps)
-        self.logger.debug('lines stripped of CR and quotes')
+            if int(limit) and\
+               (c - int(offset) > int(limit)):
+                break
 
-        # consider offset and limit, if given
-        if limit:
-            clps = clps[offset:limit]
-        else:
-            clps = clps[offset:]
+            try:
+                p = Progetto.fullobjects.get(pk=r['COD_LOCALE_PROGETTO'])
+            except ObjectDoesNotExist:
+                self.logger.warning("%s - Progetto non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
+                continue
 
-        # get all listed progetti, among the active, excluding CIPE
-        p = Progetto.objects.filter(pk__in=clps).exclude(cipe_flag=True)
-        self.logger.info('{0} progetti matching'.format(p.count()))
+            self.logger.info(u"%s, Progetto: %s" % (c, p))
+            if not dryrun:
+                p.active_flag = False
+                p.data_ultimo_rilascio = r['DATA_ULTIMO_RILASCIO']
+                p.save()
 
-        # bulk update, if not dryrun
-        if not options['dryrun']:
-            res = p.update(active_flag=False)
-            self.logger.info('{0} progetti updated'.format(res))
+
 

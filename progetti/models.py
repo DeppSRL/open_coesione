@@ -484,7 +484,7 @@ class Progetto(TimeStampedModel):
     data_inizio_effettiva = models.DateField(null=True, blank=True)
     data_fine_effettiva = models.DateField(null=True, blank=True)
     data_aggiornamento = models.DateField(null=True, blank=True)
-
+    data_ultimo_rilascio = models.DateField(null=True, blank=True)
 
     dps_flag_cup = models.CharField(max_length=1, choices=DPS_FLAG_CUP)
     dps_flag_presenza_date = models.CharField(max_length=2, choices=DPS_FLAG_PRESENZA_DATE, null=True, blank=True)
@@ -513,6 +513,9 @@ class Progetto(TimeStampedModel):
     def fonte_fsc_qs(self):
         return self.fonte_set.filter(tipo_fonte=Fonte.TIPO.fsc)
 
+    def fonte_pac_qs(self):
+        return self.fonte_set.filter(tipo_fonte=Fonte.TIPO.pac)
+
     @property
     def is_fonte_fs_flag(self):
         return self.fonte_fs_qs().count() > 0
@@ -520,6 +523,10 @@ class Progetto(TimeStampedModel):
     @property
     def is_fonte_fsc_flag(self):
         return self.fonte_fsc_qs().count() > 0
+
+    @property
+    def is_fonte_pac_flag(self):
+        return self.fonte_pac_qs().count() > 0
 
     @property
     def fonte_fs_descrizione(self):
@@ -542,6 +549,16 @@ class Progetto(TimeStampedModel):
             return self.fonte_fsc_qs()[0].descrizione
 
     @property
+    def fonte_pac_label(self):
+        if self.is_fonte_pac_flag:
+            return self.fonte_pac_qs()[0].short_label
+
+    @property
+    def fonte_pac_descrizione(self):
+        if self.is_fonte_pac_flag:
+            return self.fonte_pac_qs()[0].descrizione
+
+    @property
     def fonte_fs_codice(self):
         if self.is_fonte_fs_flag:
             return self.fonte_fs_qs()[0].codice
@@ -550,6 +567,11 @@ class Progetto(TimeStampedModel):
     def fonte_fsc_codice(self):
         if self.is_fonte_fsc_flag:
             return self.fonte_fsc_qs()[0].codice
+
+    @property
+    def fonte_pac_codice(self):
+        if self.is_fonte_pac_flag:
+            return self.fonte_pac_qs()[0].codice
 
 
     @property
