@@ -83,7 +83,7 @@ class Command(BaseCommand):
                 self.logger.warning("%s - Progetto non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
                 continue
 
-            self.logger.info(u"%s, Progetto: %s" % (c, p))
+            self.logger.info(u"%s, Progetto disattivato: %s" % (c, p))
             if not dryrun:
                 p.active_flag = False
                 p.data_ultimo_rilascio = r['DATA_ULTIMO_RILASCIO']
