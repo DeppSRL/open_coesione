@@ -1,6 +1,7 @@
 import csv
 import logging
 from optparse import make_option
+import dateutil
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import BaseCommand
 from open_coesione import utils
@@ -86,7 +87,7 @@ class Command(BaseCommand):
             self.logger.info(u"%s, Progetto disattivato: %s" % (c, p))
             if not dryrun:
                 p.active_flag = False
-                p.data_ultimo_rilascio = r['DATA_ULTIMO_RILASCIO']
+                p.data_ultimo_rilascio = dateutil.parser.parse(r['DATA_ULTIMO_RILASCIO']).strftime('%Y-%m-%d')
                 p.save()
 
 
