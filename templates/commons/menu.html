@@ -5,16 +5,20 @@
   <h2 class="hidden"><a name="menu"></a>Navigazione del sito</h2>
   <div class="navbar-inner">
     <div class="container">
-      <form method="get" action="{% if soggetto %}{% url 'soggetti_search' %}{% else %}{% url 'progetti_search' %}{% endif %}" class="navbar-search form-search pull-right">
-        <select name="" class="input-small">
+      <form method="get" action="{% if soggetto %}{% url 'soggetti_search' %}{% elif progetto %}{% url 'progetti_search' %}{% else %}{% endif %}" class="navbar-search form-search pull-right">
+        <select id="menu-search-type-selector" name="" class="input-small">
             <option value="progetti"{% if progetto %} selected="selected"{% endif %}>Progetti</option>
             <option value="soggetti"{% if soggetto %} selected="selected"{% endif %}>Soggetti</option>
-          </select>
+            <option value="territori">Territori</option>
+        </select>
         <div class="input-append" style="margin-right: 5px;">
-          <input type="text"
+          <input id="menu-search" type="text"
                  class="input-medium search-query"
                  name="q" {% if form.q.value %}value="{{ form.q.value }}"{% endif %}
-                 placeholder="Cerca tra i {% if soggetto %}soggetti{% else %}progetti{% endif %}" /><button type="submit" class="btn"><i class="icon-search"></i></button>
+                 placeholder="Cerca tra i {% if soggetto %}soggetti{% else %}progetti{% endif %}" /><input
+              id="menu-search-territori" type="text" style="display:none"
+                 class="input-medium search-query"
+                 placeholder="Cerca tra i territori" /><button type="submit" class="btn"><i class="icon-search"></i></button>
         </div>
       </form>
       <ul class="nav">
