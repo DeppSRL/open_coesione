@@ -171,8 +171,12 @@ class AggregatoView(object):
         return context
 
     def top_comuni_pro_capite(self, filters, qnt=5):
+        # add filters on active projects, to avoid computation errors
+        filters.update({
+            'progetto__active_flag': True,
+        })
 
-        queryset = Territorio.objects.comuni().filter( **filters ).defer('geom')\
+        queryset = Territorio.objects.comuni().filter( **filters, ).defer('geom')\
             .annotate( totale=models.Sum('progetto__fin_totale_pubblico'))\
             .filter( totale__isnull=False )
 
