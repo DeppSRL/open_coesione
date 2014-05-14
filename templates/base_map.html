@@ -38,17 +38,28 @@
 
     <script type="text/javascript">
         /*
-         * Autocompleter for the map input field
+         * Autocompleter for the map and menu search field
          */
         $(document).ready(function() {
-            $('#map-city').focus(function(){
+
+            $( "#menu-search-type-selector" ).change(function(){
+                /* setting currently changed option as class for the #menu-change input */
+                var option = $(this).find('option:selected').val();
+                if (option == 'territori') {
+                    $("#menu-search").hide();
+                    $("#menu-search-territori").show();
+                } else {
+                    $("#menu-search-territori").hide();
+                    $("#menu-search").show();
+                }
+        	});
+
+            // menu-search input behave as auto-completer only when territori is selected
+            $( "#menu-search-territori,#map-city").focus(function(){
                 if ($(this)._cleared) return;
                 $(this).val('');
                 $(this)._cleared = true;
-            });
-
-
-            $( "#map-city" ).autocomplete({
+            }).autocomplete({
                 source: function( request, response ) {
                     $.getJSON(
                             "/territori/autocomplete/",

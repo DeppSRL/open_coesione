@@ -176,7 +176,7 @@ class AggregatoView(object):
             'progetto__active_flag': True,
         })
 
-        queryset = Territorio.objects.comuni().filter( **filters, ).defer('geom')\
+        queryset = Territorio.objects.comuni().filter( **filters ).defer('geom')\
             .annotate( totale=models.Sum('progetto__fin_totale_pubblico'))\
             .filter( totale__isnull=False )
 

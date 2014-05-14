@@ -353,9 +353,10 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_THROTTLE_RATES': {
         'anon': '12/minute',  # 1 req every 5 seconds
-        'user': '10/second',  # un-throttled  (default: '1/second')
+        'user': '2/second',  # un-throttled  (default: '1/second')
     },
     'PAGINATE_BY': 25,
+    'MAX_PAGE_BY': 500,
     'PAGINATE_BY_PARAM': 'page_size',
 }
 
