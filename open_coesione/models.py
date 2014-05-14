@@ -8,6 +8,7 @@ class ContactMessage(models.Model):
     REASON_CHOICES = (
         (1, u'domanda sui dati'),
         (2, u'domanda sul sito'),
+        (9, u'richiesta accesso API'),
         (3, u'esempio di riuso: applicazioni'),
         (4, u'esempio di riuso: visualizzazioni'),
         (5, u'esempio di riuso: analisi'),
