@@ -98,6 +98,7 @@ class ProgettoList(generics.ListAPIView):
     """
     pagination_serializer_class = PaginatedProgettoSerializer
     serializer_class = ProgettoSearchResultSerializer
+    paginate_by = 100
 
     def get_paginate_by(self, queryset=None):
         if self.paginate_by_param:
@@ -196,6 +197,7 @@ class SoggettoList(generics.ListAPIView):
     """
     pagination_serializer_class = PaginatedSoggettoSerializer
     serializer_class = SoggettoSearchResultSerializer
+    paginate_by = 100
 
     def get_paginate_by(self, queryset=None):
         if self.paginate_by_param:
@@ -264,6 +266,7 @@ class TerritorioList(generics.ListAPIView):
      * ``denominazione`` (estrae tutti i territori che iniziano per ...)
     """
     serializer_class = TerritorioModelSerializer
+    paginate_by = 100
 
     def get_queryset(self):
         tipo_territorio = self.request.GET.get('tipo_territorio', None)
@@ -352,7 +355,6 @@ class ClassificazioneList(generics.ListAPIView):
     """
     serializer_class = ClassificazioneQSNModelSerializer
     model = ClassificazioneQSN
-    paginate_by = 100
 
     #def get_queryset(self):
     #    ret_qs = ClassificazioneQSN.objects.filter(tipo_classificazione=ClassificazioneQSN.TIPO.priorita)
