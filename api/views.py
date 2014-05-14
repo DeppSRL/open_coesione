@@ -81,7 +81,7 @@ class ProgettoList(generics.ListAPIView):
 
     The results are paginated by default to 25 items per page.
     The number of items per page can be changed through the ``page_size`` GET parameter.
-    100 is the maximum value allowed for the page_size parameter.
+    settings.REST_FRAMEWORK['max_page_size'] is the maximum value allowed for the page_size parameter.
 
     Results are sorted by default by descending costs (``-costo``).
     You can change the sorting order, using the ``order_by`` GET parameter.
@@ -98,7 +98,7 @@ class ProgettoList(generics.ListAPIView):
     """
     pagination_serializer_class = PaginatedProgettoSerializer
     serializer_class = ProgettoSearchResultSerializer
-    paginate_by = 100
+    paginate_by = settings.REST_FRAMEWORK['MAX_PAGE_BY']
 
     def get_paginate_by(self, queryset=None):
         if self.paginate_by_param:
@@ -184,7 +184,7 @@ class SoggettoList(generics.ListAPIView):
 
     The results are paginated by default to 25 items per page.
     The number of items per page can be changed through the ``page_size`` GET parameter.
-    100 is the maximum value allowed for the page_size parameter.
+    settings.REST_FRAMEWORK['MAX_PAGE_BY'] is the maximum value allowed for the page_size parameter.
 
     Results are sorted by default by descending total projects' costs (``-costo``).
     You can change the sorting order, using the ``order_by`` GET parameter.
@@ -197,7 +197,7 @@ class SoggettoList(generics.ListAPIView):
     """
     pagination_serializer_class = PaginatedSoggettoSerializer
     serializer_class = SoggettoSearchResultSerializer
-    paginate_by = 100
+    paginate_by = settings.REST_FRAMEWORK['MAX_PAGE_BY']
 
     def get_paginate_by(self, queryset=None):
         if self.paginate_by_param:
@@ -266,7 +266,7 @@ class TerritorioList(generics.ListAPIView):
      * ``denominazione`` (estrae tutti i territori che iniziano per ...)
     """
     serializer_class = TerritorioModelSerializer
-    paginate_by = 100
+    paginate_by = settings.REST_FRAMEWORK['MAX_PAGE_BY']
 
     def get_queryset(self):
         tipo_territorio = self.request.GET.get('tipo_territorio', None)

@@ -356,6 +356,7 @@ REST_FRAMEWORK = {
         'user': '2/second',  # un-throttled  (default: '1/second')
     },
     'PAGINATE_BY': 25,
+    'MAX_PAGE_BY': 500,
     'PAGINATE_BY_PARAM': 'page_size',
 }
 
