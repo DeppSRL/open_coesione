@@ -19,7 +19,7 @@ from oc_search.views import ExtendedFacetedSearchView
 
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from open_coesione import utils
-from open_coesione.views import AggregatoView, AccessControlView, cached_context
+from open_coesione.views import AggregatoView, AccessControlView, cached_context, OpendataView
 from progetti.forms import DescrizioneProgettoForm
 from progetti.models import Tema, Fonte, SegnalazioneProgetto
 from soggetti.models import Soggetto
@@ -185,6 +185,13 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
 
         logger.debug("ultimi_progetti_conclusi start")
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_tema(self.object)[:5]
+
+        # use OpendataView instance to access istat_date and the get_complete_file method,
+        # and avoid code duplication
+        odv = OpendataView()
+        istat_date = odv.istat_date
+        context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
+        context['istat_metadata_file'] = odv.get_complete_file("Metainformazione.xls")
 
         logger.debug("territori_piu_finanziati_pro_capite start")
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(

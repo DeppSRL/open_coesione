@@ -52,6 +52,12 @@
   <section class="container">
     <div class="row">
       <div class="span12" id="charts_accordion">
+        <span class="pull-right" style="font-size: 85%">
+            scarica tutti gli indicatori di contesto ISTAT
+            <a href="/opendata/{{ istat_data_file.file_name }}">
+                [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]
+            </a>
+        </span>
         <h1>Indicatori sul tema: {{ tema.short_label }}</h1>
 
         <div class="accordion" id="index_charts">
@@ -76,9 +82,6 @@
 
 {#                      <select id="indicator-selector" class="span5"></select>#}
                     </div>
-                    <span class="pull-right" style="font-size: 85%">
-                      <a href="{{ STATIC_URL }}csv/temaind/{{ tema.codice }}_{{ indice.ID }}.csv">Scarica i dati in formato CSV <i class="icon-download-alt"></i></a>
-                    </span>
 
                   </form>
                 {% endif %}</div>
