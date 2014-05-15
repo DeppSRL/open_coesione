@@ -13,18 +13,13 @@
     <div class="row">
 
       <section class="span3">
+        <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
 
-        <h1 class="title"><span>Partecipa e racconta i progetti</span></h1>
-
-        <p><img src="{{ STATIC_URL }}img/icon-baloons.png" style="float:left; margin-right: 10px;">
-          Questo portale mostra informazioni sui progetti finanziati dalle politiche di sviluppo e coesione.
-          <br>
-          La descrizione che se ne ricava non è sempre sufficiente per comprendere in che cosa consiste il progetto e
-          quali effetti ha prodotto. Se conosci un progetto finanziato dalle politiche di coesione che ritieni meritevole
-          di attenzione, <a href="{% url 'progetti_segnalazione' %}">vai qui</a> per raccontarlo.
-          <br>
-          Vorremo costruire una galleria di testimonianze sulle politiche di coesione.
-        </p>
+        <ul class='spaced'>
+          {% for progetto in ultimi_progetti_conclusi %}
+            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
+          {% endfor %}
+        </ul>
 
       </section>
 
