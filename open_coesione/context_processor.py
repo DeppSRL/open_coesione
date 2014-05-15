@@ -1,6 +1,6 @@
 from django.conf import settings
 from blog.models import Blog
-from progetti.models import ClassificazioneAzione, Tema, ProgrammaAsseObiettivo
+from progetti.models import ClassificazioneAzione, Tema, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from territori.models import Territorio
 from django.core.cache import cache
 
@@ -41,6 +41,11 @@ def main_settings(request):
         programmi = ProgrammaAsseObiettivo.objects.filter(tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma)
         cache.set('programmi', programmi)
 
+    programmi_linea = cache.get('programmi_linea')
+    if programmi_linea is None:
+        programmi_linea = ProgrammaLineaAzione.objects.filter(tipo_classificazione=ProgrammaLineaAzione.TIPO.programma)
+        cache.set('programmi_linea', programmi_linea)
+
     return {
         'DEBUG': settings.DEBUG,
         'TEMPLATE_DEBUG': settings.TEMPLATE_DEBUG,
@@ -53,5 +58,7 @@ def main_settings(request):
         'lista_programmi': {
             'fse': [p for p in programmi.order_by('descrizione') if ' FSE ' in p.descrizione.upper()],
             'fesr': [p for p in programmi.order_by('descrizione') if ' FESR ' in p.descrizione.upper()],
+            'fsc': [p for p in programmi_linea.order_by('descrizione') if ' FSC ' in p.descrizione.upper()],
+            'pac': [p for p in programmi_linea.order_by('descrizione') if not ' FSC ' in p.descrizione.upper()],
         },
     }

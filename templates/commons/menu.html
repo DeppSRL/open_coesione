@@ -112,8 +112,38 @@
                 </li>
               </ul>
             </li>
+
+            <li class="submenu" style="position:relative;">
+              <a href="#">Programmi FSC</a>
+              <ul class="dropdown-menu">
+                <li class="clearfix">
+                  <ul>
+                    {% for programma in lista_programmi.fsc %}
+                        <li><a href="{% url 'progetti_programma_linea' programma.codice %}">{{ programma.descrizione }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </li>
+              </ul>
+            </li>
+
+            <li class="submenu" style="position:relative;">
+              <a href="#">Programmi PAC</a>
+              <ul class="dropdown-menu">
+                <li class="clearfix">
+                  <ul>
+                    {% for programma in lista_programmi.pac %}
+                        <li><a href="{% url 'progetti_programma_linea' programma.codice %}">{{ programma.descrizione }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </li>
+              </ul>
+            </li>
+
           </ul>
         </li>
+
+
+
         <li class="dropdown violet{% if soggetto %} active{% endif %}">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Soggetti <b class="caret"></b></a>
           <ul class="dropdown-menu">
