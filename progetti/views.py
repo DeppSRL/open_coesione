@@ -17,7 +17,7 @@ from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin, FacetRangePercPayMixin
 from oc_search.views import ExtendedFacetedSearchView
 
-from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo
+from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from open_coesione import utils
 from open_coesione.views import AggregatoView, AccessControlView, cached_context
 from progetti.forms import DescrizioneProgettoForm
@@ -101,6 +101,27 @@ class ProgrammaView(AccessControlView, AggregatoView, DetailView):
 
     def get_object(self, queryset=None):
         return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
+
+
+class ProgrammaLineaView(ProgrammaView):
+    context_object_name = 'programma'
+    template_name = 'progetti/programma_detail.html'
+
+    @cached_context
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(ProgrammaLineaView, self).get_context_data(**kwargs)
+
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+            filters={
+                'progetto__programma_linea_azione__classificazione_superiore__classificazione_superiore': self.object
+            }
+        )
+
+        return context
+
+    def get_object(self, queryset=None):
+        return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
 
 
 class TipologiaView(AccessControlView, AggregatoView, DetailView):
