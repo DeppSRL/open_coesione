@@ -1,23 +1,25 @@
 # coding=utf-8
 import logging
+from datetime import datetime
+import os
+
+from django.views.generic.base import TemplateView, RedirectView
+from django.db.models import Count, Sum
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse
 from django.utils.datastructures import SortedDict
 from django.views.generic import ListView
+from django.conf import settings
+from django.db import models
+from django.core.cache import cache
 
-import os
-from django.views.generic.base import TemplateView, RedirectView
-from django.db.models import Count, Sum
 from open_coesione.forms import ContactForm
 from open_coesione.models import PressReview, Pillola
 from open_coesione.settings import PROJECT_ROOT
 from progetti.models import Progetto, Tema, ClassificazioneAzione, DeliberaCIPE
 from soggetti.models import Soggetto
 from territori.models import Territorio
-from django.conf import settings
-from django.db import models
-from django.core.cache import cache
 
 def cached_context(get_context_data):
     """
@@ -206,7 +208,15 @@ class HomeView(AccessControlView, AggregatoView, TemplateView):
         if context is None:
             context = super(HomeView, self).get_context_data(**kwargs)
             context = self.get_aggregate_data(context)
-            context['top_progetti'] = Progetto.objects.filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+
+            context['top_progetti'] = Progetto.objects.filter(
+                fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico'
+            )[:5]
+
+            context['ultimi_progetti_conclusi'] = Progetto.objects.filter(
+                data_fine_effettiva__lte=datetime.now()
+            ).order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:5]
+
             context['numero_soggetti'] = Soggetto.objects.count()
             serializable_context = context.copy()
             serializable_context.pop('view', None)
