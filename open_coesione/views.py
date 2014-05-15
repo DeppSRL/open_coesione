@@ -313,13 +313,20 @@ class OpendataView(TemplateView):
     Basic template view with an extended context, containing the pointers
     to the downloadable files.
     """
+
+    # dates are attributes in the view, so that it can possibly be used in other views
+    data_date = '20131231'
+    cipe_date = '20121231'
+    spesa_date = '20131231'
+    istat_date = '20140418'
+
     def get_context_data(self, **kwargs):
         context = super(OpendataView, self).get_context_data(**kwargs)
 
-        data_date = '20131231'
-        cipe_date = '20121231'
-        spesa_date = '20131231'
-        istat_date = '20140418'
+        data_date = self.data_date
+        cipe_date = self.cipe_date
+        spesa_date = self.spesa_date
+        istat_date = self.istat_date
 
         regions = SortedDict([
             ('VDA', 'Valle d\'Aosta'),

@@ -12,7 +12,7 @@ from django.conf import settings
 from django.core.cache import cache
 from open_coesione import utils
 from open_coesione.data_classification import DataClassifier
-from open_coesione.views import AccessControlView, AggregatoView, cached_context
+from open_coesione.views import AccessControlView, AggregatoView, cached_context, OpendataView
 from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo
 from progetti.views import CSVView
 from territori.models import Territorio
@@ -460,6 +460,13 @@ class TerritorioView(AccessControlView, AggregatoView, DetailView):
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
             filters=self.object.get_cod_dict()
         )
+
+        # use OpendataView instance to access istat_date and the get_complete_file method,
+        # and avoid code duplication
+        odv = OpendataView()
+        istat_date = odv.istat_date
+        context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
+        context['istat_metadata_file'] = odv.get_complete_file("Metainformazione.xls")
 
         return context
 
