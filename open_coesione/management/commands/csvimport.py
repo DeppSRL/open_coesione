@@ -245,7 +245,7 @@ class Command(BaseCommand):
         try:
             self.unicode_reader = utils.UnicodeDictReader(
                 open(self.csv_file, 'r'),
-                delimiter='|', encoding=self.encoding
+                delimiter=',', encoding=self.encoding
             )
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.csv_file)
