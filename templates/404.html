@@ -1,11 +1,13 @@
-{% extends "base_one_column.html" %}
+{% extends "base.html" %}
 
 {% block title %}| Pagina non trovata{% endblock %}
 
-{% block content %}
-  <section id="error-text">
-      Ops! C'è qualche problema con la navigazione del sito e ci stiamo lavorando.<br/>
-      Ti consigliamo di ripartire dalla <a href="/">home page</a>.<br/>
-      Grazie e buon proseguimento.<br/>
-  </section>
+{% block container %}
+  <div class="hero-unit text-center">
+      <h2>Ooops! La pagina che cerchi non è stata trovata</h2>
+      <p>
+          Ti consigliamo di ripartire dalla <a href="/">home page</a>.<br/>
+          Grazie e buon proseguimento.<br/>
+      </p>
+  </div>
 {% endblock %}
