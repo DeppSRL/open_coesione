@@ -18,6 +18,9 @@ urlpatterns = patterns('',
     # home
     url(r'^$', HomeView.as_view(), name='home'),
 
+    # men at work
+    url(r'^manutenzione.html$', TemplateView.as_view(template_name='menatwork.html'), name='menatwork'),
+
     # progetti
     url(r'^progetti/', include('progetti.urls')),
 
