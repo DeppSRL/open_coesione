@@ -2,7 +2,7 @@ BeautifulSoup
 Django==1.5.5
 Fabric
 Jinja2
-PIL
+pillow
 PyYAML
 Pygments
 South>=0.8.3
