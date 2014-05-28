@@ -24,7 +24,8 @@
                 <small>{{ pillola.published_at|date:'d/m/Y' }}</small>
                   {% if pillola.file %}
                     <small>
-                      <a href="/{{ pillola.file.name }}"><i class="icon-download-alt"></i>
+                      <a href="/{{ pillola.file.name }}"
+                         onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;"><i class="icon-download-alt"></i>
                         <span style="color:black;">{{ pillola.file.name|slice:"-3:"|lower }}, {{ pillola.file.size|filesizeformat }}</span></a>
                     </small>
                   {% endif %}
