@@ -53,7 +53,8 @@
             I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che gestiscono i fondi,
             aggiungendo alcune variabili (identificabili nei dataset con il suffisso DPS_) che facilitano leggibilità e
             coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
-            <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb) con i temi prioritari UE e con la classificazione CUP.
+            <a href="/opendata/raccordo_temi_sintetici.xls"
+               onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>file di raccordo</a> (xls, 1,5 Mb) con i temi prioritari UE e con la classificazione CUP.
         </p>
 
         {% for section_code, section in fs_sections.items %}
@@ -62,7 +63,8 @@
             <tr>
                 <td class="label">{{ section.name|capfirst }}</td>
                 <td>
-                    <a href="/opendata/{{ section.complete_file.file_name }}">
+                    <a href="/opendata/{{ section.complete_file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -77,7 +79,8 @@
             <tr>
                 <td class="label"></td>
                 <td colspan="2">
-                    <a href="/opendata/regione/{{ file.file_name }}">
+                    <a href="/opendata/regione/{{ file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         {{ file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -120,7 +123,8 @@
             <tr>
                 <td class="label">Metadati </td>
                 <td>
-                    <a href="/opendata/{{ fs_metadata_file.file_name }}">
+                    <a href="/opendata/{{ fs_metadata_file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> xls {{ fs_metadata_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -162,7 +166,8 @@
             I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi,
             aggiungendo alcune variabili (identificabili nei dataset con il suffisso DPS_) che facilitano leggibilità e
             coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
-            <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb)
+            <a href="/opendata/raccordo_temi_sintetici.xls"
+               onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>file di raccordo</a> (xls, 1,5 Mb)
             con i temi prioritari UE e con la classificazione CUP.
         </p>
 
@@ -172,7 +177,8 @@
             <tr>
                 <td class="label">{{ section.name|capfirst }}</td>
                 <td>
-                    <a href="/opendata/{{ section.complete_file.file_name }}">
+                    <a href="/opendata/{{ section.complete_file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -182,7 +188,8 @@
             <tr>
                 <td class="label">Metadati </td>
                 <td>
-                    <a href="/opendata/{{ fsc_metadata_file.file_name }}">
+                    <a href="/opendata/{{ fsc_metadata_file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','xls',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> xls {{ fsc_metadata_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -210,7 +217,8 @@
             cui è stata assunta la decisione di finanziamento e non hanno caratteristica di monitoraggio. I dati sono
             scaricabili anche dal <a href="http://www.cipecomitato.it/it/opendata.html">sito del CIPE</a>,
             senza l’attribuzione del tema sintetico con cui sono visualizzati su
-            OpenCoesione. Consulta il <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb)
+            OpenCoesione. Consulta il <a href="/opendata/raccordo_temi_sintetici.xls"
+                                         onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>file di raccordo</a> (xls, 1,5 Mb)
             con i temi prioritari UE e con la classificazione CUP.
         </p>
 
@@ -220,7 +228,8 @@
             <tr>
                 <td class="label">{{ section.name|capfirst }}</td>
                 <td>
-                    <a href="/opendata/{{ section.complete_file.file_name }}">
+                    <a href="/opendata/{{ section.complete_file.file_name }}"
+                            onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -229,7 +238,8 @@
             <tr>
                 <td class="label">Metadati </td>
                 <td>
-                    <a href="/opendata/{{ cipe_metadata_file.file_name }}">
+                    <a href="/opendata/{{ cipe_metadata_file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> xls {{ cipe_metadata_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -272,7 +282,8 @@
             <tr>
                 <td class="label" style="width: 50%">Dotazione finanziaria complessiva e spesa certificata alla CE *</td>
                 <td>
-                    <a href="/opendata/{{ spesa_dotazione_file.file_name }}">
+                    <a href="/opendata/{{ spesa_dotazione_file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> xlsx {{ spesa_dotazione_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -280,7 +291,8 @@
             <tr>
                 <td class="label" style="width: 50%">Target di spesa certificata *</td>
                 <td>
-                    <a href="/opendata/{{ spesa_target_file.file_name }}">
+                    <a href="/opendata/{{ spesa_target_file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> xlsx {{ spesa_target_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -319,7 +331,8 @@
             <tr>
                 <td class="label" style="width: 50%">Indicatori territoriali di contesto</td>
                 <td>
-                    <a href="/opendata/{{ istat_data_file.file_name }}">
+                    <a href="/opendata/{{ istat_data_file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -327,7 +340,8 @@
             <tr>
                 <td class="label">Metadati</td>
                 <td>
-                    <a href="/opendata/{{ istat_metadata_file.file_name }}">
+                    <a href="/opendata/{{ istat_metadata_file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> xls {{ istat_metadata_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -365,12 +379,14 @@
             <tr>
                 <td class="label" style="width: 20%">Pubblica Amministrazione *</td>
                 <td>
-                    Entrate <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/BD_CPT/2014/CSV/PA_ENTRATE_1996-2012.zip">
+                    Entrate <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/BD_CPT/2014/CSV/PA_ENTRATE_1996-2012.zip"
+                               onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_pa_in_file.file_size|filesizeformat }}]
                     </a>
                 </td>
                 <td>
-                    Uscite <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/BD_CPT/2014/CSV/PA_SPESE_1996-2012.zip">
+                    Uscite <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/BD_CPT/2014/CSV/PA_SPESE_1996-2012.zip"
+                              onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_pa_out_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -378,12 +394,14 @@
             <tr>
                 <td class="label" style="width: 20%">Settore Pubblico Allargato *</td>
                 <td>
-                    Entrate <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/BD_CPT/2014/CSV/SPA_ENTRATE_1996-2012.zip">
+                    Entrate <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/BD_CPT/2014/CSV/SPA_ENTRATE_1996-2012.zip"
+                               onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_spa_in_file.file_size|filesizeformat }}]
                     </a>
                 </td>
                 <td>
-                    Uscite <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/BD_CPT/2014/CSV/SPA_SPESE_1996-2012.zip">
+                    Uscite <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/BD_CPT/2014/CSV/SPA_SPESE_1996-2012.zip"
+                              onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_spa_out_file.file_size|filesizeformat }}]
                     </a>
                 </td>
@@ -392,7 +410,8 @@
                 <td class="label">Metadati</td>
                 <td></td>
                 <td>
-                    <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/METADATA/CPT_Metadati_perCSV_def.xls">
+                    <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/METADATA/CPT_Metadati_perCSV_def.xls"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> xls {{ cpt_metadata_file.file_size|filesizeformat }}]
                     </a>
                 </td>
