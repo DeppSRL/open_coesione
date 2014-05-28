@@ -70,11 +70,11 @@ class Command(BaseCommand):
         set_db = set(Progetto.fullobjects.filter(fonte_set__codice=fonte_codice).values_list('codice_locale', flat=True))
 
         if dryrun:
-            self.logger.info("Would remove {0} progetti".format(len(set_db - set_csv)))
-            self.logger.info("Would add {0} progetti".format(len(set_csv - set_db)))
+            self.logger.info(u"Would remove {0} progetti".format(len(set_db - set_csv)))
+            self.logger.info(u"Would add {0} progetti".format(len(set_csv - set_db)))
         else:
             for cod in set_db - set_csv:
-                self.logger.info("Processing progetto {0}".format(cod))
+                self.logger.info(u"Processing progetto {0}".format(cod))
                 try:
                     p = Progetto.fullobjects.get(codice_locale=cod)
                     fonte.progetto_set.remove(p)
@@ -83,7 +83,7 @@ class Command(BaseCommand):
                     self.logger.debug("|-- Not found")
 
             for cod in set_csv - set_db:
-                self.logger.info("Processing progetto {0}".format(cod))
+                self.logger.info(u"Processing progetto {0}".format(cod))
                 try:
                     p = Progetto.fullobjects.get(codice_locale=cod)
                     fonte.progetto_set.add(p)
