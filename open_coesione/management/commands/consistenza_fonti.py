@@ -67,14 +67,14 @@ class Command(BaseCommand):
 
         # fetch the set of all clp for the given fonte
         self.logger.info("Fetching CLP from db".format(csv_file))
-        set_db = set(Progetto.objects.filter(fonte_set__codice=fonte_codice).values_list('codice_locale', flat=True))
+        set_db = set(Progetto.objects.filter(fonte_set__codice=fonte_codice, cipe_flag=False).values_list('codice_locale', flat=True))
 
         if dryrun:
             self.logger.info(u"Would remove {0} progetti: [{1}, ...]".format(
-                len(set_db - set_csv), ",".join(list(set_db - set_csv)[:10])
+                len(set_db - set_csv), u",".join(list(set_db - set_csv)[:10])
             ))
             self.logger.info(u"Would add {0} progetti: [{1}, ...]".format(
-                len(set_csv - set_db), ",".join(list(set_csv - set_db)[:10])
+                len(set_csv - set_db), u",".join(list(set_csv - set_db)[:10])
             ))
         else:
             for cod in set_db - set_csv:
