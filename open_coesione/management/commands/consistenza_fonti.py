@@ -70,8 +70,12 @@ class Command(BaseCommand):
         set_db = set(Progetto.objects.filter(fonte_set__codice=fonte_codice).values_list('codice_locale', flat=True))
 
         if dryrun:
-            self.logger.info(u"Would remove {0} progetti".format(len(set_db - set_csv)))
-            self.logger.info(u"Would add {0} progetti".format(len(set_csv - set_db)))
+            self.logger.info(u"Would remove {0} progetti: [{1}, ...]".format(
+                len(set_db - set_csv), ",".join(list(set_db - set_csv)[:10])
+            ))
+            self.logger.info(u"Would add {0} progetti: [{1}, ...]".format(
+                len(set_csv - set_db), ",".join(list(set_csv - set_db)[:10])
+            ))
         else:
             for cod in set_db - set_csv:
                 self.logger.info(u"Processing progetto {0}".format(cod))
