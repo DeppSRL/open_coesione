@@ -5,7 +5,7 @@
   <h2 class="hidden"><a name="menu"></a>Navigazione del sito</h2>
   <div class="navbar-inner">
     <div class="container">
-      <form method="get" action="{% if soggetto %}{% url 'soggetti_search' %}{% elif progetto %}{% url 'progetti_search' %}{% else %}{% endif %}" class="navbar-search form-search pull-right">
+      <form method="get" action="{% if soggetto %}{% url 'soggetti_search' %}{% else %}{% url 'progetti_search' %}{% endif %}" class="navbar-search form-search pull-right">
         <select id="menu-search-type-selector" name="" class="input-small">
             <option value="progetti"{% if progetto %} selected="selected"{% endif %}>Progetti</option>
             <option value="soggetti"{% if soggetto %} selected="selected"{% endif %}>Soggetti</option>
