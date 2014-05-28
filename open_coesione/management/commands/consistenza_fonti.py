@@ -67,7 +67,7 @@ class Command(BaseCommand):
 
         # fetch the set of all clp for the given fonte
         self.logger.info("Fetching CLP from db".format(csv_file))
-        set_db = set(Progetto.fullobjects.filter(fonte_set__codice=fonte_codice).values_list('codice_locale', flat=True))
+        set_db = set(Progetto.objects.filter(fonte_set__codice=fonte_codice).values_list('codice_locale', flat=True))
 
         if dryrun:
             self.logger.info(u"Would remove {0} progetti".format(len(set_db - set_csv)))
@@ -76,7 +76,7 @@ class Command(BaseCommand):
             for cod in set_db - set_csv:
                 self.logger.info(u"Processing progetto {0}".format(cod))
                 try:
-                    p = Progetto.fullobjects.get(codice_locale=cod)
+                    p = Progetto.objects.get(codice_locale=cod)
                     fonte.progetto_set.remove(p)
                     self.logger.info("|-- Removed!")
                 except ObjectDoesNotExist:
@@ -85,7 +85,7 @@ class Command(BaseCommand):
             for cod in set_csv - set_db:
                 self.logger.info(u"Processing progetto {0}".format(cod))
                 try:
-                    p = Progetto.fullobjects.get(codice_locale=cod)
+                    p = Progetto.objects.get(codice_locale=cod)
                     fonte.progetto_set.add(p)
                     self.logger.info("|-- Added!")
                 except ObjectDoesNotExist:
