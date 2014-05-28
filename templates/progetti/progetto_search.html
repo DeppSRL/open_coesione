@@ -24,23 +24,29 @@
                     scarica i risultati della ricerca<br/>
                     <a style="font-weight: normal;"
                        href="{% url 'progetti_search_csv' %}?{{ request.META.QUERY_STRING }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;"
                        title="scarica il file dei progetti, con i nomi delle localit&agrave;"
                             >csv progetti</a><a
                         href="{% url 'progetti_search_csv' %}?{{ request.META.QUERY_STRING }}"
+                        onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;"
                         title="scarica il file dei progetti, con i nomi delle localit&agrave;"
                         ><img src="{{ STATIC_URL }}img/download.png"/></a> |
                     <a style="font-weight: normal;"
                        href="{% url 'progetti_search_csv_loc' %}?{{ request.META.QUERY_STRING }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;"
                        title="scarica il file dei codici delle localt&agrave;"
                             >csv localit&agrave;</a><a
                         href="{% url 'progetti_search_csv_loc' %}?{{ request.META.QUERY_STRING }}"
+                        onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;"
                         title="scarica il file dei codici delle localit&agrave;"
                         ><img src="{{ STATIC_URL }}img/download.png"/></a> |
                     <a style="font-weight: normal;"
                        href="{{ STATIC_URL }}risultati_ricerca_metadati.xls"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;"
                        title="scarica i metadati"
                             >metadati</a><a
                         href="{{ STATIC_URL }}risultati_ricerca_metadati.xls"
+                        onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;"
                         title="scarica il pacchetto completo con progetti, localizzazioni e metadati"
                         ><img src="{{ STATIC_URL }}img/download.png"/></a>
                 </p>
