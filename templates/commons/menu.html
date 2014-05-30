@@ -117,7 +117,7 @@
                     <li class="clearfix">
                       <ul>
                         {% for programma in lista_programmi.fsc %}
-                            <li><a href="{% url 'progetti_programma_linea' programma.codice %}">{{ programma.descrizione }}</a></li>
+                            <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione }}</a></li>
                         {% endfor %}
                       </ul>
                     </li>
@@ -130,7 +130,7 @@
                     <li class="clearfix">
                       <ul>
                         {% for programma in lista_programmi.pac %}
-                            <li><a href="{% url 'progetti_programma_linea' programma.codice %}">{{ programma.descrizione }}</a></li>
+                            <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione }}</a></li>
                         {% endfor %}
                       </ul>
                     </li>

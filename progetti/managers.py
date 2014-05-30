@@ -1,8 +1,5 @@
 from datetime import datetime
 from django.db import models
-from django.db.models import Sum
-from django.http import HttpResponseNotFound
-import math
 
 
 class ProgettiQuerySet(models.query.QuerySet):
@@ -82,7 +79,12 @@ class ProgettiQuerySet(models.query.QuerySet):
 
     def con_programma(self, programma):
         if programma.is_root:
-            return self.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore=programma)
+            if programma.__class__.__name__ == 'ProgrammaAsseObiettivo':
+                return self.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore=programma)
+            elif programma.__class__.__name__ == 'ProgrammaLineaAzione':
+                return self.filter(programma_linea_azione__classificazione_superiore__classificazione_superiore=programma)
+            else:
+                raise Exception("Wrong programma. Should not happen.")
         else:
             raise Exception("Only root programs allowed")
 

@@ -2,13 +2,13 @@ import StringIO
 import csv
 import json
 import zipfile
-import urllib
+import os
+import logging
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-import os
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
@@ -16,7 +16,6 @@ from django.views.generic.edit import FormView
 from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin, FacetRangePercPayMixin
 from oc_search.views import ExtendedFacetedSearchView
-
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from open_coesione import utils
 from open_coesione.views import AggregatoView, AccessControlView, cached_context, OpendataView
@@ -25,7 +24,6 @@ from progetti.models import Tema, Fonte, SegnalazioneProgetto
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
-import logging
 
 class ProgettoView(AccessControlView, DetailView):
     model = Progetto
@@ -91,38 +89,30 @@ class ProgrammaView(AccessControlView, AggregatoView, DetailView):
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_programma(self.object)[:5]
 
         logger.debug("territori_piu_finanziati_pro_capite start")
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+
+        #discriminate between ProgrammaAsseObiettivo and ProgrammaLineaAzione
+        if isinstance(self.object, ProgrammaAsseObiettivo):
             filters={
                 'progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore': self.object
             }
-        )
-
-        return context
-
-    def get_object(self, queryset=None):
-        return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
-
-
-class ProgrammaLineaView(ProgrammaView):
-    context_object_name = 'programma'
-    template_name = 'progetti/programma_detail.html'
-
-    @cached_context
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(ProgrammaLineaView, self).get_context_data(**kwargs)
-
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+        else:
             filters={
                 'progetto__programma_linea_azione__classificazione_superiore__classificazione_superiore': self.object
             }
+
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+            filters=filters
         )
 
         return context
 
     def get_object(self, queryset=None):
-        return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
+        try:
+            prog = ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
+        except ObjectDoesNotExist:
+            prog = ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
 
+        return prog
 
 class TipologiaView(AccessControlView, AggregatoView, DetailView):
     context_object_name = 'tipologia'
