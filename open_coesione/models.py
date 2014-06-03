@@ -52,6 +52,7 @@ class PressReview(models.Model):
 class Pillola(tagging_models.TagMixin, models.Model):
 
     title = models.CharField(max_length=200, verbose_name='Titolo')
+    slug = models.SlugField(max_length=255, null=True, blank=True, db_index=True)
     description = models.TextField(max_length=1024, verbose_name='Descrizione', blank=True, null=True)
     file = models.FileField(upload_to='pillole', blank=True, null=True)
     published_at = models.DateField(verbose_name='Data di pubblicazione')

@@ -23,6 +23,7 @@ class PillolaAdmin(admin.ModelAdmin):
     date_hierarchy = 'published_at'
     list_display = ('title', 'file', 'published_at')
     ordering = ('-published_at',)
+    prepopulated_fields = {'slug': ('title',)}
     inlines = [TagInline]
     form = PillolaAdminForm
 

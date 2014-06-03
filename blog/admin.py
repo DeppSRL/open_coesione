@@ -15,6 +15,7 @@ class BlogEntryAdmin(admin.ModelAdmin):
     date_hierarchy= 'published_at'
     list_display = ('title', 'published_at')
     exclude = ['body_plain']
+    prepopulated_fields = {'slug': ('title',)}
     inlines = [TagInline]
     form = BlogEntryAdminForm
 

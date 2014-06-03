@@ -6,6 +6,7 @@ from tagging import models as tagging_models
 class Entry(tagging_models.TagMixin, models.Model):
 
     title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, null=True, blank=True, db_index=True)
     body = models.TextField()
     body_plain = models.TextField()
     published_at = models.DateTimeField(default=datetime.now(), verbose_name='Data di pubblicazione')
