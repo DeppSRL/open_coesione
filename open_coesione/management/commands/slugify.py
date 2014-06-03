@@ -29,6 +29,8 @@ from django.template.defaultfilters import slugify
 from progetti.models import Tema, ClassificazioneAzione, Progetto
 from territori.models import Territorio
 from soggetti.models import Soggetto
+from blog.models import Entry
+from open_coesione.models import Pillola
 
 import logging
 
@@ -42,7 +44,7 @@ class Command(BaseCommand):
         make_option('--type',
                     dest='type',
                     default='proj',
-                    help='Type of import: proj|loc|rec|nature|topic'),
+                    help='Type of import: proj|loc|rec|blog|pillola|nature|topic'),
         make_option('--file',
             default='dati/{0}_mapping.csv',
             help='CSV file containing mapping for short_labels [dati/topic_mapping.csv|dati/nature_mapping.csv]'),
@@ -61,10 +63,12 @@ class Command(BaseCommand):
             self.handle_loc(*args, **options)
         elif options['type'] == 'rec':
             self.handle_rec(*args, **options)
+        elif options['type'] in ['blog', 'pillola']:
+            self.handle_blog_pillola(*args, **options)
         elif options['type'] in ['nature', 'topic']:
             self.handle_short_labels(*args, **options)
         else:
-            self.logger.error("Wrong type %s. Select among proj, loc, rec, nature, topic" % options['type'])
+            self.logger.error("Wrong type %s. Select among proj, loc, rec, blog, pillola, nature, topic" % options['type'])
             exit(1)
 
     def handle_proj(self, *args, **options):
@@ -169,6 +173,29 @@ class Command(BaseCommand):
                 self.logger.debug(n)
 
         self.logger.info("done!")
+
+
+    def handle_blog_pillola(self, *args, **options):
+        if options['type'] == 'blog':
+            objclass = Entry
+        else:
+            objclass = Pillola
+
+        if options['reset']:
+            objclass.objects.update(slug=None)
+            self.logger.info("{0} slugs have been reset. now exiting".format(options['type']))
+            return
+
+        objects = objclass.objects.filter(slug__isnull=True)
+        self.logger.info("{0} {1} will be slugified".format(objects.count(), options['type']))
+        for n, object in enumerate(objects):
+            object.slug = slugify(u"{0}".format(object.title))
+            object.save()
+            if n%100 == 0:
+                self.logger.debug(n)
+
+        self.logger.info("done!")
+
 
 
     def handle_short_labels(self, *args, **options):
