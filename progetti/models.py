@@ -43,16 +43,11 @@ class ClassificazioneQSN(models.Model):
         db_table = 'progetti_classificazione_qsn'
 
 
-class ProgrammaAsseObiettivo(models.Model):
+class ProgrammaBase(models.Model):
 
-    objects = ProgrammaAsseObiettivoManager()
+    TIPO = {}
 
-    TIPO = Choices(
-        ('PROGRAMMA_FS', 'programma', u'Programma FS'),
-        ('ASSE', 'asse', u'Asse'),
-        ('OBIETTIVO_OPERATIVO', 'obiettivo', u'Obiettivo operativo')
-    )
-    classificazione_superiore = models.ForeignKey('ProgrammaAsseObiettivo', default=None,
+    classificazione_superiore = models.ForeignKey('self', default=None,
                                                   related_name='classificazione_set',
                                                   db_column='classificazione_superiore',
                                                   null=True, blank=True)
@@ -75,16 +70,29 @@ class ProgrammaAsseObiettivo(models.Model):
 
     @property
     def is_root(self):
-        return self.tipo_classificazione == ProgrammaAsseObiettivo.TIPO.programma
+        return self.tipo_classificazione == self.TIPO.programma
 
     def __unicode__(self):
         return unicode(self.descrizione[0:100])
 
     class Meta:
+        abstract = True
+
+class ProgrammaAsseObiettivo(ProgrammaBase):
+
+    objects = ProgrammaAsseObiettivoManager()
+
+    TIPO = Choices(
+        ('PROGRAMMA_FS', 'programma', u'Programma FS'),
+        ('ASSE', 'asse', u'Asse'),
+        ('OBIETTIVO_OPERATIVO', 'obiettivo', u'Obiettivo operativo')
+    )
+
+    class Meta(ProgrammaBase.Meta):
         verbose_name_plural = "Programmi - Assi - Obiettivi operativi"
         db_table = 'progetti_programma_asse_obiettivo'
 
-class ProgrammaLineaAzione(models.Model):
+class ProgrammaLineaAzione(ProgrammaBase):
     """
     Classificazione alternativa a ProgrammaAsseObiettivo,
     per progetti in attuazione nel contesto FSC.
@@ -96,35 +104,8 @@ class ProgrammaLineaAzione(models.Model):
         ('LINEA', 'linea', u'Linea'),
         ('AZIONE', 'azione', u'Azione')
     )
-    classificazione_superiore = models.ForeignKey('ProgrammaLineaAzione', default=None,
-                                                  related_name='classificazione_set',
-                                                  db_column='classificazione_superiore',
-                                                  null=True, blank=True)
-    codice = models.CharField(max_length=32, primary_key=True)
-    descrizione = models.TextField()
-    tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
-    url_riferimento = models.URLField(max_length=255, blank=True, null=True)
 
-
-    @property
-    def programma(self):
-        p = self
-        while p.classificazione_superiore is not None:
-            p = p.classificazione_superiore
-        return p
-
-    @property
-    def progetti(self):
-        return self.progetto_set
-
-    @property
-    def is_root(self):
-        return self.tipo_classificazione == ProgrammaLineaAzione.TIPO.programma
-
-    def __unicode__(self):
-        return unicode(self.descrizione[0:100])
-
-    class Meta:
+    class Meta(ProgrammaBase.Meta):
         verbose_name_plural = "Programmi - Linee - Azioni"
         db_table = 'progetti_programma_linea_azione'
 
