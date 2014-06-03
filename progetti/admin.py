@@ -2,11 +2,13 @@ from django.contrib import admin
 from progetti.models import *
 
 class ProgrammaAsseObiettivoAdmin(admin.ModelAdmin):
+    list_display = ['codice', 'descrizione']
     search_fields = ['descrizione', 'codice']
     list_filter = ('tipo_classificazione',)
 
 class ProgrammaLineaAzioneAdmin(admin.ModelAdmin):
     search_fields = ['descrizione', 'codice']
+    list_display = ['codice', 'descrizione']
     list_filter = ('tipo_classificazione',)
 
 class LocalizzazioneInline(admin.TabularInline):
