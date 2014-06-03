@@ -5,18 +5,8 @@
 {% block content %}
   <div id="blog">
 
-    {% for article in entry_list %}
-      <article id="notizia-{{ article.pk }}">
-        <header class="page-header">
-          <h1>{{ article.title }}
-            <small>{{ article.published_at|date:'d/m/Y' }}</small></h1>
-        </header>
-
-        <div>
-          {{ article.body|safe }}
-        </div>
-        {% include 'tagging/attribute_tags.html' with tags=article.tags base_url='blog_home' only %}
-      </article>
+    {% for object in object_list %}
+      {% include 'blog/entry_item.html' with object=object title_linked=1 only %}
     {% endfor %}
 
   </div>

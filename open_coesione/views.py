@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse
 from django.utils.datastructures import SortedDict
 from django.views.generic import ListView
+from django.views.generic.detail import DetailView
 
 import os
 from django.views.generic.base import TemplateView, RedirectView
@@ -46,7 +47,6 @@ def cached_context(get_context_data):
 
 class PilloleView(ListView, TagFilterMixin, DateFilterMixin):
     model = Pillola
-    template_name = 'pillole.html'
 
     def get_queryset(self):
         queryset = super(PilloleView, self).get_queryset()
@@ -62,6 +62,9 @@ class PilloleView(ListView, TagFilterMixin, DateFilterMixin):
         context['tag_choices'] = self._get_tag_choices()
 
         return context
+
+class PillolaView(DetailView):
+    model = Pillola
 
 
 class AccessControlView(object):

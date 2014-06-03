@@ -3,7 +3,7 @@ from django.contrib.gis import admin
 from django.conf import settings
 from django.views.generic.base import TemplateView
 from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView, PressView, SpesaCertificataView, \
-    OpendataView, PilloleView, OpendataRedirectView, PilloleRedirectView
+    OpendataView, PilloleView, PillolaView, OpendataRedirectView, PilloleRedirectView
 from rubrica.views import NLContactView
 
 admin.autodiscover()
@@ -33,6 +33,7 @@ urlpatterns = patterns('',
     # pilole
     url(r'^pillole/(?P<path>.+)$', PilloleRedirectView.as_view(), name='pillole_clean'),
     url(r'^pillole/$', PilloleView.as_view(), name='pillole'),
+    url(r'^pillola/(?P<slug>[\w-]+)/$', PillolaView.as_view(), name='pillola_item'),
 
     # api
     url(r'^api/', include('api.urls')),

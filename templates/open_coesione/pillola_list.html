@@ -15,26 +15,8 @@
     </p>
     <hr>
 
-    {% for pillola in object_list %}
-      <article id="pillola-{{ pillola.pk }}">
-        <header>
-          <h1>{{ pillola.title }}
-            <small>{{ pillola.published_at|date:'d/m/Y' }}</small>
-            {% if pillola.file %}
-              <small>
-                <a href="/{{ pillola.file.name }}"><i class="icon-download-alt"></i>
-                <span style="color:black;">{{ pillola.file.name|slice:"-3:"|lower }}, {{ pillola.file.size|filesizeformat }}</span></a>
-              </small>
-            {% endif %}
-          </h1>
-        </header>
-
-        <div>
-          {{ pillola.description|safe }}
-          <br>
-        </div>
-        {% include 'tagging/attribute_tags.html' with tags=pillola.tags base_url='pillole' only %}
-      </article>
+    {% for object in object_list %}
+      {% include 'open_coesione/pillola_item.html' with object=object title_linked=1 only %}
       <hr>
     {% endfor %}
   </div>

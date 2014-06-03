@@ -1,4 +1,5 @@
 from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from blog.models import Entry
 from tagging.views import TagFilterMixin
 from open_coesione.mixins import DateFilterMixin
@@ -22,6 +23,9 @@ class BlogView(ListView, TagFilterMixin, DateFilterMixin):
         context['tag_choices'] = self._get_tag_choices()
 
         return context
+
+class BlogEntryView(DetailView):
+    model = Entry
 
 # class BlogByTagView(BlogView):
 #     def get_queryset(self):
