@@ -1,46 +1,45 @@
-{% extends 'base.html' %}
+{% extends 'base_two_columns.html' %}
 
 {% block page_title %}Pillole di Open Coesione{% endblock %}
 
-{% block container %}
-  <div class="container">
-    <div class="row">
-      <div class="span12" id="pillole" style="margin-top: 2em;">
-        <p>
-            Le Pillole di OpenCoesione sono brevi testi che propongono spunti di
-            riflessione sulle politiche di coesione.
-            Alcune di esse accompagnano gli aggiornamenti bimestrali dei dati sui progetti
-            di OpenCoesione fornendo una lettura generale dei principali cambiamenti
-            avvenuti nel corso del bimestre. Altre approfondiscono specifici aspetti
-            rilevanti in modo da favorire la comprensione del mondo dei progetti
-            in attuazione e delle politiche di coesione più in generale.
-        </p>
-        <hr>
+{% block content %}
+  <div id="pillole" style="margin-top: 2em;">
+    <p>
+        Le Pillole di OpenCoesione sono brevi testi che propongono spunti di
+        riflessione sulle politiche di coesione.
+        Alcune di esse accompagnano gli aggiornamenti bimestrali dei dati sui progetti
+        di OpenCoesione fornendo una lettura generale dei principali cambiamenti
+        avvenuti nel corso del bimestre. Altre approfondiscono specifici aspetti
+        rilevanti in modo da favorire la comprensione del mondo dei progetti
+        in attuazione e delle politiche di coesione più in generale.
+    </p>
+    <hr>
 
-        {% for pillola in object_list %}
-          <article id="pillola-{{ pillola.pk }}">
-            <header>
-              <h1>{{ pillola.title }}
-                <small>{{ pillola.published_at|date:'d/m/Y' }}</small>
-                  {% if pillola.file %}
-                    <small>
-                      <a href="/{{ pillola.file.name }}"><i class="icon-download-alt"></i>
-                        <span style="color:black;">{{ pillola.file.name|slice:"-3:"|lower }}, {{ pillola.file.size|filesizeformat }}</span></a>
-                    </small>
-                  {% endif %}
-              </h1>
-            </header>
+    {% for pillola in object_list %}
+      <article id="pillola-{{ pillola.pk }}">
+        <header>
+          <h1>{{ pillola.title }}
+            <small>{{ pillola.published_at|date:'d/m/Y' }}</small>
+            {% if pillola.file %}
+              <small>
+                <a href="/{{ pillola.file.name }}"><i class="icon-download-alt"></i>
+                <span style="color:black;">{{ pillola.file.name|slice:"-3:"|lower }}, {{ pillola.file.size|filesizeformat }}</span></a>
+              </small>
+            {% endif %}
+          </h1>
+        </header>
 
-            <div>
-              {{ pillola.description|safe }}
-              <br>
-            </div>
-          </article>
-
-          <hr>
-        {% endfor %}
-
-      </div>
-    </div>
+        <div>
+          {{ pillola.description|safe }}
+          <br>
+        </div>
+        {% include 'attribute_tags.html' with tags=pillola.tags base_url='pillole' only %}
+      </article>
+      <hr>
+    {% endfor %}
   </div>
+{% endblock %}
+
+{% block sidebar %}
+  {% include 'sidebar_filter.html' with tag_choices=tag_choices date_choices=date_choices base_url='pillole' all_text='Tutte le pillole' only %}
 {% endblock %}

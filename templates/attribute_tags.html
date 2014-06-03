@@ -1,0 +1,10 @@
+{% if tags %}
+  <div>
+    <strong>Tags:</strong>
+    <ul>
+      {% for tag in tags %}
+        <li><a href="{% url base_url %}?tag={{ tag.slug }}">{{ tag }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}

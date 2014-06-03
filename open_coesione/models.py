@@ -1,7 +1,9 @@
 # coding=utf-8
 from django.db import models
+from django.contrib.contenttypes import generic
 from django.dispatch import receiver
 import os
+from tagging import models as tagging_models
 
 class ContactMessage(models.Model):
 
@@ -47,12 +49,11 @@ class PressReview(models.Model):
         verbose_name = "Articolo"
 
 
-class Pillola(models.Model):
+class Pillola(tagging_models.TagMixin, models.Model):
 
     title = models.CharField(max_length=200, verbose_name='Titolo')
     description = models.TextField(max_length=1024, verbose_name='Descrizione', blank=True, null=True)
     file = models.FileField(upload_to='pillole', blank=True, null=True)
-
     published_at = models.DateField(verbose_name='Data di pubblicazione')
 
     class Meta:

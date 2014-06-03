@@ -19,6 +19,9 @@ from django.conf import settings
 from django.db import models
 from django.core.cache import cache
 
+from tagging.views import TagFilterMixin
+from open_coesione.mixins import DateFilterMixin
+
 def cached_context(get_context_data):
     """
     This decorator is used to cache the ``get_context_data()`` method
@@ -41,15 +44,24 @@ def cached_context(get_context_data):
     return decorator
 
 
-class PilloleView(ListView):
+class PilloleView(ListView, TagFilterMixin, DateFilterMixin):
     model = Pillola
-    template_name = "pillole.html"
+    template_name = 'pillole.html'
 
     def get_queryset(self):
         queryset = super(PilloleView, self).get_queryset()
-        return queryset.order_by('-published_at', '-id')
+        queryset = self._apply_date_filter(queryset)
+        queryset = self._apply_tag_filter(queryset)
+        queryset = queryset.order_by('-published_at', '-id')
 
+        return queryset
 
+    def get_context_data(self, **kwargs):
+        context = super(PilloleView, self).get_context_data(**kwargs)
+        context['date_choices'] = self._get_date_choices()
+        context['tag_choices'] = self._get_tag_choices()
+
+        return context
 
 
 class AccessControlView(object):

@@ -1,26 +1,27 @@
-{% extends 'base.html' %}
+{% extends 'base_two_columns.html' %}
 
 {% block page_title %}Ultime novità{% endblock %}
 
-{% block container %}
-  <div class="container">
-    <div class="row">
-      <div class="span12" id="blog">
+{% block content %}
+  <div id="blog">
 
-        {% for article in object_list %}
-          <article id="notizia-{{ article.pk }}">
-            <header class="page-header">
-              <h1>{{ article.title }}
-                <small>{{ article.published_at|date:'d/m/Y' }}</small></h1>
-            </header>
+    {% for article in entry_list %}
+      <article id="notizia-{{ article.pk }}">
+        <header class="page-header">
+          <h1>{{ article.title }}
+            <small>{{ article.published_at|date:'d/m/Y' }}</small></h1>
+        </header>
 
-            <div>
-              {{ article.body|safe }}
-            </div>
-          </article>
-        {% endfor %}
+        <div>
+          {{ article.body|safe }}
+        </div>
+        {% include 'attribute_tags.html' with tags=article.tags base_url='blog_home' only %}
+      </article>
+    {% endfor %}
 
-      </div>
-    </div>
   </div>
+{% endblock %}
+
+{% block sidebar %}
+  {% include 'sidebar_filter.html' with tag_choices=tag_choices date_choices=date_choices base_url='blog_home' all_text='Tutte le news' only %}
 {% endblock %}
