@@ -15,7 +15,7 @@
         <div>
           {{ article.body|safe }}
         </div>
-        {% include 'attribute_tags.html' with tags=article.tags base_url='blog_home' only %}
+        {% include 'tagging/attribute_tags.html' with tags=article.tags base_url='blog_home' only %}
       </article>
     {% endfor %}
 

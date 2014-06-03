@@ -33,7 +33,7 @@
           {{ pillola.description|safe }}
           <br>
         </div>
-        {% include 'attribute_tags.html' with tags=pillola.tags base_url='pillole' only %}
+        {% include 'tagging/attribute_tags.html' with tags=pillola.tags base_url='pillole' only %}
       </article>
       <hr>
     {% endfor %}
