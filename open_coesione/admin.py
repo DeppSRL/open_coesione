@@ -1,7 +1,15 @@
 from django.contrib import admin
-from open_coesione.models import ContactMessage, PressReview, Pillola
+from models import ContactMessage, PressReview, Pillola
+from django.forms import ModelForm, CharField
+
+from tinymce.widgets import TinyMCE
 
 from tagging.admin import TagInline
+
+class PillolaAdminForm(ModelForm):
+    description = CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
+    class Meta:
+        model = Pillola
 
 class MessagesAdmin(admin.ModelAdmin):
     date_hierarchy = 'sent_at'
@@ -16,6 +24,7 @@ class PillolaAdmin(admin.ModelAdmin):
     list_display = ('title', 'file', 'published_at')
     ordering = ('-published_at',)
     inlines = [TagInline]
+    form = PillolaAdminForm
 
 admin.site.register(ContactMessage, MessagesAdmin)
 admin.site.register(PressReview, PressReviewAdmin)
