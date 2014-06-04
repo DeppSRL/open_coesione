@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for model in [ProgrammaAsseObiettivo, ProgrammaLineaAzione]:
-            objects = model.objects.exclude(url_riferimento__isnull=True).exclude(url_riferimento='').exclude(urls_riferimento__url=F('url_riferimento'))
+            objects = model.objects.exclude(url_riferimento__isnull=True).exclude(url_riferimento='').exclude(links__url=F('url_riferimento'))
             for object in objects:
                 self.logger.info('{0} | codice: {1} ({2})'.format(model, object.codice, object.url_riferimento))
                 url = URL(content_object=object, url=object.url_riferimento)

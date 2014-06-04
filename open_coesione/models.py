@@ -70,6 +70,10 @@ class URL(models.Model):
     object_id = models.CharField(max_length=255)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
+    class Meta:
+        verbose_name = 'Link'
+        verbose_name_plural = 'Links'
+
 
 # These two auto-delete files from filesystem when they are unneeded:
 @receiver(models.signals.post_delete, sender=Pillola)

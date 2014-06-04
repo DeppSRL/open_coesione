@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.db import models
 from django.utils.functional import cached_property
 from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaAsseObiettivoManager, FullProgettiManager, ProgrammaLineaAzioneManager
@@ -45,6 +46,23 @@ class ClassificazioneQSN(models.Model):
         db_table = 'progetti_classificazione_qsn'
 
 
+class Documento(models.Model):
+    TIPO = Choices(
+        ('documento_programma', u'Documento di programma'),
+        ('rapporto_annuale', u'Rapporto annuale di pubblicazione'),
+    )
+
+    tipo = models.CharField(max_length=32, choices=TIPO)
+    file = models.FileField(upload_to='documenti')
+    data = models.DateField(blank=True, null=True)
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.CharField(max_length=255)
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        verbose_name_plural = 'Documenti'
+
+
 class ProgrammaBase(models.Model):
 
     TIPO = {}
@@ -57,7 +75,8 @@ class ProgrammaBase(models.Model):
     descrizione = models.TextField()
     tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
     url_riferimento = models.URLField(max_length=255, blank=True, null=True)
-    urls_riferimento = generic.GenericRelation(URL)
+    links = generic.GenericRelation(URL)
+    documenti = generic.GenericRelation(Documento)
 
 
     @property

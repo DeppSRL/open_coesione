@@ -2,11 +2,6 @@ from django.contrib import admin
 from progetti.models import *
 from open_coesione.admin import URLInline
 
-class ProgrammaAdmin(admin.ModelAdmin):
-    search_fields = ['descrizione',]
-    list_filter = ('tipo_classificazione',)
-    inlines = [URLInline]
-
 class LocalizzazioneInline(admin.TabularInline):
     model = Localizzazione
     raw_id_fields = ('progetto', 'territorio', )
@@ -21,6 +16,15 @@ class CUPSInline(admin.TabularInline):
     model = CUP
     extra = 0
 
+class DocumentoInline(generic.GenericTabularInline):
+    model = Documento
+    extra = 0
+
+
+class ProgrammaAdmin(admin.ModelAdmin):
+    search_fields = ['descrizione',]
+    list_filter = ('tipo_classificazione',)
+    inlines = [DocumentoInline, URLInline]
 
 class ProgettoAdmin(admin.ModelAdmin):
     inlines = (LocalizzazioneInline, DeliberaCIPEInline, CUPSInline)
