@@ -3,12 +3,14 @@ from decimal import Decimal
 
 from django.db import models
 from django.utils.functional import cached_property
+from django.contrib.contenttypes import generic
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaAsseObiettivoManager, FullProgettiManager, ProgrammaLineaAzioneManager
 from django.core.cache import cache
 import logging
 from soggetti.models import Soggetto
+from open_coesione.models import URL
 
 logger = logging.getLogger('oc')
 
@@ -55,6 +57,7 @@ class ProgrammaBase(models.Model):
     descrizione = models.TextField()
     tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
     url_riferimento = models.URLField(max_length=255, blank=True, null=True)
+    urls_riferimento = generic.GenericRelation(URL)
 
 
     @property

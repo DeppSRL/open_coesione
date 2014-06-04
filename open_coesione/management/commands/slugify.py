@@ -177,16 +177,16 @@ class Command(BaseCommand):
 
     def handle_blog_pillola(self, *args, **options):
         if options['type'] == 'blog':
-            objclass = Entry
+            model = Entry
         else:
-            objclass = Pillola
+            model = Pillola
 
         if options['reset']:
-            objclass.objects.update(slug=None)
+            model.objects.update(slug=None)
             self.logger.info("{0} slugs have been reset. now exiting".format(options['type']))
             return
 
-        objects = objclass.objects.filter(slug__isnull=True)
+        objects = model.objects.filter(slug__isnull=True)
         self.logger.info("{0} {1} will be slugified".format(objects.count(), options['type']))
         for n, object in enumerate(objects):
             object.slug = slugify(u"{0}".format(object.title))

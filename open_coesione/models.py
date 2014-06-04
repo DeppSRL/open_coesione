@@ -1,9 +1,11 @@
 # coding=utf-8
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.dispatch import receiver
 import os
 from tagging import models as tagging_models
+
 
 class ContactMessage(models.Model):
 
@@ -60,6 +62,13 @@ class Pillola(tagging_models.TagMixin, models.Model):
     class Meta:
         verbose_name_plural = "Pillole"
         verbose_name = "Pillola"
+
+
+class URL(models.Model):
+    url = models.URLField(max_length=255, blank=False, null=False)
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.CharField(max_length=255)
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
 
 
 # These two auto-delete files from filesystem when they are unneeded:

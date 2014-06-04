@@ -1,6 +1,7 @@
 from django.contrib import admin
-from models import ContactMessage, PressReview, Pillola
+from models import ContactMessage, PressReview, Pillola, URL
 from django.forms import ModelForm, CharField
+from django.contrib.contenttypes import generic
 
 from tinymce.widgets import TinyMCE
 
@@ -26,6 +27,10 @@ class PillolaAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
     inlines = [TagInline]
     form = PillolaAdminForm
+
+class URLInline(generic.GenericTabularInline):
+    model = URL
+    extra = 0
 
 admin.site.register(ContactMessage, MessagesAdmin)
 admin.site.register(PressReview, PressReviewAdmin)

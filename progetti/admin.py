@@ -1,13 +1,11 @@
 from django.contrib import admin
 from progetti.models import *
+from open_coesione.admin import URLInline
 
-class ProgrammaAsseObiettivoAdmin(admin.ModelAdmin):
+class ProgrammaAdmin(admin.ModelAdmin):
     search_fields = ['descrizione',]
     list_filter = ('tipo_classificazione',)
-
-class ProgrammaLineaAzioneAdmin(admin.ModelAdmin):
-    search_fields = ['descrizione',]
-    list_filter = ('tipo_classificazione',)
+    inlines = [URLInline]
 
 class LocalizzazioneInline(admin.TabularInline):
     model = Localizzazione
@@ -86,8 +84,8 @@ admin.site.register(Progetto, ProgettoAdmin)
 admin.site.register(ClassificazioneQSN, ClassificazioneAdmin)
 admin.site.register(ClassificazioneAzione, ClassificazioneAzioneAdmin)
 admin.site.register(ClassificazioneOggetto, ClassificazioneAdmin)
-admin.site.register(ProgrammaAsseObiettivo, ProgrammaAsseObiettivoAdmin)
-admin.site.register(ProgrammaLineaAzione, ProgrammaLineaAzioneAdmin)
+admin.site.register(ProgrammaAsseObiettivo, ProgrammaAdmin)
+admin.site.register(ProgrammaLineaAzione, ProgrammaAdmin)
 admin.site.register(Tema, TemaAdmin)
 admin.site.register(Fonte)
 admin.site.register(DeliberaCIPE)
