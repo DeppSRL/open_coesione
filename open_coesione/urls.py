@@ -3,7 +3,7 @@ from django.contrib.gis import admin
 from django.conf import settings
 from django.views.generic.base import TemplateView
 from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView, PressView, SpesaCertificataView, \
-    OpendataView, PilloleView, PillolaView, OpendataRedirectView, PilloleRedirectView
+    OpendataView, PilloleView, PillolaView, OpendataRedirectView, PilloleRedirectView, FAQView
 from rubrica.views import NLContactView
 
 admin.autodiscover()
@@ -30,10 +30,14 @@ urlpatterns = patterns('',
     # blog
     url(r'^news/', include('blog.urls')),
 
-    # pilole
+    # pillole
     url(r'^pillole/(?P<path>.+)$', PilloleRedirectView.as_view(), name='pillole_clean'),
     url(r'^pillole/$', PilloleView.as_view(), name='pillole'),
     url(r'^pillola/(?P<slug>[\w-]+)/$', PillolaView.as_view(), name='pillola_item'),
+
+    # faq
+    url(r'^faq/$', FAQView.as_view(lang='it'), name='faq-it'),
+    url(r'^faq/en/$', FAQView.as_view(lang='en'), name='faq-en'),
 
     # api
     url(r'^api/', include('api.urls')),
@@ -57,8 +61,6 @@ urlpatterns = patterns('',
     url(r'^monitora-un-tema-o-un-territorio/', TemplateView.as_view(template_name='flat/monitoring.html')),
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
     url(r'^info-disponibili/', TemplateView.as_view(template_name='flat/info_disponibili.html')),
-    url(r'^faq/$', TemplateView.as_view(template_name='flat/faq.html'), name='faq-it'),
-    url(r'^faq/en/$', TemplateView.as_view(template_name='flat/faq_en.html'), name='faq-en'),
 
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html')),
     url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),

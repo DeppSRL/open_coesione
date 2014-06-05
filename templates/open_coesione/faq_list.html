@@ -1,0 +1,50 @@
+{% extends 'base_two_columns.html' %}
+{% load sekizai_tags %}
+
+{% block page_title %}
+  {% if lang == 'en' %}
+    Frequently Asked Questions
+  {% else %}
+    Domande frequenti
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="flat_content" id="faq_list">
+    {% for object in object_list %}
+      {% if lang == 'en' %}
+        <div id="{{ object.slug_en }}" class="faq">
+          <h2 class="faq-domanda">{{ object.domanda_en }}</h2>
+          <div class="faq-risposta">{{ object.risposta_en|safe }}</div>
+        </div>
+      {% else %}
+        <div id="{{ object.slug_it }}" class="faq">
+          <h2 class="faq-domanda">{{ object.domanda_it }}</h2>
+          <div class="faq-risposta">{{ object.risposta_it|safe }}</div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% addtoblock 'js_script' %}
+    <script type='text/javascript'>//<![CDATA[
+      $(window).load(function() {
+        jQuery('.faq-risposta').hide();
+        jQuery('.faq-domanda').css('cursor', 'pointer').on('click', function() {
+          var self = jQuery(this);
+          jQuery('.faq-risposta').each(function() {
+            jQuery(this).prev().is(self) ? jQuery(this).toggle() : jQuery(this).hide();
+          })
+          if (self.next().is(':visible')) {
+            location.href = '#' + self.closest('.faq').attr('id');
+          }
+        });
+
+        hash = location.hash.replace('#', '');
+        if (hash) {
+          $('body').find('#'+hash+' .faq-domanda').trigger('click');
+        }
+      });//]]>
+    </script>
+  {% endaddtoblock %}
+{% endblock %}

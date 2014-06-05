@@ -60,8 +60,8 @@ class Pillola(tagging_models.TagMixin, models.Model):
     published_at = models.DateField(verbose_name='Data di pubblicazione')
 
     class Meta:
-        verbose_name_plural = "Pillole"
-        verbose_name = "Pillola"
+        verbose_name_plural = "pillole"
+        verbose_name = "pillola"
 
 
 class URL(models.Model):
@@ -71,8 +71,23 @@ class URL(models.Model):
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
-        verbose_name = 'Link'
-        verbose_name_plural = 'Links'
+        verbose_name = 'link'
+        verbose_name_plural = 'links'
+
+
+class FAQ(models.Model):
+
+    domanda_it = models.CharField(max_length=255, verbose_name='Domanda (italiano)')
+    slug_it = models.SlugField(max_length=255, verbose_name='Slug (italiano)', unique=True)
+    risposta_it = models.TextField(verbose_name='Risposta (italiano)', blank=True, null=True)
+    domanda_en = models.CharField(max_length=255, verbose_name='Domanda (inglese)')
+    slug_en = models.SlugField(max_length=255, verbose_name='Slug (inglese)', unique=True)
+    risposta_en = models.TextField(verbose_name='Risposta (inglese)', blank=True, null=True)
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'domanda frequente'
+        verbose_name_plural = 'domande frequenti'
 
 
 # These two auto-delete files from filesystem when they are unneeded:

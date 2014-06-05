@@ -433,6 +433,7 @@
                 jQuery(this).children('i').addClass('icon-chevron-up');
                 jQuery(this).parent().addClass('selected');
                 jQuery(this.getAttribute('data-target')).show();
+                location.href = '#' + jQuery(this).attr('id');
             }
             return false;
 

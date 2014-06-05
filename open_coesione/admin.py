@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import ContactMessage, PressReview, Pillola, URL
+from models import ContactMessage, PressReview, Pillola, URL, FAQ
 from django.forms import ModelForm, CharField
 from django.contrib.contenttypes import generic
 
@@ -11,6 +11,12 @@ class PillolaAdminForm(ModelForm):
     description = CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
     class Meta:
         model = Pillola
+
+class FAQAdminForm(ModelForm):
+    risposta_it = CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
+    risposta_en = CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
+    class Meta:
+        model = FAQ
 
 class MessagesAdmin(admin.ModelAdmin):
     date_hierarchy = 'sent_at'
@@ -28,6 +34,11 @@ class PillolaAdmin(admin.ModelAdmin):
     inlines = [TagInline]
     form = PillolaAdminForm
 
+class FAQAdmin(admin.ModelAdmin):
+    list_display = ('domanda_it', 'domanda_en')
+    prepopulated_fields = {'slug_it': ('domanda_it',), 'slug_en': ('domanda_en',)}
+    form = FAQAdminForm
+
 class URLInline(generic.GenericTabularInline):
     model = URL
     extra = 0
@@ -35,3 +46,4 @@ class URLInline(generic.GenericTabularInline):
 admin.site.register(ContactMessage, MessagesAdmin)
 admin.site.register(PressReview, PressReviewAdmin)
 admin.site.register(Pillola, PillolaAdmin)
+admin.site.register(FAQ, FAQAdmin)

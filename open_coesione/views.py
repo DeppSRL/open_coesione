@@ -11,7 +11,7 @@ import os
 from django.views.generic.base import TemplateView, RedirectView
 from django.db.models import Count, Sum
 from open_coesione.forms import ContactForm
-from open_coesione.models import PressReview, Pillola
+from open_coesione.models import PressReview, Pillola, FAQ
 from open_coesione.settings import PROJECT_ROOT
 from progetti.models import Progetto, Tema, ClassificazioneAzione, DeliberaCIPE
 from soggetti.models import Soggetto
@@ -65,6 +65,17 @@ class PilloleView(ListView, TagFilterMixin, DateFilterMixin):
 
 class PillolaView(DetailView):
     model = Pillola
+
+
+class FAQView(ListView):
+    model = FAQ
+    lang = None
+
+    def get_context_data(self, **kwargs):
+        context = super(FAQView, self).get_context_data(**kwargs)
+        context['lang'] = self.lang
+
+        return context
 
 
 class AccessControlView(object):
