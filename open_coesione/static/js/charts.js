@@ -30,7 +30,7 @@ if (!Array.indexOf) {
 
 
 var defaults = {
-    credits: { text: 'Fonte: DPS-ISTAT', href:'http://www.istat.it/it/archivio/16777/' },
+    credits: { text: 'Fonte: DPS-ISTAT', href:'http://www.opencoesione.gov.it/opendata' },
     backgroundColor: null
 };
 
