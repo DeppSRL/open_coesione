@@ -4,7 +4,6 @@ import os
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 REPO_ROOT = os.path.abspath(os.path.dirname(PROJECT_ROOT))
-DPS_ISTAT_ROOT = os.path.join(REPO_ROOT, "dati", "istat")
 API_URL = None
 
 # Haystack talks with solr
@@ -89,7 +88,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(DPS_ISTAT_ROOT, 'static'),
+    # os.path.join(DPS_ISTAT_ROOT, 'static'),
 )
 
 # List of finder classes that know how to find static files in
