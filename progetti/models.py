@@ -74,6 +74,19 @@ class ProgrammaAsseObiettivo(models.Model):
         return self.progetto_set
 
     @property
+    def progetti_di_programma(self):
+        """
+        All progetti are classified by programmi of type obiettivo.
+        This method returns all progetti that have the root program equal to the one selected.
+
+        It only works with root programmi.
+        """
+        if self.is_root:
+            return Progetto.objects.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore=self)
+        else:
+            raise Exception("This property is not available for Asse or Obiettivo classifications.")
+
+    @property
     def is_root(self):
         return self.tipo_classificazione == ProgrammaAsseObiettivo.TIPO.programma
 
@@ -116,6 +129,19 @@ class ProgrammaLineaAzione(models.Model):
     @property
     def progetti(self):
         return self.progetto_set
+
+    @property
+    def progetti_di_programma(self):
+        """
+        All progetti are classified by programmi of type azione.
+        This method returns all progetti that have the root program equal to the one selected.
+
+        It only works with root programmi.
+        """
+        if self.is_root:
+            return Progetto.objects.filter(programma_linea_azione__classificazione_superiore__classificazione_superiore=self)
+        else:
+            raise Exception("This property is not available for Linea or Azione classifications.")
 
     @property
     def is_root(self):
