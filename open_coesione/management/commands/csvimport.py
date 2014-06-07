@@ -760,7 +760,7 @@ class Command(BaseCommand):
                 'DPS_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_COD_OBIETTIVO_OPERATIVO',
                 'DPS_DESCRIZIONE_PROGRAMMA', 'PO_DENOMINAZIONE_ASSE', 'PO_OBIETTIVO_OPERATIVO'
             ]
-            if all(k in r for k in keywords):
+            if all(k in r for k in keywords) and all(r[k].strip() for k in keywords):
                 try:
                     created = False
                     programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
@@ -815,7 +815,9 @@ class Command(BaseCommand):
                 'DPS_CODICE_PROGRAMMA', 'COD_LINEA', 'COD_AZIONE',
                 'DPS_DESCRIZIONE_PROGRAMMA', 'DESCR_LINEA', 'DESCR_AZIONE'
             ]
-            if all(k in r for k in keywords):
+
+            # only complete and non-empty classifications are created or updated
+            if all(k in r for k in keywords) and all(r[k].strip() for k in keywords):
                 try:
                     created = False
                     programma, created = ProgrammaLineaAzione.objects.get_or_create(
