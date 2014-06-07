@@ -187,6 +187,11 @@ Type 'yes' to continue, or 'no' to cancel: """.format("\n".join(REQUIRED_PATHS))
 
             # skip not allowed index
             if not row.get(CSV_CODE).strip() in VALID_INDEXES:
+                self.logger.debug(
+                    u"Skipping {COD_INDICATORE} - {DPS_TEMA_SINTETICO} {DESCRIZIONE_RIPARTIZIONE}/{ANNO_RIFERIMENTO}".format(
+                        **row
+                    )
+                )
                 continue
 
             region_id = self.read_region(row)
