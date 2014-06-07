@@ -200,6 +200,11 @@ Type 'yes' to continue, or 'no' to cancel: """.format("\n".join(REQUIRED_PATHS))
 
             # read index
             index_id, year, value = self.read_index_value(row)
+            self.logger.debug(
+                u"Parsing {COD_INDICATORE} - {DPS_TEMA_SINTETICO}({0}) - {DESCRIZIONE_RIPARTIZIONE}({1})/{ANNO_RIFERIMENTO} - {VALORE}".format(
+                    topic_id, region_id, **row
+                )
+            )
 
             # initialize database for indexes of this topic
             if not topic_id in self.db.indexes_by_topic:
