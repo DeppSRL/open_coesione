@@ -126,9 +126,9 @@ Type 'yes' to continue, or 'no' to cancel: """.format("\n".join(REQUIRED_PATHS))
 
         FORCE_UPDATE = options.get('forceupdate')
 
-        latest_istat_archive_file_path = glob.glob(
+        latest_istat_archive_file_path = sorted(glob.glob(
             os.path.join(OPEN_DATA_PATH, "Indicatori_regionali_*.zip")
-        )[-1]
+        ))[-1]
 
         current_istat_archive_file_path = ""
         if os.path.isfile(CURRENT):
