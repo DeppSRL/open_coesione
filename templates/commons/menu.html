@@ -116,8 +116,14 @@
                   <ul class="dropdown-menu">
                     <li class="clearfix">
                       <ul>
-                        {% for programma in lista_programmi.fsc %}
-                            <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione }}</a></li>
+                        {% for pdesc,pcode in lista_programmi.fsc_par.items %}
+                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                        {% endfor %}
+                        {% for pdesc,pcode in lista_programmi.fsc_pa.items %}
+                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                        {% endfor %}
+                        {% for pdesc,pcode in lista_programmi.fsc_pra.items %}
+                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
                         {% endfor %}
                       </ul>
                     </li>
