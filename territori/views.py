@@ -13,7 +13,7 @@ from django.core.cache import cache
 from open_coesione import utils
 from open_coesione.data_classification import DataClassifier
 from open_coesione.views import AccessControlView, AggregatoView, cached_context, OpendataView
-from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo
+from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from progetti.views import CSVView
 from territori.models import Territorio
 
@@ -343,7 +343,13 @@ class MapnikView(TemplateView):
         # eventual filter on programma
         programma = None
         if self.inner_filter == 'programma':
-            programma = ProgrammaAsseObiettivo.objects.get(pk=self.kwargs['codice'])
+            try:
+                programma = ProgrammaAsseObiettivo.objects.get(pk=self.kwargs['codice'])
+            except ObjectDoesNotExist:
+                try:
+                    programma = ProgrammaLineaAzione.objects.get(pk=self.kwargs['codice'])
+                except ObjectDoesNotExist:
+                    raise Exception("Could not find appropriate programma")
 
         # loop over all territories
         # foreach, invoke the tematizzazione method, with specified filters

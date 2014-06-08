@@ -1,6 +1,4 @@
-from django.conf import settings
 from django.conf.urls import url, patterns
-from django.views.decorators.cache import cache_page
 from territori.views import LeafletView
 
 urlpatterns = patterns('',
