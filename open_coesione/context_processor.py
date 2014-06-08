@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Q
 from django.utils.datastructures import SortedDict
 from blog.models import Blog
 from progetti.models import ClassificazioneAzione, Tema, ProgrammaAsseObiettivo, ProgrammaLineaAzione
@@ -48,6 +49,45 @@ def main_settings(request):
         cache.set('programmi_linea', programmi_linea)
 
 
+    programmi_pac_fse = cache.get('programmi_pac_fse')
+    if programmi_pac_fse is None:
+        programmi_pac_fse = ProgrammaAsseObiettivo.objects.filter(
+            tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma
+        ).filter(
+            Q(descrizione__contains="CONV FSE") & (
+                Q(descrizione__contains="CAMPANIA") |
+                Q(descrizione__contains="CALABRIA") |
+                Q(descrizione__contains="SICILIA") |
+                Q(descrizione__contains="PUGLIA") |
+                Q(descrizione__contains="BASILICATA")
+            )
+        )
+        cache.set('programmi_pac_fse', programmi_pac_fse)
+
+
+    programmi_pac_fesr = cache.get('programmi_pac_fesr')
+    if programmi_pac_fesr is None:
+        programmi_pac_fesr = ProgrammaAsseObiettivo.objects.filter(
+            tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma
+        ).filter(
+            Q(descrizione__contains="CONV FESR") & (
+                Q(descrizione__contains="CAMPANIA") |
+                Q(descrizione__contains="CALABRIA") |
+                Q(descrizione__contains="SICILIA")
+            )
+        )
+        cache.set('programmi_pac_fesr', programmi_pac_fesr)
+
+    programmi_pac_fsc = cache.get('programmi_pac_fsc')
+    if programmi_pac_fsc is None:
+        programmi_pac_fsc = ProgrammaAsseObiettivo.objects.filter(
+            tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma
+        ).filter(
+            Q(descrizione__contains="GIUSTIZIA CIVILE") |
+            Q(descrizione__contains="DIRETTRICI FERROVIARIE") |
+            Q(descrizione__contains="(PRA) FSC SARDEGNA")
+        )
+        cache.set('programmi_pac_fsc', programmi_pac_fsc)
 
     return {
         'DEBUG': settings.DEBUG,
@@ -64,6 +104,9 @@ def main_settings(request):
             'fsc_par': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PAR " in p.descrizione]))),
             'fsc_pa': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "IT" in p.codice]))),
             'fsc_pra': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "(PRA)" in p.descrizione]))),
-            'pac': [p for p in programmi_linea.order_by('descrizione') if not ' FSC ' in p.descrizione.upper()],
+            'pac_pac': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PAC " in p.descrizione]))),
+            'pac_fse': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fse]))),
+            'pac_fesr': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fesr]))),
+            'pac_fsc': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fsc]))),
         },
     }

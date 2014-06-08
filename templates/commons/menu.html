@@ -84,7 +84,7 @@
               </ul>
             </li>
             <li class="submenu" style="position: relative;">
-              <a href="#">Programmi UE</a>
+              <a href="#">Programmi</a>
               <ul class="dropdown-menu" style="padding-right: 0;">
                 <li class="submenu">
                   <a href="#">Programmi UE FESR</a>
@@ -135,8 +135,12 @@
                   <ul class="dropdown-menu">
                     <li class="clearfix">
                       <ul>
-                        {% for programma in lista_programmi.pac %}
-                            <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione }}</a></li>
+                        {% for pdesc,pcode in lista_programmi.pac_pac.items %}
+                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                        {% endfor %}
+                        <li class="divider"></li>
+                        {% for pdesc,pcode in lista_programmi.pac_fse.items %}
+                            <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Selezione progetti da {{ pdesc }}</a></li>
                         {% endfor %}
                       </ul>
                     </li>
