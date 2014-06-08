@@ -63,7 +63,7 @@ def main_settings(request):
             'fesr': [p for p in programmi.order_by('descrizione') if ' FESR ' in p.descrizione.upper()],
             'fsc_par': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PAR " in p.descrizione]))),
             'fsc_pa': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "IT" in p.codice]))),
-            'fsc_pra': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PRA " in p.descrizione]))),
+            'fsc_pra': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "(PRA)" in p.descrizione]))),
             'pac': [p for p in programmi_linea.order_by('descrizione') if not ' FSC ' in p.descrizione.upper()],
         },
     }
