@@ -282,7 +282,7 @@ class TilesConfigView(TemplateView):
         context['province'] = Territorio.objects.filter(territorio='P')
         context['temi'] = Tema.objects.principali()
         context['nature'] = ClassificazioneAzione.objects.nature()
-        context['programmi'] = ProgrammaAsseObiettivo.objects.programmi()
+        context['programmi'] = list(ProgrammaAsseObiettivo.objects.programmi()) + list(ProgrammaLineaAzione.objects.programmi())
         context['mapnik_base_url'] = "http://{0}/territori/mapnik".format(Site.objects.get_current())
         context['path_to_cache'] = settings.TILESTACHE_CACHE_PATH
 
