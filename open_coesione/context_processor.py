@@ -80,8 +80,8 @@ def main_settings(request):
 
     programmi_pac_fsc = cache.get('programmi_pac_fsc')
     if programmi_pac_fsc is None:
-        programmi_pac_fsc = ProgrammaAsseObiettivo.objects.filter(
-            tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma
+        programmi_pac_fsc = ProgrammaLineaAzione.objects.filter(
+            tipo_classificazione=ProgrammaLineaAzione.TIPO.programma
         ).filter(
             Q(descrizione__contains="GIUSTIZIA CIVILE") |
             Q(descrizione__contains="DIRETTRICI FERROVIARIE") |
