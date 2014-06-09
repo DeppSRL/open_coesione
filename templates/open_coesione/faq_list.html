@@ -14,12 +14,12 @@
     {% for object in object_list %}
       {% if lang == 'en' %}
         <div id="{{ object.slug_en }}" class="faq">
-          <h2 class="faq-domanda">{{ object.domanda_en }}</h2>
+          <h3 class="faq-domanda"><a href="#{{ object.slug_en }}">{{ object.domanda_en }} <i class="icon-chevron-down"></i></a></h3>
           <div class="faq-risposta">{{ object.risposta_en|safe }}</div>
         </div>
       {% else %}
         <div id="{{ object.slug_it }}" class="faq">
-          <h2 class="faq-domanda">{{ object.domanda_it }}</h2>
+          <h3 class="faq-domanda"><a href="#{{ object.slug_it }}">{{ object.domanda_it }} <i class="icon-chevron-down"></i></a></h3>
           <div class="faq-risposta">{{ object.risposta_it|safe }}</div>
         </div>
       {% endif %}
@@ -34,7 +34,7 @@
           var self = jQuery(this);
           jQuery('.faq-risposta').each(function() {
             jQuery(this).prev().is(self) ? jQuery(this).toggle() : jQuery(this).hide();
-          })
+          });
           if (self.next().is(':visible')) {
             location.href = '#' + self.closest('.faq').attr('id');
           }
@@ -43,6 +43,8 @@
         hash = location.hash.replace('#', '');
         if (hash) {
           $('body').find('#'+hash+' .faq-domanda').trigger('click');
+        } else {
+          $('body').find('#cosa-ce-opencoesione .faq-domanda').trigger('click');
         }
       });//]]>
     </script>

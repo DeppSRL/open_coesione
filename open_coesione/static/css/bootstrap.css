@@ -5743,3 +5743,7 @@ hr.big.dark {
   border: 1px solid whitesmoke;
   padding: 0.5em;
 }
+#faq_list h3.faq-domanda {
+  margin-top: 1em;
+  text-transform: none;
+}
