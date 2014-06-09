@@ -620,7 +620,7 @@ class Command(BaseCommand):
                     self.logger.fatal("Chiave primaria mancante")
                     quit()
 
-                progetto = Progetto.objects.get(pk=pk_progetto)
+                progetto = Progetto.fullobjects.get(pk=pk_progetto)
             except ObjectDoesNotExist:
                 progetto = None
                 self.logger.warning("%d - Progetto non trovato: %s" % (c, pk_progetto))
@@ -1248,7 +1248,7 @@ class Command(BaseCommand):
             cipe_flag = True
             cipe_num_delibera = int(r['NUM_DELIBERA']) if r['NUM_DELIBERA'].strip() else None
             cipe_anno_delibera = r['ANNO_DELIBERA'].strip() if r['ANNO_DELIBERA'].strip() else None
-            cipe_data_adozione = datetime.datetime.strptime(r['DATA_ADOZIONE_TEMP'], '%Y%m%d') if r['DATA_ADOZIONE_TEMP'].strip() else None
+            cipe_data_adozione = datetime.datetime.strptime(r['DATA_ADOZIONE'], '%Y%m%d') if r['DATA_ADOZIONE'].strip() else None
             cipe_data_pubblicazione = datetime.datetime.strptime(r['DATA_PUBBLICAZIONE'], '%Y%m%d') if r['DATA_PUBBLICAZIONE'].strip() else None
             cipe_finanziamento = Decimal(r['ASSEGNAZIONE_CIPE'].replace(',','.')) if r['ASSEGNAZIONE_CIPE'].strip() else None
             cipe_note = r['NOTE'].strip() if r['NOTE'].strip() else ''
@@ -1666,7 +1666,7 @@ class Command(BaseCommand):
             u'ENERGIA E EFFICIENZA ENERGETICA': 'Energia e efficienza energetica',
             u'AGENDA DIGITALE': 'Agenda digitale',
             u'AMBIENTE E PREVENZIONE DEI RISCHI': 'Ambiente e prevenzione dei rischi',
-            u'RAFFORZAMENTO CAPACITÀ DELLA PA': 'Rafforzamento capacità della PA',
+            u'RAFFORZAMENTO DELLE CAPACITÀ DELLA PA': 'Rafforzamento capacità della PA',
             u'RINNOVAMENTO URBANO E RURALE': 'Rinnovamento urbano e rurale',
             u'AEREOPORTUALI': 'Trasporti e infrastrutture a rete',
             u'TRASPORTI E INFRASTRUTTURE A RETE': 'Trasporti e infrastrutture a rete',
