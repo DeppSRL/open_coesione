@@ -1,0 +1,302 @@
+[
+{
+    "pk": 1,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "whats-opencoesione", 
+        "domanda_it": "Cosa c\u2019\u00e8 in OpenCoesione?", 
+        "domanda_en": "What's in OpenCoesione?", 
+        "slug_it": "cosa-ce-opencoesione", 
+        "risposta_en": "<p>Data and information on Cohesion Policy actions at territorial level, and in particular: projects, funding, locations and thematic areas of the interventions undertaken, as well as parties involved and implementation timing.</p>\r\n<p>Data can either be downloaded as a \"raw\" database and reprocessed, or displayed in interactive graphs itemised by topic, territory and typology of intervention, as well as fiches on individual projects or subjects, complemented with a set of information and data on the related territorial and financial contexts.</p>", 
+        "risposta_it": "<p>Dati e informazioni sugli interventi delle politiche di coesione territoriale. In particolare, i progetti, i finanziamenti, i luoghi e gli ambiti tematici in cui intervengono, i soggetti coinvolti e i tempi di realizzazione.</p>\r\n<p>I dati possono essere scaricati in forma di base-dati &ldquo;grezza&rdquo; e rielaborabile oppure visualizzati mediante grafici interattivi navigabili per tema, territorio e tipologia di intervento, e schede sui singoli progetti o soggetti. Sono corredati da un insieme di informazioni e dati sul contesto territoriale e finanziario.</p>"
+    }
+},
+{
+    "pk": 2,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "whats-not-opencoesione", 
+        "domanda_it": "Cosa NON c\u2019\u00e8 in OpenCoesione?", 
+        "domanda_en": "What\u2019s NOT in OpenCoesione?", 
+        "slug_it": "cosa-non-ce-opencoesione", 
+        "risposta_en": "<p>OpenCoesione does not provide data on project results in terms of citizens&rsquo; quality of life &ndash; the old programming cycle did not require administrators to make it explicit &ndash; nor information on who actually benefits from individual interventions (with the exception of specific cases).</p>\r\n<p>There is no precise description of &ldquo;what projects do&rdquo; besides what can be deduced from their respective titles and from thematic and regional variables associated to each intervention. If you are the actor of a project monitored by OpenCoesione, please <a href=\"http://bit.ly/contatti-open-coesione\">send us</a> a description of your project!</p>", 
+        "risposta_it": "<p>Non ci sono dati sui risultati dei progetti in termini di qualit&agrave; di vita dei cittadini (perch&eacute; la vecchia programmazione non chiedeva agli amministratori di esplicitarlo), non ci sono informazioni su chi beneficia concretamente dei singoli interventi (a eccezione di alcuni casi).</p>\r\n<p>Mancano anche descrizioni puntuali su &ldquo;cosa fanno&rdquo; i progetti, oltre a quelle desumibili dal titolo e dalle variabili tematiche e territoriali associate a ciascun intervento. Se sei un protagonista di un progetto monitorato su OpenCoesione <a href=\"http://www.opencoesione.it/progetti/segnalazione/\">inviaci</a> una descrizione del tuo progetto!</p>"
+    }
+},
+{
+    "pk": 3,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "who-opencoesione", 
+        "domanda_it": "A chi si rivolge OpenCoesione?", 
+        "domanda_en": "Who is OpenCoesione for?", 
+        "slug_it": "chi-si-rivolge-opencoesione", 
+        "risposta_en": "<p>OpenCoesione addresses everyone: citizens, Italian and European administrations, researchers, policy analysts, businesses, organised sectors of civil society, media. The objective is to enable everyone to (get to) know and follow Cohesion Policy as well as to evaluate the allocation (itemised by issue and territory) of available resources and projects&rsquo; implementation progress.</p>", 
+        "risposta_it": "<p>Si rivolge a tutti: cittadini, amministrazioni italiane ed europee, ricercatori, analisti delle politiche, imprese, settori organizzati della societ&agrave; civile, media, affinch&eacute; possano conoscere e seguire le politiche di coesione, ma anche valutare l&rsquo;allocazione per temi e territori dell&rsquo;impiego delle risorse disponibili e lo stato di attuazione dei progetti.</p>"
+    }
+},
+{
+    "pk": 4,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-data-are-available-opencoesione-first-release-july-2012", 
+        "domanda_it": "Quali sono i dati disponibili al primo rilascio di OpenCoesione (luglio 2012)?", 
+        "domanda_en": "What data are available at OpenCoesione first release (July 2012)?", 
+        "slug_it": "quali-sono-i-dati-disponibili-al-primo-rilascio-di-opencoesione-luglio-2012", 
+        "risposta_en": "<p>Implementation data are updated at 31 December 2011 and refer to projects under EU Structural Funds co-financed programmes, with the exception of international and cross-border cooperation programmes.</p>\r\n<p>As a result of analyses and quality controls currently underway, future releases are expected to make available also data on other monitored programmes, new projects, and actions related to previous programming periods, as well as to provide a broader set of variables.</p>\r\n<p>OpenCoesione also makes data available on Italy&rsquo;s National Fund for Development and Cohesion allocations by <a href=\"http://www.cipecomitato.it/it/\">CIPE (Italy&rsquo;s Interministerial Committee for Economic Planning)</a> to projects not yet covered by Cohesion Policy monitoring systems. Data refer to information made available at the time CIPE issued the financing decision and do not account for monitored data.</p>", 
+        "risposta_it": "<p>I dati sull&rsquo;attuazione fanno riferimento al 31 dicembre 2011 e si riferiscono ai progetti inclusi in programmi cofinanziati con Fondi Strutturali europei , a eccezione dei programmi di cooperazione internazionale o transfrontaliera.</p>\r\n<p>Nei rilasci successivi si prevede di ampliare la disponibilit&agrave; agli altri programmi gi&agrave; monitorati, ai nuovi progetti man mano in attuazione, a interventi riferiti a precedenti periodi di programmazione, nonch&eacute; a un insieme pi&ugrave; ampio di variabili, in seguito a analisi e controlli di qualit&agrave; che sono in corso.</p>\r\n<p>Sono resi disponibili anche dati relativi alle assegnazioni di risorse del Fondo nazionale per lo Sviluppo e la Coesione effettuate dal <a href=\"http://www.cipecomitato.it/it/\">CIPE</a> per progetti che non sono ancora inclusi nei sistemi di monitoraggio delle politiche di coesione. Questi dati riguardano le informazioni disponibili al momento in cui il <a href=\"http://www.cipecomitato.it/it/\">CIPE</a> ha assunto la decisione di finanziamento e non hanno caratteristica di monitoraggio.</p>"
+    }
+},
+{
+    "pk": 5,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-investment-projects-are-opencoesione", 
+        "domanda_it": "Cos'\u00e8 un progetto in OpenCoesione?", 
+        "domanda_en": "What investment projects are in OpenCoesione?", 
+        "slug_it": "cose-un-progetto-opencoesione", 
+        "risposta_en": "<p>Projects available in OpenCoesione refer to actions funded under the Cohesion Policy and identified by autonomous administrative acts (e.g. public procurement tenders, rankings, agreements, contracts, etc.). In some cases multiple projects are comprised in a single intervention or are intercoordinated within a single action strategy. As Cohesion Policy is implemented in widely diversified sectors, projects can feature very diverse financial and territorial scope, and various thematic contents. Projects can relate to major infrastructure as well as to an individual recipient of aid or other forms of assistance (e.g. voucher).</p>\r\n<p>Each project is assigned a so-called <a href=\"http://bit.ly/Coesione-CUP\">CUP &ndash; Codice Unico di Progetto</a>, namely a unified ID code.</p>", 
+        "risposta_it": "<p>I progetti in OpenCoesione si riferiscono a azioni finanziate nell&rsquo;ambito delle politiche di coesione e individuate da un atto amministrativo autonomo (per esempio, un bando, una graduatoria, un&rsquo;intesa, un contratto, etc.). In alcuni casi pi&ugrave; progetti sono parte di un singolo intervento o sono tra loro coordinati nell&rsquo;ambito di un&rsquo;unica strategia di intervento. Poich&eacute; le politiche di coesione intervengono in settori molto diversificati, i progetti possono avere dimensioni finanziarie, estensioni territoriali e contenuti tematici tra loro molto diversi. Possono riguardare grandi opere infrastrutturali, cosi come un singolo individuo beneficiario di un aiuto o altra forma di contributo (per esempio un voucher).</p>\r\n<p>A ciascun progetto &egrave; assegnato un <a href=\"http://www.cipecomitato.it/it/in_primo_piano/mip_cup/cup/cup_che_cosa.html\" target=\"_blank\"> Codice Unico di Progetto</a> (CUP)</p>"
+    }
+},
+{
+    "pk": 6,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-information-individual-projects-can-i-find-opencoesione", 
+        "domanda_it": "Quali informazioni trovo sui singoli progetti in OpenCoesione?", 
+        "domanda_en": "What information on individual projects can I find in OpenCoesione?", 
+        "slug_it": "quali-informazioni-trovo-sui-singoli-progetti-opencoesione", 
+        "risposta_en": "<p>OpenCoesione makes available information &ndash; at different levels of detail and comprehensiveness &ndash; on projects&rsquo; sectoral or thematic scope, implementation location, subjects involved and execution timing. Possibly missing data may be the result of incomplete information loading by competent Administrations or of inconsistencies identified in the data received.</p>\r\n<p>To download data on all Cohesion Policy funded projects present in the related monitoring systems, go to <a href=\"http://www.dps.tesoro.it/opencoesione/dati_attuazione.asp\">www.dps.tesoro.it/opencoesione/dati_attuazione.asp</a>. To download data on projects funded by Italy&rsquo;s National Fund for Development and Cohesion as per CIPE (Italy&rsquo;s Interministerial Committee for Economic Planning) allocations, go to <a href=\"http://www.cipecomitato.it/it/opendata.html\">www.cipecomitato.it/it/opendata.html</a>. To visualise the fiches of projects so far monitored, go to <a href=\"http://www.opencoesione.gov.it/\">www.opencoesione.gov.it/</a>.</p>", 
+        "risposta_it": "<p>Per i progetti sono disponibili &ndash; a diversi livelli di dettaglio e esaustivit&agrave; &ndash; informazioni relative all&rsquo;ambito settoriale o tematico, al luogo in cui si realizza, ai soggetti coinvolti e ai tempi di realizzazione. Eventuali dati mancanti derivano da un caricamento incompleto delle informazioni da parte delle Amministrazioni competenti oppure da incoerenze riscontrate nei dati.</p>\r\n<p>Per scaricare i dati relativi a tutti i progetti finanziati dalla politica di coesione e gi&agrave; presenti nei sistemi di monitoraggio, <a href=\"http://www.dps.tesoro.it/opencoesione/dati_attuazione.asp\" target=\"_blank\">vai qui</a></p>\r\n<p>Per scaricare i dati relativi a progetti che hanno ricevuto assegnazioni del Fondo per lo Sviluppo e la Coesione effettuate dal CIPE, <a href=\"http://www.cipecomitato.it/it/opendata.html\" target=\"_blank\">vai qui</a>.</p>\r\n<p>Per consultare le schede dei progetti finora monitorati, <a href=\"http://www.opencoesione.gov\" target=\"_blank\">vai qui</a></p>"
+    }
+},
+{
+    "pk": 7,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "how-can-i-contribute-opencoesione", 
+        "domanda_it": "Come posso contribuire a OpenCoesione?", 
+        "domanda_en": "How can I contribute to OpenCoesione?", 
+        "slug_it": "come-posso-contribuire-opencoesione", 
+        "risposta_en": "<p>You can <a href=\"http://bit.ly/contatti-open-coesione\">post ideas</a>, tips, reports/warnings, and reuse examples (applications, services, research) related to OpenCoesione data.</p>\r\n<p>If you are the actor of a project monitored on OpenCoesione, please post a description thereof on <a href=\"http://bit.ly/contatti-open-coesione\">http://bit.ly/contatti-open-coesione</a>.</p>", 
+        "risposta_it": "<p>Puoi <a href=\"http://www.opencoesione.it/contatti\">inviare</a> idee, consigli, segnalazioni e esempi di riuso (applicazioni, servizi, ricerche) che si basano sui dati di OpenCoesione.</p>\r\n<p>Se sei un protagonista di un progetto monitorato su OpenCoesione <a href=\"http://www.opencoesione.it/progetti/segnalazione/\">inviaci</a> una descrizione del tuo progetto!</p>"
+    }
+},
+{
+    "pk": 8,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-are-sources-data-cohesion-policy-implementation", 
+        "domanda_it": "Quali sono le fonti di dati sull\u2019attuazione delle politiche di coesione?", 
+        "domanda_en": "What are the sources of data on Cohesion Policy implementation?", 
+        "slug_it": "quali-sono-le-fonti-di-dati-sullattuazione-delle-politiche-di-coesione", 
+        "risposta_en": "<p>The sources of data on Cohesion Policy implementation are centralised monitoring systems fed (compliantly with common protocols or common feeding interfaces) by funds beneficiary Administrations. In particular, information on the implementation of the 2007-2013 programming period is collected in a single monitoring system, managed by the General State Accounting Department (RGS &ndash; Ragioneria Generale dello Stato) of Italy&rsquo;s Ministry of Economy and Finance.</p>\r\n<p>Central and regional Administrations managing the funds are thus the main source of information provided in OpenCoesione. At times data are processed so as to prove more readable and consistent (i.e. &ldquo;DPS_ datasets&rdquo;). Single regional and central Administrations in charge of managing the funds (in compliance with rules and regulations on transparency of funds beneficiaries) shall directly publish information also on variables other than those selected for OpenCoesione.</p>\r\n<p>As to Structural Funds projects, data reported to the Commission may differ from those published in OpenCoesione, depending on the update date of data and on the specific rules that apply to the reporting procedure.</p>", 
+        "risposta_it": "<p>La fonte dei dati sull&rsquo;attuazione delle politiche di coesione sono i sistemi di monitoraggio centralizzati alimentati secondo protocolli comuni, o interfaccia comuni di alimentazione, dalle Amministrazioni beneficiarie dei fondi. In particolare, le informazioni sull'attuazione della programmazione 2007-2013 sono raccolte in un sistema di monitoraggio unico, gestito dalla Ragioneria Generale dello Stato del Ministero dell&rsquo;economia e delle finanze.</p>\r\n<p>Le Amministrazioni regionali e centrali che gestiscono i fondi sono quindi la fonte principale dell&rsquo;informazione restituita su questo sito. Sono state tuttavia effettuate alcune elaborazioni per facilitare la leggibilit&agrave; e la coerenza delle informazioni (identificabili nei dataset con il suffisso DPS_). Le singole Amministrazioni regionali e centrali che gestiscono i fondi, anche in ottemperanza a norme e regolamenti sulla trasparenza dei beneficiari dei fondi, devono pubblicare direttamente informazioni che fanno riferimento anche a variabili diverse rispetto a quelle selezionate per OpenCoesione.</p>\r\n<p>Per i progetti cofinanziati dai Fondi Strutturali i dati rendicontati alla Commissione possono differire da quanto presente su OpenCoesione in funzione della data di aggiornamento dei dati riferiti ad un medesimo periodo e delle specifiche regole da applicare per la procedura di rendicontazione.</p>"
+    }
+},
+{
+    "pk": 9,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-are-sources-data-italys-national-fund-development-and-cohesion-allocations", 
+        "domanda_it": "Quali sono le fonti di dati sulle assegnazioni del Fondo nazionale per lo Sviluppo e la Coesione?", 
+        "domanda_en": "What are the sources of data on Italy\u2019s National Fund for Development and Cohesion allocations?", 
+        "slug_it": "quali-sono-le-fonti-di-dati-sulle-assegnazioni-del-fondo-nazionale-lo-sviluppo-e-la-coesione", 
+        "risposta_en": "<p>The Fund for Development and Cohesion is the new name for the so-called Fund for Under-utilised Areas (article 61 of Law n. 289/2002), a national fund.</p>\r\n<p>The sources of data on Italy&rsquo;s Fund for Development and Cohesion allocations to national and regional beneficiaries are CIPE (Italy&rsquo;s Interministerial Committee for Economic Planning) Resolutions. Data refer to the information available at the time CIPE issued the financing decision and do not account for monitored data. Data can be downloaded from <a href=\"http://www.cipecomitato.it/it/opendata.html\">CIPE website</a>.</p>", 
+        "risposta_it": "<p>Fondo per lo sviluppo e la coesione &egrave; la nuova denominazione del Fondo per le aree sottoutilizzate, di cui all&rsquo;articolo 61 della legge 289/2002, la cui programmazione &egrave; deliberata dal <a href=\"http://www.cipecomitato.it/it/\">CIPE</a></p>\r\n<p>La fonte di dati sulle assegnazioni del Fondo nazionale per lo Sviluppo e la Coesione a destinazione nazionale e regionale sono le Delibere CIPE. Questi dati riguardano le informazioni disponibili al momento in cui il <a href=\"http://www.cipecomitato.it/it/\">CIPE</a> ha assunto la decisione di finanziamento e non hanno caratteristica di monitoraggio. I dati sono scaricabili <a href=\"http://www.cipecomitato.it/it/opendata.html\">dal sito del CIPE</a>.</p>"
+    }
+},
+{
+    "pk": 10,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "how-often-are-opencoesione-data-updated", 
+        "domanda_it": "Quando si aggiornano i dati disponibili su OpenCoesione?", 
+        "domanda_en": "How often are OpenCoesione data updated?", 
+        "slug_it": "quando-si-aggiornano-i-dati-disponibili-su-opencoesione", 
+        "risposta_en": "<p>Data from monitoring systems are updated every two months by the Administrations in charge of managing the funds and are made available in OpenCoesione approximately three months after the reference date.</p>\r\n<p>Possible new CIPE (Italy&rsquo;s Interministerial Committee for Economic Planning) allocations from Italy&rsquo;s National Fund for Development and Cohesion will be published concurrently with the relevant CIPE Resolution registration by Italy&rsquo;s Court of Auditors (Corte dei Conti). Updates are expected to be fully available by end-2012.</p>", 
+        "risposta_it": "<p>I dati che provengono dai sistemi di monitoraggio sono aggiornati bimestralmente dalle Amministrazioni che gestiscono i fondi e sono resi pubblicamente disponibili su OpenCoesione a distanza di circa tre mesi dalla data di riferimento.</p>\r\n<p>Eventuali nuove assegnazioni del <a href=\"http://www.cipecomitato.it/it/\">CIPE</a> a valere sul Fondo nazionale di Sviluppo e Coesione verranno pubblicate in concomitanza con la registrazione della corrispondente Delibera CIPE da parte della Corte dei Conti.</p>\r\n<p>Si prevede di entrare a regime con gli aggiornamenti entro la fine del 2012.</p>"
+    }
+},
+{
+    "pk": 11,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-does-subject-mean-opencoesione", 
+        "domanda_it": "Cosa si intende per soggetto in OpenCoesione?", 
+        "domanda_en": "What does \u201csubject\u201d mean in OpenCoesione?", 
+        "slug_it": "cosa-si-intende-soggetto-opencoesione", 
+        "risposta_en": "<p>It is a public or private subject (public administration, non-profit institution, an individual or a business) that plays a role in relation to one or more projects. Accordingly, a &ldquo;subject&rdquo; can be:</p>\r\n<ul>\r\n<li>Programming Authority (\"Programmatore\") &ndash; i.e. responsible for the decision to finance the project (generally, a central or regional Public Administration)</li>\r\n<li>Or</li>\r\n<li>Reciepients (&ldquo;Attuattore&rdquo;) \u2500 i.e. responsible for implementing the project. In the case of Structural Funds it corresponds to the \"beneficiary\" under <a href=\"http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1083:IT:NOT\">Article 2 of Regulation EC n.1083/2006</a> &ndash; namely, &ldquo;beneficiaries are public or private firms carrying out an individual project and receiving public aid&rdquo;. Through the project implementation phase, the recipient can in turn resort to other subjects not necessarily traced in the monitoring system.</li>\r\n</ul>", 
+        "risposta_it": "<p>&Egrave; un soggetto pubblico o privato (un'amministrazione pubblica, un&rsquo;istituzione senza fini di lucro, un individuo o un'impresa) che svolge un ruolo in relazione a uno o pi&ugrave; progetti. I ruoli possono essere:</p>\r\n<ul>\r\n<li><strong>Programmatore</strong>, ossia il soggetto cui compete la decisione di finanziare il progetto. Si tratta generalmente di un'amministrazione pubblica centrale o regionale.</li>\r\n<li><strong>Attuatore</strong>, ossia il soggetto responsabile dell'attuazione del progetto. Nel caso dei Fondi Strutturali corrisponde al cosiddetto \"beneficiario\" ex <a href=\"http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1083:IT:NOT\">art 2 del Regolamento CE n.1083/2006</a> ossia il soggetto che percepisce il contributo finanziario. L&rsquo;attuatore pu&ograve; a sua volta avvalersi di altri soggetti nella realizzazione del progetto, ma questi non sono necessariamente tracciati nel sistema di monitoraggio.</li>\r\n</ul>"
+    }
+},
+{
+    "pk": 12,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "where-can-i-find-data-official-certification-expenditure-european-commission", 
+        "domanda_it": "Dove posso trovare dati sulla certificazione ufficiale alla Commissione europea della spesa dei fondi strutturali?", 
+        "domanda_en": "Where can I find data on the official certification of expenditure to the European Commission?", 
+        "slug_it": "dove-posso-trovare-dati-sulla-certificazione-ufficiale-alla-commissione-europea-della-spesa-dei-fondi-strutturali", 
+        "risposta_en": "<p>Information on total payments and certified payment applications to the European Union in OpenCoesione and in the corresponding downloadable datasets <a href=\"http://www.dps.tesoro.it/opencoesione/dati_attuazione.asp\">here</a>, are updated as of the reference date provided for each individual project. This might not always represent the latest value of official expenditure certification to the European Commission (information relevant for the purposes of decommitment rule known as \"n + 2\"). According to EC Regulations, for each Fund (i.e., ESF, ERDF), the Commission shall decommit resources that have not been used for payment by 31 December of the second financial year following the year of budget commitment under the operational programme. The decommitment of EU resources involves the parallel reduction of the availability of the corresponding national cofinancing resources.</p>\r\n<p>Among the measures meant to speed up the implementation of the operational programmes of the structural funds 2007-2013 in Italy, interim targets on costs actually incurred and certified expenditure have been foreseen. In addition to the date of 31 December of each year, certified expenditure is also monitored at 31 May and 31 October. The data are reported <a href=\"http://www.opencoesione.gov.it/spesa-certificata/\">here</a>.</p>", 
+        "risposta_it": "<p>I dati sui pagamenti complessivi e sui pagamenti rendicontabili all&rsquo;Unione europea dei singoli progetti desumibili dai sistemi di monitoraggio riportati in OpenCoesione e nei dataset scaricabili qui, si riferiscono alla data di aggiornamento indicata di volta in volta. Non sempre corrispondono al valore pi&ugrave; recente di certificazione ufficiale delle spese alla Commissione europea &ndash; informazione rilevanti ai fini della regola nota come &ldquo;n+2&rdquo;. I Regolamenti CE prevedono infatti per ogni annualit&agrave; contabile delle risorse impegnate per ciascun fondo (i.e., FSE, FESR) e programma operativo (PO) sul bilancio comunitario disimpegni automatici della quota di risorse che non risultino effettivamente spese e certificate alla Commissione nel biennio successivo. Il disimpegno delle risorse comunitarie comporta anche la parallela riduzione di disponibilit&agrave; delle relative risorse di cofinanziamento nazionale.</p>\r\n<p>Tra le misure di accelerazione dell&rsquo;attuazione dei programmi operativi dei fondi strutturali 2007-2013, a partire dalla <a href=\"http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E110001\">Delibera CIPE n.1/2011</a> sono stati previsti target delle spese effettivamente sostenute e certificate infrannuali. Oltre alla data del 31 dicembre di ciascun anno, la spesa certificata viene pertanto monitorata anche al 31 maggio e al 31 ottobre. I dati sono riportati <a href=\"http://www.opencoesione.gov.it/spesa-certificata/\">qui</a>.</p>"
+    }
+},
+{
+    "pk": 13,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "how-are-personal-data-protected-opencoesione", 
+        "domanda_it": "Come vengono protetti i dati individuali?", 
+        "domanda_en": "How are personal data protected in OpenCoesione?", 
+        "slug_it": "come-vengono-protetti-i-dati-individuali", 
+        "risposta_en": "<p>In the case of projects involving disadvantaged groups, whereby the project description provided by the relevant Administration contains the name, surname and/or fiscal code number (Codice Fiscale) of an individual, such personal data shall not be published and shall be concealed under the \"individual&rdquo; general reference.</p>", 
+        "risposta_it": "<p>Nel caso di progetti che coinvolgono categorie svantaggiate, se la descrizione del progetto indicata dall'Amministrazione contiene nome, cognome e/o codice fiscale di una persona fisica, questi non vengono pubblicati e si opera un mascheramento dei dati personali utilizzando l&rsquo;espressione \"*individuo*\".</p>"
+    }
+},
+{
+    "pk": 14,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-do-project-start-and-project-end-stand-opencoesione", 
+        "domanda_it": "Cosa rappresentano i tempi di inizio e fine dei progetti?", 
+        "domanda_en": "What do \u201cproject start\u201d and \u201cproject end\u201d stand for in OpenCoesione?", 
+        "slug_it": "cosa-rappresentano-i-tempi-di-inizio-e-fine-dei-progetti", 
+        "risposta_en": "<p>The &ldquo;project start&rdquo; and &ldquo;project end&rdquo; dates (whether historic or planned) identify the implementation (i.e. execution) phase of a project. Information on implementation timing is not always available for each single project. In particular, project end dates may have not been loaded into the monitoring system although the intervention has already been concluded.</p>", 
+        "risposta_it": "<p>Le date di inizio e fine, prevista ed effettiva, di ciascun progetto identificano la fase attuativa (di esecuzione) di un progetto. Le informazioni sui tempi non sono sempre disponibili in associazione ai singoli progetti. In particolare la data di fine progetto potrebbe non essere stata caricata nel sistema di monitoraggio anche se l&rsquo;intervento &egrave; concluso.</p>"
+    }
+},
+{
+    "pk": 15,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "how-are-projects-classified-under-13-categories-expenditure", 
+        "domanda_it": "Come vengono classificati i progetti nei 13 temi sintetici?", 
+        "domanda_en": "How are projects classified under the 13 categories of expenditure?", 
+        "slug_it": "come-vengono-classificati-i-progetti-nei-13-temi-sintetici", 
+        "risposta_en": "<p>Projects are classified based on the aggregation of EU Priority themes and <a href=\"http://bit.ly/Coesione-CUP\">CUP System</a> sectoral classifications. The resulting 13 categories of expenditure are: Research and Innovation, Competitiveness of Businesses, Digital Agenda, Energy and Energy Efficiency, Environmental Protection and Risk Prevention, Urban and Rural Regeneration, Natural, Cultural and Tourist Attraction, Transport and Infrastructure Networks, Employment and Workers&rsquo; Mobility, Child and Elderly Care, Social Inclusion, Education and Training, Public Administration Capacity Building.</p>\r\n<p>As to the link with EU thematic priorities and CUP (Codice Unico di Progetto \u2500 Project Unified ID Code) classifications, please consult &ldquo;temi sintetici&rdquo; at <a href=\"http://www.dps.tesoro.it/opencoesione/docs/documenti/raccordo_temi_sintetici.xls\">raccordo_temi_sintetici.xls</a>.</p>\r\n<p>Categories are assigned to projects on the basis on the link with EU thematic priorities (and, only as a second option, on the basis of the CUP).</p>", 
+        "risposta_it": "<p>Si tratta di un'aggregazione dei temi prioritari UE e delle classificazioni settoriali del <a href=\"http://www.cipecomitato.it/it/in_primo_piano/mip_cup/cup/cup_che_cosa.html\" target=\"_blank\"> Sistema CUP</a></p>\r\n<p>I 13 temi sintetici sono: Ricerca e innovazione, Competitivit&agrave; per le imprese, Agenda digitale, Energia e efficienza energetica, Ambiente e prevenzione dei rischi, Rinnovamento urbano e rurale, Attrazione culturale, naturale e turistica, Trasporti e infrastrutture a rete, Occupazione e mobilit&agrave; dei lavoratori, Servizi di cura infanzia e anziani, Inclusione sociale, Istruzione e formazione, Rafforzamento delle capacit&agrave; della PA.</p>\r\n<p>Per un raccordo con i temi prioritari UE e con la classificazione CUP consulta il <a href=\"http://www.dps.tesoro.it/opencoesione/docs/documenti/raccordo_temi_sintetici.xls\" target=\"_blank\"> raccordo temi sintetici</a>.</p>\r\n<p>Nell'attribuzione di un progetto a un tema sintetico, guida il raccordo con i temi prioritari UE (e solo in sua assenza guida la classificazione CUP).</p>"
+    }
+},
+{
+    "pk": 16,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "how-can-opencoesione-data-be-downloaded", 
+        "domanda_it": "Come si possono scaricare i dati?", 
+        "domanda_en": "How can OpenCoesione data be downloaded?", 
+        "slug_it": "come-si-possono-scaricare-i-dati", 
+        "risposta_en": "<p>Data on Cohesion Policy funded projects are available at: <a href=\"http://www.dps.tesoro.it/opencoesione/dati_attuazione.asp\">www.dps.tesoro.it/opencoesione/dati_attuazione.asp</a>. Data on regional and financial contexts, which also include Italy&rsquo;s National Fund for Development and Cohesion allocations, are available at <a href=\"http://www.dps.tesoro.it/opencoesione/dati_contesto.asp\">www.dps.tesoro.it/opencoesione/dati_contesto.asp</a>.</p>\r\n<p>Besides data, OpenCoesione users can also have access to metadata, as well as links to detailed information and end-user licence.</p>\r\n<p>If you are interested in developing applications based on OpenCoesione's data, you can find an <a href=\"http://www.opencoesione.it/api/\">API endpoint here</a>.</p>", 
+        "risposta_it": "<p>I dati sui progetti finanziati con le politiche di coesione sono disponibili <a href=\"http://www.dps.tesoro.it/opencoesione/dati_attuazione.asp\" target=\"_blank\">qui</a></p>\r\n<p>I dati sul contesto territoriale e finanziario, che comprendono anche le assegnazioni del Fondo nazionale per lo Sviluppo e la Coesione, sono disponibili <a href=\"http://www.dps.tesoro.it/opencoesione/dati_contesto.asp\" target=\"_blank\">qui</a></p>\r\n<p>Oltre ai dati vengono rilasciati metadati, link a informazioni di dettaglio e la licenza di utlizzo.</p>\r\n<p>Se sei interessato a sviluppare applicazioni basate sui dati di OpenCoesione, puoi accedere alle <a href=\"http://www.opencoesione.it/api-faq/\">API</a>.</p>"
+    }
+},
+{
+    "pk": 17,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-licence-covers-opencoesione-data-release", 
+        "domanda_it": "Con quale licenza sono rilasciati i dati di OpenCoesione?", 
+        "domanda_en": "What licence covers OpenCoesione data release?", 
+        "slug_it": "con-quale-licenza-sono-rilasciati-i-dati-di-opencoesione", 
+        "risposta_en": "<p>OpenCoesione data are released under <a href=\"http://www.creativecommons.org/licenses/by-sa/3.0/en/deed.en\" target=\"_blank\">CC BY-SA 3.0 licence</a>, namely the Creative Commons 3.0 Italy licence with use conditions such as BY (Attribution) and SA (Share Alike). It is therefore possible to: reproduce, distribute and communicate data and analyses to the public; modify and adapt them; and use them for commercial purposes whereby reporting the source indicated and distributing any data reuse under an identical or equivalent licence.</p>", 
+        "risposta_it": "<p>I dati di OpenCoesione sono rilasciati con la <a href=\"http://www.creativecommons.org/licenses/by-sa/3.0/it/deed.it\" target=\"_blank\"> licenza CC BY-SA 3.0 </a>.</p>\r\n<p>Si tratta della licenza Creative Commons 3.0 Italia con condizioni di utilizzo BY (Attribuzione) e SA (Condividi allo stesso modo). &Egrave; dunque possibile riprodurre, distribuire e comunicare al pubblico dati e analisi; modificarli e adattarli; usarli per fini commerciali riportando sempre la fonte indicata e distribuendo qualsiasi riuso dei dati con una licenza identica o equivalente.</p>"
+    }
+},
+{
+    "pk": 18,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-opencoesione-data-release-format", 
+        "domanda_it": "In che formato sono rilasciati i dati di OpenCoesione?", 
+        "domanda_en": "What is OpenCoesione data release format?", 
+        "slug_it": "che-formato-sono-rilasciati-i-dati-di-opencoesione", 
+        "risposta_en": "<p>Data are available in <a href=\"http://bit.ly/formato-csv\">CSV format</a>. In some cases files are compressed for easier downloading.</p>\r\n<p>OpenCoesione CSV file settings are:</p>\r\n<ul>\r\n<li><strong>encoding:</strong> Unicode (UTF-8)</li>\r\n<li><strong>language:</strong> Italian (Italy)</li>\r\n</ul>\r\n<p>Data are also available in JSON format, through the <a href=\"http://www.opencoesione.it/api/\">OpenCoesione's API</a>.</p>", 
+        "risposta_it": "<p>I dati sono disponibili in <a href=\"http://it.wikipedia.org/wiki/Comma-separated_values\" target=\"_blank\">formato CSV</a>. In alcuni casi i file sono compressi per facilitarne il download.</p>\r\n<p>Le impostazioni dei file CSV di OpenCoesione sono:</p>\r\n<ul>\r\n<li><strong>tipo di carattere:</strong> Unicode (UTF-8)</li>\r\n<li><strong>lingua:</strong> Italiano (Italia)</li>\r\n</ul>\r\n<p>I dati sono disponibili anche in formato JSON tramite le <a href=\"http://www.opencoesione.it/api-faq/\">API di OpenCoesione</a>.</p>"
+    }
+},
+{
+    "pk": 19,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "how-transparency-regulated-under-cohesion-policy", 
+        "domanda_it": "Come \u00e8 regolata la trasparenza nelle politiche di coesione?", 
+        "domanda_en": "How is transparency regulated under Cohesion Policy?", 
+        "slug_it": "come-e-regolata-la-trasparenza-nelle-politiche-di-coesione", 
+        "risposta_en": "<p>Transparency under Cohesion Policy falls within the more general Open Government strategy pursued under Italy&rsquo;s Digital Agenda (Decree-Law 5/2012), which aims to use new communication tools and technologies to enhance Administrations&rsquo; openness, accessibility and transparency to citizens, also supported (as to Cohesion Policy) by numerous guidance documents and national and Community provisions.</p>\r\n<p>EU Structural Funds Regulations for 2007-2013 oblige the Member States and Managing Authorities of Operational Programmes to provide information on the operations funded. In particular, <a href=\"http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1083:IT:NOT\">Art. 69 of Regulation 1083/2006</a> states that \"<em>The Member State and the managing authority for the operational programme shall provide information on and publicise operations and co-financed programmes. The information shall be addressed to European Union citizens and beneficiaries with the aim of highlighting the role of the Community and ensure that assistance from the Funds is transparent</em>\". Furthermore, pursuant to <a href=\"http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1828:IT:NOT\">Art. 7 of Regulation 1828/2006</a>, the Managing Authorities shall organise \"<em>the publication, electronically or otherwise, of the list of beneficiaries, the names of the operations and the amount of public funding allocated to the operations</em>\". See \"<em>Transparency on the beneficiaries of Structural Funds in Italy and Europe</em>\" (<a href=\"http://bit.ly/mat-UVAL\">UVAL Document n. 27, year 2012</a>).</p>\r\n<p>Guidance on transparency and communication proposed for implementation of EU co-funded programmes is also directly applicable to interventions implemented through additional national resources, consistently with the rules governing National Strategic Framework 2007-2013 implementation.</p>\r\n<p>Furthermore, the Cohesion Action Plan envisages the release of information on single funded interventions in open data format.</p>", 
+        "risposta_it": "<p>La trasparenza nelle politiche di coesione rientra nella pi&ugrave; generale strategia di Open Government perseguita nell'ambito dell'Agenda Digitale per l'Italia (<a href=\"http://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legge:2012-02-09;5\">art. 47 del DL 5/2012</a>) e risponde agli obblighi di pubblicit&agrave;, trasparenza e diffusione di informazioni da parte delle Pubbliche Amministrazioni (<a href=\"http://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legislativo:2013-03-14;33\">DL 33/2013</a>). Lo scopo &egrave; utilizzare i nuovi strumenti e tecnologie della comunicazione per aumentare il grado di apertura e accessibilit&agrave; dell'operato delle amministrazioni nei confronti dei cittadini, tanto in termini informativi quanto di partecipazione al processo decisionale. Questa strategia trova inoltre sostegno, con riferimento alle politiche di coesione, in numerosi atti di indirizzo e disposizioni nazionali e comunitarie.</p>\r\n<p>I Regolamenti dei Fondi Strutturali europei per il 2007-2013 obbligano gli Stati membri e le Autorit&agrave; di Gestione dei Programmi Operativi a offrire informazioni sugli interventi finanziati. In particolare, l&rsquo;<a href=\"http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1083:IT:NOT\">art. 69 del Regolamento 1083/2006</a> afferma che &ldquo;lo Stato membro e l&rsquo;autorit&agrave; di gestione del programma operativo forniscono informazioni circa i programmi cofinanziati e le operazioni e li pubblicizzano. Le informazioni sono destinate ai cittadini dell&rsquo;Unione europea e ai beneficiari allo scopo di valorizzare il ruolo della Comunit&agrave; e garantire la trasparenza dell&rsquo;intervento dei Fondi&rdquo;. Inoltre, ai sensi dell&rsquo;<a href=\"http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1828:IT:NOT\">art. 7 del Regolamento 1828/2006</a>, le Autorit&agrave; di Gestione sono tenute ad effettuare &ldquo;la pubblicazione, elettronica o in altra forma, dell&rsquo;elenco dei beneficiari, delle denominazioni delle operazioni e dell&rsquo;importo del finanziamento pubblico destinato alle operazioni&rdquo;.</p>\r\n<p>Consulta &ldquo;<a href=\"http://www.dps.tesoro.it/materialiuval/analisi_studi.asp#muval27\">La trasparenza sui beneficiari dei Fondi Strutturali in Italia e in Europa</a>&rdquo; (Materiali <a href=\"http://www.dps.tesoro.it/materialiuval/analisi_studi.asp#muval27\">UVAL n.27, anno 2012</a>)</p>"
+    }
+},
+{
+    "pk": 20,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-do-capita-values-represent", 
+        "domanda_it": "Come sono calcolati i valori pro capite?", 
+        "domanda_en": "What do the per capita values represent?", 
+        "slug_it": "come-sono-calcolati-i-valori-pro-capite", 
+        "risposta_en": "<p>Per capita values are provide to the user on the maps and in the website pages related to a territory.</p>\r\n<p>Per-capita values are calculated taking into account the total funding (i.e. the total payment) of all projects associated to a municipality, province or region divided by the resident population of the same municipality, province or region at 31.12.2011 (source: Istat, the Italian national statistical office).</p>\r\n<p>The entire value of the project (in terms of funding or payment) is associated to the municipality, province or region even if the project falls into more than one distinct municipalities, provinces or regions.</p>\r\n<p>The per-capita value of a region takes into account all projects located at a regional level or lower, the per capita value of a province takes into account all projects located at municipal or provincial level; the per capita value of a municipality takes into account all projects located at the municipal level. Therefore, municipal per-capita values do not take into account projects generically falling into its province or region.</p>\r\n<p>Projects referring to the \"national level\" only contribute to the calculation of average per-capita national reported as an element of comparison in the indicators.</p>", 
+        "risposta_it": "<p>Sulle mappe e nelle pagine dei territori vengono presentati all&rsquo;utente dei valori pro capite.</p>\r\n<p>I valori pro capite sono calcolati prendendo in considerazione il finanziamento complessivo (ovvero il pagamento complessivo) dei progetti che sono associati al comune, alla provincia o alla regione diviso per la popolazione residente di fonte Istat dello stesso comune, provincia o regione al 31/12/2011.</p>\r\n<p>Al comune, alla provincia e alla regione sono associati l&rsquo;intero valore relativo al progetto (finanziamento o pagamento) anche se il progetto ricade in pi&ugrave; comuni, in pi&ugrave; provincie o in pi&ugrave; regioni distinte.</p>\r\n<p>Il valore pro capite regionale tiene conto di tutti i progetti localizzati a un livello regionale o inferiore, il valore pro capite provinciale di tutti i progetti localizzati a livello provinciale o comunale, il valore pro capite comunale di tutti i progetti localizzati a livello comunale. Non sono quindi considerati per i valori pro capite comunali eventuali progetti di livello provinciale o regionale.</p>\r\n<p>I progetti localizzati in &ldquo;ambito nazionale&rdquo; contribuiscono solo al calcolo del valore pro capite medio nazionale riportato come elemento di confronto nella barra degli indicatori.</p>"
+    }
+},
+{
+    "pk": 21,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "page-dedicated-project-what-criteria-underlie-other-projects-territory-visualisation", 
+        "domanda_it": "Nella pagina di un progetto, con quale criterio vengono visualizzati gli \"Altri progetti sul territorio\"?", 
+        "domanda_en": "On the page dedicated to a project, what criteria underlie the \u201cother projects on the territory\u201d visualisation?", 
+        "slug_it": "nella-pagina-di-un-progetto-con-quale-criterio-vengono-visualizzati-gli-altri-progetti-sul-territorio", 
+        "risposta_en": "<p>The function is aimed at simplifying users&rsquo; surfing and at proposing projects, within the same territory, which could be defined as &ldquo;similar&rdquo; to the project being visualised. The four selection criteria are:</p>\r\n<ul>\r\n<li>Projects sharing the same thematic classification (metadata fields: dps_tema_sint and qsn_descr_tema_prioritario_ue)</li>\r\n<li>Projects sharing the same nature (metadata fields: cup_descr_natura and cup_descr_tipologia)</li>\r\n<li>Projects sharing the same programming authority</li>\r\n<li>Projects sharing the same implementing subject.</li>\r\n</ul>", 
+        "risposta_it": "<p>Questa funzionalit&agrave; &egrave; pensata per facilitare la navigazione dell'utente e proporre dei progetti, localizzati nello stesso territorio, che potrebbero essere \"simili\" a quello che si sta visualizzando. <br /> I criteri di scelta sono quattro:</p>\r\n<ul>\r\n<li>progetti che hanno stessa classificazione tematica (campi dei metadati: dps_tema_sint e qsn_descr_tema_prioritario_ue)</li>\r\n<li>progetti che hanno stessa natura dell'intervento (campi dei metadati: cup_descr_natura e cup_descr_tipologia)</li>\r\n<li>progetti con stesso soggetto programmatore</li>\r\n<li>progetti con stesso soggetto attuatore</li>\r\n</ul>"
+    }
+},
+{
+    "pk": 22,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-do-opencoesione-maps-display", 
+        "domanda_it": "Cosa rappresentano le mappe?", 
+        "domanda_en": "What do OpenCoesione maps display?", 
+        "slug_it": "cosa-rappresentano-le-mappe", 
+        "risposta_en": "<p>Each project is located at national, regional, provincial or municipal level.</p>\r\n<p>Regional maps display all the projects relating to a given regional or sub-regional level, while provincial maps indicate all the projects related to either provincial or municipal levels. Therefore provincial maps do not display regional level projects. Projects at national level are not displayed in any map, as maps are not drawn for projects above the regional level.</p>\r\n<p>Whereby a single project relates to multiple municipalities or provinces or regions, maps will display it in all its locations at each territorial level.</p>\r\n<p>Maps indicate the number of located projects and their corresponding value in terms of resources (overall public funding or payments made).</p>", 
+        "risposta_it": "<p>Ciascun progetto &egrave; localizzato a un livello territoriale che pu&ograve; essere nazionale, regionale, provinciale o comunale.</p>\r\n<p>La mappa regionale rappresenta tutti i progetti localizzati a un livello regionale o inferiore, la mappa provinciale tutti i progetti localizzati a livello provinciale o comunale. Non sono quindi visualizzati nella mappa provinciale eventuali progetti di livello regionale. I progetti localizzati in ambito nazionale non sono rappresentati in alcuna mappa, poich&eacute; le mappe solo almeno di livello regionale.</p>\r\n<p>Uno stesso progetto pu&ograve; inoltre essere localizzato in pi&ugrave; comuni, province o regioni e, in tal caso, nelle mappe &egrave; interamente attribuito - a ciascun livello territoriale - a tutte le localizzazioni in cui &egrave; presente.</p>\r\n<p>Le mappe rappresentano il numero di progetti localizzati e il corrispondente valore in termini di risorse (finanziamento pubblico complessivo o pagamenti effettuati).</p>"
+    }
+},
+{
+    "pk": 23,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-method-used-map-thematisation-opencoesione", 
+        "domanda_it": "Quale metodo viene utilizzato per la tematizzazione delle mappe?", 
+        "domanda_en": "What method is used for map thematisation in OpenCoesione?", 
+        "slug_it": "quale-metodo-viene-utilizzato-la-tematizzazione-delle-mappe", 
+        "risposta_en": "<p>The classes of values displayed in the maps are based upon Jenks algorithm method (i.e. Jenks natural breaks classification method), which optimises the distribution into classes by minimising the variance within each class and maximising the variance between classes.</p>", 
+        "risposta_it": "<p>Le classi di valori rappresentate sulle mappe sono definite tramite l&rsquo;<a href=\"http://danieljlewis.org/2010/06/07/jenks-natural-breaks-algorithm-in-python/\">algoritmo di Jenks</a> (Jenks natural breaks classification method), un metodo che ottimizza la distribuzione in classi minimizzando la varianza all&rsquo;interno di ciascuna classe (within) e massimizzando la varianza tra le classi (between).</p>"
+    }
+},
+{
+    "pk": 24,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-source-opencoesione-maps", 
+        "domanda_it": "Cosa viene utilizzato per le mappe?", 
+        "domanda_en": "What is the source of OpenCoesione maps?", 
+        "slug_it": "cosa-viene-utilizzato-le-mappe", 
+        "risposta_en": "<p>Maps are from <a href=\"http://www.openstreetmap.org/\">OpenStreetMap</a> (OSM). Shapefiles related to regions, provinces and municipalities are from <a href=\"http://www.istat.it\">Istat</a>.</p>", 
+        "risposta_it": "<p>Il background delle mappe &egrave; di <a href=\"http://www.openstreetmap.org/\">OpenStreetMap</a> mentre gli shapefile di regioni, province e comuni sono di <a href=\"http://www.istat.it\">Istat</a></p>"
+    }
+},
+{
+    "pk": 25,
+    "model": "open_coesione.faq", 
+    "fields": {
+        "slug_en": "what-stack-software-used-opencoesione", 
+        "domanda_it": "Qual \u00e8 lo stack software utilizzato?", 
+        "domanda_en": "What stack software is used in OpenCoesione?", 
+        "slug_it": "qual-e-lo-stack-software-utilizzato", 
+        "risposta_en": "<p>Here it is:</p>\r\n<ul class=\"unstyled\">\r\n<li><a href=\"http://leaflet.cloudmade.com/\" target=\"_blank\">Leaflet</a></li>\r\n<li><a href=\"http://jquery.com/\" target=\"_blank\">jQuery</a></li>\r\n<li><a href=\"http://jqueryui.com/\" target=\"_blank\">jQueryUI</a></li>\r\n<li><a href=\"http://twitter.github.com/bootstrap/\" target=\"_blank\">bootstrap</a></li>\r\n<li><a href=\"http://fortawesome.github.com/Font-Awesome/\" target=\"_blank\">fontawesome</a></li>\r\n<li><a href=\"http://www.google.com/webfonts/specimen/PT+Sans\" target=\"_blank\">PT Sans open font</a></li>\r\n<li><a href=\"https://www.varnish-cache.org/\" target=\"_blank\">Varnish</a></li>\r\n<li><a href=\"http://nginx.org/\" target=\"_blank\">Nginx</a></li>\r\n<li><a href=\"http://projects.unbit.it/uwsgi/\" target=\"_blank\">uWSGI</a></li>\r\n<li><a href=\"http://www.djangoproject.com/\" target=\"_blank\">django</a></li>\r\n<li><a href=\"http://lucene.apache.org/solr/\" target=\"_blank\">solr</a></li>\r\n<li><a href=\"http://tomcat.apache.org/\" target=\"_blank\">tomcat</a></li>\r\n<li><a href=\"http://memcached.org/\" target=\"_blank\">memcached</a></li>\r\n<li><a href=\"http://www.postgresql.org/\" target=\"_blank\">postgres</a></li>\r\n<li><a href=\"http://postgis.refractions.net/\" target=\"_blank\">postgis</a></li>\r\n<li><a href=\"http://tilestache.org/\" target=\"_blank\">TileStache</a></li>\r\n<li><a href=\"http://modestmaps.com/\" target=\"_blank\">ModestMaps</a></li>\r\n<li><a href=\"http://www.gdal.org/\" target=\"_blank\">GDAL</a></li>\r\n<li><a href=\"http://mapnik.org/\" target=\"_blank\">Mapnik</a></li>\r\n<li><a href=\"http://numpy.scipy.org/\" target=\"_blank\">NumPy</a></li>\r\n<li><a href=\"http://code.google.com/p/pysal/\" target=\"_blank\">PySal</a></li>\r\n</ul>\r\n<p>in addition to Gnu-Linux / Debian Squeeze.</p>", 
+        "risposta_it": "<p>Eccolo qua:</p>\r\n<ul class=\"unstyled\">\r\n<li><a href=\"http://leaflet.cloudmade.com/\" target=\"_blank\">Leaflet</a></li>\r\n<li><a href=\"http://jquery.com/\" target=\"_blank\">jQuery</a></li>\r\n<li><a href=\"http://jqueryui.com/\" target=\"_blank\">jQueryUI</a></li>\r\n<li><a href=\"http://twitter.github.com/bootstrap/\" target=\"_blank\">bootstrap</a></li>\r\n<li><a href=\"http://fortawesome.github.com/Font-Awesome/\" target=\"_blank\">fontawesome</a></li>\r\n<li><a href=\"http://www.google.com/webfonts/specimen/PT+Sans\" target=\"_blank\">PT Sans open font</a></li>\r\n<li><a href=\"https://www.varnish-cache.org/\" target=\"_blank\">Varnish</a></li>\r\n<li><a href=\"http://nginx.org/\" target=\"_blank\">Nginx</a></li>\r\n<li><a href=\"http://projects.unbit.it/uwsgi/\" target=\"_blank\">uWSGI</a></li>\r\n<li><a href=\"http://www.djangoproject.com/\" target=\"_blank\">django</a></li>\r\n<li><a href=\"http://lucene.apache.org/solr/\" target=\"_blank\">solr</a></li>\r\n<li><a href=\"http://tomcat.apache.org/\" target=\"_blank\">tomcat</a></li>\r\n<li><a href=\"http://memcached.org/\" target=\"_blank\">memcached</a></li>\r\n<li><a href=\"http://www.postgresql.org/\" target=\"_blank\">postgres</a></li>\r\n<li><a href=\"http://postgis.refractions.net/\" target=\"_blank\">postgis</a></li>\r\n<li><a href=\"http://tilestache.org/\" target=\"_blank\">TileStache</a></li>\r\n<li><a href=\"http://modestmaps.com/\" target=\"_blank\">ModestMaps</a></li>\r\n<li><a href=\"http://www.gdal.org/\" target=\"_blank\">GDAL</a></li>\r\n<li><a href=\"http://mapnik.org/\" target=\"_blank\">Mapnik</a></li>\r\n<li><a href=\"http://numpy.scipy.org/\" target=\"_blank\">NumPy</a></li>\r\n<li><a href=\"http://code.google.com/p/pysal/\" target=\"_blank\">PySal</a></li>\r\n</ul>\r\n<p>Pi&ugrave; la distribuzione Debian Squeeze di Gnu-Linux.</p>"
+    }
+}
+]
