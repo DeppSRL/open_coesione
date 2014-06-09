@@ -148,13 +148,8 @@ INSTALLED_APPS = (
     'bootstrapform',
     'south',
     'haystack',
-    'progetti',
-    'territori',
-    'soggetti',
-    'rubrica',
-    'open_coesione',
     'oc_search',
-    'blog',
+
     # TinyMCE
     'tinymce',
     'captcha',
@@ -165,7 +160,15 @@ INSTALLED_APPS = (
     'rest_framework',
     'api',
     'widgets',
+
+    'progetti',
+    'territori',
+    'soggetti',
+    'rubrica',
+    'open_coesione',
+    'blog',
     'idioticon',
+    'tagging',
 )
 
 DEBUG_TOOLBAR_PANELS = (

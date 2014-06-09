@@ -1,0 +1,23 @@
+<article id="pillola-{{ object.pk }}">
+  <header>
+    <h1>
+      {% if title_linked %}
+        <a href="{% url 'pillola_item' object.slug %}">{{ object.title }}</a>
+      {% else %}
+        {{ object.title }}
+      {% endif %}
+      <small>{{ object.published_at|date:'d/m/Y' }}</small>
+      {% if object.file %}
+        <small>
+          <a href="/{{ object.file.name }}"><i class="icon-download-alt"></i>
+          <span style="color:black;">{{ object.file.name|slice:"-3:"|lower }}, {{ object.file.size|filesizeformat }}</span></a>
+        </small>
+      {% endif %}
+    </h1>
+  </header>
+  <div>
+    {{ object.description|safe }}
+    <br>
+  </div>
+  {% include 'tagging/attribute_tags.html' with tags=object.tags base_url='pillole' only %}
+</article>

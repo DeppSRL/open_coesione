@@ -3,12 +3,15 @@ from decimal import Decimal
 
 from django.db import models
 from django.utils.functional import cached_property
+from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaAsseObiettivoManager, FullProgettiManager, ProgrammaLineaAzioneManager
 from django.core.cache import cache
 import logging
 from soggetti.models import Soggetto
+from open_coesione.models import URL
 
 logger = logging.getLogger('oc')
 
@@ -43,16 +46,28 @@ class ClassificazioneQSN(models.Model):
         db_table = 'progetti_classificazione_qsn'
 
 
-class ProgrammaAsseObiettivo(models.Model):
-
-    objects = ProgrammaAsseObiettivoManager()
-
+class Documento(models.Model):
     TIPO = Choices(
-        ('PROGRAMMA_FS', 'programma', u'Programma FS'),
-        ('ASSE', 'asse', u'Asse'),
-        ('OBIETTIVO_OPERATIVO', 'obiettivo', u'Obiettivo operativo')
+        ('documento_programma', u'Documento di programma'),
+        ('rapporto_annuale', u'Rapporto annuale di pubblicazione'),
     )
-    classificazione_superiore = models.ForeignKey('ProgrammaAsseObiettivo', default=None,
+
+    tipo = models.CharField(max_length=32, choices=TIPO)
+    file = models.FileField(upload_to='documenti')
+    data = models.DateField(blank=True, null=True)
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.CharField(max_length=255)
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        verbose_name_plural = 'Documenti'
+
+
+class ProgrammaBase(models.Model):
+
+    TIPO = {}
+
+    classificazione_superiore = models.ForeignKey('self', default=None,
                                                   related_name='classificazione_set',
                                                   db_column='classificazione_superiore',
                                                   null=True, blank=True)
@@ -60,6 +75,8 @@ class ProgrammaAsseObiettivo(models.Model):
     descrizione = models.TextField()
     tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
     url_riferimento = models.URLField(max_length=255, blank=True, null=True)
+    links = generic.GenericRelation(URL)
+    documenti = generic.GenericRelation(Documento)
 
 
     @property
@@ -72,6 +89,30 @@ class ProgrammaAsseObiettivo(models.Model):
     @property
     def progetti(self):
         return self.progetto_set
+
+    @property
+    def is_root(self):
+        return self.tipo_classificazione == self.TIPO.programma
+
+    def __unicode__(self):
+        return unicode(self.descrizione[0:100])
+
+    class Meta:
+        abstract = True
+
+class ProgrammaAsseObiettivo(ProgrammaBase):
+
+    objects = ProgrammaAsseObiettivoManager()
+
+    TIPO = Choices(
+        ('PROGRAMMA_FS', 'programma', u'Programma FS'),
+        ('ASSE', 'asse', u'Asse'),
+        ('OBIETTIVO_OPERATIVO', 'obiettivo', u'Obiettivo operativo')
+    )
+
+    class Meta(ProgrammaBase.Meta):
+        verbose_name_plural = "Programmi - Assi - Obiettivi operativi"
+        db_table = 'progetti_programma_asse_obiettivo'
 
     @property
     def progetti_di_programma(self):
@@ -86,18 +127,8 @@ class ProgrammaAsseObiettivo(models.Model):
         else:
             raise Exception("This property is not available for Asse or Obiettivo classifications.")
 
-    @property
-    def is_root(self):
-        return self.tipo_classificazione == ProgrammaAsseObiettivo.TIPO.programma
 
-    def __unicode__(self):
-        return unicode(self.descrizione[0:100])
-
-    class Meta:
-        verbose_name_plural = "Programmi - Assi - Obiettivi operativi"
-        db_table = 'progetti_programma_asse_obiettivo'
-
-class ProgrammaLineaAzione(models.Model):
+class ProgrammaLineaAzione(ProgrammaBase):
     """
     Classificazione alternativa a ProgrammaAsseObiettivo,
     per progetti in attuazione nel contesto FSC.
@@ -109,26 +140,10 @@ class ProgrammaLineaAzione(models.Model):
         ('LINEA', 'linea', u'Linea'),
         ('AZIONE', 'azione', u'Azione')
     )
-    classificazione_superiore = models.ForeignKey('ProgrammaLineaAzione', default=None,
-                                                  related_name='classificazione_set',
-                                                  db_column='classificazione_superiore',
-                                                  null=True, blank=True)
-    codice = models.CharField(max_length=32, primary_key=True)
-    descrizione = models.TextField()
-    tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
-    url_riferimento = models.URLField(max_length=255, blank=True, null=True)
 
-
-    @property
-    def programma(self):
-        p = self
-        while p.classificazione_superiore is not None:
-            p = p.classificazione_superiore
-        return p
-
-    @property
-    def progetti(self):
-        return self.progetto_set
+    class Meta(ProgrammaBase.Meta):
+        verbose_name_plural = "Programmi - Linee - Azioni"
+        db_table = 'progetti_programma_linea_azione'
 
     @property
     def progetti_di_programma(self):
@@ -142,17 +157,6 @@ class ProgrammaLineaAzione(models.Model):
             return Progetto.objects.filter(programma_linea_azione__classificazione_superiore__classificazione_superiore=self)
         else:
             raise Exception("This property is not available for Linea or Azione classifications.")
-
-    @property
-    def is_root(self):
-        return self.tipo_classificazione == ProgrammaLineaAzione.TIPO.programma
-
-    def __unicode__(self):
-        return unicode(self.descrizione[0:100])
-
-    class Meta:
-        verbose_name_plural = "Programmi - Linee - Azioni"
-        db_table = 'progetti_programma_linea_azione'
 
 
 class Tema(models.Model):

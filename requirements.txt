@@ -1,7 +1,7 @@
 BeautifulSoup
 Django==1.5.7
 Jinja2
-Pillow
+pillow
 PyYAML
 Pygments
 South>=0.8.3

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from progetti.models import *
+from open_coesione.admin import URLInline
 
 class ProgrammaAsseObiettivoAdmin(admin.ModelAdmin):
     list_display = ['codice', 'descrizione']
@@ -25,6 +26,15 @@ class CUPSInline(admin.TabularInline):
     model = CUP
     extra = 0
 
+class DocumentoInline(generic.GenericTabularInline):
+    model = Documento
+    extra = 0
+
+
+class ProgrammaAdmin(admin.ModelAdmin):
+    search_fields = ['descrizione',]
+    list_filter = ('tipo_classificazione',)
+    inlines = [DocumentoInline, URLInline]
 
 class ProgettoAdmin(admin.ModelAdmin):
     inlines = (LocalizzazioneInline, DeliberaCIPEInline, CUPSInline)
@@ -88,8 +98,8 @@ admin.site.register(Progetto, ProgettoAdmin)
 admin.site.register(ClassificazioneQSN, ClassificazioneAdmin)
 admin.site.register(ClassificazioneAzione, ClassificazioneAzioneAdmin)
 admin.site.register(ClassificazioneOggetto, ClassificazioneAdmin)
-admin.site.register(ProgrammaAsseObiettivo, ProgrammaAsseObiettivoAdmin)
-admin.site.register(ProgrammaLineaAzione, ProgrammaLineaAzioneAdmin)
+admin.site.register(ProgrammaAsseObiettivo, ProgrammaAdmin)
+admin.site.register(ProgrammaLineaAzione, ProgrammaAdmin)
 admin.site.register(Tema, TemaAdmin)
 admin.site.register(Fonte)
 admin.site.register(DeliberaCIPE)

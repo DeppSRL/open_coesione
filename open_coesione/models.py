@@ -1,7 +1,11 @@
 # coding=utf-8
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 from django.dispatch import receiver
 import os
+from tagging import models as tagging_models
+
 
 class ContactMessage(models.Model):
 
@@ -47,17 +51,43 @@ class PressReview(models.Model):
         verbose_name = "Articolo"
 
 
-class Pillola(models.Model):
+class Pillola(tagging_models.TagMixin, models.Model):
 
     title = models.CharField(max_length=200, verbose_name='Titolo')
+    slug = models.SlugField(max_length=255, null=True, blank=True, unique=True)
     description = models.TextField(max_length=1024, verbose_name='Descrizione', blank=True, null=True)
     file = models.FileField(upload_to='pillole', blank=True, null=True)
-
     published_at = models.DateField(verbose_name='Data di pubblicazione')
 
     class Meta:
-        verbose_name_plural = "Pillole"
-        verbose_name = "Pillola"
+        verbose_name_plural = "pillole"
+        verbose_name = "pillola"
+
+
+class URL(models.Model):
+    url = models.URLField(max_length=255, blank=False, null=False)
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.CharField(max_length=255)
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        verbose_name = 'link'
+        verbose_name_plural = 'links'
+
+
+class FAQ(models.Model):
+
+    domanda_it = models.CharField(max_length=255, verbose_name='Domanda (italiano)')
+    slug_it = models.SlugField(max_length=255, verbose_name='Slug (italiano)', unique=True)
+    risposta_it = models.TextField(verbose_name='Risposta (italiano)', blank=True, null=True)
+    domanda_en = models.CharField(max_length=255, verbose_name='Domanda (inglese)')
+    slug_en = models.SlugField(max_length=255, verbose_name='Slug (inglese)', unique=True)
+    risposta_en = models.TextField(verbose_name='Risposta (inglese)', blank=True, null=True)
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'domanda frequente'
+        verbose_name_plural = 'domande frequenti'
 
 
 # These two auto-delete files from filesystem when they are unneeded:

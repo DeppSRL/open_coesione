@@ -1,0 +1,11 @@
+{% extends 'base_two_columns.html' %}
+
+{% block page_title %}{{ object.title }}{% endblock %}
+
+{% block content %}
+  <div id="pillole" style="margin-top: 2em;">
+
+    {% include 'open_coesione/pillola_item.html' with object=object title_linked=0 only %}
+
+  </div>
+{% endblock %}
