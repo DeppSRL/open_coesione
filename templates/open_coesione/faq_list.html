@@ -44,7 +44,11 @@
         if (hash) {
           $('body').find('#'+hash+' .faq-domanda').trigger('click');
         } else {
-          $('body').find('#cosa-ce-opencoesione .faq-domanda').trigger('click');
+          if (location.href.indexOf('/en/') == -1){
+            $('body').find('#cosa-ce-opencoesione .faq-domanda').trigger('click');
+          } else {
+            $('body').find('#whats-opencoesione .faq-domanda').trigger('click');
+          }
         }
       });//]]>
     </script>
