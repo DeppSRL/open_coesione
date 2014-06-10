@@ -138,6 +138,9 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'grappelli.dashboard',
+    'grappelli',
+    'filebrowser',
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django_extensions',
@@ -377,3 +380,7 @@ WIDGETS = [
 ]
 
 BIG_SOGGETTI_THRESHOLD = 50
+
+GRAPPELLI_ADMIN_TITLE = "Amministrazione di OpenCoesione"
+GRAPPELLI_INDEX_DASHBOARD = 'open_coesione.dashboard.CustomIndexDashboard'
+FILEBROWSER_STRICT_PIL = True

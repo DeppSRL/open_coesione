@@ -5,6 +5,7 @@ from django.views.generic.base import TemplateView
 from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView, PressView, SpesaCertificataView, \
     OpendataView, PilloleView, PillolaView, OpendataRedirectView, PilloleRedirectView, FAQView
 from rubrica.views import NLContactView
+from filebrowser.sites import site
 
 admin.autodiscover()
 
@@ -13,6 +14,8 @@ urlpatterns = patterns('',
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # admin
+    url(r'^admin/filebrowser/', include(site.urls)),
+    url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
 
     # home
