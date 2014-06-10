@@ -110,12 +110,14 @@
     {% addtoblock "js_script" %}
       <script type='text/javascript'>//<![CDATA[
       $(window).load(function(){
-        jQuery('.submenu').hover(function () {
+        $('html').on('click.dropdown.data-api', function () {
+          jQuery('.submenu').children('ul').removeClass('submenu-show').addClass('submenu-hide');
+        })
+
+        jQuery('.submenu').click(function (event) {
+          jQuery('.submenu').not($(this).parents('.submenu')).children('ul').removeClass('submenu-show').addClass('submenu-hide');
           jQuery(this).children('ul').removeClass('submenu-hide').addClass('submenu-show');
-        }, function () {
-          if ( $('#city:focus').length == 0) {
-            jQuery(this).children('ul').removeClass('submenu-show').addClass('submenu-hide');
-          }
+          event.stopPropagation();
         }).find("a:first").append(" &raquo; ");
 
         $('.navbar-search select').change(function(){
