@@ -1,3 +1,4 @@
+from django.shortcuts import render_to_response, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from blog.models import Entry
@@ -26,6 +27,10 @@ class BlogView(ListView, TagFilterMixin, DateFilterMixin):
 
 class BlogEntryView(DetailView):
     model = Entry
+
+def blogEntryItem(request, slug):
+    entry = get_object_or_404(Entry, slug=slug);
+    return render_to_response('blog/entry_item.html', {'full_view': 1, 'title_linked': 1, 'object': entry})
 
 # class BlogByTagView(BlogView):
 #     def get_queryset(self):

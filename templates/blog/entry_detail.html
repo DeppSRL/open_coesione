@@ -5,7 +5,7 @@
 {% block content %}
   <div id="blog">
 
-    {% include 'blog/entry_item.html' with object=object title_linked=0 only %}
+    {% include 'blog/entry_item.html' with object=object full_view=1 only %}
 
   </div>
 {% endblock %}

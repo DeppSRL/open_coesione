@@ -1,4 +1,4 @@
-<article id="notizia-{{ object.pk }}">
+<article id="{{ object.slug }}">
   <header class="page-header">
     <h1>
       {% if title_linked %}
@@ -9,8 +9,10 @@
       <small>{{ object.published_at|date:'d/m/Y' }}</small>
     </h1>
   </header>
-  <div>
-    {{ object.body|safe }}
-  </div>
-  {% include 'tagging/attribute_tags.html' with tags=object.tags base_url='blog_home' only %}
+  {% if full_view %}
+    <div>
+      {{ object.body|safe }}
+    </div>
+    {% include 'tagging/attribute_tags.html' with tags=object.tags base_url='blog_home' only %}
+  {% endif %}
 </article>
