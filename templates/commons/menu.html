@@ -140,15 +140,15 @@
                         {% endfor %}
                         <li class="divider"></li>
                         {% for pdesc,pcode in lista_programmi.pac_fse.items %}
-                            <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Selezione progetti da {{ pdesc }}</a></li>
+                            <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Progetti PAC nel {{ pdesc }}</a></li>
                         {% endfor %}
                         <li class="divider"></li>
                         {% for pdesc,pcode in lista_programmi.pac_fesr.items %}
-                            <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Selezione progetti da {{ pdesc }}</a></li>
+                            <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Progetti PAC nel {{ pdesc }}</a></li>
                         {% endfor %}
                         <li class="divider"></li>
                         {% for pdesc,pcode in lista_programmi.pac_fsc.items %}
-                            <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Selezione progetti da {{ pdesc }}</a></li>
+                            <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Progetti PAC nel {{ pdesc }}</a></li>
                         {% endfor %}
                       </ul>
                     </li>
