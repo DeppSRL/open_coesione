@@ -537,7 +537,6 @@
             {% if not progetto.cipe_flag %}
 
               {% if progetto.is_fonte_fs_flag %}
-
                 <dt>
                   {% if progetto.fondo_comunitario == 'fse' %}
                     Fondo Strutturale Europeo (FSE)
@@ -546,6 +545,10 @@
                   {% endif %}
                 </dt>
                 <dd>{{ progetto.fonte_fs_descrizione }}</dd>
+                {% if progetto.is_fonte_pac_flag %}
+                    <dt>{{ progetto.fonte_pac_label }}</dt>
+                    <dd>Piano d'Azione Coesione - Progetti nei Programmi operativi</dd>
+                {% endif %}
 
                 <dt>Programma</dt>
                 <dd>
@@ -562,12 +565,13 @@
               {% endif %}
 
               {% if progetto.is_fonte_fsc_flag or progetto.is_fonte_pac_flag %}
+                {% if progetto.is_fonte_fsc_flag %}
+                    <dt>{{ progetto.fonte_fsc_label }}</dt>
+                    <dd>{{ progetto.fonte_fsc_descrizione }}</dd>
+                {% endif %}
                 {% if progetto.is_fonte_pac_flag %}
                     <dt>{{ progetto.fonte_pac_label }}</dt>
                     <dd>{{ progetto.fonte_pac_descrizione }}</dd>
-                {% else %}
-                    <dt>{{ progetto.fonte_fsc_label }}</dt>
-                    <dd>{{ progetto.fonte_fsc_descrizione }}</dd>
                 {% endif %}
 
                 <dt>Programma</dt>
