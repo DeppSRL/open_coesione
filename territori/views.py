@@ -373,16 +373,22 @@ class MapnikView(TemplateView):
         n_values = len(nonzero_data)
         if n_values < 5:
             n_bins = n_values
+
         self.dc = DataClassifier(nonzero_data.values(), classifier_args={'k': n_bins}, colors_map=self.colors)
-        context['classification_bins'] = self.dc.get_bins_ranges()
-
-
+        if self.dc.dc:
+            context['classification_bins'] = self.dc.get_bins_ranges()
+        else:
+            context['classification_bins'] = None # empty data
 
         # return codice and colore, for each territorio
         # to be easily used in the view
         context['territori'] = []
         for t in self.queryset:
-            colore = self.dc.get_color(data[t.codice])
+            if t.codice in data:
+                colore = self.dc.get_color(data[t.codice])
+            else:
+                colore = self.dc.get_color(0)
+
 
             context['territori'].append({
                 'codice': str(t.codice),
