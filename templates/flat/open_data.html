@@ -129,7 +129,7 @@
         </table>
 
 
-        <p>Ultimo aggiornamento: marzo 2014 su dati al 31/12/2013</p>
+        <p>Ultimo aggiornamento: maggio 2014 su dati al 28/02/2014</p>
 
     </div>
 
@@ -189,7 +189,73 @@
             </tr>
         </table>
 
-        <p>Ultimo aggiornamento: marzo 2014 su dati al 31/12/2013</p>
+        <p>Ultimo aggiornamento: maggio 2014 su dati al 28/02/2014</p>
+
+    </div>
+
+    <h3 class="h3-switcher">
+        <a href="#" data-target="#pac-content" id="pac-title">
+            Open data sul Piano d’Azione per la Coesione <i class="icon-chevron-down"></i>
+        </a>
+    </h3>
+
+    <div id="pac-content">
+
+        <p>
+            Sono scaricabili dati riferiti ai singoli progetti finanziati nell’ambito del
+            <a href="/pac">Piano d’Azione per la Coesione (PAC)</a>, organizzati in forma relazionale:
+            "Progetti" è il dataset principale e può essere scaricato anche da solo,
+            mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari collegate
+            al dataset principale attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
+        </p>
+
+        <p>
+            Alcuni progetti del PAC sono presenti anche in Programmi dei Fondi Strutturali europei 2007/2013
+            e del Fondo per lo Sviluppo e la Coesione 2007/2013, poiché le modalità programmazione del PAC prevedono
+            sia rimodulazione interna ai Programmi Operativi sia riprogrammazione delle risorse nazionali derivanti
+            dalla riduzione del cofinanziamento nazionale dei Programmi Operativi che, in alcuni casi,
+            sono state assegnate a progetti già inseriti nella programmazione FSC.
+        </p>
+
+        <p>
+            I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
+            Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_YYYYMMDD"
+            associato a ciascuno di essi. L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni
+            sono associate a progetti finanziati.
+        </p>
+
+        <p>
+            I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi,
+            aggiungendo alcune variabili (identificabili nei dataset con il suffisso DPS_) che facilitano leggibilità
+            e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
+            <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb)
+            con i temi prioritari UE e con la classificazione CUP.
+        </p>
+
+        <table class="table" id="pac">
+            <thead>
+            {% for section_code, section in pac_sections.items %}
+            <tr>
+                <td class="label">{{ section.name|capfirst }}</td>
+                <td>
+                    <a href="/opendata/{{ section.complete_file.file_name }}">
+                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+            </thead>
+            <tr>
+                <td class="label">Metadati </td>
+                <td>
+                    <a href="/opendata/{{ pac_metadata_file.file_name }}">
+                        [<i class="icon-download-alt"></i> xls {{ pac_metadata_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+        </table>
+
+        <p>Ultimo aggiornamento: maggio 2014 su dati al 28/02/2014</p>
 
     </div>
 

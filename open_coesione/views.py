@@ -328,7 +328,7 @@ class OpendataView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(OpendataView, self).get_context_data(**kwargs)
 
-        data_date = '20131231'
+        data_date = '20140228'
         cipe_date = '20121231'
         spesa_date = '20131231'
         istat_date = '20140418'
@@ -422,6 +422,26 @@ class OpendataView(TemplateView):
         ])
         fsc_metadata_file = self.get_complete_file("metadati_attuazione.xls")
 
+        pac_sections = SortedDict([
+            ('prog', { 'name': 'progetti',
+                       'complete_file': self.get_complete_file('progetti_PAC_{0}.zip'.format(data_date)),
+                }
+            ),
+            ('sog', { 'name': 'soggetti',
+                      'complete_file': self.get_complete_file('soggetti_PAC_{0}.zip'.format(data_date)),
+                }
+            ),
+            ('loc', { 'name': 'localizzazioni',
+                      'complete_file': self.get_complete_file('localizzazioni_PAC_{0}.zip'.format(data_date)),
+                }
+            ),
+            ('pag', { 'name': 'pagamenti',
+                      'complete_file': self.get_complete_file('pagamenti_PAC_{0}.zip'.format(data_date)),
+                }
+            ),
+        ])
+        pac_metadata_file = self.get_complete_file("metadati_attuazione.xls")
+
         cipe_sections = SortedDict([
             ('prog', { 'name': 'progetti',
                        'complete_file': self.get_complete_file("assegnazioni_CIPE_{0}.zip".format(cipe_date)),
@@ -450,9 +470,11 @@ class OpendataView(TemplateView):
         context['data_date'] = data_date
         context['fs_sections'] = fs_sections
         context['fsc_sections'] = fsc_sections
+        context['pac_sections'] = pac_sections
         context['cipe_sections'] = cipe_sections
         context['fs_metadata_file'] = fs_metadata_file
         context['fsc_metadata_file'] = fsc_metadata_file
+        context['pac_metadata_file'] = pac_metadata_file
         context['cipe_metadata_file'] = cipe_metadata_file
 
         return  context
