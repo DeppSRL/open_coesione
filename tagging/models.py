@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 
 class Tag(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name='Termine')
     slug = AutoSlugField(populate_from='name')
 
     def __unicode__(self):
@@ -15,6 +15,9 @@ class TaggedItem(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey()
+
+    class Meta:
+        verbose_name = 'Tag'
 
 class ModelTagManager(models.Manager):
     def get_query_set(self):
