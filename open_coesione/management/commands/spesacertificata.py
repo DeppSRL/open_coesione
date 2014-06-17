@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from _csv import QUOTE_MINIMAL, QUOTE_ALL
 import codecs
 import os
 import re
@@ -44,7 +45,7 @@ class Command(BaseCommand):
     dates = ['20101231', '20111031', '20111231',
              '20120531', '20121031', '20121231',
              '20130531', '20131031', '20131231',
-             '20141231',
+             '20140531', '20141231',
              '20151231']
 
     # main data structure:
@@ -130,7 +131,7 @@ class Command(BaseCommand):
         try:
             self.unicode_reader = utils.UnicodeDictReader(
                 open(self.csv_file, 'r'), encoding=self.encoding,
-                dialect=utils.excel_semicolon
+                delimiter=",", quoting=QUOTE_MINIMAL
             )
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.csv_file)
@@ -212,7 +213,7 @@ class Command(BaseCommand):
             self.logger.info("  {0}".format(csv_out_file))
 
             csv_out_file_handler = open(csv_out_file, 'w')
-            csv_writer = utils.UnicodeWriter(csv_out_file_handler, encoding="utf-8")
+            csv_writer = utils.UnicodeWriter(csv_out_file_handler, encoding="utf-8", delimiter=",", quoting=QUOTE_ALL)
             csv_writer.writerow(csv_header)
 
             for p in data_item['programmi']:
@@ -223,9 +224,9 @@ class Command(BaseCommand):
                     data_item['obiettivo'], p['label'], data_item['fondo'], 'Risultato'
                 ]
                 for d in p['dati']:
-                    csv_target_row.append(d['target'])
+                    csv_target_row.append(str(round(float(d['target']),2)).replace(".", ","))
                     if 'result' in d:
-                        csv_result_row.append(d['result'])
+                        csv_result_row.append(str(round(float(d['result']),2)).replace(".", ","))
                     else:
                         csv_result_row.append('')
                 csv_writer.writerow(csv_target_row)

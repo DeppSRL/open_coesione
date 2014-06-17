@@ -304,7 +304,7 @@ class OpendataView(TemplateView):
 
         data_date = '20131231'
         cipe_date = '20121231'
-        spesa_date = '20131231'
+        spesa_date = '20140531'
         istat_date = '20140418'
 
         regions = SortedDict([
