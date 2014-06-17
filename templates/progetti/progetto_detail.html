@@ -491,6 +491,9 @@
                 {% if progetto.fin_altro_pubblico %}
                   <tr><th>Altra fonte pubblica</th><td class="amount"><strong>{{ progetto.fin_altro_pubblico|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
                 {% endif %}
+                {% if progetto.fin_risorse_liberate %}
+                  <tr><th>Risorse liberate</th><td class="amount"><strong>{{ progetto.fin_risorse_liberate|default_if_none:"0"|intcomma }}</strong> euro</td></tr>
+                {% endif %}
               </table>
             </div>
 
