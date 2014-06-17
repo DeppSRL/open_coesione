@@ -465,6 +465,7 @@ class Progetto(TimeStampedModel):
     fin_regione = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_provincia = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_comune = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fin_risorse_liberate = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_altro_pubblico = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_stato_estero = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     fin_privato = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
