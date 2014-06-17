@@ -127,9 +127,11 @@
                       onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">><i class="icon-download-alt"></i>
                   <span style="color:black;">{{ pillola.file.name|slice:"-3:"|lower }}: {{ pillola.file.size|filesizeformat }}</span></a>)
                   <br/>
+                {% if pillola.abstract %}
                   <p>
-                      {{ pillola.description|safe }}
+                    {{ pillola.abstract }}
                   </p>
+                {% endif %}
               </td>
             </tr>
           {% endfor %}
