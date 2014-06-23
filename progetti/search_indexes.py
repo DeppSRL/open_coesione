@@ -27,6 +27,7 @@ class ProgettoIndex(SearchIndex):
     fin_stato_estero = FloatField(model_attr='fin_stato_estero', null=True)
     fin_privato = FloatField(model_attr='fin_privato', null=True)
     fin_da_reperire = FloatField(model_attr='fin_da_reperire', null=True)
+    fin_risorse_liberate = FloatField(model_attr='fin_risorse_liberate', null=True)
     pagamento = FloatField(model_attr='pagamento', null=True)
     fondo = CharField(model_attr='fondo_comunitario', null=True)
 
