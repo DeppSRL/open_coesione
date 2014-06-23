@@ -89,18 +89,8 @@ def main_settings(request):
         )
         cache.set('programmi_pac_fsc', programmi_pac_fsc)
 
-    lista_programmi =  {
-        'fse': [p for p in programmi.order_by('descrizione') if ' FSE ' in p.descrizione.upper()],
-        'fesr': [p for p in programmi.order_by('descrizione') if ' FESR ' in p.descrizione.upper()],
-        'fsc_pra' : SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "(PRA)" in p.descrizione]))),
-        'pac_pac': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PAC " in p.descrizione]))),
-        'pac_fse': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fse]))),
-        'pac_fesr': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fesr]))),
-        'pac_fsc': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fsc]))),
-    }
-
     # some fsc lists must be built by hand
-    lista_programmi['fsc_pa'] = SortedDict([
+    lista_programmi_fsc_pa = SortedDict([
        (u'PROGRAMMA ATTUATIVO SPECIALE  FSC DIRETTRICI FERROVIARIE',
         u'2007IT001FA005'),
        (u'PROGRAMMA ATTUATIVO SPECIALE  FSC GIUSTIZIA CIVILE CELERE PER LA CRESCITA',
@@ -108,12 +98,25 @@ def main_settings(request):
        (u'PROGRAMMA ATTUATIVO SPECIALE  COMUNE DI PALERMO', u'2007SI002FAPA1'),
        (u'PROGRAMMA ATTUATIVO SPECIALE  RI.MED', u'2007IT002FA030'),
     ])
-    lista_programmi['fsc_par'] = SortedDict([
+    lista_programmi_fsc_par = SortedDict([
        (u'PROGRAMMA STRATEGICO FSC COMPENSAZIONI AMBIENTALI REGIONE CAMPANIA',
         u'2007IT005FAMAC'),
        (u'PROGRAMMA NAZIONALE  DI ATTUAZIONE (PNA) RISANAMENTO AMBIENTALE',
         u'2007IT004FAMA1')
     ])
+
+
+    lista_programmi =  {
+        'fse': [p for p in programmi.order_by('descrizione') if ' FSE ' in p.descrizione.upper()],
+        'fesr': [p for p in programmi.order_by('descrizione') if ' FESR ' in p.descrizione.upper()],
+        'fsc_pa': lista_programmi_fsc_pa,
+        'fsc_par': lista_programmi_fsc_par,
+        'fsc_pra' : SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "(PRA)" in p.descrizione]))),
+        'pac_pac': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PAC " in p.descrizione]))),
+        'pac_fse': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fse]))),
+        'pac_fesr': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fesr]))),
+        'pac_fsc': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fsc]))),
+    }
 
     return {
         'DEBUG': settings.DEBUG,
