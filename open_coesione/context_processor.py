@@ -92,13 +92,14 @@ def main_settings(request):
     lista_programmi =  {
         'fse': [p for p in programmi.order_by('descrizione') if ' FSE ' in p.descrizione.upper()],
         'fesr': [p for p in programmi.order_by('descrizione') if ' FESR ' in p.descrizione.upper()],
+        'fsc_pra' : SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "(PRA)" in p.descrizione]))),
         'pac_pac': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PAC " in p.descrizione]))),
         'pac_fse': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fse]))),
         'pac_fesr': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fesr]))),
         'pac_fsc': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fsc]))),
     }
 
-    lista_programmi['fsc_pra'] = SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "(PRA)" in p.descrizione]))),
+    # some fsc lists must be built by hand
     lista_programmi['fsc_pa'] = SortedDict([
        (u'PROGRAMMA ATTUATIVO SPECIALE  FSC DIRETTRICI FERROVIARIE',
         u'2007IT001FA005'),
