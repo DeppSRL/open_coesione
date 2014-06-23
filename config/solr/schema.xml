@@ -148,7 +148,7 @@
 
     <field name="clp" type="text" indexed="true" stored="true" multiValued="false" />
 
-    <field name="fonte" type="text" indexed="true" stored="true" multiValued="true" />
+    <field name="fonte" type="string" indexed="true" stored="true" multiValued="true" />
 
     <field name="tema_descr" type="text" indexed="true" stored="true" multiValued="false" />
 

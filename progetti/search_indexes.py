@@ -59,7 +59,7 @@ class ProgettoIndex(SearchIndex):
     # faceting fields
     natura = FacetCharField( )
     tema = FacetCharField( )
-    fonte = MultiValueField()
+    fonte = FacetMultiValueField()
     tipo_progetto = FacetCharField( )
     is_active = FacetBooleanField( model_attr='active_flag' )
     data_inizio = FacetDateField()
