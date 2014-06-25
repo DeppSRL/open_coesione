@@ -239,16 +239,17 @@
           <h1>{{ progetto.titolo_progetto }}</h1>
         </header>
 
+        {% if not overlapping_projects %}
         <p>
         {% if progetto.cipe_flag %}
-            {% if not overlapping_projects %}
             Data di ultimo stanziamento:
-            {% endif %}
         {% else %}
           Data di aggiornamento:
         {% endif %}
+
         <strong>{{ progetto.ultimo_aggiornamento|date:"d.m.Y" }}</strong>
         </p>
+        {% endif %}
 
         <ul class="unstyled">
           <li>
