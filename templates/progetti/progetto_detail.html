@@ -241,7 +241,9 @@
 
         <p>
         {% if progetto.cipe_flag %}
-          Data di ultimo stanziamento:
+            {% if not overlapping_projects %}
+            Data di ultimo stanziamento:
+            {% endif %}
         {% else %}
           Data di aggiornamento:
         {% endif %}
