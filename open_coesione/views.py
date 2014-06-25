@@ -344,7 +344,7 @@ class OpendataView(TemplateView):
     data_date = '20140228'
     cipe_date = '20121231'
     spesa_date = '20140531'
-    istat_date = '20140418'
+    istat_date = '20140624'
 
     def get_context_data(self, **kwargs):
         context = super(OpendataView, self).get_context_data(**kwargs)
