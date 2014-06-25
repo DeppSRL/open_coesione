@@ -1,4 +1,5 @@
 # coding=utf-8
+import glob
 import logging
 from datetime import datetime
 import os
@@ -344,7 +345,13 @@ class OpendataView(TemplateView):
     data_date = '20140228'
     cipe_date = '20121231'
     spesa_date = '20140531'
-    istat_date = '20140624'
+
+    # get istat_date from file system
+    OPEN_DATA_PATH = os.path.join(settings.MEDIA_ROOT, "open_data")
+    latest_istat_archive_file_path = sorted(glob.glob(
+            os.path.join(OPEN_DATA_PATH, "Indicatori_regionali_*.zip")
+        ))[-1]
+    istat_date = os.path.splitext(os.path.basename(latest_istat_archive_file_path))[0].split("_")[-1]
 
     def get_context_data(self, **kwargs):
         context = super(OpendataView, self).get_context_data(**kwargs)
