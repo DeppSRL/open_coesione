@@ -454,7 +454,7 @@ class TerritorioView(AccessControlView, AggregatoView, DetailView):
     model = 'Territorio'
 
     @cached_context
-    def get_context_data(self, **kwargs):
+    def get_cached_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(TerritorioView, self).get_context_data(**kwargs)
 
@@ -472,6 +472,11 @@ class TerritorioView(AccessControlView, AggregatoView, DetailView):
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
             filters=self.object.get_cod_dict()
         )
+
+        return context
+
+    def get_context_data(self, **kwargs):
+        context = self.get_cached_context_data(**kwargs)
 
         # use OpendataView instance to access istat_date and the get_complete_file method,
         # and avoid code duplication
