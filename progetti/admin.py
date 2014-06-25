@@ -26,7 +26,7 @@ class CUPSInline(admin.TabularInline):
 
 class ProgettoAdmin(admin.ModelAdmin):
     inlines = (LocalizzazioneInline, DeliberaCIPEInline, CUPSInline)
-    search_fields = ['^codice_locale',]
+    search_fields = ['^codice_locale','slug']
     filter_vertical = ('soggetto_set',)
     list_filter = ('cipe_flag',)
 
