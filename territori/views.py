@@ -88,7 +88,11 @@ class InfoView(JSONResponseMixin, TemplateView):
 
         programma = None
         if self.filter == 'programmi':
-            programma = ProgrammaAsseObiettivo.objects.get(codice=kwargs['slug'])
+            try:
+                programma = ProgrammaAsseObiettivo.objects.get(codice=kwargs['slug'])
+            except ObjectDoesNotExist:
+                programma = ProgrammaLineaAzione.objects.get(codice=kwargs['slug'])
+
             territori = [(t.denominazione, t.get_progetti_search_url(programma=programma))
                         for t in territorio_hierarchy]
 
