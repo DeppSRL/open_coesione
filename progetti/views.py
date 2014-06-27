@@ -151,7 +151,7 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
     context_object_name = 'tema'
 
     @cached_context
-    def get_context_data(self, **kwargs):
+    def get_cached_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(TemaView, self).get_context_data(**kwargs)
 
@@ -162,26 +162,11 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
         context['numero_soggetti'] = Soggetto.objects.count()
         context['map_selector'] = 'temi/{0}/'.format(self.kwargs['slug'])
 
-        logger.debug("build lista_indici_tema from csv file start")
-        context['lista_indici_tema'] = []
-        with open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))) as csvfile:
-            reader = csv.DictReader(csvfile)
-            for line in reader:
-                context['lista_indici_tema'].append(line)
-
-
         logger.debug("top_progetti_per_costo start")
         context['top_progetti_per_costo'] = Progetto.objects.con_tema(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
 
         logger.debug("ultimi_progetti_conclusi start")
         context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_tema(self.object)[:5]
-
-        # use OpendataView instance to access istat_date and the get_complete_file method,
-        # and avoid code duplication
-        odv = OpendataView()
-        istat_date = odv.istat_date
-        context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
-        context['istat_metadata_file'] = odv.get_complete_file("Metainformazione.xls")
 
         logger.debug("territori_piu_finanziati_pro_capite start")
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
@@ -191,6 +176,28 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
         )
 
         return context
+
+    def get_context_data(self, **kwargs):
+        logger = logging.getLogger('console')
+
+        context = self.get_cached_context_data(**kwargs)
+
+        # use OpendataView instance to access istat_date and the get_complete_file method,
+        # and avoid code duplication
+        odv = OpendataView()
+        istat_date = odv.istat_date
+        context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
+        context['istat_metadata_file'] = odv.get_complete_file("Metainformazione.xls")
+
+        logger.debug("build lista_indici_tema from csv file start")
+        context['lista_indici_tema'] = []
+        with open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for line in reader:
+                context['lista_indici_tema'].append(line)
+
+        return context
+
 
     def get_object(self, queryset=None, **kwargs):
         return Tema.objects.get(slug=self.kwargs.get('slug'))

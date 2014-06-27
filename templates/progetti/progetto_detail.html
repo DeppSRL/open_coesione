@@ -239,14 +239,17 @@
           <h1>{{ progetto.titolo_progetto }}</h1>
         </header>
 
+        {% if not overlapping_projects %}
         <p>
         {% if progetto.cipe_flag %}
-          Data di ultimo stanziamento:
+            Data di ultimo stanziamento:
         {% else %}
           Data di aggiornamento:
         {% endif %}
+
         <strong>{{ progetto.ultimo_aggiornamento|date:"d.m.Y" }}</strong>
         </p>
+        {% endif %}
 
         <ul class="unstyled">
           <li>
@@ -542,7 +545,7 @@
               {% if progetto.is_fonte_fs_flag %}
                 <dt>
                   {% if progetto.fondo_comunitario == 'fse' %}
-                    Fondo Strutturale Europeo (FSE)
+                    Fondo Sociale Europeo (FSE)
                   {% elif progetto.fondo_comunitario == 'fesr' %}
                     Fondo Europeo di Sviluppo Regionale (FESR)
                   {% endif %}
