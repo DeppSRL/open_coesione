@@ -659,12 +659,12 @@ class Command(BaseCommand):
         self.logger.info("Fine")
 
     def handle_projactive(self, *args, **options):
-        self._handle_proj(True, **options)
+        self._handle_proj(active_flag=True, **options)
 
     def handle_projinactive(self, *args, **options):
-        self._handle_proj(False, **options)
+        self._handle_proj(active_flag=False, **options)
 
-    def _handle_proj(self, active_flag, **options):
+    def _handle_proj(self, active_flag, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
         self.logger.info("Limit: %s" % options['limit'])
         self.logger.info("Offset: %s" % options['offset'])
