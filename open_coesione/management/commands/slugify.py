@@ -73,11 +73,11 @@ class Command(BaseCommand):
 
     def handle_proj(self, *args, **options):
         if options['reset']:
-            Progetto.objects.update(slug=None)
+            Progetto.fullobjects.update(slug=None)
             self.logger.info("progetti slugs have been reset. now exiting")
             return
 
-        progetti = Progetto.objects.filter(slug__isnull=True)
+        progetti = Progetto.fullobjects.filter(slug__isnull=True)
         self.logger.info("{0} progetti will be slugified".format(progetti.count()))
         for n, progetto in enumerate(progetti):
             progetto.slug = slugify(u"{0}".format(progetto.codice_locale))
