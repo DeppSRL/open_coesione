@@ -275,7 +275,7 @@
 	          {% endif %}
             {% if programma %}
 	            <h1 class="title black" style="margin-bottom: 0;"><span>Programma: {{ programma.descrizione }}</span></h1>
-                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&selected_facets=fonte_fin:{{ programma.codice }}">Vai a tutti i progetti</a></p>
+                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&fonte_fin={{ programma.codice }}">Vai a tutti i progetti</a></p>
             {% endif %}
             {% if tema %}
 	            <h1 class="title black" style="margin-bottom: 0;"><span>Tema: {{ tema.short_label }}</span></h1>

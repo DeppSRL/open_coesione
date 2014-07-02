@@ -51,6 +51,7 @@ class RangeFacetedSearchForm(SearchForm):
 
         # aggiunge filtro fonte_fin, se presente
         if self.is_valid() and self.cleaned_data.get('fonte_fin'):
-            sqs = sqs.filter_and(fonte_fin=self.cleaned_data['fonte_fin'])
+            fonte_fin_list = self.cleaned_data.get('fonte_fin').split(',')
+            sqs = sqs.filter_and(fonte_fin__in=fonte_fin_list)
 
         return sqs
