@@ -9,6 +9,7 @@ from optparse import make_option
 from decimal import Decimal
 import re
 import csv
+import csvkit
 import logging
 import datetime
 
@@ -33,7 +34,7 @@ class Command(BaseCommand):
         make_option('--type',
                     dest='type',
                     default=None,
-                    help='Type of import: proj|proj-inactive|loc|rec|cups|desc|pay'),
+                    help='Type of import: proj|projinactive|loc|rec|cups|desc|pay'),
         make_option('--limit',
                     dest='limit',
                     default=0,
@@ -63,7 +64,7 @@ class Command(BaseCommand):
 
         # read first csv file
         try:
-            self.unicode_reader = utils.UnicodeDictReader(open(self.csv_file, 'r'), delimiter=';', encoding=self.encoding)
+            self.unicode_reader = csvkit.CSVKitDictReader(open(self.csv_file, 'r'), delimiter=';', encoding=self.encoding)
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.csv_file)
             exit(1)
@@ -100,7 +101,7 @@ class Command(BaseCommand):
         elif options['type'] == 'pay':
             self.handle_payments(*args, **options)
         else:
-            self.logger.error("Wrong type %s. Select among proj, proj-inactive, loc, rec, cups, desc and pay." % options['type'])
+            self.logger.error("Wrong type %s. Select among proj, projinactive, loc, rec, cups, desc and pay." % options['type'])
             exit(1)
 
     def handle_payments(self, *args, **options):
@@ -247,7 +248,7 @@ class Command(BaseCommand):
         try:
             self.unicode_reader = utils.UnicodeDictReader(
                 open(self.csv_file, 'r'),
-                delimiter='|', encoding=self.encoding
+                delimiter=',', encoding=self.encoding
             )
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.csv_file)
@@ -622,7 +623,7 @@ class Command(BaseCommand):
                     self.logger.fatal("Chiave primaria mancante")
                     quit()
 
-                progetto = Progetto.objects.get(pk=pk_progetto)
+                progetto = Progetto.fullobjects.get(pk=pk_progetto)
             except ObjectDoesNotExist:
                 progetto = None
                 self.logger.warning("%d - Progetto non trovato: %s" % (c, pk_progetto))
@@ -658,12 +659,12 @@ class Command(BaseCommand):
         self.logger.info("Fine")
 
     def handle_projactive(self, *args, **options):
-        self._handle_proj(True, **options)
+        self._handle_proj(active_flag=True, **options)
 
     def handle_projinactive(self, *args, **options):
-        self._handle_proj(False, **options)
+        self._handle_proj(active_flag=False, **options)
 
-    def _handle_proj(self, active_flag, **options):
+    def _handle_proj(self, active_flag, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
         self.logger.info("Limit: %s" % options['limit'])
         self.logger.info("Offset: %s" % options['offset'])
@@ -765,7 +766,7 @@ class Command(BaseCommand):
                 'DPS_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_COD_OBIETTIVO_OPERATIVO',
                 'DPS_DESCRIZIONE_PROGRAMMA', 'PO_DENOMINAZIONE_ASSE', 'PO_OBIETTIVO_OPERATIVO'
             ]
-            if all(k in r for k in keywords):
+            if all(k in r for k in keywords) and all(r[k].strip() for k in keywords):
                 try:
                     programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
                         codice=r['DPS_CODICE_PROGRAMMA'],
@@ -817,7 +818,9 @@ class Command(BaseCommand):
                 'DPS_CODICE_PROGRAMMA', 'COD_LINEA', 'COD_AZIONE',
                 'DPS_DESCRIZIONE_PROGRAMMA', 'DESCR_LINEA', 'DESCR_AZIONE'
             ]
-            if all(k in r for k in keywords):
+
+            # only complete and non-empty classifications are created or updated
+            if all(k in r for k in keywords) and all(r[k].strip() for k in keywords):
                 try:
                     programma, created = ProgrammaLineaAzione.objects.get_or_create(
                         codice=r['DPS_CODICE_PROGRAMMA'],
@@ -909,6 +912,8 @@ class Command(BaseCommand):
                     tipo_fonte = Fonte.TIPO.fsc
                 elif 'FS' in r['DPS_COD_FONTE']:
                     tipo_fonte = Fonte.TIPO.fs
+                elif r['DPS_COD_FONTE'] == 'PAC':
+                    tipo_fonte = Fonte.TIPO.pac
                 else:
                     tipo_fonte = None
 
@@ -933,6 +938,13 @@ class Command(BaseCommand):
             try:
                 # eccezione accorpamento beni e servizi
                 cup_cod_natura = r['CUP_COD_NATURA']
+                if cup_cod_natura.strip() == '':
+                    cup_cod_natura = ' '
+
+                # if cup_cod_natura.strip() == '':
+                #     self.logger.error("%s: Empty CUP_COD_NATURA. Skipping" % codice_locale)
+                #     continue
+
                 cup_descr_natura = r['CUP_DESCR_NATURA']
                 if cup_cod_natura == '02':
                     cup_cod_natura = '01'
@@ -1018,61 +1030,66 @@ class Command(BaseCommand):
                              (codice_locale, e))
                 continue
 
-            values = {}
+            try:
+                values = {}
 
-            values['titolo_progetto'] = self._get_value(r, 'DPS_TITOLO_PROGETTO')
-            values['active_flag'] = active_flag
-            values['cipe_flag'] = False
+                values['titolo_progetto'] = r['DPS_TITOLO_PROGETTO']
+                values['active_flag'] = active_flag
+                values['cipe_flag'] = False
 
-            values['classificazione_qsn'] = qsn_obiettivo_specifico
-            values['obiettivo_sviluppo'] = obiettivo_sviluppo
-            values['tema'] = tema_prioritario
-            values['classificazione_azione'] = natura_tipologia
-            values['classificazione_oggetto'] = settore_sottosettore_categoria
+                values['classificazione_qsn'] = qsn_obiettivo_specifico
+                values['obiettivo_sviluppo'] = obiettivo_sviluppo
+                values['tema'] = tema_prioritario
+                values['classificazione_azione'] = natura_tipologia
+                values['classificazione_oggetto'] = settore_sottosettore_categoria
 
-            values['cup'] = self._get_value(r, 'CUP')
+                values['cup'] = r['CUP'].strip()
 
-            # totale finanziamento
-            values['fin_totale_pubblico'] = self._get_value(r, 'FINANZ_TOTALE_PUBBLICO', 'decimal')
+                # totale finanziamento
+                values['fin_totale_pubblico'] = self._get_value(r, 'FINANZ_TOTALE_PUBBLICO', 'decimal')
 
-            # aggiustamenti dovuti alle economie
-            values['fin_totale_pubblico_netto'] = self._get_value(r, 'DPS_FINANZ_TOT_PUB_NETTO', 'decimal')
-            values['economie_totali'] = self._get_value(r, 'ECONOMIE_TOTALI', 'decimal')
-            values['economie_totali_pubbliche'] = self._get_value(r, 'ECONOMIE_TOTALI_PUBBLICHE', 'decimal')
+                # aggiustamenti dovuti alle economie
+                values['fin_totale_pubblico_netto'] = self._get_value(r, 'DPS_FINANZ_TOT_PUB_NETTO', 'decimal')
+                values['economie_totali'] = self._get_value(r, 'ECONOMIE_TOTALI', 'decimal')
+                values['economie_totali_pubbliche'] = self._get_value(r, 'ECONOMIE_TOTALI_PUBBLICHE', 'decimal')
 
-            values['fin_ue'] = self._get_value(r, 'FINANZ_UE', 'decimal')
-            values['fin_stato_fondo_rotazione'] = self._get_value(r, 'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'decimal')
-            values['fin_stato_pac'] = self._get_value(r, 'FINANZ_STATO_PAC', 'decimal')
-            values['fin_stato_fsc'] = self._get_value(r, 'FINANZ_STATO_FSC', 'decimal')
-            values['fin_stato_altri_provvedimenti'] = self._get_value(r, 'FINANZ_STATO_ALTRI_PROVVEDIMENTI', 'decimal')
-            values['fin_regione'] = self._get_value(r, 'FINANZ_REGIONE', 'decimal')
-            values['fin_provincia'] = self._get_value(r, 'FINANZ_PROVINCIA', 'decimal')
-            values['fin_comune'] = self._get_value(r, 'FINANZ_COMUNE', 'decimal')
-            values['fin_risorse_liberate'] = self._get_value(r, 'FINANZ_RISORSE_LIBERATE', 'decimal')
-            values['fin_altro_pubblico'] = self._get_value(r, 'FINANZ_ALTRO_PUBBLICO', 'decimal')
-            values['fin_stato_estero'] = self._get_value(r, 'FINANZ_STATO_ESTERO', 'decimal')
-            values['fin_privato'] = self._get_value(r, 'FINANZ_PRIVATO', 'decimal')
-            values['fin_da_reperire'] = self._get_value(r, 'FINANZ_DA_REPERIRE', 'decimal')
+                values['fin_ue'] = self._get_value(r, 'FINANZ_UE', 'decimal')
+                values['fin_stato_fondo_rotazione'] = self._get_value(r, 'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'decimal')
+                values['fin_stato_pac'] = self._get_value(r, 'FINANZ_STATO_PAC', 'decimal')
+                values['fin_stato_fsc'] = self._get_value(r, 'FINANZ_STATO_FSC', 'decimal')
+                values['fin_stato_altri_provvedimenti'] = self._get_value(r, 'FINANZ_STATO_ALTRI_PROVVEDIMENTI', 'decimal')
+                values['fin_regione'] = self._get_value(r, 'FINANZ_REGIONE', 'decimal')
+                values['fin_provincia'] = self._get_value(r, 'FINANZ_PROVINCIA', 'decimal')
+                values['fin_comune'] = self._get_value(r, 'FINANZ_COMUNE', 'decimal')
+                values['fin_risorse_liberate'] = self._get_value(r, 'FINANZ_RISORSE_LIBERATE', 'decimal')
+                values['fin_altro_pubblico'] = self._get_value(r, 'FINANZ_ALTRO_PUBBLICO', 'decimal')
+                values['fin_stato_estero'] = self._get_value(r, 'FINANZ_STATO_ESTERO', 'decimal')
+                values['fin_privato'] = self._get_value(r, 'FINANZ_PRIVATO', 'decimal')
+                values['fin_da_reperire'] = self._get_value(r, 'FINANZ_DA_REPERIRE', 'decimal')
 
-            values['pagamento'] = self._get_value(r, 'TOT_PAGAMENTI', 'decimal')
-            values['pagamento_fsc'] = self._get_value(r, 'TOT_PAGAMENTI_FSC', 'decimal')
+                values['pagamento'] = self._get_value(r, 'TOT_PAGAMENTI', 'decimal')
+                values['pagamento_fsc'] = self._get_value(r, 'TOT_PAGAMENTI_FSC', 'decimal')
 
-            values['costo_ammesso'] = self._get_value(r, 'COSTO_RENDICONTABILE_UE', 'decimal')
-            values['pagamento_ammesso'] = self._get_value(r, 'TOT_PAGAMENTI_RENDICONTABILI_UE', 'decimal')
+                values['costo_ammesso'] = self._get_value(r, 'COSTO_RENDICONTABILE_UE', 'decimal')
+                values['pagamento_ammesso'] = self._get_value(r, 'TOT_PAGAMENTI_RENDICONTABILI_UE', 'decimal')
 
-            # date
-            values['data_inizio_prevista'] = self._get_value(r, 'DATA_INIZIO_PREVISTA', 'date')
-            values['data_fine_prevista'] = self._get_value(r, 'DATA_FINE_PREVISTA', 'date')
-            values['data_inizio_effettiva'] = self._get_value(r, 'DATA_INIZIO_EFFETTIVA', 'date')
-            values['data_fine_effettiva'] = self._get_value(r, 'DATA_FINE_EFFETTIVA', 'date')
+                # date
+                values['data_inizio_prevista'] = self._get_value(r, 'DPS_DATA_INIZIO_PREVISTA', 'date')
+                values['data_fine_prevista'] = self._get_value(r, 'DPS_DATA_FINE_PREVISTA', 'date')
+                values['data_inizio_effettiva'] = self._get_value(r, 'DPS_DATA_INIZIO_EFFETTIVA', 'date')
+                values['data_fine_effettiva'] = self._get_value(r, 'DPS_DATA_FINE_EFFETTIVA', 'date')
 
-            # data ultimo aggiornamento progetto
-            values['data_aggiornamento'] = self._get_value(r, 'DATA_AGGIORNAMENTO', 'date')
+                # data ultimo aggiornamento progetto
+                values['data_aggiornamento'] = self._get_value(r, 'DATA_AGGIORNAMENTO', 'date')
 
-            values['dps_flag_presenza_date'] = self._get_value(r, 'DPS_FLAG_PRESENZA_DATE')
-            values['dps_flag_date_previste'] = self._get_value(r, 'DPS_FLAG_COERENZA_DATE_PREV')
-            values['dps_flag_date_effettive'] = self._get_value(r, 'DPS_FLAG_COERENZA_DATE_EFF')
-            values['dps_flag_cup'] = self._get_value(r, 'DPS_FLAG_CUP')
+                values['dps_flag_presenza_date'] = r['DPS_FLAG_PRESENZA_DATE']
+                values['dps_flag_date_previste'] = r['DPS_FLAG_COERENZA_DATE_PREV']
+                values['dps_flag_date_effettive'] = r['DPS_FLAG_COERENZA_DATE_EFF']
+                values['dps_flag_cup'] = r['DPS_FLAG_CUP']
+                values['dps_flag_pac'] = r['DPS_FLAG_PAC']
+            except ValueError as e:
+                self.logger.error('%s: %s. Skipping' % (codice_locale, e))
+                continue
 
             # progetto
             try:
@@ -1090,10 +1107,11 @@ class Command(BaseCommand):
                     elif values['active_flag'] == True:
                         self.logger.info("%s: Progetto trovato, sovrascritto e riattivato: %s" % (c, p.codice_locale))
                     else:
-                        self.logger.info("%s: Progetto trovato, sovrascritto e disattivato: %s" % (c, p.codice_locale))
+                        self.logger.error("%s: Trovato progetto attivo da disattivare. Skipping" % codice_locale)
+                        continue
 
                     # modifica di tutti i campi del progetto, in base ai valori del CSV
-                    for key, value in values:
+                    for key, value in values.items():
                         setattr(p, key, value)
 
                     p.save()
@@ -1155,7 +1173,7 @@ class Command(BaseCommand):
             cipe_flag = True
             cipe_num_delibera = int(r['NUM_DELIBERA']) if r['NUM_DELIBERA'].strip() else None
             cipe_anno_delibera = r['ANNO_DELIBERA'].strip() if r['ANNO_DELIBERA'].strip() else None
-            cipe_data_adozione = datetime.datetime.strptime(r['DATA_ADOZIONE_TEMP'], '%Y%m%d') if r['DATA_ADOZIONE_TEMP'].strip() else None
+            cipe_data_adozione = datetime.datetime.strptime(r['DATA_ADOZIONE'], '%Y%m%d') if r['DATA_ADOZIONE'].strip() else None
             cipe_data_pubblicazione = datetime.datetime.strptime(r['DATA_PUBBLICAZIONE'], '%Y%m%d') if r['DATA_PUBBLICAZIONE'].strip() else None
             cipe_finanziamento = Decimal(r['ASSEGNAZIONE_CIPE'].replace(',','.')) if r['ASSEGNAZIONE_CIPE'].strip() else None
             cipe_note = r['NOTE'].strip() if r['NOTE'].strip() else ''
@@ -1573,7 +1591,7 @@ class Command(BaseCommand):
             u'ENERGIA E EFFICIENZA ENERGETICA': 'Energia e efficienza energetica',
             u'AGENDA DIGITALE': 'Agenda digitale',
             u'AMBIENTE E PREVENZIONE DEI RISCHI': 'Ambiente e prevenzione dei rischi',
-            u'RAFFORZAMENTO CAPACITÀ DELLA PA': 'Rafforzamento capacità della PA',
+            u'RAFFORZAMENTO DELLE CAPACITÀ DELLA PA': 'Rafforzamento capacità della PA',
             u'RINNOVAMENTO URBANO E RURALE': 'Rinnovamento urbano e rurale',
             u'AEREOPORTUALI': 'Trasporti e infrastrutture a rete',
             u'TRASPORTI E INFRASTRUTTURE A RETE': 'Trasporti e infrastrutture a rete',
