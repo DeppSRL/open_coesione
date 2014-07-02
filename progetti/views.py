@@ -360,6 +360,10 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
             try:
                 extra['fonte_fin'] = ProgrammaAsseObiettivo.objects.get(pk=fonte_fin)
             except ObjectDoesNotExist:
+                try:
+                    extra['fonte_fin'] = ProgrammaLineaAzione.objects.get(pk=fonte_fin)
+                except ObjectDoesNotExist:
+                    pass
                 pass
 
         soggetto_slug = self.request.GET.get('soggetto', None)
