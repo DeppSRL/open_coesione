@@ -1064,7 +1064,7 @@ class Command(BaseCommand):
             fin_regione = Decimal(r['FINANZ_REGIONE'].replace(',','.')) if r['FINANZ_REGIONE'].strip() else None
             fin_provincia = Decimal(r['FINANZ_PROVINCIA'].replace(',','.')) if r['FINANZ_PROVINCIA'].strip() else None
             fin_comune = Decimal(r['FINANZ_COMUNE'].replace(',','.')) if r['FINANZ_COMUNE'].strip() else None
-            fin_risorse_liberate = Decimal(r['FINANZ_RISORSE_LIBERATE'].replace(',','.')) if r['FINANZ_RISORSE_LIBERATE'].strip() else None
+            fin_risorse_liberate = Decimal(r['FINANZ_RISORSE_LIBERATE'].replace(',','.')) if 'FINANZ_RISORSE_LIBERATE' in r and r['FINANZ_RISORSE_LIBERATE'].strip() else None
             fin_altro_pubblico = Decimal(r['FINANZ_ALTRO_PUBBLICO'].replace(',','.')) if r['FINANZ_ALTRO_PUBBLICO'].strip() else None
             fin_stato_estero = Decimal(r['FINANZ_STATO_ESTERO'].replace(',','.')) if r['FINANZ_STATO_ESTERO'].strip() else None
             fin_privato = Decimal(r['FINANZ_PRIVATO'].replace(',','.')) if r['FINANZ_PRIVATO'].strip() else None
