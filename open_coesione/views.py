@@ -342,7 +342,7 @@ class OpendataView(TemplateView):
     """
 
     # dates are attributes in the view, so that it can possibly be used in other views
-    data_date = '20140228'
+    data_date = '20140430'
     cipe_date = '20121231'
     spesa_date = '20140531'
 
