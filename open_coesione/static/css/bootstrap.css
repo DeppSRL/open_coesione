@@ -5703,6 +5703,9 @@ hr.big.dark {
 #open-data-download h3 {
   text-transform: none;
 }
+#open-data-download h2 {
+  margin-top: 1.8em;
+}
 #open-data-download .table td {
   text-align: right;
   width: 29%;
