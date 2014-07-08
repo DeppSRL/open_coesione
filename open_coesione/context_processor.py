@@ -97,14 +97,16 @@ def main_settings(request):
         u'2007IT005FAMG1'),
        (u'PROGRAMMA ATTUATIVO SPECIALE  COMUNE DI PALERMO', u'2007SI002FAPA1'),
        (u'PROGRAMMA ATTUATIVO SPECIALE  RI.MED', u'2007IT002FA030'),
-    ])
-    lista_programmi_fsc_par = SortedDict([
        (u'PROGRAMMA STRATEGICO FSC COMPENSAZIONI AMBIENTALI REGIONE CAMPANIA',
         u'2007IT005FAMAC'),
-       (u'PROGRAMMA NAZIONALE  DI ATTUAZIONE (PNA) RISANAMENTO AMBIENTALE',
-        u'2007IT004FAMA1')
     ])
 
+    lista_programmi_fsc_par = SortedDict(
+        sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PAR" == p.descrizione[:3]]))
+    )
+    lista_programmi_fsc_pna = SortedDict([
+        (u'PROGRAMMA NAZIONALE  DI ATTUAZIONE (PNA) RISANAMENTO AMBIENTALE', u'2007IT004FAMA1')
+    ])
 
     lista_programmi =  {
         'fse': [p for p in programmi.order_by('descrizione') if ' FSE ' in p.descrizione.upper()],
@@ -112,6 +114,7 @@ def main_settings(request):
         'fsc_pa': lista_programmi_fsc_pa,
         'fsc_par': lista_programmi_fsc_par,
         'fsc_pra' : SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "(PRA)" in p.descrizione]))),
+        'fsc_pna' : lista_programmi_fsc_pna,
         'pac_pac': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PAC " in p.descrizione]))),
         'pac_fse': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fse]))),
         'pac_fesr': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fesr]))),
