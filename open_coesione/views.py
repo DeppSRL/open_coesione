@@ -324,7 +324,7 @@ class ContactView(TemplateView):
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
 
-            return HttpResponseRedirect( "{0}?completed=true".format(reverse('oc_contatti')) ) # Redirect after POST
+            return HttpResponseRedirect( "{0}?completed=true".format(reverse('oc-contatti')) ) # Redirect after POST
 
         return self.get(request, *args, **kwargs)
 
@@ -541,6 +541,12 @@ class OpendataView(TemplateView):
                 'file_size': file_size
             })
         return files
+
+
+class EmbedPdfView(TemplateView):
+    template_name = 'open_coesione/pdfview.html'
+    def get_context_data(self, **kwargs):
+        context = super(EmbedPdfView, self).get_context_data(**kwargs)
 
 
 class PilloleRedirectView(RedirectView):
