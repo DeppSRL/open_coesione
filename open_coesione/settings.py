@@ -122,6 +122,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -138,6 +139,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.flatpages',
     'grappelli.dashboard',
     'grappelli',
     'filebrowser',
@@ -384,3 +386,4 @@ BIG_SOGGETTI_THRESHOLD = 50
 GRAPPELLI_ADMIN_TITLE = "Amministrazione di OpenCoesione"
 GRAPPELLI_INDEX_DASHBOARD = 'open_coesione.dashboard.CustomIndexDashboard'
 FILEBROWSER_STRICT_PIL = True
+FILEBROWSER_VERSIONS_BASEDIR = '_versions'

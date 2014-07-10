@@ -5747,3 +5747,6 @@ hr.big.dark {
   margin-top: 1em;
   text-transform: none;
 }
+body#tinymce {
+  margin: 10px;
+}

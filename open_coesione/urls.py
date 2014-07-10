@@ -85,6 +85,7 @@ urlpatterns = patterns('',
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),
 )
 
+
 if settings.DEBUG:
     urlpatterns += patterns('',
         (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes':True}),
@@ -96,3 +97,8 @@ urlpatterns += patterns('',
     (r'^tinymce/', include('tinymce.urls')),
 
 )
+
+urlpatterns += patterns('django.contrib.flatpages.views',
+    url(r'^about-us/$', 'flatpage', {'url': '/about-us/'}, name='about'),
+)
+
