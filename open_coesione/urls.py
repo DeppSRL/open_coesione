@@ -5,6 +5,7 @@ from django.views.generic.base import TemplateView
 from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView, PressView, SpesaCertificataView, \
     OpendataView, PilloleView, PillolaView, OpendataRedirectView, PilloleRedirectView, FAQView, EmbedPdfView
 from rubrica.views import NLContactView
+from filebrowser.sites import site
 
 admin.autodiscover()
 
@@ -13,6 +14,8 @@ urlpatterns = patterns('',
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # admin
+    url(r'^admin/filebrowser/', include(site.urls)),
+    url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
 
     # home
@@ -95,6 +98,7 @@ urlpatterns = patterns('',
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),
 )
 
+
 if settings.DEBUG:
     urlpatterns += patterns('',
         (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes':True}),
@@ -106,3 +110,8 @@ urlpatterns += patterns('',
     (r'^tinymce/', include('tinymce.urls')),
 
 )
+
+urlpatterns += patterns('django.contrib.flatpages.views',
+    url(r'^about-us/$', 'flatpage', {'url': '/about-us/'}, name='about'),
+)
+
