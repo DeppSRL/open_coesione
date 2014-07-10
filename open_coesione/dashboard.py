@@ -27,6 +27,7 @@ class CustomIndexDashboard(Dashboard):
             collapsible=True,
             column=1,
             css_classes=('collapse closed',),
+            models=('blog.*', 'idioticon.*', 'rubrica.*', 'tagging.*', 'open_coesione.*', 'progetti.*', 'soggetti.*', 'territori.*',),
             exclude=('django.contrib.*',),
         ))
         
@@ -34,17 +35,22 @@ class CustomIndexDashboard(Dashboard):
         self.children.append(modules.ModelList(
             _('ModelList: Administration'),
             column=1,
-            collapsible=False,
-            models=('django.contrib.*',),
+            collapsible=True,
+            models=('django.contrib.auth.*','django.contrib.sites.*'),
         ))
-        
+
         # append another link list module for "support".
         self.children.append(modules.LinkList(
-            _('Media Management'),
+            _('Content Management'),
             column=2,
             children=[
                 {
-                    'title': _('FileBrowser'),
+                    'title': 'Pagine flat',
+                    'url': '/admin/flatpages/flatpage/',
+                    'external': False,
+                },
+                {
+                    'title': 'Files e immagini',
                     'url': '/admin/filebrowser/browse/',
                     'external': False,
                 },
@@ -53,7 +59,7 @@ class CustomIndexDashboard(Dashboard):
         
         # append another link list module for "support".
         self.children.append(modules.LinkList(
-            'Collegamenti',
+            'Collegamenti utili',
             column=2,
             children=[
                 {
@@ -77,7 +83,7 @@ class CustomIndexDashboard(Dashboard):
         # append a recent actions module
         self.children.append(modules.RecentActions(
             _('Recent Actions'),
-            limit=5,
+            limit=10,
             collapsible=False,
             column=3,
         ))
