@@ -102,7 +102,7 @@ class Config:
         return lista_programmi
 
 class GruppoProgrammi:
-    CODICI = {'ue-fesr', 'ue-fse', 'fsc', 'pac'}
+    CODICI = ['ue-fesr', 'ue-fse', 'fsc', 'pac']
 
     def __init__(self, codice):
         if codice in self.CODICI:
