@@ -7,7 +7,7 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
-from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaAsseObiettivoManager, FullProgettiManager, ProgrammaLineaAzioneManager
+from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaManager, FullProgettiManager
 from django.core.cache import cache
 import logging
 from soggetti.models import Soggetto
@@ -65,6 +65,8 @@ class Documento(models.Model):
 
 class ProgrammaBase(models.Model):
 
+    objects = ProgrammaManager()
+
     TIPO = {}
 
     classificazione_superiore = models.ForeignKey('self', default=None,
@@ -102,8 +104,6 @@ class ProgrammaBase(models.Model):
 
 class ProgrammaAsseObiettivo(ProgrammaBase):
 
-    objects = ProgrammaAsseObiettivoManager()
-
     TIPO = Choices(
         ('PROGRAMMA_FS', 'programma', u'Programma FS'),
         ('ASSE', 'asse', u'Asse'),
@@ -133,7 +133,6 @@ class ProgrammaLineaAzione(ProgrammaBase):
     Classificazione alternativa a ProgrammaAsseObiettivo,
     per progetti in attuazione nel contesto FSC.
     """
-    objects = ProgrammaLineaAzioneManager()
 
     TIPO = Choices(
         ('PROGRAMMA', 'programma', u'Programma'),

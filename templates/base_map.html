@@ -267,7 +267,7 @@
 
         <div class="span6">
 
-          {% if territorio or programma or tema or tipologia %}
+          {% if territorio or programma or gruppo_programmi or tema or tipologia %}
           <div class="page-header">
             {% if territorio %}
 						<h1 class="title black" style="margin-bottom: 0;"><span>{% if territorio.territorio != 'N' %}{{ territorio.get_territorio_display }} {% if territorio.territorio != 'R' %}di {% endif %}{% endif %}{{ territorio }}</span></h1>
@@ -276,6 +276,10 @@
             {% if programma %}
 	            <h1 class="title black" style="margin-bottom: 0;"><span>Programma: {{ programma.descrizione }}</span></h1>
                 <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&fonte_fin={{ programma.codice }}">Vai a tutti i progetti</a></p>
+            {% endif %}
+            {% if gruppo_programmi %}
+	            <h1 class="title black" style="margin-bottom: 0;"><span>{{ gruppo_programmi.descrizione }}</span></h1>
+                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&gruppo_programmi={{ gruppo_programmi.codice }}">Vai a tutti i progetti</a></p>
             {% endif %}
             {% if tema %}
 	            <h1 class="title black" style="margin-bottom: 0;"><span>Tema: {{ tema.short_label }}</span></h1>

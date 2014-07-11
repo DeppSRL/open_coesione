@@ -69,6 +69,10 @@
             <p>per questo programma: <a href="{% url 'progetti_programma' fonte_fin.codice %}">{{ fonte_fin }}</a></p>
         {% endif %}
 
+        {% if gruppo_programmi %}
+            <p>per i <a href="{% url 'progetti_programmi' gruppo_programmi.codice %}">{{ gruppo_programmi.descrizione }}</a></p>
+        {% endif %}
+
         <hr class="big">
 
         <table class="search-results table">

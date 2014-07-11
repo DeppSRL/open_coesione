@@ -118,7 +118,9 @@
           jQuery('.submenu').not($(this).parents('.submenu')).children('ul').removeClass('submenu-show').addClass('submenu-hide');
           jQuery(this).children('ul').removeClass('submenu-hide').addClass('submenu-show');
           event.stopPropagation();
-        }).find("a:first").append(" &raquo; ");
+        }).children('a').append(' &raquo; ').click(function(event){
+          event.preventDefault();
+        });
 
         $('.navbar-search select').change(function(){
           $('.navbar-search input').attr('placeholder', 'Cerca tra i '+ $(this).val());
