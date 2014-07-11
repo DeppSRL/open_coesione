@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 from django.views.decorators.cache import cache_page
 from django.views.generic.base import TemplateView
 from progetti.search_querysets import sqs
-from progetti.views import ProgettoSearchView, ProgettoView, TipologiaView, TipologiaCSVView, TemaCSVView, TemaView, SegnalaDescrizioneView, SegnalazioneDetailView, ProgettoCSVSearchView, ProgettoCSVPreviewSearchView, ProgettoLocCSVPreviewSearchView, ProgettoLocCSVSearchView, ProgettoFullCSVSearchView, ProgrammaView
+from progetti.views import ProgettoSearchView, ProgettoView, TipologiaView, TipologiaCSVView, TemaCSVView, TemaView, SegnalaDescrizioneView, SegnalazioneDetailView, ProgettoCSVSearchView, ProgettoCSVPreviewSearchView, ProgettoLocCSVPreviewSearchView, ProgettoLocCSVSearchView, ProgettoFullCSVSearchView, ProgrammaView, ProgrammiView
 
 
 urlpatterns = patterns('',
@@ -35,6 +35,9 @@ urlpatterns = patterns('',
 
     # programmi
     url(r'^programmi/(?P<codice>[\w]+)/$', ProgrammaView.as_view(), name='progetti_programma'),
+
+    # gruppo programmi
+    url(r'^gruppo-programmi/(?P<slug>[\w-]+)/$', ProgrammiView.as_view(), name='progetti_programmi'),
 
     # csv comuni procapite per tema
     # TODO: url(r'^temi/(?P<slug>[\w-]+).csv$', cache_page(settings.CACHE_PAGE_DURATION_SECS, TemaCSVView.as_view(), key_prefix='temi'), name='progetti_tema_csv'),

@@ -131,6 +131,9 @@ class AggregatoView(object):
         if len(filter) > 1:
             raise Exception('Only one filter kwargs is accepted')
 
+        if 'programma' in filter:
+            raise Exception('Filter "programma" is deprecated')
+
         # read tematizzazione GET param
         tematizzazione = self.request.GET.get('tematizzazione', 'totale_costi')
 
@@ -145,7 +148,6 @@ class AggregatoView(object):
             context['totale_pagamenti'] /
             context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0
         )
-
 
         query_models = {
             'temi_principali' : {
@@ -169,6 +171,8 @@ class AggregatoView(object):
             query_filters = dict(soggetto=filter['soggetto'])
         elif 'programma' in filter:
             query_filters = dict(programma=filter['programma'])
+        elif 'programmi' in filter:
+            query_filters = dict(programmi=filter['programmi'])
         elif 'tema' in filter:
             query_filters = dict(tema=filter['tema'])
             del query_models['temi_principali']
@@ -200,12 +204,19 @@ class AggregatoView(object):
         return context
 
     def top_comuni_pro_capite(self, filters, qnt=5):
+        if isinstance(filters, dict):
+            args = []
+            kwargs = filters
+        else:
+            args = filters
+            kwargs = {}
+
         # add filters on active projects, to avoid computation errors
-        filters.update({
+        kwargs.update({
             'progetto__active_flag': True,
         })
 
-        queryset = Territorio.objects.comuni().filter( **filters ).defer('geom')\
+        queryset = Territorio.objects.comuni().filter(*args, **kwargs).defer('geom')\
             .annotate( totale=models.Sum('progetto__fin_totale_pubblico'))\
             .filter( totale__isnull=False )
 

@@ -26,4 +26,8 @@ urlpatterns = patterns('',
         LeafletView.as_view(inner_filter='programma'), name='territori_leaflet_regioni_programma'),
     url(r'^programmi/(?P<codice>[\w]+)/province.(?P<ext>(json|html))$',
         LeafletView.as_view(inner_filter='programma'), name='territori_leaflet_province_programma'),
+    url(r'^gruppo-programmi/(?P<slug>[-\w]+)/regioni.(?P<ext>(json|html))$',
+        LeafletView.as_view(inner_filter='gruppo_programmi'), name='territori_leaflet_regioni_gruppoprogrammi'),
+    url(r'^gruppo-programmi/(?P<slug>[-\w]+)/province.(?P<ext>(json|html))$',
+        LeafletView.as_view(inner_filter='gruppo_programmi'), name='territori_leaflet_province_gruppoprogrammi'),
 )

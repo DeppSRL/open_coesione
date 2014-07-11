@@ -199,7 +199,11 @@ class Territorio(models.Model):
 
         if 'programma' in kwargs:
             programma = kwargs['programma']
-            search_url += "&selected_facets=fonte_fin:{0}".format(programma.codice)
+            search_url += "&fonte_fin={0}".format(programma.codice)
+
+        if 'gruppo_programmi' in kwargs:
+            gruppo_programmi = kwargs['gruppo_programmi']
+            search_url += "&gruppo_programmi={0}".format(gruppo_programmi.codice)
 
         for t in self.get_hierarchy():
             d = t.get_cod_dict()
