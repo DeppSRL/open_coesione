@@ -1116,22 +1116,22 @@ class Command(BaseCommand):
 
                     p.save()
 
-                # add fonte to project
-                # a single project may have more than one fonte
-                # adding more than once does no harm (no duplicates, no errors)
-                # no need to save the project, after adding
+                # remove old fonti, before adding new one
+                # multiple fonti are added back in the sostituzioni management task
+                old_fonti = p.fonte_set.all()
+                for f in old_fonti:
+                    p.fonte_set.remove(f)
+                self.logger.debug("  Rimosse fonti precedenti")
+
+                # add fonte, as specified in the CSV record
                 p.fonte_set.add(fonte)
 
-                # overlapping variables are not overwritten
-                if programma_asse_obiettivo:
-                    p.programma_asse_obiettivo = programma_asse_obiettivo
-                if programma_linea_azione:
-                    p.programma_linea_azione = programma_linea_azione
-                if fondo_comunitario:
-                    p.fondo_comunitario = fondo_comunitario
+                # overlapping variables are overwritten
+                p.programma_asse_obiettivo = programma_asse_obiettivo
+                p.programma_linea_azione = programma_linea_azione
+                p.fondo_comunitario = fondo_comunitario
 
                 p.save()
-
 
                 # remove local variable p from the namespace, may free some memory
                 del p

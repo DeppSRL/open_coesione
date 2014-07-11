@@ -387,3 +387,11 @@ GRAPPELLI_ADMIN_TITLE = "Amministrazione di OpenCoesione"
 GRAPPELLI_INDEX_DASHBOARD = 'open_coesione.dashboard.CustomIndexDashboard'
 FILEBROWSER_STRICT_PIL = True
 FILEBROWSER_VERSIONS_BASEDIR = '_versions'
+FILEBROWSER_SEARCH_TRAVERSE = True
+FILEBROWSER_SELECT_FORMATS = {
+    'file': ['Folder','Image','Document','Video','Audio'],
+    'image': ['Image'],
+    'document': ['Document'],
+    'media': ['Video','Audio'],
+
+}
