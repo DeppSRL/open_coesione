@@ -1,10 +1,9 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.gis import admin
-from django.contrib.flatpages.views import flatpage
 from django.conf import settings
 from django.views.generic.base import TemplateView
-from open_coesione.views import HomeView, FondiView, RisorseView, CGView, ContactView, PressView, SpesaCertificataView, \
-    OpendataView, PilloleView, PillolaView, OpendataRedirectView, PilloleRedirectView, FAQView, EmbedPdfView
+from open_coesione.views import HomeView, FondiView, RisorseView, ContactView, PressView, SpesaCertificataView, \
+    OpendataView, PilloleView, PillolaView, OpendataRedirectView, PilloleRedirectView, FAQView, DatiISTATView
 from rubrica.views import NLContactView
 from filebrowser.sites import site
 
@@ -38,6 +37,9 @@ urlpatterns = patterns('',
     url(r'^pillole/(?P<path>.+)$', PilloleRedirectView.as_view(), name='pillole_clean'),
     url(r'^pillole/$', PilloleView.as_view(), name='pillole'),
     url(r'^pillola/(?P<slug>[\w-]+)/$', PillolaView.as_view(), name='pillola_item'),
+
+    # dati ISTAT di contesto
+    url(r'^dati-istat-di-contesto/$', DatiISTATView.as_view(), name='dati-istat'),
 
     # faq
     url(r'^faq/$', FAQView.as_view(lang='it'), name='faq-it'),
