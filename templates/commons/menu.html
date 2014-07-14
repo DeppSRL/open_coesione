@@ -149,8 +149,8 @@
                       <ul>
                         <!--
                         <li><a href="{% url 'progetti_programmi' 'pac' %}">Tutti</a></li>
-                        -->
                         <li class="divider"></li>
+                        -->
                         {% for pdesc,pcode in lista_programmi.pac_pac.items %}
                             <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
                         {% endfor %}
