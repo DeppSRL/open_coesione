@@ -1117,7 +1117,7 @@ class Command(BaseCommand):
                     p.save()
 
                 # remove old fonti, before adding new one
-                # multiple fonti are added back in the sostituzioni management task
+                # multiple fonti are added back in the sovrapposizioni management task
                 old_fonti = p.fonte_set.all()
                 for f in old_fonti:
                     p.fonte_set.remove(f)

@@ -76,15 +76,18 @@ class Config:
             cache.set('programmi_pac_fsc', programmi_pac_fsc)
 
         # some fsc lists must be built by hand
-        lista_programmi_fsc_par = SortedDict([
-           (u'PROGRAMMA STRATEGICO FSC COMPENSAZIONI AMBIENTALI REGIONE CAMPANIA', u'2007IT005FAMAC'),
-           (u'PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) RISANAMENTO AMBIENTALE', u'2007IT004FAMA1')
-        ])
+        lista_programmi_fsc_par = SortedDict(
+            sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PAR" == p.descrizione[:3]]))
+        )
         lista_programmi_fsc_pa = SortedDict([
            (u'PROGRAMMA ATTUATIVO SPECIALE FSC DIRETTRICI FERROVIARIE', u'2007IT001FA005'),
            (u'PROGRAMMA ATTUATIVO SPECIALE FSC GIUSTIZIA CIVILE CELERE PER LA CRESCITA', u'2007IT005FAMG1'),
            (u'PROGRAMMA ATTUATIVO SPECIALE COMUNE DI PALERMO', u'2007SI002FAPA1'),
            (u'PROGRAMMA ATTUATIVO SPECIALE RI.MED', u'2007IT002FA030'),
+           (u'PROGRAMMA STRATEGICO FSC COMPENSAZIONI AMBIENTALI REGIONE CAMPANIA', u'2007IT005FAMAC'),
+        ])
+        lista_programmi_fsc_pna = SortedDict([
+           (u'PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) RISANAMENTO AMBIENTALE', u'2007IT004FAMA1')
         ])
 
         lista_programmi =  {
@@ -93,6 +96,7 @@ class Config:
             'fsc_par': lista_programmi_fsc_par,
             'fsc_pa': lista_programmi_fsc_pa,
             'fsc_pra' : SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "(PRA)" in p.descrizione]))),
+            'fsc_pna': lista_programmi_fsc_pna,
             'pac_pac': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PAC " in p.descrizione]))),
             'pac_fse': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fse]))),
             'pac_fesr': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fesr]))),
@@ -119,7 +123,8 @@ class GruppoProgrammi:
                 self._programmi = lista_programmi[self._codice.replace('ue-', '')]
             elif self._codice == 'fsc' or self._codice == 'pac':
                 if self._codice == 'fsc':
-                    ids = lista_programmi['fsc_par'].values() + lista_programmi['fsc_pa'].values() + lista_programmi['fsc_pra'].values()
+                    ids = lista_programmi['fsc_par'].values() + lista_programmi['fsc_pa'].values() + \
+                          lista_programmi['fsc_pra'].values() + lista_programmi['fsc_pna'].values()
                 else:
                     ids = lista_programmi['pac_pac'].values()
 

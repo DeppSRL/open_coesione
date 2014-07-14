@@ -694,7 +694,7 @@ class Progetto(TimeStampedModel):
     @property
     def fonte_fin(self):
         """
-        return the first level of programma_asse_obiettivo classification
+        return the first level of programma (asse-obiettivo/linea-azione) classification
         which is used in the fonte_fin filtering of search results
         """
         if self.programma_asse_obiettivo:
@@ -703,6 +703,23 @@ class Progetto(TimeStampedModel):
             return self.programma_linea_azione.programma
         else:
             return None
+
+    @property
+    def fonti_fin(self):
+        """
+        return an array with the first levels of
+        programma_asse_obiettivo or
+        programma_linea_azione classifications
+        which is used in the fonte_fin filtering of search results
+        """
+        fonti_fin = []
+        if self.programma_asse_obiettivo:
+            fonti_fin.append(self.programma_asse_obiettivo.programma)
+        if self.programma_linea_azione:
+            fonti_fin.append(self.programma_linea_azione.programma)
+
+        return fonti_fin
+
 
     def save(self, force_insert=False, force_update=False, using=None):
         # force re-computation of finanziamento totale and notes from delibere
