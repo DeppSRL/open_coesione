@@ -108,10 +108,13 @@ class ProgrammaBaseView(AccessControlView, AggregatoView, TemplateView):
 class ProgrammiView(ProgrammaBaseView):
     template_name = 'progetti/programmi_detail.html'
 
+    def get_object(self):
+        return GruppoProgrammi(codice=self.kwargs.get('slug'))
+
     @cached_context
     def get_context_data(self, **kwargs):
         try:
-            gruppo_programmi = GruppoProgrammi(codice=self.kwargs.get('slug'))
+            gruppo_programmi = self.get_object()
         except:
             raise Http404
 
@@ -132,15 +135,22 @@ class ProgrammiView(ProgrammaBaseView):
 class ProgrammaView(ProgrammaBaseView):
     template_name = 'progetti/programma_detail.html'
 
-    @cached_context
-    def get_context_data(self, **kwargs):
+
+    def get_object(self):
         try:
-            programma = ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
+            return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
         except ObjectDoesNotExist:
             try:
-                programma = ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
+                return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
             except ObjectDoesNotExist:
-                raise Http404
+                return None
+
+    @cached_context
+    def get_context_data(self, **kwargs):
+
+        programma = self.get_object()
+        if programma is None:
+            raise Http404
 
         kwargs.update({
             'programmi': [programma]
