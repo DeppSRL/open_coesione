@@ -121,7 +121,7 @@
           {% for pillola in latest_pillole %}
             <tr>
               <td>
-                  <a href="/{{ pillola.file.name }}"
+                  <a href="{% url 'pillola_item' pillola.slug %}"
                      onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>{{ pillola.title }}</a>
                   (<a href="/{{ pillola.file.name }}"
                       onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">><i class="icon-download-alt"></i>
