@@ -9,6 +9,7 @@ from optparse import make_option
 from decimal import Decimal
 import re
 import csv
+import csvkit
 import logging
 import datetime
 
@@ -33,7 +34,7 @@ class Command(BaseCommand):
         make_option('--type',
                     dest='type',
                     default=None,
-                    help='Type of import: proj|loc|rec|cups|desc|pay'),
+                    help='Type of import: proj|projinactive|loc|rec|cups|desc|pay'),
         make_option('--limit',
                     dest='limit',
                     default=0,
@@ -63,7 +64,7 @@ class Command(BaseCommand):
 
         # read first csv file
         try:
-            self.unicode_reader = utils.UnicodeDictReader(open(self.csv_file, 'r'), delimiter=';', encoding=self.encoding)
+            self.unicode_reader = csvkit.CSVKitDictReader(open(self.csv_file, 'r'), delimiter=';', encoding=self.encoding)
         except IOError:
             self.logger.error("It was impossible to open file %s" % self.csv_file)
             exit(1)
@@ -82,7 +83,9 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         if options['type'] == 'proj':
-            self.handle_proj(*args, **options)
+            self.handle_projactive(*args, **options)
+        elif options['type'] == 'projinactive':
+            self.handle_projinactive(*args, **options)
         elif options['type'] == 'cipeproj':
             self.handle_cipeproj(*args, **options)
         elif options['type'] == 'loc':
@@ -98,7 +101,7 @@ class Command(BaseCommand):
         elif options['type'] == 'pay':
             self.handle_payments(*args, **options)
         else:
-            self.logger.error("Wrong type %s. Select among proj, loc and rec." % options['type'])
+            self.logger.error("Wrong type %s. Select among proj, projinactive, loc, rec, cups, desc and pay." % options['type'])
             exit(1)
 
     def handle_payments(self, *args, **options):
@@ -145,7 +148,7 @@ class Command(BaseCommand):
 
             # fetch progetto from cod_locale_progetto
             try:
-                progetto = Progetto.objects.get( pk=project_code )
+                progetto = Progetto.fullobjects.get( pk=project_code )
                 self.logger.debug("%s] - Progetto: %s" % (c, progetto.codice_locale))
                 stats['Progetti trovati nel db'] += 1
             except Progetto.DoesNotExist:
@@ -655,14 +658,20 @@ class Command(BaseCommand):
 
         self.logger.info("Fine")
 
-    def handle_proj(self, *args, **options):
+    def handle_projactive(self, *args, **options):
+        self._handle_proj(active_flag=True, **options)
+
+    def handle_projinactive(self, *args, **options):
+        self._handle_proj(active_flag=False, **options)
+
+    def _handle_proj(self, active_flag, *args, **options):
         self.logger.info("Inizio import da %s" % self.csv_file)
         self.logger.info("Limit: %s" % options['limit'])
         self.logger.info("Offset: %s" % options['offset'])
 
         # check whether to remove records
         if options['delete']:
-            Progetto.objects.all().delete()
+            Progetto.fullobjects.filter(active_flag=active_flag).all().delete()
             ProgrammaAsseObiettivo.objects.all().delete()
             ClassificazioneQSN.objects.all().delete()
             ClassificazioneAzione.objects.all().delete()
@@ -685,7 +694,6 @@ class Command(BaseCommand):
 
             # classificazione QSN
             if r['QSN_COD_PRIORITA'].strip():
-                created = False
                 qsn_codice_priorita = r['QSN_COD_PRIORITA']
                 qsn_priorita, created = ClassificazioneQSN.objects.get_or_create(
                     codice=qsn_codice_priorita,
@@ -697,7 +705,6 @@ class Command(BaseCommand):
                 if created:
                     self.logger.info(u"Aggiunta priorità QSN: %s" % qsn_priorita.codice)
 
-                created = False
                 qsn_obiettivo_generale, created = ClassificazioneQSN.objects.get_or_create(
                     codice=r['QSN_COD_OBIETTIVO_GENERALE'],
                     tipo_classificazione=ClassificazioneQSN.TIPO.generale,
@@ -710,7 +717,6 @@ class Command(BaseCommand):
                     self.logger.info("Aggiunto obiettivo generale QSN: %s (%s)" %
                                       (qsn_obiettivo_generale.codice, qsn_priorita.codice))
 
-                created = False
                 qsn_obiettivo_specifico, created = ClassificazioneQSN.objects.get_or_create(
                     codice=r['QSN_CODICE_OBIETTIVO_SPECIFICO'],
                     tipo_classificazione=ClassificazioneQSN.TIPO.specifico,
@@ -733,7 +739,7 @@ class Command(BaseCommand):
             obiettivo_sviluppo = ''
             if 'QSN_AREA_OBIETTIVO_UE' in r:
                 field = re.sub(' +',' ',r['QSN_AREA_OBIETTIVO_UE'].encode('ascii', 'ignore')).strip()
-                if field :
+                if field:
                     try:
                         obiettivo_sviluppo = [k for k, v in dict(Progetto.OBIETTIVO_SVILUPPO).iteritems() if v.encode('ascii', 'ignore') == field][0]
                         self.logger.debug("Trovato obiettivo sviluppo: %s" % obiettivo_sviluppo)
@@ -762,7 +768,6 @@ class Command(BaseCommand):
             ]
             if all(k in r for k in keywords) and all(r[k].strip() for k in keywords):
                 try:
-                    created = False
                     programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
                         codice=r['DPS_CODICE_PROGRAMMA'],
                         tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma,
@@ -775,7 +780,6 @@ class Command(BaseCommand):
                     else:
                         self.logger.debug("Trovato programma: %s" % (programma,))
 
-                    created = False
                     programma_asse, created = ProgrammaAsseObiettivo.objects.get_or_create(
                         codice="%s/%s" % (r['DPS_CODICE_PROGRAMMA'], r['PO_CODICE_ASSE']),
                         tipo_classificazione=ProgrammaAsseObiettivo.TIPO.asse,
@@ -789,7 +793,6 @@ class Command(BaseCommand):
                     else:
                         self.logger.debug("Trovato asse: %s" % (programma_asse,))
 
-                    created = False
                     programma_asse_obiettivo, created = ProgrammaAsseObiettivo.objects.get_or_create(
                         codice="%s/%s/%s" % (r['DPS_CODICE_PROGRAMMA'], r['PO_CODICE_ASSE'], r['PO_COD_OBIETTIVO_OPERATIVO']),
                         tipo_classificazione=ProgrammaAsseObiettivo.TIPO.obiettivo,
@@ -819,7 +822,6 @@ class Command(BaseCommand):
             # only complete and non-empty classifications are created or updated
             if all(k in r for k in keywords) and all(r[k].strip() for k in keywords):
                 try:
-                    created = False
                     programma, created = ProgrammaLineaAzione.objects.get_or_create(
                         codice=r['DPS_CODICE_PROGRAMMA'],
                         tipo_classificazione=ProgrammaLineaAzione.TIPO.programma,
@@ -832,7 +834,6 @@ class Command(BaseCommand):
                     else:
                         self.logger.debug("Trovato programma (linea-azione): %s" % (programma,))
 
-                    created = False
                     programma_linea, created = ProgrammaLineaAzione.objects.get_or_create(
                         codice="%s/%s" % (r['DPS_CODICE_PROGRAMMA'], r['COD_LINEA']),
                         tipo_classificazione=ProgrammaLineaAzione.TIPO.linea,
@@ -846,7 +847,6 @@ class Command(BaseCommand):
                     else:
                         self.logger.debug("Trovata linea: %s" % (programma_linea,))
 
-                    created = False
                     programma_linea_azione, created = ProgrammaLineaAzione.objects.get_or_create(
                         codice="%s/%s/%s" % (r['DPS_CODICE_PROGRAMMA'], r['COD_LINEA'], r['COD_AZIONE']),
                         tipo_classificazione=ProgrammaLineaAzione.TIPO.azione,
@@ -868,7 +868,6 @@ class Command(BaseCommand):
 
             # tema
             try:
-                created = False
                 tema_sintetico, created = Tema.objects.get_or_create(
                     descrizione=r['DPS_TEMA_SINTETICO'],
                     tipo_tema=Tema.TIPO.sintetico,
@@ -887,7 +886,6 @@ class Command(BaseCommand):
                 continue
 
             try:
-                created = False
                 cod_tema_prioritario = r['QSN_COD_TEMA_PRIORITARIO_UE']
                 tema_prioritario, created = Tema.objects.get_or_create(
                     codice="%s.%s" % (tema_sintetico.codice, cod_tema_prioritario),
@@ -919,7 +917,6 @@ class Command(BaseCommand):
                 else:
                     tipo_fonte = None
 
-                created = False
                 fonte, created = Fonte.objects.get_or_create(
                     codice="%s" % (r['DPS_COD_FONTE']),
                     defaults={
@@ -939,10 +936,15 @@ class Command(BaseCommand):
 
             # classificazione azione (natura e tipologia)
             try:
-                created = False
-
                 # eccezione accorpamento beni e servizi
                 cup_cod_natura = r['CUP_COD_NATURA']
+                if cup_cod_natura.strip() == '':
+                    cup_cod_natura = ' '
+
+                # if cup_cod_natura.strip() == '':
+                #     self.logger.error("%s: Empty CUP_COD_NATURA. Skipping" % codice_locale)
+                #     continue
+
                 cup_descr_natura = r['CUP_DESCR_NATURA']
                 if cup_cod_natura == '02':
                     cup_cod_natura = '01'
@@ -963,7 +965,6 @@ class Command(BaseCommand):
                 else:
                     self.logger.debug("Trovata classificazione azione natura: %s" % (natura.codice,))
 
-                created = False
                 natura_tipologia, created = ClassificazioneAzione.objects.get_or_create(
                     codice="%s.%s" % (cup_cod_natura, r['CUP_COD_TIPOLOGIA']),
                     tipo_classificazione=ClassificazioneAzione.TIPO.tipologia,
@@ -984,7 +985,6 @@ class Command(BaseCommand):
 
             # classificazione oggetto
             try:
-                created = False
                 settore, created = ClassificazioneOggetto.objects.get_or_create(
                     codice=r['CUP_COD_SETTORE'],
                     tipo_classificazione=ClassificazioneOggetto.TIPO.settore,
@@ -995,7 +995,6 @@ class Command(BaseCommand):
                 if created:
                     self.logger.info("Aggiunta classificazione oggetto settore: %s" % (settore.codice,))
 
-                created = False
                 settore_sottosettore, created = ClassificazioneOggetto.objects.get_or_create(
                     codice="%s.%s" % (r['CUP_COD_SETTORE'], r['CUP_COD_SOTTOSETTORE']),
                     tipo_classificazione=ClassificazioneOggetto.TIPO.sottosettore,
@@ -1011,7 +1010,6 @@ class Command(BaseCommand):
                     self.logger.debug("Trovata classificazione oggetto settore_sottosettore: %s" %
                                      (settore_sottosettore.codice,))
 
-                created = False
                 settore_sottosettore_categoria, created = ClassificazioneOggetto.objects.get_or_create(
                     codice="%s.%s.%s" % (r['CUP_COD_SETTORE'], r['CUP_COD_SOTTOSETTORE'], r['CUP_COD_CATEGORIA']),
                     tipo_classificazione=ClassificazioneOggetto.TIPO.categoria,
@@ -1032,186 +1030,116 @@ class Command(BaseCommand):
                              (codice_locale, e))
                 continue
 
-            cipe_flag = False
-            if 'NUM_DELIBERA' in r.keys():
-                cipe_num_delibera = int(r['NUM_DELIBERA']) if r['NUM_DELIBERA'].strip() else None
-                cipe_anno_delibera = r['ANNO_DELIBERA'].strip() if r['ANNO_DELIBERA'].strip() else None
-                cipe_data_adozione = datetime.datetime.strptime(r['DATA_ADOZIONE'], '%Y%m%d') if r['DATA_ADOZIONE'].strip() else None
-                cipe_data_pubblicazione = datetime.datetime.strptime(r['DATA_PUBBLICAZIONE'], '%Y%m%d') if r['DATA_PUBBLICAZIONE'].strip() else None
-                cipe_note = r['NOTE'].strip() if r['NOTE'].strip() else None
-                if cipe_num_delibera is not None:
-                    cipe_flag = True
-            else:
-                cipe_num_delibera = None
-                cipe_anno_delibera = None
-                cipe_data_adozione = None
-                cipe_data_pubblicazione = None
-                cipe_note = None
-                
-            # totale finanziamento
-            fin_totale_pubblico = Decimal(r['FINANZ_TOTALE_PUBBLICO'].replace(',','.')) if r['FINANZ_TOTALE_PUBBLICO'].strip() else None
+            try:
+                values = {}
 
-            # aggiustamenti dovuti alle economie
-            fin_totale_pubblico_netto = Decimal(r['DPS_FINANZ_TOT_PUB_NETTO'].replace(',','.')) if r['DPS_FINANZ_TOT_PUB_NETTO'].strip() else None
-            economie_totali = Decimal(r['ECONOMIE_TOTALI'].replace(',','.')) if r['ECONOMIE_TOTALI'].strip() else None
-            economie_totali_pubbliche = Decimal(r['ECONOMIE_TOTALI_PUBBLICHE'].replace(',','.')) if r['ECONOMIE_TOTALI_PUBBLICHE'].strip() else None
+                values['titolo_progetto'] = r['DPS_TITOLO_PROGETTO']
+                values['active_flag'] = active_flag
+                values['cipe_flag'] = False
 
-            fin_ue = Decimal(r['FINANZ_UE'].replace(',','.')) if r['FINANZ_UE'].strip() else None
-            fin_stato_fondo_rotazione = Decimal(r['FINANZ_STATO_FONDO_DI_ROTAZIONE'].replace(',','.')) if r['FINANZ_STATO_FONDO_DI_ROTAZIONE'].strip() else None
-            fin_stato_pac = Decimal(r['FINANZ_STATO_PAC'].replace(',','.')) if r['FINANZ_STATO_PAC'].strip() else None
-            fin_stato_fsc = Decimal(r['FINANZ_STATO_FSC'].replace(',','.')) if r['FINANZ_STATO_FSC'].strip() else None
-            fin_stato_altri_provvedimenti = Decimal(r['FINANZ_STATO_ALTRI_PROVVEDIMENTI'].replace(',','.')) if r['FINANZ_STATO_ALTRI_PROVVEDIMENTI'].strip() else None
-            fin_regione = Decimal(r['FINANZ_REGIONE'].replace(',','.')) if r['FINANZ_REGIONE'].strip() else None
-            fin_provincia = Decimal(r['FINANZ_PROVINCIA'].replace(',','.')) if r['FINANZ_PROVINCIA'].strip() else None
-            fin_comune = Decimal(r['FINANZ_COMUNE'].replace(',','.')) if r['FINANZ_COMUNE'].strip() else None
-            fin_risorse_liberate = Decimal(r['FINANZ_RISORSE_LIBERATE'].replace(',','.')) if 'FINANZ_RISORSE_LIBERATE' in r and r['FINANZ_RISORSE_LIBERATE'].strip() else None
-            fin_altro_pubblico = Decimal(r['FINANZ_ALTRO_PUBBLICO'].replace(',','.')) if r['FINANZ_ALTRO_PUBBLICO'].strip() else None
-            fin_stato_estero = Decimal(r['FINANZ_STATO_ESTERO'].replace(',','.')) if r['FINANZ_STATO_ESTERO'].strip() else None
-            fin_privato = Decimal(r['FINANZ_PRIVATO'].replace(',','.')) if r['FINANZ_PRIVATO'].strip() else None
-            fin_da_reperire = Decimal(r['FINANZ_DA_REPERIRE'].replace(',','.')) if r['FINANZ_DA_REPERIRE'].strip() else None
+                values['classificazione_qsn'] = qsn_obiettivo_specifico
+                values['obiettivo_sviluppo'] = obiettivo_sviluppo
+                values['tema'] = tema_prioritario
+                values['classificazione_azione'] = natura_tipologia
+                values['classificazione_oggetto'] = settore_sottosettore_categoria
 
-            pagamento = Decimal(r['TOT_PAGAMENTI'].replace(',','.')) if r['TOT_PAGAMENTI'].strip() else None
-            pagamento_fsc = Decimal(r['TOT_PAGAMENTI_FSC'].replace(',','.')) if 'TOT_PAGAMENTI_FSC' in r and r['TOT_PAGAMENTI_FSC'].strip() else None
+                values['cup'] = r['CUP'].strip()
 
-            costo_ammesso = Decimal(r['COSTO_RENDICONTABILE_UE'].replace(',','.')) if 'COSTO_RENDICONTABILE_UE' in r and r['COSTO_RENDICONTABILE_UE'].strip() else None
-            pagamento_ammesso = Decimal(r['TOT_PAGAMENTI_RENDICONTABILI_UE'].replace(',','.')) if 'TOT_PAGAMENTI_RENDICONTABILI_UE' in r and r['TOT_PAGAMENTI_RENDICONTABILI_UE'].strip() else None
+                # totale finanziamento
+                values['fin_totale_pubblico'] = self._get_value(r, 'FINANZ_TOTALE_PUBBLICO', 'decimal')
 
-            # date
-            data_inizio_prevista = datetime.datetime.strptime(r['DPS_DATA_INIZIO_PREVISTA'], '%Y%m%d') if r['DPS_DATA_INIZIO_PREVISTA'].strip() else None
-            data_fine_prevista = datetime.datetime.strptime(r['DPS_DATA_FINE_PREVISTA'], '%Y%m%d') if r['DPS_DATA_FINE_PREVISTA'].strip() else None
-            data_inizio_effettiva = datetime.datetime.strptime(r['DPS_DATA_INIZIO_EFFETTIVA'], '%Y%m%d') if r['DPS_DATA_INIZIO_EFFETTIVA'].strip() else None
-            data_fine_effettiva = datetime.datetime.strptime(r['DPS_DATA_FINE_EFFETTIVA'], '%Y%m%d') if r['DPS_DATA_FINE_EFFETTIVA'].strip() else None
+                # aggiustamenti dovuti alle economie
+                values['fin_totale_pubblico_netto'] = self._get_value(r, 'DPS_FINANZ_TOT_PUB_NETTO', 'decimal')
+                values['economie_totali'] = self._get_value(r, 'ECONOMIE_TOTALI', 'decimal')
+                values['economie_totali_pubbliche'] = self._get_value(r, 'ECONOMIE_TOTALI_PUBBLICHE', 'decimal')
 
-            # data ultimo aggiornamento progetto
-            data_aggiornamento = datetime.datetime.strptime(r['DATA_AGGIORNAMENTO'], '%Y%m%d') if r['DATA_AGGIORNAMENTO'].strip() else None
+                values['fin_ue'] = self._get_value(r, 'FINANZ_UE', 'decimal')
+                values['fin_stato_fondo_rotazione'] = self._get_value(r, 'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'decimal')
+                values['fin_stato_pac'] = self._get_value(r, 'FINANZ_STATO_PAC', 'decimal')
+                values['fin_stato_fsc'] = self._get_value(r, 'FINANZ_STATO_FSC', 'decimal')
+                values['fin_stato_altri_provvedimenti'] = self._get_value(r, 'FINANZ_STATO_ALTRI_PROVVEDIMENTI', 'decimal')
+                values['fin_regione'] = self._get_value(r, 'FINANZ_REGIONE', 'decimal')
+                values['fin_provincia'] = self._get_value(r, 'FINANZ_PROVINCIA', 'decimal')
+                values['fin_comune'] = self._get_value(r, 'FINANZ_COMUNE', 'decimal')
+                values['fin_risorse_liberate'] = self._get_value(r, 'FINANZ_RISORSE_LIBERATE', 'decimal')
+                values['fin_altro_pubblico'] = self._get_value(r, 'FINANZ_ALTRO_PUBBLICO', 'decimal')
+                values['fin_stato_estero'] = self._get_value(r, 'FINANZ_STATO_ESTERO', 'decimal')
+                values['fin_privato'] = self._get_value(r, 'FINANZ_PRIVATO', 'decimal')
+                values['fin_da_reperire'] = self._get_value(r, 'FINANZ_DA_REPERIRE', 'decimal')
 
+                values['pagamento'] = self._get_value(r, 'TOT_PAGAMENTI', 'decimal')
+                values['pagamento_fsc'] = self._get_value(r, 'TOT_PAGAMENTI_FSC', 'decimal')
+
+                values['costo_ammesso'] = self._get_value(r, 'COSTO_RENDICONTABILE_UE', 'decimal')
+                values['pagamento_ammesso'] = self._get_value(r, 'TOT_PAGAMENTI_RENDICONTABILI_UE', 'decimal')
+
+                # date
+                values['data_inizio_prevista'] = self._get_value(r, 'DPS_DATA_INIZIO_PREVISTA', 'date')
+                values['data_fine_prevista'] = self._get_value(r, 'DPS_DATA_FINE_PREVISTA', 'date')
+                values['data_inizio_effettiva'] = self._get_value(r, 'DPS_DATA_INIZIO_EFFETTIVA', 'date')
+                values['data_fine_effettiva'] = self._get_value(r, 'DPS_DATA_FINE_EFFETTIVA', 'date')
+
+                # data ultimo aggiornamento progetto
+                values['data_aggiornamento'] = self._get_value(r, 'DATA_AGGIORNAMENTO', 'date')
+
+                values['dps_flag_presenza_date'] = r['DPS_FLAG_PRESENZA_DATE']
+                values['dps_flag_date_previste'] = r['DPS_FLAG_COERENZA_DATE_PREV']
+                values['dps_flag_date_effettive'] = r['DPS_FLAG_COERENZA_DATE_EFF']
+                values['dps_flag_cup'] = r['DPS_FLAG_CUP']
+                values['dps_flag_pac'] = r['DPS_FLAG_PAC']
+            except ValueError as e:
+                self.logger.error('%s: %s. Skipping' % (codice_locale, e))
+                continue
 
             # progetto
             try:
                 # fetch o creazione del progetto, basandosi sul codice locale
                 p, created = Progetto.fullobjects.get_or_create(
-                    codice_locale=codice_locale,
-                    defaults={
-                        'classificazione_qsn': qsn_obiettivo_specifico,
-                        'titolo_progetto': r['DPS_TITOLO_PROGETTO'],
-                        'cup': r['CUP'].strip(),
-                        'obiettivo_sviluppo': obiettivo_sviluppo,
-                        'tema': tema_prioritario,
-                        'classificazione_azione': natura_tipologia,
-                        'classificazione_oggetto': settore_sottosettore_categoria,
-                        'cipe_num_delibera': cipe_num_delibera,
-                        'cipe_anno_delibera': cipe_anno_delibera,
-                        'cipe_data_adozione': cipe_data_adozione,
-                        'cipe_data_pubblicazione': cipe_data_pubblicazione,
-                        'note': cipe_note,
-                        'cipe_flag': cipe_flag,
-                        'fin_totale_pubblico': fin_totale_pubblico,
-                        'fin_totale_pubblico_netto': fin_totale_pubblico_netto,
-                        'economie_totali': economie_totali,
-                        'economie_totali_pubbliche': economie_totali_pubbliche,
-                        'fin_ue': fin_ue,
-                        'fin_stato_fondo_rotazione': fin_stato_fondo_rotazione,
-                        'fin_stato_pac': fin_stato_pac,
-                        'fin_stato_fsc': fin_stato_fsc,
-                        'fin_stato_altri_provvedimenti': fin_stato_altri_provvedimenti,
-                        'fin_regione': fin_regione,
-                        'fin_provincia': fin_provincia,
-                        'fin_comune': fin_comune,
-                        'fin_risorse_liberate': fin_risorse_liberate,
-                        'fin_altro_pubblico': fin_altro_pubblico,
-                        'fin_stato_estero': fin_stato_estero,
-                        'fin_privato': fin_privato,
-                        'fin_da_reperire': fin_da_reperire,
-                        'costo_ammesso': costo_ammesso,
-                        'pagamento': pagamento,
-                        'pagamento_ammesso': pagamento_ammesso,
-                        'pagamento_fsc': pagamento_fsc,
-                        'data_inizio_prevista': data_inizio_prevista,
-                        'data_fine_prevista': data_fine_prevista,
-                        'data_inizio_effettiva': data_inizio_effettiva,
-                        'data_fine_effettiva': data_fine_effettiva,
-                        'data_aggiornamento': data_aggiornamento,
-                        'dps_flag_presenza_date': r['DPS_FLAG_PRESENZA_DATE'],
-                        'dps_flag_date_previste': r['DPS_FLAG_COERENZA_DATE_PREV'],
-                        'dps_flag_date_effettive': r['DPS_FLAG_COERENZA_DATE_EFF'],
-                        'dps_flag_cup': r['DPS_FLAG_CUP'],
-                        'dps_flag_pac': r['DPS_FLAG_PAC'],
-                    }
+                    codice_locale = codice_locale,
+                    defaults = values
                 )
 
                 if created:
                     self.logger.info("%s: Creazione progetto nuovo: %s" % (c, p.codice_locale))
                 else:
-                    # modifica di tutti i campi del progetto, in base ai valori del CSV
-                    p.classificazione_qsn = qsn_obiettivo_specifico
-                    p.titolo_progetto = r['DPS_TITOLO_PROGETTO']
-                    p.cup = r['CUP'].strip()
-                    p.obiettivo_sviluppo = obiettivo_sviluppo
-                    p.tema = tema_prioritario
-                    p.classificazione_azione = natura_tipologia
-                    p.classificazione_oggetto = settore_sottosettore_categoria
-                    p.cipe_num_delibera = cipe_num_delibera
-                    p.cipe_anno_delibera = cipe_anno_delibera
-                    p.cipe_data_adozione = cipe_data_adozione
-                    p.cipe_data_pubblicazione = cipe_data_pubblicazione
-                    p.note = cipe_note
-                    p.cipe_flag = cipe_flag
-                    p.fin_totale_pubblico = fin_totale_pubblico
-                    p.fin_totale_pubblico_netto = fin_totale_pubblico_netto
-                    p.economie_totali = economie_totali
-                    p.economie_totali_pubbliche = economie_totali_pubbliche
-                    p.fin_ue = fin_ue
-                    p.fin_stato_fondo_rotazione = fin_stato_fondo_rotazione
-                    p.fin_stato_pac = fin_stato_pac
-                    p.fin_stato_fsc = fin_stato_fsc
-                    p.fin_stato_altri_provvedimenti = fin_stato_altri_provvedimenti
-                    p.fin_regione = fin_regione
-                    p.fin_provincia = fin_provincia
-                    p.fin_comune = fin_comune
-                    p.fin_risorse_liberate = fin_risorse_liberate
-                    p.fin_altro_pubblico = fin_altro_pubblico
-                    p.fin_stato_estero = fin_stato_estero
-                    p.fin_privato = fin_privato
-                    p.fin_da_reperire = fin_da_reperire
-                    p.costo_ammesso = costo_ammesso
-                    p.pagamento = pagamento
-                    p.pagamento_ammesso = pagamento_ammesso
-                    p.pagamento_fsc = pagamento_fsc
-                    p.data_inizio_prevista = data_inizio_prevista
-                    p.data_fine_prevista = data_fine_prevista
-                    p.data_inizio_effettiva = data_inizio_effettiva
-                    p.data_fine_effettiva = data_fine_effettiva
-                    p.data_aggiornamento = data_aggiornamento
-                    p.dps_flag_presenza_date = r['DPS_FLAG_PRESENZA_DATE']
-                    p.dps_flag_date_previste = r['DPS_FLAG_COERENZA_DATE_PREV']
-                    p.dps_flag_date_effettive = r['DPS_FLAG_COERENZA_DATE_EFF']
-                    p.dps_flag_cup = r['DPS_FLAG_CUP']
-                    p.dps_flag_pac = r['DPS_FLAG_PAC']
-                    if not p.active_flag:
-                        p.active_flag = True
-                        self.logger.info("%s: Progetto trovato, sovrascritto e ri-attivato: %s" % (c, p.codice_locale))
-                    else:
+                    if p.active_flag == values['active_flag']:
                         self.logger.info("%s: Progetto trovato e sovrascritto: %s" % (c, p.codice_locale))
+                    elif values['active_flag'] == True:
+                        self.logger.info("%s: Progetto trovato, sovrascritto e riattivato: %s" % (c, p.codice_locale))
+                    else:
+                        self.logger.error("%s: Trovato progetto attivo da disattivare. Skipping" % codice_locale)
+                        continue
+
+                    # modifica di tutti i campi del progetto, in base ai valori del CSV
+                    for key, value in values.items():
+                        setattr(p, key, value)
+
                     p.save()
 
-                # add fonte to project
-                # a single project may have more than one fonte
-                # adding more than once does no harm (no duplicates, no errors)
-                # no need to save the project, after adding
+                # remove old fonti, before adding new one
+                # multiple fonti are added back in the sovrapposizioni management task
+                old_fonti = p.fonte_set.all()
+                for f in old_fonti:
+                    p.fonte_set.remove(f)
+                self.logger.debug("  Rimosse fonti precedenti")
+
+                # add fonte, as specified in the CSV record
                 p.fonte_set.add(fonte)
 
-                # overlapping variables are not overwritten
+                # do not overwrite overlapping variables
+                # TODO: DO NOT USE FOR NEW IMPORTS,
+                # as it creates problems with projects having double classification
+                # re-factor the whole import procedure to a delete-before-import logic
                 if programma_asse_obiettivo:
                     p.programma_asse_obiettivo = programma_asse_obiettivo
                 if programma_linea_azione:
                     p.programma_linea_azione = programma_linea_azione
                 if fondo_comunitario:
                     p.fondo_comunitario = fondo_comunitario
+
                 p.save()
 
-
-                # remove local variable p from the namespace,
-                #may free some memory
+                # remove local variable p from the namespace, may free some memory
                 del p
 
             except DatabaseError as e:
@@ -1677,3 +1605,18 @@ class Command(BaseCommand):
         }
 
         return temi[tema]
+
+    def _get_value(self, dict, key, type = 'string'):
+        """
+        """
+        if key in dict and dict[key].strip():
+            value = dict[key].strip()
+
+            if type == 'decimal':
+                value = Decimal(value.replace(',','.'))
+            elif type == 'date':
+                value = datetime.datetime.strptime(value, '%Y%m%d')
+
+            return value
+        else:
+            return None

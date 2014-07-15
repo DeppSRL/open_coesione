@@ -194,7 +194,7 @@
 
     <field name="fin_comune" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
-    <field name="fonte_fin" type="text" indexed="true" stored="false" multiValued="false" />
+    <field name="fonte_fin" type="string" indexed="true" stored="false" multiValued="true" />
 
     <field name="fin_regione" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
