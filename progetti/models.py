@@ -425,7 +425,7 @@ class Progetto(TimeStampedModel):
 
     titolo_progetto = models.TextField()
     descrizione = models.TextField(blank=True, null=True)
-    slug = models.CharField(max_length=128, blank=True, null=True, db_index=True)
+    slug = models.CharField(max_length=128, blank=True, null=True, unique=True, db_index=True)
     classificazione_qsn = models.ForeignKey('ClassificazioneQSN',
                                             related_name='progetto_set',
                                             db_column='classificazione_qsn',

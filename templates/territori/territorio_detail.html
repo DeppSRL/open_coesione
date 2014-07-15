@@ -7,9 +7,10 @@
 
 {% block js_content %}
   {% addtoblock "js_script" %}
-{#    <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>#}
     <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-collapse.js"></script>
-{#    <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>#}
+    {#    --- already imported in base_map.html ---    #}
+    {#    <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>#}
+    {#    <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>#}
   {% endaddtoblock %}
 
   {{ block.super }}
@@ -18,17 +19,17 @@
 
     $(document).ready(function() {
 
-        APP.base_url = '{{ STATIC_URL }}' ;
+      APP.base_url = '{{ STATIC_URL }}' ;
 
-//        print_pie_chart('#main_topics', 'main_topics_chart' );
-//        print_pie_chart('#main_types', 'main_types_chart' );
+//      print_pie_chart('#main_topics', 'main_topics_chart' );
+//      print_pie_chart('#main_types', 'main_types_chart' );
 
-        $('#index_charts .collapse')
-            .on('show', function(e) {
-                !$.isEmptyObject(APP.chart) && APP.chart.destroy();
-                var $chart_container = $(e.currentTarget).css('height','auto');
-                var $selectors = $('#topic_chart').next('form');
-                //console.log($chart_container,'topic', $chart_container.data('topic'), 'location', $chart_container.data('location') );
+      $('#index_charts .collapse')
+        .on('show', function(e) {
+          !$.isEmptyObject(APP.chart) && APP.chart.destroy();
+          var $chart_container = $(e.currentTarget).css('height','auto');
+          var $selectors = $('#topic_chart').next('form');
+            //console.log($chart_container,'topic', $chart_container.data('topic'), 'location', $chart_container.data('location') );
                 $('#topic_chart')
                     .data('topic', $chart_container.data('topic'))
                     .data('location', $chart_container.data('location'))
@@ -66,12 +67,13 @@
     <div class="row">
       <div class="span12" id="charts_accordion">
         <span class="pull-right" style="font-size: 85%">
-            scarica tutti gli indicatori di contesto ISTAT
-            <a href="/opendata/{{ istat_data_file.file_name }}">
-                [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]
-            </a>
+          scarica tutti gli indicatori di contesto ISTAT
+          <a href="/opendata/{{ istat_data_file.file_name }}">
+            [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]
+          </a>
         </span>
-            <h1>Indicatori sui temi</h1>
+
+        <h1>Indicatori sui temi</h1>
 
         <div class="accordion" id="index_charts">
           {% for tema in lista_temi_principali %}
@@ -115,7 +117,6 @@
     </div>
   </section>
   {% endif %}
-
 
 {% endblock %}
 

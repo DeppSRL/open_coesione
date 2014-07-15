@@ -69,7 +69,6 @@ class PilloleView(ListView, TagFilterMixin, DateFilterMixin):
 class PillolaView(DetailView):
     model = Pillola
 
-
 class FAQView(ListView):
     model = FAQ
     lang = None
@@ -80,6 +79,20 @@ class FAQView(ListView):
 
         return context
 
+class DatiISTATView(TemplateView):
+    template_name = 'open_coesione/dati_istat.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DatiISTATView, self).get_context_data(**kwargs)
+
+        # use OpendataView instance to access istat_date and the get_complete_file method,
+        # and avoid code duplication
+        odv = OpendataView()
+        istat_date = odv.istat_date
+        context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
+        # context['istat_metadata_file'] = odv.get_complete_file("Metainformazione.xls")
+
+        return context
 
 class AccessControlView(object):
     """
@@ -233,7 +246,6 @@ class AggregatoView(object):
 
 class HomeView(AccessControlView, AggregatoView, TemplateView):
     template_name = 'homepage.html'
-
 
     def get_context_data(self, **kwargs):
 
