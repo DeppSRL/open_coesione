@@ -22,7 +22,7 @@ common_mce_attrs = {
     'cleanup_on_startup': True,
     'custom_undo_redo_levels': 10,
     'height': 500,
-    'theme_advanced_buttons1' : "bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,|,formatselect,|,undo,redo",
+    'theme_advanced_buttons1' : "bold,italic,underline,removeformat,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,|,formatselect,|,undo,redo",
     'theme_advanced_buttons2' : "link,unlink,|,image,media,|,tablecontrols,fullscreen,zoom,|,preview,code",
     'theme_advanced_buttons3': "",
     'theme_advanced_toolbar_location': "top"
