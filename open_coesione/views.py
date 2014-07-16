@@ -582,3 +582,8 @@ class OpendataRedirectView(RedirectView):
 
    def get_redirect_url(self, **kwargs):
         return "/media/open_data/{0}".format(kwargs['path'])
+
+class DocumentsRedirectView(RedirectView):
+
+   def get_redirect_url(self, **kwargs):
+        return "/media/uploads/documenti/{0}".format(kwargs['path'])
