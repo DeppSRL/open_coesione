@@ -389,6 +389,7 @@ GRAPPELLI_INDEX_DASHBOARD = 'open_coesione.dashboard.CustomIndexDashboard'
 FILEBROWSER_STRICT_PIL = True
 FILEBROWSER_VERSIONS_BASEDIR = '_versions'
 FILEBROWSER_SEARCH_TRAVERSE = True
+FILEBROWSER_MAX_UPLOAD_SIZE = 104857600
 FILEBROWSER_SELECT_FORMATS = {
     'file': ['Folder','Image','Document','Video','Audio'],
     'image': ['Image'],
