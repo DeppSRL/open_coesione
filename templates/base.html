@@ -189,8 +189,11 @@
 
         });
         $(document).ready(function() {
-            // enable popovers
+
+            // enable popovers and tooltips
             $('a[rel=info-popover]').clickover();
+            $('a[rel=info-tooltip]').tooltip();
+
 
             // all links to /media/uploads/documenti/* are changed into /documenti/*
             var re = /media\/uploads\/documenti/;
