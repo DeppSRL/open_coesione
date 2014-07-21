@@ -5771,10 +5771,6 @@ body#tinymce {
   font-size: 13px;
   margin-left: 2px;
 }
-a[rel=info-tooltip] em {
-  font-size: 20px;
-  color: #999999;
-}
 a[rel=info-tooltip] [class^="icon-"],
 a[rel=info-tooltip] [class*=" icon-"] {
   display: inline-block;
@@ -5786,8 +5782,8 @@ a[rel=info-tooltip]:hover i {
 }
 .tooltip {
   z-index: 1000000!important;
-  font-size: 14px;
 }
 .tooltip-inner {
   text-align: left!important;
+  font-size: 14px;
 }
