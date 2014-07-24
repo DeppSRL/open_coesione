@@ -27,4 +27,8 @@ urlpatterns = patterns('',
         MapnikRegioniView.as_view(inner_filter='programma'), name='territori_mapnik_regioni_programma'),
     url(r'^programmi/(?P<codice>[-\w]+)/province.xml$',
         MapnikProvinceView.as_view(inner_filter='programma'), name='territori_mapnik_province_programma'),
+    url(r'^gruppo-programmi/(?P<slug>[-\w]+)/regioni.xml$',
+        MapnikRegioniView.as_view(inner_filter='gruppo_programmi'), name='territori_mapnik_regioni_gruppoprogrammi'),
+    url(r'^gruppo-programmi/(?P<slug>[-\w]+)/province.xml$',
+        MapnikProvinceView.as_view(inner_filter='gruppo_programmi'), name='territori_mapnik_province_gruppoprogrammi'),
 )

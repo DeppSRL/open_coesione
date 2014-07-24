@@ -551,9 +551,14 @@
                   {% endif %}
                 </dt>
                 <dd>{{ progetto.fonte_fs_descrizione }}</dd>
+
                 {% if progetto.is_fonte_pac_flag %}
                     <dt>{{ progetto.fonte_pac_label }}</dt>
-                    <dd>Piano d'Azione Coesione - Progetti nei Programmi operativi</dd>
+                    {% if progetto.dps_flag_pac == '1' %}
+                    <dd>{{ progetto.fonte_pac_descrizione }}</dd>
+                    {% else %}
+                    <dd>Piano d'Azione Coesione - Progetti nei Programmi Operativi</dd>
+                    {% endif %}
                 {% endif %}
 
                 <dt>Programma</dt>
@@ -575,7 +580,7 @@
                     <dt>{{ progetto.fonte_fsc_label }}</dt>
                     <dd>{{ progetto.fonte_fsc_descrizione }}</dd>
                 {% endif %}
-                {% if progetto.is_fonte_pac_flag %}
+                {% if progetto.is_fonte_pac_flag and not progetto.is_fonte_fs_flag%}
                     <dt>{{ progetto.fonte_pac_label }}</dt>
                     <dd>{{ progetto.fonte_pac_descrizione }}</dd>
                 {% endif %}

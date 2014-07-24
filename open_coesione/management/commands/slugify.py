@@ -26,6 +26,7 @@ from optparse import make_option
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from django.template.defaultfilters import slugify
+from django.db import transaction
 from progetti.models import Tema, ClassificazioneAzione, Progetto
 from territori.models import Territorio
 from soggetti.models import Soggetto
@@ -73,15 +74,32 @@ class Command(BaseCommand):
 
     def handle_proj(self, *args, **options):
         if options['reset']:
-            Progetto.objects.update(slug=None)
+            Progetto.fullobjects.update(slug=None)
             self.logger.info("progetti slugs have been reset. now exiting")
             return
 
-        progetti = Progetto.objects.filter(slug__isnull=True)
+        progetti = Progetto.fullobjects.filter(slug__isnull=True)
         self.logger.info("{0} progetti will be slugified".format(progetti.count()))
         for n, progetto in enumerate(progetti):
-            progetto.slug = slugify(u"{0}".format(progetto.codice_locale))
-            progetto.save()
+            slug = slugify(u"{0}".format(progetto.codice_locale))
+            cnt = 0
+            ok = False
+            while not ok:
+                if cnt == 0:
+                    progetto.slug = slug
+                else:
+                    progetto.slug = u"{0}--{1}".format(slug, cnt)
+
+                try:
+                    sid = transaction.savepoint()
+                    progetto.save()
+                    transaction.savepoint_commit(sid)
+                except:
+                    transaction.savepoint_rollback(sid)
+                    cnt += 1
+                else:
+                    ok = True
+
             if n%100 == 0:
                 self.logger.debug(n)
 

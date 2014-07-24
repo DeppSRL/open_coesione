@@ -121,7 +121,7 @@
           {% for pillola in latest_pillole %}
             <tr>
               <td>
-                  <a href="/{{ pillola.file.name }}"
+                  <a href="{% url 'pillola_item' pillola.slug %}"
                      onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>{{ pillola.title }}</a>
                   (<a href="/{{ pillola.file.name }}"
                       onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">><i class="icon-download-alt"></i>
@@ -168,7 +168,7 @@
         <section class="span6">
             <hr class="big">
 
-            <h1 class='title'><span>Esperienze di riuso</span></h1>
+            <h1 class='title'><span>Riuso e partecipazione</span></h1>
             <p>
                 <a href="http://www.ascuoladiopencoesione.it">A Scuola di OpenCoesione (ASOC)</a>
                 è un innovativo progetto sperimentale per le scuole superiori sui temi
@@ -204,7 +204,7 @@
       I dati sono pubblicati perché i cittadini possano valutare se i progetti corrispondono ai
       loro bisogni e se le risorse vengono impegnate in modo efficace.
       <a href="/faq">Leggi qui</a> per saperne di più. <br>
-      I dati pubblicati sono aggiornati al <b>28/02/2014</b>.
+      I dati pubblicati sono aggiornati al <b>30/04/2014</b>.
     </p>
   </div>
 {% endblock %}

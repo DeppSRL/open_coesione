@@ -7,9 +7,10 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 
@@ -20,6 +21,7 @@ from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, Prog
 from open_coesione import utils
 from open_coesione.views import AggregatoView, AccessControlView, cached_context, OpendataView
 from progetti.forms import DescrizioneProgettoForm
+from progetti.gruppo_programmi import GruppoProgrammi, split_by_type
 from progetti.models import Tema, Fonte, SegnalazioneProgetto
 from soggetti.models import Soggetto
 from territori.models import Territorio
@@ -66,53 +68,102 @@ class ProgettoView(AccessControlView, DetailView):
 
         return context
 
-class ProgrammaView(AccessControlView, AggregatoView, DetailView):
-    context_object_name = 'programma'
-    template_name = 'progetti/programma_detail.html'
-
+class ProgrammaBaseView(AccessControlView, AggregatoView, TemplateView):
     @cached_context
     def get_context_data(self, **kwargs):
+        programmi = kwargs.get('programmi', [])
+        del kwargs['programmi']
+
         # Call the base implementation first to get a context
-        context = super(ProgrammaView, self).get_context_data(**kwargs)
+        context = super(ProgrammaBaseView, self).get_context_data(**kwargs)
 
         logger = logging.getLogger('console')
         logger.debug("get_aggregate_data start")
-        context = self.get_aggregate_data(context, programma=self.object)
+        context = self.get_aggregate_data(context, programmi=programmi)
 
         context['numero_soggetti'] = Soggetto.objects.count()
-        context['map_selector'] = 'programmi/{0}/'.format(self.kwargs['codice'])
 
         logger.debug("top_progetti_per_costo start")
-        context['top_progetti_per_costo'] = Progetto.objects.con_programma(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+        context['top_progetti_per_costo'] = Progetto.objects.con_programmi(programmi).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
 
         logger.debug("ultimi_progetti_conclusi start")
-        context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_programma(self.object)[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_programmi(programmi)[:5]
 
         logger.debug("territori_piu_finanziati_pro_capite start")
 
         #discriminate between ProgrammaAsseObiettivo and ProgrammaLineaAzione
-        if isinstance(self.object, ProgrammaAsseObiettivo):
-            filters={
-                'progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore': self.object
-            }
-        else:
-            filters={
-                'progetto__programma_linea_azione__classificazione_superiore__classificazione_superiore': self.object
-            }
+        programmi_splitted = split_by_type(programmi)
+
+        from django.db.models import Q
 
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
-            filters=filters
+            (
+                Q(progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__in=programmi_splitted['programmi_asse_obiettivo']) |
+                Q(progetto__programma_linea_azione__classificazione_superiore__classificazione_superiore__in=programmi_splitted['programmi_linea_azione']),
+            )
         )
 
         return context
 
-    def get_object(self, queryset=None):
-        try:
-            prog = ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
-        except ObjectDoesNotExist:
-            prog = ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
+class ProgrammiView(ProgrammaBaseView):
+    template_name = 'progetti/programmi_detail.html'
 
-        return prog
+    def get_object(self):
+        return GruppoProgrammi(codice=self.kwargs.get('slug'))
+
+    @cached_context
+    def get_context_data(self, **kwargs):
+        try:
+            gruppo_programmi = self.get_object()
+        except:
+            raise Http404
+
+
+        kwargs.update({
+            'programmi': gruppo_programmi.programmi()
+        })
+
+        # Call the base implementation first to get a context
+        context = super(ProgrammiView, self).get_context_data(**kwargs)
+
+        context['map_selector'] = 'gruppo-programmi/{0}/'.format(self.kwargs['slug'])
+
+        context['gruppo_programmi'] = gruppo_programmi
+
+        return context
+
+class ProgrammaView(ProgrammaBaseView):
+    template_name = 'progetti/programma_detail.html'
+
+
+    def get_object(self):
+        try:
+            return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
+        except ObjectDoesNotExist:
+            try:
+                return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
+            except ObjectDoesNotExist:
+                return None
+
+    @cached_context
+    def get_context_data(self, **kwargs):
+
+        programma = self.get_object()
+        if programma is None:
+            raise Http404
+
+        kwargs.update({
+            'programmi': [programma]
+        })
+
+        # Call the base implementation first to get a context
+        context = super(ProgrammaView, self).get_context_data(**kwargs)
+
+        context['map_selector'] = 'programmi/{0}/'.format(self.kwargs['codice'])
+
+        context['programma'] = programma
+
+        return context
 
 class TipologiaView(AccessControlView, AggregatoView, DetailView):
     context_object_name = 'tipologia'
@@ -367,7 +418,17 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
             try:
                 extra['fonte_fin'] = ProgrammaAsseObiettivo.objects.get(pk=fonte_fin)
             except ObjectDoesNotExist:
-                pass
+                try:
+                    extra['fonte_fin'] = ProgrammaLineaAzione.objects.get(pk=fonte_fin)
+                except ObjectDoesNotExist:
+                    pass
+
+        programmi_slug = self.request.GET.get('gruppo_programmi', None)
+        if programmi_slug:
+            try:
+                extra['gruppo_programmi'] = GruppoProgrammi(codice=programmi_slug)
+            except:
+                 pass
 
         soggetto_slug = self.request.GET.get('soggetto', None)
         if soggetto_slug:

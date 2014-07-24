@@ -7,7 +7,7 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
-from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaAsseObiettivoManager, FullProgettiManager, ProgrammaLineaAzioneManager
+from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaManager, FullProgettiManager
 from django.core.cache import cache
 import logging
 from soggetti.models import Soggetto
@@ -65,6 +65,8 @@ class Documento(models.Model):
 
 class ProgrammaBase(models.Model):
 
+    objects = ProgrammaManager()
+
     TIPO = {}
 
     classificazione_superiore = models.ForeignKey('self', default=None,
@@ -102,8 +104,6 @@ class ProgrammaBase(models.Model):
 
 class ProgrammaAsseObiettivo(ProgrammaBase):
 
-    objects = ProgrammaAsseObiettivoManager()
-
     TIPO = Choices(
         ('PROGRAMMA_FS', 'programma', u'Programma FS'),
         ('ASSE', 'asse', u'Asse'),
@@ -133,7 +133,6 @@ class ProgrammaLineaAzione(ProgrammaBase):
     Classificazione alternativa a ProgrammaAsseObiettivo,
     per progetti in attuazione nel contesto FSC.
     """
-    objects = ProgrammaLineaAzioneManager()
 
     TIPO = Choices(
         ('PROGRAMMA', 'programma', u'Programma'),
@@ -426,7 +425,7 @@ class Progetto(TimeStampedModel):
 
     titolo_progetto = models.TextField()
     descrizione = models.TextField(blank=True, null=True)
-    slug = models.CharField(max_length=128, blank=True, null=True, db_index=True)
+    slug = models.CharField(max_length=128, blank=True, null=True, unique=True, db_index=True)
     classificazione_qsn = models.ForeignKey('ClassificazioneQSN',
                                             related_name='progetto_set',
                                             db_column='classificazione_qsn',
@@ -695,7 +694,7 @@ class Progetto(TimeStampedModel):
     @property
     def fonte_fin(self):
         """
-        return the first level of programma_asse_obiettivo classification
+        return the first level of programma (asse-obiettivo/linea-azione) classification
         which is used in the fonte_fin filtering of search results
         """
         if self.programma_asse_obiettivo:
@@ -704,6 +703,23 @@ class Progetto(TimeStampedModel):
             return self.programma_linea_azione.programma
         else:
             return None
+
+    @property
+    def fonti_fin(self):
+        """
+        return an array with the first levels of
+        programma_asse_obiettivo or
+        programma_linea_azione classifications
+        which is used in the fonte_fin filtering of search results
+        """
+        fonti_fin = []
+        if self.programma_asse_obiettivo:
+            fonti_fin.append(self.programma_asse_obiettivo.programma)
+        if self.programma_linea_azione:
+            fonti_fin.append(self.programma_linea_azione.programma)
+
+        return fonti_fin
+
 
     def save(self, force_insert=False, force_update=False, using=None):
         # force re-computation of finanziamento totale and notes from delibere

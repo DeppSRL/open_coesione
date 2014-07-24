@@ -1,6 +1,5 @@
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
 from django.db.models import Count
 from django.template.defaultfilters import slugify
 from django.http import HttpResponse, Http404
@@ -13,6 +12,7 @@ from django.core.cache import cache
 from open_coesione import utils
 from open_coesione.data_classification import DataClassifier
 from open_coesione.views import AccessControlView, AggregatoView, cached_context, OpendataView
+from progetti.gruppo_programmi import GruppoProgrammi
 from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from progetti.views import CSVView
 from territori.models import Territorio
@@ -87,22 +87,36 @@ class InfoView(JSONResponseMixin, TemplateView):
                         for t in territorio_hierarchy]
 
         programma = None
+        gruppo_programmi = None
+        programmi = None
         if self.filter == 'programmi':
             try:
                 programma = ProgrammaAsseObiettivo.objects.get(codice=kwargs['slug'])
             except ObjectDoesNotExist:
                 programma = ProgrammaLineaAzione.objects.get(codice=kwargs['slug'])
 
+            programmi = [programma]
+
             territori = [(t.denominazione, t.get_progetti_search_url(programma=programma))
+                        for t in territorio_hierarchy]
+        elif self.filter == 'gruppo_programmi':
+            try:
+                gruppo_programmi = GruppoProgrammi(codice=self.kwargs.get('slug'))
+            except:
+                raise Http404
+
+            programmi = gruppo_programmi.programmi()
+
+            territori = [(t.denominazione, t.get_progetti_search_url(gruppo_programmi=gruppo_programmi))
                         for t in territorio_hierarchy]
 
         # prepare the cache key
         tema_key = tema.slug if tema is not None else 'na'
         natura_key = natura.slug if natura is not None else 'na'
-        programma_key = programma.codice if programma is not None else 'na'
-        cache_key = "terr:{0}_tema:{1}_natura:{2}_programma:{3}".format(
+        programmi_key = programma.codice if programma is not None else (gruppo_programmi.codice if gruppo_programmi is not None else 'na')
+        cache_key = "terr:{0}_tema:{1}_natura:{2}_programmi:{3}".format(
             territorio.pk,
-            tema_key, natura_key, programma_key
+            tema_key, natura_key, programmi_key
         )
 
         # check vars existance in the cache, or compute and store them
@@ -110,9 +124,9 @@ class InfoView(JSONResponseMixin, TemplateView):
         if cached_vars is None:
             cached_vars = {
                 'popolazione_totale': (territorio.popolazione_totale if territorio else Territorio.objects.nazione().popolazione_totale) or 0,
-                'costo_totale': Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura, programma=programma) or 0,
-                'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura, programma=programma) or 0,
-                'pagamento_totale': Progetto.objects.totale_pagamenti(territorio=territorio, tema=tema, classificazione=natura, programma=programma) or 0,
+                'costo_totale': Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura, programmi=programmi) or 0,
+                'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura, programmi=programmi) or 0,
+                'pagamento_totale': Progetto.objects.totale_pagamenti(territorio=territorio, tema=tema, classificazione=natura, programmi=programmi) or 0,
             }
             cache.set(cache_key, cached_vars)
 
@@ -222,11 +236,8 @@ class LeafletView(TemplateView):
             context['layer_name'] = 'world'
             return context
 
-        # compute layer name from request.path and tematizzatione query string
-        if 'tematizzazione' in self.request.GET:
-            tematizzazione = self.request.GET['tematizzazione']
-        else:
-            tematizzazione = 'totale_costi'
+        # compute layer name from request.path and tematizzazione query string
+        tematizzazione = self.request.GET.get('tematizzazione', 'totale_costi')
         if tematizzazione not in TilesConfigView.TEMATIZZAZIONI:
             raise Http404
 
@@ -260,6 +271,7 @@ class LeafletView(TemplateView):
                 'tema': 'temi',
                 'natura': 'nature',
                 'programma': 'programmi',
+                'gruppo_programmi': 'gruppo-programmi',
             }
 
             # convert inner_filter to its plural when creating info url
@@ -274,6 +286,7 @@ class LeafletView(TemplateView):
 
 class TilesConfigView(TemplateView):
     template_name = 'territori/tiles.cfg'
+    content_type = 'application/json'
 
     TEMATIZZAZIONI = (
         'totale_costi', 'totale_pagamenti', 'totale_progetti',
@@ -287,6 +300,7 @@ class TilesConfigView(TemplateView):
         context['temi'] = Tema.objects.principali()
         context['nature'] = ClassificazioneAzione.objects.nature()
         context['programmi'] = list(ProgrammaAsseObiettivo.objects.programmi()) + list(ProgrammaLineaAzione.objects.programmi())
+        context['gruppi_programmi_codici'] = GruppoProgrammi.CODICI
         context['mapnik_base_url'] = "http://{0}/territori/mapnik".format(Site.objects.get_current())
         context['path_to_cache'] = settings.TILESTACHE_CACHE_PATH
 
@@ -299,14 +313,13 @@ class MapnikView(TemplateView):
     """
     territori_name = 'Territori'
     template_name = 'territori/mapnik.xml'
+    content_type = 'application/xml'
     queryset = Territorio.objects.all()
     inner_filter = None
 
     # Class-colors mapping
     colors = settings.MAP_COLORS
 
-    # Manager for Progetti
-    manager = Progetto.objects
 
     @cached_context
     def get_context_data(self, **kwargs):
@@ -344,8 +357,8 @@ class MapnikView(TemplateView):
         if self.inner_filter == 'natura':
             natura = ClassificazioneAzione.objects.get(slug=self.kwargs['slug'])
 
-        # eventual filter on programma
-        programma = None
+        # eventual filter on programma or gruppo_programmi
+        programmi = None
         if self.inner_filter == 'programma':
             try:
                 programma = ProgrammaAsseObiettivo.objects.get(pk=self.kwargs['codice'])
@@ -354,6 +367,13 @@ class MapnikView(TemplateView):
                     programma = ProgrammaLineaAzione.objects.get(pk=self.kwargs['codice'])
                 except ObjectDoesNotExist:
                     raise Exception("Could not find appropriate programma")
+            programmi = [programma]
+        elif self.inner_filter == 'gruppo_programmi':
+            try:
+                gruppo_programmi = GruppoProgrammi(codice=self.kwargs['slug'])
+            except:
+                raise Exception("Could not find appropriate gruppo programmi")
+            programmi = gruppo_programmi.programmi()
 
         # loop over all territories
         # foreach, invoke the tematizzazione method, with specified filters
@@ -362,7 +382,7 @@ class MapnikView(TemplateView):
                     territorio=t,
                     tema=tema,
                     classificazione=natura,
-                    programma=programma,
+                    programmi=programmi,
             )
             if data[t.codice]:
                 nonzero_data[t.codice] = data[t.codice]
@@ -685,3 +705,17 @@ class ProvinciaCSVView(RegioneCSVView):
                 unicode(self.object.denominazione),
                 '{0:.2f}'.format( .0 ).replace('.', ',')
             ])
+
+class ChartView(TemplateView):
+    template_name = 'territori/index_chart.html'
+
+    def get_context_data(self, **kwargs):
+        from progetti.models import Tema
+        from territori.models import Territorio
+        return {
+            'params': kwargs,
+            'temi_principali': Tema.objects.principali(),
+            'tema': Tema.objects.get(codice=self.request.GET.get('tema', '1')),
+            'regioni': Territorio.objects.regioni(),
+            'territorio': Territorio.objects.get(cod_reg=self.request.GET.get('regione', '1'), territorio='R'),
+        }

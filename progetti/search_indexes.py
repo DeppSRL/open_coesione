@@ -54,7 +54,7 @@ class ProgettoIndex(SearchIndex):
     natura_slug = MultiValueField(indexed=False, stored=True)
     tema_slug = MultiValueField(indexed=False, stored=True)
 
-    fonte_fin = CharField(indexed=True, stored=False)
+    fonte_fin = FacetMultiValueField(indexed=True, stored=False)
 
     # faceting fields
     natura = FacetCharField( )
@@ -109,10 +109,7 @@ class ProgettoIndex(SearchIndex):
         return [t['slug'] for t in obj.territorio_set.values('slug').distinct()]
 
     def prepare_fonte_fin(self, obj):
-        if obj.fonte_fin:
-            return obj.fonte_fin.pk
-        else:
-            return ''
+        return [f.pk for f in obj.fonti_fin]
 
     def prepare_soggetti_programmatori(self, obj):
         return [s['soggetto__denominazione'] for s in obj.ruolo_set.filter(ruolo=Ruolo.RUOLO.programmatore).values('soggetto__denominazione')]

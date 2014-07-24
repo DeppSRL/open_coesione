@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.dispatch import receiver
 import os
+from filebrowser.fields import FileBrowseField
 from tagging import models as tagging_models
 
 
@@ -56,6 +57,7 @@ class Pillola(tagging_models.TagMixin, models.Model):
     title = models.CharField(max_length=200, verbose_name='Titolo')
     slug = models.SlugField(max_length=255, null=True, blank=True, unique=True)
     abstract = models.CharField(max_length=255, null=True, blank=True)
+    image = FileBrowseField("Image", max_length=200, directory="immagini/", extensions=[".jpg", ".png"], blank=True, null=True)
     description = models.TextField(max_length=1024, verbose_name='Descrizione', blank=True, null=True)
     file = models.FileField(upload_to='pillole', blank=True, null=True)
     published_at = models.DateField(verbose_name='Data di pubblicazione')

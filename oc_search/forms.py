@@ -1,5 +1,7 @@
 from django import forms
 from haystack.forms import SearchForm
+from progetti.gruppo_programmi import GruppoProgrammi
+
 
 class RangeFacetedSearchForm(SearchForm):
     territorio_com = forms.IntegerField(required=False)
@@ -7,6 +9,7 @@ class RangeFacetedSearchForm(SearchForm):
     territorio_reg = forms.IntegerField(required=False)
     soggetto = forms.CharField(required=False)
     fonte_fin = forms.CharField(required=False)
+    gruppo_programmi = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.selected_facets = kwargs.pop("selected_facets", [])
@@ -51,6 +54,13 @@ class RangeFacetedSearchForm(SearchForm):
 
         # aggiunge filtro fonte_fin, se presente
         if self.is_valid() and self.cleaned_data.get('fonte_fin'):
-            sqs = sqs.filter_and(fonte_fin=self.cleaned_data['fonte_fin'])
+            sqs = sqs.filter_and(fonte_fin=self.cleaned_data.get('fonte_fin'))
+
+        # aggiunge filtro gruppo_programmi, se presente
+        if self.is_valid() and self.cleaned_data.get('gruppo_programmi'):
+            try:
+                sqs = sqs.filter_and(fonte_fin__in=[p.codice for p in GruppoProgrammi(codice=self.cleaned_data.get('gruppo_programmi')).programmi()])
+            except:
+                pass
 
         return sqs

@@ -91,8 +91,10 @@
                   <ul class="dropdown-menu">
                     <li class="clearfix">
                       <ul>
+                        <li><a href="{% url 'progetti_programmi' 'ue-fesr' %}">Tutti</a></li>
+                        <li class="divider"></li>
                         {% for programma in lista_programmi.fesr %}
-                            <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione|cut:"FESR " }}</a></li>
+                          <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione|cut:"FESR " }}</a></li>
                         {% endfor %}
                       </ul>
                     </li>
@@ -101,13 +103,15 @@
                 <li class="submenu">
                   <a href="#">Programmi UE FSE</a>
                   <ul class="dropdown-menu">
-                      <li class="clearfix">
-                          <ul>
-                              {% for programma in lista_programmi.fse %}
-                                  <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione|cut:"FSE " }}</a></li>
-                              {% endfor %}
-                          </ul>
-                      </li>
+                    <li class="clearfix">
+                      <ul>
+                        <li><a href="{% url 'progetti_programmi' 'ue-fse' %}">Tutti</a></li>
+                        <li class="divider"></li>
+                        {% for programma in lista_programmi.fse %}
+                          <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione|cut:"FSE " }}</a></li>
+                        {% endfor %}
+                      </ul>
+                    </li>
                   </ul>
                 </li>
 
@@ -116,6 +120,8 @@
                   <ul class="dropdown-menu">
                     <li class="clearfix">
                       <ul>
+                        <li><a href="{% url 'progetti_programmi' 'fsc' %}">Tutti</a></li>
+                        <li class="divider"></li>
                         {% for pdesc,pcode in lista_programmi.fsc_par.items %}
                             <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
                         {% endfor %}
@@ -141,6 +147,10 @@
                   <ul class="dropdown-menu">
                     <li class="clearfix">
                       <ul>
+                        <!--
+                        <li><a href="{% url 'progetti_programmi' 'pac' %}">Tutti</a></li>
+                        <li class="divider"></li>
+                        -->
                         {% for pdesc,pcode in lista_programmi.pac_pac.items %}
                             <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
                         {% endfor %}

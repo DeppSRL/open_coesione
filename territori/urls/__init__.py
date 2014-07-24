@@ -1,22 +1,5 @@
-from django.views.decorators.cache import cache_page
 from django.conf.urls import patterns, url, include
-from django.views.generic.base import TemplateView
-from territori.views import RegioneView, ComuneView, ProvinciaView, AmbitoNazionaleView, InfoView, TilesConfigView, AutocompleteView, RegioneCSVView, ProvinciaCSVView, AmbitoEsteroView
-
-
-class ChartView(TemplateView):
-    template_name = 'territori/index_chart.html'
-
-    def get_context_data(self, **kwargs):
-        from progetti.models import Tema
-        from territori.models import Territorio
-        return {
-            'params': kwargs,
-            'temi_principali': Tema.objects.principali(),
-            'tema': Tema.objects.get(codice=self.request.GET.get('tema', '1')),
-            'regioni': Territorio.objects.regioni(),
-            'territorio': Territorio.objects.get(cod_reg=self.request.GET.get('regione', '1'), territorio='R'),
-        }
+from territori.views import RegioneView, ComuneView, ProvinciaView, AmbitoNazionaleView, InfoView, TilesConfigView, AutocompleteView, RegioneCSVView, ProvinciaCSVView, AmbitoEsteroView, ChartView
 
 urlpatterns = patterns('',
     url(r'^regioni/(?P<slug>[-\w]+)/$', RegioneView.as_view(), name='territori_regione'),
@@ -38,12 +21,12 @@ urlpatterns = patterns('',
         InfoView.as_view(filter='nature'), name='territori_nature_info'),
     url(r'^info/programmi/(?P<slug>[-\w]+)/(?P<tipo>[\w]+)/(?P<lat>[-\d\.]+)/(?P<lng>[-\d\.]+)/$',
         InfoView.as_view(filter='programmi'), name='territori_programmi_info'),
+    url(r'^info/gruppo-programmi/(?P<slug>[-\w]+)/(?P<tipo>[\w]+)/(?P<lat>[-\d\.]+)/(?P<lng>[-\d\.]+)/$',
+        InfoView.as_view(filter='gruppo_programmi'), name='territori_gruppoprogrammi_info'),
     url(r'^autocomplete/$',
         AutocompleteView.as_view(), name='territori_autocomplete'),
     url(r'^tiles.cfg$', TilesConfigView.as_view(), name='territori_tiles_cfg'),
     url(r'^mapnik/', include('territori.urls.mapnik')),
     url(r'^leaflet/', include('territori.urls.leaflet')),
     url(r'^charts.html$', ChartView.as_view(), name='territori_charts'),
-
-
 )

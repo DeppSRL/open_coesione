@@ -1,53 +1,61 @@
 <div class="container">
-  <div class="row">
+  <div id="menu" class="row">
     <div class="span3">
       <h1>OpenCoesione</h1>
 
       <p>
-        Le informazioni qui pubblicate hanno lo scopo di promuovere il dibattito sulle politiche di coesione,
-        sulla destinazione dei fondi, sull’efficacia degli interventi,
-        sull’effetto prodotto per la qualità di vita dei cittadini.
+        Iniziativa di open government sulle politiche di coesione in Italia con lo scopo di promuovere
+          l'efficacia degli interventi attraverso la pubblicazione dei dati sui progetti
+          finanziati e una diffusa partecipazione civica.
       </p>
       <ul class="list-hypen">
-        <li><a href="/progetto/">Il progetto</a> | <a href="/progetto/en/">About <img src="{{ STATIC_URL }}img/flag-uk.png" alt="english version"></a></li>
-        <li><a href="/privacy/">Diritti degli utenti registrati</a></li>
-        <li><a href="/rassegna-stampa/">Cosa dicono di OpenCoesione</a></li>
+        <li class="bi-lingual"><a href="/progetto/">Cos'è</a><br/>&nbsp;
+        <em><a href="/progetto/en/">About <img src="{{ STATIC_URL }}img/flag-uk.png" alt="english version"></a></em></li>
+        <li><a href="/team/">Il team</a></li>
+        <li><a href="/gruppo-tecnico/">Il Gruppo Tecnico</a></li>
+        <li class="bi-lingual"><a href="/iniziative-internazionali/">Iniziative internazionali</a>
+            <!-- <br/>&nbsp;
+            <em><a href="/international-events/">International initiatives  <img src="{{ STATIC_URL }}img/flag-uk.png" alt="english version"></a></em></li>
+            -->
+        <li><a href="/partnership-nazionali/">Partnership nazionali</a></li>
+        <li><a href="/politiche-di-coesione-e-trasparenza/">Politiche di coesione e trasparenza</a></li>
+        <li><a href="/termini-e-condizioni/">Termini e condizioni</a></li>
         <li><a href="/contatti/">Contatti</a></li>
-        <li><a href="/licenza/">Licenza</a></li>
       </ul>
     </div>
     <div class="span3">
-      <h1>Come fare per...</h1>
+      <h1>Materiali</h1>
 
       <p>
-        Il sito consente di accedere a schede sintetiche sui singoli progetti
-        e singoli soggetti coinvolti attraverso un motore che consente la ricerca diretta
-        e la ricerca per territori, temi e natura dell’ intervento, anche incrociando queste variabili tra loro.
+        Documenti, video, storie, articoli realizzati a partire dai dati di OpenCoesione.
+        Pillole di OpenCoesione con analisi e spunti di riflessione.
+        Domande frequenti (FAQ), newsletter e aggiornamenti su eventi e iniziative.
       </p>
       <ul class="list-hypen">
-        <li><a href="/faq/">Domande frequenti</a> | <a href="/faq/en/">FAQ <img src="{{ STATIC_URL }}img/flag-uk.png" alt="english version"></a></li>
-        <li><a href="/cerca-un-progetto/">Cerca un progetto</a></li>
-        <li><a href="/cerca-un-soggetto/">Cerca un soggetto</a></li>
-{#        <li><a href="/scheda-progetto/">Aggiorna una scheda progetto</a></li>#}
-
-        <li><a href="/info-disponibili/">Conosci le informazioni disponibili</a></li>
-{#        <li><a href="/monitora-un-tema-o-un-territorio/">Monitora un tema o un territorio</a></li>#}
+        <li><a href="{% url 'pillole' %}">Pillole di OpenCoesione</a></li>
+        <li><a href="/scopri/">Scopri: documenti e video</a></li>
+        <li><a href="/iscrizione-newsletter/">Segui: newsletter</a></li>
+        <li><a href="/sollecita/">Sollecita: partecipazione e riuso</a></li>
+        <li><a href="/rassegna-stampa/">Dicono di noi</a></li>
+        <li class="bi-lingual"><a href="/faq/">Domande frequenti</a> <br/>&nbsp;
+            <em><a href="/faq/en/">FAQ <img src="{{ STATIC_URL }}img/flag-uk.png" alt="english version"></a></em></li>
       </ul>
     </div>
     <div class="span3">
       <h1>Open data</h1>
 
       <p>
-        Per open data (letteralmente “dati aperti”) si intendono informazioni pubblicate
-        in formato tale che siano accessibili senza limitazioni,
-        elaborabili da un'applicazione informatica e accompagnati da licenze che non pongano restrizioni
-        sull'uso e sul riuso.
+        Per open data (“dati aperti”) si intendono informazioni accessibili online,
+          disponibili in un linguaggio macchina utilizzabile da comuni programmi per elaboratore,
+          associati a metadati e liberamente riutilizzabili dagli utenti.
       </p>
       <ul class="list-hypen">
         <li><a href="{% url 'opendata' %}">Scarica gli Open Data</a></li>
         <li><a href="{% url 'api-faq' %}">Le API di OpenCoesione</a></li>
-        <li><a href="http://dati.gov.it">I dati aperti della PA</a></li>
-        <li><a href="http://www.dps.tesoro.it/opencoesione/dataJournalismDay.asp">Data Journalism</a></li>
+        <!--
+        <li><a href="/accessi/">Accessi al portale OpenCoesione</a></li>
+        -->
+        <li><a href="/licenza/">Licenza</a></li>
       </ul>
     </div>
     <div class="span3">

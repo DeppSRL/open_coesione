@@ -69,7 +69,6 @@ class PilloleView(ListView, TagFilterMixin, DateFilterMixin):
 class PillolaView(DetailView):
     model = Pillola
 
-
 class FAQView(ListView):
     model = FAQ
     lang = None
@@ -80,6 +79,20 @@ class FAQView(ListView):
 
         return context
 
+class DatiISTATView(TemplateView):
+    template_name = 'open_coesione/dati_istat.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DatiISTATView, self).get_context_data(**kwargs)
+
+        # use OpendataView instance to access istat_date and the get_complete_file method,
+        # and avoid code duplication
+        odv = OpendataView()
+        istat_date = odv.istat_date
+        context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
+        # context['istat_metadata_file'] = odv.get_complete_file("Metainformazione.xls")
+
+        return context
 
 class AccessControlView(object):
     """
@@ -131,6 +144,9 @@ class AggregatoView(object):
         if len(filter) > 1:
             raise Exception('Only one filter kwargs is accepted')
 
+        if 'programma' in filter:
+            raise Exception('Filter "programma" is deprecated')
+
         # read tematizzazione GET param
         tematizzazione = self.request.GET.get('tematizzazione', 'totale_costi')
 
@@ -145,7 +161,6 @@ class AggregatoView(object):
             context['totale_pagamenti'] /
             context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0
         )
-
 
         query_models = {
             'temi_principali' : {
@@ -169,6 +184,8 @@ class AggregatoView(object):
             query_filters = dict(soggetto=filter['soggetto'])
         elif 'programma' in filter:
             query_filters = dict(programma=filter['programma'])
+        elif 'programmi' in filter:
+            query_filters = dict(programmi=filter['programmi'])
         elif 'tema' in filter:
             query_filters = dict(tema=filter['tema'])
             del query_models['temi_principali']
@@ -200,12 +217,19 @@ class AggregatoView(object):
         return context
 
     def top_comuni_pro_capite(self, filters, qnt=5):
+        if isinstance(filters, dict):
+            args = []
+            kwargs = filters
+        else:
+            args = filters
+            kwargs = {}
+
         # add filters on active projects, to avoid computation errors
-        filters.update({
+        kwargs.update({
             'progetto__active_flag': True,
         })
 
-        queryset = Territorio.objects.comuni().filter( **filters ).defer('geom')\
+        queryset = Territorio.objects.comuni().filter(*args, **kwargs).defer('geom')\
             .annotate( totale=models.Sum('progetto__fin_totale_pubblico'))\
             .filter( totale__isnull=False )
 
@@ -222,7 +246,6 @@ class AggregatoView(object):
 
 class HomeView(AccessControlView, AggregatoView, TemplateView):
     template_name = 'homepage.html'
-
 
     def get_context_data(self, **kwargs):
 
@@ -324,7 +347,7 @@ class ContactView(TemplateView):
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
 
-            return HttpResponseRedirect( "{0}?completed=true".format(reverse('oc_contatti')) ) # Redirect after POST
+            return HttpResponseRedirect( "{0}?completed=true".format(reverse('oc-contatti')) ) # Redirect after POST
 
         return self.get(request, *args, **kwargs)
 
@@ -342,7 +365,7 @@ class OpendataView(TemplateView):
     """
 
     # dates are attributes in the view, so that it can possibly be used in other views
-    data_date = '20140228'
+    data_date = '20140430'
     cipe_date = '20121231'
     spesa_date = '20140531'
 
@@ -543,6 +566,12 @@ class OpendataView(TemplateView):
         return files
 
 
+class EmbedPdfView(TemplateView):
+    template_name = 'open_coesione/pdfview.html'
+    def get_context_data(self, **kwargs):
+        context = super(EmbedPdfView, self).get_context_data(**kwargs)
+
+
 class PilloleRedirectView(RedirectView):
 
    def get_redirect_url(self, **kwargs):
@@ -553,3 +582,8 @@ class OpendataRedirectView(RedirectView):
 
    def get_redirect_url(self, **kwargs):
         return "/media/open_data/{0}".format(kwargs['path'])
+
+class DocumentsRedirectView(RedirectView):
+
+   def get_redirect_url(self, **kwargs):
+        return "/media/uploads/documenti/{0}".format(kwargs['path'])

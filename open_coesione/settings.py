@@ -122,6 +122,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -138,6 +139,10 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.flatpages',
+    'grappelli.dashboard',
+    'grappelli',
+    'filebrowser',
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django_extensions',
@@ -376,4 +381,26 @@ WIDGETS = [
     'soggetti.widgets.SoggettoWidget',
 ]
 
-BIG_SOGGETTI_THRESHOLD = 50
+BIG_SOGGETTI_THRESHOLD = 250
+BIG_PROGRAMMI_THRESHOLD = 500
+
+GRAPPELLI_ADMIN_TITLE = "Amministrazione di OpenCoesione"
+GRAPPELLI_INDEX_DASHBOARD = 'open_coesione.dashboard.CustomIndexDashboard'
+FILEBROWSER_STRICT_PIL = True
+FILEBROWSER_VERSIONS_BASEDIR = '_versions'
+FILEBROWSER_SEARCH_TRAVERSE = True
+FILEBROWSER_MAX_UPLOAD_SIZE = 104857600
+FILEBROWSER_EXTENSIONS = {
+    'Folder': [''],
+    'Image': ['.jpg','.jpeg','.gif','.png','.tif','.tiff'],
+    'Document': ['.pdf','.doc','.rtf','.txt','.xls','.csv','.zip'],
+    'Video': ['.mov','.wmv','.mpeg','.mpg','.avi','.rm'],
+    'Audio': ['.mp3','.mp4','.wav','.aiff','.midi','.m4p']
+}
+FILEBROWSER_SELECT_FORMATS = {
+    'file': ['Folder','Image','Document','Video','Audio'],
+    'image': ['Image'],
+    'document': ['Document'],
+    'media': ['Video','Audio'],
+
+}

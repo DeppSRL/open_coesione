@@ -66,7 +66,11 @@
         {% endif %}
 
         {% if fonte_fin %}
-            <p>per questo programma: <a href="{{ fonte_fin.url_riferimento }}">{{ fonte_fin }}</a></p>
+            <p>per questo programma: <a href="{% url 'progetti_programma' fonte_fin.codice %}">{{ fonte_fin }}</a></p>
+        {% endif %}
+
+        {% if gruppo_programmi %}
+            <p>per i <a href="{% url 'progetti_programmi' gruppo_programmi.codice %}">{{ gruppo_programmi.descrizione }}</a></p>
         {% endif %}
 
         <hr class="big">

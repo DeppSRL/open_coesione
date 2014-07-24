@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import subprocess
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
 from django.db.models import Count
 
 from optparse import make_option
+from progetti.models import Progetto
 from soggetti.models import Soggetto
 
 import logging
@@ -103,11 +105,35 @@ class Command(BaseCommand):
 
     def handle_programmi(self, *args, **options):
         self.logger.info("== regenerating cache for programmi")
-        from progetti.models import ProgrammaAsseObiettivo
-        codes = (item['codice'] for item in ProgrammaAsseObiettivo.objects.programmi().values('codice'))
-        for code in codes:
+
+
+        # generate cache for single programs exceeding the BIG_PROGRAMMI_THRESHOLD
+        from progetti.models import ProgrammaAsseObiettivo, ProgrammaLineaAzione
+        prog_classification = {
+            'PAO': {'class': ProgrammaAsseObiettivo,
+                    'filter': 'programma_asse_obiettivo' },
+            'PLA': {'class': ProgrammaLineaAzione,
+                    'filter': 'programma_linea_azione' }
+        }
+        for cl_key,cl in prog_classification.items():
+            codes = cl['class'].objects.programmi().values_list('codice', flat=True)
+            filter_key = "%s__classificazione_superiore__classificazione_superiore" % (cl['filter'],)
+            for code in codes:
+                filter_dict = { filter_key: code }
+                n_progetti = Progetto.objects.filter(**filter_dict).count()
+                if n_progetti >= settings.BIG_PROGRAMMI_THRESHOLD:
+                    self.logger.info("Program {0}. Generating cache for {1} projects.".format(code, n_progetti))
+                    self._aggregate_cache_computation(
+                        code, page_type='programma',
+                        clearcache=options['clearcache'], verbosity=options['verbosity']
+                    )
+                else:
+                    self.logger.info("Program {0}. Skipping cache generation for {1} projects.".format(code, n_progetti))
+
+        # generate programs aggregates
+        for pr_aggregate_slug in ['ue-fesr', 'ue-fse', 'fsc']:
             self._aggregate_cache_computation(
-                code, page_type='programma',
+                pr_aggregate_slug, page_type='programmi',
                 clearcache=options['clearcache'], verbosity=options['verbosity']
             )
 

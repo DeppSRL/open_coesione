@@ -6,7 +6,7 @@ from django.test import RequestFactory
 import logging
 
 from open_coesione.views import HomeView
-from progetti.views import TipologiaView, TemaView, ProgrammaView
+from progetti.views import TipologiaView, TemaView, ProgrammaView, ProgrammiView
 from territori.models import Territorio
 from territori.views import TerritorioView, MapnikRegioniView, MapnikProvinceView, MapnikComuniView, LeafletView, AmbitoNazionaleView, AmbitoEsteroView
 from django.core.cache import cache
@@ -149,6 +149,21 @@ class Command(BaseCommand):
                 'leaflet_url_names': (
                     { 'name': 'territori_leaflet_regioni_programma' },
                     { 'name': 'territori_leaflet_province_programma' },
+                )
+            }),
+            'programmi': (self.handle_other, {
+                'aggregate_view_class': ProgrammiView,
+                'url_name': 'progetti_programmi',
+                'inner_filter': 'gruppo_programmi',
+                'mapnik_url_names_views': (
+                    { 'name': 'territori_mapnik_regioni_gruppoprogrammi',
+                      'view': MapnikRegioniView },
+                    { 'name': 'territori_mapnik_province_gruppoprogrammi',
+                      'view': MapnikProvinceView },
+                ),
+                'leaflet_url_names': (
+                    { 'name': 'territori_leaflet_regioni_gruppoprogrammi' },
+                    { 'name': 'territori_leaflet_province_gruppoprogrammi' },
                 )
             }),
             'regione': (self.handle_other, {

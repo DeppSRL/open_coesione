@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.flatpages.models import FlatPage
 from models import ContactMessage, PressReview, Pillola, URL, FAQ
 from django.forms import ModelForm, CharField
 from django.contrib.contenttypes import generic
@@ -7,14 +8,54 @@ from tinymce.widgets import TinyMCE
 
 from tagging.admin import TagInline
 
-class PillolaAdminForm(ModelForm):
-    description = CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
+
+from django.contrib.flatpages.admin import FlatPageAdmin, FlatpageForm
+
+
+common_mce_attrs = {
+    'theme': "advanced",
+    'plugins': "fullscreen,media,preview,advimage,table",
+    'plugin_preview_width' : "1280",
+    'plugin_preview_height' : "800",
+    'content_css' : "/static/css/bootstrap.css",
+    'plugin_preview_pageurl': "/tinymce/preview/content",
+    'cleanup_on_startup': True,
+    'custom_undo_redo_levels': 10,
+    'height': 500,
+    'theme_advanced_buttons1' : "bold,italic,underline,removeformat,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,|,formatselect,|,undo,redo",
+    'theme_advanced_buttons2' : "link,unlink,|,image,media,|,tablecontrols,fullscreen,zoom,|,preview,code",
+    'theme_advanced_buttons3': "",
+    'theme_advanced_toolbar_location': "top"
+}
+
+
+class TinyMCEEnabledForm(ModelForm):
+    class Media:
+        js = [
+            '/static/tiny_mce/tiny_mce.js',
+        ]
+
+    pass
+
+
+class OCFlatpageForm(TinyMCEEnabledForm, FlatpageForm):
+    common_mce_attrs['plugin_preview_pageurl'] = "/tinymce/preview/page"
+
+    content = CharField(widget=TinyMCE(
+        mce_attrs=common_mce_attrs
+    ))
+
+class OCFlatPageAdmin(FlatPageAdmin):
+    form = OCFlatpageForm
+
+class PillolaAdminForm(TinyMCEEnabledForm):
+    description = CharField(widget=TinyMCE(mce_attrs=common_mce_attrs))
     class Meta:
         model = Pillola
 
-class FAQAdminForm(ModelForm):
-    risposta_it = CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
-    risposta_en = CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
+class FAQAdminForm(TinyMCEEnabledForm):
+    risposta_it = CharField(widget=TinyMCE(mce_attrs=common_mce_attrs))
+    risposta_en = CharField(widget=TinyMCE(mce_attrs=common_mce_attrs))
     class Meta:
         model = FAQ
 
@@ -47,3 +88,5 @@ admin.site.register(ContactMessage, MessagesAdmin)
 admin.site.register(PressReview, PressReviewAdmin)
 admin.site.register(Pillola, PillolaAdmin)
 admin.site.register(FAQ, FAQAdmin)
+admin.site.unregister(FlatPage)
+admin.site.register(FlatPage, OCFlatPageAdmin)

@@ -717,6 +717,9 @@ hr.big {
     text-transform: none;
   }
 
+  h2 {
+    margin-top: 1.8em;
+  }
   .table td {
     text-align: right;
     width: 29%;
@@ -772,7 +775,6 @@ hr.big {
   text-transform: none
 }
 
-
 .navbar .nav {
   z-index: 20000;
 }
@@ -782,4 +784,41 @@ hr.big {
   overflow: hidden;
   background-color: #AFE0D8;
   border-bottom: 1px solid #050505;
+}
+
+body#tinymce {
+  margin: 10px;
+}
+
+#menu li.bi-lingual {
+  line-height: 14px;
+  margin-top: 2px;
+
+  em {
+    font-size: 13px;
+    margin-left: 2px;
+  }
+}
+
+
+// tooltip
+a[rel=info-tooltip] [class^="icon-"],
+a[rel=info-tooltip] [class*=" icon-"] {
+  display: inline-block;
+  text-decoration: none;
+}
+
+a[rel=info-tooltip]:hover i {
+  color: #005652;
+  text-decoration: none;
+}
+
+.tooltip {
+  z-index: 1000000!important;
+
+}
+
+.tooltip-inner {
+  text-align: left!important;
+  font-size: 14px;
 }
