@@ -4,83 +4,110 @@
 {% block page_title %}Dati ISTAT di contesto{% endblock %}
 
 {% block js_content %}
-  {% addtoblock "js_script" %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-collapse.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>
-  {% endaddtoblock %}
+    {% addtoblock "js_script" %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-collapse.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>
+    {% endaddtoblock %}
 
-  {{ block.super }}
+    {{ block.super }}
 
-  <script type="text/javascript">
+    <script type="text/javascript">
 
-    $(document).ready(function() {
+        $(document).ready(function () {
 
-      APP.base_url = '{{ STATIC_URL }}' ;
+            APP.base_url = '{{ STATIC_URL }}';
 
-      $('#index_charts .collapse')
-        .on('show', function(e) {
-          !$.isEmptyObject(APP.chart) && APP.chart.destroy();
-          var $chart_container = $(e.currentTarget).css('height','auto');
-          var $selectors = $('#topic_chart').next('form');
-          //console.log($chart_container,'topic', $chart_container.data('topic'), 'location', $chart_container.data('location') );
-          $('#topic_chart')
-            .data('topic', $chart_container.data('topic'))
-            .appendTo( $chart_container.children().first() )
-            .after( $selectors )
-          ;
-        })
-        .on('shown', function(e) {
-          print_line_chart('#topic_chart', 1, {{ lista_regioni|length }} + 1);
-        }).first().collapse('show');
-    });
-  </script>
+            $('#index_charts .collapse')
+                    .on('show', function (e) {
+                        !$.isEmptyObject(APP.chart) && APP.chart.destroy();
+                        var $chart_container = $(e.currentTarget).css('height', 'auto');
+                        var $selectors = $('#topic_chart').next('form');
+                        //console.log($chart_container,'topic', $chart_container.data('topic'), 'location', $chart_container.data('location') );
+                        $('#topic_chart')
+                                .data('topic', $chart_container.data('topic'))
+                                .appendTo($chart_container.children().first())
+                                .after($selectors)
+                        ;
+                    })
+                    .on('shown', function (e) {
+                        print_line_chart('#topic_chart', 1, {{ lista_regioni|length }} +1);
+                    }).first().collapse('show');
+        });
+    </script>
 {% endblock %}
 
 {% block container %}
-  {{ block.super }}
+    {{ block.super }}
 
-  <section class="container">
-    <div class="row">
-      <div class="span12" id="charts_accordion">
+    <section class="container">
+        <div class="row">
+            <div class="span12" style="margin-top: 2em; margin-right: 2em;">
+                <p>
+                Per valutare come le risorse delle politiche di coesione vengono impegnate rispetto ai bisogni dei
+                territori in cui intervengono, su diversi ambiti tematici, dall’Agenda Digitale ai Trasporti,
+                dall’Inclusione sociale all’Ambiente, puoi guardare gli indicatori statistici della banca dati
+                DPS-Istat.
+                </p>
+
+                <p>
+                La banca dati contiene circa 200 indicatori, in serie storica annuale, articolati per area tematica e
+                per priorità dei diversi cicli di programmazione, a partire dal 2000-2006.
+                </p>
+
+                <p>
+                Alla pagina <a href="{% url 'opendata' %}">Open data</a> puoi scaricare il file completo degli Indicatori (con disaggregazioni per
+                territorio, priorità, asse e tema sintetico) e di seguito puoi visualizzare i grafici relativi ad una
+                selezione di 50 indicatori, raggruppati per tema sintetico.
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="span12" id="charts_accordion">
         <span class="pull-right" style="font-size: 85%">
           scarica tutti gli indicatori di contesto ISTAT
           <a href="/opendata/{{ istat_data_file.file_name }}">
-            [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]
+              [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]
           </a>
         </span>
 
-        <h1>Indicatori sui temi</h1>
 
-        <div class="accordion" id="index_charts">
-          {% for tema in lista_temi_principali %}
-            <div class="accordion-group">
-              <div class="accordion-heading">
-                <h2 class="accordion-toggle" data-toggle="collapse" data-parent="#index_charts" data-target="#theme_index_{{ tema.codice }}">
-                  <i class="icon-circle-arrow-down pull-right"></i>
-                  {{ tema.short_label }}
-                </h2>
-              </div>
-              <div id="theme_index_{{ tema.codice }}" data-topic="{{ tema.codice }}" class="accordion-body collapse{% if forloop.first %} in{% endif %}">
-                <div class="accordion-inner">{% if forloop.first %}
-                  <div id="topic_chart" style="height:270px;"></div>
-                  <form action="#">
-                    <div class="input-append text-center">
-                      <select id="region-selector" class="span3">
-                        <option value=""> -- Confronta le regioni -- </option>
-                      </select><a id="region-reset" class="btn add-on" href="#">reset</a>
+                <h1>Indicatori sui temi</h1>
 
-                      <select id="indicator-selector" class="span5"></select>
-                    </div>
-                  </form>
-                {% endif %}</div>
-              </div>
+                <div class="accordion" id="index_charts">
+                    {% for tema in lista_temi_principali %}
+                        <div class="accordion-group">
+                            <div class="accordion-heading">
+                                <h2 class="accordion-toggle"
+                                    data-toggle="collapse"
+                                    data-parent="#index_charts"
+                                    data-target="#theme_index_{{ tema.codice }}">
+                                    <i class="icon-circle-arrow-down pull-right"></i>
+                                    {{ tema.short_label }}
+                                </h2>
+                            </div>
+                            <div id="theme_index_{{ tema.codice }}"
+                                 data-topic="{{ tema.codice }}"
+                                 class="accordion-body collapse{% if forloop.first %} in{% endif %}">
+                                <div class="accordion-inner">{% if forloop.first %}
+                                    <div id="topic_chart" style="height:270px;"></div>
+                                    <form action="#">
+                                        <div class="input-append text-center">
+                                            <select id="region-selector" class="span3">
+                                                <option value=""> -- Confronta le regioni --</option>
+                                            </select><a id="region-reset" class="btn add-on" href="#">reset</a>
+
+                                            <select id="indicator-selector" class="span5"></select>
+                                        </div>
+                                    </form>
+                                {% endif %}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
             </div>
-          {% endfor %}
         </div>
-
-      </div>
-    </div>
-  </section>
+    </section>
 
 {% endblock %}
