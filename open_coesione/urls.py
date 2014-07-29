@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.gis import admin
 from django.conf import settings
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from open_coesione.views import HomeView, FondiView, RisorseView, ContactView, PressView, SpesaCertificataView, \
     OpendataView, PilloleView, PillolaView, OpendataRedirectView, PilloleRedirectView, FAQView, DatiISTATView
 from rubrica.views import NLContactView
@@ -63,8 +63,9 @@ urlpatterns = patterns('',
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
     url(r'^info-disponibili/', TemplateView.as_view(template_name='flat/info_disponibili.html')),
 
-    url(r'^iscrizione-newsletter/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
-    url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html')),
+    url(r'^seguici/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
+    url(r'^iscrizione-newsletter/', RedirectView.as_view(url='/seguici/')),
+    url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html'), name='fonti-finanziamento'),
     url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),
     url(r'^api-faq/', RisorseView.as_view(template_name='flat/api.html'), name='api-faq'),
     url(r'^spesa-certificata/',

@@ -3,9 +3,21 @@
 {% block page_title %}{{ object.title }}{% endblock %}
 
 {% block content %}
-  <div id="pillole" style="margin-top: 2em;">
+    <div id="pillole">
+        {% include 'open_coesione/pillola_item.html' with object=object full_view=True only %}
+    </div>
+{% endblock %}
 
-    {% include 'open_coesione/pillola_item.html' with object=object title_linked=0 only %}
-
-  </div>
+{% block sidebar %}
+    {% if object.file %}
+        <h2 class='title'><span>Download</span></h2>
+        <div style="margin: 16px 0">
+            <a href="/{{ object.file.name }}" class="btn" style="background-image: none; border: 2px solid #005652; text-transform: uppercase; margin-right: 10px; padding-top: 0; padding-bottom: 0">
+                <i class="icon-download-alt"></i>
+                <span style="color: black;">{{ object.file.name|slice:"-3:"|lower }}</span>
+            </a>
+            {{ object.file.size|filesizeformat }}
+        </div>
+        <p><i class="icon-chevron-left"></i> <a href="{% url 'pillole' %}">Torna alle Pillole di OpenCoesione</a></p>
+    {% endif %}
 {% endblock %}

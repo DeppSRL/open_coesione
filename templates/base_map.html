@@ -6,33 +6,31 @@
 {% load search_url_filters %}
 
 {% block css_header %}
-  {{ block.super }}
-  <style type="text/css">
-    {% for class, color in map_legend_colors.items %}
-    .{{ class }} i { color:{{ color }}; }
-    {% endfor %}
-  </style>
+    {{ block.super }}
+    <style type="text/css">
+        {% for class, color in map_legend_colors.items %}
+            .{{ class }} i { color:{{ color }}; }
+        {% endfor %}
+    </style>
 {% endblock %}
 
 {% block js_content %}
+    {% addtoblock "css_link" %}
+        <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/map-styles.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}leaflet-dist/leaflet.css" />
+        <!--[if lte IE 8]>
+            <link rel="stylesheet" href="{{ STATIC_URL }}leaflet-dist/leaflet.ie.css" />
+        <![endif]-->
+    {% endaddtoblock %}
 
+    {% addtoblock "js_script" %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>
 
-  {% addtoblock "css_link" %}
-    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/map-styles.css">
-    <link rel="stylesheet" href="{{ STATIC_URL }}leaflet-dist/leaflet.css" />
-    <!--[if lte IE 8]>
-      <link rel="stylesheet" href="{{ STATIC_URL }}leaflet-dist/leaflet.ie.css" />
-    <![endif]-->
-  {% endaddtoblock %}
-
-  {% addtoblock "js_script" %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>
-
-    <script type="text/javascript" src="{{ STATIC_URL }}leaflet-dist/leaflet.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-loader.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/oc-maps.js"></script>
-  {% endaddtoblock %}
+        <script type="text/javascript" src="{{ STATIC_URL }}leaflet-dist/leaflet.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-loader.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/oc-maps.js"></script>
+    {% endaddtoblock %}
 
     {{ block.super }}
 
@@ -90,403 +88,340 @@
     </script>
 
     <script type="text/javascript">
+        /*
+         * Map
+         */
 
+        var MAPPA, MAPPA_LAYER, MAPPA_MONDO, MAPPA_ONCLICK, MAPPA_POPUP, MAPPA_CACHE = {}, IS_LOADING = false;
 
+        $(document).ready(function() {
 
-      /*
-       * Map
-       */
+            $('#main_topics').length && print_pie_chart('#main_topics', 'main_topics_chart' );
+            $('#main_types').length && print_pie_chart('#main_types', 'main_types_chart' );
 
-      var MAPPA, MAPPA_LAYER, MAPPA_MONDO, MAPPA_ONCLICK, MAPPA_POPUP, MAPPA_CACHE = {}, IS_LOADING = false;
-
-      $(document).ready(function() {
-
-          $('#main_topics').length && print_pie_chart('#main_topics', 'main_topics_chart' );
-          $('#main_types').length && print_pie_chart('#main_types', 'main_types_chart' );
-
-
-          // costo or pagamento or numero
-          if ( !$('#map').length ) {
-            return;
-          }
-          /*
-           * Get required dataset directly from tabs in html
-           */
-          var dataset_name = $('#map-layer-selector .block-chart.block-active').data('dataset');
-          var layer_name = $('#selectors .active').prop('id');
-
-          // init MAPPA
-          build_map('map', '/territori/leaflet/{{ map_selector }}'+$('#selectors .active').data('path')+'.json?tematizzazione='+dataset_name, function(data) {
-            if ( data.layer_name == 'world' ) {
-              // marker added if necessary
-              var marker = $('#selectors .btn.active').data('coords');
-              if ( marker ) {
-                marker = marker.split(',');
-                MAPPA.addLayer(new L.Circle(new L.LatLng( marker[1], marker[0]), 30 * 1000, {
-                  color: '#343434'
-                }));
-              }
+            // costo or pagamento or numero
+            if ( !$('#map').length ) {
+                return;
             }
-          });
+            /*
+             * Get required dataset directly from tabs in html
+             */
+            var dataset_name = $('#map-layer-selector .block-chart.block-active').data('dataset');
+            var layer_name = $('#selectors .active').prop('id');
 
-          $('#selectors .btn').click(function() {
-            if ($(this).hasClass('active') || IS_LOADING) {
-              return false;
-            }
-            IS_LOADING = true;
-
-            // close popup if opened
-            MAPPA_POPUP && MAPPA.closePopup(MAPPA_POPUP);
-
-            var me = $(this);
-            me.siblings().removeClass('active');
-            me.attr('disabled', true);
-
-            build_map('map', '/territori/leaflet/{{ map_selector }}'+ $(this).data('path') +'.json?tematizzazione='+dataset_name + $('#procapite_selectors .btn.active').data('path'), function() {
-              me.addClass("active");
-              me.attr('disabled', false);
-              IS_LOADING = false;
+            // init MAPPA
+            build_map('map', '/territori/leaflet/{{ map_selector }}'+$('#selectors .active').data('path')+'.json?tematizzazione='+dataset_name, function(data) {
+                if ( data.layer_name == 'world' ) {
+                    // marker added if necessary
+                    var marker = $('#selectors .btn.active').data('coords');
+                    if ( marker ) {
+                        marker = marker.split(',');
+                        MAPPA.addLayer(new L.Circle(new L.LatLng( marker[1], marker[0]), 30 * 1000, {
+                            color: '#343434'
+                        }));
+                    }
+                }
             });
 
-            return false;
-          });
+            $('#selectors .btn').click(function() {
+                if ($(this).hasClass('active') || IS_LOADING) {
+                    return false;
+                }
+                IS_LOADING = true;
 
-          $('#procapite_selectors .btn').click(function() {
-            if ($(this).hasClass('active') || IS_LOADING) {
-              return false;
-            }
-            IS_LOADING = true;
+                // close popup if opened
+                MAPPA_POPUP && MAPPA.closePopup(MAPPA_POPUP);
 
-            // close popup if opened
-            MAPPA_POPUP && MAPPA.closePopup(MAPPA_POPUP);
+                var me = $(this);
+                me.siblings().removeClass('active');
+                me.attr('disabled', true);
 
-            var me = $(this);
-            me.siblings().removeClass('active');
-            me.attr('disabled', true);
+                build_map('map', '/territori/leaflet/{{ map_selector }}'+ $(this).data('path') +'.json?tematizzazione='+dataset_name + $('#procapite_selectors .btn.active').data('path'), function() {
+                    me.addClass("active");
+                    me.attr('disabled', false);
+                    IS_LOADING = false;
+                });
 
-            build_map('map', '/territori/leaflet/{{ map_selector }}'+ $('#selectors .btn.active').data('path') +'.json?tematizzazione='+dataset_name + me.data('path'), function() {
-              me.addClass("active");
-              me.attr('disabled', false);
-              IS_LOADING = false;
+                return false;
             });
 
-            return false;
-          })
+            $('#procapite_selectors .btn').click(function() {
+                if ($(this).hasClass('active') || IS_LOADING) {
+                    return false;
+                }
+                IS_LOADING = true;
 
-    });
-  </script>
+                // close popup if opened
+                MAPPA_POPUP && MAPPA.closePopup(MAPPA_POPUP);
 
+                var me = $(this);
+                me.siblings().removeClass('active');
+                me.attr('disabled', true);
+
+                build_map('map', '/territori/leaflet/{{ map_selector }}'+ $('#selectors .btn.active').data('path') +'.json?tematizzazione='+dataset_name + me.data('path'), function() {
+                    me.addClass("active");
+                    me.attr('disabled', false);
+                    IS_LOADING = false;
+                });
+
+                return false;
+            })
+
+        });
+    </script>
 {% endblock %}
 
 {% block container %}
+    <div class="container" id="content-header">
+        <div class="row">
+            <div class="span6 block-container" id="map-layer-selector">
+                <a href="{{ request.path }}?tematizzazione=totale_costi" class="block-chart{% if tematizzazione == 'totale_costi' %} block-active{% endif %}" data-dataset="totale_costi">
+                    <strong class="title">Finanziamenti monitorati</strong>
+                    <p>{{ totale_costi|intword }} <span>di euro</span></p>
+                    {% if tematizzazione == 'totale_costi' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+                </a>
 
-  <div class="container" id="content-header">
+                <a href="{{ request.path }}?tematizzazione=totale_pagamenti" class="block-chart{% if tematizzazione == 'totale_pagamenti' %} block-active{% endif %}" title="{{ percentuale_costi_pagamenti }} del totale" data-dataset="totale_pagamenti">
+                    <strong class="title">Pagamenti monitorati</strong>
+                    <p>{{ totale_pagamenti|intword }} <span>di euro</span></p>
+                    {% if tematizzazione == 'totale_pagamenti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+                </a>
 
-    <div class="row">
-
-      <div class="span6 block-container" id="map-layer-selector">
-
-        <a href="{{ request.path }}?tematizzazione=totale_costi" class="block-chart{% if tematizzazione == 'totale_costi' %} block-active{% endif %}" data-dataset="totale_costi">
-
-          <strong class="title">Finanziamenti monitorati</strong>
-
-          <p>{{ totale_costi|intword }} <span>di euro</span></p>
-
-{#          <div class="bar-vertical"></div>#}
-          {% if tematizzazione == 'totale_costi' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-
-{#          <div style="position: absolute; bottom: -16px; left: 5px; color: black; font-size: 10px; text-transform: none;">#}
-{#            *Dati aggiornati al 31.12.2011#}
-{#          </div>#}
-
-        </a>
-
-        <a href="{{ request.path }}?tematizzazione=totale_pagamenti" class="block-chart{% if tematizzazione == 'totale_pagamenti' %} block-active{% endif %}" title="{{ percentuale_costi_pagamenti }} del totale" data-dataset="totale_pagamenti">
-
-          <strong class="title">Pagamenti monitorati</strong>
-
-          <p>{{ totale_pagamenti|intword }} <span>di euro</span></p>
-
-{#          <div class="bar-vertical"><span style="height:{{ percentuale_costi_pagamenti }}">{{ percentuale_costi_pagamenti }}</span></div>#}
-
-          {% if tematizzazione == 'totale_pagamenti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-
-        </a>
-
-        <a href="{{ request.path }}?tematizzazione=totale_progetti" class="block-chart{% if tematizzazione == 'totale_progetti' %} block-active{% endif %}" data-dataset="totale_progetti">
-
-          <strong class="title">Progetti monitorati</strong>
-
-          <p>{{ totale_progetti|intcomma }}</p>
-
-          {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-
-        </a>
-
-      </div>
-
-
-      {% block top_content %}{% endblock %}
-
-
-    </div>
-
-  </div>
-
-  <div class="area">
-    <div class="container">
-
-      <div class="row" id="statistics">
-
-        {% if soggetto %}
-          <div class="span12">
-            <h1 class="title violet" style="margin-bottom: 0;"><span>{{ soggetto.denominazione }}</span></h1>
-            <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}">Tutti i progetti</a></p>
-            <ul class="unstyled">
-            {% if soggetto.forma_giuridica %}<li>{{ soggetto.forma_giuridica }}</li>{% endif %}
-            {% if soggetto.indirizzo %}<li>{{ soggetto.indirizzo }}</li>{% endif %}
-            {% if soggetto.territorio %}
-              <li>
-                {% if soggetto.cap %}{{ soggetto.cap }}{% endif %}
-                {{ soggetto.territorio.denominazione }}
-              </li>
-            {% endif %}
-            {% if soggetto.rappresentante_legale %}<li>Rappresentante legale: {{ soggetto.rappresentante_legale }}</li>{% endif %}
-            {% if soggetto.codice_fiscale.strip %}<li>CF.: {{ soggetto.codice_fiscale }}</li>{% endif %}
-            </ul>
-          </div>
-        {% endif %}
-
-          {% if territori_esteri %}
-
-            <div class="span12">
-              <h1 class="title black" style="margin-bottom: 0;"><span>Estero</span></h1>
+                <a href="{{ request.path }}?tematizzazione=totale_progetti" class="block-chart{% if tematizzazione == 'totale_progetti' %} block-active{% endif %}" data-dataset="totale_progetti">
+                    <strong class="title">Progetti monitorati</strong>
+                    <p>{{ totale_progetti|intcomma }}</p>
+                    {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+                </a>
             </div>
 
-          {% endif %}
-
-        <div class="span6">
-
-          {% if territorio or programma or gruppo_programmi or tema or tipologia %}
-          <div class="page-header">
-            {% if territorio %}
-						<h1 class="title black" style="margin-bottom: 0;"><span>{% if territorio.territorio != 'N' %}{{ territorio.get_territorio_display }} {% if territorio.territorio != 'R' %}di {% endif %}{% endif %}{{ territorio }}</span></h1>
-              <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{{ territorio|progetti_search_url }}">Vai a tutti i progetti</a></p>
-	          {% endif %}
-            {% if programma %}
-	            <h1 class="title black" style="margin-bottom: 0;"><span>Programma: {{ programma.descrizione }}</span></h1>
-                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&fonte_fin={{ programma.codice }}">Vai a tutti i progetti</a></p>
-            {% endif %}
-            {% if gruppo_programmi %}
-	            <h1 class="title black" style="margin-bottom: 0;"><span>{{ gruppo_programmi.descrizione }}</span></h1>
-                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&gruppo_programmi={{ gruppo_programmi.codice }}">Vai a tutti i progetti</a></p>
-            {% endif %}
-            {% if tema %}
-	            <h1 class="title black" style="margin-bottom: 0;"><span>Tema: {{ tema.short_label }}</span></h1>
-                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}">Vai a tutti i progetti</a></p>
-	          {% endif %}
-            {% if tipologia %}
-	            <h1 class="title black" style="margin-bottom: 0;"><span>Natura: {{ tipologia.short_label }}</span></h1>
-                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}">Vai a tutti i progetti</a></p>
-	          {% endif %}
-          </div>
-          {% endif %}
-
-          <div class="row-fluid">
-            {% if tema %}
-              <div class="span6">{{ tema.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
-            {% endif %}
-
-            {% if tipologia %}
-              <div class="span6">{{ tipologia.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
-            {% endif %}
-
-            {% if nature_principali %}
-            <div class="span6">
-              <h4>Natura dell'investimento</h4>
-
-              <p>Cosa si fa con i progetti?</p>
-
-              <div id="main_types_chart" style="width: 100%; height: 250px"></div>
-
-              <table id="main_types" class="table">
-                {% for tipologia in nature_principali %}
-                  <tr>
-                      {% if territorio %}
-                          <td><a href="{{ territorio|progetti_search_url_by_natura:tipologia }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
-                      {%  elif tema %}
-                        <td><a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
-                      {%  elif soggetto %}
-                        <td><a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&soggetto={{ soggetto.slug }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
-                      {%  elif programma %}
-                        <td><a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&fonte_fin={{ programma.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
-                      {%  else %}
-                          <td><a href="{{ tipologia.get_absolute_url }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a></td>
-                      {% endif %}
-                    <td class="amount"><strong>{{ tipologia.tot|default:"0"|floatformat:"0" }}</strong></td>
-                  </tr>
-                {% endfor %}
-              </table>
-
-            </div>
-            {% endif %}
-
-            {% if temi_principali %}
-            <div class="span6">
-              <h4>Temi</h4>
-
-              <p>In quali settori si interviene?</p>
-
-              <div id="main_topics_chart" style="width: 100%; height: 250px"></div>
-
-              <table id="main_topics" class="table">
-                {% for tema in temi_principali %}
-                  <tr>
-                      {% if territorio %}
-                          <td><a href="{{ territorio|progetti_search_url_by_tema:tema }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
-                      {%  elif tipologia %}
-                          <td><a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}</td>
-                      {%  elif soggetto %}
-                          <td><a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&soggetto={{ soggetto.slug }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
-                      {%  elif programma %}
-                          <td><a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&fonte_fin={{ programma.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}</td>
-                      {%  else %}
-                          <td><a href="{{ tema.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a></td>
-                      {% endif %}
-                    <td class="amount"><strong>{{ tema.tot|default:"0"|floatformat:"0" }}</strong></td>
-                  </tr>
-                {% endfor %}
-              </table>
-
-            </div>
-            {% endif %}
-          </div>
-
-          <p>Dati espressi in <strong>{% if tematizzazione == 'totale_progetti' %}numero di progetti{% else %}euro{% endif %}</strong></p>
-
+            {% block top_content %}{% endblock %}
         </div>
+    </div>
 
-        <div class="span6" id="map_container">
-          {% block map %}
-            <div class="map-header clearfix">
+    <div class="area">
+        <div class="container">
+            <div class="row" id="statistics">
+                {% if soggetto %}
+                    <div class="span12">
+                        <h1 class="title violet" style="margin-bottom: 0;"><span>{{ soggetto.denominazione }}</span></h1>
+                        <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}">Tutti i progetti</a></p>
+                        <ul class="unstyled">
+                            {% if soggetto.forma_giuridica %}<li>{{ soggetto.forma_giuridica }}</li>{% endif %}
+                            {% if soggetto.indirizzo %}<li>{{ soggetto.indirizzo }}</li>{% endif %}
+                            {% if soggetto.territorio %}<li>{% if soggetto.cap %}{{ soggetto.cap }}{% endif %} {{ soggetto.territorio.denominazione }}</li>{% endif %}
+                            {% if soggetto.rappresentante_legale %}<li>Rappresentante legale: {{ soggetto.rappresentante_legale }}</li>{% endif %}
+                            {% if soggetto.codice_fiscale.strip %}<li>CF.: {{ soggetto.codice_fiscale }}</li>{% endif %}
+                        </ul>
+                    </div>
+                {% endif %}
 
-            {% if territorio.territorio != 'C' %}
-            <div class="btn-group pull-left" id="procapite_selectors">
-              <a class="btn active" data-path="" href="#">Totali</a>
-              {% if tematizzazione == 'totale_costi' %}
-              <a class="btn" href="#" data-path="_procapite">Pro capite</a>
-              {% endif %}
+                {% if territori_esteri %}
+                    <div class="span12">
+                        <h1 class="title black" style="margin-bottom: 0;"><span>Estero</span></h1>
+                    </div>
+                {% endif %}
+
+                <div class="span6">
+                    {% if territorio or programma or gruppo_programmi or tema or tipologia %}
+                        <div class="page-header">
+                            {% if territorio %}
+        						<h1 class="title black" style="margin-bottom: 0;"><span>{% if territorio.territorio != 'N' %}{{ territorio.get_territorio_display }} {% if territorio.territorio != 'R' %}di {% endif %}{% endif %}{{ territorio }}</span></h1>
+                                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{{ territorio|progetti_search_url }}">Vai a tutti i progetti</a></p>
+                            {% endif %}
+                            {% if programma %}
+                	            <h1 class="title black" style="margin-bottom: 0;"><span>Programma: {{ programma.descrizione }}</span></h1>
+                                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&fonte_fin={{ programma.codice }}">Vai a tutti i progetti</a></p>
+                            {% endif %}
+                            {% if gruppo_programmi %}
+                	            <h1 class="title black" style="margin-bottom: 0;"><span>{{ gruppo_programmi.descrizione }}</span></h1>
+                                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&gruppo_programmi={{ gruppo_programmi.codice }}">Vai a tutti i progetti</a></p>
+                            {% endif %}
+                            {% if tema %}
+                	            <h1 class="title black" style="margin-bottom: 0;"><span>Tema: {{ tema.short_label }}</span></h1>
+                                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}">Vai a tutti i progetti</a></p>
+                            {% endif %}
+                            {% if tipologia %}
+                	            <h1 class="title black" style="margin-bottom: 0;"><span>Natura: {{ tipologia.short_label }}</span></h1>
+                                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}">Vai a tutti i progetti</a></p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <div class="row-fluid">
+                        {% if tema %}
+                            <div class="span6">{{ tema.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
+                        {% endif %}
+                        {% if tipologia %}
+                            <div class="span6">{{ tipologia.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
+                        {% endif %}
+                        {% if nature_principali %}
+                            <div class="span6">
+                                <h1 class="title"><span>Natura dell'investimento</span></h1>
+
+                                <p>Cosa si fa con i progetti?</p>
+
+                                <div id="main_types_chart" style="width: 100%; height: 250px"></div>
+
+                                <table id="main_types" class="table">
+                                    {% for tipologia in nature_principali %}
+                                        <tr>
+                                            <td>
+                                                {% if territorio %}
+                                                    <a href="{{ territorio|progetti_search_url_by_natura:tipologia }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                {%  elif tema %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                {%  elif soggetto %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&soggetto={{ soggetto.slug }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                {%  elif programma %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&fonte_fin={{ programma.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                {%  else %}
+                                                    <a href="{{ tipologia.get_absolute_url }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a>
+                                                {% endif %}
+                                            </td>
+                                            <td class="amount"><strong>{{ tipologia.tot|default:"0"|floatformat:"0" }}</strong></td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        {% endif %}
+                        {% if temi_principali %}
+                            <div class="span6">
+                                <h1 class="title"><span>Temi</span></h1>
+
+                                <p>In quali settori si interviene?</p>
+
+                                <div id="main_topics_chart" style="width: 100%; height: 250px"></div>
+
+                                <table id="main_topics" class="table">
+                                    {% for tema in temi_principali %}
+                                        <tr>
+                                            <td>
+                                                {% if territorio %}
+                                                    <a href="{{ territorio|progetti_search_url_by_tema:tema }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}
+                                                {%  elif tipologia %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}
+                                                {%  elif soggetto %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&soggetto={{ soggetto.slug }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                {%  elif programma %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&fonte_fin={{ programma.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                {%  else %}
+                                                    <a href="{{ tema.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a>
+                                                {% endif %}
+                                            </td>
+                                            <td class="amount"><strong>{{ tema.tot|default:"0"|floatformat:"0" }}</strong></td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <p>Dati espressi in <strong>{% if tematizzazione == 'totale_progetti' %}numero di progetti{% else %}euro{% endif %}</strong></p>
+
+                </div>
+
+                <div class="span6" id="map_container">
+                    {% block map %}
+                        <div class="map-header clearfix">
+                            {% if territorio.territorio != 'C' %}
+                                <div class="btn-group pull-left" id="procapite_selectors">
+                                    <a class="btn active" data-path="" href="#">Totali</a>
+                                    {% if tematizzazione == 'totale_costi' %}
+                                        <a class="btn" href="#" data-path="_procapite">Pro capite</a>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+
+                            <div id="selectors" class="btn-group">
+                                {% if territorio.territorio == 'R' %}
+                                    <a href="#" id="regioni_{{ territorio.cod_reg }}_province" data-path="regioni/{{ territorio.cod_reg }}/province" class="btn">province</a>
+                                    <a href="#" id="regioni_{{ territorio.cod_reg }}_comuni" data-path="regioni/{{ territorio.cod_reg }}/comuni" class="btn active">comuni</a>
+                                {% elif territorio.territorio == 'P' %}
+                                    <a href="#" id="province_{{ territorio.cod_prov }}_comuni" data-path="province/{{ territorio.cod_prov }}/comuni" class="btn active">comuni</a>
+                                {% elif territorio.territorio == 'C' %}
+                                    <a href="#" id="comuni" data-path="world" data-coords="{{ territorio.geom.centroid.coords|join:"," }}" class="btn active">{{ territorio }}</a>
+                                {% else %}
+                                    <a href="#" id="regioni" data-path="regioni" class="btn">regioni</a><a href="#" id="province" data-path="province" class="btn active">province</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div id="map"{% if territorio.territorio == 'C' %} style=" height: 400px; "{% endif %}></div>
+                        <div id="map-search">
+                            <form class="form-search content">
+                                <div class="input-append">
+                                    Cerca territorio
+                                    <input id="map-city" type="text" class="input-large search-query" placeholder="Inserisci il territorio"><button type="submit" class="btn add-in"><i class="icon-search"></i></button>
+                                </div>
+                            </form>
+                        </div>
+                    {% endblock %}
+                </div>
             </div>
-            {% endif %}
 
-          <div id="selectors" class="btn-group">
-            {% if territorio.territorio == 'R' %}
-              <a href="#" id="regioni_{{ territorio.cod_reg }}_province" data-path="regioni/{{ territorio.cod_reg }}/province" class="btn">province</a>
-              <a href="#" id="regioni_{{ territorio.cod_reg }}_comuni" data-path="regioni/{{ territorio.cod_reg }}/comuni" class="btn active">comuni</a>
-            {% elif territorio.territorio == 'P' %}
-              <a href="#" id="province_{{ territorio.cod_prov }}_comuni" data-path="province/{{ territorio.cod_prov }}/comuni" class="btn active">comuni</a>
-            {% elif territorio.territorio == 'C' %}
-              <a href="#" id="comuni" data-path="world" data-coords="{{ territorio.geom.centroid.coords|join:"," }}" class="btn active">{{ territorio }}</a>
-            {% else %}
-              <a href="#" id="regioni" data-path="regioni" class="btn">regioni</a><a href="#" id="province" data-path="province" class="btn active">province</a>
-            {% endif %}
-          </div>
-            </div>
-          <div id="map"{% if territorio.territorio == 'C' %} style=" height: 400px; "{% endif %}></div>
-          <div id="map-search">
-              <form class="form-search content">
-                  <div class="input-append">
-                      Cerca territorio
-                      <input id="map-city" type="text" class="input-large search-query" placeholder="Inserisci il territorio"><button type="submit" class="btn add-in"><i class="icon-search"></i></button>
-                  </div>
-              </form>
-          </div>
-          {% endblock %}
+            {% block area_more_content %}
+                {% if top_progetti_per_costo or ultimi_progetti_conclusi or territori_piu_finanziati_pro_capite %}
+                    <div class="row">
+                        {% if top_progetti_per_costo %}
+                            <section class="span6">
+                                <h1 class='title'><span>Progetti con maggiori finanziamenti</span></h1>
+                                <table class="table">
+                                    {% for progetto in top_progetti_per_costo %}
+                                        <tr>
+                                            <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></td>
+                                            <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </section>
+                        {% endif %}
 
+                        {% if ultimi_progetti_conclusi %}
+                            <section class="span3">
+                                <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
+                                <ul class='spaced'>
+                                    {% for progetto in ultimi_progetti_conclusi %}
+                                        <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </section>
+                        {% endif %}
+
+                        {% if territori_piu_finanziati_pro_capite %}
+                            <section class="span3">
+                                <h1 class='title'><span>
+                                    {% if territorio and territorio.territorio == 'C' %}
+                                        Finanziamenti pro capite
+                                    {% else %}
+                                        Comuni con maggiori finanziamenti pro capite
+                                    {% endif %}
+                                </span></h1>
+                                <table class="table">
+                                    {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
+                                        <tr>
+                                            <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
+                                            <td class="amount"><strong>{{ territorio_finanziato.totale_pro_capite|intcomma }}</strong> euro</td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+
+                                {% if tema %}
+                                    <a href="{% url 'progetti_tema_csv' slug=tema.slug %}">Scarica i dati di tutti i comuni</a>
+                                {% elif tipologia %}
+                                    <a href="{% url 'progetti_tipologia_csv' slug=tipologia.slug %}">Scarica i dati di tutti i comuni</a>
+                                {% elif territorio %}
+                                    {% if territorio.territorio == 'P' %}
+                                        <a href="{% url 'progetti_provincia_csv' slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>
+                                    {% elif territorio.territorio == 'R' %}
+                                          <a href="{% url 'progetti_regione_csv' slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>
+                                    {% endif %}
+                                {% endif %}
+
+                                <p><small>Al comune è associato l'intero finanziamento dei progetti, anche quando il progetto è localizzato in più comuni. La popolazione di riferimento è quella al 31.12.2011 di fonte Istat.</small></p>
+                            </section>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endblock %}
         </div>
-      </div>
-
     </div>
-  </div>
-
-  {% if top_progetti_per_costo %}
-  <div class="container" style="margin-top:25px;">
-    <div class="row">
-
-      <section class="span6">
-        <h1 class='title'><span>Progetti con maggiori finanziamenti</span></h1>
-
-        <table class="table">
-          {% for progetto in top_progetti_per_costo %}
-            <tr>
-              <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></td>
-              <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
-            </tr>
-          {% endfor %}
-        </table>
-      </section>
-
-      {% if ultimi_progetti_conclusi %}
-      <section class="span3">
-        <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
-
-        <ul class='spaced'>
-          {% for progetto in ultimi_progetti_conclusi %}
-            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
-          {% endfor %}
-        </ul>
-
-      </section>
-      {% endif %}
-
-      {% if territori_piu_finanziati_pro_capite %}
-        <section class="span3">
-          <h1 class='title'><span>
-            {% if territorio and territorio.territorio == 'C' %}
-              Finanziamenti pro capite
-            {% else %}
-              Comuni con maggiori finanziamenti pro capite
-            {% endif %}
-          </span></h1>
-
-          <table class="table">
-            {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
-              <tr>
-                <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
-                <td class="amount"><strong>{{ territorio_finanziato.totale_pro_capite|intcomma }}</strong> euro</td>
-              </tr>
-            {% endfor %}
-          </table>
-
-          {% if tema %}
-            <a href="{% url 'progetti_tema_csv' slug=tema.slug %}">Scarica i dati di tutti i comuni</a>
-          {% elif tipologia %}
-            <a href="{% url 'progetti_tipologia_csv' slug=tipologia.slug %}">Scarica i dati di tutti i comuni</a>
-          {% elif territorio %}
-            {% if territorio.territorio == 'P' %}
-              <a href="{% url 'progetti_provincia_csv' slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>
-            {% elif territorio.territorio == 'R' %}
-              <a href="{% url 'progetti_regione_csv' slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>
-            {% endif %}
-          {% endif %}
-
-          <p>
-            <small>
-              Al comune è associato l'intero finanziamento dei progetti, anche quando il progetto è localizzato in più comuni. La popolazione di riferimento è quella al 31.12.2011 di fonte Istat.
-            </small>
-          </p>
-
-{#          <p class="text-right">#}
-{#            <a href="#">Scarica tutti i comuni</a>#}
-{#          </p>#}
-
-        </section>
-      {% endif %}
-
-    </div>
-  </div>
-  {% endif %}
-
-
-
 {% endblock %}
