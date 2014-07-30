@@ -8,7 +8,7 @@
     {{ block.super }}
 
     <div class="container" id="home">
-        <div class="row">
+        <div class="row row-1">
             <section class="span12">
                 <div class="row">
                     <div class="span12">
@@ -41,8 +41,8 @@
             </section>
         </div>
 
-        <div class="row">
-            <section class="span4" style="position: relative; padding-bottom: 4em">
+        <div class="row row-2">
+            <section class="span4">
                 <h1 class='title'><span>Indicatori territoriali e tematici</span></h1>
 
                 <p style="padding-top: 1em"><img src="{{ STATIC_URL }}img/home/indicatori.png" alt="Indicatori territoriali e tematici"></p>
@@ -51,7 +51,7 @@
                     <i class="icon-chevron-right"></i> <a href="{% url 'dati-istat' %}">Consulta gli indicatori territoriali e tematici</a></p>
             </section>
 
-            <section class="span4" style="position: relative; padding-bottom: 4em">
+            <section class="span4">
                 <h1 class='title'><span>Open data</span></h1>
 
                 <p style="padding-top: 1em"><img src="{{ STATIC_URL }}img/home/opendata.png" alt="Open Data"></p>
@@ -60,7 +60,7 @@
                     <i class="icon-chevron-right"></i> <a href="{% url 'opendata' %}">I dati aperti di OpenCoesione</a></p>
             </section>
 
-            <section class="span4" style="position: relative; padding-bottom: 4em">
+            <section class="span4">
                 <h1 class='title'><span>Partecipazione e riuso</span></h1>
 
                 <p style="padding-top: 1em"><img src="{{ STATIC_URL }}img/home/partecipazioneriuso.png" alt="Partecipazione e riuso"></p>
@@ -75,8 +75,8 @@
             </section>
         </div>
 
-        <div class="row">
-            <section class="span6" style="position: relative; padding-bottom: 2em">
+        <div class="row row-3">
+            <section class="span6">
                 <h1 class='title'><span>Risorse stanziate</span></h1>
 
                 <p>
@@ -95,7 +95,7 @@
                 <p style="position: absolute; bottom: 0; margin-bottom: 0"><i class="icon-chevron-right"></i> <a href="{% url 'fonti-finanziamento' %}">Approfondisci</a></p>
             </section>
 
-            <section class="span6" style="position: relative; padding-bottom: 2em">
+            <section class="span6">
                 <h1 class='title'><span>Spesa Certificata UE</span></h1>
 
                 <p>
@@ -115,6 +115,15 @@
         </div>
     </div>
 
+    {% addtoblock 'js_script' %}
+        <script type='text/javascript'>//<![CDATA[
+            $(document).ready(function() {
+                $('.row').each(function() {
+                    $(this).children('section').matchHeight();
+                });
+            });//]]>
+        </script>
+    {% endaddtoblock %}
 {% endblock %}
 
 {% block area_more_content %}
