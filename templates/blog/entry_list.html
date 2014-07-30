@@ -6,7 +6,7 @@
 {% block content %}
     <div id="blog">
         {% for object in object_list %}
-            {% include 'blog/entry_item.html' with object=object title_linked=True only %}
+            {% include 'blog/entry_item.html' with object=object title_linked=True SITE_URL=SITE_URL only %}
         {% endfor %}
     </div>
 
@@ -28,6 +28,7 @@
                   url: '{% url 'blog_item_load' '--' %}'.replace('--', slug),
                   success: function(data) {
                     article.replaceWith(data);
+                    addthis.toolbox('#addthis-' + slug);
                     loaded.push(slug);
                     location.href = '#' + slug;
                   }

@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
@@ -30,7 +32,7 @@ class BlogEntryView(DetailView):
 
 def blogEntryItem(request, slug):
     entry = get_object_or_404(Entry, slug=slug);
-    return render_to_response('blog/entry_item.html', {'full_view': 1, 'title_linked': 1, 'object': entry})
+    return render_to_response('blog/entry_item.html', {'full_view': True, 'title_linked': True, 'object': entry, 'SITE_URL': 'http://' + Site.objects.get(pk=settings.SITE_ID).domain})
 
 # class BlogByTagView(BlogView):
 #     def get_queryset(self):
