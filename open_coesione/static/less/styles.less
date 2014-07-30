@@ -233,6 +233,32 @@ section h1.title, section h2.title {
 
 }
 
+
+#sidebar ul#social_links {
+  margin-left: 5px;
+  list-style: none;
+
+  li {
+    a.vimeo, a.twitter, a.slideshare {
+      display: inline-block;
+      text-indent: -99999px;
+      overflow: hidden;
+      vertical-align: middle;
+      margin-bottom: 3px;
+      margin-right: 0.5em;
+      width: 32px;
+      height:28px;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-color: @greenDark;
+      &:hover { background-color: @green; }
+      &.twitter { background-image: url('../img/header/social-twitter.png'); }
+      &.vimeo { background-image: url('../img/header/social-vimeo.png'); }
+      &.slideshare { background-image: url('../img/header/social-slideshare.png'); }
+    }
+  }
+}
+
 // main section
 #wrapper > section#main {
   // for empty pages
@@ -589,6 +615,9 @@ hr.big {
 }
 
 #home .row {
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: -moz-box;
   display: flex;
 }
 

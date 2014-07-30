@@ -5233,6 +5233,45 @@ section h2.title span {
 #wrapper > header > div > .container #social_links li:first-child a {
   margin-left: 0;
 }
+#sidebar ul#social_links {
+  margin-left: 5px;
+  list-style: none;
+}
+#sidebar ul#social_links li a.vimeo,
+#sidebar ul#social_links li a.twitter,
+#sidebar ul#social_links li a.slideshare {
+  display: inline-block;
+  text-indent: -99999px;
+  overflow: hidden;
+  vertical-align: middle;
+  margin-bottom: 3px;
+  margin-right: 0.5em;
+  width: 32px;
+  height: 28px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: #005652;
+}
+#sidebar ul#social_links li a.vimeo:hover,
+#sidebar ul#social_links li a.twitter:hover,
+#sidebar ul#social_links li a.slideshare:hover {
+  background-color: #afe0d8;
+}
+#sidebar ul#social_links li a.vimeo.twitter,
+#sidebar ul#social_links li a.twitter.twitter,
+#sidebar ul#social_links li a.slideshare.twitter {
+  background-image: url('../img/header/social-twitter.png');
+}
+#sidebar ul#social_links li a.vimeo.vimeo,
+#sidebar ul#social_links li a.twitter.vimeo,
+#sidebar ul#social_links li a.slideshare.vimeo {
+  background-image: url('../img/header/social-vimeo.png');
+}
+#sidebar ul#social_links li a.vimeo.slideshare,
+#sidebar ul#social_links li a.twitter.slideshare,
+#sidebar ul#social_links li a.slideshare.slideshare {
+  background-image: url('../img/header/social-slideshare.png');
+}
 #wrapper > section#main {
   min-height: 300px;
 }
@@ -5563,6 +5602,9 @@ hr.big.dark {
   margin-top: 25px;
 }
 #home .row {
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: -moz-box;
   display: flex;
 }
 #home .row section {
