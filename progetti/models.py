@@ -76,10 +76,10 @@ class ProgrammaBase(models.Model):
     codice = models.CharField(max_length=32, primary_key=True)
     descrizione = models.TextField()
     tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
+    dotazione_totale = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     url_riferimento = models.URLField(max_length=255, blank=True, null=True)
     links = generic.GenericRelation(URL)
     documenti = generic.GenericRelation(Documento)
-
 
     @property
     def programma(self):
@@ -96,11 +96,18 @@ class ProgrammaBase(models.Model):
     def is_root(self):
         return self.tipo_classificazione == self.TIPO.programma
 
+    def __getattr__(self, item):
+        if item in ['descrizione_estesa', 'links', 'documenti']:
+            return getattr(self.extra_info, item)
+        else:
+            raise AttributeError("%r object has no attribute %r" % (self.__class__.__name__, item))
+
     def __unicode__(self):
         return unicode(self.descrizione[0:100])
 
     class Meta:
         abstract = True
+
 
 class ProgrammaAsseObiettivo(ProgrammaBase):
 
@@ -113,6 +120,11 @@ class ProgrammaAsseObiettivo(ProgrammaBase):
     class Meta(ProgrammaBase.Meta):
         verbose_name_plural = "Programmi - Assi - Obiettivi operativi"
         db_table = 'progetti_programma_asse_obiettivo'
+
+    @property
+    def extra_info(self):
+        extra_info, created = ProgrammaAsseObiettivoExtraInfo.objects.get_or_create(programma=self)
+        return extra_info
 
     @property
     def progetti_di_programma(self):
@@ -145,6 +157,11 @@ class ProgrammaLineaAzione(ProgrammaBase):
         db_table = 'progetti_programma_linea_azione'
 
     @property
+    def extra_info(self):
+        extra_info, created = ProgrammaLineaAzioneExtraInfo.objects.get_or_create(programma=self)
+        return extra_info
+
+    @property
     def progetti_di_programma(self):
         """
         All progetti are classified by programmi of type azione.
@@ -156,6 +173,36 @@ class ProgrammaLineaAzione(ProgrammaBase):
             return Progetto.objects.filter(programma_linea_azione__classificazione_superiore__classificazione_superiore=self)
         else:
             raise Exception("This property is not available for Linea or Azione classifications.")
+
+
+class ProgrammaExtraInfoBase(models.Model):
+    descrizione_estesa = models.TextField(null=True, blank=True)
+    links = generic.GenericRelation(URL)
+    documenti = generic.GenericRelation(Documento)
+
+    def __unicode__(self):
+        return self.programma.codice
+
+    class Meta:
+        abstract = True
+
+
+class ProgrammaAsseObiettivoExtraInfo(ProgrammaExtraInfoBase):
+    programma = models.OneToOneField(ProgrammaAsseObiettivo, primary_key=True)
+
+    class Meta(ProgrammaExtraInfoBase.Meta):
+        verbose_name = "Programma - Asse - Obiettivo operativo (informazioni aggiuntive)"
+        verbose_name_plural = "Programmi - Assi - Obiettivi operativi (informazioni aggiuntive)"
+        db_table = 'progetti_programma_asse_obiettivo_extra_info'
+
+
+class ProgrammaLineaAzioneExtraInfo(ProgrammaExtraInfoBase):
+    programma = models.OneToOneField(ProgrammaLineaAzione, primary_key=True)
+
+    class Meta(ProgrammaExtraInfoBase.Meta):
+        verbose_name = "Programma - Linea - Azione (informazioni aggiuntive)"
+        verbose_name_plural = "Programmi - Linee - Azioni (informazioni aggiuntive)"
+        db_table = 'progetti_programma_linea_azione_extra_info'
 
 
 class Tema(models.Model):

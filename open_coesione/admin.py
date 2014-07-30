@@ -49,15 +49,18 @@ class OCFlatPageAdmin(FlatPageAdmin):
     form = OCFlatpageForm
 
 class PillolaAdminForm(TinyMCEEnabledForm):
-    description = CharField(widget=TinyMCE(mce_attrs=common_mce_attrs))
     class Meta:
-        model = Pillola
+        widgets = {
+            'abstract': TinyMCE(mce_attrs=common_mce_attrs),
+            'description': TinyMCE(mce_attrs=common_mce_attrs)
+        }
 
 class FAQAdminForm(TinyMCEEnabledForm):
-    risposta_it = CharField(widget=TinyMCE(mce_attrs=common_mce_attrs))
-    risposta_en = CharField(widget=TinyMCE(mce_attrs=common_mce_attrs))
     class Meta:
-        model = FAQ
+        widgets = {
+            'risposta_it': TinyMCE(mce_attrs=common_mce_attrs),
+            'risposta_en': TinyMCE(mce_attrs=common_mce_attrs)
+        }
 
 class MessagesAdmin(admin.ModelAdmin):
     date_hierarchy = 'sent_at'

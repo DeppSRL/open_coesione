@@ -4,57 +4,56 @@
 {% block page_title %}Ultime novità{% endblock %}
 
 {% block content %}
-  <div id="blog">
+    <div id="blog">
+        {% for object in object_list %}
+            {% include 'blog/entry_item.html' with object=object title_linked=True SITE_URL=SITE_URL only %}
+        {% endfor %}
+    </div>
 
-    {% for object in object_list %}
-      {% include 'blog/entry_item.html' with object=object title_linked=1 only %}
-    {% endfor %}
+    {% addtoblock 'js_script' %}
+        <script type='text/javascript'>//<![CDATA[
+          $(window).load(function() {
+            var blog = $('#blog');
 
-  </div>
+            var loaded = [];
 
-  {% addtoblock 'js_script' %}
-    <script type='text/javascript'>//<![CDATA[
-      $(window).load(function() {
-        var blog = $('#blog');
+            blog.on('click', 'article header a', function() {
+              var article = $(this).closest('article');
+              var slug = article.attr('id');
 
-        var loaded = [];
+              blog.find('article').not(article).find('header').siblings().hide();
 
-        blog.on('click', 'article header a', function() {
-          var article = $(this).closest('article');
-          var slug = article.attr('id');
-
-          blog.find('article').not(article).find('header').siblings().hide();
-
-          if ($.inArray(slug, loaded) == -1) {
-            $.ajax({
-              url: '{% url 'blog_item_load' '--' %}'.replace('--', slug),
-              success: function(data) {
-                article.replaceWith(data);
-                loaded.push(slug);
-                location.href = '#' + slug;
+              if ($.inArray(slug, loaded) == -1) {
+                $.ajax({
+                  url: '{% url 'blog_item_load' '--' %}'.replace('--', slug),
+                  success: function(data) {
+                    article.replaceWith(data);
+                    addthis.toolbox('#addthis-' + slug);
+                    loaded.push(slug);
+                    location.href = '#' + slug;
+                  }
+                });
+              } else {
+                article.find('header').siblings().toggle();
+                if (article.find('header').next().is(':visible')) {
+                  location.href = '#' + slug;
+                }
               }
+
+              return false;
             });
-          } else {
-            article.find('header').siblings().toggle();
-            if (article.find('header').next().is(':visible')) {
-              location.href = '#' + slug;
+
+            hash = location.hash.replace('#', '');
+            if (hash) {
+              blog.find('article#'+hash+' header a').trigger('click');
+            } else {
+              blog.find('article:first header a').trigger('click');
             }
-          }
-
-          return false;
-        });
-
-        hash = location.hash.replace('#', '');
-        if (hash) {
-          blog.find('article#'+hash+' header a').trigger('click');
-        } else {
-          blog.find('article:first header a').trigger('click');
-        }
-      });//]]>
-    </script>
-  {% endaddtoblock %}
+          });//]]>
+        </script>
+    {% endaddtoblock %}
 {% endblock %}
 
 {% block sidebar %}
-  {% include 'sidebar_filter.html' with tag_choices=tag_choices date_choices=date_choices base_url='blog_home' all_text='Tutte le news' only %}
+    {% include 'sidebar_filter.html' with tag_choices=tag_choices date_choices=date_choices base_url='blog_home' all_text='Tutte le news' only %}
 {% endblock %}

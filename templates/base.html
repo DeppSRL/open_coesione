@@ -52,6 +52,7 @@
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-tooltip.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-popover.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrapx-clickover.js"></script>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-53d8e08b53d5d0b4"></script>
   {% endaddtoblock %}
 
   {% render_block "js_script" %}
@@ -85,20 +86,26 @@
 <!-- HEADER -->
   <header>
     <div>
-        <div class="container" style="position:relative;">
+        <div class="container">
             <div class="row">
                 <div class="span7">
-                    <h1><a href="/"><img src="{{ STATIC_URL }}img/header/testata.png" alt="Open Coesione : Conosci, segui e costruisci le risorse per lo sviluppo "></a></h1>
+                    <h1><a href="{% url 'home' %}"><img src="{{ STATIC_URL }}img/header/testata.png" alt="Open Coesione : Conosci, segui e costruisci le risorse per lo sviluppo "></a></h1>
                 </div>
+                <div class="span5 text-right">
+                    <a href="http://www.dps.gov.it/" class="flag flag-dps"></a>
+                </div>
+                <ul id="social_links">
+                    <li><a class="mail" href="{% url 'rubrica-newsletter' %}">Mail</a></li>
+                    <li><a class="twitter" href="https://twitter.com/OpenCoesione">Twitter</a></li>
+                    <li><a class="vimeo" href="https://vimeo.com/channels/787486">Vimeo</a></li>
+                    <li><a class="slideshare" href="http://www.slideshare.net/OpenCoesione">SlideShare</a></li>
+                </ul>
                 {% block header_flags %}
                     {% if latest_entry %}
-                      <div class="span5 text-right">
-                        <a href="http://www.dps.gov.it/" class="flag flag-dps"></a>
-                      </div>
-                      <div id="blog_info">
-                        {{ latest_entry.published_at|date:'d/m/Y' }} - <strong>{{ latest_entry.title }}</strong> >
-                        <a href="{% url 'blog_home' %}">Leggi le novità</a>.
-                      </div>
+                        <div id="blog_info">
+                            {{ latest_entry.published_at|date:'d/m/Y' }} - <strong>{{ latest_entry.title }}</strong> >
+                            <a href="{% url 'blog_home' %}">Leggi le novità</a>.
+                        </div>
                     {% endif %}
                 {% endblock %}
             </div>
