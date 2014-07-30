@@ -1,18 +1,27 @@
 <article id="{{ object.slug }}">
-  <header class="page-header">
-    <h1>
-      {% if title_linked %}
-        <a href="{% url 'blog_item' object.slug %}">{{ object.title }}</a>
-      {% else %}
-        {{ object.title }}
-      {% endif %}
-      <small>{{ object.published_at|date:'d/m/Y' }}</small>
-    </h1>
-  </header>
-  {% if full_view %}
-    <div>
-      {{ object.body|safe }}
+    <header class="page-header">
+        <h1>
+            {% if title_linked %}
+                <a href="{% url 'blog_item' object.slug %}">{{ object.title }}</a>
+            {% else %}
+                {{ object.title }}
+            {% endif %}
+            <small>{{ object.published_at|date:'d/m/Y' }}</small>
+        </h1>
+    </header>
+    {% if full_view %}
+        <div>
+            {{ object.body|safe }}
+        </div>
+        {% include 'tagging/attribute_tags.html' with tags=object.tags base_url='blog_home' only %}
+    {% endif %}
+
+    <div id="addthis-{{ object.slug }}" class="addthis_toolbox addthis_default_style addthis_20x20_style" addthis:title="{{ object.title }}" addthis:url="{{ SITE_URL }}{% url 'blog_home' %}#{{ object.slug }}" style="margin-top: 32px">
+        <a class="addthis_button_facebook"></a>
+        <a class="addthis_button_twitter"></a>
+        <a class="addthis_button_google_plusone_share"></a>
+        <a class="addthis_button_linkedin"></a>
+        <a class="addthis_button_email"></a>
+        <a class="addthis_button_compact"></a>
     </div>
-    {% include 'tagging/attribute_tags.html' with tags=object.tags base_url='blog_home' only %}
-  {% endif %}
 </article>

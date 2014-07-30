@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.sites.models import Site
 from blog.models import Blog
 from progetti.models import ClassificazioneAzione, Tema
 from territori.models import Territorio
@@ -40,6 +41,7 @@ def main_settings(request):
         'TEMPLATE_DEBUG': settings.TEMPLATE_DEBUG,
         'STATIC_URL': settings.STATIC_URL,
         'TILESTACHE_URL': settings.TILESTACHE_URL,
+        'SITE_URL': 'http://' + Site.objects.get(pk=settings.SITE_ID).domain,
         'lista_regioni': regioni,
         'lista_tipologie_principali': classificazioni,
         'lista_temi_principali': temi,
