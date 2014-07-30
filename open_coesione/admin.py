@@ -14,7 +14,7 @@ from django.contrib.flatpages.admin import FlatPageAdmin, FlatpageForm
 
 common_mce_attrs = {
     'theme': "advanced",
-    'plugins': "fullscreen,media,preview,advimage",
+    'plugins': "fullscreen,media,preview,advimage,table",
     'plugin_preview_width' : "1280",
     'plugin_preview_height' : "800",
     'content_css' : "/static/css/bootstrap.css",
@@ -22,8 +22,8 @@ common_mce_attrs = {
     'cleanup_on_startup': True,
     'custom_undo_redo_levels': 10,
     'height': 500,
-    'theme_advanced_buttons1' : "bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,|,formatselect,|,undo,redo",
-    'theme_advanced_buttons2' : "link,unlink,|,image,media,|,fullscreen,zoom,|,preview,code",
+    'theme_advanced_buttons1' : "bold,italic,underline,removeformat,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,|,formatselect,|,undo,redo",
+    'theme_advanced_buttons2' : "link,unlink,|,image,media,|,tablecontrols,fullscreen,zoom,|,preview,code",
     'theme_advanced_buttons3': "",
     'theme_advanced_toolbar_location': "top"
 }
@@ -49,15 +49,18 @@ class OCFlatPageAdmin(FlatPageAdmin):
     form = OCFlatpageForm
 
 class PillolaAdminForm(TinyMCEEnabledForm):
-    description = CharField(widget=TinyMCE(mce_attrs=common_mce_attrs))
     class Meta:
-        model = Pillola
+        widgets = {
+            'abstract': TinyMCE(mce_attrs=common_mce_attrs),
+            'description': TinyMCE(mce_attrs=common_mce_attrs)
+        }
 
 class FAQAdminForm(TinyMCEEnabledForm):
-    risposta_it = CharField(widget=TinyMCE(mce_attrs=common_mce_attrs))
-    risposta_en = CharField(widget=TinyMCE(mce_attrs=common_mce_attrs))
     class Meta:
-        model = FAQ
+        widgets = {
+            'risposta_it': TinyMCE(mce_attrs=common_mce_attrs),
+            'risposta_en': TinyMCE(mce_attrs=common_mce_attrs)
+        }
 
 class MessagesAdmin(admin.ModelAdmin):
     date_hierarchy = 'sent_at'

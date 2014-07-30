@@ -3,9 +3,7 @@
 {% block page_title %}{{ object.title }}{% endblock %}
 
 {% block content %}
-  <div id="blog">
-
-    {% include 'blog/entry_item.html' with object=object full_view=1 only %}
-
-  </div>
+    <div id="blog">
+        {% include 'blog/entry_item.html' with object=object full_view=True only %}
+    </div>
 {% endblock %}

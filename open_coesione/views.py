@@ -261,18 +261,18 @@ class HomeView(AccessControlView, AggregatoView, TemplateView):
 
             context['top_progetti'] = Progetto.objects.filter(
                 fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico'
-            )[:5]
+            )[:3]
 
             context['ultimi_progetti_conclusi'] = Progetto.objects.filter(
                 data_fine_effettiva__lte=datetime.now()
-            ).order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:5]
+            ).order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
 
             context['numero_soggetti'] = Soggetto.objects.count()
             serializable_context = context.copy()
             serializable_context.pop('view', None)
             cache.set(key, serializable_context)
 
-        context['latest_pillole'] = Pillola.objects.order_by('-published_at', '-id')[:3]
+        context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
         return context
 
 
@@ -582,3 +582,8 @@ class OpendataRedirectView(RedirectView):
 
    def get_redirect_url(self, **kwargs):
         return "/media/open_data/{0}".format(kwargs['path'])
+
+class DocumentsRedirectView(RedirectView):
+
+   def get_redirect_url(self, **kwargs):
+        return "/media/uploads/documenti/{0}".format(kwargs['path'])

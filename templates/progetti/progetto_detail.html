@@ -551,9 +551,14 @@
                   {% endif %}
                 </dt>
                 <dd>{{ progetto.fonte_fs_descrizione }}</dd>
+
                 {% if progetto.is_fonte_pac_flag %}
                     <dt>{{ progetto.fonte_pac_label }}</dt>
+                    {% if progetto.dps_flag_pac == '1' %}
+                    <dd>{{ progetto.fonte_pac_descrizione }}</dd>
+                    {% else %}
                     <dd>Piano d'Azione Coesione - Progetti nei Programmi Operativi</dd>
+                    {% endif %}
                 {% endif %}
 
                 <dt>Programma</dt>

@@ -1,9 +1,10 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.gis import admin
 from django.conf import settings
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from open_coesione.views import HomeView, FondiView, RisorseView, ContactView, PressView, SpesaCertificataView, \
-    OpendataView, PilloleView, PillolaView, OpendataRedirectView, PilloleRedirectView, FAQView, DatiISTATView
+    OpendataView, PilloleView, PillolaView, OpendataRedirectView, PilloleRedirectView, FAQView, DatiISTATView, \
+    DocumentsRedirectView
 from rubrica.views import NLContactView
 from filebrowser.sites import site
 
@@ -51,7 +52,7 @@ urlpatterns = patterns('',
 
     # pre-csm page routes
     # TODO: move into flatpages
-    url(r'^progetto/$', TemplateView.as_view(template_name='flat/progetto.html'), name='oc-progetto-it'),
+#    url(r'^progetto/$', TemplateView.as_view(template_name='flat/progetto.html'), name='oc-progetto-it'),
     url(r'^progetto/en/$', TemplateView.as_view(template_name='flat/project.html')),
     url(r'^project/$', TemplateView.as_view(template_name='flat/project.html'), name='oc-progetto-en'),
     url(r'^a-scuola-di-opencoesione/', TemplateView.as_view(template_name='flat/a_scuola_di_opencoesione.html')),
@@ -63,8 +64,9 @@ urlpatterns = patterns('',
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
     url(r'^info-disponibili/', TemplateView.as_view(template_name='flat/info_disponibili.html')),
 
-    url(r'^iscrizione-newsletter/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
-    url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html')),
+    url(r'^seguici/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
+    url(r'^iscrizione-newsletter/', RedirectView.as_view(url='/seguici/')),
+    url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html'), name='fonti-finanziamento'),
     url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),
     url(r'^api-faq/', RisorseView.as_view(template_name='flat/api.html'), name='api-faq'),
     url(r'^spesa-certificata/',
@@ -78,6 +80,9 @@ urlpatterns = patterns('',
 
     url(r'^opendata/(?P<path>.+)$', OpendataRedirectView.as_view(), name='opendata_clean'),
     url(r'^opendata/$', OpendataView.as_view(template_name='flat/open_data.html'), name='opendata'),
+
+    url(r'^documenti/(?P<path>.+)$', DocumentsRedirectView.as_view(), name='documents_clean'),
+
 
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login'),
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),

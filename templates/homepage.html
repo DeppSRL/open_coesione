@@ -4,207 +4,167 @@
 
 {% block page_title %}Homepage{% endblock %}
 
-
 {% block container %}
+    {{ block.super }}
 
-  {{ block.super }}
+    <div class="container" id="home">
+        <div class="row">
+            <section class="span12">
+                <div class="row">
+                    <div class="span12">
+                        <h1 class='title'><span>Pillole di OpenCoesione</span></h1>
 
-  <div class="container" style="margin-top:25px;">
-    <div class="row">
+                        <p>
+                            {{ pillola.published_at|date:'d/m/Y' }}
+                            <br/>
+                            <a href="{% url 'pillola_item' pillola.slug %}" style="text-transform: uppercase">{{ pillola.title }}</a>
+                        </p>
+                    </div>
+                </div>
 
-      <section class="span3">
-        <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
+                <div class="row">
+                    <div class="span5">
+                        {% if pillola.image %}
+                            {# {% load fb_versions %} #}
+                            {# <img src="{% version pillola.image 'large' %}" /> #}
+                            <img src="{{ pillola.image.url }}" />
+                        {% endif %}
+                    </div>
 
-        <ul class='spaced'>
-          {% for progetto in ultimi_progetti_conclusi %}
-            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
-          {% endfor %}
-        </ul>
+                    <div class="span7">
+                        {% if pillola.abstract %}
+                            {{ pillola.abstract|safe }}
+                        {% endif %}
+                        <p><a href="{% url 'pillole' %}">Vai a tutte le Pillole di OpenCoesione</a></p>
+                    </div>
+                </div>
+            </section>
+        </div>
 
-      </section>
+        <div class="row">
+            <section class="span4" style="position: relative; padding-bottom: 4em">
+                <h1 class='title'><span>Indicatori territoriali e tematici</span></h1>
 
-      <section class="span3">
+                <p style="padding-top: 1em"><img src="{{ STATIC_URL }}img/home/indicatori.png" alt="Indicatori territoriali e tematici"></p>
+                <p style="margin-top: 20px;">In quale contesto socio-economico si attuano le politiche di coesione?</p>
+                <p style="position: absolute; bottom: 0; margin-bottom: 2em">
+                    <i class="icon-chevron-right"></i> <a href="{% url 'dati-istat' %}">Consulta gli indicatori territoriali e tematici</a></p>
+            </section>
 
-        <h1 class='title'><span>Soggetti coinvolti</span></h1>
+            <section class="span4" style="position: relative; padding-bottom: 4em">
+                <h1 class='title'><span>Open data</span></h1>
 
-        <p>
-          I soggetti coinvolti nei progetti sono <strong>{{ numero_soggetti|intcomma }}</strong> divisi tra programmatori e attuatori.
-          Di ogni soggetto vengono indicati tutti i progetti e i finanziamenti gestiti.
-        </p>
+                <p style="padding-top: 1em"><img src="{{ STATIC_URL }}img/home/opendata.png" alt="Open Data"></p>
+                <p style="margin-top: 20px;">I dati completi (con extra info rispetto a quanto si visualizza!) sui progetti del portale e sul contesto delle politiche di coesione.</p>
+                <p style="position: absolute; bottom: 0; margin-bottom: 2em">
+                    <i class="icon-chevron-right"></i> <a href="{% url 'opendata' %}">I dati aperti di OpenCoesione</a></p>
+            </section>
 
-        <hr>
+            <section class="span4" style="position: relative; padding-bottom: 4em">
+                <h1 class='title'><span>Partecipazione e riuso</span></h1>
 
-        <form class="form-search content" method="get" action="{% url 'soggetti_search' %}">
-          <h5>Cerca tra i soggetti</h5>
-          <div class="input-append" >
-            <input type="text" name="q" class="input-medium search-query" placeholder="Inserisci una parola"><button type="submit" class="btn"><i class="icon-search"></i></button>
-          </div>
-        </form>
+                <p style="padding-top: 1em"><img src="{{ STATIC_URL }}img/home/partecipazioneriuso.png" alt="Partecipazione e riuso"></p>
 
-      </section>
+                <div id="partecipazioneriuso" class="row-fluid">
+                    <div class="span6"><img src="{{ STATIC_URL }}img/home/ascuoladiopencoesione.png" alt="A Scuola di OpenCoesione (ASOC)"></div>
+                    <div class="span6"><img src="{{ STATIC_URL }}img/home/monithon.png" alt="Monithon"></div>
+                </div>
 
-      <section class="span6">
+                <p style="position: absolute; bottom: 0; margin-bottom: 2em">
+                    <i class="icon-chevron-right"></i> <a href="{% url 'rubrica-newsletter' %}">Partecipazione e riuso</a></p>
+            </section>
+        </div>
 
-        <h1 class='title'><span>Progetti con maggiori finanziamenti</span></h1>
+        <div class="row">
+            <section class="span6" style="position: relative; padding-bottom: 2em">
+                <h1 class='title'><span>Risorse stanziate</span></h1>
 
-        <table class="table">
-          {% for progetto in top_progetti %}
-            <tr>
-              <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></td>
-              <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
-            </tr>
-          {% endfor %}
-        </table>
-      </section>
+                <p>
+                    Sia l’Unione europea, sia lo Stato italiano hanno tra i propri obiettivi quello di garantire al meglio
+                    eguaglianza di opportunità e di qualità della vita nei diversi territori. Si tratta di un obiettivo
+                    ambizioso che rende indispensabile un’azione aggiuntiva e un sostegno speciale per quei territori e
+                    comunità che per le ragioni più disparate divergono dalle traiettorie migliori. Risorse dedicate alle
+                    politiche di coesione territoriale che agiscono, pur con grande differenza d’intensità, in tutto il Paese.
+                </p>
+                <p>
+                    Comprendono fonti europee, sostenute da un co-finanziamento nazionale, che costituiscono il Fondo europeo
+                    per lo sviluppo regionale (FESR) e il Fondo sociale europeo (FSE), e fonti nazionali che costituiscono il
+                    Fondo per lo sviluppo e la coesione (FSC, ex FAS).
+                </p>
 
+                <p style="position: absolute; bottom: 0; margin-bottom: 0"><i class="icon-chevron-right"></i> <a href="{% url 'fonti-finanziamento' %}">Approfondisci</a></p>
+            </section>
 
+            <section class="span6" style="position: relative; padding-bottom: 2em">
+                <h1 class='title'><span>Spesa Certificata UE</span></h1>
 
-      {#      <section class="span3">#}
-      {#        <h1 class='title'><span>Ultimi progetti avviati</span></h1>#}
-      {##}
-      {#        <ul class="spaced">#}
-      {#          {% for progetto in ultimi_progetti_avviati %}#}
-      {#            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>#}
-      {#          {% endfor %}#}
-      {#        </ul>#}
-      {##}
-      {#      </section>#}
-      {##}
-      {##}
-      {#      <section class="span3">#}
-      {#        <h1 class='title'><span>Ultimi progetti conclusi</span></h1>#}
-      {##}
-      {#        <ul class='spaced'>#}
-      {#          {% for progetto in ultimi_progetti_conclusi %}#}
-      {#            <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>#}
-      {#          {% endfor %}#}
-      {#        </ul>#}
-      {##}
-      {#      </section>#}
+                <p>
+                    La spesa complessiva certificata all'UE al 31 maggio 2014 è pari a 26.725 milioni di euro,
+                    con un incremento di 1,6 miliardi rispetto alla precedente scadenza del 31 dicembre 2013
+                    e di 6,9 miliardi su base annua.
+                </p>
+                <p>
+                    La quota di spesa certificata all’Unione Europea è pari al 56%, valore prossimo al target nazionale
+                    fissato al 56,6. Il target di spesa è stato raggiunto dalla maggior parte dei Programmi Operativi sia FESR che FSE,
+                    6 Programmi sono rimasti entro la soglia di tolleranza del 5 per cento in meno rispetto al target,
+                    mentre 13 Programmi non lo hanno raggiunto.
+                </p>
+
+                <p style="position: absolute; bottom: 0; margin-bottom: 0">Per approfondimenti, dati e grafici <a href="{% url 'flat-spesa-certificata' %}">vai qui</a>.</p>
+            </section>
+        </div>
     </div>
-
-    <div class="row">
-
-      <section class="span6">
-
-        <hr class="big">
-
-        <h1 class='title'><span>Risorse stanziate</span></h1>
-
-        <p>
-          Sia l’Unione europea, sia lo Stato italiano hanno tra i propri obiettivi quello di garantire al meglio
-          eguaglianza di opportunità e di qualità della vita nei diversi territori. Si tratta di un obiettivo
-          ambizioso che rende indispensabile un’azione aggiuntiva e un sostegno speciale per quei territori e
-          comunità che per le ragioni più disparate divergono dalle traiettorie migliori. Risorse dedicate alle
-          politiche di coesione territoriale che agiscono, pur con grande differenza d’intensità, in tutto il Paese.
-        </p>
-
-        <p>
-          Comprendono fonti europee, sostenute da un co-finanziamento nazionale, che costituiscono il Fondo europeo
-          per lo sviluppo regionale (FESR) e il Fondo sociale europeo (FSE), e fonti nazionali che costituiscono il
-          Fondo per lo sviluppo e la coesione (FSC, ex FAS).
-        </p>
-
-        <p><i class="icon-chevron-right"></i> <a href="/fonti-di-finanziamento/">Approfondisci</a></p>
-
-      </section>
-      <section class="span6">
-        <hr class="big">
-
-        <h1 class='title'><span>Pillole di OpenCoesione</span></h1>
-
-        <p>Le Pillole di OpenCoesione propongono approfondimenti e spunti di
-            riflessione sulle politiche di coesione. Consultale per una chiave di
-            lettura di cosa ci raccontano i dati.</p>
-
-        <table class="table">
-          {% for pillola in latest_pillole %}
-            <tr>
-              <td>
-                  <a href="{% url 'pillola_item' pillola.slug %}"
-                     onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>{{ pillola.title }}</a>
-                  (<a href="/{{ pillola.file.name }}"
-                      onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">><i class="icon-download-alt"></i>
-                  <span style="color:black;">{{ pillola.file.name|slice:"-3:"|lower }}: {{ pillola.file.size|filesizeformat }}</span></a>)
-                  <br/>
-                {% if pillola.abstract %}
-                  <p>
-                    {{ pillola.abstract }}
-                  </p>
-                {% endif %}
-              </td>
-            </tr>
-          {% endfor %}
-        </table>
-        <p>Vai a <a href="{% url 'pillole' %}">tutte le Pillole di OpenCoesione</a> </p>
-      </section>
-
-    </div>
-
-    <div class="row">
-        <section class="span6">
-            <hr class="big">
-
-
-            <h1 class='title'><span>Spesa Certificata UE</span></h1>
-            <p>
-                La spesa complessiva certificata all'UE al 31 maggio 2014 è pari a 26.725 milioni di euro,
-                con un incremento di 1,6 miliardi rispetto alla precedente scadenza del 31 dicembre 2013
-                e di 6,9 miliardi su base annua.
-            </p>
-            <p>
-                La quota di spesa certificata all’Unione Europea è pari al 56%, valore prossimo al target nazionale
-                fissato al 56,6. Il target di spesa è stato raggiunto dalla maggior parte dei Programmi Operativi sia FESR che FSE,
-                6 Programmi sono rimasti entro la soglia di tolleranza del 5 per cento in meno rispetto al target,
-                mentre 13 Programmi non lo hanno raggiunto.
-            </p>
-            <p>
-                Per approfondimenti, dati e grafici <a href="{% url 'flat-spesa-certificata' %}">vai qui</a>.
-            </p>
-
-
-        </section>
-
-        <section class="span6">
-            <hr class="big">
-
-            <h1 class='title'><span>Esperienze di riuso</span></h1>
-            <p>
-                <a href="http://www.ascuoladiopencoesione.it">A Scuola di OpenCoesione (ASOC)</a>
-                è un innovativo progetto sperimentale per le scuole superiori sui temi
-                dell’open government a partire da dati e progetti delle politiche di coesione.
-                ASOC è educazione civica, competenze digitali e data journalism per
-                conoscere e comunicare, con creatività, come le politiche intervengono nei luoghi in cui viviamo.
-            </p>
-
-            <p>
-                <a href="http://www.monithon.it">Monithon</a> è un'iniziativa indipendente di
-                monitoraggio civico dei progetti finanziati dalle politiche di coesione in Italia,
-                basata sui dati OpenCoesione.
-            </p>
-        </section>
-
-    </div>
-
-  </div>
 
 {% endblock %}
 
-{% block top_content %}
-  <div id="claim-container">
-    <a class="block-chart block-gray pull-right" href="/fonti-di-finanziamento/">
-      <strong class="title">Risorse totali 2007-2013</strong>
-      <p>99,286 miliardi <span>di euro</span></p>
-      <i class="icon-share-alt"></i>
-    </a>
+{% block area_more_content %}
+    <div class="row">
+        <section class="span6">
+            <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
 
-    <p id="claim">
-      OpenCoesione è il primo portale sull'attuazione degli investimenti programmati nel ciclo 2007-2013
-      da Regioni e amministrazioni centrali dello Stato con le risorse per la coesione.
-      I dati sono pubblicati perché i cittadini possano valutare se i progetti corrispondono ai
-      loro bisogni e se le risorse vengono impegnate in modo efficace.
-      <a href="/faq">Leggi qui</a> per saperne di più. <br>
-      I dati pubblicati sono aggiornati al <b>30/04/2014</b>.
-    </p>
-  </div>
+            <ul class='spaced'>
+                {% for progetto in ultimi_progetti_conclusi %}
+                    <li>
+                        {{ progetto.data_fine_effettiva|date:'d/m/Y' }}
+                        <br/>
+                        <a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="span6">
+            <h1 class='title'><span>Progetti con maggiori finanziamenti</span></h1>
+
+            <table class="table">
+                {% for progetto in top_progetti %}
+                    <tr>
+                        <td><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></td>
+                        <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </section>
+    </div>
+{% endblock %}
+
+{% block top_content %}
+    <div id="claim-container">
+        <a class="block-chart block-gray pull-right" href="{% url 'fonti-finanziamento' %}">
+            <strong class="title">Risorse totali 2007-2013</strong>
+            <p>99,286 miliardi <span>di euro</span></p>
+            <i class="icon-share-alt"></i>
+        </a>
+
+        <p id="claim">
+            OpenCoesione è il portale sull'attuazione dei progetti finanziati dalle politiche di coesione in Italia,
+            alimentate dai Fondi strutturali dell'UE, dal Fondo per lo Sviluppo e la Coesione e dal Piano d'Azione per
+            la Coesione. Sono navigabili dati su risorse assegnate e spese, localizzazioni, ambiti tematici, soggetti
+            programmatori e attuatori, tempi di realizzazione e pagamenti dei singoli progetti. Tutti possono così
+            valutare come le risorse vengono utilizzate rispetto ai bisogni dei territori.
+
+            I dati pubblicati sono aggiornati al <b>30/04/2014</b> e riguardano
+            <a href="{% url 'soggetti_search' %}">{{ numero_soggetti|intcomma }} soggetti</a>
+        </p>
+    </div>
 {% endblock %}

@@ -3,25 +3,25 @@
 {% block page_title %}Pillole di Open Coesione{% endblock %}
 
 {% block content %}
-  <div id="pillole" style="margin-top: 2em;">
-    <p>
-        Le Pillole di OpenCoesione sono brevi testi che propongono spunti di
-        riflessione sulle politiche di coesione.
-        Alcune di esse accompagnano gli aggiornamenti bimestrali dei dati sui progetti
-        di OpenCoesione fornendo una lettura generale dei principali cambiamenti
-        avvenuti nel corso del bimestre. Altre approfondiscono specifici aspetti
-        rilevanti in modo da favorire la comprensione del mondo dei progetti
-        in attuazione e delle politiche di coesione più in generale.
-    </p>
-    <hr>
+    <div id="pillole">
+        <p>
+            Le Pillole di OpenCoesione sono brevi testi che propongono spunti di
+            riflessione sulle politiche di coesione.
+            Alcune di esse accompagnano gli aggiornamenti bimestrali dei dati sui progetti
+            di OpenCoesione fornendo una lettura generale dei principali cambiamenti
+            avvenuti nel corso del bimestre. Altre approfondiscono specifici aspetti
+            rilevanti in modo da favorire la comprensione del mondo dei progetti
+            in attuazione e delle politiche di coesione più in generale.
+        </p>
+        <hr>
 
-    {% for object in object_list %}
-      {% include 'open_coesione/pillola_item.html' with object=object title_linked=1 only %}
-      <hr>
-    {% endfor %}
-  </div>
+        {% for object in object_list %}
+            {% include 'open_coesione/pillola_item.html' with object=object title_linked=True full_view=forloop.first only %}
+            <hr>
+        {% endfor %}
+    </div>
 {% endblock %}
 
 {% block sidebar %}
-  {% include 'sidebar_filter.html' with tag_choices=tag_choices date_choices=date_choices base_url='pillole' all_text='Tutte le pillole' only %}
+    {% include 'sidebar_filter.html' with tag_choices=tag_choices date_choices=date_choices base_url='pillole' all_text='Tutte le pillole' only %}
 {% endblock %}
