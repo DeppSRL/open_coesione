@@ -41,6 +41,8 @@
   {{ block.super }}
 
   <section class="container">
+    <h2>Indicatori territoriali e tematici</h2>
+
     <div class="row">
         <div class="span12" style="margin-top: 2em; margin-right: 2em;">
             <p>
@@ -67,13 +69,8 @@
     <div class="row">
       <div class="span12" id="charts_accordion">
         <span class="pull-right" style="font-size: 85%">
-          scarica gli Open data sugli Indicatori
-          <a href="/opendata/{{ istat_data_file.file_name }}">
-            [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]
-          </a>
+          scarica gli <a href="/opendata/#istat-title">Open data sugli Indicatori</a>
         </span>
-
-        <h1>Indicatori territoriali e tematici</h1>
 
         <div class="accordion" id="index_charts">
           {% for tema in lista_temi_principali %}

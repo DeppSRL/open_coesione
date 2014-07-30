@@ -52,7 +52,7 @@ urlpatterns = patterns('',
 
     # pre-csm page routes
     # TODO: move into flatpages
-    url(r'^progetto/$', TemplateView.as_view(template_name='flat/progetto.html'), name='oc-progetto-it'),
+#    url(r'^progetto/$', TemplateView.as_view(template_name='flat/progetto.html'), name='oc-progetto-it'),
     url(r'^progetto/en/$', TemplateView.as_view(template_name='flat/project.html')),
     url(r'^project/$', TemplateView.as_view(template_name='flat/project.html'), name='oc-progetto-en'),
     url(r'^a-scuola-di-opencoesione/', TemplateView.as_view(template_name='flat/a_scuola_di_opencoesione.html')),
