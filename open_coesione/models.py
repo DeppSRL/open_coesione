@@ -56,9 +56,9 @@ class Pillola(tagging_models.TagMixin, models.Model):
 
     title = models.CharField(max_length=200, verbose_name='Titolo')
     slug = models.SlugField(max_length=255, null=True, blank=True, unique=True)
-    abstract = models.CharField(max_length=255, null=True, blank=True)
-    image = FileBrowseField("Image", max_length=200, directory="immagini/", extensions=[".jpg", ".png"], blank=True, null=True)
+    abstract = models.TextField(max_length=1024, verbose_name='Descrizione breve', blank=True, null=True)
     description = models.TextField(max_length=1024, verbose_name='Descrizione', blank=True, null=True)
+    image = FileBrowseField(max_length=200, directory='immagini/', format='image', verbose_name='Immagine', blank=True, null=True)
     file = models.FileField(upload_to='pillole', blank=True, null=True)
     published_at = models.DateField(verbose_name='Data di pubblicazione')
 

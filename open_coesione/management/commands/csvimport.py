@@ -6,11 +6,9 @@ from django.core.management.base import BaseCommand
 
 from open_coesione import utils
 from optparse import make_option
-from decimal import Decimal
 import re
 import csv
 import csvkit
-import logging
 import datetime
 
 from progetti.models import *
@@ -34,7 +32,7 @@ class Command(BaseCommand):
         make_option('--type',
                     dest='type',
                     default=None,
-                    help='Type of import: proj|projinactive|loc|rec|cups|desc|pay'),
+                    help='Type of import: proj|projinactive|loc|rec|cups|desc|pay|prog'),
         make_option('--limit',
                     dest='limit',
                     default=0,
@@ -100,9 +98,58 @@ class Command(BaseCommand):
             self.handle_desc_pongat(*args, **options)
         elif options['type'] == 'pay':
             self.handle_payments(*args, **options)
+        elif options['type'] == 'prog':
+            self.handle_programs(*args, **options)
         else:
-            self.logger.error("Wrong type %s. Select among proj, projinactive, loc, rec, cups, desc and pay." % options['type'])
+            self.logger.error("Wrong type %s. Select among proj, projinactive, loc, rec, cups, desc, pay and prog." % options['type'])
             exit(1)
+
+    def handle_programs(self, *args, **options):
+        """
+        Parse a csv file and add dotazione_totale info to records
+        into ProgrammaAsseObiettivo or ProgrammaLineaAzione models
+        """
+        self.logger.info("Inizio import da %s" % self.csv_file)
+        # self.logger.info("Encoding: %s" % self.encoding)
+        # self.logger.info("Limit: %s" % options['limit'])
+        # self.logger.info("Offset: %s" % options['offset'])
+
+        ccodice = 'DPS_CODICE_PROGRAMMA'
+        cvalore = None
+        for row in self.unicode_reader:
+            if not cvalore:
+                columns = sorted(row.keys(), reverse=True)
+
+                for col in columns:
+                    if col.strip().startswith('DOTAZIONE TOTALE PROGRAMMA POST PAC '):
+                        cvalore = col
+                        break
+
+                if not (cvalore and (ccodice in columns)):
+                    self.logger.error("CSV mancante delle informazioni necessarie.")
+                    exit(1)
+
+            codice = row[ccodice].strip()
+            if codice:
+                valore = Decimal(row[cvalore].strip().replace('.',''))
+
+                self.logger.info("%s --> %s" % (codice, valore))
+
+                found = False
+                for model in [ProgrammaAsseObiettivo, ProgrammaLineaAzione]:
+                    try:
+                        programma = model.objects.get(pk=codice)
+                    except:
+                        pass
+                    else:
+                        programma.dotazione_totale = valore
+                        programma.save()
+                        found = True
+
+                if not found:
+                    self.logger.warning("Programma non trovato: %s. Skip." % codice)
+
+        self.logger.info('Fine')
 
     def handle_payments(self, *args, **options):
         """
