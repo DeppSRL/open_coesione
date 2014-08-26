@@ -79,7 +79,7 @@ class PillolaAdmin(admin.ModelAdmin):
     form = PillolaAdminForm
 
 class FAQAdmin(admin.ModelAdmin):
-    list_display = ('domanda_it', 'domanda_en')
+    list_display = ('domanda_it', 'domanda_en', 'priorita')
     prepopulated_fields = {'slug_it': ('domanda_it',), 'slug_en': ('domanda_en',)}
     form = FAQAdminForm
 

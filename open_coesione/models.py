@@ -28,13 +28,13 @@ class ContactMessage(models.Model):
     location = models.CharField(max_length=300, verbose_name='Luogo')
     reason = models.CharField(choices=REASON_CHOICES, max_length=1, verbose_name='Motivo del contatto')
 
-    body = models.TextField( verbose_name='Messaggio' )
+    body = models.TextField(verbose_name='Messaggio')
 
-    sent_at = models.DateTimeField( auto_now_add=True, verbose_name="Data di invio" )
+    sent_at = models.DateTimeField(auto_now_add=True, verbose_name='Data di invio')
 
     class Meta:
-        verbose_name_plural = "Messaggi"
-        verbose_name = "Messaggio"
+        verbose_name_plural = 'Messaggi'
+        verbose_name = 'Messaggio'
 
 class PressReview(models.Model):
 
@@ -48,8 +48,8 @@ class PressReview(models.Model):
     published_at = models.DateField(verbose_name='Data di pubblicazione')
 
     class Meta:
-        verbose_name_plural = "Rassegna stampa"
-        verbose_name = "Articolo"
+        verbose_name_plural = 'Rassegna stampa'
+        verbose_name = 'Articolo'
 
 
 class Pillola(tagging_models.TagMixin, models.Model):
@@ -63,8 +63,8 @@ class Pillola(tagging_models.TagMixin, models.Model):
     published_at = models.DateField(verbose_name='Data di pubblicazione')
 
     class Meta:
-        verbose_name_plural = "pillole"
-        verbose_name = "pillola"
+        verbose_name_plural = 'Pillole'
+        verbose_name = 'Pillola'
 
 
 class URL(models.Model):
@@ -74,8 +74,8 @@ class URL(models.Model):
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
-        verbose_name = 'link'
-        verbose_name_plural = 'links'
+        verbose_name_plural = 'Links'
+        verbose_name = 'Link'
 
 
 class FAQ(models.Model):
@@ -86,11 +86,20 @@ class FAQ(models.Model):
     domanda_en = models.CharField(max_length=255, verbose_name='Domanda (inglese)')
     slug_en = models.SlugField(max_length=255, verbose_name='Slug (inglese)', unique=True)
     risposta_en = models.TextField(verbose_name='Risposta (inglese)', blank=True, null=True)
+    priorita = models.IntegerField(default=0)
+
+    lang = 'it'
+
+    def __getattr__(self, item):
+        if item in ['domanda', 'risposta', 'slug'] and self.lang in ['it', 'en']:
+            return getattr(self, item + '_' + self.lang)
+        else:
+            raise AttributeError('%r object has no attribute %r' % (self.__class__.__name__, item))
 
     class Meta:
-        ordering = ['id']
-        verbose_name = 'domanda frequente'
-        verbose_name_plural = 'domande frequenti'
+        verbose_name_plural = 'Domande frequenti'
+        verbose_name = 'Domanda frequente'
+        ordering = ['-priorita', 'id']
 
 
 # These two auto-delete files from filesystem when they are unneeded:
