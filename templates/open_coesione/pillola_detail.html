@@ -12,7 +12,7 @@
     {% if object.file %}
         <h2 class='title'><span>Download</span></h2>
         <div style="margin: 16px 0">
-            <a href="/{{ object.file.name }}" class="btn" style="background-image: none; border: 2px solid #005652; text-transform: uppercase; margin-right: 10px; padding-top: 0; padding-bottom: 0">
+            <a href="/{{ object.file.name }}" class="btn" style="background-image: none; border: 2px solid #005652; text-transform: uppercase; margin-right: 10px; padding-top: 0; padding-bottom: 0" onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">
                 <i class="icon-download-alt"></i>
                 <span style="color: black;">{{ object.file.name|slice:"-3:"|lower }}</span>
             </a>

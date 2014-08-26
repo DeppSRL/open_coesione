@@ -91,9 +91,9 @@ class DatiISTATView(TemplateView):
 
         # use OpendataView instance to access istat_date and the get_complete_file method,
         # and avoid code duplication
-        odv = OpendataView()
-        istat_date = odv.istat_date
-        context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
+        # odv = OpendataView()
+        # istat_date = odv.istat_date
+        # context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
         # context['istat_metadata_file'] = odv.get_complete_file("Metainformazione.xls")
 
         return context
@@ -543,7 +543,7 @@ class OpendataView(TemplateView):
         }
 
 
-    def get_theme_files(selfself, section_code, section_name, themes, data_date):
+    def get_theme_files(self, section_code, section_name, themes, data_date):
         files = []
         for theme_code, theme_name in themes.items():
             file_name = "{0}_{1}_{2}.zip".format(section_code, theme_code, data_date)

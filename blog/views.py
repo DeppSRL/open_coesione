@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from blog.models import Entry
+from open_coesione.views import PilloleView
 from tagging.views import TagFilterMixin
 from open_coesione.mixins import DateFilterMixin
 
@@ -24,6 +25,8 @@ class BlogView(ListView, TagFilterMixin, DateFilterMixin):
         context = super(BlogView, self).get_context_data(**kwargs)
         context['date_choices'] = self._get_date_choices()
         context['tag_choices'] = self._get_tag_choices()
+
+        context['related_pillole'] = PilloleView(request=self.request).get_queryset() if self._get_tag_filter_value() else None
 
         return context
 
