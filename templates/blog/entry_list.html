@@ -12,44 +12,39 @@
 
     {% addtoblock 'js_script' %}
         <script type='text/javascript'>//<![CDATA[
-          $(window).load(function() {
-            var blog = $('#blog');
+            $(window).load(function() {
+                var blog = $('#blog');
 
-            var loaded = [];
+                var loaded = [];
 
-            blog.on('click', 'article header a', function() {
-              var article = $(this).closest('article');
-              var slug = article.attr('id');
+                blog.on('click', 'article header a', function() {
+                    var article = $(this).closest('article');
+                    var slug = article.attr('id');
 
-              blog.find('article').not(article).find('header').siblings().hide();
+                    blog.find('article').not(article).find('header').siblings().hide();
 
-              if ($.inArray(slug, loaded) == -1) {
-                $.ajax({
-                  url: '{% url 'blog_item_load' '--' %}'.replace('--', slug),
-                  success: function(data) {
-                    article.replaceWith(data);
-                    addthis.toolbox('#addthis-' + slug);
-                    loaded.push(slug);
-                    location.href = '#' + slug;
-                  }
+                    if ($.inArray(slug, loaded) == -1) {
+                        $.ajax({
+                            url: '{% url 'blog_item_load' '--' %}'.replace('--', slug),
+                            success: function(data) {
+                                article.replaceWith(data);
+                                addthis.toolbox('#addthis-' + slug);
+                                loaded.push(slug);
+                                location.href = '#' + slug;
+                            }
+                        });
+                    } else {
+                        article.find('header').siblings().toggle();
+                        if (article.find('header').next().is(':visible')) {
+                            location.href = '#' + slug;
+                        }
+                    }
+
+                    return false;
                 });
-              } else {
-                article.find('header').siblings().toggle();
-                if (article.find('header').next().is(':visible')) {
-                  location.href = '#' + slug;
-                }
-              }
 
-              return false;
-            });
-
-            hash = location.hash.replace('#', '');
-            if (hash) {
-              blog.find('article#'+hash+' header a').trigger('click');
-            } else {
-              blog.find('article:first header a').trigger('click');
-            }
-          });//]]>
+                blog.find('article' + location.hash + ':first header a').trigger('click');
+            });//]]>
         </script>
     {% endaddtoblock %}
 {% endblock %}

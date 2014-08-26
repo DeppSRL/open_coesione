@@ -2,64 +2,38 @@
 {% load sekizai_tags %}
 
 {% block page_title %}
-  {% if lang == 'en' %}
-    Frequently Asked Questions
-  {% else %}
-    Domande frequenti
-  {% endif %}
+    {{ title }}
 {% endblock %}
 
 {% block content %}
-  <div class="flat_content" id="faq_list">
-    <h1>
-      {% if lang == 'en' %}
-        Frequently Asked Questions
-      {% else %}
-        Domande frequenti
-      {% endif %}
-    </h1>
-    <hr>
+    <div class="flat_content" id="faq_list">
+        <h1>{{ title }}</h1>
+        <hr>
 
-    {% for object in object_list %}
-      {% if lang == 'en' %}
-        <div id="{{ object.slug_en }}" class="faq">
-          <h3 class="faq-domanda"><a href="#{{ object.slug_en }}">{{ object.domanda_en }} <i class="icon-chevron-down"></i></a></h3>
-          <div class="faq-risposta">{{ object.risposta_en|safe }}</div>
-        </div>
-      {% else %}
-        <div id="{{ object.slug_it }}" class="faq">
-          <h3 class="faq-domanda"><a href="#{{ object.slug_it }}">{{ object.domanda_it }} <i class="icon-chevron-down"></i></a></h3>
-          <div class="faq-risposta">{{ object.risposta_it|safe }}</div>
-        </div>
-      {% endif %}
-    {% endfor %}
-  </div>
+        {% for object in object_list %}
+            <div id="{{ object.slug }}" class="faq">
+                <h3 class="faq-domanda"><a href="#{{ object.slug }}">{{ object.domanda }} <i class="icon-chevron-down"></i></a></h3>
+                <div class="faq-risposta">{{ object.risposta|safe }}</div>
+            </div>
+        {% endfor %}
+    </div>
 
-  {% addtoblock 'js_script' %}
-    <script type='text/javascript'>//<![CDATA[
-      $(window).load(function() {
-        jQuery('.faq-risposta').hide();
-        jQuery('.faq-domanda').css('cursor', 'pointer').on('click', function() {
-          var self = jQuery(this);
-          jQuery('.faq-risposta').each(function() {
-            jQuery(this).prev().is(self) ? jQuery(this).toggle() : jQuery(this).hide();
-          });
-          if (self.next().is(':visible')) {
-            location.href = '#' + self.closest('.faq').attr('id');
-          }
-        });
+    {% addtoblock 'js_script' %}
+        <script type='text/javascript'>//<![CDATA[
+            $(window).load(function() {
+                jQuery('.faq-risposta').hide();
+                jQuery('.faq-domanda').css('cursor', 'pointer').on('click', function() {
+                    var self = jQuery(this);
+                    jQuery('.faq-risposta').each(function() {
+                        jQuery(this).prev().is(self) ? jQuery(this).toggle() : jQuery(this).hide();
+                    });
+                    if (self.next().is(':visible')) {
+                        location.href = '#' + self.closest('.faq').attr('id');
+                    }
+                });
 
-        hash = location.hash.replace('#', '');
-        if (hash) {
-          $('body').find('#'+hash+' .faq-domanda').trigger('click');
-        } else {
-          if (location.href.indexOf('/en/') == -1){
-            $('body').find('#cosa-ce-opencoesione .faq-domanda').trigger('click');
-          } else {
-            $('body').find('#whats-opencoesione .faq-domanda').trigger('click');
-          }
-        }
-      });//]]>
-    </script>
-  {% endaddtoblock %}
+                $('#faq_list').find(location.hash + '.faq:first .faq-domanda').trigger('click');
+            });//]]>
+        </script>
+    {% endaddtoblock %}
 {% endblock %}

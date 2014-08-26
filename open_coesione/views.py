@@ -73,9 +73,13 @@ class FAQView(ListView):
     model = FAQ
     lang = None
 
+    def __init__(self, *args, **kwargs):
+        super(FAQView, self).__init__(*args, **kwargs)
+        self.model.lang = self.lang
+
     def get_context_data(self, **kwargs):
         context = super(FAQView, self).get_context_data(**kwargs)
-        context['lang'] = self.lang
+        context['title'] = 'Frequently Asked Questions' if self.lang == 'en' else 'Domande frequenti'
 
         return context
 
