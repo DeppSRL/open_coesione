@@ -66,8 +66,8 @@
                 <p style="padding-top: 1em"><img src="{{ STATIC_URL }}img/home/partecipazioneriuso.png" alt="Partecipazione e riuso"></p>
 
                 <div id="partecipazioneriuso" class="row-fluid">
-                    <div class="span6"><img src="{{ STATIC_URL }}img/home/ascuoladiopencoesione.png" alt="A Scuola di OpenCoesione (ASOC)"></div>
-                    <div class="span6"><img src="{{ STATIC_URL }}img/home/monithon.png" alt="Monithon"></div>
+                    <div class="span6"><a href="http://www.ascuoladiopencoesione.it"><img src="{{ STATIC_URL }}img/home/ascuoladiopencoesione.png" alt="A Scuola di OpenCoesione (ASOC)"></a></div>
+                    <div class="span6"><a href="http://www.monithon.it"><img src="{{ STATIC_URL }}img/home/monithon.png" alt="Monithon"></a></div>
                 </div>
 
                 <p style="position: absolute; bottom: 0; margin-bottom: 2em">
@@ -80,16 +80,11 @@
                 <h1 class='title'><span>Risorse stanziate</span></h1>
 
                 <p>
-                    Sia l’Unione europea, sia lo Stato italiano hanno tra i propri obiettivi quello di garantire al meglio
-                    eguaglianza di opportunità e di qualità della vita nei diversi territori. Si tratta di un obiettivo
-                    ambizioso che rende indispensabile un’azione aggiuntiva e un sostegno speciale per quei territori e
-                    comunità che per le ragioni più disparate divergono dalle traiettorie migliori. Risorse dedicate alle
-                    politiche di coesione territoriale che agiscono, pur con grande differenza d’intensità, in tutto il Paese.
-                </p>
-                <p>
-                    Comprendono fonti europee, sostenute da un co-finanziamento nazionale, che costituiscono il Fondo europeo
-                    per lo sviluppo regionale (FESR) e il Fondo sociale europeo (FSE), e fonti nazionali che costituiscono il
-                    Fondo per lo sviluppo e la coesione (FSC, ex FAS).
+                    Le risorse dedicate alle <a href="{% url 'faq-it' %}#cosa-e-la-politica-di-coesione">politiche di coesione</a>
+                    provengono dal bilancio europeo (Fondi strutturali) e nazionale (cofinanziamento nazionale
+                    ai Fondi Strutturali, Fondo per lo Sviluppo e la Coesione e risorse proprie del Piano d’Azione per la Coesione)
+                    e agiscono, pur con grande differenza d’intensità, in tutto il Paese per garantire al meglio
+                    eguaglianza di opportunità e di qualità della vita nei diversi territori.
                 </p>
 
                 <p style="position: absolute; bottom: 0; margin-bottom: 0"><i class="icon-chevron-right"></i> <a href="{% url 'fonti-finanziamento' %}">Approfondisci</a></p>
@@ -101,16 +96,11 @@
                 <p>
                     La spesa complessiva certificata all'UE al 31 maggio 2014 è pari a 26.725 milioni di euro,
                     con un incremento di 1,6 miliardi rispetto alla precedente scadenza del 31 dicembre 2013
-                    e di 6,9 miliardi su base annua.
-                </p>
-                <p>
-                    La quota di spesa certificata all’Unione Europea è pari al 56%, valore prossimo al target nazionale
-                    fissato al 56,6. Il target di spesa è stato raggiunto dalla maggior parte dei Programmi Operativi sia FESR che FSE,
-                    6 Programmi sono rimasti entro la soglia di tolleranza del 5 per cento in meno rispetto al target,
-                    mentre 13 Programmi non lo hanno raggiunto.
+                    e di 6,9 miliardi su base annua, corrispondente ad una quota del 56,0%, valore prossimo
+                    al target nazionale fissato al 56,6%.
                 </p>
 
-                <p style="position: absolute; bottom: 0; margin-bottom: 0">Per approfondimenti, dati e grafici <a href="{% url 'flat-spesa-certificata' %}">vai qui</a>.</p>
+                <p style="position: absolute; bottom: 0; margin-bottom: 0"><i class="icon-chevron-right"></i> <a href="{% url 'flat-spesa-certificata' %}">Approfondisci</a></p>
             </section>
         </div>
     </div>

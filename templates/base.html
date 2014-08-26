@@ -96,10 +96,10 @@
                     <a href="http://www.dps.gov.it/" class="flag flag-dps"></a>
                 </div>
                 <ul id="social_links">
-                    <li><a class="mail" href="{% url 'rubrica-newsletter' %}">Mail</a></li>
-                    <li><a class="twitter" href="https://twitter.com/OpenCoesione">Twitter</a></li>
-                    <li><a class="vimeo" href="https://vimeo.com/channels/787486">Vimeo</a></li>
-                    <li><a class="slideshare" href="http://www.slideshare.net/OpenCoesione">SlideShare</a></li>
+                    <li><a rel="info-tooltip" data-placement="bottom" title="La newsletter di OpenCoesione" class="mail" href="{% url 'rubrica-newsletter' %}">Newsletter</a></li>
+                    <li><a rel="info-tooltip" data-placement="bottom" title="OpenCoesione su Twitter" class="twitter" href="https://twitter.com/OpenCoesione">Twitter</a></li>
+                    <li><a rel="info-tooltip" data-placement="bottom" title="Il canale OpenCoesione su Vimeo" class="vimeo" href="https://vimeo.com/channels/787486">Vimeo</a></li>
+                    <li><a rel="info-tooltip" data-placement="bottom" title="Le slide di OpenCoesione su SlideShare" class="slideshare" href="http://www.slideshare.net/OpenCoesione">SlideShare</a></li>
                 </ul>
                 {% block header_flags %}
                     {% if latest_entry %}
@@ -200,7 +200,8 @@
 
             // enable popovers and tooltips
             $('a[rel=info-popover]').clickover();
-            $('a[rel=info-tooltip]').tooltip();
+            $('a[rel=info-tooltip]').tooltip()
+                .filter('[href="#"]').click(function() { return false; });
 
 
             // all links to /media/uploads/documenti/* are changed into /documenti/*
