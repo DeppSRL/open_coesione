@@ -50,10 +50,11 @@
     <div class="row">
       <div class="span12" id="charts_accordion">
         <span class="pull-right" style="font-size: 85%">
-          scarica tutti gli indicatori di contesto ISTAT
-          <a href="/opendata/{{ istat_data_file.file_name }}">
-            [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]
-          </a>
+          scarica gli <a href="{% url 'opendata' %}#istat-title">Open data sugli Indicatori</a>
+          {# scarica tutti gli indicatori di contesto ISTAT#}
+          {# <a href="{% url 'opendata_clean' istat_data_file.file_name %}">#}
+          {#   [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]#}
+          {# </a>#}
         </span>
 
         <h1>Indicatori sul tema: {{ tema.short_label }}</h1>

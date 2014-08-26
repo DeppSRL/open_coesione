@@ -71,10 +71,10 @@
     <div class="row">
       <div class="span12" id="charts_accordion">
         <span class="pull-right" style="font-size: 85%">
-          scarica gli <a href="/opendata/#istat-title">Open data sugli Indicatori</a>
+          scarica gli <a href="{% url 'opendata' %}#istat-title">Open data sugli Indicatori</a>
         </span>
 
-        <div class="accordion" id="index_charts">
+        <div class="accordion" id="index_charts" style="clear: both; padding-top: 10px">
           {% for tema in lista_temi_principali %}
             <div class="accordion-group">
               <div class="accordion-heading">

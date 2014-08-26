@@ -235,10 +235,10 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
 
         # use OpendataView instance to access istat_date and the get_complete_file method,
         # and avoid code duplication
-        odv = OpendataView()
-        istat_date = odv.istat_date
-        context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
-        context['istat_metadata_file'] = odv.get_complete_file("Metainformazione.xls")
+        #odv = OpendataView()
+        #istat_date = odv.istat_date
+        #context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
+        #context['istat_metadata_file'] = odv.get_complete_file("Metainformazione.xls")
 
         logger.debug("build lista_indici_tema from csv file start")
         context['lista_indici_tema'] = []

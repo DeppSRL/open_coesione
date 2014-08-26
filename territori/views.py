@@ -504,10 +504,10 @@ class TerritorioView(AccessControlView, AggregatoView, DetailView):
 
         # use OpendataView instance to access istat_date and the get_complete_file method,
         # and avoid code duplication
-        odv = OpendataView()
-        istat_date = odv.istat_date
-        context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
-        context['istat_metadata_file'] = odv.get_complete_file("Metainformazione.xls")
+        #odv = OpendataView()
+        #istat_date = odv.istat_date
+        #context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
+        #context['istat_metadata_file'] = odv.get_complete_file("Metainformazione.xls")
 
         return context
 
