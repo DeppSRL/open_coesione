@@ -64,7 +64,7 @@ urlpatterns = patterns('',
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
     url(r'^info-disponibili/', TemplateView.as_view(template_name='flat/info_disponibili.html')),
 
-    url(r'^seguici/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
+    url(r'^segui/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
     url(r'^iscrizione-newsletter/', RedirectView.as_view(url='/seguici/')),
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html'), name='fonti-finanziamento'),
     url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),
