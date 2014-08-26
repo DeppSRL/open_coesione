@@ -1,23 +1,24 @@
 import datetime
-from django.utils import timezone
 
 class DateFilterMixin(object):
     def _get_date_filter_value(self):
         return self.request.GET.get('date', None)
 
     def _apply_date_filter(self, qs):
+        end_date = datetime.datetime.now()
+
         filter_value = self._get_date_filter_value()
-        if filter_value is not None:
-            now = timezone.now()
-            start_date = now.date()
-            end_date = start_date + datetime.timedelta(days = 1)
+        if filter_value is None:
+            qs = qs.filter(published_at__lte=end_date)
+        else:
+            start_date = end_date.date()
             if filter_value == 'w':
                 start_date = start_date - datetime.timedelta(days=7)
             elif filter_value == 'm':
                 start_date = start_date.replace(day=1)
             elif filter_value == 'y':
                 start_date = start_date.replace(month=1, day=1)
-            qs = qs.filter(published_at__gte=start_date, published_at__lt=end_date)
+            qs = qs.filter(published_at__range=(start_date, end_date))
         return qs
 
     def _get_date_choices(self):

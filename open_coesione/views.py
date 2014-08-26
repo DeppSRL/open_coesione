@@ -532,7 +532,7 @@ class OpendataView(TemplateView):
 
     def get_complete_file(self, file_name):
         file_path = os.path.join(settings.MEDIA_ROOT, "open_data", file_name)
-        file_size = os.stat(file_path).st_size
+        file_size = os.stat(file_path).st_size if os.path.isfile(file_path) else None
         return {
             'file_name': file_name,
             'file_size': file_size
@@ -544,7 +544,7 @@ class OpendataView(TemplateView):
         for theme_code, theme_name in themes.items():
             file_name = "{0}_{1}_{2}.zip".format(section_code, theme_code, data_date)
             file_path = os.path.join(settings.MEDIA_ROOT, "open_data", section_name, file_name)
-            file_size = os.stat(file_path).st_size
+            file_size = os.stat(file_path).st_size if os.path.isfile(file_path) else None
             files.append({
                 'theme_name': theme_name,
                 'file_name': file_name,
@@ -557,7 +557,7 @@ class OpendataView(TemplateView):
         for reg_code, reg_name in regions.items():
             file_name = "{0}_{1}_{2}_{3}.zip".format(section_code, prefix, reg_code, data_date)
             file_path = os.path.join(settings.MEDIA_ROOT, "open_data", "regione", file_name)
-            file_size = os.stat(file_path).st_size
+            file_size = os.stat(file_path).st_size if os.path.isfile(file_path) else None
             files.append({
                 'region_name': reg_name,
                 'file_name': file_name,

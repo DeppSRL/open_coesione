@@ -11,6 +11,15 @@
 
 {% block content %}
   <div class="flat_content" id="faq_list">
+    <h1>
+      {% if lang == 'en' %}
+        Frequently Asked Questions
+      {% else %}
+        Domande frequenti
+      {% endif %}
+    </h1>
+    <hr>
+
     {% for object in object_list %}
       {% if lang == 'en' %}
         <div id="{{ object.slug_en }}" class="faq">
