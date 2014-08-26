@@ -12,10 +12,9 @@
     {% if programma.descrizione_estesa or programma.dotazione_totale %}
         <div id="claim-container">
             {% if programma.dotazione_totale %}
-                <span class="block-chart block-gray pull-right">
+                <span class="block-chart block-gray pull-right" style="cursor: default">
                     <strong class="title">Dotazione totale</strong>
                     <p>{{ programma.dotazione_totale|intword }} <span>di euro</span></p>
-                    <i class="icon-share-alt"></i>
                 </span>
             {% endif %}
 
