@@ -5828,6 +5828,7 @@ hr.big.dark {
   margin-top: 1.8em;
 }
 #open-data-download .table td {
+  white-space: nowrap;
   text-align: right;
   width: 29%;
 }
