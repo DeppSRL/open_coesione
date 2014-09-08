@@ -594,16 +594,15 @@ class Command(BaseCommand):
                (c - int(options['offset']) > int(options['limit'])):
                 break
 
+            # per i progetti CIPE non c'è il campo DPS_TERRITORIO_PROG
             if 'DPS_TERRITORIO_PROG' in r.keys():
                 tipo_territorio = r['DPS_TERRITORIO_PROG']
+            elif r['COD_PROVINCIA'] in ('000', '900'):
+                tipo_territorio = Territorio.TERRITORIO.R
+            elif r['COD_COMUNE'] in ('000', '900'):
+                tipo_territorio = Territorio.TERRITORIO.P
             else:
-                # caso localizzazioni progetti CIPE (non c'è il campo DPS_TERRITORIO_PROG)
                 tipo_territorio = Territorio.TERRITORIO.C
-                if r['COD_PROVINCIA'] in ('000', '900'):
-                    tipo_territorio = Territorio.TERRITORIO.R
-                else:
-                    if r['COD_COMUNE'] in ('000', '900'):
-                        tipo_territorio = Territorio.TERRITORIO.P
 
             if tipo_territorio == Territorio.TERRITORIO.R:
                 territorio = Territorio.objects.get(

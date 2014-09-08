@@ -783,6 +783,13 @@ class Progetto(TimeStampedModel):
         super(Progetto, self).save(force_insert, force_update, using)
 
 
+    def update(self, **kwargs):
+        for k, v in kwargs.iteritems():
+            setattr(self, k, v)
+        self.save()
+
+        return self
+
     class Meta:
         verbose_name_plural = "Progetti"
 

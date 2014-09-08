@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.utils import DatabaseError
+from django.db import transaction
+from django.db.utils import DatabaseError, IntegrityError
 from django.core.management.base import BaseCommand
 
 from optparse import make_option
@@ -24,7 +25,10 @@ class Command(BaseCommand):
     """
     help = 'Import data from csv'
 
-    import_types = ['proj', 'projinactive']
+    import_types = {
+        'proj': 'progettiattivi',
+        'projinactive': 'progettiinattivi',
+    }
 
     option_list = BaseCommand.option_list + (
         make_option('--csv-file',
@@ -82,10 +86,8 @@ class Command(BaseCommand):
         if type in self.import_types:
             self.logger.info('Inizio import da %s' % csv_file)
 
-            if type == 'proj':
-                self._handle_progettiattivi(df, options['delete'])
-            elif type == 'projinactive':
-                self._handle_progettiinattivi(df, options['delete'])
+            method = getattr(self, '_handle_%s' % self.import_types[type])
+            method(df, options['delete'])
 
             self.logger.info('Fine')
         else:
@@ -306,20 +308,23 @@ class Command(BaseCommand):
     def _handle_progetti_tema(self, df):
         temisintetici_desc2cod = {}
 
+        try:
+            codice = Tema.objects.principali().extra(select={'codice_int': 'CAST(codice AS INTEGER)'}).latest('codice_int').codice_int + 1
+        except Tema.DoesNotExist:
+            codice = 1
+
         df1 = df[['DPS_TEMA_SINTETICO']].drop_duplicates()
         for index, row in df1.iterrows():
-            try:
-                latest_codice = Tema.objects.principali().extra(select={'codice_int': 'CAST(codice AS INTEGER)'}).latest('codice_int').codice_int
-            except Tema.DoesNotExist:
-                latest_codice = 0
-
             tema, created = Tema.objects.get_or_create(
                 descrizione = row['DPS_TEMA_SINTETICO'],
                 tipo_tema = Tema.TIPO.sintetico,
                 defaults = {
-                    'codice': latest_codice + 1,
+                    'codice': codice,
                 }
             )
+            if created:
+                codice += 1
+
             self._log(created, 'Creato tema sintetico: %s' % tema)
 
             temisintetici_desc2cod[tema.descrizione] = tema.codice
@@ -368,14 +373,11 @@ class Command(BaseCommand):
         self._handle_progetti_tema(df)
         self._handle_progetti_fonte(df)
 
-        temisintetici_desc2cod = {}
-        for tema in Tema.objects.principali():
-            temisintetici_desc2cod[tema.descrizione] = tema.codice
+        temisintetici_desc2cod = dict((tema.descrizione, tema.codice) for tema in Tema.objects.principali())
 
-        fonti_cod2obj = {}
-        for fonte in Fonte.objects.all():
-            fonti_cod2obj[fonte.codice] = fonte
+        fonti_cod2obj = dict((fonte.codice, fonte) for fonte in Fonte.objects.all())
 
+        # check whether to remove records
         if delete:
             Progetto.fullobjects.filter(active_flag=active_flag).all().delete()
             self.logger.info('Oggetti rimossi')
@@ -483,12 +485,27 @@ class Command(BaseCommand):
                 continue
 
             try:
+                sid = transaction.savepoint()
+
                 Progetto.fullobjects.create(**values)\
                     .fonte_set.add(fonti_cod2obj[row['DPS_COD_FONTE']])
 
+                transaction.savepoint_commit(sid)
+
                 self.logger.info('%s - Creato progetto: %s' % (n, codice_locale))
 
+            except IntegrityError as e:
+                transaction.savepoint_rollback(sid)
+
+                values = {k:values[k] for k in values if k in ['programma_asse_obiettivo_id', 'programma_linea_azione_id']}
+
+                Progetto.fullobjects.get(pk=codice_locale).update(**values)
+
+                self.logger.debug('%s - Trovato e aggiornato progetto: %s' % (n, codice_locale))
+
             except DatabaseError as e:
+                transaction.savepoint_rollback(sid)
+
                 self.logger.error('%s - ERRORE progetto %s: %s. Skipping.' % (n, codice_locale, e))
                 continue
 
