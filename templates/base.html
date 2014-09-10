@@ -133,10 +133,62 @@
         $('.navbar-search select').change(function(){
           $('.navbar-search input').attr('placeholder', 'Cerca tra i '+ $(this).val());
           $(".navbar-search").attr("action", "/"+$(this).val()+"/");
-
         })
       });//]]>
       </script>
+
+    <script type="text/javascript">
+        /*
+         * Autocompleter for the map and menu search field
+         */
+        $(document).ready(function() {
+
+            $( "#menu-search-type-selector" ).change(function(){
+                /* setting currently changed option as class for the #menu-change input */
+                var option = $(this).find('option:selected').val();
+                if (option == 'territori') {
+                    $("#menu-search").hide();
+                    $("#menu-search-territori").show();
+                } else {
+                    $("#menu-search-territori").hide();
+                    $("#menu-search").show();
+                }
+        	});
+
+            // menu-search input behave as auto-completer only when territori is selected
+            $( "#menu-search-territori,#map-city").focus(function(){
+                if ($(this)._cleared) return;
+                $(this).val('');
+                $(this)._cleared = true;
+            }).autocomplete({
+                source: function( request, response ) {
+                    $.getJSON(
+                            "/territori/autocomplete/",
+                            {'query': request.term },
+                            function( data ) {
+                                response( $.map( data.territori, function( item ) {
+                                    return {
+                                        label: item.denominazione,
+                                        url: item.url
+                                    }
+                                }));
+                            }
+                    );
+                },
+                minLength: 2,
+                select: function( event, ui ) {
+                    window.location.href = ui.item.url;
+                },
+                open: function() {
+                    $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                },
+                close: function() {
+                    $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                }
+            }).css('z-index', 10000);
+        });
+    </script>
+
     {% endaddtoblock %}
     {% endblock %}
 
