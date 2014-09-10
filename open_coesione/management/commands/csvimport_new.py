@@ -11,6 +11,9 @@ import pandas as pd
 import datetime
 
 from progetti.models import *
+from soggetti.models import *
+from territori.models import Territorio
+
 
 def convert_cup_cod_natura(cup_cod_natura):
     if cup_cod_natura.strip() == '':
@@ -18,6 +21,9 @@ def convert_cup_cod_natura(cup_cod_natura):
     elif cup_cod_natura == '02':
         cup_cod_natura = '01'
     return cup_cod_natura
+
+def convert_dps_denominazione_sogg(dps_denominazione_sogg):
+    return re.sub('\s{2,}', u' ', dps_denominazione_sogg).strip()
 
 class Command(BaseCommand):
     """
@@ -28,6 +34,7 @@ class Command(BaseCommand):
     import_types = {
         'proj': 'progettiattivi',
         'projinactive': 'progettiinattivi',
+        'rec': 'soggetti',
     }
 
     option_list = BaseCommand.option_list + (
@@ -66,6 +73,7 @@ class Command(BaseCommand):
                 keep_default_na = False,
                 converters = {
                     'CUP_COD_NATURA': convert_cup_cod_natura,
+                    # 'DPS_DENOMINAZIONE_SOGG': convert_dps_denominazione_sogg,
                 }
             )
         except IOError:
@@ -510,6 +518,111 @@ class Command(BaseCommand):
                 continue
 
 
+    def _handle_soggetti_formagiuridica(self, df):
+        df1 = df[['COD_FORMA_GIURIDICA_SOGG', 'DESCR_FORMA_GIURIDICA_SOGG']].drop_duplicates()
+        for index, row in df1.iterrows():
+            forma_giuridica, created = FormaGiuridica.objects.get_or_create(
+                codice = self._get_value(row, 'COD_FORMA_GIURIDICA_SOGG'),
+                defaults = {
+                    'denominazione': self._get_value(row, 'DESCR_FORMA_GIURIDICA_SOGG'),
+                }
+            )
+            self._log(created, 'Creata forma giuridica: %s (%s)' % (forma_giuridica.denominazione, forma_giuridica.codice))
+
+
+    def _handle_soggetti_codiceateco(self, df):
+        df1 = df[['COD_ATECO_SOGG', 'DESCRIZIONE_ATECO_SOGG']].drop_duplicates()
+        for index, row in df1.iterrows():
+            codice_ateco, created = CodiceAteco.objects.get_or_create(
+                codice = self._get_value(row, 'COD_ATECO_SOGG'),
+                defaults = {
+                    'descrizione': self._get_value(row, 'DESCRIZIONE_ATECO_SOGG'),
+                }
+            )
+            self._log(created, 'Creato codice ateco: %s (%s)' % (codice_ateco.descrizione, codice_ateco.codice))
+
+
+    def _handle_soggetti(self, df, delete):
+        #self._handle_soggetti_formagiuridica(df)
+        #self._handle_soggetti_codiceateco(df)
+
+        # check whether to remove records
+        if delete:
+            Soggetto.fullobjects.all().delete()
+            self.logger.info('Oggetti rimossi')
+
+        # creazione soggetti
+
+        # df1 = df[['DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG', 'COD_FORMA_GIURIDICA_SOGG', 'COD_ATECO_SOGG', 'COD_COMUNE_SEDE_SOGG', 'INDIRIZZO_SOGG', 'CAP_SOGG']].drop_duplicates()
+        df1 = df[['DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG', 'COD_COMUNE_SEDE_SOGG', 'INDIRIZZO_SOGG', 'CAP_SOGG']].drop_duplicates()
+
+        n = 0
+        for index, row in df1.iterrows():
+            n += 1
+
+            denominazione = row['DPS_DENOMINAZIONE_SOGG']
+
+            try:
+                territorio = Territorio.objects.get_from_istat_code(row['COD_COMUNE_SEDE_SOGG'])
+            except ObjectDoesNotExist:
+                territorio = None
+
+            try:
+                sid = transaction.savepoint()
+
+                Soggetto.fullobjects.create(
+                    denominazione = denominazione,
+                    codice_fiscale = row['DPS_CODICE_FISCALE_SOGG'].strip(),
+                    # forma_giuridica_id = self._get_value(row, 'COD_FORMA_GIURIDICA_SOGG'),
+                    # codice_ateco_id = self._get_value(row, 'COD_ATECO_SOGG'),
+                    indirizzo = self._get_value(row, 'INDIRIZZO_SOGG'),
+                    cap = self._get_value(row, 'CAP_SOGG'),
+                    territorio = territorio,
+                )
+
+                transaction.savepoint_commit(sid)
+
+                self.logger.info(u'%s - Creato soggetto: %s' % (n, denominazione))
+
+            except DatabaseError as e:
+                transaction.savepoint_rollback(sid)
+
+                self.logger.error('%s - ERRORE soggetto %s: %s. Skipping.' % (n, denominazione, e))
+                continue
+
+        # creazione ruoli
+
+        df1 = df[['COD_LOCALE_PROGETTO', 'DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG', 'SOGG_COD_RUOLO']].drop_duplicates()
+
+        n = 0
+        for index, row in df1.iterrows():
+            n += 1
+
+            try:
+                progetto = Progetto.objects.get(pk=row['COD_LOCALE_PROGETTO'])
+                self.logger.debug('%s - Progetto: %s' % (n, progetto))
+            except ObjectDoesNotExist:
+                self.logger.warning('%s - Progetto attivo non trovato: %s. Skipping.' % (n, row['COD_LOCALE_PROGETTO']))
+                continue
+
+            try:
+                soggetto = Soggetto.fullobjects.get(denominazione=row['DPS_DENOMINAZIONE_SOGG'], codice_fiscale=row['DPS_CODICE_FISCALE_SOGG'].strip())
+                self.logger.debug('%s - Soggetto: %s' % (n, soggetto))
+            except ObjectDoesNotExist:
+                self.logger.warning('%s - Soggetto non trovato: %s. Skipping.' % (n, row['DPS_DENOMINAZIONE_SOGG']))
+                continue
+
+            ruolo = Ruolo.objects.create(
+                progetto = progetto,
+                soggetto = soggetto,
+                ruolo = row['SOGG_COD_RUOLO'],
+            )
+            self.logger.info(u'%s: Ruolo creato: %s' % (n, ruolo))
+
+            del soggetto
+            del progetto
+
+
     def _log(self, created, msg):
         if created:
             self.logger.info(msg)
@@ -521,7 +634,7 @@ class Command(BaseCommand):
         """
         """
         if key in dict:
-            dict[key] = str(dict[key])
+            dict[key] = unicode(dict[key])
             if dict[key].strip():
                 value = dict[key].strip()
 
