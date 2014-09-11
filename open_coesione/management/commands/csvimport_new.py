@@ -23,7 +23,8 @@ def convert_cup_cod_natura(cup_cod_natura):
     return cup_cod_natura
 
 def convert_dps_denominazione_sogg(dps_denominazione_sogg):
-    return re.sub('\s{2,}', u' ', dps_denominazione_sogg).strip()
+    # return re.sub('\s{2,}', u' ', dps_denominazione_sogg).strip()
+    return dps_denominazione_sogg.encode('ascii', 'ignore').strip()
 
 class Command(BaseCommand):
     """
@@ -73,7 +74,7 @@ class Command(BaseCommand):
                 keep_default_na = False,
                 converters = {
                     'CUP_COD_NATURA': convert_cup_cod_natura,
-                    # 'DPS_DENOMINAZIONE_SOGG': convert_dps_denominazione_sogg,
+                    'DPS_DENOMINAZIONE_SOGG': convert_dps_denominazione_sogg,
                 }
             )
         except IOError:
@@ -561,6 +562,7 @@ class Command(BaseCommand):
             n += 1
 
             denominazione = row['DPS_DENOMINAZIONE_SOGG']
+            codice_fiscale = row['DPS_CODICE_FISCALE_SOGG'].strip()
 
             try:
                 territorio = Territorio.objects.get_from_istat_code(row['COD_COMUNE_SEDE_SOGG'])
@@ -572,7 +574,7 @@ class Command(BaseCommand):
 
                 Soggetto.fullobjects.create(
                     denominazione = denominazione,
-                    codice_fiscale = row['DPS_CODICE_FISCALE_SOGG'].strip(),
+                    codice_fiscale = codice_fiscale,
                     # forma_giuridica_id = self._get_value(row, 'COD_FORMA_GIURIDICA_SOGG'),
                     # codice_ateco_id = self._get_value(row, 'COD_ATECO_SOGG'),
                     indirizzo = self._get_value(row, 'INDIRIZZO_SOGG'),
@@ -582,12 +584,12 @@ class Command(BaseCommand):
 
                 transaction.savepoint_commit(sid)
 
-                self.logger.info(u'%s - Creato soggetto: %s' % (n, denominazione))
+                self.logger.info(u'%s - Creato soggetto: %s (%s)' % (n, denominazione, codice_fiscale))
 
             except DatabaseError as e:
                 transaction.savepoint_rollback(sid)
 
-                self.logger.error('%s - ERRORE soggetto %s: %s. Skipping.' % (n, denominazione, e))
+                self.logger.error(u'%s - ERRORE soggetto %s (%s): %s. Skipping.' % (n, denominazione, codice_fiscale, e))
                 continue
 
         # creazione ruoli
@@ -605,11 +607,14 @@ class Command(BaseCommand):
                 self.logger.warning('%s - Progetto attivo non trovato: %s. Skipping.' % (n, row['COD_LOCALE_PROGETTO']))
                 continue
 
+            denominazione = row['DPS_DENOMINAZIONE_SOGG']
+            codice_fiscale = row['DPS_CODICE_FISCALE_SOGG'].strip()
+
             try:
-                soggetto = Soggetto.fullobjects.get(denominazione=row['DPS_DENOMINAZIONE_SOGG'], codice_fiscale=row['DPS_CODICE_FISCALE_SOGG'].strip())
-                self.logger.debug('%s - Soggetto: %s' % (n, soggetto))
+                soggetto = Soggetto.fullobjects.get(denominazione=denominazione, codice_fiscale=codice_fiscale)
+                self.logger.debug('%s - Soggetto: %s (%s)' % (n, soggetto.denominazione, soggetto.codice_fiscale))
             except ObjectDoesNotExist:
-                self.logger.warning('%s - Soggetto non trovato: %s. Skipping.' % (n, row['DPS_DENOMINAZIONE_SOGG']))
+                self.logger.warning('%s - Soggetto non trovato: %s (%s). Skipping.' % (n, denominazione, codice_fiscale))
                 continue
 
             ruolo = Ruolo.objects.create(
