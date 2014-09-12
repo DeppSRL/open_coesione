@@ -506,7 +506,7 @@ class Command(BaseCommand):
             except IntegrityError as e:
                 transaction.savepoint_rollback(sid)
 
-                values = {k:values[k] for k in values if k in ['programma_asse_obiettivo_id', 'programma_linea_azione_id']}
+                values = dict([(k,values[k]) for k in values if k in ['programma_asse_obiettivo_id', 'programma_linea_azione_id']])
 
                 Progetto.fullobjects.get(pk=codice_locale).update(**values)
 
