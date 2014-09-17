@@ -65,11 +65,11 @@ def export_select_fields_csv_action(description="Export selected objects as CSV 
         else:
             field_names = standard_field_names
 
-        response = HttpResponse(mimetype='text/plain; charset=utf8')
+        # response = HttpResponse(mimetype='text/plain; charset=utf8')
 
         # uncomment this if download is required
-        #response = HttpResponse(mimetype='text/csv')
-        #response['Content-Disposition'] = 'attachment; filename=%s.csv' % unicode(opts).replace('.', '_')
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=%s.csv' % unicode(opts).replace('.', '_')
 
         writer = csv.writer(response, delimiter=';')
         if header:
