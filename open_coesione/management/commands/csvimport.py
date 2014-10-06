@@ -594,16 +594,15 @@ class Command(BaseCommand):
                (c - int(options['offset']) > int(options['limit'])):
                 break
 
+            # per i progetti CIPE non c'è il campo DPS_TERRITORIO_PROG
             if 'DPS_TERRITORIO_PROG' in r.keys():
                 tipo_territorio = r['DPS_TERRITORIO_PROG']
+            elif r['COD_PROVINCIA'] in ('000', '900'):
+                tipo_territorio = Territorio.TERRITORIO.R
+            elif r['COD_COMUNE'] in ('000', '900'):
+                tipo_territorio = Territorio.TERRITORIO.P
             else:
-                # caso localizzazioni progetti CIPE (non c'è il campo DPS_TERRITORIO_PROG)
                 tipo_territorio = Territorio.TERRITORIO.C
-                if r['COD_PROVINCIA'] in ('000', '900'):
-                    tipo_territorio = Territorio.TERRITORIO.R
-                else:
-                    if r['COD_COMUNE'] in ('000', '900'):
-                        tipo_territorio = Territorio.TERRITORIO.P
 
             if tipo_territorio == Territorio.TERRITORIO.R:
                 territorio = Territorio.objects.get(
@@ -1619,7 +1618,23 @@ class Command(BaseCommand):
                     denominazione=denominazione,
                     codice_fiscale='',
                 )
-                self.logger.info(u"%s: Aggiunto soggetto: %s" % (c, soggetto.denominazione,))
+                self.logger.info(u"%s: Aggiunto soggetto: %s. Senza codice fiscale." % (c, soggetto.denominazione,))
+                return soggetto
+            except DatabaseError as e:
+                self.logger.warning("{0} - Database error: {1}. Skipping {2}.".format(c, e, soggetto_field))
+                connection._rollback()
+                return None
+        except MultipleObjectsReturned:
+            try:
+                soggetto, create = Soggetto.fullobjects.get_or_create(
+                    denominazione=denominazione,
+                    codice_fiscale='',
+                )
+                if create:
+                    self.logger.info(u"%s: Aggiunto soggetto: %s. Senza codice fiscale." % (c, soggetto.denominazione,))
+                else:
+                    self.logger.info(u"%s: Trovato soggetto: %s. Senza codice fiscale." % (c, soggetto.denominazione,))
+
                 return soggetto
             except DatabaseError as e:
                 self.logger.warning("{0} - Database error: {1}. Skipping {2}.".format(c, e, soggetto_field))

@@ -14,11 +14,11 @@ class CodiceAteco(models.Model):
         return self.soggetto_set.all()
 
     def __unicode__(self):
-        return u"%s" % (self.descrizione,)
+        return u'%s' % self.descrizione
 
     class Meta:
-        verbose_name = "Codice ATECO"
-        verbose_name_plural = "Codici ATECO"
+        verbose_name = 'Codice ATECO'
+        verbose_name_plural = 'Codici ATECO'
 
 
 class FormaGiuridica(models.Model):
@@ -30,25 +30,24 @@ class FormaGiuridica(models.Model):
         return self.soggetto_set.all()
 
     def __unicode__(self):
-        return u"%s" % (self.denominazione,)
+        return u'%s' % self.denominazione
 
     class Meta:
-        verbose_name = "Forma giuridica"
-        verbose_name_plural = "Forme giuridiche"
+        verbose_name = 'Forma giuridica'
+        verbose_name_plural = 'Forme giuridiche'
 
 
 class SoggettiManager(models.Manager):
     def get_query_set(self):
         return models.query.QuerySet(self.model, using=self._db).filter(ruolo__progetto__active_flag=True).distinct()
 
+
 class Soggetto(TimeStampedModel):
     codice_fiscale = models.CharField(max_length=16)
-    denominazione = models.CharField(max_length=512, db_index=True)
-    slug = models.CharField(max_length=300, blank=True, null=True)
-    forma_giuridica = models.ForeignKey(FormaGiuridica,
-                                        db_column='forma_giuridica', null=True, blank=True)
-    codice_ateco = models.ForeignKey(CodiceAteco,
-                                     db_column='codice_ateco', null=True, blank=True)
+    denominazione = models.CharField(max_length=512)
+    slug = models.CharField(max_length=300, null=True, blank=True, unique=True, db_index=True)
+    forma_giuridica = models.ForeignKey(FormaGiuridica, null=True, blank=True, db_column='forma_giuridica')
+    codice_ateco = models.ForeignKey(CodiceAteco, null=True, blank=True, db_column='codice_ateco')
     territorio = models.ForeignKey('territori.Territorio', null=True)
     rappresentante_legale = models.CharField(max_length=300, null=True, blank=True)
     indirizzo = models.CharField(max_length=300, null=True, blank=True)
@@ -68,14 +67,12 @@ class Soggetto(TimeStampedModel):
 
     @property
     def has_progetti(self):
+        # return self.n_progetti > 0
         try:
             a = self.progetti[0]
             return True
         except IndexError:
             return False
-
-        # return self.n_progetti > 0
-
 
     @property
     def ruoli(self):
@@ -89,7 +86,7 @@ class Soggetto(TimeStampedModel):
         return set(chain.from_iterable([list(p.regioni) for p in self.progetti]))
 
     def __unicode__(self):
-        return u"%s" % (self.denominazione, )
+        return u'%s' % self.denominazione
 
     @models.permalink
     def get_absolute_url(self):
@@ -98,4 +95,8 @@ class Soggetto(TimeStampedModel):
         })
 
     class Meta:
-        verbose_name_plural = "Soggetti"
+        verbose_name_plural = 'Soggetti'
+        unique_together = ('denominazione', 'codice_fiscale')
+        index_together = [
+            ['denominazione', 'codice_fiscale']
+        ]

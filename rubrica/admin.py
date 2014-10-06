@@ -65,9 +65,9 @@ def export_select_fields_csv_action(description="Export selected objects as CSV 
         else:
             field_names = standard_field_names
 
+        # uncomment this if download is not required required
         # response = HttpResponse(mimetype='text/plain; charset=utf8')
 
-        # uncomment this if download is required
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename=%s.csv' % unicode(opts).replace('.', '_')
 
