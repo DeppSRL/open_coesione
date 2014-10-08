@@ -41,8 +41,8 @@ class ClassificazioneQSN(models.Model):
         return self.codice
 
     class Meta:
-        verbose_name = "Classificazione QSN"
-        verbose_name_plural = "Classificazioni QSN"
+        verbose_name = 'Classificazione QSN'
+        verbose_name_plural = 'Classificazioni QSN'
         db_table = 'progetti_classificazione_qsn'
 
 
@@ -100,7 +100,7 @@ class ProgrammaBase(models.Model):
         if item in ['descrizione_estesa', 'links', 'documenti']:
             return getattr(self.extra_info, item)
         else:
-            raise AttributeError("%r object has no attribute %r" % (self.__class__.__name__, item))
+            raise AttributeError('%r object has no attribute %r' % (self.__class__.__name__, item))
 
     def __unicode__(self):
         return unicode(self.descrizione[0:100])
@@ -118,7 +118,7 @@ class ProgrammaAsseObiettivo(ProgrammaBase):
     )
 
     class Meta(ProgrammaBase.Meta):
-        verbose_name_plural = "Programmi - Assi - Obiettivi operativi"
+        verbose_name_plural = 'Programmi - Assi - Obiettivi operativi'
         db_table = 'progetti_programma_asse_obiettivo'
 
     @property
@@ -137,7 +137,7 @@ class ProgrammaAsseObiettivo(ProgrammaBase):
         if self.is_root:
             return Progetto.objects.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore=self)
         else:
-            raise Exception("This property is not available for Asse or Obiettivo classifications.")
+            raise Exception('This property is not available for Asse or Obiettivo classifications.')
 
 
 class ProgrammaLineaAzione(ProgrammaBase):
@@ -153,7 +153,7 @@ class ProgrammaLineaAzione(ProgrammaBase):
     )
 
     class Meta(ProgrammaBase.Meta):
-        verbose_name_plural = "Programmi - Linee - Azioni"
+        verbose_name_plural = 'Programmi - Linee - Azioni'
         db_table = 'progetti_programma_linea_azione'
 
     @property
@@ -172,7 +172,7 @@ class ProgrammaLineaAzione(ProgrammaBase):
         if self.is_root:
             return Progetto.objects.filter(programma_linea_azione__classificazione_superiore__classificazione_superiore=self)
         else:
-            raise Exception("This property is not available for Linea or Azione classifications.")
+            raise Exception('This property is not available for Linea or Azione classifications.')
 
 
 class ProgrammaExtraInfoBase(models.Model):
@@ -191,8 +191,8 @@ class ProgrammaAsseObiettivoExtraInfo(ProgrammaExtraInfoBase):
     programma = models.OneToOneField(ProgrammaAsseObiettivo, primary_key=True)
 
     class Meta(ProgrammaExtraInfoBase.Meta):
-        verbose_name = "Programma - Asse - Obiettivo operativo (informazioni aggiuntive)"
-        verbose_name_plural = "Programmi - Assi - Obiettivi operativi (informazioni aggiuntive)"
+        verbose_name = 'Programma - Asse - Obiettivo operativo (informazioni aggiuntive)'
+        verbose_name_plural = 'Programmi - Assi - Obiettivi operativi (informazioni aggiuntive)'
         db_table = 'progetti_programma_asse_obiettivo_extra_info'
 
 
@@ -200,8 +200,8 @@ class ProgrammaLineaAzioneExtraInfo(ProgrammaExtraInfoBase):
     programma = models.OneToOneField(ProgrammaLineaAzione, primary_key=True)
 
     class Meta(ProgrammaExtraInfoBase.Meta):
-        verbose_name = "Programma - Linea - Azione (informazioni aggiuntive)"
-        verbose_name_plural = "Programmi - Linee - Azioni (informazioni aggiuntive)"
+        verbose_name = 'Programma - Linea - Azione (informazioni aggiuntive)'
+        verbose_name_plural = 'Programmi - Linee - Azioni (informazioni aggiuntive)'
         db_table = 'progetti_programma_linea_azione_extra_info'
 
 
@@ -218,7 +218,7 @@ class Tema(models.Model):
     descrizione_estesa = models.TextField(null=True, blank=True)
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_tema = models.CharField(max_length=16, choices=TIPO)
-    slug = models.CharField(max_length=64, blank=True, null=True)
+    slug = models.CharField(max_length=64, blank=True, null=True, unique=True, db_index=True)
 
     objects = TemiManager()
 
@@ -259,7 +259,7 @@ class Tema(models.Model):
             query_set = query_set.filter(**territorio.get_cod_dict('{0}territorio_set__'.format(prefix)))
             cache_key.append(str(territorio.pk))
 
-        cache_key = ".".join(cache_key)
+        cache_key = '.'.join(cache_key)
         result = cache.get(cache_key)
         if result is None:
             result = query_set.aggregate(totale=models.Sum('{0}fin_totale_pubblico'.format(prefix)))['totale'] or 0.0
@@ -276,7 +276,7 @@ class Tema(models.Model):
         return u'%s %s' % (self.codice, self.descrizione)
 
     class Meta:
-        verbose_name_plural = "Temi"
+        verbose_name_plural = 'Temi'
         ordering = ['short_label','codice']
 
 
@@ -290,11 +290,11 @@ class Intesa(models.Model):
 
 
     def __unicode__(self):
-        return self.codice + " - " + self.descrizione
+        return self.codice + ' - ' + self.descrizione
 
     class Meta:
-        verbose_name = "Intesa istituzionale"
-        verbose_name_plural = "Intese istituzionali"
+        verbose_name = 'Intesa istituzionale'
+        verbose_name_plural = 'Intese istituzionali'
 
 class Fonte(models.Model):
     TIPO = Choices(
@@ -314,11 +314,11 @@ class Fonte(models.Model):
 
 
     def __unicode__(self):
-        return self.codice + " - " + self.descrizione
+        return self.codice + ' - ' + self.descrizione
 
     class Meta:
-        verbose_name = "Fonte"
-        verbose_name_plural = "Fonti"
+        verbose_name = 'Fonte'
+        verbose_name_plural = 'Fonti'
 
 
 class ClassificazioneAzione(models.Model):
@@ -337,7 +337,7 @@ class ClassificazioneAzione(models.Model):
     descrizione_estesa = models.TextField(null=True, blank=True)
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_classificazione = models.CharField(max_length=16, choices=TIPO)
-    slug = models.CharField(max_length=64, blank=True, null=True)
+    slug = models.CharField(max_length=64, blank=True, null=True, unique=True, db_index=True)
     priorita = models.IntegerField(blank=True, null=True)
 
     @property
@@ -375,7 +375,7 @@ class ClassificazioneAzione(models.Model):
         return u'%s %s' % (self.codice, self.descrizione)
 
     class Meta:
-        verbose_name_plural = "Classificazioni azioni"
+        verbose_name_plural = 'Classificazioni azioni'
         db_table = 'progetti_classificazione_azione'
         ordering = ['short_label','codice']
 
@@ -405,7 +405,7 @@ class ClassificazioneOggetto(models.Model):
         return u'%s %s' % (self.codice, self.descrizione)
 
     class Meta:
-        verbose_name_plural = "Classificazioni oggetti"
+        verbose_name_plural = 'Classificazioni oggetti'
         db_table = 'progetti_classificazione_oggetto'
         ordering = ['codice']
 
@@ -568,7 +568,7 @@ class Progetto(TimeStampedModel):
     dps_flag_date_previste = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE, null=True, blank=True)
     dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE, null=True, blank=True)
 
-    dps_flag_pac = models.CharField(max_length=1, choices=DPS_FLAG_PAC, default="0")
+    dps_flag_pac = models.CharField(max_length=1, choices=DPS_FLAG_PAC, default='0')
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
@@ -783,10 +783,15 @@ class Progetto(TimeStampedModel):
         super(Progetto, self).save(force_insert, force_update, using)
 
 
+    def update(self, **kwargs):
+        for k, v in kwargs.iteritems():
+            setattr(self, k, v)
+        self.save()
+
+        return self
+
     class Meta:
-        verbose_name_plural = "Progetti"
-
-
+        verbose_name_plural = 'Progetti'
 
 
 class ProgettoDeliberaCIPE(models.Model):
@@ -799,7 +804,7 @@ class ProgettoDeliberaCIPE(models.Model):
     note = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
-        return u"p:%s - d:%s" % (self.progetto, self.delibera,)
+        return u'p:%s - d:%s' % (self.progetto, self.delibera,)
 
 class DeliberaCIPE(models.Model):
     """
@@ -815,11 +820,11 @@ class DeliberaCIPE(models.Model):
     progetto_set = models.ManyToManyField(Progetto, through=ProgettoDeliberaCIPE)
 
     def __unicode__(self):
-        return u"%s_%s" % (self.num, self.anno)
+        return u'%s_%s' % (self.num, self.anno)
 
     class Meta:
-        verbose_name = "Delibera CIPE"
-        verbose_name_plural = "Delibere CIPE"
+        verbose_name = 'Delibera CIPE'
+        verbose_name_plural = 'Delibere CIPE'
 
 
 class CUP(models.Model):
@@ -832,10 +837,10 @@ class CUP(models.Model):
     cup = models.CharField(max_length=15)
 
     def __unicode__(self):
-        return u"%s - %s" % (self.progetto, self.cup)
+        return u'%s - %s' % (self.progetto, self.cup)
 
     class Meta:
-        verbose_name_plural = "CUP"
+        verbose_name_plural = 'CUP'
 
 
 class Localizzazione(TimeStampedModel):
@@ -851,14 +856,16 @@ class Localizzazione(TimeStampedModel):
     dps_flag_cap = models.CharField(max_length=1, choices=DPS_FLAG_CAP, default='0')
 
     def __unicode__(self):
-        return u"%s %s (%s)" % (self.progetto, self.territorio, self.dps_flag_cap)
+        return u'%s %s (%s)' % (self.progetto, self.territorio, self.dps_flag_cap)
 
     class Meta:
-        verbose_name_plural = "Localizzazioni"
+        verbose_name_plural = 'Localizzazioni'
+
 
 class RuoloManager(models.Manager):
     def get_query_set(self):
         return models.query.QuerySet(self.model, using=self._db).filter(progetto__active_flag=True).distinct()
+
 
 class Ruolo(TimeStampedModel):
     """
@@ -894,13 +901,13 @@ class Ruolo(TimeStampedModel):
         return self.progetto_set.all()
 
     def __unicode__(self):
-        return u"%s, %s nel progetto %s" % (self.soggetto, self.get_ruolo_display(), self.progetto)
+        return u'%s, %s nel progetto %s' % (self.soggetto, self.get_ruolo_display(), self.progetto)
 
     class Meta:
-        verbose_name = "Ruolo"
-        verbose_name_plural = "Ruoli"
+        verbose_name = 'Ruolo'
+        verbose_name_plural = 'Ruoli'
         index_together = [
-            ["progetto", "soggetto", "ruolo"],
+            ['progetto', 'soggetto', 'ruolo'],
         ]
 
 class SegnalazioneProgetto(TimeStampedModel):
@@ -914,42 +921,42 @@ class SegnalazioneProgetto(TimeStampedModel):
     TIPOLOGIE = (
         (TIPOLOGIA_FINANZIATORE, "Faccio parte dell'amministrazione che programma e finanzia" ),
         (TIPOLOGIA_ATTUATORE, "Faccio parte dell'organizzazione che gestisce l'attuazione del progetto" ),
-        (TIPOLOGIA_REALIZZATORE, "Lavoro / ho lavorato per la realizzazione del progetto"),
-        (TIPOLOGIA_OSSERVATORE, "Abito lì vicino"),
-        (TIPOLOGIA_ALTRO, "Conosco il progetto per un altro motivo"),
+        (TIPOLOGIA_REALIZZATORE, 'Lavoro / ho lavorato per la realizzazione del progetto'),
+        (TIPOLOGIA_OSSERVATORE, 'Abito lì vicino'),
+        (TIPOLOGIA_ALTRO, 'Conosco il progetto per un altro motivo'),
     )
 
     # pubblication flag
     pubblicato = models.BooleanField(default=False)
 
-    come_lo_conosci = models.CharField(choices=TIPOLOGIE, max_length=12, verbose_name="Come conosci il progetto?*")
-    come_lo_conosci_altro = models.TextField(verbose_name="Specificare come hai conosciuto il progetto", blank=True, null=True)
+    come_lo_conosci = models.CharField(choices=TIPOLOGIE, max_length=12, verbose_name='Come conosci il progetto?*')
+    come_lo_conosci_altro = models.TextField(verbose_name='Specificare come hai conosciuto il progetto', blank=True, null=True)
 
-    cup = models.CharField(max_length=15, verbose_name="Codice del progetto*")
-    is_cipe = models.BooleanField(default=False, verbose_name="Progetto CIPE")
-    organizzazione = models.CharField(max_length=255, verbose_name="Amministrazione o altra organizzazione*")
-    utente = models.CharField(max_length=255, verbose_name="Nome e cognome*")
-    email = models.EmailField(verbose_name="E-mail*")
-    descrizione = models.TextField(verbose_name="Racconto del progetto*")
-    come_migliorare = models.TextField(blank=True, null=True, verbose_name="Come si potrebbe migliorare?*")
+    cup = models.CharField(max_length=15, verbose_name='Codice del progetto*')
+    is_cipe = models.BooleanField(default=False, verbose_name='Progetto CIPE')
+    organizzazione = models.CharField(max_length=255, verbose_name='Amministrazione o altra organizzazione*')
+    utente = models.CharField(max_length=255, verbose_name='Nome e cognome*')
+    email = models.EmailField(verbose_name='E-mail*')
+    descrizione = models.TextField(verbose_name='Racconto del progetto*')
+    come_migliorare = models.TextField(blank=True, null=True, verbose_name='Come si potrebbe migliorare?*')
 
     # optional fields
     risultati_conseguiti = models.TextField(blank=True, null=True)
     effetti_sul_territorio = models.TextField(blank=True, null=True)
-    cosa_piace = models.TextField(blank=True, null=True, verbose_name="Cosa ti è piaciuto di più?")
-    cosa_non_piace = models.TextField(blank=True, null=True, verbose_name="Cosa ti è piaciuto di meno?")
-    quanto_utile = models.TextField(blank=True, null=True, verbose_name="Per cosa è stato utile il progetto?")
+    cosa_piace = models.TextField(blank=True, null=True, verbose_name='Cosa ti è piaciuto di più?')
+    cosa_non_piace = models.TextField(blank=True, null=True, verbose_name='Cosa ti è piaciuto di meno?')
+    quanto_utile = models.TextField(blank=True, null=True, verbose_name='Per cosa è stato utile il progetto?')
 
     @property
     def progetto(self):
         return Progetto.objects.get(cup=self.cup)
 
     def __unicode__(self):
-        return u"{0} su {1}".format(self.email, self.cup)
+        return u'{0} su {1}'.format(self.email, self.cup)
 
     class Meta:
-        verbose_name = "Segnalazione"
-        verbose_name_plural = "Segnalazioni"
+        verbose_name = 'Segnalazione'
+        verbose_name_plural = 'Segnalazioni'
 
 
 class PagamentoProgetto(TimeStampedModel):
@@ -963,11 +970,11 @@ class PagamentoProgetto(TimeStampedModel):
         return (self.ammontare / self.progetto.fin_totale_pubblico ) * Decimal(100)
 
     def __unicode__(self):
-        return u"Pagamento del progetto {0} per {1} di {2}".format(self.progetto.codice_locale, self.data, self.ammontare)
+        return u'Pagamento del progetto {0} per {1} di {2}'.format(self.progetto.codice_locale, self.data, self.ammontare)
 
     class Meta:
-        verbose_name = "Pagamento progetto"
-        verbose_name_plural = "Pagamenti progetti"
+        verbose_name = 'Pagamento progetto'
+        verbose_name_plural = 'Pagamenti progetti'
         ordering = ['data']
 
 

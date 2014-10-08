@@ -33,8 +33,8 @@ class ContactMessage(models.Model):
     sent_at = models.DateTimeField(auto_now_add=True, verbose_name='Data di invio')
 
     class Meta:
-        verbose_name_plural = 'Messaggi'
         verbose_name = 'Messaggio'
+        verbose_name_plural = 'Messaggi'
 
 class PressReview(models.Model):
 
@@ -48,8 +48,8 @@ class PressReview(models.Model):
     published_at = models.DateField(verbose_name='Data di pubblicazione')
 
     class Meta:
-        verbose_name_plural = 'Rassegna stampa'
         verbose_name = 'Articolo'
+        verbose_name_plural = 'Rassegna stampa'
 
 
 class Pillola(tagging_models.TagMixin, models.Model):
@@ -63,8 +63,8 @@ class Pillola(tagging_models.TagMixin, models.Model):
     published_at = models.DateField(verbose_name='Data di pubblicazione')
 
     class Meta:
-        verbose_name_plural = 'Pillole'
         verbose_name = 'Pillola'
+        verbose_name_plural = 'Pillole'
 
 
 class URL(models.Model):
@@ -74,8 +74,8 @@ class URL(models.Model):
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
-        verbose_name_plural = 'Links'
         verbose_name = 'Link'
+        verbose_name_plural = 'Links'
 
 
 class FAQ(models.Model):
@@ -97,8 +97,8 @@ class FAQ(models.Model):
             raise AttributeError('%r object has no attribute %r' % (self.__class__.__name__, item))
 
     class Meta:
-        verbose_name_plural = 'Domande frequenti'
         verbose_name = 'Domanda frequente'
+        verbose_name_plural = 'Domande frequenti'
         ordering = ['-priorita', 'id']
 
 
