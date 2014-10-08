@@ -16,7 +16,7 @@ class Entry(tagging_models.TagMixin, models.Model):
     def __unicode__(self):
         return self.title
 
-    def save(self, force_insert=False, force_update=False, using=None):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.body and not self.body_plain:
             self.body_plain = strip_tags(self.body)
         if not self.published_at:

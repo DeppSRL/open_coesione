@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from django_extensions.db.fields import AutoSlugField
 
 from model_utils import Choices
 from progetti.models import Progetto
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 import struct
+
 
 class TerritoriManager(models.GeoManager):
 
@@ -56,7 +58,7 @@ class Territorio(models.Model):
     cod_com = models.IntegerField(default=0, blank=True, null=True, db_index=True)
     denominazione = models.CharField(max_length=128, db_index=True)
     denominazione_ted = models.CharField(max_length=128, blank=True, null=True, db_index=True)
-    slug = models.SlugField(max_length=256, null=True, blank=True)
+    slug = AutoSlugField(populate_from='denominazione_territorio', max_length=256, unique=True, db_index=True)
     territorio = models.CharField(max_length=1, choices=TERRITORIO, db_index=True)
     geom = models.MultiPolygonField(srid=4326, null=True, blank=True)
     popolazione_totale = models.IntegerField(null=True, blank=True)
@@ -67,6 +69,10 @@ class Territorio(models.Model):
 
     def progetti(self):
         return self.progetto_set.all()
+
+    @property
+    def denominazione_territorio(self):
+        return u'%s %s' % (self.denominazione, self.get_territorio_display())
 
     @property
     def codice(self):
@@ -154,7 +160,6 @@ class Territorio(models.Model):
         else:
             return u"%s" % self.denominazione
 
-
     @property
     def nome_con_provincia(self):
         if self.territorio == self.TERRITORIO.P:
@@ -212,7 +217,6 @@ class Territorio(models.Model):
 
         return search_url
 
-
     @models.permalink
     def get_absolute_url(self):
         url_name = 'territori_{0}'.format({
@@ -232,5 +236,3 @@ class Territorio(models.Model):
         verbose_name = u'Località'
         verbose_name_plural = u'Località'
         ordering = ['denominazione']
-
-
