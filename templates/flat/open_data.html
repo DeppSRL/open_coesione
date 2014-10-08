@@ -424,10 +424,6 @@
 
     </div>
 
-
-
-
-
     <h3 class="h3-switcher">
         <a href="#" data-target="#cpt-content" id="cpt-title">
             Conti Pubblici Territoriali (CPT) <i class="icon-chevron-down"></i>
@@ -493,6 +489,57 @@
         <p>Ultimo aggiornamento: aprile 2014 su dati al 31/12/2012.<br>* Dati non navigabili sul portale OpenCoesione.</p>
 
     </div>
+
+
+
+    <h3 class="h3-switcher">
+        <a href="#" data-target="#indagine-content" id="indagine-title">
+            Indagine sulla trasparenza delle liste dei beneficiari
+            dei Programmi Operativi 2007-2013 in Europa<i class="icon-chevron-down"></i>
+        </a>
+    </h3>
+
+    <div id="indagine-content">
+
+        <p>
+            I dataset contengono le informazioni rilevate dall’indagine annuale sulle modalità di
+            pubblicazione dei dati sui beneficiati dei fondi strutturali in Europa.
+            L’indagine, avviata nel 2010 e aggiornata e integrata ogni anno tramite visita diretta sui siti
+            web delle Autorità di Gestione (AdG) dei Programmi Operativi, rileva la presenza di varie
+            caratteristiche delle liste dei beneficiari e le diverse modalità di pubblicazione delle relative informazioni.
+        <br/>
+            Dati e metadati sulle modalità di pubblicazione delle liste dei beneficiari dei
+            Programmi Operativi Europei 2007-13.
+        </p>
+
+        <table class="table" id="indagine">
+            <thead>
+            <tr>
+                <td class="label" style="width: 50%">Rilevazioni dal 2010 al 2013</td>
+                <td>
+                    <a href="/opendata/{{ indagine_data_file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                        [<i class="icon-download-alt"></i> zip/csv {{ indagine_data_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td class="label" style="width: 50%">Metadati</td>
+                <td>
+                    <a href="/opendata/{{ indagine_metadata_file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                        [<i class="icon-download-alt"></i> zip/csv {{ indagine_metadata_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            </thead>
+
+        </table>
+
+        <p>Ultimo aggiornamento dati al 31/12/2013.<br>* Dati non navigabili sul portale OpenCoesione.</p>
+
+    </div>
+
 
     <p style="margin-top: 2em;"></p>
 
