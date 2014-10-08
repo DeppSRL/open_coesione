@@ -216,7 +216,7 @@ class Tema(models.Model):
     descrizione_estesa = models.TextField(null=True, blank=True)
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_tema = models.CharField(max_length=16, choices=TIPO)
-    slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True)
+    slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True, null=True)
 
     objects = TemiManager()
 
@@ -334,7 +334,7 @@ class ClassificazioneAzione(models.Model):
     descrizione_estesa = models.TextField(null=True, blank=True)
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_classificazione = models.CharField(max_length=16, choices=TIPO)
-    slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True)
+    slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True, null=True)
     priorita = models.IntegerField(blank=True, null=True)
 
     @property
