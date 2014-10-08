@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django_extensions.db.fields import AutoSlugField
 from model_utils.models import TimeStampedModel
 
 from itertools import chain
@@ -45,7 +46,7 @@ class SoggettiManager(models.Manager):
 class Soggetto(TimeStampedModel):
     codice_fiscale = models.CharField(max_length=16)
     denominazione = models.CharField(max_length=512)
-    slug = models.CharField(max_length=300, null=True, blank=True, unique=True, db_index=True)
+    slug = AutoSlugField(populate_from='denominazione_univoca', max_length=300, unique=True, db_index=True)
     forma_giuridica = models.ForeignKey(FormaGiuridica, null=True, blank=True, db_column='forma_giuridica')
     codice_ateco = models.ForeignKey(CodiceAteco, null=True, blank=True, db_column='codice_ateco')
     territorio = models.ForeignKey('territori.Territorio', null=True)
@@ -56,6 +57,10 @@ class Soggetto(TimeStampedModel):
     objects = models.Manager()
     filteredobjects = SoggettiManager()
     fullobjects = models.Manager()
+
+    @property
+    def denominazione_univoca(self):
+        return (u'%s %s' % (self.denominazione, '' if self.codice_fiscale == '*CODICE FISCALE*' else self.codice_fiscale)).strip()
 
     @property
     def progetti(self):

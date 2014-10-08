@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.utils import DatabaseError, IntegrityError
@@ -15,16 +16,73 @@ from soggetti.models import *
 from territori.models import Territorio
 
 
-def convert_cup_cod_natura(cup_cod_natura):
-    if cup_cod_natura.strip() == '':
-        cup_cod_natura = ' '
-    elif cup_cod_natura == '02':
-        cup_cod_natura = '01'
-    return cup_cod_natura
+def convert_progetto_cup_cod_natura(val):
+    if val.strip():
+        val = int(val)
+        if val == 2:
+            val = 1
+        val = '{0:02d}'.format(val)
 
-def convert_dps_denominazione_sogg(dps_denominazione_sogg):
-    # return re.sub('\s{2,}', u' ', dps_denominazione_sogg).strip()
-    return dps_denominazione_sogg.encode('ascii', 'ignore').strip()
+    return val
+
+def convert_progetto_cup_cod_tipologia(val):
+    if val.strip():
+        val = '{0:02d}'.format(int(val))
+    return val
+
+def convert_progetto_cup_cod_settore(val):
+    if val.strip():
+        val = '{0:02d}'.format(int(val))
+    return val
+
+def convert_progetto_cup_cod_sottosettore(val):
+    if val.strip():
+        val = '{0:02d}'.format(int(val))
+    return val
+
+def convert_progetto_cup_cod_categoria(val):
+    if val.strip():
+        val = '{0:03d}'.format(int(val))
+    return val
+
+def convert_progetto_qsn_cod_tema_prioritario_ue(val):
+    if val.strip():
+        val = '{0:02d}'.format(int(val))
+    return val
+
+def convert_soggetto_dps_denominazione_sogg(val):
+    # return re.sub('\s{2,}', u' ', val).strip()
+    return val.encode('ascii', 'ignore').strip()
+
+def convert_progettocipe_cup(val):
+    val = val.replace(' ', '')
+    return tuple(val.split(';')) if val else ()
+
+def convert_progettocipe_dps_tema_sintetico(val):
+    """
+    Trasforma stringhe maiuscole, con altri termini,
+    nelle stringhe *canoniche*, riconosciute dal nostro sistema.
+    Ci possono essere più chiavi che corrispondono a uno stesso valore.
+    Questa funzione è usata solamente per l'import dei dati.
+    """
+    temi = {
+        u'OCCUPAZIONE E MOBILITÀ DEI LAVORATORI': u'Occupazione e mobilità dei lavoratori',
+        u'INCLUSIONE SOCIALE': u'Inclusione sociale',
+        u'ISTRUZIONE': u'Istruzione',
+        u'COMPETITIVITÀ PER LE IMPRESE': u'Competitività delle imprese',
+        u'RICERCA E INNOVAZIONE': u'Ricerca e innovazione',
+        u'ATTRAZIONE CULTURALE, NATURALE E TURISTICA': u'Attrazione culturale, naturale e turistica',
+        u'SERVIZI DI CURA INFANZIA E ANZIANI': u'Servizi di cura infanzia e anziani',
+        u'ENERGIA E EFFICIENZA ENERGETICA': u'Energia e efficienza energetica',
+        u'AGENDA DIGITALE': u'Agenda digitale',
+        u'AMBIENTE E PREVENZIONE DEI RISCHI': u'Ambiente e prevenzione dei rischi',
+        u'RAFFORZAMENTO DELLE CAPACITÀ DELLA PA': u'Rafforzamento capacità della PA',
+        u'RINNOVAMENTO URBANO E RURALE': u'Rinnovamento urbano e rurale',
+        u'AEREOPORTUALI': u'Trasporti e infrastrutture a rete',
+        u'TRASPORTI E INFRASTRUTTURE A RETE': u'Trasporti e infrastrutture a rete',
+        u'AEROPORTUALI': u'Trasporti e infrastrutture a rete',
+    }
+    return temi[val]
 
 class Command(BaseCommand):
     """
@@ -33,54 +91,73 @@ class Command(BaseCommand):
     help = 'Import data from csv'
 
     import_types = {
-        'proj': 'progettiattivi',
-        'projinactive': 'progettiinattivi',
-        'rec': 'soggetti',
+        'progetti': {
+            'files': ['progetti_FSC0713_{0}.csv', 'progetti_FS0713_{0}.csv', 'progetti_PAC_{0}.csv', 'prog_inattivi_{0}.csv'],
+            'import_method': '_import_progetti',
+            'converters': {
+                'CUP_COD_NATURA': convert_progetto_cup_cod_natura,
+                'CUP_COD_TIPOLOGIA': convert_progetto_cup_cod_tipologia,
+                'CUP_COD_SETTORE': convert_progetto_cup_cod_settore,
+                'CUP_COD_SOTTOSETTORE': convert_progetto_cup_cod_sottosettore,
+                'CUP_COD_CATEGORIA': convert_progetto_cup_cod_categoria,
+                'QSN_COD_TEMA_PRIORITARIO_UE': convert_progetto_qsn_cod_tema_prioritario_ue,
+            },
+        },
+        'progetti-cipe': {
+            'files': ['assegnazioni_CIPE_{0}.csv'],
+            'import_method': '_import_progetticipe',
+            'converters': {
+                'DPS_TEMA_SINTETICO': convert_progettocipe_dps_tema_sintetico,
+                'CUP_COD_SETTORE': convert_progetto_cup_cod_settore,
+                'CUP_COD_SOTTOSETTORE': convert_progetto_cup_cod_sottosettore,
+                'CUP': convert_progettocipe_cup,
+            },
+        },
+        'soggetti': {
+            'files': ['soggetti_FSC0713_{0}.csv', 'soggetti_FS0713_{0}.csv', 'soggetti_PAC_{0}.csv'],
+            'import_method': '_import_soggetti',
+            'converters': {
+                'DPS_DENOMINAZIONE_SOGG': convert_soggetto_dps_denominazione_sogg,
+            },
+        },
+        'pagamenti': {
+            'files': ['pagamenti_FSC0713_{0}.csv', 'pagamenti_FS0713_{0}.csv', 'pagamenti_PAC_{0}.csv'],
+            'import_method': '_import_pagamenti',
+            'converters': None,
+        },
+        'localizzazioni': {
+            'files': ['localizzazioni_FSC0713_{0}.csv', 'localizzazioni_FS0713_{0}.csv', 'localizzazioni_PAC_{0}.csv', 'localizzazioni_CIPE_{0}.csv'],
+            'import_method': '_import_localizzazioni',
+            'converters': None,
+        },
     }
 
     option_list = BaseCommand.option_list + (
-        make_option('--csv-file',
-                    dest = 'csvfile',
-                    default = None,
-                    help = 'Select csv file.'),
-        make_option('--type',
-                    dest = 'type',
-                    default = None,
-                    help = 'Type of import; select among %s.' % ', '.join(['"' + t + '"' for t in import_types])),
-        make_option('--delete',
-                    dest = 'delete',
-                    action = 'store_true',
-                    help = 'Delete records before importing new.'),
+        make_option('--csv-path',
+                    dest='csv_path',
+                    default=None,
+                    help='Select csv files path.'),
+        make_option('--csv-date',
+                    dest='csv_date',
+                    default=None,
+                    help='Date of data.'),
+        make_option('--import-type',
+                    dest='import_type',
+                    default=None,
+                    help='Type of import; select among {0}.'.format(', '.join(['"' + t + '"' for t in import_types]))),
+        make_option('--append',
+                    dest='append',
+                    action='store_true',
+                    help='If not set, delete records before importing new.'),
         make_option('--encoding',
-                    dest = 'encoding',
-                    default = 'utf-8',
-                    help = 'Set character encoding of input file.'),
+                    dest='encoding',
+                    default='utf-8',
+                    help='Set character encoding of input file.'),
     )
 
     logger = logging.getLogger('csvimport')
 
     def handle(self, *args, **options):
-        csv_file = options['csvfile']
-
-        # read first csv file
-        try:
-            df = pd.read_csv(
-                csv_file,
-                sep = ';',
-                header = 0,
-                low_memory = False,
-                dtype = object,
-                encoding = options['encoding'],
-                keep_default_na = False,
-                converters = {
-                    'CUP_COD_NATURA': convert_cup_cod_natura,
-                    'DPS_DENOMINAZIONE_SOGG': convert_dps_denominazione_sogg,
-                }
-            )
-        except IOError:
-            self.logger.error('It was impossible to open file %s' % csv_file)
-            exit(1)
-
         verbosity = options['verbosity']
         if verbosity == '0':
             self.logger.setLevel(logging.ERROR)
@@ -91,267 +168,348 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        type = options['type']
-        if type in self.import_types:
-            self.logger.info('Inizio import da %s' % csv_file)
+        df = pd.DataFrame()
 
-            method = getattr(self, '_handle_%s' % self.import_types[type])
-            method(df, options['delete'])
+        csvpath = options['csv_path']
+        csvdate = options['csv_date']
+        importtype = options['import_type']
 
-            self.logger.info('Fine')
-        else:
-            self.logger.error('Wrong type "%s". Select among %s.' % (type, ', '.join(['"' + t + '"' for t in self.import_types])))
+        if not importtype in self.import_types:
+            self.logger.error(u'Wrong type "{0}". Select among {1}.'.format(importtype, ', '.join(['"' + t + '"' for t in self.import_types])))
             exit(1)
 
+        categories = ['FSC0713', 'FS0713', 'PAC', 'inattivi']
 
-    def _handle_progettiattivi(self, df, delete):
-        self._handle_progetti(df = df, delete = delete, active_flag = True)
+        # read csv files
+        for file in self.import_types[importtype]['files']:
+            csvfile = csvpath.rstrip('/') + '/' + file.format(csvdate)
+
+            self.logger.info(u'Reading file {0} ....'.format(csvfile))
+
+            try:
+                df_tmp = pd.read_csv(
+                    csvfile,
+                    sep=';',
+                    header=0,
+                    low_memory=False,
+                    dtype=object,
+                    encoding=options['encoding'],
+                    keep_default_na=False,
+                    converters=self.import_types[importtype]['converters'],
+                )
+            except IOError:
+                self.logger.error(u'It was impossible to open file {0}'.format(csvfile))
+                continue
+            else:
+                df_tmp[u'FLAG_ATTIVO'] = not ('inattivi' in file)
+
+                df = df.append(df_tmp, ignore_index=True)
+
+                del df_tmp
+
+                self.logger.info(u'Done.')
+
+        if len(df) == 0:
+            self.logger.error(u'Nessun dato da processare.')
+            exit(1)
+
+        df.fillna('', inplace=True)
+        df.drop_duplicates(inplace=True)
+
+        self.logger.error(u'Inizio import "{0}" ({1}).'.format(importtype, csvdate))
+
+        startTime = datetime.datetime.now()
+
+        method = getattr(self, str(self.import_types[importtype]['import_method']))
+        method(df, options['append'])
+
+        duration = datetime.datetime.now() - startTime
+        seconds = round(duration.total_seconds())
+
+        self.logger.error(u'Fine. Tempo di esecuzione: {0:02d}:{1:02d}:{2:02d}.'.format(int(seconds // 3600), int((seconds % 3600) // 60), int(seconds % 60)))
 
 
-    def _handle_progettiinattivi(self, df, delete):
-        self._handle_progetti(df = df, delete = delete, active_flag = False)
-
-
-    def _handle_progetti_programmaasseobiettivo(self, df):
+    @transaction.commit_on_success
+    def _import_progetti_programmaasseobiettivo(self, df):
         keywords = [
             'DPS_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_COD_OBIETTIVO_OPERATIVO',
             'DPS_DESCRIZIONE_PROGRAMMA', 'PO_DENOMINAZIONE_ASSE', 'PO_OBIETTIVO_OPERATIVO'
         ]
 
-        # only complete and non-empty classifications are created or updated
+        # only complete and non-empty classifications are created
         if all(k in df.columns.values for k in keywords):
-            cols = ['DPS_CODICE_PROGRAMMA', 'DPS_DESCRIZIONE_PROGRAMMA']
-            df1 = df[cols].drop_duplicates()
+            df_filtered = df[(df['DPS_CODICE_PROGRAMMA'].str.strip() != '') & (df['PO_CODICE_ASSE'].str.strip() != '') & (df['PO_COD_OBIETTIVO_OPERATIVO'].str.strip() != '')]
+
+            df1 = df_filtered[['DPS_CODICE_PROGRAMMA', 'DPS_DESCRIZIONE_PROGRAMMA']].drop_duplicates()
             for index, row in df1.iterrows():
-                if all(row[k].strip() for k in cols):
-                    programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
-                        codice = row['DPS_CODICE_PROGRAMMA'],
-                        defaults = {
-                            'descrizione': row['DPS_DESCRIZIONE_PROGRAMMA'],
-                            'tipo_classificazione': ProgrammaAsseObiettivo.TIPO.programma,
-                        }
-                    )
-                    self._log(created, 'Creato programma (asse-obiettivo): %s' % programma)
+                programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
+                    codice=row['DPS_CODICE_PROGRAMMA'],
+                    defaults={
+                        'descrizione': row['DPS_DESCRIZIONE_PROGRAMMA'],
+                        'tipo_classificazione': ProgrammaAsseObiettivo.TIPO.programma,
+                    }
+                )
+                self._log(created, u'Creato programma (asse-obiettivo): {0}'.format(programma))
 
-            cols = ['DPS_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_DENOMINAZIONE_ASSE']
-            df1 = df[cols].drop_duplicates()
+            df1 = df_filtered[['DPS_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_DENOMINAZIONE_ASSE']].drop_duplicates()
             for index, row in df1.iterrows():
-                if all(row[k].strip() for k in cols):
-                    programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
-                        codice = '%s/%s' % (row['DPS_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE']),
-                        defaults = {
-                            'descrizione': row['PO_DENOMINAZIONE_ASSE'],
-                            'tipo_classificazione': ProgrammaAsseObiettivo.TIPO.asse,
-                            'classificazione_superiore_id': row['DPS_CODICE_PROGRAMMA'],
-                        }
-                    )
-                    self._log(created, 'Creato asse: %s' % programma)
+                programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
+                    codice='{0}/{1}'.format(row['DPS_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE']),
+                    defaults={
+                        'descrizione': row['PO_DENOMINAZIONE_ASSE'],
+                        'tipo_classificazione': ProgrammaAsseObiettivo.TIPO.asse,
+                        'classificazione_superiore_id': row['DPS_CODICE_PROGRAMMA'],
+                    }
+                )
+                self._log(created, u'Creato asse: {0}'.format(programma))
 
-            cols = ['DPS_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_COD_OBIETTIVO_OPERATIVO', 'PO_OBIETTIVO_OPERATIVO']
-            df1 = df[cols].drop_duplicates()
+            df1 = df_filtered[['DPS_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_COD_OBIETTIVO_OPERATIVO', 'PO_OBIETTIVO_OPERATIVO']].drop_duplicates()
             for index, row in df1.iterrows():
-                if all(row[k].strip() for k in cols):
-                    programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
-                        codice = '%s/%s/%s' % (row['DPS_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO']),
-                        defaults = {
-                            'descrizione': row['PO_OBIETTIVO_OPERATIVO'],
-                            'tipo_classificazione': ProgrammaAsseObiettivo.TIPO.obiettivo,
-                            'classificazione_superiore_id': '%s/%s' % (row['DPS_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE']),
-                        }
-                    )
-                    self._log(created, 'Creato obiettivo: %s' % programma)
+                programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
+                    codice='{0}/{1}/{2}'.format(row['DPS_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO']),
+                    defaults={
+                        'descrizione': row['PO_OBIETTIVO_OPERATIVO'],
+                        'tipo_classificazione': ProgrammaAsseObiettivo.TIPO.obiettivo,
+                        'classificazione_superiore_id': '{0}/{1}'.format(row['DPS_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE']),
+                    }
+                )
+                self._log(created, u'Creato obiettivo: {0}'.format(programma))
+
+            # # elimino i programmi senza figli
+            # ProgrammaAsseObiettivo.objects.exclude(tipo_classificazione=ProgrammaAsseObiettivo.TIPO.obiettivo).filter(classificazione_set__isnull=True).delete()
+
+            # transaction.commit()
 
 
-    def _handle_progetti_programmalineaazione(self, df):
+    @transaction.commit_on_success
+    def _import_progetti_programmalineaazione(self, df):
         keywords = [
             'DPS_CODICE_PROGRAMMA', 'COD_LINEA', 'COD_AZIONE',
             'DPS_DESCRIZIONE_PROGRAMMA', 'DESCR_LINEA', 'DESCR_AZIONE'
         ]
 
-        # only complete and non-empty classifications are created or updated
+        # only complete and non-empty classifications are created
         if all(k in df.columns.values for k in keywords):
-            cols = ['DPS_CODICE_PROGRAMMA', 'DPS_DESCRIZIONE_PROGRAMMA']
-            df1 = df[cols].drop_duplicates()
+            df_filtered = df[(df['DPS_CODICE_PROGRAMMA'].str.strip() != '') & (df['COD_LINEA'].str.strip() != '') & (df['COD_AZIONE'].str.strip() != '')]
+
+            df1 = df_filtered[['DPS_CODICE_PROGRAMMA', 'DPS_DESCRIZIONE_PROGRAMMA']].drop_duplicates()
             for index, row in df1.iterrows():
-                if all(row[k].strip() for k in cols):
-                    programma, created = ProgrammaLineaAzione.objects.get_or_create(
-                        codice = row['DPS_CODICE_PROGRAMMA'],
-                        defaults = {
-                            'descrizione': row['DPS_DESCRIZIONE_PROGRAMMA'],
-                            'tipo_classificazione': ProgrammaLineaAzione.TIPO.programma,
-                        }
-                    )
-                    self._log(created, 'Creato programma (linea-azione): %s' % programma)
+                programma, created = ProgrammaLineaAzione.objects.get_or_create(
+                    codice=row['DPS_CODICE_PROGRAMMA'],
+                    defaults={
+                        'descrizione': row['DPS_DESCRIZIONE_PROGRAMMA'],
+                        'tipo_classificazione': ProgrammaLineaAzione.TIPO.programma,
+                    }
+                )
+                self._log(created, u'Creato programma (linea-azione): {0}'.format(programma))
 
-            cols = ['DPS_CODICE_PROGRAMMA', 'COD_LINEA', 'DESCR_LINEA']
-            df1 = df[cols].drop_duplicates()
+            df1 = df_filtered[['DPS_CODICE_PROGRAMMA', 'COD_LINEA', 'DESCR_LINEA']].drop_duplicates()
             for index, row in df1.iterrows():
-                if all(row[k].strip() for k in cols):
-                    programma, created = ProgrammaLineaAzione.objects.get_or_create(
-                        codice = '%s/%s' % (row['DPS_CODICE_PROGRAMMA'], row['COD_LINEA']),
-                        defaults = {
-                            'descrizione': row['DESCR_LINEA'],
-                            'tipo_classificazione': ProgrammaLineaAzione.TIPO.linea,
-                            'classificazione_superiore_id': row['DPS_CODICE_PROGRAMMA'],
-                        }
-                    )
-                    self._log(created, 'Creata linea: %s' % programma)
+                programma, created = ProgrammaLineaAzione.objects.get_or_create(
+                    codice='{0}/{1}'.format(row['DPS_CODICE_PROGRAMMA'], row['COD_LINEA']),
+                    defaults={
+                        'descrizione': row['DESCR_LINEA'],
+                        'tipo_classificazione': ProgrammaLineaAzione.TIPO.linea,
+                        'classificazione_superiore_id': row['DPS_CODICE_PROGRAMMA'],
+                    }
+                )
+                self._log(created, u'Creata linea: {0}'.format(programma))
 
-            cols = ['DPS_CODICE_PROGRAMMA', 'COD_LINEA', 'COD_AZIONE', 'DESCR_AZIONE']
-            df1 = df[cols].drop_duplicates()
+            df1 = df_filtered[['DPS_CODICE_PROGRAMMA', 'COD_LINEA', 'COD_AZIONE', 'DESCR_AZIONE']].drop_duplicates()
             for index, row in df1.iterrows():
-                if all(row[k].strip() for k in cols):
-                    programma, created = ProgrammaLineaAzione.objects.get_or_create(
-                        codice = '%s/%s/%s' % (row['DPS_CODICE_PROGRAMMA'], row['COD_LINEA'], row['COD_AZIONE']),
-                        defaults = {
-                            'descrizione': row['DESCR_AZIONE'],
-                            'tipo_classificazione': ProgrammaLineaAzione.TIPO.azione,
-                            'classificazione_superiore_id': '%s/%s' % (row['DPS_CODICE_PROGRAMMA'], row['COD_LINEA']),
-                        }
-                    )
-                    self._log(created, 'Creata azione: %s' % programma)
+                programma, created = ProgrammaLineaAzione.objects.get_or_create(
+                    codice='{0}/{1}/{2}'.format(row['DPS_CODICE_PROGRAMMA'], row['COD_LINEA'], row['COD_AZIONE']),
+                    defaults={
+                        'descrizione': row['DESCR_AZIONE'],
+                        'tipo_classificazione': ProgrammaLineaAzione.TIPO.azione,
+                        'classificazione_superiore_id': '{0}/{1}'.format(row['DPS_CODICE_PROGRAMMA'], row['COD_LINEA']),
+                    }
+                )
+                self._log(created, u'Creata azione: {0}'.format(programma))
+
+            # # elimino i programmi senza figli
+            # ProgrammaLineaAzione.objects.exclude(tipo_classificazione=ProgrammaLineaAzione.TIPO.azione).filter(classificazione_set__isnull=True).delete()
+
+            # transaction.commit()
 
 
-    def _handle_progetti_classificazioneqsn(self, df):
-        df1 = df[['QSN_COD_PRIORITA', 'QSN_DESCRIZIONE_PRIORITA']].drop_duplicates()
-        for index, row in df1.iterrows():
-            if row['QSN_COD_PRIORITA'].strip():
+    @transaction.commit_on_success
+    def _import_progetti_classificazioneqsn(self, df):
+        keywords = [
+            'QSN_COD_PRIORITA', 'QSN_COD_OBIETTIVO_GENERALE', 'QSN_CODICE_OBIETTIVO_SPECIFICO',
+            'QSN_DESCRIZIONE_PRIORITA', 'QSN_DESCR_OBIETTIVO_GENERALE', 'QSN_DESCR_OBIETTIVO_SPECIFICO'
+        ]
+
+        # only complete and non-empty classifications are created
+        if all(k in df.columns.values for k in keywords):
+            df_filtered = df[(df['QSN_COD_PRIORITA'].str.strip() != '') & (df['QSN_COD_OBIETTIVO_GENERALE'].str.strip() != '') & (df['QSN_CODICE_OBIETTIVO_SPECIFICO'].str.strip() != '')]
+
+            df1 = df_filtered[['QSN_COD_PRIORITA', 'QSN_DESCRIZIONE_PRIORITA']].drop_duplicates()
+            for index, row in df1.iterrows():
                 classificazione, created = ClassificazioneQSN.objects.get_or_create(
-                    codice = row['QSN_COD_PRIORITA'],
-                    defaults = {
+                    codice=row['QSN_COD_PRIORITA'],
+                    defaults={
                         'descrizione': row['QSN_DESCRIZIONE_PRIORITA'],
                         'tipo_classificazione': ClassificazioneQSN.TIPO.priorita,
                     }
                 )
-                self._log(created, u'Creata priorità QSN: %s' % classificazione)
+                self._log(created, u'Creata priorità QSN: {0}'.format(classificazione))
 
-        df1 = df[['QSN_COD_PRIORITA', 'QSN_COD_OBIETTIVO_GENERALE', 'QSN_DESCR_OBIETTIVO_GENERALE']].drop_duplicates()
-        for index, row in df1.iterrows():
-            if row['QSN_COD_PRIORITA'].strip():
+            df1 = df_filtered[['QSN_COD_PRIORITA', 'QSN_COD_OBIETTIVO_GENERALE', 'QSN_DESCR_OBIETTIVO_GENERALE']].drop_duplicates()
+            for index, row in df1.iterrows():
                 classificazione, created = ClassificazioneQSN.objects.get_or_create(
-                    codice = row['QSN_COD_OBIETTIVO_GENERALE'],
-                    defaults = {
+                    codice=row['QSN_COD_OBIETTIVO_GENERALE'],
+                    defaults={
                         'descrizione': row['QSN_DESCR_OBIETTIVO_GENERALE'],
                         'tipo_classificazione': ClassificazioneQSN.TIPO.generale,
                         'classificazione_superiore_id': row['QSN_COD_PRIORITA'],
                     }
                 )
-                self._log(created, 'Creato obiettivo generale QSN: %s' % classificazione)
+                self._log(created, u'Creato obiettivo generale QSN: {0}'.format(classificazione))
 
-        df1 = df[['QSN_COD_PRIORITA', 'QSN_COD_OBIETTIVO_GENERALE', 'QSN_CODICE_OBIETTIVO_SPECIFICO', 'QSN_DESCR_OBIETTIVO_SPECIFICO']].drop_duplicates()
-        for index, row in df1.iterrows():
-            if row['QSN_COD_PRIORITA'].strip():
+            df1 = df_filtered[['QSN_COD_PRIORITA', 'QSN_COD_OBIETTIVO_GENERALE', 'QSN_CODICE_OBIETTIVO_SPECIFICO', 'QSN_DESCR_OBIETTIVO_SPECIFICO']].drop_duplicates()
+            for index, row in df1.iterrows():
                 classificazione, created = ClassificazioneQSN.objects.get_or_create(
-                    codice = row['QSN_CODICE_OBIETTIVO_SPECIFICO'],
-                    defaults = {
+                    codice=row['QSN_CODICE_OBIETTIVO_SPECIFICO'],
+                    defaults={
                         'descrizione': row['QSN_DESCR_OBIETTIVO_SPECIFICO'],
                         'tipo_classificazione': ClassificazioneQSN.TIPO.specifico,
                         'classificazione_superiore_id': row['QSN_COD_OBIETTIVO_GENERALE'],
                     }
                 )
-                self._log(created, 'Creato obiettivo specifico QSN: %s' % classificazione)
+                self._log(created, u'Creato obiettivo specifico QSN: {0}'.format(classificazione))
+
+            # transaction.commit()
 
 
-    def _handle_progetti_classificazioneazione(self, df):
-        df1 = df[['CUP_COD_NATURA', 'CUP_DESCR_NATURA']].drop_duplicates()
-        for index, row in df1.iterrows():
-            classificazione, created = ClassificazioneAzione.objects.get_or_create(
-                codice = row['CUP_COD_NATURA'],
-                defaults = {
-                    'descrizione': 'ACQUISTO DI BENI E SERVIZI' if row['CUP_COD_NATURA'] == '01' else row['CUP_DESCR_NATURA'],
-                    'tipo_classificazione': ClassificazioneAzione.TIPO.natura,
-                }
-            )
-            self._log(created, 'Creata classificazione azione natura: %s' % classificazione)
+    @transaction.commit_on_success
+    def _import_progetti_classificazioneazione(self, df):
+        keywords = [
+            'CUP_COD_NATURA', 'CUP_COD_TIPOLOGIA',
+            'CUP_DESCR_NATURA', 'CUP_DESCR_TIPOLOGIA'
+        ]
 
-        df1 = df[['CUP_COD_NATURA', 'CUP_COD_TIPOLOGIA', 'CUP_DESCR_TIPOLOGIA']].drop_duplicates()
-        for index, row in df1.iterrows():
-            classificazione, created = ClassificazioneAzione.objects.get_or_create(
-                codice = '%s.%s' % (row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA']),
-                defaults = {
-                    'descrizione': row['CUP_DESCR_TIPOLOGIA'],
-                    'tipo_classificazione': ClassificazioneAzione.TIPO.tipologia,
-                    'classificazione_superiore_id': row['CUP_COD_NATURA'],
-                }
-            )
-            self._log(created, 'Creata classificazione azione natura_tipologia: %s' % classificazione)
+        # only complete and non-empty classifications are created
+        if all(k in df.columns.values for k in keywords):
+            df_filtered = df[(df['CUP_COD_NATURA'].str.strip() != '') & (df['CUP_COD_TIPOLOGIA'].str.strip() != '')]
 
+            df1 = df_filtered[['CUP_COD_NATURA', 'CUP_DESCR_NATURA']].drop_duplicates()
+            for index, row in df1.iterrows():
+                classificazione, created = ClassificazioneAzione.objects.get_or_create(
+                    codice=row['CUP_COD_NATURA'],
+                    defaults={
+                        'descrizione': 'ACQUISTO DI BENI E SERVIZI' if row['CUP_COD_NATURA'] == '01' else row['CUP_DESCR_NATURA'],
+                        'tipo_classificazione': ClassificazioneAzione.TIPO.natura,
+                    }
+                )
+                self._log(created, u'Creata classificazione azione natura: {0}'.format(classificazione))
 
-    def _handle_progetti_classificazioneoggetto(self, df):
-        df1 = df[['CUP_COD_SETTORE', 'CUP_DESCR_SETTORE']].drop_duplicates()
-        for index, row in df1.iterrows():
-            classificazione, created = ClassificazioneOggetto.objects.get_or_create(
-                codice = row['CUP_COD_SETTORE'],
-                defaults = {
-                    'descrizione': row['CUP_DESCR_SETTORE'],
-                    'tipo_classificazione': ClassificazioneOggetto.TIPO.settore,
-                }
-            )
-            self._log(created, 'Creata classificazione oggetto settore: %s' % classificazione)
+            df1 = df_filtered[['CUP_COD_NATURA', 'CUP_COD_TIPOLOGIA', 'CUP_DESCR_TIPOLOGIA']].drop_duplicates()
+            for index, row in df1.iterrows():
+                classificazione, created = ClassificazioneAzione.objects.get_or_create(
+                    codice='{0}.{1}'.format(row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA']),
+                    defaults={
+                        'descrizione': row['CUP_DESCR_TIPOLOGIA'],
+                        'tipo_classificazione': ClassificazioneAzione.TIPO.tipologia,
+                        'classificazione_superiore_id': row['CUP_COD_NATURA'],
+                    }
+                )
+                self._log(created, u'Creata classificazione azione natura_tipologia: {0}'.format(classificazione))
 
-        df1 = df[['CUP_COD_SETTORE', 'CUP_COD_SOTTOSETTORE', 'CUP_DESCR_SOTTOSETTORE']].drop_duplicates()
-        for index, row in df1.iterrows():
-            classificazione, created = ClassificazioneOggetto.objects.get_or_create(
-                codice = '%s.%s' % (row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE']),
-                defaults = {
-                    'descrizione': row['CUP_DESCR_SOTTOSETTORE'],
-                    'tipo_classificazione': ClassificazioneOggetto.TIPO.sottosettore,
-                    'classificazione_superiore_id': row['CUP_COD_SETTORE'],
-                }
-            )
-            self._log(created, 'Creata classificazione oggetto settore_sottosettore: %s' % classificazione)
-
-        df1 = df[['CUP_COD_SETTORE', 'CUP_COD_SOTTOSETTORE', 'CUP_COD_CATEGORIA', 'CUP_DESCR_CATEGORIA']].drop_duplicates()
-        for index, row in df1.iterrows():
-            classificazione, created = ClassificazioneOggetto.objects.get_or_create(
-                codice = '%s.%s.%s' % (row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA']),
-                defaults = {
-                    'descrizione': row['CUP_DESCR_CATEGORIA'],
-                    'tipo_classificazione': ClassificazioneOggetto.TIPO.categoria,
-                    'classificazione_superiore_id': '%s.%s' % (row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE']),
-                }
-            )
-            self._log(created, 'Creata classificazione oggetto settore_sottosettore_categoria: %s' % classificazione)
+        # transaction.commit()
 
 
-    def _handle_progetti_tema(self, df):
+    @transaction.commit_on_success
+    def _import_progetti_classificazioneoggetto(self, df):
+        keywords = [
+            'CUP_COD_SETTORE', 'CUP_COD_SOTTOSETTORE', 'CUP_COD_CATEGORIA',
+            'CUP_DESCR_SETTORE', 'CUP_DESCR_SOTTOSETTORE', 'CUP_DESCR_CATEGORIA'
+        ]
+
+        # only complete and non-empty classifications are created
+        if all(k in df.columns.values for k in keywords):
+            df_filtered = df[(df['CUP_COD_SETTORE'].str.strip() != '') & (df['CUP_COD_SOTTOSETTORE'].str.strip() != '') & (df['CUP_COD_CATEGORIA'].str.strip() != '')]
+
+            df1 = df_filtered[['CUP_COD_SETTORE', 'CUP_DESCR_SETTORE']].drop_duplicates()
+            for index, row in df1.iterrows():
+                classificazione, created = ClassificazioneOggetto.objects.get_or_create(
+                    codice=row['CUP_COD_SETTORE'],
+                    defaults={
+                        'descrizione': row['CUP_DESCR_SETTORE'],
+                        'tipo_classificazione': ClassificazioneOggetto.TIPO.settore,
+                    }
+                )
+                self._log(created, u'Creata classificazione oggetto settore: {0}'.format(classificazione))
+
+            df1 = df_filtered[['CUP_COD_SETTORE', 'CUP_COD_SOTTOSETTORE', 'CUP_DESCR_SOTTOSETTORE']].drop_duplicates()
+            for index, row in df1.iterrows():
+                classificazione, created = ClassificazioneOggetto.objects.get_or_create(
+                    codice='{0}.{1}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE']),
+                    defaults={
+                        'descrizione': row['CUP_DESCR_SOTTOSETTORE'],
+                        'tipo_classificazione': ClassificazioneOggetto.TIPO.sottosettore,
+                        'classificazione_superiore_id': row['CUP_COD_SETTORE'],
+                    }
+                )
+                self._log(created, u'Creata classificazione oggetto settore_sottosettore: {0}'.format(classificazione))
+
+            df1 = df_filtered[['CUP_COD_SETTORE', 'CUP_COD_SOTTOSETTORE', 'CUP_COD_CATEGORIA', 'CUP_DESCR_CATEGORIA']].drop_duplicates()
+            for index, row in df1.iterrows():
+                classificazione, created = ClassificazioneOggetto.objects.get_or_create(
+                    codice='{0}.{1}.{2}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA']),
+                    defaults={
+                        'descrizione': row['CUP_DESCR_CATEGORIA'],
+                        'tipo_classificazione': ClassificazioneOggetto.TIPO.categoria,
+                        'classificazione_superiore_id': '{0}.{1}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE']),
+                    }
+                )
+                self._log(created, u'Creata classificazione oggetto settore_sottosettore_categoria: {0}'.format(classificazione))
+
+        # transaction.commit()
+
+
+    @transaction.commit_on_success
+    def _import_progetti_tema(self, df):
         temisintetici_desc2cod = {}
 
         try:
             codice = Tema.objects.principali().extra(select={'codice_int': 'CAST(codice AS INTEGER)'}).latest('codice_int').codice_int + 1
-        except Tema.DoesNotExist:
+        except ObjectDoesNotExist:
             codice = 1
 
         df1 = df[['DPS_TEMA_SINTETICO']].drop_duplicates()
         for index, row in df1.iterrows():
             tema, created = Tema.objects.get_or_create(
-                descrizione = row['DPS_TEMA_SINTETICO'],
-                tipo_tema = Tema.TIPO.sintetico,
-                defaults = {
+                descrizione=row['DPS_TEMA_SINTETICO'],
+                tipo_tema=Tema.TIPO.sintetico,
+                defaults={
                     'codice': codice,
                 }
             )
+            self._log(created, u'Creato tema sintetico: {0}'.format(tema))
+
             if created:
                 codice += 1
-
-            self._log(created, 'Creato tema sintetico: %s' % tema)
 
             temisintetici_desc2cod[tema.descrizione] = tema.codice
 
         df1 = df[['DPS_TEMA_SINTETICO', 'QSN_COD_TEMA_PRIORITARIO_UE', 'QSN_DESCR_TEMA_PRIORITARIO_UE']].drop_duplicates()
         for index, row in df1.iterrows():
             tema, created = Tema.objects.get_or_create(
-                codice = '%s.%s' % (temisintetici_desc2cod[row['DPS_TEMA_SINTETICO']], row['QSN_COD_TEMA_PRIORITARIO_UE']),
-                defaults = {
+                codice='{0}.{1}'.format(temisintetici_desc2cod[row['DPS_TEMA_SINTETICO']], row['QSN_COD_TEMA_PRIORITARIO_UE']),
+                defaults={
                     'descrizione': row['QSN_DESCR_TEMA_PRIORITARIO_UE'],
                     'tipo_tema': Tema.TIPO.prioritario,
                     'tema_superiore_id': temisintetici_desc2cod[row['DPS_TEMA_SINTETICO']],
                 }
             )
-            self._log(created, 'Creato tema: %s' % tema)
+            self._log(created, u'Creato tema: {0}'.format(tema))
+
+        # transaction.commit()
 
 
-    def _handle_progetti_fonte(self, df):
+    @transaction.commit_on_success
+    def _import_progetti_fonte(self, df):
         df1 = df[['DPS_COD_FONTE', 'DPS_DESCR_FONTE']].drop_duplicates()
         for index, row in df1.iterrows():
             if 'FSC' in row['DPS_COD_FONTE']:
@@ -364,35 +522,44 @@ class Command(BaseCommand):
                 tipo_fonte = None
 
             fonte, created = Fonte.objects.get_or_create(
-                codice = row['DPS_COD_FONTE'],
-                defaults = {
+                codice=row['DPS_COD_FONTE'],
+                defaults={
                     'descrizione': row['DPS_DESCR_FONTE'],
                     'tipo_fonte': tipo_fonte,
                 }
             )
-            self._log(created, 'Creata fonte: %s' % fonte)
+            self._log(created, u'Creata fonte: {0}'.format(fonte))
+
+        # transaction.commit()
 
 
-    def _handle_progetti(self, df, delete, active_flag):
-        self._handle_progetti_programmaasseobiettivo(df)
-        self._handle_progetti_programmalineaazione(df)
-        self._handle_progetti_classificazioneqsn(df)
-        self._handle_progetti_classificazioneazione(df)
-        self._handle_progetti_classificazioneoggetto(df)
-        self._handle_progetti_tema(df)
-        self._handle_progetti_fonte(df)
+    @transaction.commit_manually
+    def _import_progetti(self, df, append):
+        # check whether to remove records
+        if not append:
+            self.logger.info(u'Cancellazione progetti in corso ....')
+            Progetto.fullobjects.filter(cipe_flag=False).delete()
+            transaction.commit()
+            self.logger.info(u'Fatto.')
+
+        self._import_progetti_programmaasseobiettivo(df)
+        self._import_progetti_programmalineaazione(df)
+        self._import_progetti_classificazioneqsn(df)
+        self._import_progetti_classificazioneazione(df)
+        self._import_progetti_classificazioneoggetto(df)
+        self._import_progetti_tema(df)
+        self._import_progetti_fonte(df)
 
         temisintetici_desc2cod = dict((tema.descrizione, tema.codice) for tema in Tema.objects.principali())
 
         fonti_cod2obj = dict((fonte.codice, fonte) for fonte in Fonte.objects.all())
 
-        # check whether to remove records
-        if delete:
-            Progetto.fullobjects.filter(active_flag=active_flag).all().delete()
-            self.logger.info('Oggetti rimossi')
+        df1 = df.groupby('COD_LOCALE_PROGETTO', as_index=False).first()
+
+        df_count = len(df1)
 
         n = 0
-        for index, row in df.iterrows():
+        for index, row in df1.iterrows():
             n += 1
 
             # codice locale (ID del record)
@@ -400,14 +567,14 @@ class Command(BaseCommand):
 
             # obiettivo sviluppo
             obiettivo_sviluppo = None
-            if 'QSN_AREA_OBIETTIVO_UE' in row:
+            if 'QSN_AREA_OBIETTIVO_UE' in row and row['QSN_AREA_OBIETTIVO_UE'].strip():
                 field = re.sub(' +', ' ', row['QSN_AREA_OBIETTIVO_UE'].encode('ascii', 'ignore')).strip()
                 if field:
                     try:
                         obiettivo_sviluppo = [k for k, v in dict(Progetto.OBIETTIVO_SVILUPPO).iteritems() if v.encode('ascii', 'ignore') == field][0]
-                        self.logger.debug('Trovato obiettivo sviluppo: %s' % obiettivo_sviluppo)
+                        self.logger.debug(u'Trovato obiettivo sviluppo: {0}'.format(obiettivo_sviluppo))
                     except IndexError as e:
-                        self.logger.error('Could not find  obiettivo sviluppo %s in %s.' % (field, codice_locale))
+                        self.logger.error(u'Could not find obiettivo sviluppo {0} in {1}.'.format(field, codice_locale))
                         continue
 
             # fondo comunitario
@@ -415,9 +582,9 @@ class Command(BaseCommand):
             if 'QSN_FONDO_COMUNITARIO' in row and row['QSN_FONDO_COMUNITARIO'].strip():
                 try:
                     fondo_comunitario = [k for k, v in dict(Progetto.FONDO_COMUNITARIO).iteritems() if v == row['QSN_FONDO_COMUNITARIO']][0]
-                    self.logger.debug('Trovato fondo comunitario: %s' % fondo_comunitario)
+                    self.logger.debug(u'Trovato fondo comunitario: {0}'.format(fondo_comunitario))
                 except IndexError as e:
-                    self.logger.error('While reading fondo comunitario %s in %s. %s' % (row['QSN_FONDO_COMUNITARIO'], codice_locale, e))
+                    self.logger.error(u'While reading fondo comunitario {0} in {1}. {2}'.format(row['QSN_FONDO_COMUNITARIO'], codice_locale, e))
                     continue
 
             try:
@@ -427,22 +594,27 @@ class Command(BaseCommand):
 
                 values['titolo_progetto'] = row['DPS_TITOLO_PROGETTO']
 
-                values['active_flag'] = active_flag
+                values['active_flag'] = row['FLAG_ATTIVO']
                 values['cipe_flag'] = False
 
                 values['obiettivo_sviluppo'] = obiettivo_sviluppo
                 values['fondo_comunitario'] = fondo_comunitario
 
-                if all(k in row and row[k].strip() for k in ['DPS_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_COD_OBIETTIVO_OPERATIVO', 'DPS_DESCRIZIONE_PROGRAMMA', 'PO_DENOMINAZIONE_ASSE', 'PO_OBIETTIVO_OPERATIVO']):
-                    values['programma_asse_obiettivo_id'] = '%s/%s/%s' % (row['DPS_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO'])
+                if all(k in row and row[k].strip() for k in ['DPS_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_COD_OBIETTIVO_OPERATIVO']):
+                    values['programma_asse_obiettivo_id'] = '{0}/{1}/{2}'.format(row['DPS_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO'])
 
-                if all(k in row and row[k].strip() for k in ['DPS_CODICE_PROGRAMMA', 'COD_LINEA', 'COD_AZIONE', 'DPS_DESCRIZIONE_PROGRAMMA', 'DESCR_LINEA', 'DESCR_AZIONE']):
-                    values['programma_linea_azione_id'] = '%s/%s/%s' % (row['DPS_CODICE_PROGRAMMA'], row['COD_LINEA'], row['COD_AZIONE'])
+                if all(k in row and row[k].strip() for k in ['DPS_CODICE_PROGRAMMA', 'COD_LINEA', 'COD_AZIONE']):
+                    values['programma_linea_azione_id'] = '{0}/{1}/{2}'.format(row['DPS_CODICE_PROGRAMMA'], row['COD_LINEA'], row['COD_AZIONE'])
 
                 values['classificazione_qsn_id'] = row['QSN_CODICE_OBIETTIVO_SPECIFICO']
-                values['classificazione_azione_id'] = '%s.%s' % (row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA'])
-                values['classificazione_oggetto_id'] = '%s.%s.%s' % (row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA'])
-                values['tema_id'] = '%s.%s' % (temisintetici_desc2cod[row['DPS_TEMA_SINTETICO']], row['QSN_COD_TEMA_PRIORITARIO_UE'])
+
+                if all(k in row and row[k].strip() for k in ['CUP_COD_NATURA', 'CUP_COD_TIPOLOGIA']):
+                    values['classificazione_azione_id'] = '{0}.{1}'.format(row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA'])
+
+                if all(k in row and row[k].strip() for k in ['CUP_COD_SETTORE', 'CUP_COD_SOTTOSETTORE', 'CUP_COD_CATEGORIA']):
+                    values['classificazione_oggetto_id'] = '{0}.{1}.{2}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA'])
+
+                values['tema_id'] = '{0}.{1}'.format(temisintetici_desc2cod[row['DPS_TEMA_SINTETICO']], row['QSN_COD_TEMA_PRIORITARIO_UE'])
 
                 values['cup'] = row['CUP'].strip()
 
@@ -490,78 +662,93 @@ class Command(BaseCommand):
                 values['dps_flag_pac'] = row['DPS_FLAG_PAC']
 
             except ValueError as e:
-                self.logger.error('%s: %s. Skipping' % (codice_locale, e))
-                continue
+                self.logger.error(u'{0}/{1} - {2}: {3}. Skipping'.format(n, df_count, codice_locale, e))
 
-            try:
-                sid = transaction.savepoint()
+            else:
+                try:
+                    sid = transaction.savepoint()
 
-                Progetto.fullobjects.create(**values)\
-                    .fonte_set.add(fonti_cod2obj[row['DPS_COD_FONTE']])
+                    Progetto.fullobjects.create(**values)\
+                        .fonte_set.add(fonti_cod2obj[row['DPS_COD_FONTE']])
 
-                transaction.savepoint_commit(sid)
+                    transaction.savepoint_commit(sid)
 
-                self.logger.info('%s - Creato progetto: %s' % (n, codice_locale))
+                    self.logger.info(u'{0}/{1} - Creato progetto: {2}'.format(n, df_count, codice_locale))
 
-            except IntegrityError as e:
-                transaction.savepoint_rollback(sid)
+                # except IntegrityError as e:
+                #     transaction.savepoint_rollback(sid)
+                #
+                #     values = dict((k, values[k]) for k in values if k in ['programma_asse_obiettivo_id', 'programma_linea_azione_id'])
+                #
+                #     Progetto.fullobjects.get(pk=codice_locale).update(**values)
+                #
+                #     self.logger.warning(u'{0}/{1} - Trovato e aggiornato progetto: {3}'.format(n, df_count, codice_locale))
+                #
+                except DatabaseError as e:
+                    transaction.savepoint_rollback(sid)
 
-                values = dict([(k,values[k]) for k in values if k in ['programma_asse_obiettivo_id', 'programma_linea_azione_id']])
+                    self.logger.error(u'{0}/{1} - ERRORE progetto {2}: {3}. Skipping.'.format(n, df_count, codice_locale, e))
 
-                Progetto.fullobjects.get(pk=codice_locale).update(**values)
-
-                self.logger.debug('%s - Trovato e aggiornato progetto: %s' % (n, codice_locale))
-
-            except DatabaseError as e:
-                transaction.savepoint_rollback(sid)
-
-                self.logger.error('%s - ERRORE progetto %s: %s. Skipping.' % (n, codice_locale, e))
-                continue
+            if (n % 5000 == 0) or (n == df_count):
+                self.logger.info(u'{0} -----------------> Committing.' .format(n))
+                transaction.commit()
 
 
-    def _handle_soggetti_formagiuridica(self, df):
+    @transaction.commit_on_success
+    def _import_soggetti_formagiuridica(self, df):
         df1 = df[['COD_FORMA_GIURIDICA_SOGG', 'DESCR_FORMA_GIURIDICA_SOGG']].drop_duplicates()
         for index, row in df1.iterrows():
             forma_giuridica, created = FormaGiuridica.objects.get_or_create(
-                codice = self._get_value(row, 'COD_FORMA_GIURIDICA_SOGG'),
-                defaults = {
+                codice=self._get_value(row, 'COD_FORMA_GIURIDICA_SOGG'),
+                defaults={
                     'denominazione': self._get_value(row, 'DESCR_FORMA_GIURIDICA_SOGG'),
                 }
             )
-            self._log(created, 'Creata forma giuridica: %s (%s)' % (forma_giuridica.denominazione, forma_giuridica.codice))
+            self._log(created, u'Creata forma giuridica: {0} ({1})'.format(forma_giuridica.denominazione, forma_giuridica.codice))
+
+        # transaction.commit()
 
 
-    def _handle_soggetti_codiceateco(self, df):
+    @transaction.commit_on_success
+    def _import_soggetti_codiceateco(self, df):
         df1 = df[['COD_ATECO_SOGG', 'DESCRIZIONE_ATECO_SOGG']].drop_duplicates()
         for index, row in df1.iterrows():
             codice_ateco, created = CodiceAteco.objects.get_or_create(
-                codice = self._get_value(row, 'COD_ATECO_SOGG'),
-                defaults = {
+                codice=self._get_value(row, 'COD_ATECO_SOGG'),
+                defaults={
                     'descrizione': self._get_value(row, 'DESCRIZIONE_ATECO_SOGG'),
                 }
             )
-            self._log(created, 'Creato codice ateco: %s (%s)' % (codice_ateco.descrizione, codice_ateco.codice))
+            self._log(created, u'Creato codice ateco: {0} ({1})'.format(codice_ateco.descrizione, codice_ateco.codice))
+
+        # transaction.commit()
 
 
-    def _handle_soggetti(self, df, delete):
-        #self._handle_soggetti_formagiuridica(df)
-        #self._handle_soggetti_codiceateco(df)
-
+    @transaction.commit_manually
+    def _import_soggetti(self, df, append):
         # check whether to remove records
-        if delete:
+        if not append:
+            self.logger.info(u'Cancellazione soggetti in corso ....')
             Soggetto.fullobjects.all().delete()
-            self.logger.info('Oggetti rimossi')
+            transaction.commit()
+            self.logger.info(u'Fatto.')
+
+        # self._import_soggetti_formagiuridica(df)
+        # self._import_soggetti_codiceateco(df)
 
         # creazione soggetti
 
         # df1 = df[['DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG', 'COD_FORMA_GIURIDICA_SOGG', 'COD_ATECO_SOGG', 'COD_COMUNE_SEDE_SOGG', 'INDIRIZZO_SOGG', 'CAP_SOGG']].drop_duplicates()
-        df1 = df[['DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG', 'COD_COMUNE_SEDE_SOGG', 'INDIRIZZO_SOGG', 'CAP_SOGG']].drop_duplicates()
+        # df1 = df[['DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG', 'COD_COMUNE_SEDE_SOGG', 'INDIRIZZO_SOGG', 'CAP_SOGG']].drop_duplicates()
+        df1 = df.groupby(['DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG'], as_index=False).first()
+
+        df_count = len(df1)
 
         n = 0
         for index, row in df1.iterrows():
             n += 1
 
-            denominazione = row['DPS_DENOMINAZIONE_SOGG']
+            denominazione = row['DPS_DENOMINAZIONE_SOGG'].strip()
             codice_fiscale = row['DPS_CODICE_FISCALE_SOGG'].strip()
 
             try:
@@ -573,59 +760,514 @@ class Command(BaseCommand):
                 sid = transaction.savepoint()
 
                 Soggetto.fullobjects.create(
-                    denominazione = denominazione,
-                    codice_fiscale = codice_fiscale,
-                    # forma_giuridica_id = self._get_value(row, 'COD_FORMA_GIURIDICA_SOGG'),
-                    # codice_ateco_id = self._get_value(row, 'COD_ATECO_SOGG'),
-                    indirizzo = self._get_value(row, 'INDIRIZZO_SOGG'),
-                    cap = self._get_value(row, 'CAP_SOGG'),
-                    territorio = territorio,
+                    denominazione=denominazione,
+                    codice_fiscale=codice_fiscale,
+                    # forma_giuridica_id=self._get_value(row, 'COD_FORMA_GIURIDICA_SOGG'),
+                    # codice_ateco_id=self._get_value(row, 'COD_ATECO_SOGG'),
+                    indirizzo=self._get_value(row, 'INDIRIZZO_SOGG'),
+                    cap=self._get_value(row, 'CAP_SOGG'),
+                    territorio=territorio,
                 )
 
                 transaction.savepoint_commit(sid)
 
-                self.logger.info(u'%s - Creato soggetto: %s (%s)' % (n, denominazione, codice_fiscale))
+                self.logger.info(u'{0}/{1} - Creato soggetto: {2} ({3})'.format(n, df_count, denominazione, codice_fiscale))
 
             except DatabaseError as e:
                 transaction.savepoint_rollback(sid)
 
-                self.logger.error(u'%s - ERRORE soggetto %s (%s): %s. Skipping.' % (n, denominazione, codice_fiscale, e))
-                continue
+                self.logger.error(u'{0}/{1} - ERRORE soggetto {2} ({3}): {4}. Skipping.'.format(n, df_count, denominazione, codice_fiscale, e))
+
+            if (n % 5000 == 0) or (n == df_count):
+                self.logger.info(u'{0} -----------------> Committing.'.format(n))
+                transaction.commit()
 
         # creazione ruoli
 
         df1 = df[['COD_LOCALE_PROGETTO', 'DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG', 'SOGG_COD_RUOLO']].drop_duplicates()
+
+        df_count = len(df1)
 
         n = 0
         for index, row in df1.iterrows():
             n += 1
 
             try:
-                progetto = Progetto.objects.get(pk=row['COD_LOCALE_PROGETTO'])
-                self.logger.debug('%s - Progetto: %s' % (n, progetto))
-            except ObjectDoesNotExist:
-                self.logger.warning('%s - Progetto attivo non trovato: %s. Skipping.' % (n, row['COD_LOCALE_PROGETTO']))
-                continue
+                progetto = Progetto.fullobjects.get(pk=row['COD_LOCALE_PROGETTO'])
+                self.logger.debug(u'{0}/{1} - Progetto: {2}'.format(n, df_count, progetto))
 
-            denominazione = row['DPS_DENOMINAZIONE_SOGG']
-            codice_fiscale = row['DPS_CODICE_FISCALE_SOGG'].strip()
+            except ObjectDoesNotExist:
+                self.logger.warning(u'{0}/{1} - Progetto non trovato: {2}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
+
+            else:
+                denominazione = row['DPS_DENOMINAZIONE_SOGG'].strip()
+                codice_fiscale = row['DPS_CODICE_FISCALE_SOGG'].strip()
+
+                try:
+                    soggetto = Soggetto.fullobjects.get(denominazione=denominazione, codice_fiscale=codice_fiscale)
+                    self.logger.debug(u'{0}/{1} - Soggetto: {2} ({3})'.format(n, df_count, soggetto.denominazione, soggetto.codice_fiscale))
+
+                except ObjectDoesNotExist:
+                    self.logger.warning(u'{0}/{1} - Soggetto non trovato: {2} ({3}). Skipping.'.format(n, df_count, denominazione, codice_fiscale))
+
+                else:
+                    ruolo = Ruolo(
+                        progetto=progetto,
+                        soggetto=soggetto,
+                        ruolo=row['SOGG_COD_RUOLO'],
+                    )
+
+                    try:
+                        sid = transaction.savepoint()
+                        ruolo.save()
+                        transaction.savepoint_commit(sid)
+
+                        self.logger.info(u'{0}/{1} - Creato ruolo: {2}'.format(n, df_count, ruolo))
+                    except DatabaseError as e:
+                        transaction.savepoint_rollback(sid)
+
+                        self.logger.error(u'{0}/{1} - ERRORE ruolo {2}: {3}. Skipping.'.format(n, df_count, ruolo, e))
+
+                    del progetto
+                    del soggetto
+                    del ruolo
+
+            if (n % 5000 == 0) or (n == df_count):
+                self.logger.info(u'{0} -----------------> Committing.'.format(n))
+                transaction.commit()
+
+
+    @transaction.commit_manually
+    def _import_pagamenti2(self, df, append):
+        # check whether to remove records
+        if not append:
+            self.logger.info(u'Cancellazione pagamenti in corso ....')
+            PagamentoProgetto.objects.all().delete()
+            transaction.commit()
+            self.logger.info(u'Fatto.')
+
+        df = df[df['TOT_PAGAMENTI'].str.strip() != '']
+
+        df_count = len(df)
+
+        created = 0
+
+        n = 0
+        for index, row in df.iterrows():
+            n += 1
+
+            pagamento = PagamentoProgetto.objects.create(
+                progetto_id=row['COD_LOCALE_PROGETTO'],
+                data=self._get_value(row, 'DATA_AGGIORNAMENTO', 'date'),
+                ammontare=self._get_value(row, 'TOT_PAGAMENTI', 'decimal'),
+            )
 
             try:
-                soggetto = Soggetto.fullobjects.get(denominazione=denominazione, codice_fiscale=codice_fiscale)
-                self.logger.debug('%s - Soggetto: %s (%s)' % (n, soggetto.denominazione, soggetto.codice_fiscale))
+                sid = transaction.savepoint()
+                pagamento.save()
+                transaction.savepoint_commit(sid)
+
+                self.logger.info(u'{0}/{1} - Creato pagamento: {2}'.format(n, df_count, pagamento))
+                created += 1
+
+            except DatabaseError as e:
+                transaction.savepoint_rollback(sid)
+
+                self.logger.error(u'{0}/{1} - ERRORE pagamento {2}: {3}. Skipping.'.format(n, df_count, pagamento, e))
+
+            if (n % 5000 == 0) or (n == df_count):
+                self.logger.info(u'{0} -----------------> Committing.'.format(n))
+                transaction.commit()
+
+        self.logger.info(u'Sono stati creati {0} pagamenti su {1}.'.format(created, df_count))
+
+
+    def _import_pagamenti(self, df, append):
+        # check whether to remove records
+        if not append:
+            self.logger.info(u'Cancellazione pagamenti in corso ....')
+            PagamentoProgetto.objects.all().delete()
+            self.logger.info(u'Fatto.')
+
+        df = df[df['TOT_PAGAMENTI'].str.strip() != '']
+
+        df_count = len(df)
+
+        insert_list = []
+
+        created = 0
+
+        n = 0
+        for index, row in df.iterrows():
+            n += 1
+
+            try:
+                progetto = Progetto.fullobjects.get(pk=row['COD_LOCALE_PROGETTO'])
+
+                self.logger.debug(u'{0}/{1} - Progetto: {2}'.format(n, df_count, progetto))
+
             except ObjectDoesNotExist:
-                self.logger.warning('%s - Soggetto non trovato: %s (%s). Skipping.' % (n, denominazione, codice_fiscale))
-                continue
+                self.logger.warning(u'{0}/{1} - Progetto non trovato: {2}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
 
-            ruolo = Ruolo.objects.create(
-                progetto = progetto,
-                soggetto = soggetto,
-                ruolo = row['SOGG_COD_RUOLO'],
+            else:
+                insert_list.append(
+                    PagamentoProgetto(
+                        progetto=progetto,
+                        data=self._get_value(row, 'DATA_AGGIORNAMENTO', 'date'),
+                        ammontare=self._get_value(row, 'TOT_PAGAMENTI', 'decimal'),
+                    )
+                )
+                self.logger.info(u'{0}/{1} - Creato pagamento: {2}'.format(n, df_count, insert_list[-1]))
+
+                del progetto
+
+                created += 1
+
+            if (n % 5000 == 0) or (n == df_count):
+                self.logger.info(u'{0}/{1} -----------------> Salvataggio in corso.'.format(n, df_count))
+                PagamentoProgetto.objects.bulk_create(insert_list)
+                insert_list = []
+
+        self.logger.info(u'Sono stati creati {0} pagamenti su {1}.'.format(created, df_count))
+
+
+    @transaction.commit_on_success
+    def _import_localizzazioni_territori(self, df):
+        keywords = ['DPS_TERRITORIO_PROG', 'COD_REGIONE', 'DEN_REGIONE']
+
+        # only complete and non-empty classifications are created
+        if all(k in df.columns.values for k in keywords):
+            df1 = df[df['DPS_TERRITORIO_PROG'].isin([Territorio.TERRITORIO.E, Territorio.TERRITORIO.N])][keywords].drop_duplicates()
+            for index, row in df1.iterrows():
+                territorio, created = Territorio.objects.get_or_create(
+                    cod_reg=int(row['COD_REGIONE']),
+                    cod_prov=0,
+                    cod_com=0,
+                    territorio=row['DPS_TERRITORIO_PROG'],
+                    defaults={
+                        'denominazione': row['DEN_REGIONE']
+                    }
+                )
+                self._log(created, u'Creato territorio: {0} ({1})'.format(territorio, territorio.territorio))
+
+        # transaction.commit()
+
+
+    def _import_localizzazioni(self, df, append):
+        # check whether to remove records
+        if not append:
+            self.logger.info(u'Cancellazione localizzazioni in corso ....')
+            Localizzazione.objects.all().delete()
+            self.logger.info(u'Fatto.')
+
+        # i territori esteri o nazionali non sono in Territorio di default
+        self._import_localizzazioni_territori(df)
+
+        df_count = len(df)
+
+        insert_list = []
+
+        n = 0
+        for index, row in df.iterrows():
+            n += 1
+
+            progetto_pk = self._get_value(row, 'COD_LOCALE_PROGETTO') or self._get_value(row, 'COD_DIPE')
+
+            try:
+                progetto = Progetto.fullobjects.get(pk=progetto_pk)
+
+                self.logger.debug(u'{0}/{1} - Progetto: {2}'.format(n, df_count, progetto))
+
+            except ObjectDoesNotExist:
+                self.logger.warning(u'{0}/{1} - Progetto non trovato: {2}. Skipping.'.format(n, df_count, progetto_pk))
+
+            else:
+                territorio = None
+
+                tipo_territorio = self._get_value(row, 'DPS_TERRITORIO_PROG')
+
+                # per i progetti CIPE non c'è il campo DPS_TERRITORIO_PROG
+                if not tipo_territorio:
+                    if row['COD_PROVINCIA'] in ('000', '900'):
+                        tipo_territorio = Territorio.TERRITORIO.R
+                    elif row['COD_COMUNE'] in ('000', '900'):
+                        tipo_territorio = Territorio.TERRITORIO.P
+                    else:
+                        tipo_territorio = Territorio.TERRITORIO.C
+
+                if not tipo_territorio in dict(Territorio.TERRITORIO):
+                    self.logger.warning(u'{0}/{1} - Tipo di territorio sconosciuto o errato: {2}. Skipping.'.format(n, df_count, tipo_territorio))
+
+                else:
+                    lookup = {}
+                    lookup['territorio'] = tipo_territorio
+                    lookup['cod_reg'] = int(row['COD_REGIONE'])
+
+                    if tipo_territorio == Territorio.TERRITORIO.R:
+                        pass
+                    elif tipo_territorio == Territorio.TERRITORIO.P:
+                        lookup['cod_prov'] = int(row['COD_PROVINCIA'])
+                    elif tipo_territorio == Territorio.TERRITORIO.C:
+                        lookup['cod_prov'] = int(row['COD_PROVINCIA'])
+                        lookup['cod_com'] = '{0}{1}'.format(int(row['COD_PROVINCIA']), row['COD_COMUNE'])
+                    else:
+                        lookup['cod_prov'] = 0
+                        lookup['cod_com'] = 0
+
+                    try:
+                        territorio = Territorio.objects.get(**lookup)
+
+                        self.logger.debug(u'{0}/{1} - Territorio: {2}'.format(n, df_count, territorio))
+
+                    except ObjectDoesNotExist:
+                        if tipo_territorio == Territorio.TERRITORIO.C:
+                            del lookup['cod_prov']
+                            del lookup['cod_com']
+
+                            lookup['denominazione'] = row['DEN_COMUNE']
+
+                            try:
+                                territorio = Territorio.objects.get(**lookup)
+                                self.logger.debug(u'{0}/{1} - Territorio di tipo "Comune" individuato attraverso la denominazione: {2}.'.format(n, df_count, territorio))
+                            except ObjectDoesNotExist:
+                                pass
+
+                    if not territorio:
+                        self.logger.warning(u'{0}/{1} - Territorio non trovato: {2} [{3}]/{4} [{5}]/{6} [{7}] ({8}). Skipping.'.format(n, df_count, row['DEN_COMUNE'], row['COD_COMUNE'], row['DEN_PROVINCIA'], row['COD_PROVINCIA'], row['DEN_REGIONE'], row['COD_REGIONE'], tipo_territorio))
+
+                if territorio:
+                    insert_list.append(
+                        Localizzazione(
+                            progetto=progetto,
+                            territorio=territorio,
+                            indirizzo=self._get_value(row, 'INDIRIZZO_PROG'),
+                            cap=self._get_value(row, 'CAP_PROG'),
+                            dps_flag_cap=int(self._get_value(row, 'DPS_FLAG_CAP_PROG') or 0),
+                        )
+                    )
+                    self.logger.info(u'{0}/{1} - Creata localizzazione progetto: {2}'.format(n, df_count, insert_list[-1]))
+
+                    del progetto
+                    del territorio
+
+            if (n % 5000 == 0) or (n == df_count):
+                self.logger.info(u'{0}/{1} -----------------> Salvataggio in corso.'.format(n, df_count))
+                Localizzazione.objects.bulk_create(insert_list)
+                insert_list = []
+
+
+    @transaction.commit_on_success
+    def _import_progetticipe_deliberacipe(self, df):
+        df1 = df[df['NUM_DELIBERA'].str.strip() != ''][['NUM_DELIBERA', 'ANNO_DELIBERA', 'DATA_ADOZIONE', 'DATA_PUBBLICAZIONE']].drop_duplicates()
+        for index, row in df1.iterrows():
+            delibera, created = DeliberaCIPE.objects.get_or_create(
+                num=int(row['NUM_DELIBERA']),
+                defaults={
+                    'anno': self._get_value(row, 'ANNO_DELIBERA'),
+                    'data_adozione': self._get_value(row, 'DATA_ADOZIONE', 'date'),
+                    'data_pubblicazione': self._get_value(row, 'DATA_PUBBLICAZIONE', 'date'),
+                }
             )
-            self.logger.info(u'%s: Ruolo creato: %s' % (n, ruolo))
+            self._log(created, u'Creata delibera: {0}'.format(delibera))
 
-            del soggetto
-            del progetto
+        # transaction.commit()
+
+
+    @transaction.commit_manually
+    def _import_progetticipe(self, df, append):
+        """
+        Procedura per importare dati di progetto, e soggetti, a partire dal tracciato del CIPE
+        Non viene importata la natura, che arriva su un tracciato differente
+        """
+
+        df.rename(columns={u'PROGRAMMAZIONE': u'DPS_CODICE_PROGRAMMA'}, inplace=True)
+        df[u'DPS_DESCRIZIONE_PROGRAMMA'] = df[u'DPS_CODICE_PROGRAMMA']
+        df[u'PO_CODICE_ASSE'] = '00'
+        df[u'PO_DENOMINAZIONE_ASSE'] = ''
+        df[u'PO_COD_OBIETTIVO_OPERATIVO'] = '00'
+        df[u'PO_OBIETTIVO_OPERATIVO'] = ''
+
+        # TODO: implementare lettura da colonna CSV
+        df[u'CUP_COD_NATURA'] = convert_progetto_cup_cod_natura('3')
+        df[u'CUP_DESCR_NATURA'] = u'REALIZZAZIONE DI LAVORI PUBBLICI (OPERE ED IMPIANTISTICA)'
+        df[u'CUP_COD_TIPOLOGIA'] = convert_progetto_cup_cod_tipologia('0')
+        df[u'CUP_DESCR_TIPOLOGIA'] = ''
+
+        df[u'CUP_COD_CATEGORIA'] = convert_progetto_cup_cod_categoria('0')
+        df[u'CUP_DESCR_CATEGORIA'] = ''
+
+        df[u'QSN_COD_TEMA_PRIORITARIO_UE'] = convert_progetto_qsn_cod_tema_prioritario_ue('0')
+        df[u'QSN_DESCR_TEMA_PRIORITARIO_UE'] = ''
+
+        df.rename(columns={u'FONDO': u'DPS_DESCR_FONTE'}, inplace=True)
+        df[u'DPS_COD_FONTE'] = df.apply(lambda row: 'FSC0006' if row['DPS_DESCR_FONTE'][-2:] == '06' else ('FSC0713' if row['DPS_DESCR_FONTE'][-2:] == '13' else ''), axis=1)
+
+        # check whether to remove records
+        if not append:
+            self.logger.info(u'Cancellazione progetti CIPE in corso ....')
+            Progetto.fullobjects.filter(cipe_flag=True).delete()
+            DeliberaCIPE.objects.all().delete()
+            transaction.commit()
+            self.logger.info(u'Fatto.')
+
+        self._import_progetticipe_deliberacipe(df)
+        self._import_progetti_programmaasseobiettivo(df)
+        self._import_progetti_classificazioneazione(df)
+        self._import_progetti_classificazioneoggetto(df)
+        self._import_progetti_tema(df)
+        self._import_progetti_fonte(df)
+
+        temisintetici_desc2cod = dict((tema.descrizione, tema.codice) for tema in Tema.objects.principali())
+
+        fonti_cod2obj = dict((fonte.codice, fonte) for fonte in Fonte.objects.all())
+
+        delibere_num2obj = dict((delibera.num, delibera) for delibera in DeliberaCIPE.objects.all())
+
+        # creazione progetti
+
+        gb = df.groupby('COD_DIPE', as_index=False)
+        df1 = pd.merge(
+            gb.first(),
+            gb.aggregate({
+                'DATA_PUBBLICAZIONE':  'max',
+                'ASSEGNAZIONE_CIPE': lambda x: x.astype(float).sum(),
+                'NOTE': lambda x: "\r\n".join(x.tolist()),
+            }),
+            left_on='COD_DIPE',
+            right_on='COD_DIPE',
+            suffixes=('', '_AGG'),
+        )
+
+        df_count = len(df1)
+
+        n = 0
+        for index, row in df1.iterrows():
+            n += 1
+
+            # codice locale (ID del record)
+            codice_locale = row['COD_DIPE']
+
+            try:
+                values = {}
+
+                values['codice_locale'] = codice_locale
+
+                values['titolo_progetto'] = row['TITOLO_PROGETTO']
+
+                #values['active_flag'] = row['FLAG_ATTIVO']
+                values['cipe_flag'] = True
+
+                values['programma_asse_obiettivo_id'] = '{0}/{1}/{2}'.format(row['DPS_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO'])
+
+                values['classificazione_azione_id'] = '{0}.{1}'.format(row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA'])
+
+                values['classificazione_oggetto_id'] = '{0}.{1}.{2}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA'])
+
+                values['tema_id'] = '{0}.{1}'.format(temisintetici_desc2cod[row['DPS_TEMA_SINTETICO']], row['QSN_COD_TEMA_PRIORITARIO_UE'])
+
+                # values['fonte_id'] = '{0}'.format(row['DPS_COD_FONTE'])
+
+                values['cup'] = row['CUP'][0] if row['CUP'] else ''
+
+                # totale finanziamento
+                values['fin_totale_pubblico'] = self._get_value(row, 'ASSEGNAZIONE_CIPE_AGG', 'decimal')
+
+                values['note'] = self._get_value(row, 'NOTE_AGG')
+
+                values['costo'] = self._get_value(row, 'COSTO', 'decimal')
+
+                # data ultimo aggiornamento progetto
+                values['data_aggiornamento'] = self._get_value(row, 'DATA_PUBBLICAZIONE_AGG', 'date')
+
+                values['dps_flag_cup'] = 1
+
+            except ValueError as e:
+                self.logger.error(u'{0}/{1} - {2}: {3}. Skipping'.format(n, df_count, codice_locale, e))
+
+            else:
+                try:
+                    sid = transaction.savepoint()
+
+                    progetto = Progetto.fullobjects.create(**values)
+
+                    progetto.fonte_set.add(fonti_cod2obj[row['DPS_COD_FONTE']])
+
+                    for cup in row['CUP']:
+                        progetto.cups_progetto.create(cup=cup)
+
+                    transaction.savepoint_commit(sid)
+
+                    del progetto
+
+                    self.logger.info(u'{0}/{1} - Creato progetto: {2}'.format(n, df_count, codice_locale))
+
+                except DatabaseError as e:
+                    transaction.savepoint_rollback(sid)
+
+                    self.logger.error(u'{0}/{1} - ERRORE progetto {2}: {3}. Skipping.'.format(n, df_count, codice_locale, e))
+
+            if (n % 5000 == 0) or (n == df_count):
+                self.logger.info(u'{0} -----------------> Committing.' .format(n))
+                transaction.commit()
+
+        # associazione di delibere a progetti
+
+        df_count = len(df)
+
+        n = 0
+        for index, row in df.iterrows():
+            n += 1
+
+            delibera = delibere_num2obj[int(row['NUM_DELIBERA'])]
+
+            ProgettoDeliberaCIPE.objects.create(
+                progetto_id=row['COD_DIPE'],
+                delibera=delibera,
+                finanziamento=self._get_value(row, 'ASSEGNAZIONE_CIPE', 'decimal'),
+                note=self._get_value(row, 'NOTE') or '',
+            )
+
+            self.logger.info(u'{0}/{1} - Delibera {2} associata a progetto: {3}'.format(n, df_count, delibera, row['COD_DIPE']))
+
+            if (n % 5000 == 0) or (n == df_count):
+                self.logger.info(u'{0} -----------------> Committing.' .format(n))
+                transaction.commit()
+
+        # soggetti e ruoli
+
+        for col, role in {'SOGGETTO_RESPONSABILE': Ruolo.RUOLO.programmatore, 'SOGGETTO_ATTUATORE': Ruolo.RUOLO.attuatore}.iteritems():
+            df1 = df[df[col].str.strip() != ''][[col, 'COD_DIPE']].drop_duplicates().groupby(col, as_index=False)['COD_DIPE'].aggregate(lambda x: x.tolist())
+
+            df_count = len(df1)
+
+            n = 0
+            for index, row in df1.iterrows():
+                n += 1
+
+                denominazione = row[col].strip()
+
+                soggetto, created = Soggetto.fullobjects.get_or_create(
+                    denominazione__iexact=denominazione,
+                    codice_fiscale='',
+                    defaults={'denominazione': denominazione}
+                )
+                self._log(created, u'{0}/{1} - Creato soggetto: {2}'.format(n, df_count, soggetto))
+
+                role_count = len(row['COD_DIPE'])
+
+                nn = 0
+                for codice_locale in row['COD_DIPE']:
+                    nn += 1
+
+                    ruolo = Ruolo.objects.create(
+                        progetto_id=codice_locale,
+                        soggetto=soggetto,
+                        ruolo=role,
+                    )
+                    self.logger.info(u'{0}/{1} ({2}/{3}) - Creato ruolo: {4}'.format(n, df_count, nn, role_count, ruolo))
+
+            self.logger.info(u'{0} -----------------> Committing.' .format(col))
+            transaction.commit()
 
 
     def _log(self, created, msg):
@@ -644,7 +1286,7 @@ class Command(BaseCommand):
                 value = dict[key].strip()
 
                 if type == 'decimal':
-                    value = Decimal(value.replace(',','.'))
+                    value = Decimal(value.replace(',', '.'))
                 elif type == 'date':
                     value = datetime.datetime.strptime(value, '%Y%m%d')
 

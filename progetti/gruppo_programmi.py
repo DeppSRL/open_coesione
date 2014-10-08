@@ -3,20 +3,21 @@ from django.utils.datastructures import SortedDict
 from progetti.models import ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from django.core.cache import cache
 
+
 def split_by_type(programmi):
     programmi_splitted = {
         'programmi_asse_obiettivo': [],
         'programmi_linea_azione': []
     }
     for programma in programmi:
-        if not(programma.is_root):
-            raise Exception("Only root programs allowed")
+        if not programma.is_root:
+            raise Exception('Only root programs allowed')
         elif programma.__class__.__name__ == 'ProgrammaAsseObiettivo':
             programmi_splitted['programmi_asse_obiettivo'].append(programma)
         elif programma.__class__.__name__ == 'ProgrammaLineaAzione':
             programmi_splitted['programmi_linea_azione'].append(programma)
         else:
-            raise Exception("Wrong programma. Should not happen.")
+            raise Exception('Wrong programma. Should not happen.')
 
     return programmi_splitted
 
@@ -34,22 +35,18 @@ class Config:
             programmi_linea = ProgrammaLineaAzione.objects.filter(tipo_classificazione=ProgrammaLineaAzione.TIPO.programma)
             cache.set('programmi_linea', programmi_linea)
 
-
         programmi_pac_fse = cache.get('programmi_pac_fse')
         if programmi_pac_fse is None:
-            programmi_pac_fse = ProgrammaAsseObiettivo.objects.filter(
-                tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma
-            ).filter(
-                Q(descrizione__contains="CONV FSE") & (
-                    Q(descrizione__contains="CAMPANIA") |
-                    Q(descrizione__contains="CALABRIA") |
-                    Q(descrizione__contains="SICILIA") |
-                    Q(descrizione__contains="PUGLIA") |
-                    Q(descrizione__contains="BASILICATA")
+            programmi_pac_fse = programmi.filter(
+                Q(descrizione__contains='CONV FSE') & (
+                    Q(descrizione__contains='CAMPANIA') |
+                    Q(descrizione__contains='CALABRIA') |
+                    Q(descrizione__contains='SICILIA') |
+                    Q(descrizione__contains='PUGLIA') |
+                    Q(descrizione__contains='BASILICATA')
                 )
             )
             cache.set('programmi_pac_fse', programmi_pac_fse)
-
 
         programmi_pac_fesr = cache.get('programmi_pac_fesr')
         if programmi_pac_fesr is None:
@@ -67,38 +64,36 @@ class Config:
 
         programmi_pac_fsc = cache.get('programmi_pac_fsc')
         if programmi_pac_fsc is None:
-            programmi_pac_fsc = ProgrammaLineaAzione.objects.filter(
-                tipo_classificazione=ProgrammaLineaAzione.TIPO.programma
-            ).filter(
-                Q(descrizione__contains="GIUSTIZIA CIVILE") |
-                Q(descrizione__contains="DIRETTRICI FERROVIARIE") |
-                Q(descrizione__contains="(PRA) FSC SARDEGNA")
+            programmi_pac_fsc = programmi_linea.filter(
+                Q(descrizione__contains='GIUSTIZIA CIVILE') |
+                Q(descrizione__contains='DIRETTRICI FERROVIARIE') |
+                Q(descrizione__contains='(PRA) FSC SARDEGNA')
             )
             cache.set('programmi_pac_fsc', programmi_pac_fsc)
 
         # some fsc lists must be built by hand
         lista_programmi_fsc_par = SortedDict(
-            sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PAR" == p.descrizione[:3]]))
+            sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PAR' == p.descrizione[:3]]))
         )
         lista_programmi_fsc_pa = SortedDict([
-           (u'PROGRAMMA ATTUATIVO SPECIALE FSC DIRETTRICI FERROVIARIE', u'2007IT001FA005'),
-           (u'PROGRAMMA ATTUATIVO SPECIALE FSC GIUSTIZIA CIVILE CELERE PER LA CRESCITA', u'2007IT005FAMG1'),
-           (u'PROGRAMMA ATTUATIVO SPECIALE COMUNE DI PALERMO', u'2007SI002FAPA1'),
-           (u'PROGRAMMA ATTUATIVO SPECIALE RI.MED', u'2007IT002FA030'),
-           (u'PROGRAMMA STRATEGICO FSC COMPENSAZIONI AMBIENTALI REGIONE CAMPANIA', u'2007IT005FAMAC'),
+            (u'PROGRAMMA ATTUATIVO SPECIALE FSC DIRETTRICI FERROVIARIE', u'2007IT001FA005'),
+            (u'PROGRAMMA ATTUATIVO SPECIALE FSC GIUSTIZIA CIVILE CELERE PER LA CRESCITA', u'2007IT005FAMG1'),
+            (u'PROGRAMMA ATTUATIVO SPECIALE COMUNE DI PALERMO', u'2007SI002FAPA1'),
+            (u'PROGRAMMA ATTUATIVO SPECIALE RI.MED', u'2007IT002FA030'),
+            (u'PROGRAMMA STRATEGICO FSC COMPENSAZIONI AMBIENTALI REGIONE CAMPANIA', u'2007IT005FAMAC'),
         ])
         lista_programmi_fsc_pna = SortedDict([
-           (u'PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) RISANAMENTO AMBIENTALE', u'2007IT004FAMA1')
+            (u'PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) RISANAMENTO AMBIENTALE', u'2007IT004FAMA1')
         ])
 
-        lista_programmi =  {
+        lista_programmi = {
             'fse': [p for p in programmi.order_by('descrizione') if ' FSE ' in p.descrizione.upper()],
             'fesr': [p for p in programmi.order_by('descrizione') if ' FESR ' in p.descrizione.upper()],
             'fsc_par': lista_programmi_fsc_par,
             'fsc_pa': lista_programmi_fsc_pa,
-            'fsc_pra' : SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "(PRA)" in p.descrizione]))),
+            'fsc_pra': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if '(PRA)' in p.descrizione]))),
             'fsc_pna': lista_programmi_fsc_pna,
-            'pac_pac': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if "PAC " in p.descrizione]))),
+            'pac_pac': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PAC ' in p.descrizione]))),
             'pac_fse': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fse]))),
             'pac_fesr': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fesr]))),
             'pac_fsc': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fsc]))),

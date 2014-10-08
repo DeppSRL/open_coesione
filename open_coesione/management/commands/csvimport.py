@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import connection
 from django.db.utils import DatabaseError

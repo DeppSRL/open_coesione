@@ -102,7 +102,6 @@ class ProgettiQuerySet(models.query.QuerySet):
         return self.totali(territorio, tema, tipo,classificazione, soggetto, territori, programmi).count()
 
 
-
 class ProgettiManager(models.Manager):
 
     territorio=None
@@ -175,6 +174,7 @@ class ProgettiManager(models.Manager):
 #    def totale_risorse_stanziate(self, territorio=None, tema=None, tipo=None,classificazione=None):
 #        return self.totali(territorio, tema, tipo,classificazione).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0
 
+
 class FullProgettiManager(ProgettiManager):
     def get_query_set(self):
         return ProgettiQuerySet(self.model, using=self._db) # note the `using` parameter, new in 1.2
@@ -186,6 +186,7 @@ class TemiManager(models.Manager):
 
     def costo_totale(self):
         return self.get_query_set().annotate(totale=models.Sum('progetto_set__fin_totale_pubblico'))
+
 
 class ClassificazioneAzioneManager(models.Manager):
 
@@ -201,7 +202,13 @@ class ClassificazioneAzioneManager(models.Manager):
     def costo_totale(self):
         return self.get_query_set().annotate(totale=models.Sum('progetto_set__fin_totale_pubblico'))
 
+
 class ProgrammaManager(models.Manager):
 
     def programmi(self):
         return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.programma)
+
+
+# class RuoloManager(models.Manager):
+#     def get_query_set(self):
+#         return models.query.QuerySet(self.model, using=self._db).filter(progetto__active_flag=True).distinct()

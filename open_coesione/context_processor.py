@@ -6,6 +6,7 @@ from territori.models import Territorio
 from progetti.gruppo_programmi import Config
 from django.core.cache import cache
 
+
 def main_settings(request):
     """
     this function adds a subset of application settings to template context
