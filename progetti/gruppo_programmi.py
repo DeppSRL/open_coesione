@@ -50,11 +50,14 @@ class Config:
 
         programmi_pac_fesr = cache.get('programmi_pac_fesr')
         if programmi_pac_fesr is None:
-            programmi_pac_fesr = programmi.filter(
-                Q(descrizione__contains='CONV FESR') & (
-                    Q(descrizione__contains='CAMPANIA') |
-                    Q(descrizione__contains='CALABRIA') |
-                    Q(descrizione__contains='SICILIA')
+            programmi_pac_fesr = ProgrammaAsseObiettivo.objects.filter(
+                tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma
+            ).filter(
+                Q(descrizione__contains="POIN CONV FESR ATTRATTORI CULTURALI") |
+                Q(descrizione__contains="CONV FESR") & (
+                    Q(descrizione__contains="CAMPANIA") |
+                    Q(descrizione__contains="CALABRIA") |
+                    Q(descrizione__contains="SICILIA")
                 )
             )
             cache.set('programmi_pac_fesr', programmi_pac_fesr)

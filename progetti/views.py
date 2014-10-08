@@ -111,7 +111,6 @@ class ProgrammiView(ProgrammaBaseView):
     def get_object(self):
         return GruppoProgrammi(codice=self.kwargs.get('slug'))
 
-    @cached_context
     def get_context_data(self, **kwargs):
         try:
             gruppo_programmi = self.get_object()
@@ -145,7 +144,6 @@ class ProgrammaView(ProgrammaBaseView):
             except ObjectDoesNotExist:
                 return None
 
-    @cached_context
     def get_context_data(self, **kwargs):
 
         programma = self.get_object()

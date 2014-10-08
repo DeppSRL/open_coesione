@@ -369,7 +369,7 @@ class OpendataView(TemplateView):
     """
 
     # dates are attributes in the view, so that it can possibly be used in other views
-    data_date = '20140430'
+    data_date = '20140630'
     cipe_date = '20121231'
     spesa_date = '20140531'
 
@@ -515,6 +515,9 @@ class OpendataView(TemplateView):
 
         context['istat_data_file'] = self.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
         context['istat_metadata_file'] = self.get_complete_file("Metainformazione.xls")
+
+        context['indagine_data_file'] = self.get_complete_file("indagine_data.zip".format(istat_date))
+        context['indagine_metadata_file'] = self.get_complete_file("indagine_metadata.xlsx")
 
         context['cpt_pa_in_file'] = self.get_complete_file("PA_ENTRATE_1996-2012.zip".format(istat_date))
         context['cpt_pa_out_file'] = self.get_complete_file("PA_SPESE_1996-2012.zip".format(istat_date))

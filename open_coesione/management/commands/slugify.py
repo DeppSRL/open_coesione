@@ -197,7 +197,24 @@ class Command(BaseCommand):
                 # generate the slug using the codice_fiscale field
                 soggetto.slug = slugify(u'{0}-{1}'.format(soggetto.denominazione, soggetto.codice_fiscale.strip() ))
 
-            soggetto.save()
+
+            cnt = 0
+            ok = False
+            while not ok:
+                if cnt == 0:
+                    soggetto.slug = slug
+                else:
+                    soggetto.slug = u"{0}--{1}".format(slug, cnt)
+
+                try:
+                    sid = transaction.savepoint()
+                    soggetto.save()
+                    transaction.savepoint_commit(sid)
+                except:
+                    transaction.savepoint_rollback(sid)
+                    cnt += 1
+                else:
+                    ok = True
 
             if n%100 == 0:
                 self.logger.debug(n)
