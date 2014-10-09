@@ -1127,17 +1127,20 @@ class Command(BaseCommand):
         # creazione progetti
 
         gb = df.groupby('COD_DIPE', as_index=False)
-        df1 = pd.merge(
-            gb.first(),
-            gb.aggregate({
-                'DATA_PUBBLICAZIONE':  'max',
-                'ASSEGNAZIONE_CIPE': lambda x: x.astype(float).sum(),
-                'NOTE': lambda x: "\r\n".join(x.tolist()),
-            }),
-            left_on='COD_DIPE',
-            right_on='COD_DIPE',
-            suffixes=('', '_AGG'),
-        )
+        try:
+            df1 = pd.merge(
+                gb.first(),
+                gb.aggregate({
+                    'DATA_PUBBLICAZIONE':  'max',
+                    'ASSEGNAZIONE_CIPE': lambda x: x.str.replace(',', '.').astype(float).sum(),
+                    'NOTE': lambda x: "\r\n".join(x.tolist()),
+                }),
+                left_on='COD_DIPE',
+                right_on='COD_DIPE',
+                suffixes=('', '_AGG'),
+            )
+        except StandardError as e:
+            print(e)
 
         df_count = len(df1)
 
