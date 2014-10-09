@@ -55,7 +55,7 @@ def convert_soggetto_dps_denominazione_sogg(val):
     return val.encode('ascii', 'ignore').strip()
 
 def convert_progettocipe_cup(val):
-    val = val.replace(' ', '')
+    val = re.sub('[\s\n\r]+', '', val)
     return tuple(val.split(';')) if val else ()
 
 def convert_progettocipe_dps_tema_sintetico(val):
@@ -1127,20 +1127,17 @@ class Command(BaseCommand):
         # creazione progetti
 
         gb = df.groupby('COD_DIPE', as_index=False)
-        try:
-            df1 = pd.merge(
-                gb.first(),
-                gb.aggregate({
-                    'DATA_PUBBLICAZIONE':  'max',
-                    'ASSEGNAZIONE_CIPE': lambda x: x.str.replace(',', '.').astype(float).sum(),
-                    'NOTE': lambda x: "\r\n".join(x.tolist()),
-                }),
-                left_on='COD_DIPE',
-                right_on='COD_DIPE',
-                suffixes=('', '_AGG'),
-            )
-        except StandardError as e:
-            print(e)
+        df1 = pd.merge(
+            gb.first(),
+            gb.aggregate({
+                'DATA_PUBBLICAZIONE':  'max',
+                'ASSEGNAZIONE_CIPE': lambda x: x.str.replace(',', '.').astype(float).sum(),
+                'NOTE': lambda x: '\n'.join(x.tolist()),
+            }),
+            left_on='COD_DIPE',
+            right_on='COD_DIPE',
+            suffixes=('', '_AGG'),
+        )
 
         df_count = len(df1)
 
