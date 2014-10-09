@@ -121,12 +121,12 @@ class Command(BaseCommand):
             },
         },
         'pagamenti': {
-            'files': ['pagamenti_FSC0713_{0}.csv', 'pagamenti_FS0713_{0}.csv', 'pagamenti_PAC_{0}.csv'],
+            'files': ['pagamenti_FSC0713_{0}.csv', 'pagamenti_FS0713_{0}.csv', 'pagamenti_PAC_{0}.csv', 'pag_inattivi_{0}.csv'],
             'import_method': '_import_pagamenti',
             'converters': None,
         },
         'localizzazioni': {
-            'files': ['localizzazioni_FSC0713_{0}.csv', 'localizzazioni_FS0713_{0}.csv', 'localizzazioni_PAC_{0}.csv', 'localizzazioni_CIPE_{0}.csv'],
+            'files': ['localizzazioni_FSC0713_{0}.csv', 'localizzazioni_FS0713_{0}.csv', 'localizzazioni_PAC_{0}.csv', 'localizzazioni_CIPE_{0}.csv', 'loc_inattivi_{0}.csv'],
             'import_method': '_import_localizzazioni',
             'converters': None,
         },
@@ -554,7 +554,8 @@ class Command(BaseCommand):
 
         fonti_cod2obj = dict((fonte.codice, fonte) for fonte in Fonte.objects.all())
 
-        df1 = df.groupby('COD_LOCALE_PROGETTO', as_index=False).first()
+        # df1 = df.groupby('COD_LOCALE_PROGETTO', as_index=False).first()
+        df1 = df
 
         df_count = len(df1)
 
