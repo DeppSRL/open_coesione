@@ -1,6 +1,10 @@
 # coding=utf-8
 from django import forms
-from rubrica.models import Contatto, Iscrizione, Fonte, IscrizioneManager
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.utils.html import strip_tags
+from django.template.loader import render_to_string
+from rubrica.models import Iscrizione, IscrizioneManager
 
 
 class NLContactForm(forms.Form):
@@ -11,9 +15,9 @@ class NLContactForm(forms.Form):
 
     first_name = forms.CharField(max_length= 80, label='Nome', required=False)
     last_name = forms.CharField(max_length= 80, label='Cognome', required=False)
-    email = forms.EmailField(label="Email *")
+    email = forms.EmailField(label='Email *')
     user_type = forms.TypedChoiceField(choices=USER_TYPES, label='Tipologia di utente *', empty_value= '-----')
-    notes = forms.CharField(widget=forms.Textarea, label='Note', required=False, help_text="Spazio per delle note libere")
+    notes = forms.CharField(widget=forms.Textarea, label='Note', required=False, help_text='Spazio per delle note libere')
     privacy = forms.BooleanField(required=True, label='Autorizzazione all\'utilizzo dei dati personali *')
 
     def execute(self):
@@ -34,11 +38,14 @@ class NLContactForm(forms.Form):
             'notes': self.cleaned_data.get('notes', ''),
         }
 
-        i = IscrizioneManager.add_iscrizione_complessa(
+        IscrizioneManager.add_iscrizione_complessa(
             source_dict, contact_dict, iscrizione_dict,
         )
 
+        html_content = render_to_string('mail/iscrizione.html', dict(contact_dict.items() + iscrizione_dict.items()))
+        text_content = strip_tags(html_content) # this strips the html, so people will have the text as well.
 
-
-
-
+        # create the email, and attach the HTML version as well.
+        msg = EmailMultiAlternatives('Notifica iscrizione alla newsletter di opencoesione.gov.it', text_content, self.cleaned_data.get('email'), settings.CONTACTS_EMAIL)
+        msg.attach_alternative(html_content, 'text/html')
+        msg.send()
