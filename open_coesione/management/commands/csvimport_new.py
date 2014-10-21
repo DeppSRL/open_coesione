@@ -1107,7 +1107,7 @@ class Command(BaseCommand):
         if not append:
             self.logger.info(u'Cancellazione progetti CIPE in corso ....')
             Progetto.fullobjects.filter(cipe_flag=True).delete()
-            DeliberaCIPE.objects.all().delete()
+            # DeliberaCIPE.objects.all().delete()
             transaction.commit()
             self.logger.info(u'Fatto.')
 

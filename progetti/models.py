@@ -2,6 +2,7 @@
 from decimal import Decimal
 
 from django.db import models
+from django.template.defaultfilters import slugify
 from django.utils.functional import cached_property
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
@@ -754,6 +755,20 @@ class Progetto(TimeStampedModel):
 
         return fonti_fin
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if self.slug is None:
+            original_slug = slugify(u'{0}'.format(self.codice_locale))
+
+            cnt = 0
+            slug = original_slug
+            while not slug or Progetto.fullobjects.exclude(pk=self.pk).filter(slug=slug):
+                cnt += 1
+                slug = u'{0}-{1}'.format(original_slug, cnt)
+
+            self.slug = slug
+
+        super(Progetto, self).save(force_insert, force_update, using, update_fields)
+
     # def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     #     # force re-computation of finanziamento totale and notes from delibere
     #     # in case this is a cipe project
@@ -816,7 +831,7 @@ class DeliberaCIPE(models.Model):
 class CUP(models.Model):
     """
     CUP can be multiple (sic!)
-    A project may, after beinmg assigned a CUP at the start, be splitted into several sections, each
+    A project may, after being assigned a CUP at the start, be splitted into several sections, each
     of which will get its own CUP.
     """
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto', related_name='cups_progetto')
