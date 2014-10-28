@@ -830,7 +830,7 @@ class DeliberaCIPE(models.Model):
 class CUP(models.Model):
     """
     CUP can be multiple (sic!)
-    A project may, after beinmg assigned a CUP at the start, be splitted into several sections, each
+    A project may, after being assigned a CUP at the start, be splitted into several sections, each
     of which will get its own CUP.
     """
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto', related_name='cups_progetto')
