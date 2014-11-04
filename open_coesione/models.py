@@ -7,6 +7,11 @@ import os
 from filebrowser.fields import FileBrowseField
 from tagging import models as tagging_models
 
+from django.contrib.flatpages.models import FlatPage
+
+
+FlatPage.add_to_class('extra_content', models.TextField('Contenuto sidebar', blank=True))
+
 
 class ContactMessage(models.Model):
 
@@ -35,6 +40,7 @@ class ContactMessage(models.Model):
     class Meta:
         verbose_name = 'Messaggio'
         verbose_name_plural = 'Messaggi'
+
 
 class PressReview(models.Model):
 

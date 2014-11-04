@@ -3,16 +3,22 @@
 {% block page_title %}{{ flatpage.title }}{% endblock %}
 
 {% block content %}
+    <article class="flat_content">
+        <header class="page-header">
+            <h1>
+                {{ flatpage.title }}
+            </h1>
+        </header>
+        <div id="blog">
+            {{ flatpage.content|safe }}
+        </div>
+    </article>
+{% endblock %}
 
-<article class="flat_content">
-  <header class="page-header">
-    <h1>
-      {{ flatpage.title }}
-    </h1>
-  </header>
-  <div id="blog">
-    {{ flatpage.content }}
-  </div>
-</article>
-
+{% block sidebar %}
+    {% if flatpage.extra_content %}
+        <div class="flat_content">
+            {{ flatpage.extra_content|safe }}
+        </div>
+    {% endif %}
 {% endblock %}
