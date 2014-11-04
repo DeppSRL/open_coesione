@@ -50,7 +50,7 @@
           {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
             <tr>
               <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
-              <td class="amount"><strong>{{ territorio_finanziato.totale|floatformat:2|intcomma }}</strong> euro</td>
+              <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
             </tr>
           {% endfor %}
         </table>
