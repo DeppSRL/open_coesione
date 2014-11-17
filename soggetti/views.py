@@ -150,9 +150,10 @@ class SoggettoView(AggregatoView, DetailView):
 
         # look for context in cache,
         # only for soggetti with a high number of progetti
+        cache_key = None
         if self.object.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
-            key = 'context' + self.request.get_full_path()
-            context = cache.get(key)
+            cache_key = 'context' + self.request.get_full_path()
+            context = cache.get(cache_key)
             if context is not None:
                 return context
 
@@ -289,7 +290,7 @@ class SoggettoView(AggregatoView, DetailView):
             # aggrego in un territorio fittizio i progetti multilocalizzati non inclusi fino ad ora
             context['lista_finanziamenti_per_regione'].append(
                 (
-                    Territorio(denominazione='In più territori', territorio='X'),
+                    Territorio(denominazione=u'In più territori', territorio='X'),
                     tot( Progetto.objects.del_soggetto( self.object).filter(pk__in=ps_multiloc) )
                 )
             )
@@ -356,7 +357,10 @@ class SoggettoView(AggregatoView, DetailView):
         # only for soggetti with a high number of progetti
         if self.object.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
             serializable_context = context.copy()
+            logger.debug("writing {0} in the cache".format(cache_key))
             serializable_context.pop('view', None)
-            cache.set(key, serializable_context)
+#            from pprint import pprint
+#            pprint(serializable_context)
+            cache.set(cache_key, serializable_context)
 
         return context
