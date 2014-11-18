@@ -200,11 +200,9 @@ class SoggettoView(AggregatoView, DetailView):
 
         # calcolo dei comuni un cui questo soggetto ha operato di piu'
         # logger.debug("territori_piu_finanziati_pro_capite start")
-        context['territori_piu_finanziati_pro_capite'] = Territorio.objects.comuni()\
-            .filter(progetto__soggetto_set__pk=self.object.pk).defer('geom')\
-            .annotate(totale=Sum('progetto__fin_totale_pubblico'))\
-            .order_by('-totale')[:5]
-
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+            filters={'progetto__soggetto_set__pk': self.object.pk}
+        )
 
 
         ## calcolo dei totali di finanziamenti per regione (e nazioni)
