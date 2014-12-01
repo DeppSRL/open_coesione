@@ -22,32 +22,46 @@ def convert_progetto_cup_cod_natura(val):
         if val == 2:
             val = 1
         val = '{0:02d}'.format(val)
-
     return val
 
 def convert_progetto_cup_cod_tipologia(val):
     if val.strip():
-        val = '{0:02d}'.format(int(val))
+        try:
+            val = '{0:02d}'.format(int(val))
+        except ValueError:
+            pass
     return val
 
 def convert_progetto_cup_cod_settore(val):
     if val.strip():
-        val = '{0:02d}'.format(int(val))
+        try:
+            val = '{0:02d}'.format(int(val))
+        except ValueError:
+            pass
     return val
 
 def convert_progetto_cup_cod_sottosettore(val):
     if val.strip():
-        val = '{0:02d}'.format(int(val))
+        try:
+            val = '{0:02d}'.format(int(val))
+        except ValueError:
+            pass
     return val
 
 def convert_progetto_cup_cod_categoria(val):
     if val.strip():
-        val = '{0:03d}'.format(int(val))
+        try:
+            val = '{0:03d}'.format(int(val))
+        except ValueError:
+            pass
     return val
 
 def convert_progetto_qsn_cod_tema_prioritario_ue(val):
     if val.strip():
-        val = '{0:02d}'.format(int(val))
+        try:
+            val = '{0:02d}'.format(int(val))
+        except ValueError:
+            pass
     return val
 
 def convert_soggetto_dps_denominazione_sogg(val):
