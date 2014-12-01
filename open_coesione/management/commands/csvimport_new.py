@@ -205,7 +205,7 @@ class Command(BaseCommand):
                     csvfile,
                     sep=';',
                     header=0,
-                    low_memory=False,
+                    low_memory=True,
                     dtype=object,
                     encoding=options['encoding'],
                     keep_default_na=False,
