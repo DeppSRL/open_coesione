@@ -510,8 +510,8 @@ class OpendataView(TemplateView):
         cipe_metadata_file = self.get_complete_file("metadati_attuazione.xls")
 
 
-        context['spesa_dotazione_file'] = self.get_complete_file("Dotazioni_Certificazioni_{0}.xlsx".format(spesa_date))
-        context['spesa_target_file'] = self.get_complete_file("Target_Risultati_{0}.xlsx".format(spesa_date))
+        context['spesa_dotazione_file'] = self.get_complete_file("Dotazioni_Certificazioni_{0}.xls".format(spesa_date))
+        context['spesa_target_file'] = self.get_complete_file("Target_Risultati_{0}.xls".format(spesa_date))
 
         context['istat_data_file'] = self.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
         context['istat_metadata_file'] = self.get_complete_file("Metainformazione.xls")
