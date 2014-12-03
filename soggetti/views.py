@@ -2,19 +2,18 @@
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.cache import cache
-from django.views.generic.base import TemplateView
-from django.views.generic.detail import DetailView
 from django.db.models import Count, Sum
 from django.core.urlresolvers import reverse
 from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
-from open_coesione.views import AggregatoView, AccessControlView, cached_context
-from progetti.models import Progetto, Tema, ClassificazioneAzione, Ruolo
+from open_coesione.views import AggregatoView, AccessControlView, NotIndexableDetailView
+from progetti.models import Progetto, Tema, Ruolo
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
 import logging
+
 
 class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin):
     """
@@ -36,13 +35,12 @@ class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         '5-1GTOINF':   {'qrange': '[1000000001 TO *]',         'r_label': 'oltre 1 mld. di &euro;'},
     }
     N_PROGETTI_RANGES = {
-        '0-0TO10':     {'qrange': '[* TO 10]',       'r_label': 'fino a 10' },
-        '1-10TO100':   {'qrange': '[11 TO 100]',     'r_label': 'da 10 a 100' },
-        '2-100TO1K':   {'qrange': '[101 TO 1000]',   'r_label': 'da 100 a 1.000' },
-        '3-1KTO10K':   {'qrange': '[1001 TO 10000]', 'r_label': 'da 1.000 a 10.000' },
-        '4-10KTOINF':  {'qrange': '[10001 TO *]',    'r_label': 'oltre 10.000' },
+        '0-0TO10':     {'qrange': '[* TO 10]',       'r_label': 'fino a 10'},
+        '1-10TO100':   {'qrange': '[11 TO 100]',     'r_label': 'da 10 a 100'},
+        '2-100TO1K':   {'qrange': '[101 TO 1000]',   'r_label': 'da 100 a 1.000'},
+        '3-1KTO10K':   {'qrange': '[1001 TO 10000]', 'r_label': 'da 1.000 a 10.000'},
+        '4-10KTOINF':  {'qrange': '[10001 TO *]',    'r_label': 'oltre 10.000'},
     }
-
 
     def __init__(self, *args, **kwargs):
         # Needed to switch out the default form class.
@@ -56,7 +54,6 @@ class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
             form_kwargs = {}
 
         return super(SoggettoSearchView, self).build_form(form_kwargs)
-
 
     def _get_extended_selected_facets(self):
         """
@@ -103,19 +100,13 @@ class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         # definizione struttura dati per  visualizzazione faccette ruoli
         extra['ruolo'] = {
-            'denominazione':dict(Ruolo.RUOLO)
+            'denominazione': dict(Ruolo.RUOLO)
         }
 
         # definizione struttura dati per  visualizzazione faccette tema
         extra['tema'] = {
-            'descrizione': dict(
-                (c.codice, c.descrizione)
-                    for c in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)
-            ),
-            'short_label': dict(
-                (c.codice, c.short_label)
-                    for c in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)
-            )
+            'descrizione': dict((c.codice, c.descrizione) for c in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)),
+            'short_label': dict((c.codice, c.short_label) for c in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)),
         }
         extra['base_url'] = reverse('soggetti_search') + '?' + extra['params'].urlencode()
         extra['soggetto'] = True
@@ -137,20 +128,13 @@ class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         return extra
 
 
-class SoggettiView(AggregatoView, TemplateView):
-    #raise Exception("Class SoggettiView needs to be implemented")
-    pass
-
-
-class SoggettoView(AggregatoView, DetailView):
+class SoggettoView(AggregatoView, NotIndexableDetailView):
     model = Soggetto
     context_object_name = 'soggetto'
 
-    def render_to_response(self, context, **response_kwargs):
-        response = super(SoggettoView, self).render_to_response(context, **response_kwargs)
-        if self.object.privacy_flag:
-            response['X-Robots-Tag'] = 'noindex'
-        return response
+    @property
+    def is_indexable(self):
+        return not self.object.privacy_flag
 
     def get_context_data(self, **kwargs):
 
@@ -182,17 +166,17 @@ class SoggettoView(AggregatoView, DetailView):
 
         top_collaboratori = sorted(
             # create a list of dict with partners
-            [{'soggetto_id':s_id, 'numero':collaboratori[s_id]} for s_id in collaboratori],
+            [{'soggetto_id': s_id, 'numero': collaboratori[s_id]} for s_id in collaboratori],
             # sorted by totale
-            key = lambda c: c['numero'],
-            reverse = True )[:5]
+            key=lambda c: c['numero'],
+            reverse=True,
+        )[:5]
 
         # hydrate just the 5 extracted soggetti
         for c in top_collaboratori:
             c['soggetto'] = Soggetto.objects.get(pk=c['soggetto_id'])
 
         context['top_collaboratori'] = top_collaboratori
-
 
         # calcolo dei progetti con piu' fondi
         # logger.debug("top_progetti start")
@@ -210,31 +194,29 @@ class SoggettoView(AggregatoView, DetailView):
             filters={'progetto__soggetto_set__pk': self.object.pk}
         )
 
-
-        ## calcolo dei totali di finanziamenti per regione (e nazioni)
+        # calcolo dei totali di finanziamenti per regione (e nazioni)
         context['lista_finanziamenti_per_regione'] = []
         # logger.debug("lista_finanziamenti_per_regione start")
 
-        ## insieme dei progetti del soggetto che hanno multilocalizzazioni
+        # insieme dei progetti del soggetto che hanno multilocalizzazioni
         ps_multiloc = Progetto.objects.del_soggetto(self.object).annotate(
             tot=Count('territorio_set')
         ).filter(tot__gt=1)
 
-
-        ## definizioni funzioni usate internamente
+        # definizioni funzioni usate internamente
         def tot(qs):
             """
             Calcolo totale a partire da queryset qs, il metodo è indicato in context['tematizzazione']
             """
             return getattr(qs, context['tematizzazione'])()
 
-        def multi_localizzato_in_regione(p,r):
+        def multi_localizzato_in_regione(p, r):
             """
             Torna True se il progetto p
              ha *tutte* le territorializzazioni in un unica regione
             Torna False in caso contrario
             """
-            return all( map(lambda t: t.cod_reg == r.cod_reg, p.territori) )
+            return all(map(lambda t: t.cod_reg == r.cod_reg, p.territori))
 
         def multi_localizzato_in_nazione(p):
             """
@@ -245,8 +227,7 @@ class SoggettoView(AggregatoView, DetailView):
             return any(map(lambda t: t.territorio == 'N', p.territori)) and \
                    all(map(lambda t: t.territorio != 'E', p.territori))
 
-
-        ## costruzione lista per le regioni
+        # costruzione lista per le regioni
         # logger.debug("::fetch dati_regioni start")
         for regione in Territorio.objects.regioni().defer('geom'):
 
@@ -258,7 +239,6 @@ class SoggettoView(AggregatoView, DetailView):
             # logger.debug("::::::filter start")
             # elimina dai progetti multiloc del soggetto quelli localizzati esclusivamente nella regione
             ps_multiloc = filter(lambda p: not multi_localizzato_in_regione(p, regione), ps_multiloc)
-
 
             # logger.debug("::::::queryset start")
             # predispone la query per estrarre tutti i progetti del soggetto, localizzati nella regione,
@@ -273,21 +253,21 @@ class SoggettoView(AggregatoView, DetailView):
             # logger.debug("::::::append tot start")
             # calcola il totale richiesto dalla vista (totale_costi, totale_procapite, totale_progetti)
             # e lo appende alla lista fei finanziamenti per regione
-            context['lista_finanziamenti_per_regione'].append( ( regione, tot( queryset ) ) )
+            context['lista_finanziamenti_per_regione'].append((regione, tot(queryset)))
 
         # rimuovo tutti i progetti multilocalizzati nazionali
         ps_multiloc = filter(lambda p: not multi_localizzato_in_nazione(p), ps_multiloc)
 
         # logger.debug("::fetch dati_nazioni start")
-        for nazione in Territorio.objects.filter(territorio__in=['N','E']).defer('geom').order_by('-territorio'):
+        for nazione in Territorio.objects.filter(territorio__in=['N', 'E']).defer('geom').order_by('-territorio'):
 
-            queryset = Progetto.objects.nel_territorio( nazione ).del_soggetto( self.object ).exclude(
+            queryset = Progetto.objects.nel_territorio(nazione).del_soggetto(self.object).exclude(
                 # tutti i progetti in una nazione realizzati dal soggetto NON multi localizzati nella nazione
                 # (e neanche nelle regioni, che sono già stati eliminati prima)
                 pk__in=ps_multiloc
             )
 
-            context['lista_finanziamenti_per_regione'].append( ( nazione, tot( queryset ) ) )
+            context['lista_finanziamenti_per_regione'].append((nazione, tot(queryset)))
         # logger.debug("::fetch dati_nazioni end")
 
         if len(ps_multiloc):
@@ -295,11 +275,10 @@ class SoggettoView(AggregatoView, DetailView):
             context['lista_finanziamenti_per_regione'].append(
                 (
                     Territorio(denominazione=u'In più territori', territorio='X'),
-                    tot( Progetto.objects.del_soggetto( self.object).filter(pk__in=ps_multiloc) )
+                    tot(Progetto.objects.del_soggetto(self.object).filter(pk__in=ps_multiloc))
                 )
             )
         # logger.debug("lista_finanziamenti_per_regione stop")
-
 
         # calcolo i finanziamenti per ruolo del soggetto
         # preparo il filtro di aggregazione in base alla tematizzazione richiesta
@@ -308,7 +287,7 @@ class SoggettoView(AggregatoView, DetailView):
             'totale_costi': Sum('progetto__fin_totale_pubblico'),
             'totale_pagamenti': Sum('progetto__pagamento'),
             'totale_progetti': Count('progetto')
-        }[ self.request.GET.get('tematizzazione', 'totale_costi') ]
+        }[self.request.GET.get('tematizzazione', 'totale_costi')]
 
         context['lista_finanziamenti_per_ruolo'] = []
 
@@ -338,14 +317,17 @@ class SoggettoView(AggregatoView, DetailView):
                     # prendo il massimo totale, tanto DEVONO essere tutti uguali
                     tot = max(tot, progetto_to_ruoli[progetto_id][key])
                     # aggiungo il ruolo anche se vuoto
-                    if key not in dict_finanziamenti_per_ruolo: dict_finanziamenti_per_ruolo[key] = 0.0
-                if name not in dict_finanziamenti_per_ruolo: dict_finanziamenti_per_ruolo[name] = 0.0
-                dict_finanziamenti_per_ruolo[name]+=tot
+                    if key not in dict_finanziamenti_per_ruolo:
+                        dict_finanziamenti_per_ruolo[key] = 0.0
+                if name not in dict_finanziamenti_per_ruolo:
+                    dict_finanziamenti_per_ruolo[name] = 0.0
+                dict_finanziamenti_per_ruolo[name] += tot
             else:
                 # il soggetto ha un solo ruolo in questo progetto
                 name = progetto_to_ruoli[progetto_id].keys()[0]
                 tot = progetto_to_ruoli[progetto_id][name]
-                if name not in dict_finanziamenti_per_ruolo: dict_finanziamenti_per_ruolo[name] = 0.0
+                if name not in dict_finanziamenti_per_ruolo:
+                    dict_finanziamenti_per_ruolo[name] = 0.0
                 dict_finanziamenti_per_ruolo[name] += tot
 
         del progetto_to_ruoli
@@ -355,7 +337,6 @@ class SoggettoView(AggregatoView, DetailView):
         # logger.debug("lista_finanziamenti_per_ruolo stop")
 
         del dict_finanziamenti_per_ruolo
-
 
         # store context in cache,
         # only for soggetti with a high number of progetti

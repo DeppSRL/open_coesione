@@ -7,7 +7,7 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse, Http404, HttpRequest
+from django.http import HttpResponse, Http404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
@@ -19,7 +19,7 @@ from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin,
 from oc_search.views import ExtendedFacetedSearchView
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from open_coesione import utils
-from open_coesione.views import AggregatoView, AccessControlView, cached_context
+from open_coesione.views import AggregatoView, AccessControlView, NotIndexableDetailView, cached_context
 from progetti.forms import DescrizioneProgettoForm
 from progetti.gruppo_programmi import GruppoProgrammi, split_by_type
 from progetti.models import Tema, Fonte, SegnalazioneProgetto
@@ -27,16 +27,14 @@ from soggetti.models import Soggetto
 from territori.models import Territorio
 
 
-class ProgettoView(AccessControlView, DetailView):
+class ProgettoView(AccessControlView, NotIndexableDetailView):
     model = Progetto
     context_object_name = 'progetto'
     queryset = Progetto.fullobjects.get_query_set()
 
-    def render_to_response(self, context, **response_kwargs):
-        response = super(ProgettoView, self).render_to_response(context, **response_kwargs)
-        if self.object.privacy_flag:
-            response['X-Robots-Tag'] = 'noindex'
-        return response
+    @property
+    def is_indexable(self):
+        return not self.object.privacy_flag
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
