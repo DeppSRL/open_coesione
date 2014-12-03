@@ -52,4 +52,4 @@ requests==2.0.0
 -e git://github.com/DeppSRL/django-widgets.git#egg=django-widgets
 
 csvkit==0.7.3
-pandas==0.14
+pandas==0.14.1

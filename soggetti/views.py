@@ -146,6 +146,12 @@ class SoggettoView(AggregatoView, DetailView):
     model = Soggetto
     context_object_name = 'soggetto'
 
+    def render_to_response(self, context, **response_kwargs):
+        response = super(SoggettoView, self).render_to_response(context, **response_kwargs)
+        if self.object.privacy_flag:
+            response['X-Robots-Tag'] = 'noindex'
+        return response
+
     def get_context_data(self, **kwargs):
 
         # look for context in cache,

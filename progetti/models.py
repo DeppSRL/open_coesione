@@ -99,10 +99,10 @@ class ProgrammaBase(models.Model):
         if item in ['descrizione_estesa', 'links', 'documenti']:
             return getattr(self.extra_info, item)
         else:
-            raise AttributeError('%r object has no attribute %r' % (self.__class__.__name__, item))
+            raise AttributeError('{0!r} object has no attribute {1!r}'.format(self.__class__.__name__, item))
 
     def __unicode__(self):
-        return unicode(self.descrizione[0:100])
+        return u'{0}'.format(self.descrizione[0:100])
 
     class Meta:
         abstract = True
@@ -272,7 +272,7 @@ class Tema(models.Model):
         })
 
     def __unicode__(self):
-        return u'%s %s' % (self.codice, self.descrizione)
+        return u'{0} {1}'.format(self.codice, self.descrizione)
 
     class Meta:
         verbose_name_plural = 'Temi'
@@ -288,7 +288,7 @@ class Intesa(models.Model):
         return self.progetto_set
 
     def __unicode__(self):
-        return self.codice + ' - ' + self.descrizione
+        return u'{0} - {1}'.format(self.codice, self.descrizione)
 
     class Meta:
         verbose_name = 'Intesa istituzionale'
@@ -312,7 +312,7 @@ class Fonte(models.Model):
         return self.progetto_set
 
     def __unicode__(self):
-        return self.codice + ' - ' + self.descrizione
+        return u'{0} - {1}'.format(self.codice, self.descrizione)
 
     class Meta:
         verbose_name = 'Fonte'
@@ -370,7 +370,7 @@ class ClassificazioneAzione(models.Model):
         })
 
     def __unicode__(self):
-        return u'%s %s' % (self.codice, self.descrizione)
+        return u'{0} {1}'.format(self.codice, self.descrizione)
 
     class Meta:
         verbose_name_plural = 'Classificazioni azioni'
@@ -400,7 +400,7 @@ class ClassificazioneOggetto(models.Model):
         return self.progetto_set
 
     def __unicode__(self):
-        return u'%s %s' % (self.codice, self.descrizione)
+        return u'{0} {1}'.format(self.codice, self.descrizione)
 
     class Meta:
         verbose_name_plural = 'Classificazioni oggetti'
@@ -559,6 +559,8 @@ class Progetto(TimeStampedModel):
     dps_flag_date_effettive = models.CharField(max_length=1, choices=DPS_FLAG_COERENZA_DATE, null=True, blank=True)
 
     dps_flag_pac = models.CharField(max_length=1, choices=DPS_FLAG_PAC, default='0')
+
+    privacy_flag = models.BooleanField(default=False)
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
@@ -838,7 +840,7 @@ class CUP(models.Model):
     cup = models.CharField(max_length=15)
 
     def __unicode__(self):
-        return u'%s - %s' % (self.progetto, self.cup)
+        return u'{0} - {1}'.format(self.progetto, self.cup)
 
     class Meta:
         verbose_name_plural = 'CUP'
@@ -857,7 +859,7 @@ class Localizzazione(TimeStampedModel):
     dps_flag_cap = models.CharField(max_length=1, choices=DPS_FLAG_CAP, default='0')
 
     def __unicode__(self):
-        return u'%s %s (%s)' % (self.progetto, self.territorio, self.dps_flag_cap)
+        return u'{0} {1} ({2})'.format(self.progetto, self.territorio, self.dps_flag_cap)
 
     class Meta:
         verbose_name_plural = 'Localizzazioni'
@@ -877,6 +879,7 @@ class Ruolo(TimeStampedModel):
     soggetto = models.ForeignKey(Soggetto)
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
     ruolo = models.CharField(max_length=1, choices=RUOLO)
+    progressivo_ruolo = models.PositiveSmallIntegerField(null=True, blank=True)
 
     #objects = RuoloManager()
     #fullobjects = models.Manager()
@@ -895,14 +898,18 @@ class Ruolo(TimeStampedModel):
         return self.progetto_set.all()
 
     def __unicode__(self):
-        return u'%s, %s nel progetto %s' % (self.soggetto, self.get_ruolo_display(), self.progetto)
+        return u'{0}, {1} nel progetto {2}'.format(self.soggetto, self.get_ruolo_display(), self.progetto)
 
     class Meta:
         verbose_name = 'Ruolo'
         verbose_name_plural = 'Ruoli'
-        unique_together = ('progetto', 'soggetto', 'ruolo')
+        unique_together = (
+            ('progetto', 'soggetto', 'ruolo'),
+            ('progetto', 'ruolo', 'progressivo_ruolo'),
+        )
         index_together = [
             ['progetto', 'soggetto', 'ruolo'],
+            ['progetto', 'ruolo', 'progressivo_ruolo'],
         ]
 
 
