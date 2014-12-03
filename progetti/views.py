@@ -7,7 +7,7 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpRequest
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
@@ -19,7 +19,7 @@ from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin,
 from oc_search.views import ExtendedFacetedSearchView
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from open_coesione import utils
-from open_coesione.views import AggregatoView, AccessControlView, cached_context, OpendataView
+from open_coesione.views import AggregatoView, AccessControlView, cached_context
 from progetti.forms import DescrizioneProgettoForm
 from progetti.gruppo_programmi import GruppoProgrammi, split_by_type
 from progetti.models import Tema, Fonte, SegnalazioneProgetto
@@ -32,6 +32,11 @@ class ProgettoView(AccessControlView, DetailView):
     context_object_name = 'progetto'
     queryset = Progetto.fullobjects.get_query_set()
 
+    def render_to_response(self, context, **response_kwargs):
+        response = super(ProgettoView, self).render_to_response(context, **response_kwargs)
+        if self.object.privacy_flag:
+            response['X-Robots-Tag'] = 'noindex'
+        return response
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
@@ -46,7 +51,7 @@ class ProgettoView(AccessControlView, DetailView):
 
         numero_collaboratori = 5
         if self.object.territori:
-            altri_progetti_nei_territori = Progetto.fullobjects.exclude(codice_locale=self.object.codice_locale).nei_territori( self.object.territori ).distinct().order_by('-fin_totale_pubblico')
+            altri_progetti_nei_territori = Progetto.fullobjects.exclude(codice_locale=self.object.codice_locale).nei_territori(self.object.territori).distinct().order_by('-fin_totale_pubblico')
             context['stesso_tema'] = altri_progetti_nei_territori.con_tema(self.object.tema)[:numero_collaboratori]
             context['stessa_natura'] = altri_progetti_nei_territori.con_natura(self.object.classificazione_azione)[:numero_collaboratori]
             context['stessi_attuatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.attuatori)[:numero_collaboratori]
@@ -67,6 +72,7 @@ class ProgettoView(AccessControlView, DetailView):
         context['overlapping_projects'] = overlapping
 
         return context
+
 
 class ProgrammaBaseView(AccessControlView, AggregatoView, TemplateView):
     @cached_context
@@ -105,6 +111,7 @@ class ProgrammaBaseView(AccessControlView, AggregatoView, TemplateView):
 
         return context
 
+
 class ProgrammiView(ProgrammaBaseView):
     template_name = 'progetti/programmi_detail.html'
 
@@ -116,7 +123,6 @@ class ProgrammiView(ProgrammaBaseView):
             gruppo_programmi = self.get_object()
         except:
             raise Http404
-
 
         kwargs.update({
             'programmi': gruppo_programmi.programmi()
@@ -131,9 +137,9 @@ class ProgrammiView(ProgrammaBaseView):
 
         return context
 
+
 class ProgrammaView(ProgrammaBaseView):
     template_name = 'progetti/programma_detail.html'
-
 
     def get_object(self):
         try:
@@ -162,6 +168,7 @@ class ProgrammaView(ProgrammaBaseView):
         context['programma'] = programma
 
         return context
+
 
 class TipologiaView(AccessControlView, AggregatoView, DetailView):
     context_object_name = 'tipologia'
@@ -195,6 +202,7 @@ class TipologiaView(AccessControlView, AggregatoView, DetailView):
 
     def get_object(self, queryset=None):
         return ClassificazioneAzione.objects.get(slug=self.kwargs.get('slug'))
+
 
 class TemaView(AccessControlView, AggregatoView, DetailView):
     context_object_name = 'tema'
@@ -247,7 +255,6 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
 
         return context
 
-
     def get_object(self, queryset=None, **kwargs):
         return Tema.objects.get(slug=self.kwargs.get('slug'))
 
@@ -260,20 +267,20 @@ class CSVView(AggregatoView, DetailView):
         return ['Comune', 'Provincia', 'Finanziamento pro capite']
 
     def get_csv_filename(self):
-        return '{0}_pro_capite'.format(self.kwargs.get('slug','all'))
+        return '{0}_pro_capite'.format(self.kwargs.get('slug', 'all'))
 
     def write_csv(self, response):
         writer = utils.UnicodeWriter(response, dialect=utils.excel_semicolon)
         writer.writerow(self.get_first_row())
         comuni = list(Territorio.objects.comuni().defer('geom'))
-        provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().values('cod_prov','denominazione')])
-        comuni_con_pro_capite = self.top_comuni_pro_capite(filters={ self.filter_field: self.object}, qnt=None)
+        provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().values('cod_prov', 'denominazione')])
+        comuni_con_pro_capite = self.top_comuni_pro_capite(filters={self.filter_field: self.object}, qnt=None)
 
         for city in comuni_con_pro_capite:
             writer.writerow([
                 unicode(city.denominazione),
                 unicode(provincie[city.cod_prov]),
-                '{0:.2f}'.format( city.totale / city.popolazione_totale if city.popolazione_totale else .0).replace('.', ',')
+                '{0:.2f}'.format(city.totale / city.popolazione_totale if city.popolazione_totale else .0).replace('.', ',')
             ])
             comuni.remove(city)
 
@@ -281,7 +288,7 @@ class CSVView(AggregatoView, DetailView):
             writer.writerow([
                 unicode(city.denominazione),
                 unicode(provincie[city.cod_prov]),
-                '{0:.2f}'.format( .0 ).replace('.', ',')
+                '{0:.2f}'.format(.0).replace('.', ',')
             ])
 
     def get(self, request, *args, **kwargs):
@@ -299,9 +306,11 @@ class CSVView(AggregatoView, DetailView):
     def get_object(self, queryset=None):
         return self.model.objects.get(slug=self.kwargs.get('slug'))
 
+
 class TipologiaCSVView(CSVView):
     model = ClassificazioneAzione
     filter_field = 'progetto__classificazione_azione__classificazione_superiore'
+
 
 class TemaCSVView(CSVView):
     model = Tema
@@ -341,7 +350,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
         '2008':  {'qrange': '[2008-01-01T00:00:00Z TO 2008-12-31T23:59:59Z]', 'r_label': '2008'},
         '2007':  {'qrange': '[2007-01-01T00:00:00Z TO 2007-12-31T23:59:59Z]', 'r_label': '2007'},
         'early': {'qrange': '[1970-01-02T00:00:00Z TO 2006-12-31T23:59:59Z]', 'r_label': 'prima del 2007'},
-        'nd'  :  {'qrange': '[* TO 1970-01-01T00:00:00Z]', 'r_label': 'non disponibile'}
+        'nd':  {'qrange': '[* TO 1970-01-01T00:00:00Z]', 'r_label': 'non disponibile'}
     }
 
     def __init__(self, *args, **kwargs):
@@ -352,9 +361,6 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
         super(ProgettoSearchView, self).__init__(*args, **kwargs)
 
     def build_form(self, form_kwargs=None):
-        if form_kwargs is None:
-            form_kwargs = {  }
-
         # the is_active:1 facet is selected by default
         # and is substituted by is_active:0 when explicitly requested
         # by clicking on the "See archive" link in the progetti page
@@ -364,7 +370,6 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
             form_kwargs = {'selected_facets': ['is_active:1']}
 
         return super(ProgettoSearchView, self).build_form(form_kwargs)
-
 
     def _get_extended_selected_facets(self):
         """
@@ -426,7 +431,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
             try:
                 extra['gruppo_programmi'] = GruppoProgrammi(codice=programmi_slug)
             except:
-                 pass
+                pass
 
         soggetto_slug = self.request.GET.get('soggetto', None)
         if soggetto_slug:
@@ -457,7 +462,6 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
             extra['natura']['descrizione'][codice] = c.descrizione
             extra['natura']['short_label'][codice] = c.short_label
 
-
         # definizione struttura dati per  visualizzazione faccette tema
         extra['tema'] = {
             'descrizione': {},
@@ -483,7 +487,6 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
             extra['tipo_progetto']['descrizione'][codice] = descrizione
             extra['tipo_progetto']['short_label'][codice] = descrizione
 
-
         extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
 
         # definizione struttura dati per visualizzazione faccette fonte
@@ -506,10 +509,8 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
             # If page is out of range (e.g. 9999), deliver last page of results.
             page_obj = paginator.page(paginator.num_pages)
 
-
         selected_facets = self.request.GET.getlist('selected_facets')
         extra['search_within_non_active'] = 'is_active:0' in selected_facets
-
 
         extra['paginator'] = paginator
         extra['page_obj'] = page_obj
@@ -552,14 +553,12 @@ class CSVSearchResultsWriterMixin(object):
                         t[3]
                     ])
 
-
-    def write_projects_search_results(self, results, writer ):
+    def write_projects_search_results(self, results, writer):
         """
         Writes all results of a search query set into a CSV writer.
         """
 
         import locale
-        from datetime import datetime
         locale.setlocale(locale.LC_ALL, 'it_IT.UTF-8')
 
         writer.writerow([
@@ -648,6 +647,7 @@ class ProgettoLocCSVPreviewSearchView(ProgettoSearchView, CSVSearchResultsWriter
         self.write_projects_localisations_search_results(results, writer)
         return response
 
+
 class ProgettoCSVPreviewSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
     def create_response(self):
         """
@@ -665,7 +665,6 @@ class ProgettoCSVPreviewSearchView(ProgettoSearchView, CSVSearchResultsWriterMix
 
 
 class ProgettoCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
-
     def create_response(self):
         """
         Generates a zipped, downloadale CSV file, from search results
@@ -684,8 +683,8 @@ class ProgettoCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
         # send response
         return response
 
-class ProgettoLocCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
 
+class ProgettoLocCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
     def create_response(self):
         """
         Generates a zipped, downloadale CSV file, from search results
@@ -704,8 +703,8 @@ class ProgettoLocCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
         # send response
         return response
 
-class ProgettoFullCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
 
+class ProgettoFullCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
     def create_response(self):
         """
         Generates a zipped, downloadale CSV file, from search results
@@ -718,19 +717,19 @@ class ProgettoFullCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin)
         response['Content-Disposition'] = 'attachment; filename=opencoesione_risultati.csv.zip'
 
         # define zipped stream as response
-        z = zipfile.ZipFile(response,'w')   ## write zip to response
+        z = zipfile.ZipFile(response, 'w')   # write zip to response
 
         # add progetti csv to zip stream
         output = StringIO.StringIO()
         writer = csv.writer(output, dialect='opencoesione')
         self.write_projects_search_results(results, writer)
-        z.writestr("progetti.csv", output.getvalue())  ## write csv file to zip
+        z.writestr("progetti.csv", output.getvalue())  # write csv file to zip
 
         # add localizzazioni csv to zip stream
         output = StringIO.StringIO()
         writer = csv.writer(output, dialect='opencoesione')
         self.write_projects_localisations_search_results(results, writer)
-        z.writestr("localizzazioni.csv", output.getvalue())  ## write csv file to zip
+        z.writestr("localizzazioni.csv", output.getvalue())  # write csv file to zip
 
         # add metadati content to zip stream
         output = StringIO.StringIO()
@@ -742,14 +741,13 @@ class ProgettoFullCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin)
         return response
 
 
-
 # TODO: serialization of complex JSON objects need to be tackled with proper tools
 class ProgettoJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         return obj.__dict__
 
-class ProgettoJSONSearchView(ProgettoSearchView):
 
+class ProgettoJSONSearchView(ProgettoSearchView):
     def create_response(self):
         """
         Generates a CSV text preview (limited to 500 items) for search results
@@ -815,4 +813,3 @@ class SegnalazioneDetailView(DetailView):
     model = SegnalazioneProgetto
     template_name = 'segnalazione/singola.html'
     context_object_name = 'segnalazione'
-

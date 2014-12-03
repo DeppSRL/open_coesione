@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import logging
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import transaction
-from django.db.utils import DatabaseError, IntegrityError
+from django.db.utils import DatabaseError
 from django.core.management.base import BaseCommand
 
 from optparse import make_option
@@ -144,6 +144,16 @@ class Command(BaseCommand):
             'import_method': '_import_localizzazioni',
             'converters': None,
         },
+        'update-privacy-progetti': {
+            'files': ['prog_privacy_{0}.csv', 'prog_inattivi_privacy_{0}.csv'],
+            'import_method': '_update_privacy_progetti',
+            'converters': {},
+        },
+        'update-privacy-soggetti': {
+            'files': ['sog_privacy_{0}.csv', 'sog_inattivi_privacy_{0}.csv'],
+            'import_method': '_update_privacy_soggetti',
+            'converters': {},
+        },
     }
 
     option_list = BaseCommand.option_list + (
@@ -192,8 +202,6 @@ class Command(BaseCommand):
             self.logger.error(u'Wrong type "{0}". Select among {1}.'.format(importtype, ', '.join(['"' + t + '"' for t in self.import_types])))
             exit(1)
 
-        categories = ['FSC0713', 'FS0713', 'PAC', 'inattivi']
-
         # read csv files
         for file in self.import_types[importtype]['files']:
             csvfile = csvpath.rstrip('/') + '/' + file.format(csvdate)
@@ -230,7 +238,7 @@ class Command(BaseCommand):
         df.fillna('', inplace=True)
         df.drop_duplicates(inplace=True)
 
-        self.logger.error(u'Inizio import "{0}" ({1}).'.format(importtype, csvdate))
+        self.logger.info(u'Inizio import "{0}" ({1}).'.format(importtype, csvdate))
 
         startTime = datetime.datetime.now()
 
@@ -240,7 +248,7 @@ class Command(BaseCommand):
         duration = datetime.datetime.now() - startTime
         seconds = round(duration.total_seconds())
 
-        self.logger.error(u'Fine. Tempo di esecuzione: {0:02d}:{1:02d}:{2:02d}.'.format(int(seconds // 3600), int((seconds % 3600) // 60), int(seconds % 60)))
+        self.logger.info(u'Fine. Tempo di esecuzione: {0:02d}:{1:02d}:{2:02d}.'.format(int(seconds // 3600), int((seconds % 3600) // 60), int(seconds % 60)))
 
 
     @transaction.commit_on_success
@@ -799,7 +807,7 @@ class Command(BaseCommand):
 
         # creazione ruoli
 
-        df1 = df[['COD_LOCALE_PROGETTO', 'DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG', 'SOGG_COD_RUOLO']].drop_duplicates()
+        df1 = df[['COD_LOCALE_PROGETTO', 'DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG', 'SOGG_COD_RUOLO', 'SOGG_PROGR_RUOLO']].drop_duplicates()
 
         df_count = len(df1)
 
@@ -830,6 +838,7 @@ class Command(BaseCommand):
                         progetto=progetto,
                         soggetto=soggetto,
                         ruolo=row['SOGG_COD_RUOLO'],
+                        progressivo_ruolo=row['SOGG_PROGR_RUOLO'],
                     )
 
                     try:
@@ -1283,6 +1292,64 @@ class Command(BaseCommand):
 
             self.logger.info(u'{0} -----------------> Committing.' .format(col))
             transaction.commit()
+
+
+    def _update_privacy_progetti(self, df, append):
+        if not append:
+            self.logger.info(u'Reset del flag privacy dei progetti in corso ....')
+            Progetto.fullobjects.update(privacy_flag=False)
+            self.logger.info(u'Fatto.')
+
+        df_count = len(df)
+
+        ids = []
+        tot_updated = 0
+
+        n = 0
+        for index, row in df.iterrows():
+            n += 1
+
+            ids.append(row['COD_LOCALE_PROGETTO'])
+
+            if (n % 5000 == 0) or (n == df_count):
+                self.logger.info(u'{0}/{1} - Aggiornamento del flag privacy in corso ....' .format(n, df_count))
+                updated = Progetto.fullobjects.filter(pk__in=ids).update(privacy_flag=True)
+                self.logger.info(u'{0}/{1} - Fatto. Record aggiornati: {2}.'.format(n, df_count, updated))
+
+                ids = []
+                tot_updated += updated
+
+        self.logger.info(u'Totale record aggiornati: {0}.'.format(tot_updated))
+
+
+    @transaction.commit_on_success
+    def _update_privacy_soggetti(self, df, append):
+        if not append:
+            self.logger.info(u'Reset del flag privacy dei soggetti in corso ....')
+            Soggetto.fullobjects.update(privacy_flag=False)
+            self.logger.info(u'Fatto.')
+
+        df_count = len(df)
+
+        tot_updated = 0
+
+        n = 0
+        for index, row in df.iterrows():
+            n += 1
+
+            try:
+                soggetto = Soggetto.fullobjects.get(ruolo__progetto=row['COD_LOCALE_PROGETTO'], ruolo__ruolo=row['SOGG_COD_RUOLO'], ruolo__progressivo_ruolo=row['SOGG_PROGR_RUOLO'])
+                self.logger.debug(u'{0}/{1} - Soggetto: {2}'.format(n, df_count, soggetto))
+            except ObjectDoesNotExist:
+                self.logger.warning(u'{0}/{1} - Soggetto non trovato: {2}/{3}/{4}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO'], row['SOGG_COD_RUOLO'], row['SOGG_PROGR_RUOLO']))
+            except MultipleObjectsReturned:
+                self.logger.warning(u'{0}/{1} - Più di un soggetto trovato: {2}/{3}/{4}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO'], row['SOGG_COD_RUOLO'], row['SOGG_PROGR_RUOLO']))
+            else:
+                soggetto.privacy_flag = True
+                soggetto.save()
+                tot_updated += 1
+
+        self.logger.info(u'Totale record aggiornati: {0}.'.format(tot_updated))
 
 
     def _log(self, created, msg):

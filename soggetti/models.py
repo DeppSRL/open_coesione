@@ -15,7 +15,7 @@ class CodiceAteco(models.Model):
         return self.soggetto_set.all()
 
     def __unicode__(self):
-        return u'%s' % self.descrizione
+        return u'{0}'.format(self.descrizione)
 
     class Meta:
         verbose_name = 'Codice ATECO'
@@ -31,7 +31,7 @@ class FormaGiuridica(models.Model):
         return self.soggetto_set.all()
 
     def __unicode__(self):
-        return u'%s' % self.denominazione
+        return u'{0}'.format(self.denominazione)
 
     class Meta:
         verbose_name = 'Forma giuridica'
@@ -53,6 +53,7 @@ class Soggetto(TimeStampedModel):
     rappresentante_legale = models.CharField(max_length=300, null=True, blank=True)
     indirizzo = models.CharField(max_length=300, null=True, blank=True)
     cap = models.CharField(max_length=5, null=True, blank=True)
+    privacy_flag = models.BooleanField(default=False)
 
     objects = models.Manager()
     filteredobjects = SoggettiManager()
@@ -60,7 +61,7 @@ class Soggetto(TimeStampedModel):
 
     @property
     def denominazione_univoca(self):
-        return (u'%s %s' % (self.denominazione, '' if self.codice_fiscale == '*CODICE FISCALE*' else self.codice_fiscale)).strip()
+        return (u'{0} {1}'.format(self.denominazione, '' if self.codice_fiscale == '*CODICE FISCALE*' else self.codice_fiscale)).strip()
 
     @property
     def progetti(self):
@@ -91,7 +92,7 @@ class Soggetto(TimeStampedModel):
         return set(chain.from_iterable([list(p.regioni) for p in self.progetti]))
 
     def __unicode__(self):
-        return u'%s' % self.denominazione
+        return u'{0}'.format(self.denominazione)
 
     @models.permalink
     def get_absolute_url(self):
