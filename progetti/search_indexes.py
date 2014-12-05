@@ -82,7 +82,10 @@ class ProgettoIndex(SearchIndex):
             return 'ND'
 
     def prepare_natura_slug(self, obj):
-        return obj.classificazione_azione.classificazione_superiore.slug
+        if obj.classificazione_azione:
+            return obj.classificazione_azione.classificazione_superiore.slug
+        else:
+            return 'nd'
 
     def prepare_tema_slug(self, obj):
         return obj.tema.tema_superiore.slug
