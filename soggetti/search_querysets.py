@@ -4,7 +4,7 @@ from soggetti.views import SoggettoSearchView
 __author__ = 'guglielmo'
 
 ## SearchQuerySet with multiple facets and highlight
-sqs = SearchQuerySet().filter(django_ct='soggetti.soggetto').\
+sqs = SearchQuerySet().filter(django_ct='soggetti.soggetto', privacy_flag=False).\
     facet('ruolo').\
     facet('tema').\
     query_facet('costo', SoggettoSearchView.COST_RANGES['0-0TO100K']['qrange']).\

@@ -6,6 +6,7 @@ from soggetti.models import Soggetto
 
 class SoggettoIndex(SearchIndex):
     slug = CharField(model_attr='slug', indexed=False)
+    privacy_flag = CharField(model_attr='privacy_flag', stored=False)
     text = CharField(document=True, use_template=True)
     denominazione = CharField(model_attr='denominazione', indexed=False)
     codice_fiscale = CharField(model_attr='codice_fiscale', indexed=False)

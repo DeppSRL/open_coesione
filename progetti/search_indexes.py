@@ -8,6 +8,7 @@ from progetti.models import Progetto, Ruolo
 
 class ProgettoIndex(SearchIndex):
     slug = CharField(model_attr='slug', indexed=False)
+    privacy_flag = CharField(model_attr='privacy_flag', stored=False)
     clp = CharField(model_attr='codice_locale')
     cup = CharField(model_attr='cup', null=True)
     titolo = CharField(model_attr='titolo_progetto')
@@ -60,6 +61,7 @@ class ProgettoIndex(SearchIndex):
     natura = FacetCharField( )
     tema = FacetCharField( )
     fonte = FacetMultiValueField()
+    classificazione_cup = FacetCharField( )
     tipo_progetto = FacetCharField( )
     is_active = FacetBooleanField( model_attr='active_flag' )
     data_inizio = FacetDateField()
@@ -86,6 +88,9 @@ class ProgettoIndex(SearchIndex):
 
     def prepare_tipo_progetto(self, obj):
         return obj.tipo_progetto
+
+    def prepare_classificazione_cup(self, obj):
+        return obj.classificazione_oggetto.codice
 
     def prepare_fonte(self, obj):
         return [f.codice for f in obj.fonti]
