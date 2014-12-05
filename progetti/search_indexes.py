@@ -11,6 +11,7 @@ class ProgettoIndex(SearchIndex):
     privacy_flag = CharField(model_attr='privacy_flag', stored=False)
     clp = CharField(model_attr='codice_locale')
     cup = CharField(model_attr='cup', null=True)
+    classificazione_cup = CharField(null=True)
     titolo = CharField(model_attr='titolo_progetto')
     descrizione = CharField(model_attr='descrizione', null=True)
     tema_descr = CharField(model_attr='tema__tema_superiore__descrizione', null=True)
@@ -61,7 +62,6 @@ class ProgettoIndex(SearchIndex):
     natura = FacetCharField( )
     tema = FacetCharField( )
     fonte = FacetMultiValueField()
-    classificazione_cup = FacetCharField( )
     tipo_progetto = FacetCharField( )
     is_active = FacetBooleanField( model_attr='active_flag' )
     data_inizio = FacetDateField()
@@ -90,7 +90,11 @@ class ProgettoIndex(SearchIndex):
         return obj.tipo_progetto
 
     def prepare_classificazione_cup(self, obj):
-        return obj.classificazione_oggetto.codice
+        if obj.classificazione_oggetto:
+            return obj.classificazione_oggetto.codice
+        else:
+            return None
+
 
     def prepare_fonte(self, obj):
         return [f.codice for f in obj.fonti]
