@@ -4,7 +4,7 @@ from api.querysets import PatchedSearchResult
 __author__ = 'guglielmo'
 
 ## SearchQuerySet with multiple facets and highlight
-sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
+sqs = SearchQuerySet().filter(django_ct='progetti.progetto', privacy_flag=False).\
         facet('natura').\
         facet('tema').\
         facet('tipo_progetto').\

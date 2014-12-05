@@ -4,7 +4,8 @@ from territori.models import Territorio
 
 __author__ = 'guglielmo'
 from rest_framework import serializers, pagination
-from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, Ruolo, PagamentoProgetto, ClassificazioneQSN
+from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, Ruolo, PagamentoProgetto, \
+    ClassificazioneQSN, ClassificazioneOggetto
 
 
 class FiltersField(serializers.Field):
@@ -126,6 +127,10 @@ class ClassificazioneQSNModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClassificazioneQSN
 
+class ClassificazioneOggettoModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ClassificazioneOggetto
 
 class PagamentoProgettoSerializer(serializers.ModelSerializer):
     data = serializers.DateField()
@@ -174,6 +179,7 @@ class ProgettoSearchResultSerializer(serializers.Serializer):
     clp = serializers.CharField(max_length=200)
     cup = serializers.CharField(max_length=100)
     titolo = serializers.CharField(required=False)
+    classificazione_cup = serializers.CharField(required=False)
     fin_totale_pubblico = serializers.FloatField()
     pagamento = serializers.FloatField()
     perc_pagamento = serializers.FloatField()
