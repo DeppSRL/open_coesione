@@ -72,11 +72,15 @@ class ProgettoIndex(SearchIndex):
     rendered = L10NCharField(use_template=True, indexed=False)
 
     def prepare_natura(self, obj):
-        codice = obj.classificazione_azione.codice.split('.')[0]
-        if codice != ' ':
-            return codice
+        if obj.classificazione_azione:
+            codice = obj.classificazione_azione.codice.split('.')[0]
+            if codice != ' ':
+                return codice
+            else:
+                return 'ND'
         else:
             return 'ND'
+
     def prepare_natura_slug(self, obj):
         return obj.classificazione_azione.classificazione_superiore.slug
 
@@ -84,7 +88,10 @@ class ProgettoIndex(SearchIndex):
         return obj.tema.tema_superiore.slug
 
     def prepare_tema(self, obj):
-        return obj.tema.codice.split('.')[0]
+        if obj.tema:
+            return obj.tema.codice.split('.')[0]
+        else:
+            return 'ND'
 
     def prepare_tipo_progetto(self, obj):
         return obj.tipo_progetto
@@ -93,7 +100,7 @@ class ProgettoIndex(SearchIndex):
         if obj.classificazione_oggetto:
             return obj.classificazione_oggetto.codice
         else:
-            return None
+            return 'ND'
 
 
     def prepare_fonte(self, obj):
