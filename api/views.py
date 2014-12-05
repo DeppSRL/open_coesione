@@ -79,8 +79,8 @@ class ProgettoList(generics.ListAPIView):
     * ``/api/progetti?territorio=palermo-comune``
     * ``/api/progetti?natura=incentivi-alle-imprese&tema=istruzione&territorio=roma-comune``
     * ``/api/progetti?soggetto=miur``
-    * ``/api/progetti?classificazione_cup=11.71.003`` - all projects having this exact cup classification code
-    * ``/api/progetti?classificazione_cup=11.71`` - all projects starting with this cup classification code
+    * ``/api/progetti?classificazione-cup=11.71.003`` - all projects having this exact cup classification code
+    * ``/api/progetti?classificazione-cup=11.71`` - all projects starting with this cup classification code
 
 
     The results are paginated by default to 25 items per page.
