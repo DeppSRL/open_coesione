@@ -96,6 +96,7 @@ class ProgettoAdmin(admin.ModelAdmin):
         form.instance.save() # form.instance is the parent
 
 class TemaAdmin(admin.ModelAdmin):
+    list_display = ('codice', 'descrizione', 'priorita')
     list_filter = ('tipo_tema',)
 
 class ClassificazioneAdmin(admin.ModelAdmin):

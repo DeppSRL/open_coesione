@@ -102,6 +102,9 @@ class FAQ(models.Model):
         else:
             raise AttributeError('%r object has no attribute %r' % (self.__class__.__name__, item))
 
+    def __unicode__(self):
+        return u'{0}'.format(self.domanda_it)
+
     class Meta:
         verbose_name = 'Domanda frequente'
         verbose_name_plural = 'Domande frequenti'

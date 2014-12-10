@@ -218,6 +218,7 @@ class Tema(models.Model):
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_tema = models.CharField(max_length=16, choices=TIPO)
     slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True, null=True)
+    priorita = models.PositiveSmallIntegerField(default=0)
 
     objects = TemiManager()
 
@@ -276,7 +277,7 @@ class Tema(models.Model):
 
     class Meta:
         verbose_name_plural = 'Temi'
-        ordering = ['short_label', 'codice']
+        ordering = ['priorita', 'codice']
 
 
 class Intesa(models.Model):

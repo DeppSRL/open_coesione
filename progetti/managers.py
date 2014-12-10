@@ -182,7 +182,7 @@ class FullProgettiManager(ProgettiManager):
 
 class TemiManager(models.Manager):
     def principali(self):
-        return self.get_query_set().filter(tipo_tema=self.model.TIPO.sintetico)
+        return self.get_query_set().filter(tipo_tema=self.model.TIPO.sintetico).order_by('priorita')
 
     def costo_totale(self):
         return self.get_query_set().annotate(totale=models.Sum('progetto_set__fin_totale_pubblico'))
