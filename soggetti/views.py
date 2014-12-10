@@ -4,10 +4,11 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.cache import cache
 from django.db.models import Count, Sum
 from django.core.urlresolvers import reverse
+from django.views.generic.detail import DetailView
 from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
-from open_coesione.views import AggregatoView, AccessControlView, NotIndexableDetailView
+from open_coesione.views import AggregatoView, AccessControlView, XRobotsTagTemplateResponseMixin
 from progetti.models import Progetto, Tema, Ruolo
 from soggetti.models import Soggetto
 from territori.models import Territorio
@@ -128,13 +129,12 @@ class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         return extra
 
 
-class SoggettoView(AggregatoView, NotIndexableDetailView):
+class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoView, DetailView):
     model = Soggetto
     context_object_name = 'soggetto'
 
-    @property
-    def is_indexable(self):
-        return not self.object.privacy_flag
+    def get_x_robots_tag(self):
+        return 'noindex' if self.object.privacy_flag else False
 
     def get_context_data(self, **kwargs):
 
