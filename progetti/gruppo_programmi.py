@@ -43,7 +43,8 @@ class Config:
                     Q(descrizione__contains='CALABRIA') |
                     Q(descrizione__contains='SICILIA') |
                     Q(descrizione__contains='PUGLIA') |
-                    Q(descrizione__contains='BASILICATA')
+                    Q(descrizione__contains='BASILICATA') |
+                    Q(descrizione__contains='ABRUZZO')
                 )
             )
             cache.set('programmi_pac_fse', programmi_pac_fse)
