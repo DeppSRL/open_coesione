@@ -19,7 +19,7 @@ from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin,
 from oc_search.views import ExtendedFacetedSearchView
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from open_coesione import utils
-from open_coesione.views import AggregatoView, AccessControlView, NotIndexableDetailView, cached_context
+from open_coesione.views import AggregatoView, AccessControlView, XRobotsTagTemplateResponseMixin, cached_context
 from progetti.forms import DescrizioneProgettoForm
 from progetti.gruppo_programmi import GruppoProgrammi, split_by_type
 from progetti.models import Tema, Fonte, SegnalazioneProgetto
@@ -27,14 +27,13 @@ from soggetti.models import Soggetto
 from territori.models import Territorio
 
 
-class ProgettoView(AccessControlView, NotIndexableDetailView):
+class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailView):
     model = Progetto
     context_object_name = 'progetto'
     queryset = Progetto.fullobjects.get_query_set()
 
-    @property
-    def is_indexable(self):
-        return not self.object.privacy_flag
+    def get_x_robots_tag(self):
+        return 'noindex' if self.object.privacy_flag else False
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context

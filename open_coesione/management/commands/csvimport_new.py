@@ -807,7 +807,8 @@ class Command(BaseCommand):
 
         # creazione ruoli
 
-        df1 = df[['COD_LOCALE_PROGETTO', 'DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG', 'SOGG_COD_RUOLO', 'SOGG_PROGR_RUOLO']].drop_duplicates()
+        # df1 = df[['COD_LOCALE_PROGETTO', 'DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG', 'SOGG_COD_RUOLO', 'SOGG_PROGR_RUOLO']].drop_duplicates()
+        df1 = df.groupby(['COD_LOCALE_PROGETTO', 'DPS_DENOMINAZIONE_SOGG', 'DPS_CODICE_FISCALE_SOGG', 'SOGG_COD_RUOLO'], as_index=False).first()
 
         df_count = len(df1)
 

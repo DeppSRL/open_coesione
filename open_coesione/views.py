@@ -1,12 +1,13 @@
 # coding=utf-8
+# from functools import wraps
 import glob
-import logging
 from datetime import datetime
 import os
+# from django.utils.decorators import available_attrs
 
-from django.views.generic.base import TemplateView, RedirectView
+from django.views.generic.base import TemplateView, RedirectView, TemplateResponseMixin
 from django.db.models import Count, Sum
-from django.contrib.sites.models import Site
+# from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse
 from django.utils.datastructures import SortedDict
@@ -25,6 +26,16 @@ from territori.models import Territorio
 
 from tagging.views import TagFilterMixin
 from open_coesione.mixins import DateFilterMixin
+
+
+# def x_robots_tag(func):
+#     @wraps(func, assigned=available_attrs(func))
+#     def inner(self, *args, **kwargs):
+#         response = func(self, *args, **kwargs)
+#         response['X-Robots-Tag'] = self.xrobots_tag
+#         return response
+#
+#     return inner
 
 
 def cached_context(get_context_data):
@@ -59,52 +70,53 @@ class AccessControlView(object):
     pass
 
 
-class CGView(TemplateView):
-    """
-    cache generator view
-    generates the curl invocations to pre-navigate the time-consuming urls
-    can be filtered by maps or pages
-    """
+# class CGView(TemplateView):
+#     """
+#     cache generator view
+#     generates the curl invocations to pre-navigate the time-consuming urls
+#     can be filtered by maps or pages
+#     """
+#
+#     template_name = 'cache_generator.txt'
+#     filter = None
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(CGView, self).get_context_data(**kwargs)
+#         context['tematizzazioni'] = '{,?tematizzazione=totale_costi,?tematizzazione=totale_pagamenti,?tematizzazione=totale_progetti}'
+#         context['regioni'] = Territorio.objects.filter(territorio='R')
+#         context['province'] = Territorio.objects.filter(territorio='P')
+#         context['temi'] = Tema.objects.principali()
+#         context['nature'] = ClassificazioneAzione.objects.nature()
+#         context['soggetti'] = Soggetto.objects.annotate(c=Count('progetto')).filter(c__gte=1000).order_by('c')
+#         context['base_url'] = "http://{0}".format(Site.objects.get_current())
+#         context['curl_cmd'] = "curl -L -o/dev/null -w '%{url_effective} - %{http_code} (%{time_total}sec.)\\n'"
+#         context['log_file'] = "cache_generation.log"
+#
+#         context['maps'] = True
+#         context['pages'] = True
+#         if self.filter == 'maps':
+#             context['pages'] = False
+#         if self.filter == 'pages':
+#             context['maps'] = False
+#
+#         return context
 
-    template_name = 'cache_generator.txt'
-    filter = None
 
-    def get_context_data(self, **kwargs):
-        context = super(CGView, self).get_context_data(**kwargs)
-        context['tematizzazioni'] = '{,?tematizzazione=totale_costi,?tematizzazione=totale_pagamenti,?tematizzazione=totale_progetti}'
-        context['regioni'] = Territorio.objects.filter(territorio='R')
-        context['province'] = Territorio.objects.filter(territorio='P')
-        context['temi'] = Tema.objects.principali()
-        context['nature'] = ClassificazioneAzione.objects.nature()
-        context['soggetti'] = Soggetto.objects.annotate(c=Count('progetto')).filter(c__gte=1000).order_by('c')
-        context['base_url'] = "http://{0}".format(Site.objects.get_current())
-        context['curl_cmd'] = "curl -L -o/dev/null -w '%{url_effective} - %{http_code} (%{time_total}sec.)\\n'"
-        context['log_file'] = "cache_generation.log"
+class XRobotsTagTemplateResponseMixin(TemplateResponseMixin):
+    x_robots_tag = False
 
-        context['maps'] = True
-        context['pages'] = True
-        if self.filter == 'maps':
-            context['pages'] = False
-        if self.filter == 'pages':
-            context['maps'] = False
+    def get_x_robots_tag(self):
+        return self.x_robots_tag
 
-        return context
-
-
-class NotIndexableDetailView(DetailView):
-    is_indexable = False
-
-    def get(self, request, *args, **kwargs):
-        response = super(NotIndexableDetailView, self).get(request, *args, **kwargs)
-        if not self.is_indexable:
-            response['X-Robots-Tag'] = 'noindex'
+    def render_to_response(self, context, **response_kwargs):
+        response = super(XRobotsTagTemplateResponseMixin, self).render_to_response(context, **response_kwargs)
+        if self.get_x_robots_tag():
+            response['X-Robots-Tag'] = self.get_x_robots_tag()
         return response
 
 
 class AggregatoView(object):
-
     def get_aggregate_data(self, context, **filter):
-
         if len(filter) > 1:
             raise Exception('Only one filter kwargs is accepted')
 
@@ -212,13 +224,12 @@ class HomeView(AccessControlView, AggregatoView, TemplateView):
     template_name = 'homepage.html'
 
     def get_context_data(self, **kwargs):
-
-        ##
-        # low-level caching, to allow adding latest_pillole
-        # out of the cached context (fast-refresh)
-        ##
+        """
+        low-level caching, to allow adding latest_pillole out of the cached context (fast-refresh)
+        """
         key = 'context' + self.request.get_full_path()
         context = cache.get(key)
+
         if context is None:
             context = super(HomeView, self).get_context_data(**kwargs)
             context = self.get_aggregate_data(context)
@@ -237,6 +248,7 @@ class HomeView(AccessControlView, AggregatoView, TemplateView):
             cache.set(key, serializable_context)
 
         context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
+
         return context
 
 
@@ -244,6 +256,7 @@ class RisorseView(AccessControlView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(RisorseView, self).get_context_data(**kwargs)
         context['risorsa'] = True
+
         return context
 
 
@@ -251,10 +264,9 @@ class FondiView(RisorseView):
     template_name = 'flat/fonti_finanziamento.html'
 
     def get_context_data(self, **kwargs):
+        import csv
 
         context = super(FondiView, self).get_context_data(**kwargs)
-
-        import csv
 
         context['competitivita_fesr_fse'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fesr_fse.csv')))
 
@@ -293,7 +305,6 @@ class SpesaCertificataView(RisorseView):
 class ContactView(TemplateView):
 
     def get_context_data(self, **kwargs):
-
         return {
             'contact_form': ContactForm() if self.request.method == 'GET' else ContactForm(self.request.POST),
             'contact_form_submitted': self.request.GET.get('completed', '') == 'true'
@@ -495,6 +506,7 @@ class OpendataView(TemplateView):
     def get_complete_file(self, file_name):
         file_path = os.path.join(settings.MEDIA_ROOT, "open_data", file_name)
         file_size = os.stat(file_path).st_size if os.path.isfile(file_path) else None
+
         return {
             'file_name': file_name,
             'file_size': file_size
@@ -511,6 +523,7 @@ class OpendataView(TemplateView):
                 'file_name': file_name,
                 'file_size': file_size
             })
+
         return files
 
     def get_regional_files(self, section_code, prefix, regions, data_date):
@@ -524,6 +537,7 @@ class OpendataView(TemplateView):
                 'file_name': file_name,
                 'file_size': file_size
             })
+
         return files
 
 
