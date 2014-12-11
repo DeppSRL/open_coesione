@@ -27,6 +27,7 @@ urlpatterns = patterns('api.views',
     url(r'^territori$', TerritorioList.as_view(), name='api-territorio-list'),
     url(r'^programmi$', ProgrammiList.as_view(), name='api-programma-list'),
     url(r'^classificazioni$', ClassificazioneList.as_view(), name='api-classificazione-list'),
+    url(r'^classificazioni-cup$', ClassificazioneCupList.as_view(), name='api-classificazione-cup-list'),
 
 )
 

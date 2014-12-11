@@ -8,8 +8,10 @@ from progetti.models import Progetto, Ruolo
 
 class ProgettoIndex(SearchIndex):
     slug = CharField(model_attr='slug', indexed=False)
+    privacy_flag = CharField(model_attr='privacy_flag', stored=False)
     clp = CharField(model_attr='codice_locale')
     cup = CharField(model_attr='cup', null=True)
+    classificazione_cup = CharField(null=True)
     titolo = CharField(model_attr='titolo_progetto')
     descrizione = CharField(model_attr='descrizione', null=True)
     tema_descr = CharField(model_attr='tema__tema_superiore__descrizione', null=True)
@@ -70,22 +72,39 @@ class ProgettoIndex(SearchIndex):
     rendered = L10NCharField(use_template=True, indexed=False)
 
     def prepare_natura(self, obj):
-        codice = obj.classificazione_azione.codice.split('.')[0]
-        if codice != ' ':
-            return codice
+        if obj.classificazione_azione:
+            codice = obj.classificazione_azione.codice.split('.')[0]
+            if codice != ' ':
+                return codice
+            else:
+                return 'ND'
         else:
             return 'ND'
+
     def prepare_natura_slug(self, obj):
-        return obj.classificazione_azione.classificazione_superiore.slug
+        if obj.classificazione_azione:
+            return obj.classificazione_azione.classificazione_superiore.slug
+        else:
+            return 'nd'
 
     def prepare_tema_slug(self, obj):
         return obj.tema.tema_superiore.slug
 
     def prepare_tema(self, obj):
-        return obj.tema.codice.split('.')[0]
+        if obj.tema:
+            return obj.tema.codice.split('.')[0]
+        else:
+            return 'ND'
 
     def prepare_tipo_progetto(self, obj):
         return obj.tipo_progetto
+
+    def prepare_classificazione_cup(self, obj):
+        if obj.classificazione_oggetto:
+            return obj.classificazione_oggetto.codice
+        else:
+            return 'ND'
+
 
     def prepare_fonte(self, obj):
         return [f.codice for f in obj.fonti]

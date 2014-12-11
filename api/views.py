@@ -9,7 +9,7 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from open_coesione.utils import setup_view
 from open_coesione.views import HomeView
-from progetti.models import Progetto, Tema, ProgrammaAsseObiettivo, Ruolo, ClassificazioneQSN
+from progetti.models import Progetto, Tema, ProgrammaAsseObiettivo, Ruolo, ClassificazioneQSN, ClassificazioneOggetto
 from progetti.urls import sqs as progetti_sqs
 from progetti.views import TemaView, TipologiaView
 from soggetti.urls import sqs as soggetti_sqs
@@ -17,7 +17,8 @@ from api.serializers import *
 from soggetti.views import SoggettoView
 from territori.models import Territorio
 from django.utils.datastructures import SortedDict
-from territori.views import AmbitoNazionaleView, AmbitoEsteroView, RegioneView, ProvinciaView, ComuneView, MapnikProvinceView, MapnikRegioniView, MapnikComuniView
+from territori.views import AmbitoNazionaleView, AmbitoEsteroView, \
+    RegioneView, ProvinciaView, ComuneView, MapnikProvinceView, MapnikRegioniView, MapnikComuniView
 
 
 @api_view(('GET',))
@@ -78,6 +79,9 @@ class ProgettoList(generics.ListAPIView):
     * ``/api/progetti?territorio=palermo-comune``
     * ``/api/progetti?natura=incentivi-alle-imprese&tema=istruzione&territorio=roma-comune``
     * ``/api/progetti?soggetto=miur``
+    * ``/api/progetti?classificazione-cup=11.71.003`` - all projects having this exact cup classification code
+    * ``/api/progetti?classificazione-cup=11.71`` - all projects starting with this cup classification code
+
 
     The results are paginated by default to 25 items per page.
     The number of items per page can be changed through the ``page_size`` GET parameter.
@@ -142,6 +146,11 @@ class ProgettoList(generics.ListAPIView):
         soggetto = self.request.QUERY_PARAMS.get('soggetto', None)
         if soggetto:
             ret_sqs = ret_sqs.filter(soggetto=soggetto)
+
+
+        classificazione_cup = self.request.QUERY_PARAMS.get('classificazione-cup', None)
+        if classificazione_cup:
+            ret_sqs = ret_sqs.filter(classificazione_cup__startswith=classificazione_cup)
 
         sort_field = self.request.QUERY_PARAMS.get('order_by')
         sortable_fields = (
@@ -364,6 +373,53 @@ class ClassificazioneList(generics.ListAPIView):
     #        ret_qs = ret_qs.filter(descrizione__icontains=descrizione)
     #
     #    return ret_qs
+
+class ClassificazioneCupList(generics.ListAPIView):
+    """
+    List of all classificazioni CUP (Settore, Sottosettore, Tipologia).
+
+    Can be filtered by ``descrizione``, ``tipo`` or ``codice`` GET parameters,
+    to extract all classificazionimatching the required filter
+
+    Examples
+    ========
+
+    To get all classificazioni having a textual description that contains the string 'lavoro':
+
+        GET api/classificazioni-cup?descrizione=lavoro
+
+    To get all settori:
+
+        GET api/classificazioni-cup?tipo=settore
+
+    possible values are 'settore', 'sottosettore', 'categoria'
+
+    To get all classificazioni that start with a given code:
+
+        GET api/classificazioni-cup?codice=10.30
+
+    """
+    serializer_class = ClassificazioneOggettoModelSerializer
+    model = ClassificazioneOggetto
+
+    def get_queryset(self):
+       ret_qs = ClassificazioneOggetto.objects.filter()
+
+       descrizione = self.request.GET.get('descrizione', None)
+       if descrizione:
+           ret_qs = ret_qs.filter(descrizione__icontains=descrizione)
+
+       tipo = self.request.GET.get('tipo', None)
+       if tipo:
+           ret_qs = ret_qs.filter(tipo_classificazione__iexact=tipo)
+
+       codice = self.request.GET.get('codice', None)
+       if codice:
+           ret_qs = ret_qs.filter(codice__istartswith=codice)
+
+
+       return ret_qs
+
 
 @api_view(('GET',))
 def api_aggregati_temi_list(request, format=None):
