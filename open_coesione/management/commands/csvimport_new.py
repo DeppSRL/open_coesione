@@ -633,6 +633,8 @@ class Command(BaseCommand):
 
                 if all(k in row and row[k].strip() for k in ['CUP_COD_NATURA', 'CUP_COD_TIPOLOGIA']):
                     values['classificazione_azione_id'] = '{0}.{1}'.format(row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA'])
+                else:
+                    values['classificazione_azione_id'] = ' '
 
                 if all(k in row and row[k].strip() for k in ['CUP_COD_SETTORE', 'CUP_COD_SOTTOSETTORE', 'CUP_COD_CATEGORIA']):
                     values['classificazione_oggetto_id'] = '{0}.{1}.{2}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA'])
