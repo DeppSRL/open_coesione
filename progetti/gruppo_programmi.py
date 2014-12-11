@@ -43,7 +43,8 @@ class Config:
                     Q(descrizione__contains='CALABRIA') |
                     Q(descrizione__contains='SICILIA') |
                     Q(descrizione__contains='PUGLIA') |
-                    Q(descrizione__contains='BASILICATA')
+                    Q(descrizione__contains='BASILICATA') |
+                    Q(descrizione__contains='ABRUZZO')
                 )
             )
             cache.set('programmi_pac_fse', programmi_pac_fse)
@@ -83,7 +84,8 @@ class Config:
             (u'PROGRAMMA STRATEGICO FSC COMPENSAZIONI AMBIENTALI REGIONE CAMPANIA', u'2007IT005FAMAC'),
         ])
         lista_programmi_fsc_pna = SortedDict([
-            (u'PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) RISANAMENTO AMBIENTALE', u'2007IT004FAMA1')
+            (u'PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) RISANAMENTO AMBIENTALE', u'2007IT004FAMA1'),
+            (u"PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) FSC NUOVA IMPRENDITORIALITA' AGRICOLA", u'2007IT006FISMA'),
         ])
 
         lista_programmi = {
