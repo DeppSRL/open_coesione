@@ -483,7 +483,7 @@ class OpendataView(TemplateView):
         context['istat_metadata_file'] = self.get_complete_file("Metainformazione.xls")
 
         context['indagine_data_file'] = self.get_complete_file("indagine_data.zip".format(istat_date))
-        context['indagine_metadata_file'] = self.get_complete_file("indagine_metadata.xlsx")
+        context['indagine_metadata_file'] = self.get_complete_file("indagine_metadata.xls")
 
         context['cpt_pa_in_file'] = self.get_complete_file("PA_ENTRATE_1996-2012.zip".format(istat_date))
         context['cpt_pa_out_file'] = self.get_complete_file("PA_SPESE_1996-2012.zip".format(istat_date))
