@@ -18,10 +18,15 @@ from territori.models import Territorio
 
 def convert_progetto_cup_cod_natura(val):
     if val.strip():
-        val = int(val)
-        if val == 2:
-            val = 1
-        val = '{0:02d}'.format(val)
+        try:
+            val = int(val)
+            if val == 2:
+                val = 1
+            val = '{0:02d}'.format(val)
+        except ValueError:
+            pass
+    else:
+        val = ' '
     return val
 
 def convert_progetto_cup_cod_tipologia(val):
@@ -30,6 +35,8 @@ def convert_progetto_cup_cod_tipologia(val):
             val = '{0:02d}'.format(int(val))
         except ValueError:
             pass
+    else:
+        val = ' '
     return val
 
 def convert_progetto_cup_cod_settore(val):
@@ -83,7 +90,7 @@ def convert_progettocipe_dps_tema_sintetico(val):
         u'OCCUPAZIONE E MOBILITÀ DEI LAVORATORI': u'Occupazione e mobilità dei lavoratori',
         u'INCLUSIONE SOCIALE': u'Inclusione sociale',
         u'ISTRUZIONE': u'Istruzione',
-        u'COMPETITIVITÀ PER LE IMPRESE': u'Competitività delle imprese',
+        u'COMPETITIVITÀ PER LE IMPRESE': u'Competitività per le imprese',
         u'RICERCA E INNOVAZIONE': u'Ricerca e innovazione',
         u'ATTRAZIONE CULTURALE, NATURALE E TURISTICA': u'Attrazione culturale, naturale e turistica',
         u'SERVIZI DI CURA INFANZIA E ANZIANI': u'Servizi di cura infanzia e anziani',
@@ -413,7 +420,8 @@ class Command(BaseCommand):
 
         # only complete and non-empty classifications are created
         if all(k in df.columns.values for k in keywords):
-            df_filtered = df[(df['CUP_COD_NATURA'].str.strip() != '') & (df['CUP_COD_TIPOLOGIA'].str.strip() != '')]
+            # df_filtered = df[(df['CUP_COD_NATURA'].str.strip() != '') & (df['CUP_COD_TIPOLOGIA'].str.strip() != '')]
+            df_filtered = df
 
             df1 = df_filtered[['CUP_COD_NATURA', 'CUP_DESCR_NATURA']].drop_duplicates()
             for index, row in df1.iterrows():
@@ -631,10 +639,7 @@ class Command(BaseCommand):
 
                 values['classificazione_qsn_id'] = row['QSN_CODICE_OBIETTIVO_SPECIFICO']
 
-                if all(k in row and row[k].strip() for k in ['CUP_COD_NATURA', 'CUP_COD_TIPOLOGIA']):
-                    values['classificazione_azione_id'] = '{0}.{1}'.format(row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA'])
-                else:
-                    values['classificazione_azione_id'] = ' '
+                values['classificazione_azione_id'] = '{0}.{1}'.format(row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA'])
 
                 if all(k in row and row[k].strip() for k in ['CUP_COD_SETTORE', 'CUP_COD_SOTTOSETTORE', 'CUP_COD_CATEGORIA']):
                     values['classificazione_oggetto_id'] = '{0}.{1}.{2}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA'])
@@ -1119,6 +1124,12 @@ class Command(BaseCommand):
         df[u'CUP_DESCR_NATURA'] = u'REALIZZAZIONE DI LAVORI PUBBLICI (OPERE ED IMPIANTISTICA)'
         df[u'CUP_COD_TIPOLOGIA'] = convert_progetto_cup_cod_tipologia('0')
         df[u'CUP_DESCR_TIPOLOGIA'] = ''
+
+        row_selection = df['COD_DIPE'].isin(['IPS_00099', 'IPS_00100', 'IPS_00109', 'UPS_00014', 'UPS_00024', 'UPS_00026', 'UPS_00027', 'UPS_00028', 'UPS_00047', 'UPS_00069'])
+        df.loc[row_selection, 'CUP_COD_NATURA'] = convert_progetto_cup_cod_natura('1')
+        df.loc[row_selection, 'CUP_DESCR_NATURA'] = u'ACQUISTO DI BENI E SERVIZI'
+        df.loc[row_selection, 'CUP_COD_TIPOLOGIA'] = convert_progetto_cup_cod_tipologia('99')
+        df.loc[row_selection, 'CUP_DESCR_TIPOLOGIA'] = u'ALTRO'
 
         df[u'CUP_COD_CATEGORIA'] = convert_progetto_cup_cod_categoria('0')
         df[u'CUP_DESCR_CATEGORIA'] = ''
