@@ -494,7 +494,7 @@ class OpendataView(TemplateView):
                 }
             ),
         ])
-        all_metadata_file = self.get_complete_file('metadati_attuazione.xls')
+        all_metadata_file = self.get_complete_file('metadati_oc.xls')
 
         context['spesa_dotazione_file'] = self.get_complete_file('Dotazioni_Certificazioni_{0}.xls'.format(spesa_date))
         context['spesa_target_file'] = self.get_complete_file('Target_Risultati_{0}.xls'.format(spesa_date))
