@@ -238,15 +238,16 @@ class HomeView(AccessControlView, AggregatoView, TemplateView):
                 fin_totale_pubblico__isnull=False,
             ).order_by('-fin_totale_pubblico')[:3]
 
-            context['ultimi_progetti_conclusi'] = Progetto.objects.filter(
-                data_fine_effettiva__lte=datetime.now(),
-                privacy_flag=False,
-            ).order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
-
             context['numero_soggetti'] = Soggetto.objects.count()
+
             serializable_context = context.copy()
             serializable_context.pop('view', None)
             cache.set(key, serializable_context)
+
+        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(
+            data_fine_effettiva__lte=datetime.now(),
+            privacy_flag=False,
+        ).order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
 
         context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
 
