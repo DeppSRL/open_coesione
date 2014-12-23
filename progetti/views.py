@@ -60,7 +60,7 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailVie
         context['total_cost_paid'] = float(self.object.pagamento) if self.object.pagamento else 0.0
 
         # calcolo della percentuale del finanziamento erogato
-        context['cost_payments_ratio'] = "{0:.0%}".format(context['total_cost_paid'] / context['total_net_cost'] if context['total_net_cost'] > 0.0 else 0.0)
+        context['cost_payments_ratio'] = '{0:.0%}'.format(context['total_cost_paid'] / context['total_net_cost'] if context['total_net_cost'] > 0.0 else 0.0)
 
         context['segnalazioni_pubblicate'] = self.object.segnalazioni
 
@@ -71,255 +71,9 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailVie
         return context
 
 
-class ProgrammaBaseView(AccessControlView, AggregatoView, TemplateView):
-    @cached_context
-    def get_context_data(self, **kwargs):
-        programmi = kwargs.get('programmi', [])
-        del kwargs['programmi']
-
-        # Call the base implementation first to get a context
-        context = super(ProgrammaBaseView, self).get_context_data(**kwargs)
-
-        logger = logging.getLogger('console')
-        logger.debug("get_aggregate_data start")
-        context = self.get_aggregate_data(context, programmi=programmi)
-
-        context['numero_soggetti'] = Soggetto.objects.count()
-
-        logger.debug("top_progetti_per_costo start")
-        context['top_progetti_per_costo'] = Progetto.objects.con_programmi(programmi).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-
-        logger.debug("ultimi_progetti_conclusi start")
-        context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_programmi(programmi)[:5]
-
-        logger.debug("territori_piu_finanziati_pro_capite start")
-
-        #discriminate between ProgrammaAsseObiettivo and ProgrammaLineaAzione
-        programmi_splitted = split_by_type(programmi)
-
-        from django.db.models import Q
-
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
-            (
-                Q(progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__in=programmi_splitted['programmi_asse_obiettivo']) |
-                Q(progetto__programma_linea_azione__classificazione_superiore__classificazione_superiore__in=programmi_splitted['programmi_linea_azione']),
-            )
-        )
-
-        return context
-
-
-class ProgrammiView(ProgrammaBaseView):
-    template_name = 'progetti/programmi_detail.html'
-
-    def get_object(self):
-        return GruppoProgrammi(codice=self.kwargs.get('slug'))
-
-    def get_context_data(self, **kwargs):
-        try:
-            gruppo_programmi = self.get_object()
-        except:
-            raise Http404
-
-        kwargs.update({
-            'programmi': gruppo_programmi.programmi()
-        })
-
-        # Call the base implementation first to get a context
-        context = super(ProgrammiView, self).get_context_data(**kwargs)
-
-        context['map_selector'] = 'gruppo-programmi/{0}/'.format(self.kwargs['slug'])
-
-        context['gruppo_programmi'] = gruppo_programmi
-
-        return context
-
-
-class ProgrammaView(ProgrammaBaseView):
-    template_name = 'progetti/programma_detail.html'
-
-    def get_object(self):
-        try:
-            return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
-        except ObjectDoesNotExist:
-            try:
-                return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
-            except ObjectDoesNotExist:
-                return None
-
-    def get_context_data(self, **kwargs):
-
-        programma = self.get_object()
-        if programma is None:
-            raise Http404
-
-        kwargs.update({
-            'programmi': [programma]
-        })
-
-        # Call the base implementation first to get a context
-        context = super(ProgrammaView, self).get_context_data(**kwargs)
-
-        context['map_selector'] = 'programmi/{0}/'.format(self.kwargs['codice'])
-
-        context['programma'] = programma
-
-        return context
-
-
-class TipologiaView(AccessControlView, AggregatoView, DetailView):
-    context_object_name = 'tipologia'
-
-    @cached_context
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(TipologiaView, self).get_context_data(**kwargs)
-
-        logger = logging.getLogger('console')
-        logger.debug("get_aggregate_data start")
-        context = self.get_aggregate_data(context, classificazione=self.object)
-
-        context['numero_soggetti'] = Soggetto.objects.count()
-        context['map_selector'] = 'nature/{0}/'.format(self.kwargs['slug'])
-
-        logger.debug("top_progetti_per_costo start")
-        context['top_progetti_per_costo'] = Progetto.objects.con_natura(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-
-        logger.debug("ultimi_progetti_conclusi start")
-        context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_natura(self.object)[:5]
-
-        logger.debug("territori_piu_finanziati_pro_capite start")
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
-            filters={
-                'progetto__classificazione_azione__classificazione_superiore': self.object
-            }
-        )
-
-        return context
-
-    def get_object(self, queryset=None):
-        return ClassificazioneAzione.objects.get(slug=self.kwargs.get('slug'))
-
-
-class TemaView(AccessControlView, AggregatoView, DetailView):
-    context_object_name = 'tema'
-
-    @cached_context
-    def get_cached_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(TemaView, self).get_context_data(**kwargs)
-
-        logger = logging.getLogger('console')
-        logger.debug("get_aggregate_data start")
-        context = self.get_aggregate_data(context, tema=self.object)
-
-        context['numero_soggetti'] = Soggetto.objects.count()
-        context['map_selector'] = 'temi/{0}/'.format(self.kwargs['slug'])
-
-        logger.debug("top_progetti_per_costo start")
-        context['top_progetti_per_costo'] = Progetto.objects.con_tema(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-
-        logger.debug("ultimi_progetti_conclusi start")
-        context['ultimi_progetti_conclusi'] = Progetto.objects.conclusi().con_tema(self.object)[:5]
-
-        logger.debug("territori_piu_finanziati_pro_capite start")
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
-            filters={
-                'progetto__tema__tema_superiore': self.object
-            }
-        )
-
-        return context
-
-    def get_context_data(self, **kwargs):
-        logger = logging.getLogger('console')
-
-        context = self.get_cached_context_data(**kwargs)
-
-        # use OpendataView instance to access istat_date and the get_complete_file method,
-        # and avoid code duplication
-        #odv = OpendataView()
-        #istat_date = odv.istat_date
-        #context['istat_data_file'] = odv.get_complete_file("Indicatori_regionali_{0}.zip".format(istat_date))
-        #context['istat_metadata_file'] = odv.get_complete_file("Metainformazione.xls")
-
-        logger.debug("build lista_indici_tema from csv file start")
-        context['lista_indici_tema'] = []
-        with open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))) as csvfile:
-            reader = csv.DictReader(csvfile)
-            for line in reader:
-                context['lista_indici_tema'].append(line)
-
-        return context
-
-    def get_object(self, queryset=None, **kwargs):
-        return Tema.objects.get(slug=self.kwargs.get('slug'))
-
-
-class CSVView(AggregatoView, DetailView):
-
-    filter_field = ''
-
-    def get_first_row(self):
-        return ['Comune', 'Provincia', 'Finanziamento pro capite']
-
-    def get_csv_filename(self):
-        return '{0}_pro_capite'.format(self.kwargs.get('slug', 'all'))
-
-    def write_csv(self, response):
-        writer = utils.UnicodeWriter(response, dialect=utils.excel_semicolon)
-        writer.writerow(self.get_first_row())
-        comuni = list(Territorio.objects.comuni().defer('geom'))
-        provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().values('cod_prov', 'denominazione')])
-        comuni_con_pro_capite = self.top_comuni_pro_capite(filters={self.filter_field: self.object}, qnt=None)
-
-        for city in comuni_con_pro_capite:
-            writer.writerow([
-                unicode(city.denominazione),
-                unicode(provincie[city.cod_prov]),
-                '{0:.2f}'.format(city.totale / city.popolazione_totale if city.popolazione_totale else .0).replace('.', ',')
-            ])
-            comuni.remove(city)
-
-        for city in comuni:
-            writer.writerow([
-                unicode(city.denominazione),
-                unicode(provincie[city.cod_prov]),
-                '{0:.2f}'.format(.0).replace('.', ',')
-            ])
-
-    def get(self, request, *args, **kwargs):
-
-        self.object = self.get_object()
-
-        # Create the HttpResponse object with the appropriate CSV header.
-        response = HttpResponse(mimetype='text/csv')
-        response['Content-Disposition'] = 'attachment; filename={0}.csv'.format(self.get_csv_filename())
-
-        self.write_csv(response)
-
-        return response
-
-    def get_object(self, queryset=None):
-        return self.model.objects.get(slug=self.kwargs.get('slug'))
-
-
-class TipologiaCSVView(CSVView):
-    model = ClassificazioneAzione
-    filter_field = 'progetto__classificazione_azione__classificazione_superiore'
-
-
-class TemaCSVView(CSVView):
-    model = Tema
-    filter_field = 'progetto__tema__tema_superiore'
-
-
-class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
-                         FacetRangePercPayMixin, FacetRangeCostoMixin,
-                         FacetRangeDateIntervalsMixin, TerritorioMixin):
+class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangePercPayMixin, FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin):
     """
     This view allows faceted search and navigation of a progetto.
-
     It extends an extended version of the basic FacetedSearchView,
     """
     __name__ = 'ProgettoSearchView'
@@ -332,10 +86,10 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
     }
 
     COST_RANGES = {
-        '0-0TO1K':      {'qrange': '[* TO 1000]', 'r_label': 'da 0 a 1.000&euro;'},
-        '1-1KTO10K':    {'qrange': '[1000.01 TO 10000]', 'r_label': 'da 1.000 a 10.000&euro;'},
-        '2-10KTO100K':  {'qrange': '[10000.01 TO 100000]', 'r_label': 'da 10.000 a 100.000&euro;'},
-        '3-100KTOINF':  {'qrange': '[100000.01 TO *]', 'r_label': 'oltre 100.000&euro;'},
+        '0-0TO1K':     {'qrange': '[* TO 1000]', 'r_label': 'da 0 a 1.000&euro;'},
+        '1-1KTO10K':   {'qrange': '[1000.01 TO 10000]', 'r_label': 'da 1.000 a 10.000&euro;'},
+        '2-10KTO100K': {'qrange': '[10000.01 TO 100000]', 'r_label': 'da 10.000 a 100.000&euro;'},
+        '3-100KTOINF': {'qrange': '[100000.01 TO *]', 'r_label': 'oltre 100.000&euro;'},
     }
 
     DATE_INTERVALS_RANGES = {
@@ -347,7 +101,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
         '2008':  {'qrange': '[2008-01-01T00:00:00Z TO 2008-12-31T23:59:59Z]', 'r_label': '2008'},
         '2007':  {'qrange': '[2007-01-01T00:00:00Z TO 2007-12-31T23:59:59Z]', 'r_label': '2007'},
         'early': {'qrange': '[1970-01-02T00:00:00Z TO 2006-12-31T23:59:59Z]', 'r_label': 'prima del 2007'},
-        'nd':  {'qrange': '[* TO 1970-01-01T00:00:00Z]', 'r_label': 'non disponibile'}
+        'nd':    {'qrange': '[* TO 1970-01-01T00:00:00Z]', 'r_label': 'non disponibile'}
     }
 
     def __init__(self, *args, **kwargs):
@@ -360,7 +114,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
     def build_form(self, form_kwargs=None):
         # the is_active:1 facet is selected by default
         # and is substituted by is_active:0 when explicitly requested
-        # by clicking on the "See archive" link in the progetti page
+        # by clicking on the 'See archive' link in the progetti page
         if 'is_active:0' in self.request.GET.getlist('selected_facets'):
             form_kwargs = {'selected_facets': ['is_active:0']}
         else:
@@ -518,6 +272,265 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView,
         return extra
 
 
+class ProgrammaBaseView(AccessControlView, AggregatoView, TemplateView):
+    @cached_context
+    def get_cached_context_data(self, **kwargs):
+        logger = logging.getLogger('console')
+
+        # Call the base implementation first to get a context
+        context = super(ProgrammaBaseView, self).get_context_data(**kwargs)
+
+        programmi = kwargs.get('programmi', [])
+
+        logger.debug('get_aggregate_data start')
+        context = self.get_aggregate_data(context, programmi=programmi)
+
+        context['numero_soggetti'] = Soggetto.objects.count()
+
+        logger.debug('top_progetti_per_costo start')
+        context['top_progetti_per_costo'] = Progetto.objects.con_programmi(programmi).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+
+        logger.debug('territori_piu_finanziati_pro_capite start')
+
+        #discriminate between ProgrammaAsseObiettivo and ProgrammaLineaAzione
+        programmi_splitted = split_by_type(programmi)
+
+        from django.db.models import Q
+
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+            (
+                Q(progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__in=programmi_splitted['programmi_asse_obiettivo']) |
+                Q(progetto__programma_linea_azione__classificazione_superiore__classificazione_superiore__in=programmi_splitted['programmi_linea_azione']),
+            )
+        )
+
+        return context
+
+
+    def get_context_data(self, **kwargs):
+        logger = logging.getLogger('console')
+
+        context = self.get_cached_context_data(**kwargs)
+
+        programmi = kwargs.get('programmi', [])
+
+        logger.debug('ultimi_progetti_conclusi start')
+        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().con_programmi(programmi)[:5]
+
+        return context
+
+
+class ProgrammiView(ProgrammaBaseView):
+    template_name = 'progetti/programmi_detail.html'
+
+    def get_object(self):
+        return GruppoProgrammi(codice=self.kwargs.get('slug'))
+
+    def get_context_data(self, **kwargs):
+        try:
+            gruppo_programmi = self.get_object()
+        except:
+            raise Http404
+
+        kwargs.update({
+            'programmi': gruppo_programmi.programmi()
+        })
+
+        # Call the base implementation first to get a context
+        context = super(ProgrammiView, self).get_context_data(**kwargs)
+
+        context['map_selector'] = 'gruppo-programmi/{0}/'.format(self.kwargs['slug'])
+
+        context['gruppo_programmi'] = gruppo_programmi
+
+        return context
+
+
+class ProgrammaView(ProgrammaBaseView):
+    template_name = 'progetti/programma_detail.html'
+
+    def get_object(self):
+        try:
+            return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
+        except ObjectDoesNotExist:
+            try:
+                return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
+            except ObjectDoesNotExist:
+                return None
+
+    def get_context_data(self, **kwargs):
+        programma = self.get_object()
+        if programma is None:
+            raise Http404
+
+        kwargs.update({
+            'programmi': [programma]
+        })
+
+        # Call the base implementation first to get a context
+        context = super(ProgrammaView, self).get_context_data(**kwargs)
+
+        context['map_selector'] = 'programmi/{0}/'.format(self.kwargs['codice'])
+
+        context['programma'] = programma
+
+        return context
+
+
+class TipologiaView(AccessControlView, AggregatoView, DetailView):
+    context_object_name = 'tipologia'
+
+    @cached_context
+    def get_cached_context_data(self, **kwargs):
+        logger = logging.getLogger('console')
+
+        # Call the base implementation first to get a context
+        context = super(TipologiaView, self).get_context_data(**kwargs)
+
+        logger.debug('get_aggregate_data start')
+        context = self.get_aggregate_data(context, classificazione=self.object)
+
+        context['numero_soggetti'] = Soggetto.objects.count()
+        context['map_selector'] = 'nature/{0}/'.format(self.kwargs['slug'])
+
+        logger.debug('top_progetti_per_costo start')
+        context['top_progetti_per_costo'] = Progetto.objects.con_natura(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+
+        logger.debug('territori_piu_finanziati_pro_capite start')
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+            filters={
+                'progetto__classificazione_azione__classificazione_superiore': self.object
+            }
+        )
+
+        return context
+
+    def get_context_data(self, **kwargs):
+        logger = logging.getLogger('console')
+
+        context = self.get_cached_context_data(**kwargs)
+
+        logger.debug('ultimi_progetti_conclusi start')
+        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().con_natura(self.object)[:5]
+
+        return context
+
+    def get_object(self, queryset=None):
+        return ClassificazioneAzione.objects.get(slug=self.kwargs.get('slug'))
+
+
+class TemaView(AccessControlView, AggregatoView, DetailView):
+    context_object_name = 'tema'
+
+    @cached_context
+    def get_cached_context_data(self, **kwargs):
+        logger = logging.getLogger('console')
+
+        # Call the base implementation first to get a context
+        context = super(TemaView, self).get_context_data(**kwargs)
+
+        logger.debug('get_aggregate_data start')
+        context = self.get_aggregate_data(context, tema=self.object)
+
+        context['numero_soggetti'] = Soggetto.objects.count()
+        context['map_selector'] = 'temi/{0}/'.format(self.kwargs['slug'])
+
+        logger.debug('top_progetti_per_costo start')
+        context['top_progetti_per_costo'] = Progetto.objects.con_tema(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+
+        logger.debug('territori_piu_finanziati_pro_capite start')
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+            filters={
+                'progetto__tema__tema_superiore': self.object
+            }
+        )
+
+        return context
+
+    def get_context_data(self, **kwargs):
+        logger = logging.getLogger('console')
+
+        context = self.get_cached_context_data(**kwargs)
+
+        # use OpendataView instance to access istat_date and the get_complete_file method,
+        # and avoid code duplication
+        #odv = OpendataView()
+        #istat_date = odv.istat_date
+        #context['istat_data_file'] = odv.get_complete_file('Indicatori_regionali_{0}.zip'.format(istat_date))
+        #context['istat_metadata_file'] = odv.get_complete_file('Metainformazione.xls')
+
+        logger.debug('ultimi_progetti_conclusi start')
+        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().con_tema(self.object)[:5]
+
+        logger.debug('build lista_indici_tema from csv file start')
+        context['lista_indici_tema'] = []
+        with open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for line in reader:
+                context['lista_indici_tema'].append(line)
+
+        return context
+
+    def get_object(self, queryset=None, **kwargs):
+        return Tema.objects.get(slug=self.kwargs.get('slug'))
+
+
+class CSVView(AggregatoView, DetailView):
+    filter_field = ''
+
+    def get_first_row(self):
+        return ['Comune', 'Provincia', 'Finanziamento pro capite']
+
+    def get_csv_filename(self):
+        return '{0}_pro_capite'.format(self.kwargs.get('slug', 'all'))
+
+    def write_csv(self, response):
+        writer = utils.UnicodeWriter(response, dialect=utils.excel_semicolon)
+        writer.writerow(self.get_first_row())
+        comuni = list(Territorio.objects.comuni().defer('geom'))
+        provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().values('cod_prov', 'denominazione')])
+        comuni_con_pro_capite = self.top_comuni_pro_capite(filters={self.filter_field: self.object}, qnt=None)
+
+        for city in comuni_con_pro_capite:
+            writer.writerow([
+                unicode(city.denominazione),
+                unicode(provincie[city.cod_prov]),
+                '{0:.2f}'.format(city.totale / city.popolazione_totale if city.popolazione_totale else .0).replace('.', ',')
+            ])
+            comuni.remove(city)
+
+        for city in comuni:
+            writer.writerow([
+                unicode(city.denominazione),
+                unicode(provincie[city.cod_prov]),
+                '{0:.2f}'.format(.0).replace('.', ',')
+            ])
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        # Create the HttpResponse object with the appropriate CSV header.
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={0}.csv'.format(self.get_csv_filename())
+
+        self.write_csv(response)
+
+        return response
+
+    def get_object(self, queryset=None):
+        return self.model.objects.get(slug=self.kwargs.get('slug'))
+
+
+class TipologiaCSVView(CSVView):
+    model = ClassificazioneAzione
+    filter_field = 'progetto__classificazione_azione__classificazione_superiore'
+
+
+class TemaCSVView(CSVView):
+    model = Tema
+    filter_field = 'progetto__tema__tema_superiore'
+
+
 class CSVSearchResultsWriterMixin(object):
     """
     Mixin used by CSV - related SearchView classes, to add results as csv rows to a CSV writer
@@ -545,8 +558,8 @@ class CSVSearchResultsWriterMixin(object):
                     writer.writerow([
                         unicode(r.clp).encode('latin1'),
                         t[0],
-                        "%06d" % int(t[1]),
-                        "%03d" % int(t[2]),
+                        '%06d' % int(t[1]),
+                        '%03d' % int(t[2]),
                         t[3]
                     ])
 
@@ -578,21 +591,21 @@ class CSVSearchResultsWriterMixin(object):
         ])
         for r in results:
             
-            separator = u":::"
+            separator = u':::'
 
-            soggetti_programmatori = ""
+            soggetti_programmatori = ''
             if r.soggetti_programmatori:
                 soggetti_programmatori = separator.join(list(r.soggetti_programmatori)).encode('latin1', 'ignore')
 
-            soggetti_attuatori = ""
+            soggetti_attuatori = ''
             if r.soggetti_attuatori:
                 soggetti_attuatori = separator.join(list(r.soggetti_attuatori)).encode('latin1', 'ignore')
 
-            ambiti = ""
+            ambiti = ''
             if r.ambiti_territoriali:
                 ambiti = separator.join(list(r.ambiti_territoriali)).encode('latin1', 'ignore')
 
-            territori = ""
+            territori = ''
             if r.territori:
                 territori = separator.join(list(r.territori)).encode('latin1', 'ignore')
 
@@ -602,26 +615,26 @@ class CSVSearchResultsWriterMixin(object):
                 unicode(r.tema_descr).encode('latin1', 'ignore'),
                 unicode(r.natura_descr).encode('latin1', 'ignore'),
                 unicode(dict(Progetto.TIPI_PROGETTO)[r.tipo_progetto]).encode('latin1', 'ignore'),
-                locale.format("%.2f", r.fin_ue) if r.fin_ue is not None else "",
-                locale.format("%.2f", r.fin_stato_fondo_rotazione) if r.fin_stato_fondo_rotazione is not None else "",
-                locale.format("%.2f", r.fin_stato_fsc) if r.fin_stato_fsc is not None else "", 
-                locale.format("%.2f", r.fin_stato_pac) if r.fin_stato_pac is not None else "",
-                locale.format("%.2f", r.fin_stato_altri_provvedimenti) if r.fin_stato_altri_provvedimenti is not None else "",
-                locale.format("%.2f", r.fin_regione) if r.fin_regione is not None else "", 
-                locale.format("%.2f", r.fin_provincia) if r.fin_provincia is not None else "", 
-                locale.format("%.2f", r.fin_comune) if r.fin_comune is not None else "",
-                locale.format("%.2f", r.fin_altro_pubblico) if r.fin_altro_pubblico is not None else "", 
-                locale.format("%.2f", r.fin_stato_estero) if r.fin_stato_estero is not None else "",
-                locale.format("%.2f", r.fin_privato) if r.fin_privato is not None else "", 
-                locale.format("%.2f", r.fin_da_reperire) if r.fin_da_reperire is not None else "",
-                locale.format("%.2f", r.fin_risorse_liberate) if r.fin_risorse_liberate is not None else "",
-                locale.format("%.2f", r.fin_totale_pubblico) if r.fin_totale_pubblico is not None else "",
-                locale.format("%.2f", r.pagamento) if r.pagamento is not None else "",
+                locale.format('%.2f', r.fin_ue) if r.fin_ue is not None else '',
+                locale.format('%.2f', r.fin_stato_fondo_rotazione) if r.fin_stato_fondo_rotazione is not None else '',
+                locale.format('%.2f', r.fin_stato_fsc) if r.fin_stato_fsc is not None else '',
+                locale.format('%.2f', r.fin_stato_pac) if r.fin_stato_pac is not None else '',
+                locale.format('%.2f', r.fin_stato_altri_provvedimenti) if r.fin_stato_altri_provvedimenti is not None else '',
+                locale.format('%.2f', r.fin_regione) if r.fin_regione is not None else '',
+                locale.format('%.2f', r.fin_provincia) if r.fin_provincia is not None else '',
+                locale.format('%.2f', r.fin_comune) if r.fin_comune is not None else '',
+                locale.format('%.2f', r.fin_altro_pubblico) if r.fin_altro_pubblico is not None else '',
+                locale.format('%.2f', r.fin_stato_estero) if r.fin_stato_estero is not None else '',
+                locale.format('%.2f', r.fin_privato) if r.fin_privato is not None else '',
+                locale.format('%.2f', r.fin_da_reperire) if r.fin_da_reperire is not None else '',
+                locale.format('%.2f', r.fin_risorse_liberate) if r.fin_risorse_liberate is not None else '',
+                locale.format('%.2f', r.fin_totale_pubblico) if r.fin_totale_pubblico is not None else '',
+                locale.format('%.2f', r.pagamento) if r.pagamento is not None else '',
                 unicode(r.fondo).encode('latin1', 'ignore'),
-                r.data_inizio_prevista.strftime("%Y%m%d") if r.data_inizio_prevista is not None else "",
-                r.data_inizio_effettiva.strftime("%Y%m%d") if r.data_inizio_effettiva is not None else "",
-                r.data_fine_prevista.strftime("%Y%m%d") if r.data_fine_prevista is not None else "",
-                r.data_fine_effettiva.strftime("%Y%m%d") if r.data_fine_effettiva is not None else "",
+                r.data_inizio_prevista.strftime('%Y%m%d') if r.data_inizio_prevista is not None else '',
+                r.data_inizio_effettiva.strftime('%Y%m%d') if r.data_inizio_effettiva is not None else '',
+                r.data_fine_prevista.strftime('%Y%m%d') if r.data_fine_prevista is not None else '',
+                r.data_fine_effettiva.strftime('%Y%m%d') if r.data_fine_effettiva is not None else '',
                 soggetti_programmatori, 
                 soggetti_attuatori,
                 ambiti, 
@@ -720,19 +733,19 @@ class ProgettoFullCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin)
         output = StringIO.StringIO()
         writer = csv.writer(output, dialect='opencoesione')
         self.write_projects_search_results(results, writer)
-        z.writestr("progetti.csv", output.getvalue())  # write csv file to zip
+        z.writestr('progetti.csv', output.getvalue())  # write csv file to zip
 
         # add localizzazioni csv to zip stream
         output = StringIO.StringIO()
         writer = csv.writer(output, dialect='opencoesione')
         self.write_projects_localisations_search_results(results, writer)
-        z.writestr("localizzazioni.csv", output.getvalue())  # write csv file to zip
+        z.writestr('localizzazioni.csv', output.getvalue())  # write csv file to zip
 
         # add metadati content to zip stream
         output = StringIO.StringIO()
         f = open(os.path.join(settings.REPO_ROOT, 'dati', 'metadati_search_results.xls'), 'rb')
         output.write(f.read())
-        z.writestr("metadati.xls", output.getvalue())
+        z.writestr('metadati.xls', output.getvalue())
 
         # send response
         return response
