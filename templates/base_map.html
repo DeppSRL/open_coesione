@@ -327,7 +327,11 @@
                                 <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
                                 <ul class='spaced'>
                                     {% for progetto in ultimi_progetti_conclusi %}
-                                        <li><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></li>
+                                        <li>
+                                            {{ progetto.data_fine_effettiva|date:'d/m/Y' }}
+                                            <br/>
+                                            <a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a>
+                                        </li>
                                     {% endfor %}
                                 </ul>
                             </section>
