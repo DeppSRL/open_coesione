@@ -13,8 +13,6 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
-
-from oc_search.forms import RangeFacetedSearchForm
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin, FacetRangePercPayMixin
 from oc_search.views import ExtendedFacetedSearchView
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
@@ -104,12 +102,12 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         'nd':    {'qrange': '[* TO 1970-01-01T00:00:00Z]', 'r_label': 'non disponibile'}
     }
 
-    def __init__(self, *args, **kwargs):
-        # Needed to switch out the default form class.
-        if kwargs.get('form_class') is None:
-            kwargs['form_class'] = RangeFacetedSearchForm
-
-        super(ProgettoSearchView, self).__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     # Needed to switch out the default form class.
+    #     if kwargs.get('form_class') is None:
+    #         kwargs['form_class'] = RangeFacetedSearchForm
+    #
+    #     super(ProgettoSearchView, self).__init__(*args, **kwargs)
 
     def build_form(self, form_kwargs=None):
         # the is_active:1 facet is selected by default
@@ -198,9 +196,9 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()
 
         # get data about custom date range facets
-        extra['facet_queries_date'] = self._get_custom_facet_queries_date()
+        extra['facet_queries_date'] = self.get_custom_facet_queries_date()
 
-        # definizione struttura dati per  visualizzazione faccette natura
+        # definizione struttura dati per visualizzazione faccette natura
         extra['natura'] = {
             'descrizione': {},
             'short_label': {}
@@ -213,7 +211,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
             extra['natura']['descrizione'][codice] = c.descrizione
             extra['natura']['short_label'][codice] = c.short_label
 
-        # definizione struttura dati per  visualizzazione faccette tema
+        # definizione struttura dati per visualizzazione faccette tema
         extra['tema'] = {
             'descrizione': {},
             'short_label': {}
@@ -305,7 +303,6 @@ class ProgrammaBaseView(AccessControlView, AggregatoView, TemplateView):
         )
 
         return context
-
 
     def get_context_data(self, **kwargs):
         logger = logging.getLogger('console')
@@ -478,7 +475,8 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
 class CSVView(AggregatoView, DetailView):
     filter_field = ''
 
-    def get_first_row(self):
+    @staticmethod
+    def get_first_row():
         return ['Comune', 'Provincia', 'Finanziamento pro capite']
 
     def get_csv_filename(self):
@@ -537,7 +535,8 @@ class CSVSearchResultsWriterMixin(object):
     Both the results and the writer objects must have been correctly defined,
     before invoking the write_search_results method.
     """
-    def write_projects_localisations_search_results(self, results, writer):
+    @staticmethod
+    def write_projects_localisations_search_results(results, writer):
         """
         Writes all results of a search query set into a CSV writer.
         """
@@ -563,7 +562,8 @@ class CSVSearchResultsWriterMixin(object):
                         t[3]
                     ])
 
-    def write_projects_search_results(self, results, writer):
+    @staticmethod
+    def write_projects_search_results(results, writer):
         """
         Writes all results of a search query set into a CSV writer.
         """
@@ -589,10 +589,10 @@ class CSVSearchResultsWriterMixin(object):
             'SOGGETTI_PROGRAMMATORI', 'SOGGETTI_ATTUATORI',
             'AMBITI_TERRITORIALI', 'TERRITORI'
         ])
-        for r in results:
-            
-            separator = u':::'
 
+        separator = u':::'
+
+        for r in results:
             soggetti_programmatori = ''
             if r.soggetti_programmatori:
                 soggetti_programmatori = separator.join(list(r.soggetti_programmatori)).encode('latin1', 'ignore')
@@ -635,9 +635,9 @@ class CSVSearchResultsWriterMixin(object):
                 r.data_inizio_effettiva.strftime('%Y%m%d') if r.data_inizio_effettiva is not None else '',
                 r.data_fine_prevista.strftime('%Y%m%d') if r.data_fine_prevista is not None else '',
                 r.data_fine_effettiva.strftime('%Y%m%d') if r.data_fine_effettiva is not None else '',
-                soggetti_programmatori, 
+                soggetti_programmatori,
                 soggetti_attuatori,
-                ambiti, 
+                ambiti,
                 territori
             ])
 

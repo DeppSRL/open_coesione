@@ -1,6 +1,7 @@
 from haystack.views import SearchView
 from forms import RangeFacetedSearchForm
 
+
 class ExtendedFacetedSearchView(SearchView):
     """
     Extends the SearchView class, allowing building filters and breadcrumbs
@@ -9,6 +10,9 @@ class ExtendedFacetedSearchView(SearchView):
     __name__ = 'ExtendedFacetedSearchView'
 
     def __init__(self, *args, **kwargs):
+        if kwargs.get('load_all') is None:
+            kwargs['load_all'] = False
+
         # Needed to switch out the default form class.
         if kwargs.get('form_class') is None:
             kwargs['form_class'] = RangeFacetedSearchForm
@@ -45,7 +49,7 @@ class ExtendedFacetedSearchView(SearchView):
             for count in counts:
                 if count > 0:
                     facet = list(count)
-                    is_facet_selected = "%s:%s" % (field, facet[0]) in selected_facets
+                    is_facet_selected = '{0}:{1}'.format(field, facet[0]) in selected_facets
                     facet.append(is_facet_selected)
                     facets['fields'][field]['counts'].append(facet)
                     if is_facet_selected:
@@ -60,18 +64,16 @@ class ExtendedFacetedSearchView(SearchView):
         with *unselect* urls
         unselecting a breadcrumb remove all following selections
         """
-
-        ## original selected facets list
         selected_facets = self.request.GET.getlist('selected_facets')
 
         extended_selected_facets = []
         for f in selected_facets:
             ## start building unselection url
-            url = "?q=%s" % self.query
+            url = '?q={0}'.format(self.query)
             for cf in selected_facets:
                 if cf != f:
-                    url += "&amp;selected_facets=%s" % cf
-            field, x, label = f.partition(":")
+                    url += '&amp;selected_facets={0}'.format(cf)
+            field, x, label = f.partition(':')
 
             r_label = label
 
@@ -80,14 +82,9 @@ class ExtendedFacetedSearchView(SearchView):
 
         return extended_selected_facets
 
-
-
-
     def extra_context(self):
         """
-
         Builds extra context, to build facets filters and breadcrumbs
-
         """
         extra = super(ExtendedFacetedSearchView, self).extra_context()
         extra['n_results'] = len(self.results)
@@ -104,4 +101,3 @@ class ExtendedFacetedSearchView(SearchView):
         extra['params'] = params
 
         return extra
-
