@@ -4,7 +4,6 @@ from haystack import site
 from oc_search.fields import L10NCharField
 from progetti.models import Progetto, Ruolo
 
-# user RealTimeSearchIndex once online
 
 class ProgettoIndex(SearchIndex):
     slug = CharField(model_attr='slug', indexed=False)
@@ -59,11 +58,11 @@ class ProgettoIndex(SearchIndex):
     fonte_fin = FacetMultiValueField(indexed=True, stored=False)
 
     # faceting fields
-    natura = FacetCharField( )
-    tema = FacetCharField( )
+    natura = FacetCharField()
+    tema = FacetCharField()
     fonte = FacetMultiValueField()
-    tipo_progetto = FacetCharField( )
-    is_active = FacetBooleanField( model_attr='active_flag' )
+    tipo_progetto = FacetCharField()
+    is_active = FacetBooleanField(model_attr='active_flag')
     data_inizio = FacetDateField()
     costo = FacetFloatField(model_attr='fin_totale_pubblico')
     perc_pagamento = FacetFloatField()
@@ -104,7 +103,6 @@ class ProgettoIndex(SearchIndex):
             return obj.classificazione_oggetto.codice
         else:
             return 'ND'
-
 
     def prepare_fonte(self, obj):
         return [f.codice for f in obj.fonti]

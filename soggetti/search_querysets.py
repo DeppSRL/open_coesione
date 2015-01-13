@@ -3,6 +3,7 @@ from api.querysets import PatchedSearchResult
 from soggetti.views import SoggettoSearchView
 __author__ = 'guglielmo'
 
+
 ## SearchQuerySet with multiple facets and highlight
 sqs = SearchQuerySet().filter(django_ct='soggetti.soggetto').\
     facet('ruolo').\

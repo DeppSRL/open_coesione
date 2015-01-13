@@ -3,10 +3,11 @@
 import glob
 from datetime import datetime
 import os
+import urllib2
 # from django.utils.decorators import available_attrs
 
 from django.views.generic.base import TemplateView, RedirectView, TemplateResponseMixin
-from django.db.models import Count, Sum
+from django.db.models import Sum
 # from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse
@@ -238,14 +239,16 @@ class HomeView(AccessControlView, AggregatoView, TemplateView):
                 fin_totale_pubblico__isnull=False,
             ).order_by('-fin_totale_pubblico')[:3]
 
-            context['ultimi_progetti_conclusi'] = Progetto.objects.filter(
-                data_fine_effettiva__lte=datetime.now(),
-            ).order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
-
             context['numero_soggetti'] = Soggetto.objects.count()
+
             serializable_context = context.copy()
             serializable_context.pop('view', None)
             cache.set(key, serializable_context)
+
+        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(
+            data_fine_effettiva__lte=datetime.now(),
+            privacy_flag=False,
+        ).order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
 
         context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
 
@@ -397,102 +400,102 @@ class OpendataView(TemplateView):
         # ])
 
         fs_sections = SortedDict([
-            ('prog', { 'name': 'progetti',
-                       'complete_file': self.get_complete_file('progetti_FS0713_{0}.zip'.format(data_date)),
-                       'regional_files': self.get_regional_files('prog', 'FS0713', regions, data_date),
-                       # 'theme_files': self.get_theme_files('prog', 'progetti', themes, data_date)
-                }
-            ),
-            ('sog', { 'name': 'soggetti',
-                      'complete_file': self.get_complete_file('soggetti_FS0713_{0}.zip'.format(data_date)),
-                      'regional_files': self.get_regional_files('sog', 'FS0713', regions, data_date),
-                      # 'theme_files': self.get_theme_files('sog', 'soggetti', themes, data_date)
-                }
-            ),
-            ('loc', { 'name': 'localizzazioni',
-                      'complete_file': self.get_complete_file('localizzazioni_FS0713_{0}.zip'.format(data_date)),
-                      'regional_files': self.get_regional_files('loc', 'FS0713', regions, data_date),
-                       # 'theme_files': self.get_theme_files('loc', 'localizzazioni', themes, data_date)
-                }
-            ),
-            ('pag', { 'name': 'pagamenti',
-                      'complete_file': self.get_complete_file('pagamenti_FS0713_{0}.zip'.format(data_date)),
-                      'regional_files': self.get_regional_files('pag', 'FS0713', regions, data_date),
-                      # 'theme_files': self.get_theme_files('pag', 'pagamenti', themes, data_date)
-                }
-            ),
+            ('prog', {
+                'name': 'progetti',
+                'complete_file': self.get_complete_file('progetti_FS0713_{0}.zip'.format(data_date)),
+                'regional_files': self.get_regional_files('prog', 'FS0713', regions, data_date),
+                # 'theme_files': self.get_theme_files('prog', 'progetti', themes, data_date)
+            }),
+            ('sog', {
+                'name': 'soggetti',
+                'complete_file': self.get_complete_file('soggetti_FS0713_{0}.zip'.format(data_date)),
+                'regional_files': self.get_regional_files('sog', 'FS0713', regions, data_date),
+                # 'theme_files': self.get_theme_files('sog', 'soggetti', themes, data_date)
+            }),
+            ('loc', {
+                'name': 'localizzazioni',
+                'complete_file': self.get_complete_file('localizzazioni_FS0713_{0}.zip'.format(data_date)),
+                'regional_files': self.get_regional_files('loc', 'FS0713', regions, data_date),
+                # 'theme_files': self.get_theme_files('loc', 'localizzazioni', themes, data_date)
+            }),
+            ('pag', {
+                'name': 'pagamenti',
+                'complete_file': self.get_complete_file('pagamenti_FS0713_{0}.zip'.format(data_date)),
+                'regional_files': self.get_regional_files('pag', 'FS0713', regions, data_date),
+                # 'theme_files': self.get_theme_files('pag', 'pagamenti', themes, data_date)
+            }),
         ])
         fs_metadata_file = self.get_complete_file('metadati_attuazione.xls')
 
         fsc_sections = SortedDict([
-            ('prog', { 'name': 'progetti',
-                       'complete_file': self.get_complete_file('progetti_FSC0713_{0}.zip'.format(data_date)),
-                }
-            ),
-            ('sog', { 'name': 'soggetti',
-                      'complete_file': self.get_complete_file('soggetti_FSC0713_{0}.zip'.format(data_date)),
-                }
-            ),
-            ('loc', { 'name': 'localizzazioni',
-                      'complete_file': self.get_complete_file('localizzazioni_FSC0713_{0}.zip'.format(data_date)),
-                }
-            ),
-            ('pag', { 'name': 'pagamenti',
-                      'complete_file': self.get_complete_file('pagamenti_FSC0713_{0}.zip'.format(data_date)),
-                }
-            ),
+            ('prog', {
+                'name': 'progetti',
+                'complete_file': self.get_complete_file('progetti_FSC0713_{0}.zip'.format(data_date)),
+            }),
+            ('sog', {
+                'name': 'soggetti',
+                'complete_file': self.get_complete_file('soggetti_FSC0713_{0}.zip'.format(data_date)),
+            }),
+            ('loc', {
+                'name': 'localizzazioni',
+                'complete_file': self.get_complete_file('localizzazioni_FSC0713_{0}.zip'.format(data_date)),
+            }),
+            ('pag', {
+                'name': 'pagamenti',
+                'complete_file': self.get_complete_file('pagamenti_FSC0713_{0}.zip'.format(data_date)),
+            }),
         ])
         fsc_metadata_file = self.get_complete_file('metadati_attuazione.xls')
 
         pac_sections = SortedDict([
-            ('prog', { 'name': 'progetti',
-                       'complete_file': self.get_complete_file('progetti_PAC_{0}.zip'.format(data_date)),
-                }
-            ),
-            ('sog', { 'name': 'soggetti',
-                      'complete_file': self.get_complete_file('soggetti_PAC_{0}.zip'.format(data_date)),
-                }
-            ),
-            ('loc', { 'name': 'localizzazioni',
-                      'complete_file': self.get_complete_file('localizzazioni_PAC_{0}.zip'.format(data_date)),
-                }
-            ),
-            ('pag', { 'name': 'pagamenti',
-                      'complete_file': self.get_complete_file('pagamenti_PAC_{0}.zip'.format(data_date)),
-                }
-            ),
+            ('prog', {
+                'name': 'progetti',
+                'complete_file': self.get_complete_file('progetti_PAC_{0}.zip'.format(data_date)),
+            }),
+            ('sog', {
+                'name': 'soggetti',
+                'complete_file': self.get_complete_file('soggetti_PAC_{0}.zip'.format(data_date)),
+            }),
+            ('loc', {
+                'name': 'localizzazioni',
+                'complete_file': self.get_complete_file('localizzazioni_PAC_{0}.zip'.format(data_date)),
+            }),
+            ('pag', {
+                'name': 'pagamenti',
+                'complete_file': self.get_complete_file('pagamenti_PAC_{0}.zip'.format(data_date)),
+            }),
         ])
         pac_metadata_file = self.get_complete_file('metadati_attuazione.xls')
 
         cipe_sections = SortedDict([
-            ('prog', { 'name': 'progetti',
-                       'complete_file': self.get_complete_file('assegnazioni_CIPE_{0}.zip'.format(cipe_date)),
-                }
-            ),
-            ('loc', { 'name': 'localizzazioni',
-                      'complete_file': self.get_complete_file('localizzazioni_CIPE_{0}.zip'.format(cipe_date)),
-                }
-            ),
+            ('prog', {
+                'name': 'progetti',
+                'complete_file': self.get_complete_file('assegnazioni_CIPE_{0}.zip'.format(cipe_date)),
+            }),
+            ('loc', {
+                'name': 'localizzazioni',
+                'complete_file': self.get_complete_file('localizzazioni_CIPE_{0}.zip'.format(cipe_date)),
+            }),
         ])
         cipe_metadata_file = self.get_complete_file('metadati_attuazione.xls')
 
         all_sections = SortedDict([
-            ('prog', { 'name': 'progetti',
-                       'complete_file': self.get_complete_file('progetti_oc_{0}.zip'.format(data_date)),
-                }
-            ),
-            ('sog', { 'name': 'soggetti',
-                      'complete_file': self.get_complete_file('soggetti_oc_{0}.zip'.format(data_date)),
-                }
-            ),
-            ('loc', { 'name': 'localizzazioni',
-                      'complete_file': self.get_complete_file('localizzazioni_oc_{0}.zip'.format(data_date)),
-                }
-            ),
-            ('pag', { 'name': 'pagamenti',
-                      'complete_file': self.get_complete_file('pagamenti_oc_{0}.zip'.format(data_date)),
-                }
-            ),
+            ('prog', {
+                'name': 'progetti',
+                'complete_file': self.get_complete_file('progetti_oc_{0}.zip'.format(data_date)),
+            }),
+            ('sog', {
+                'name': 'soggetti',
+                'complete_file': self.get_complete_file('soggetti_oc_{0}.zip'.format(data_date)),
+            }),
+            ('loc', {
+                'name': 'localizzazioni',
+                'complete_file': self.get_complete_file('localizzazioni_oc_{0}.zip'.format(data_date)),
+            }),
+            ('pag', {
+                'name': 'pagamenti',
+                'complete_file': self.get_complete_file('pagamenti_oc_{0}.zip'.format(data_date)),
+            }),
         ])
         all_metadata_file = self.get_complete_file('metadati_oc.xls')
 
@@ -502,14 +505,16 @@ class OpendataView(TemplateView):
         context['istat_data_file'] = self.get_complete_file('Indicatori_regionali_{0}.zip'.format(istat_date))
         context['istat_metadata_file'] = self.get_complete_file('Metainformazione.xls')
 
-        context['indagine_data_file'] = self.get_complete_file('indagine_data.zip'.format(istat_date))
+        context['indagine_data_file'] = self.get_complete_file('indagine_data.zip')
         context['indagine_metadata_file'] = self.get_complete_file('indagine_metadata.xls')
 
-        context['cpt_pa_in_file'] = self.get_complete_file('PA_ENTRATE_1996-2012.zip'.format(istat_date))
-        context['cpt_pa_out_file'] = self.get_complete_file('PA_SPESE_1996-2012.zip'.format(istat_date))
-        context['cpt_spa_in_file'] = self.get_complete_file('SPA_ENTRATE_1996-2012.zip'.format(istat_date))
-        context['cpt_spa_out_file'] = self.get_complete_file('SPA_SPESE_1996-2012.zip'.format(istat_date))
-        context['cpt_metadata_file'] = self.get_complete_file('CPT_Metadati_perCSV_def.xls')
+        cpt_path = 'http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/{0}/{1}'
+        cpt_subpath = 'BD_CPT/2014_CSV/CSV'
+        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'PA_ENTRATE_1996-2012.zip'))
+        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'PA_SPESE_1996-2012.zip'))
+        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_ENTRATE_1996-2012.zip'))
+        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_SPESE_1996-2012.zip'))
+        context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('METADATA', 'CPT_Metadati_perCSV_def.xls'))
 
         context['data_date'] = data_date
 
@@ -527,7 +532,21 @@ class OpendataView(TemplateView):
 
         return context
 
-    def get_complete_file(self, file_name):
+    @staticmethod
+    def get_complete_remotefile(file_name):
+        try:
+            f = urllib2.urlopen(file_name)
+            file_size = f.headers['Content-Length']
+        except urllib2.HTTPError:
+            file_size = None
+
+        return {
+            'file_name': file_name,
+            'file_size': file_size
+        }
+
+    @staticmethod
+    def get_complete_file(file_name):
         file_path = os.path.join(settings.MEDIA_ROOT, 'open_data', file_name)
         file_size = os.stat(file_path).st_size if os.path.isfile(file_path) else None
 
@@ -536,7 +555,8 @@ class OpendataView(TemplateView):
             'file_size': file_size
         }
 
-    def get_theme_files(self, section_code, section_name, themes, data_date):
+    @staticmethod
+    def get_theme_files(section_code, section_name, themes, data_date):
         files = []
         for theme_code, theme_name in themes.items():
             file_name = '{0}_{1}_{2}.zip'.format(section_code, theme_code, data_date)
@@ -550,7 +570,8 @@ class OpendataView(TemplateView):
 
         return files
 
-    def get_regional_files(self, section_code, prefix, regions, data_date):
+    @staticmethod
+    def get_regional_files(section_code, prefix, regions, data_date):
         files = []
         for reg_code, reg_name in regions.items():
             file_name = '{0}_{1}_{2}_{3}.zip'.format(section_code, prefix, reg_code, data_date)

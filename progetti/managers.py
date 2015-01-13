@@ -4,10 +4,10 @@ from django.db import models
 
 class ProgettiQuerySet(models.query.QuerySet):
 
-    def conclusi(self, date=datetime.now() ):
+    def conclusi(self, date=datetime.now()):
         return self.filter(data_fine_effettiva__lte=date).order_by('-data_fine_effettiva')
 
-    def avviati(self, date=datetime.now() ):
+    def avviati(self, date=datetime.now()):
         return self.filter(data_inizio_effettiva__lte=date).order_by('-data_inizio_effettiva')
 
     def totali(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programmi=None):
@@ -15,24 +15,24 @@ class ProgettiQuerySet(models.query.QuerySet):
         query_set = self
 
         if territorio:
-            query_set = query_set.nel_territorio( territorio )
+            query_set = query_set.nel_territorio(territorio)
         elif territori:
-            query_set = query_set.nei_territori( territori )
+            query_set = query_set.nei_territori(territori)
 
         if tipo:
-            query_set = query_set.del_tipo( tipo )
+            query_set = query_set.del_tipo(tipo)
 
         if tema:
-            query_set = query_set.con_tema( tema )
+            query_set = query_set.con_tema(tema)
 
         if classificazione:
-            query_set = query_set.con_natura( classificazione )
+            query_set = query_set.con_natura(classificazione)
 
         if programmi:
-            query_set = query_set.con_programmi( programmi )
+            query_set = query_set.con_programmi(programmi)
 
         if soggetto:
-            query_set = query_set.del_soggetto( soggetto )
+            query_set = query_set.del_soggetto(soggetto)
 
 #        if not query_set:
 #            raise Exception('Richiesta non valida')
@@ -51,7 +51,7 @@ class ProgettiQuerySet(models.query.QuerySet):
         elif territorio.territorio == territorio.TERRITORIO.E:
             return self.filter(territorio_set__pk=territorio.pk)
         else:
-            raise Exception('Territorio non valido %s' % territorio)
+            raise Exception('Territorio non valido {0}'.format(territorio))
 
     def nei_territori(self, territori):
         conditions = False # zero
@@ -111,10 +111,10 @@ class ProgettiManager(models.Manager):
     def get_query_set(self):
         return ProgettiQuerySet(self.model, using=self._db).filter(active_flag=True) # note the `using` parameter, new in 1.2
 
-    def conclusi(self, date=datetime.now() ):
+    def conclusi(self, date=datetime.now()):
         return self.get_query_set().conclusi(date)
 
-    def avviati(self, date=datetime.now() ):
+    def avviati(self, date=datetime.now()):
         return self.get_query_set().avviati(date)
 
     def nel_territorio(self, territorio):

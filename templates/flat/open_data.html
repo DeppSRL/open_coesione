@@ -30,6 +30,79 @@
     <h2><a name="progetti"></a>Open data sui progetti delle politiche di coesione</h2>
 
     <h3 class="h3-switcher">
+        <a href="#" data-target="#all0713-content" id="all0713-title">
+            Tutti i progetti di OpenCoesione <i class="icon-chevron-down"></i>
+        </a>
+    </h3>
+
+    <div id="all0713-content">
+
+        <p>
+            In questa sezione sono scaricabili in modo unitario i dati riferiti a tutti i progetti disponibili sul portale:
+            progetti in attuazione finanziati con
+            <a href="/fonti-di-finanziamento/#fondi-europei">Fondi Strutturali</a>,
+            il <a href="/fonti-di-finanziamento/#fondi-nazionali">Fondo nazionale per lo Sviluppo e la Coesione (FSC)</a>
+            e il <a href="/pac">Piano d’Azione per la Coesione (PAC)</a> e i dati sui singoli progetti
+            destinatari di Assegnazioni del
+            <a href="/fonti-di-finanziamento/#fondi-nazionali">Fondo nazionale per lo Sviluppo e la Coesione (FSC)</a>
+            a destinazione nazionale e regionale attraverso <a href="http://www.cipecomitato.it/it">Delibere CIPE</a>.
+            I progetti che confluiscono in più ambiti di programmazione sono riportati nei dataset in un solo record
+            che contiene tutte le informazioni relative ai diversi contenitori a cui il progetto fa riferimento.
+            Il numero dei progetti contenuti nei seguenti dataset coincide dunque con il numero totale dei progetti indicato
+            in <a href="/">homepage</a>.
+            I dataset sono organizzati in forma relazionale: "Progetti" è il dataset principale e può essere scaricato
+            anche da solo, mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari
+            collegate al dataset principale attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
+        </p>
+
+        <p>
+            I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
+            Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_YYYYMMDD"
+            associato a ciascuno di essi. L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni
+            sono associate a progetti finanziati.
+        </p>
+
+        <p>
+            I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che gestiscono i fondi,
+            aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_) che facilitano leggibilità
+            e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
+            <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb)
+            con i temi prioritari UE e con la classificazione CUP.
+        <p>
+
+        <table class="table" id="all0713">
+            <thead>
+            {% for section_code, section in all_sections.items %}
+            <tr>
+                <td class="label">{{ section.name|capfirst }}</td>
+                <td>
+                    <a href="/opendata/{{ section.complete_file.file_name }}"
+                            onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td class="label">Metadati </td>
+                <td>
+                    <a href="/opendata/{{ all_metadata_file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                        [<i class="icon-download-alt"></i> xls {{ all_metadata_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+            </tr>
+            </thead>
+        </table>
+
+        <p>Ultimo aggiornamento: novembre 2014 su dati al 31/08/2014</p>
+
+    </div>
+
+
+
+
+    <h3 class="h3-switcher">
         <a href="#" data-target="#fs0713-content" id="fs0713-title">
             Fondi Strutturali europei 2007/2013
             <i class="icon-chevron-down"></i>
@@ -322,82 +395,6 @@
     </div>
 
 
-    <h3 class="h3-switcher">
-        <a href="#" data-target="#all0713-content" id="all0713-title">
-            Tutti i Progetti di OpenCoesione <i class="icon-chevron-down"></i>
-        </a>
-    </h3>
-
-    <div id="all0713-content">
-
-        <p>
-            In questa sezione sono scaricabili in modo unitario i dati riferiti a tutti i progetti disponibili sul portale: 
-            progetti in attuazione finanziati con
-            <a href="/fonti-di-finanziamento/#fondi-europei">Fondi Strutturali</a>,
-            il <a href="/fonti-di-finanziamento/#fondi-nazionali">Fondo nazionale per lo Sviluppo e la Coesione (FSC)</a>
-            e il <a href="/pac">Piano d’Azione per la Coesione (PAC)</a> e i dati sui singoli progetti
-            destinatari di Assegnazioni del
-            <a href="/fonti-di-finanziamento/#fondi-nazionali">Fondo nazionale per lo Sviluppo e la Coesione (FSC)</a>
-            a destinazione nazionale e regionale attraverso <a href="http://www.cipecomitato.it/it">Delibere CIPE</a>.
-            I progetti che confluiscono in più ambiti di programmazione sono riportati nei dataset in un solo record
-            che contiene tutte le informazioni relative ai diversi contenitori a cui il progetto fa riferimento.
-            Il numero dei progetti contenuti nei seguenti dataset coincide dunque con il numero totale dei progetti indicato 
-            in <a href="/">homepage</a>. 
-            I dataset sono organizzati in forma relazionale: "Progetti" è il dataset principale e può essere scaricato
-            anche da solo, mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari
-            collegate al dataset principale attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
-        </p>
-
-        <p>
-            I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
-            Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_YYYYMMDD"
-            associato a ciascuno di essi. L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni
-            sono associate a progetti finanziati.
-        </p>
-
-        <p>
-            I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che gestiscono i fondi,
-            aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_) che facilitano leggibilità
-            e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
-            <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb)
-            con i temi prioritari UE e con la classificazione CUP.
-        <p>
-
-        <table class="table" id="all0713">
-            <thead>
-            {% for section_code, section in all_sections.items %}
-            <tr>
-                <td class="label">{{ section.name|capfirst }}</td>
-                <td>
-                    <a href="/opendata/{{ section.complete_file.file_name }}"
-                            onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
-                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <td class="label">Metadati </td>
-                <td>
-                    <a href="/opendata/{{ all_metadata_file.file_name }}"
-                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
-                        [<i class="icon-download-alt"></i> xls {{ all_metadata_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
-            </thead>
-        </table>
-
-        <p>Ultimo aggiornamento: novembre 2014 su dati al 31/08/2014</p>
-
-    </div>
-
-
-
-
-
-
-
 
     <h2><a name="contesto"></a>Open data sul contesto</h2>
 
@@ -516,13 +513,13 @@
             <tr>
                 <td class="label" style="width: 20%">Pubblica Amministrazione *</td>
                 <td>
-                    Entrate <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/BD_CPT/2014/CSV/PA_ENTRATE_1996-2012.zip"
+                    Entrate <a href="{{ cpt_pa_in_file.file_name }}"
                                onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_pa_in_file.file_size|filesizeformat }}]
                     </a>
                 </td>
                 <td>
-                    Uscite <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/BD_CPT/2014/CSV/PA_SPESE_1996-2012.zip"
+                    Uscite <a href="{{ cpt_pa_out_file.file_name }}"
                               onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_pa_out_file.file_size|filesizeformat }}]
                     </a>
@@ -531,13 +528,13 @@
             <tr>
                 <td class="label" style="width: 20%">Settore Pubblico Allargato *</td>
                 <td>
-                    Entrate <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/BD_CPT/2014/CSV/SPA_ENTRATE_1996-2012.zip"
+                    Entrate <a href="{{ cpt_spa_in_file.file_name }}"
                                onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_spa_in_file.file_size|filesizeformat }}]
                     </a>
                 </td>
                 <td>
-                    Uscite <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/BD_CPT/2014/CSV/SPA_SPESE_1996-2012.zip"
+                    Uscite <a href="{{ cpt_spa_out_file.file_name }}"
                               onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ cpt_spa_out_file.file_size|filesizeformat }}]
                     </a>
@@ -547,7 +544,7 @@
                 <td class="label">Metadati</td>
                 <td></td>
                 <td>
-                    <a href="http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/METADATA/CPT_Metadati_perCSV_def.xls"
+                    <a href="{{ cpt_metadata_file.file_name }}"
                        onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> xls {{ cpt_metadata_file.file_size|filesizeformat }}]
                     </a>
@@ -596,7 +593,7 @@
                 <td>
                     <a href="/opendata/{{ indagine_metadata_file.file_name }}"
                        onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
-                        [<i class="icon-download-alt"></i> zip/csv {{ indagine_metadata_file.file_size|filesizeformat }}]
+                        [<i class="icon-download-alt"></i> xls {{ indagine_metadata_file.file_size|filesizeformat }}]
                     </a>
                 </td>
             </tr>

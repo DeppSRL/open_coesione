@@ -2,6 +2,7 @@ from django.utils import translation
 from django.conf import settings
 from haystack.fields import SearchField
 
+
 class L10NCharField(SearchField):
     """
     Standard SearchFields fail to correctly set up the language code when
@@ -14,7 +15,5 @@ class L10NCharField(SearchField):
     """
 
     def prepare_template(self, obj):
-
         translation.activate(settings.LANGUAGE_CODE)
         return super(L10NCharField, self).prepare_template(obj)
-

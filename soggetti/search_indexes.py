@@ -1,8 +1,8 @@
 from haystack.indexes import *
 from haystack import site
-
 from progetti.models import Ruolo, Tema, Progetto
 from soggetti.models import Soggetto
+
 
 class SoggettoIndex(SearchIndex):
     slug = CharField(model_attr='slug', indexed=False)
@@ -42,7 +42,6 @@ class SoggettoIndex(SearchIndex):
 
     def prepare_tema_slug(self, obj):
         return [t['slug'] for t in Tema.objects.filter(tema_set__progetto_set__soggetto_set=obj).values('slug').distinct()]
-
 
     def prepare_costo(self, obj):
         return Progetto.objects.totale_costi(soggetto=obj)

@@ -5183,6 +5183,17 @@ section h2.title span {
 #wrapper > header a.flag.flag-dps:hover {
   background-position: 0 0;
 }
+#wrapper > header a.flag.flag-oga {
+  width: 76px;
+  height: 70px;
+  background: url('../img/header/oga.jpg') no-repeat right;
+  background-size: contain;
+  float: none;
+  margin: 0 auto;
+}
+#wrapper > header a.flag.flag-oga:hover {
+  background-position: 0 0;
+}
 #wrapper > header > div > .container {
   position: relative;
 }
