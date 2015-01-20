@@ -166,7 +166,7 @@ var read_csv = function(csvtext, skip_first, separator) {
     var results = {};
     for( var line=0; line< lines.length; line++) {
         // split line to cells
-        var items = lines[line].split(separator);
+        var items = parse_row(lines[line], separator);
         // take the first for key
         var key = items.shift().trim();
         // add this line to results
@@ -176,6 +176,27 @@ var read_csv = function(csvtext, skip_first, separator) {
     }
     return results;
 };
+
+// Parse a CSV row, accounting for commas inside quotes
+var parse_row = function(row, separator){
+  var insideQuote = false,
+      entries = [],
+      entry = [];
+  row.split('').forEach(function (character) {
+    if(character === '"') {
+      insideQuote = !insideQuote;
+    } else {
+      if(character == separator && !insideQuote) {
+        entries.push(entry.join(''));
+        entry = [];
+      } else {
+        entry.push(character);
+      }
+    }
+  });
+  entries.push(entry.join(''));
+  return entries;
+}
 
 var read_locations = function(regioni) {
     var locations = {};
