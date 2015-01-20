@@ -312,7 +312,7 @@ Type 'yes' to continue, or 'no' to cancel: """.format("\n".join(REQUIRED_PATHS))
             self.logger.info(u"[{0}] {1}\n".format(topic_id, self.db.topics.get(topic_id)).encode('utf-8'))
 
             with open(static_topic(topic_id), 'wb') as csv_file:
-                writer = csvkit.CSVKitDictWriter(csv_file, regions_fieldnames)
+                writer = csvkit.CSVKitDictWriter(csv_file, index_columns)
                 writer.writeheader()
 
                 for index_id in sorted(self.db.indexes_by_topic.get(topic_id)):
