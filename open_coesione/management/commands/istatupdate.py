@@ -30,6 +30,8 @@ from django.core.management import BaseCommand, CommandError
 # ISTAT resource as URL
 
 # paths
+from progetti.models import Tema
+
 OPEN_DATA_PATH = os.path.join(settings.MEDIA_ROOT, "open_data")
 CURRENT = os.path.join(OPEN_DATA_PATH, '.current_istat_zip') # keeps info on the lates istat archive processed
 
@@ -66,7 +68,8 @@ CSV_COLUMNS = (CSV_CODE, CSV_TITLE, CSV_SUBTITLE, "UNITA_MISURA", "ID_TEMA1",
 # elaboration helpers
 VALID_INDEXES = settings.INDICATORI_VALIDI
 VALID_REGIONS = range(1, 21) + [23]
-VALID_TOPIC_IDS_BY_NAME = settings.TEMI_DB_MAPPING
+#VALID_TOPIC_IDS_BY_NAME = settings.TEMI_DB_MAPPING
+VALID_TOPIC_IDS_BY_NAME = dict((tema.descrizione, tema.codice) for tema in Tema.objects.principali())
 
 
 class Storage(object):
