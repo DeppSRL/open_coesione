@@ -342,7 +342,7 @@ class OpendataView(TemplateView):
     # dates are attributes in the view, so that it can possibly be used in other views
     data_date = '20140831'
     cipe_date = '20121231'
-    spesa_date = '20141031'
+    spesa_date = '20141231'
 
     # get istat_date from file system
     OPEN_DATA_PATH = os.path.join(settings.MEDIA_ROOT, 'open_data')
