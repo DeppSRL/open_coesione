@@ -29,6 +29,7 @@ def convert_progetto_cup_cod_natura(val):
         val = ' '
     return val
 
+
 def convert_progetto_cup_cod_tipologia(val):
     if val.strip():
         try:
@@ -39,6 +40,7 @@ def convert_progetto_cup_cod_tipologia(val):
         val = ' '
     return val
 
+
 def convert_progetto_cup_cod_settore(val):
     if val.strip():
         try:
@@ -46,6 +48,7 @@ def convert_progetto_cup_cod_settore(val):
         except ValueError:
             pass
     return val
+
 
 def convert_progetto_cup_cod_sottosettore(val):
     if val.strip():
@@ -55,6 +58,7 @@ def convert_progetto_cup_cod_sottosettore(val):
             pass
     return val
 
+
 def convert_progetto_cup_cod_categoria(val):
     if val.strip():
         try:
@@ -62,6 +66,7 @@ def convert_progetto_cup_cod_categoria(val):
         except ValueError:
             pass
     return val
+
 
 def convert_progetto_qsn_cod_tema_prioritario_ue(val):
     if val.strip():
@@ -71,13 +76,16 @@ def convert_progetto_qsn_cod_tema_prioritario_ue(val):
             pass
     return val
 
+
 def convert_soggetto_dps_denominazione_sogg(val):
     # return re.sub('\s{2,}', u' ', val).strip()
     return val.encode('ascii', 'ignore').strip()
 
+
 def convert_progettocipe_cup(val):
     val = re.sub('[\s\n\r]+', '', val)
     return tuple(val.split(';')) if val else ()
+
 
 def convert_progettocipe_dps_tema_sintetico(val):
     """
@@ -104,6 +112,7 @@ def convert_progettocipe_dps_tema_sintetico(val):
         u'AEROPORTUALI': u'Trasporti e infrastrutture a rete',
     }
     return temi[val]
+
 
 class Command(BaseCommand):
     """
@@ -154,12 +163,12 @@ class Command(BaseCommand):
         'update-privacy-progetti': {
             'files': ['prog_privacy_{0}.csv', 'prog_inattivi_privacy_{0}.csv'],
             'import_method': '_update_privacy_progetti',
-            'converters': {},
+            'converters': None,
         },
         'update-privacy-soggetti': {
             'files': ['sog_privacy_{0}.csv', 'sog_inattivi_privacy_{0}.csv'],
             'import_method': '_update_privacy_soggetti',
-            'converters': {},
+            'converters': None,
         },
     }
 
@@ -247,16 +256,15 @@ class Command(BaseCommand):
 
         self.logger.info(u'Inizio import "{0}" ({1}).'.format(importtype, csvdate))
 
-        startTime = datetime.datetime.now()
+        start_time = datetime.datetime.now()
 
         method = getattr(self, str(self.import_types[importtype]['import_method']))
         method(df, options['append'])
 
-        duration = datetime.datetime.now() - startTime
+        duration = datetime.datetime.now() - start_time
         seconds = round(duration.total_seconds())
 
         self.logger.info(u'Fine. Tempo di esecuzione: {0:02d}:{1:02d}:{2:02d}.'.format(int(seconds // 3600), int((seconds % 3600) // 60), int(seconds % 60)))
-
 
     @transaction.commit_on_success
     def _import_progetti_programmaasseobiettivo(self, df):
@@ -309,7 +317,6 @@ class Command(BaseCommand):
 
             # transaction.commit()
 
-
     @transaction.commit_on_success
     def _import_progetti_programmalineaazione(self, df):
         keywords = [
@@ -361,7 +368,6 @@ class Command(BaseCommand):
 
             # transaction.commit()
 
-
     @transaction.commit_on_success
     def _import_progetti_classificazioneqsn(self, df):
         keywords = [
@@ -410,7 +416,6 @@ class Command(BaseCommand):
 
             # transaction.commit()
 
-
     @transaction.commit_on_success
     def _import_progetti_classificazioneazione(self, df):
         keywords = [
@@ -447,7 +452,6 @@ class Command(BaseCommand):
                 self._log(created, u'Creata classificazione azione natura_tipologia: {0}'.format(classificazione))
 
         # transaction.commit()
-
 
     @transaction.commit_on_success
     def _import_progetti_classificazioneoggetto(self, df):
@@ -497,7 +501,6 @@ class Command(BaseCommand):
 
         # transaction.commit()
 
-
     @transaction.commit_on_success
     def _import_progetti_tema(self, df):
         temisintetici_desc2cod = {}
@@ -537,7 +540,6 @@ class Command(BaseCommand):
 
         # transaction.commit()
 
-
     @transaction.commit_on_success
     def _import_progetti_fonte(self, df):
         df1 = df[['DPS_COD_FONTE', 'DPS_DESCR_FONTE']].drop_duplicates()
@@ -561,7 +563,6 @@ class Command(BaseCommand):
             self._log(created, u'Creata fonte: {0}'.format(fonte))
 
         # transaction.commit()
-
 
     @transaction.commit_manually
     def _import_progetti(self, df, append):
@@ -604,7 +605,7 @@ class Command(BaseCommand):
                     try:
                         obiettivo_sviluppo = [k for k, v in dict(Progetto.OBIETTIVO_SVILUPPO).iteritems() if v.encode('ascii', 'ignore') == field][0]
                         self.logger.debug(u'Trovato obiettivo sviluppo: {0}'.format(obiettivo_sviluppo))
-                    except IndexError as e:
+                    except IndexError:
                         self.logger.error(u'Could not find obiettivo sviluppo {0} in {1}.'.format(field, codice_locale))
                         continue
 
@@ -705,7 +706,7 @@ class Command(BaseCommand):
 
                     self.logger.info(u'{0}/{1} - Creato progetto: {2}'.format(n, df_count, codice_locale))
 
-                except IntegrityError as e:
+                except IntegrityError:
                     transaction.savepoint_rollback(sid)
 
                     values = dict((k, values[k]) for k in values if k in ['programma_asse_obiettivo_id', 'programma_linea_azione_id'])
@@ -723,7 +724,6 @@ class Command(BaseCommand):
                 self.logger.info(u'{0} -----------------> Committing.' .format(n))
                 transaction.commit()
 
-
     @transaction.commit_on_success
     def _import_soggetti_formagiuridica(self, df):
         df1 = df[['COD_FORMA_GIURIDICA_SOGG', 'DESCR_FORMA_GIURIDICA_SOGG']].drop_duplicates()
@@ -738,7 +738,6 @@ class Command(BaseCommand):
 
         # transaction.commit()
 
-
     @transaction.commit_on_success
     def _import_soggetti_codiceateco(self, df):
         df1 = df[['COD_ATECO_SOGG', 'DESCRIZIONE_ATECO_SOGG']].drop_duplicates()
@@ -752,7 +751,6 @@ class Command(BaseCommand):
             self._log(created, u'Creato codice ateco: {0} ({1})'.format(codice_ateco.descrizione, codice_ateco.codice))
 
         # transaction.commit()
-
 
     @transaction.commit_manually
     def _import_soggetti(self, df, append):
@@ -868,7 +866,6 @@ class Command(BaseCommand):
                 self.logger.info(u'{0} -----------------> Committing.'.format(n))
                 transaction.commit()
 
-
     @transaction.commit_manually
     def _import_pagamenti2(self, df, append):
         # check whether to remove records
@@ -912,7 +909,6 @@ class Command(BaseCommand):
                 transaction.commit()
 
         self.logger.info(u'Sono stati creati {0} pagamenti su {1}.'.format(created, df_count))
-
 
     def _import_pagamenti(self, df, append):
         # check whether to remove records
@@ -962,7 +958,6 @@ class Command(BaseCommand):
 
         self.logger.info(u'Sono stati creati {0} pagamenti su {1}.'.format(created, df_count))
 
-
     @transaction.commit_on_success
     def _import_localizzazioni_territori(self, df):
         keywords = ['DPS_TERRITORIO_PROG', 'COD_REGIONE', 'DEN_REGIONE']
@@ -983,7 +978,6 @@ class Command(BaseCommand):
                 self._log(created, u'Creato territorio: {0} ({1})'.format(territorio, territorio.territorio))
 
         # transaction.commit()
-
 
     def _import_localizzazioni(self, df, append):
         # check whether to remove records
@@ -1087,7 +1081,6 @@ class Command(BaseCommand):
                 Localizzazione.objects.bulk_create(insert_list)
                 insert_list = []
 
-
     @transaction.commit_on_success
     def _import_progetticipe_deliberacipe(self, df):
         df1 = df[df['NUM_DELIBERA'].str.strip() != ''][['NUM_DELIBERA', 'ANNO_DELIBERA', 'DATA_ADOZIONE', 'DATA_PUBBLICAZIONE']].drop_duplicates()
@@ -1103,7 +1096,6 @@ class Command(BaseCommand):
             self._log(created, u'Creata delibera: {0}'.format(delibera))
 
         # transaction.commit()
-
 
     @transaction.commit_manually
     def _import_progetticipe(self, df, append):
@@ -1307,7 +1299,6 @@ class Command(BaseCommand):
             self.logger.info(u'{0} -----------------> Committing.' .format(col))
             transaction.commit()
 
-
     def _update_privacy_progetti(self, df, append):
         if not append:
             self.logger.info(u'Reset del flag privacy dei progetti in corso ....')
@@ -1334,7 +1325,6 @@ class Command(BaseCommand):
                 tot_updated += updated
 
         self.logger.info(u'Totale record aggiornati: {0}.'.format(tot_updated))
-
 
     @transaction.commit_on_success
     def _update_privacy_soggetti(self, df, append):
@@ -1365,15 +1355,14 @@ class Command(BaseCommand):
 
         self.logger.info(u'Totale record aggiornati: {0}.'.format(tot_updated))
 
-
     def _log(self, created, msg):
         if created:
             self.logger.info(msg)
         else:
             self.logger.debug(msg.replace('Creat', 'Trovat'))
 
-
-    def _get_value(self, dict, key, type = 'string'):
+    @staticmethod
+    def _get_value(dict, key, type='string'):
         """
         """
         if key in dict:
