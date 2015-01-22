@@ -788,9 +788,7 @@ class Progetto(TimeStampedModel):
 
     def update(self, **kwargs):
         for k, v in kwargs.iteritems():
-            print(k)
             setattr(self, k, v)
-            print(k)
         self.save()
 
         return self
