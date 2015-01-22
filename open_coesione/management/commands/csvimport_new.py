@@ -711,6 +711,7 @@ class Command(BaseCommand):
 
                     try:
                         values = dict((k, values[k]) for k in values if k in ['programma_asse_obiettivo_id', 'programma_linea_azione_id'])
+                        print(values)
 
                         Progetto.fullobjects.get(pk=codice_locale).update(**values)
 
