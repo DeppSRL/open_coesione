@@ -712,7 +712,7 @@ class Command(BaseCommand):
                     try:
                         values = dict((k, values[k]) for k in values if k in ['programma_asse_obiettivo_id', 'programma_linea_azione_id'])
 
-                        Progetto.fullobjects.filter(pk=codice_locale).update(**values)
+                        Progetto.fullobjects.get(pk=codice_locale).update(**values)
 
                         self.logger.warning(u'{0}/{1} - Trovato e aggiornato progetto: {3}'.format(n, df_count, codice_locale))
                     except Exception as e:
