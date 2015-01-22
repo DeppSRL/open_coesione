@@ -619,6 +619,7 @@ class Command(BaseCommand):
                     self.logger.error(u'While reading fondo comunitario {0} in {1}. {2}'.format(row['QSN_FONDO_COMUNITARIO'], codice_locale, e))
                     continue
 
+            print(row)
             try:
                 values = {}
 
@@ -711,11 +712,7 @@ class Command(BaseCommand):
 
                     values = dict((k, values[k]) for k in values if k in ['programma_asse_obiettivo_id', 'programma_linea_azione_id'])
 
-                    try:
-                        Progetto.fullobjects.filter(pk=codice_locale).update(**values)
-                    except DatabaseError as e:
-                        self.logger.error(u'{0}/{1} - ERRORE progetto {2}: {3}. Skipping.'.format(n, df_count, codice_locale, e))
-                        exit(1)
+                    Progetto.fullobjects.filter(pk=codice_locale).update(**values)
 
                     self.logger.warning(u'{0}/{1} - Trovato e aggiornato progetto: {3}'.format(n, df_count, codice_locale))
 
