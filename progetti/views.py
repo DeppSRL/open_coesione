@@ -31,7 +31,7 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailVie
     queryset = Progetto.fullobjects.get_query_set()
 
     def get_x_robots_tag(self):
-        return 'noindex' if self.object.privacy_flag else False
+        return 'noindex' if (self.object.privacy_flag or (not self.object.active_flag)) else False
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
