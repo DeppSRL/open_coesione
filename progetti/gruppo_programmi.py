@@ -72,9 +72,6 @@ class Config:
             cache.set('programmi_pac_fsc', programmi_pac_fsc)
 
         # some fsc lists must be built by hand
-        lista_programmi_fsc_par = SortedDict(
-            sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PAR' == p.descrizione[:3]]))
-        )
         lista_programmi_fsc_pa = SortedDict([
             (u'PROGRAMMA ATTUATIVO SPECIALE FSC DIRETTRICI FERROVIARIE', u'2007IT001FA005'),
             (u'PROGRAMMA ATTUATIVO SPECIALE FSC GIUSTIZIA CIVILE CELERE PER LA CRESCITA', u'2007IT005FAMG1'),
@@ -90,10 +87,11 @@ class Config:
         lista_programmi = {
             'fse': [p for p in programmi.order_by('descrizione') if ' FSE ' in p.descrizione.upper()],
             'fesr': [p for p in programmi.order_by('descrizione') if ' FESR ' in p.descrizione.upper()],
-            'fsc_par': lista_programmi_fsc_par,
+            'fsc_par': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PAR' == p.descrizione[:3]]))),
             'fsc_pa': lista_programmi_fsc_pa,
             'fsc_pra': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if '(PRA)' in p.descrizione]))),
             'fsc_pna': lista_programmi_fsc_pna,
+            'fsc_pstg': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PIANO STRAORDINARIO TUTELA E GESTIONE RISORSA IDRICA REGIONE' in p.descrizione]))),
             'pac_pac': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PAC ' in p.descrizione]))),
             'pac_fse': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fse]))),
             'pac_fesr': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fesr]))),
@@ -121,7 +119,8 @@ class GruppoProgrammi:
             elif self._codice == 'fsc' or self._codice == 'pac':
                 if self._codice == 'fsc':
                     ids = lista_programmi['fsc_par'].values() + lista_programmi['fsc_pa'].values() + \
-                          lista_programmi['fsc_pra'].values() + lista_programmi['fsc_pna'].values()
+                          lista_programmi['fsc_pra'].values() + lista_programmi['fsc_pna'].values() + \
+                          lista_programmi['fsc_pstg'].values()
                 else:
                     ids = lista_programmi['pac_pac'].values()
 
