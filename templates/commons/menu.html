@@ -137,6 +137,10 @@
                         {% for pdesc,pcode in lista_programmi.fsc_pna.items %}
                             <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
                         {% endfor %}
+                        <li class="divider"></li>
+                        {% for pdesc,pcode in lista_programmi.fsc_pstg.items %}
+                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                        {% endfor %}
                       </ul>
                     </li>
                   </ul>
