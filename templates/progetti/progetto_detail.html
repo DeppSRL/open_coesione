@@ -211,19 +211,46 @@
   <div class="container {% if not progetto.active_flag %}non_active{% endif %}" id="progetto-container">
     {% if not progetto.active_flag %}
         <div class="alert alert-block text-center" style="margin-bottom: 0;">
-            {% if overlapping_projects and progetto.cipe_flag%}
+            {% if overlapping_projects and progetto.cipe_flag %}
               <h3>
-                Questa assegnazione CIPE viene conteggiata nel piano finanziario
-                dei progetti in attuazione:
+                Questa assegnazione CIPE viene conteggiata nel piano finanziario dei progetti in attuazione:
               </h3>
               <ul class="spaced" id="overlapping-projects">
               {% for overlapping_project in overlapping_projects %}
                 <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
               {% endfor %}
               </ul>
+              {% if overlapping_projects.count > 5 %}
+                  {% addtoblock "js_script" %}
+                    <script type="text/javascript">
+                        $(document).ready(function() {
+                            var elem = $('#overlapping-projects');
+                            var maxHeight = 100;
+
+                            if (elem.height() > maxHeight) {
+                                elem.attr('data-height', elem.height()).css({'height': maxHeight, 'overflow': 'hidden'});
+
+                                $('<button type="button" style="margin-top: 20px">Vedi tutti i progetti</button>').insertAfter(elem).on('click', function() {
+                                    var self = $(this);
+                                    var curH = elem.height();
+
+                                    if (elem.is(':animated')) {
+                                        return false;
+                                    }
+                                    else if (curH == elem.attr('data-height')) {
+                                        elem.animate({'height': maxHeight}, 1000, function() {self.text('Vedi tutti i progetti')});
+                                    }
+                                    else if (curH == maxHeight) {
+                                        elem.animate({'height': elem.attr('data-height')}, 1000, function() {self.text('Chiudi')});
+                                    }
+                                });
+                            }
+                        });
+                    </script>
+                  {% endaddtoblock %}
+              {% endif %}
             {% else %}
-              <h3>Questo progetto <strong>non è più attivo</strong>
-                  e viene pertanto escluso da conteggi e ricerche.</h3>
+              <h3>Questo progetto <strong>non è più attivo</strong> e viene pertanto escluso da conteggi e ricerche.</h3>
               {% comment %}
               <p>Cerca tra le <a href="{% url 'faq-it' %}">domande frequenti</a>, cosa significa.</p>
               {% endcomment %}

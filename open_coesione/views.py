@@ -380,7 +380,9 @@ class OpendataView(TemplateView):
             ('BAS', 'Basilicata'),
             ('SIC', 'Sicilia'),
             ('SAR', 'Sardegna'),
-            ('MULTI', 'Multi-regionali'),
+            ('NAZ', 'Italia'),
+            ('EST', 'Estero'),
+            # ('MULTI', 'Multi-regionali'),
         ])
 
         # themes = SortedDict([
@@ -479,25 +481,29 @@ class OpendataView(TemplateView):
         ])
         cipe_metadata_file = self.get_complete_file('metadati_attuazione.xls')
 
-        all_sections = SortedDict([
+        oc_sections = SortedDict([
             ('prog', {
                 'name': 'progetti',
-                'complete_file': self.get_complete_file('progetti_oc_{0}.zip'.format(data_date)),
+                'complete_file': self.get_complete_file('progetti_OC_{0}.zip'.format(data_date)),
+                'regional_files': self.get_regional_files('prog', 'OC', regions, data_date),
             }),
             ('sog', {
                 'name': 'soggetti',
-                'complete_file': self.get_complete_file('soggetti_oc_{0}.zip'.format(data_date)),
+                'complete_file': self.get_complete_file('soggetti_OC_{0}.zip'.format(data_date)),
+                'regional_files': self.get_regional_files('sog', 'OC', regions, data_date),
             }),
             ('loc', {
                 'name': 'localizzazioni',
-                'complete_file': self.get_complete_file('localizzazioni_oc_{0}.zip'.format(data_date)),
+                'complete_file': self.get_complete_file('localizzazioni_OC_{0}.zip'.format(data_date)),
+                'regional_files': self.get_regional_files('loc', 'OC', regions, data_date),
             }),
             ('pag', {
                 'name': 'pagamenti',
-                'complete_file': self.get_complete_file('pagamenti_oc_{0}.zip'.format(data_date)),
+                'complete_file': self.get_complete_file('pagamenti_OC_{0}.zip'.format(data_date)),
+                'regional_files': self.get_regional_files('pag', 'OC', regions, data_date),
             }),
         ])
-        all_metadata_file = self.get_complete_file('metadati_oc.xls')
+        oc_metadata_file = self.get_complete_file('metadati_OC.xls')
 
         context['spesa_dotazione_file'] = self.get_complete_file('Dotazioni_Certificazioni_{0}.xls'.format(spesa_date))
         context['spesa_target_file'] = self.get_complete_file('Target_Risultati_{0}.xls'.format(spesa_date))
@@ -522,13 +528,13 @@ class OpendataView(TemplateView):
         context['fsc_sections'] = fsc_sections
         context['pac_sections'] = pac_sections
         context['cipe_sections'] = cipe_sections
-        context['all_sections'] = all_sections
+        context['oc_sections'] = oc_sections
 
         context['fs_metadata_file'] = fs_metadata_file
         context['fsc_metadata_file'] = fsc_metadata_file
         context['pac_metadata_file'] = pac_metadata_file
         context['cipe_metadata_file'] = cipe_metadata_file
-        context['all_metadata_file'] = all_metadata_file
+        context['oc_metadata_file'] = oc_metadata_file
 
         return context
 
