@@ -228,20 +228,21 @@
                             var maxHeight = 100;
 
                             if (elem.height() > maxHeight) {
-                                elem.attr('data-height', elem.height()).css({'height': maxHeight, 'overflow': 'hidden'});
+                                elem.css({'height': maxHeight, 'overflow': 'hidden'});
 
                                 $('<button type="button" style="margin-top: 20px">Vedi tutti i progetti</button>').insertAfter(elem).on('click', function() {
                                     var self = $(this);
                                     var curH = elem.height();
+                                    var defH = elem.prop('scrollHeight');
 
                                     if (elem.is(':animated')) {
                                         return false;
                                     }
-                                    else if (curH == elem.attr('data-height')) {
+                                    else if (curH == defH) {
                                         elem.animate({'height': maxHeight}, 1000, function() {self.text('Vedi tutti i progetti')});
                                     }
                                     else if (curH == maxHeight) {
-                                        elem.animate({'height': elem.attr('data-height')}, 1000, function() {self.text('Chiudi')});
+                                        elem.animate({'height': defH}, 1000, function() {self.text('Chiudi')});
                                     }
                                 });
                             }
