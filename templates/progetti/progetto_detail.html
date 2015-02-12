@@ -223,7 +223,7 @@
               {% if overlapping_projects.count > 5 %}
                   {% addtoblock "js_script" %}
                     <script type="text/javascript">
-                        $(document).ready(function() {
+                        $(window).on('load', function() {
                             var elem = $('#overlapping-projects');
                             var maxHeight = 100;
 
