@@ -30,12 +30,12 @@
     <h2><a name="progetti"></a>Open data sui progetti delle politiche di coesione</h2>
 
     <h3 class="h3-switcher">
-        <a href="#" data-target="#all0713-content" id="all0713-title">
+        <a href="#" data-target="#oc0713-content" id="oc0713-title">
             Tutti i progetti di OpenCoesione <i class="icon-chevron-down"></i>
         </a>
     </h3>
 
-    <div id="all0713-content">
+    <div id="oc0713-content">
 
         <p>
             In questa sezione sono scaricabili in modo unitario i dati riferiti a tutti i progetti disponibili sul portale:
@@ -70,32 +70,52 @@
             con i temi prioritari UE e con la classificazione CUP.
         <p>
 
-        <table class="table" id="all0713">
+        {% for section_code, section in oc_sections.items %}
+        <table class="table" id="oc0713">
             <thead>
-            {% for section_code, section in all_sections.items %}
             <tr>
                 <td class="label">{{ section.name|capfirst }}</td>
                 <td>
                     <a href="/opendata/{{ section.complete_file.file_name }}"
-                            onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
                         [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                    </a>
+                </td>
+                <td class="switcher"><a href="#"  data-target="#oc-{{ section.name }}-reg">Regioni [<i class="icon-chevron-down"></i>]</a></td>
+            </tr>
+            </thead>
+
+            <tbody class="collapse" id="oc-{{ section.name }}-reg">
+            {% for file in section.regional_files %}
+            <tr>
+                <td class="label"></td>
+                <td colspan="2">
+                    <a href="/opendata/regione/{{ file.file_name }}"
+                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                        {{ file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
                     </a>
                 </td>
             </tr>
             {% endfor %}
+            </tbody>
+
+        </table>
+        {% endfor %}
+
+        <table class="table">
             <tr>
                 <td class="label">Metadati </td>
                 <td>
-                    <a href="/opendata/{{ all_metadata_file.file_name }}"
+                    <a href="/opendata/{{ oc_metadata_file.file_name }}"
                        onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
-                        [<i class="icon-download-alt"></i> xls {{ all_metadata_file.file_size|filesizeformat }}]
+                        [<i class="icon-download-alt"></i> xls {{ oc_metadata_file.file_size|filesizeformat }}]
                     </a>
                 </td>
+                <td></td>
             </tr>
-            </thead>
         </table>
 
-        <p>Ultimo aggiornamento: gennaio 2015 su dati al 31/10/2014</p>
+        <p>Ultimo aggiornamento: febbraio 2015 su dati al 31/10/2014</p>
 
     </div>
 
@@ -144,13 +164,13 @@
                         [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
                     </a>
                 </td>
-                <td class="switcher"><a href="#"  data-target="#{{ section.name }}-reg">Regioni [<i class="icon-chevron-down"></i>]</a></td>
+                <td class="switcher"><a href="#"  data-target="#fs-{{ section.name }}-reg">Regioni [<i class="icon-chevron-down"></i>]</a></td>
                 <!--<td class="switcher"><a href="#" data-target="#{{ section.name }}-prog">Programmi  [<i class="icon-chevron-down"></i>]</a></td>-->
                 <!--<td class="switcher"><a href="#" data-target="#{{ section.name }}-temi">Temi [<i class="icon-chevron-down"></i>]</a></td>-->
             </tr>
             </thead>
 
-            <tbody class="collapse" id="{{ section.name }}-reg">
+            <tbody class="collapse" id="fs-{{ section.name }}-reg">
             {% for file in section.regional_files %}
             <tr>
                 <td class="label"></td>
@@ -208,8 +228,7 @@
             </tr>
         </table>
 
-
-        <p>Ultimo aggiornamento: gennaio 2015 su dati al 31/10/2014</p>
+        <p>Ultimo aggiornamento: febbraio 2015 su dati al 31/10/2014</p>
 
     </div>
 
@@ -272,7 +291,7 @@
             </tr>
         </table>
 
-        <p>Ultimo aggiornamento: gennaio 2015 su dati al 31/10/2014</p>
+        <p>Ultimo aggiornamento: febbraio 2015 su dati al 31/10/2014</p>
 
     </div>
 
@@ -338,7 +357,7 @@
             </tr>
         </table>
 
-        <p>Ultimo aggiornamento: gennaio 2015 su dati al 31/10/2014</p>
+        <p>Ultimo aggiornamento: febbraio 2015 su dati al 31/10/2014</p>
 
     </div>
 
