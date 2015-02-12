@@ -215,7 +215,7 @@
               <h3>
                 Questa assegnazione CIPE viene conteggiata nel piano finanziario dei progetti in attuazione:
               </h3>
-              <ul class="spaced" id="overlapping-projects" style="overflow: hidden">
+              <ul class="spaced" id="overlapping-projects">
               {% for overlapping_project in overlapping_projects %}
                 <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
               {% endfor %}
@@ -228,7 +228,7 @@
                             var maxHeight = 100;
 
                             if (elem.height() > maxHeight) {
-                                elem.attr('data-height', elem.height()).height(maxHeight);
+                                elem.attr('data-height', elem.height()).css({'height': maxHeight, 'overflow': 'hidden'});
 
                                 $('<button type="button" style="margin-top: 20px">Vedi tutti i progetti</button>').insertAfter(elem).on('click', function() {
                                     var self = $(this);
