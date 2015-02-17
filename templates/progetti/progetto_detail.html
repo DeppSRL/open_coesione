@@ -592,7 +592,7 @@
 
                 <dt>Programma</dt>
                 <dd>
-                  <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}" target="_blank">
+                  <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.get_absolute_url }}">
                     {{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}
                   </a>
                 </dd>
@@ -617,7 +617,9 @@
                 {% if progetto.programma_linea_azione %}
                     <dt>Programma</dt>
                     <dd>
-                      {{ progetto.programma_linea_azione.classificazione_superiore.classificazione_superiore.descrizione }}
+                      <a href="{{ progetto.programma_linea_azione.classificazione_superiore.classificazione_superiore.get_absolute_url }}">
+                        {{ progetto.programma_linea_azione.classificazione_superiore.classificazione_superiore.descrizione }}
+                      </a>
                     </dd>
 
                     <dt>Linea</dt>
@@ -638,7 +640,7 @@
 
                 <dt>Programma</dt>
                 <dd>
-                  <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}" target="_blank">
+                  <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.get_absolute_url }}">
                     {{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}
                   </a>
                 </dd>
