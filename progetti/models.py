@@ -95,6 +95,12 @@ class ProgrammaBase(models.Model):
     def is_root(self):
         return self.tipo_classificazione == self.TIPO.programma
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('progetti_programma', (), {
+            'codice': self.codice
+        })
+
     def __getattr__(self, item):
         if item in ['descrizione_estesa', 'links', 'documenti']:
             return getattr(self.extra_info, item)
