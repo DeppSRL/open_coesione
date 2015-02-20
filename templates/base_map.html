@@ -181,10 +181,20 @@
                                 {% if programma.documenti.count or programma.collegamenti.count %}
                                     <ul id="extra-resources" style="list-style-type: none">
                                         {% for documento in programma.documenti.all %}
-                                            <li class="icon-download-alt" style="padding: 6px 0; border-bottom: 1px solid #DDDDDD"> <a href="{{ documento.file.url }}">{{ documento }}</a></li>
+                                            <li class="icon-download-alt" style="padding: 6px 0; border-bottom: 1px solid #DDDDDD">
+                                                <a href="{{ documento.file.url }}">{{ documento }}</a>
+                                                {% if documento.large_description %}
+                                                    <p>{{ documento.large_description }}</p>
+                                                {% endif %}
+                                            </li>
                                         {% endfor %}
                                         {% for collegamento in programma.collegamenti.all %}
-                                            <li class="icon-external-link" style="padding: 6px 0; border-bottom: 1px solid #DDDDDD"> <a href="{{ collegamento.url }}" target="_blank">{{ collegamento }}</a></li>
+                                            <li class="icon-external-link" style="padding: 6px 0; border-bottom: 1px solid #DDDDDD">
+                                                <a href="{{ collegamento.url }}" target="_blank">{{ collegamento }}</a>
+                                                {% if collegamento.large_description %}
+                                                    <p>{{ collegamento.large_description }}</p>
+                                                {% endif %}
+                                            </li>
                                         {% endfor %}
                                     </ul>
                                     {% addtoblock 'js_script' %}

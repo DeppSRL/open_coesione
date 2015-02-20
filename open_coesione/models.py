@@ -76,7 +76,8 @@ class ResourceBase(models.Model):
     object_id = models.CharField(max_length=255)
     content_object = generic.GenericForeignKey()
 
-    description = models.CharField(max_length=512, verbose_name='Descrizione')
+    description = models.CharField(max_length=255, verbose_name='Descrizione')
+    large_description = models.CharField(max_length=512, verbose_name='Descrizione estesa', blank=True, null=True)
     priority = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
 
     def __unicode__(self):
