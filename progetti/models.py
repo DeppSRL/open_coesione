@@ -5,14 +5,13 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.functional import cached_property
 from django.contrib.contenttypes import generic
-from django.contrib.contenttypes.models import ContentType
 from django_extensions.db.fields import AutoSlugField
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaManager, FullProgettiManager
 from django.core.cache import cache
 from soggetti.models import Soggetto
-from open_coesione.models import URL
+from open_coesione.models import File, Link
 
 
 class ClassificazioneQSN(models.Model):
@@ -37,29 +36,12 @@ class ClassificazioneQSN(models.Model):
         return self.progetto_set
 
     def __unicode__(self):
-        return self.codice
+        return u'{0}'.format(self.codice)
 
     class Meta:
         verbose_name = 'Classificazione QSN'
         verbose_name_plural = 'Classificazioni QSN'
         db_table = 'progetti_classificazione_qsn'
-
-
-class Documento(models.Model):
-    TIPO = Choices(
-        ('documento_programma', u'Documento di programma'),
-        ('rapporto_annuale', u'Rapporto annuale di pubblicazione'),
-    )
-
-    tipo = models.CharField(max_length=32, choices=TIPO)
-    file = models.FileField(upload_to='documenti')
-    data = models.DateField(blank=True, null=True)
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.CharField(max_length=255)
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
-
-    class Meta:
-        verbose_name_plural = 'Documenti'
 
 
 class ProgrammaBase(models.Model):
@@ -74,11 +56,12 @@ class ProgrammaBase(models.Model):
                                                   null=True, blank=True)
     codice = models.CharField(max_length=32, primary_key=True)
     descrizione = models.TextField()
+    descrizione_estesa = models.TextField(null=True, blank=True)
     tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
     dotazione_totale = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
-    url_riferimento = models.URLField(max_length=255, blank=True, null=True)
-    links = generic.GenericRelation(URL)
-    documenti = generic.GenericRelation(Documento)
+    # url_riferimento = models.URLField(max_length=255, blank=True, null=True)
+    documenti = generic.GenericRelation(File)
+    collegamenti = generic.GenericRelation(Link)
 
     @property
     def programma(self):
@@ -101,11 +84,11 @@ class ProgrammaBase(models.Model):
             'codice': self.codice
         })
 
-    def __getattr__(self, item):
-        if item in ['descrizione_estesa', 'links', 'documenti']:
-            return getattr(self.extra_info, item)
-        else:
-            raise AttributeError('{0!r} object has no attribute {1!r}'.format(self.__class__.__name__, item))
+    # def __getattr__(self, item):
+    #     if item in ['descrizione_estesa', 'links', 'documenti']:
+    #         return getattr(self.extra_info, item)
+    #     else:
+    #         raise AttributeError('{0!r} object has no attribute {1!r}'.format(self.__class__.__name__, item))
 
     def __unicode__(self):
         return u'{0}'.format(self.descrizione[0:100])
@@ -126,10 +109,10 @@ class ProgrammaAsseObiettivo(ProgrammaBase):
         verbose_name_plural = 'Programmi - Assi - Obiettivi operativi'
         db_table = 'progetti_programma_asse_obiettivo'
 
-    @property
-    def extra_info(self):
-        extra_info, created = ProgrammaAsseObiettivoExtraInfo.objects.get_or_create(programma=self)
-        return extra_info
+    # @property
+    # def extra_info(self):
+    #     extra_info, created = ProgrammaAsseObiettivoExtraInfo.objects.get_or_create(programma=self)
+    #     return extra_info
 
     @property
     def progetti_di_programma(self):
@@ -161,10 +144,10 @@ class ProgrammaLineaAzione(ProgrammaBase):
         verbose_name_plural = 'Programmi - Linee - Azioni'
         db_table = 'progetti_programma_linea_azione'
 
-    @property
-    def extra_info(self):
-        extra_info, created = ProgrammaLineaAzioneExtraInfo.objects.get_or_create(programma=self)
-        return extra_info
+    # @property
+    # def extra_info(self):
+    #     extra_info, created = ProgrammaLineaAzioneExtraInfo.objects.get_or_create(programma=self)
+    #     return extra_info
 
     @property
     def progetti_di_programma(self):
@@ -180,34 +163,34 @@ class ProgrammaLineaAzione(ProgrammaBase):
             raise Exception('This property is not available for Linea or Azione classifications.')
 
 
-class ProgrammaExtraInfoBase(models.Model):
-    descrizione_estesa = models.TextField(null=True, blank=True)
-    links = generic.GenericRelation(URL)
-    documenti = generic.GenericRelation(Documento)
-
-    def __unicode__(self):
-        return self.programma.codice
-
-    class Meta:
-        abstract = True
-
-
-class ProgrammaAsseObiettivoExtraInfo(ProgrammaExtraInfoBase):
-    programma = models.OneToOneField(ProgrammaAsseObiettivo, primary_key=True)
-
-    class Meta(ProgrammaExtraInfoBase.Meta):
-        verbose_name = 'Programma - Asse - Obiettivo operativo (informazioni aggiuntive)'
-        verbose_name_plural = 'Programmi - Assi - Obiettivi operativi (informazioni aggiuntive)'
-        db_table = 'progetti_programma_asse_obiettivo_extra_info'
+# class ProgrammaExtraInfoBase(models.Model):
+#     descrizione_estesa = models.TextField(null=True, blank=True)
+#     links = generic.GenericRelation(URL)
+#     documenti = generic.GenericRelation(Documento)
+#
+#     def __unicode__(self):
+#         return self.programma.codice
+#
+#     class Meta:
+#         abstract = True
 
 
-class ProgrammaLineaAzioneExtraInfo(ProgrammaExtraInfoBase):
-    programma = models.OneToOneField(ProgrammaLineaAzione, primary_key=True)
+# class ProgrammaAsseObiettivoExtraInfo(ProgrammaExtraInfoBase):
+#     programma = models.OneToOneField(ProgrammaAsseObiettivo, primary_key=True)
+#
+#     class Meta(ProgrammaExtraInfoBase.Meta):
+#         verbose_name = 'Programma - Asse - Obiettivo operativo (informazioni aggiuntive)'
+#         verbose_name_plural = 'Programmi - Assi - Obiettivi operativi (informazioni aggiuntive)'
+#         db_table = 'progetti_programma_asse_obiettivo_extra_info'
 
-    class Meta(ProgrammaExtraInfoBase.Meta):
-        verbose_name = 'Programma - Linea - Azione (informazioni aggiuntive)'
-        verbose_name_plural = 'Programmi - Linee - Azioni (informazioni aggiuntive)'
-        db_table = 'progetti_programma_linea_azione_extra_info'
+
+# class ProgrammaLineaAzioneExtraInfo(ProgrammaExtraInfoBase):
+#     programma = models.OneToOneField(ProgrammaLineaAzione, primary_key=True)
+#
+#     class Meta(ProgrammaExtraInfoBase.Meta):
+#         verbose_name = 'Programma - Linea - Azione (informazioni aggiuntive)'
+#         verbose_name_plural = 'Programmi - Linee - Azioni (informazioni aggiuntive)'
+#         db_table = 'progetti_programma_linea_azione_extra_info'
 
 
 class Tema(models.Model):
@@ -224,7 +207,7 @@ class Tema(models.Model):
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_tema = models.CharField(max_length=16, choices=TIPO)
     slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True, null=True)
-    priorita = models.PositiveSmallIntegerField(default=0)
+    priorita = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
 
     objects = TemiManager()
 
@@ -343,7 +326,7 @@ class ClassificazioneAzione(models.Model):
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_classificazione = models.CharField(max_length=16, choices=TIPO)
     slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True, null=True)
-    priorita = models.IntegerField(blank=True, null=True)
+    priorita = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
 
     @property
     def classificazioni_figlie(self):
@@ -715,7 +698,7 @@ class Progetto(TimeStampedModel):
         return max(self.data_aggiornamento, *[p.data for p in pagamenti])
 
     def __unicode__(self):
-        return self.codice_locale
+        return u'{0}'.format(self.codice_locale)
 
     @models.permalink
     def get_absolute_url(self):

@@ -225,7 +225,7 @@
               {% endfor %}
               </ul>
               {% if overlapping_projects.count > 5 %}
-                  {% addtoblock "js_script" %}
+                  {% addtoblock 'js_script' %}
                     <script type="text/javascript">
                         $(document).ready(function() {
                             var elem = $('#overlapping-projects-extra');

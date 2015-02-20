@@ -4,6 +4,7 @@ from tagging.models import *
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'priority')
+    list_editable = ('priority',)
 
 
 class TagInline(generic.GenericTabularInline):
