@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from django_extensions.db.fields import AutoSlugField
-
 from model_utils import Choices
 from progetti.models import Progetto
 from django.contrib.gis.db import models
@@ -9,7 +8,6 @@ import struct
 
 
 class TerritoriManager(models.GeoManager):
-
     def nazione(self):
         return Territorio.objects.get(territorio= Territorio.TERRITORIO.N )
 
@@ -45,6 +43,7 @@ class TerritoriManager(models.GeoManager):
         (cod_reg, cod_prov, cod_com) = struct.unpack('3s3s3s', istat_code)
         return self.get_query_set().get(cod_reg=int(cod_reg), cod_prov=int(cod_prov), cod_com=str(int(cod_prov))+cod_com)
 
+
 class Territorio(models.Model):
     TERRITORIO = Choices(
         ('C', 'Comune'),
@@ -53,6 +52,7 @@ class Territorio(models.Model):
         ('N', 'Nazionale'),
         ('E', 'Estero'),
     )
+
     cod_reg = models.IntegerField(default=0, blank=True, null=True, db_index=True)
     cod_prov = models.IntegerField(default=0, blank=True, null=True, db_index=True)
     cod_com = models.IntegerField(default=0, blank=True, null=True, db_index=True)
@@ -182,9 +182,6 @@ class Territorio(models.Model):
         else:
             return 'Estero'
 
-    def __unicode__(self):
-        return self.nome
-
     def get_progetti_search_url(self, **kwargs):
         """
         returns the correct search url in progetti faceted navigation
@@ -217,7 +214,6 @@ class Territorio(models.Model):
 
         return search_url
 
-    @models.permalink
     def get_absolute_url(self):
         url_name = 'territori_{0}'.format({
             self.TERRITORIO.R: 'regione',
@@ -226,11 +222,14 @@ class Territorio(models.Model):
             self.TERRITORIO.N: 'nazionale',
             self.TERRITORIO.E: 'estero',
             }[self.territorio])
+
         if self.territorio in (Territorio.TERRITORIO.N, Territorio.TERRITORIO.E):
-            return url_name
-        return (url_name, (), {
-            'slug': self.slug
-        })
+            return reverse(url_name)
+        else:
+            return reverse(url_name, kwargs={'slug': self.slug})
+
+    def __unicode__(self):
+        return u'{0}'.format(self.nome)
 
     class Meta:
         verbose_name = u'Località'
