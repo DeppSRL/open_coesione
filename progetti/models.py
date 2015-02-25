@@ -977,7 +977,7 @@ class PagamentoProgetto(TimeStampedModel):
 
     @property
     def percentuale(self):
-        return (self.ammontare / self.progetto.fin_totale_pubblico) * Decimal(100)
+        return (self.ammontare / self.progetto.fin_totale_pubblico) * Decimal(100) if self.progetto.fin_totale_pubblico else 0.0
 
     def __unicode__(self):
         return u'Pagamento del progetto {0} per {1} di {2}'.format(self.progetto_id, self.data, self.ammontare)
