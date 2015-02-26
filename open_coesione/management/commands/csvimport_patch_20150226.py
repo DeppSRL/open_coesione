@@ -125,7 +125,7 @@ class Command(BaseCommand):
         self.logger.info(u'Fine. Tempo di esecuzione: {0:02d}:{1:02d}:{2:02d}.'.format(int(seconds // 3600), int((seconds % 3600) // 60), int(seconds % 60)))
 
     def _import_localizzazioni(self, df, append):
-        df = df[df['DEN_COMUNE'].isin(['Tremezzina', 'Trecastelli', 'Montoro'])]
+        df = df[df['DEN_COMUNE'].isin(['Tremezzina', 'Montoro'])]
         df_count = len(df)
 
         insert_list = []
