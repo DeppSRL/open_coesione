@@ -1,10 +1,10 @@
 {% extends 'base_two_columns.html' %}
+
 {% load sekizai_tags %}
 
 {% block page_title %}Open data{% endblock %}
 
 {% block content %}
-
   <div class="flat_content" id="open-data-download">
 
     <h1>Scarica gli Open data</h1>
@@ -122,295 +122,297 @@
 
 
 
-    <h3 class="h3-switcher">
-        <a href="#" data-target="#fs0713-content" id="fs0713-title">
-            Fondi Strutturali europei 2007/2013
-            <i class="icon-chevron-down"></i>
-        </a>
-    </h3>
+    <div style="margin-left: 40px">
+        <h3 class="h3-switcher">
+            <a href="#" data-target="#fs0713-content" id="fs0713-title">
+                Fondi Strutturali europei 2007/2013
+                <i class="icon-chevron-down"></i>
+            </a>
+        </h3>
 
-    <div id="fs0713-content">
-        <p>
-            Sono scaricabili dati riferiti ai singoli progetti finanziati con
-            <a href="/fonti-di-finanziamento/#fondi-europei">Fondi Strutturali</a>, organizzati in
-            forma relazionale: "Progetti" è il dataset principale e può essere scaricato anche da solo,
-            mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari collegate al
-            dataset principale attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
-        </p>
+        <div id="fs0713-content">
+            <p>
+                Sono scaricabili dati riferiti ai singoli progetti finanziati con
+                <a href="/fonti-di-finanziamento/#fondi-europei">Fondi Strutturali</a>, organizzati in
+                forma relazionale: "Progetti" è il dataset principale e può essere scaricato anche da solo,
+                mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari collegate al
+                dataset principale attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
+            </p>
 
-        <p>
-            I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
-            Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_YYYYMMDD"
-            associato a ciascuno di essi.
-            L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
-        </p>
+            <p>
+                I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
+                Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_YYYYMMDD"
+                associato a ciascuno di essi.
+                L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
+            </p>
 
-        <p>
-            I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che gestiscono i fondi,
-            aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_) che facilitano leggibilità e
-            coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
-            <a href="/opendata/raccordo_temi_sintetici.xls"
-               onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>file di raccordo</a> (xls, 1,5 Mb) con i temi prioritari UE e con la classificazione CUP.
-        </p>
+            <p>
+                I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che gestiscono i fondi,
+                aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_) che facilitano leggibilità e
+                coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
+                <a href="/opendata/raccordo_temi_sintetici.xls"
+                   onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>file di raccordo</a> (xls, 1,5 Mb) con i temi prioritari UE e con la classificazione CUP.
+            </p>
 
-        {% for section_code, section in fs_sections.items %}
-        <table class="table" id="fs0713">
-            <thead>
-            <tr>
-                <td class="label">{{ section.name|capfirst }}</td>
-                <td>
-                    <a href="/opendata/{{ section.complete_file.file_name }}"
-                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
-                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-                <td class="switcher"><a href="#"  data-target="#fs-{{ section.name }}-reg">Regioni [<i class="icon-chevron-down"></i>]</a></td>
-                <!--<td class="switcher"><a href="#" data-target="#{{ section.name }}-prog">Programmi  [<i class="icon-chevron-down"></i>]</a></td>-->
-                <!--<td class="switcher"><a href="#" data-target="#{{ section.name }}-temi">Temi [<i class="icon-chevron-down"></i>]</a></td>-->
-            </tr>
-            </thead>
+            {% for section_code, section in fs_sections.items %}
+            <table class="table" id="fs0713">
+                <thead>
+                <tr>
+                    <td class="label">{{ section.name|capfirst }}</td>
+                    <td>
+                        <a href="/opendata/{{ section.complete_file.file_name }}"
+                           onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                            [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                    <td class="switcher"><a href="#"  data-target="#fs-{{ section.name }}-reg">Regioni [<i class="icon-chevron-down"></i>]</a></td>
+                    <!--<td class="switcher"><a href="#" data-target="#{{ section.name }}-prog">Programmi  [<i class="icon-chevron-down"></i>]</a></td>-->
+                    <!--<td class="switcher"><a href="#" data-target="#{{ section.name }}-temi">Temi [<i class="icon-chevron-down"></i>]</a></td>-->
+                </tr>
+                </thead>
 
-            <tbody class="collapse" id="fs-{{ section.name }}-reg">
-            {% for file in section.regional_files %}
-            <tr>
-                <td class="label"></td>
-                <td colspan="2">
-                    <a href="/opendata/regione/{{ file.file_name }}"
-                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
-                        {{ file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
+                <tbody class="collapse" id="fs-{{ section.name }}-reg">
+                {% for file in section.regional_files %}
+                <tr>
+                    <td class="label"></td>
+                    <td colspan="2">
+                        <a href="/opendata/regione/{{ file.file_name }}"
+                           onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                            {{ file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+
+                {%  comment %}
+                <!--
+                <tbody class="collapse" id="{{ section.name }}-temi">
+                {% for file in section.theme_files %}
+                <tr>
+                    <td class="label"></td>
+                    <td colspan="3">
+                        <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.name }}/{{ file.file_name }}">
+                            {{ file.theme_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+
+                <tbody class="collapse" id="{{ section.name }}-prog">
+                <tr>
+                    <td class="label"></td>
+                    <td colspan="4"><a href="#">ProgA [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
+                </tr>
+                <tr>
+                    <td class="label"></td>
+                    <td colspan="4"><a href="#">ProgB [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
+                </tr>
+                </tbody>
+                -->
+                {% endcomment %}
+
+            </table>
             {% endfor %}
-            </tbody>
 
-            {%  comment %}
-            <!--
-            <tbody class="collapse" id="{{ section.name }}-temi">
-            {% for file in section.theme_files %}
-            <tr>
-                <td class="label"></td>
-                <td colspan="3">
-                    <a href="{{ MEDIA_URL }}open_data/{{ data_date }}/{{ section.name }}/{{ file.file_name }}">
-                        {{ file.theme_name }} [<i class="icon-download-alt"></i> zip/csv {{ file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
+            <table class="table">
+                <tr>
+                    <td class="label">Metadati </td>
+                    <td>
+                        <a href="/opendata/{{ fs_metadata_file.file_name }}"
+                           onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                            [<i class="icon-download-alt"></i> xls {{ fs_metadata_file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
 
-            <tbody class="collapse" id="{{ section.name }}-prog">
-            <tr>
-                <td class="label"></td>
-                <td colspan="4"><a href="#">ProgA [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
-            </tr>
-            <tr>
-                <td class="label"></td>
-                <td colspan="4"><a href="#">ProgB [<i class="icon-download-alt"></i> zip/csv 69Mb]</a></td>
-            </tr>
-            </tbody>
-            -->
-            {% endcomment %}
+            <p>Ultimo aggiornamento: marzo 2015 su dati al 31/12/2014</p>
 
-        </table>
-        {% endfor %}
-
-        <table class="table">
-            <tr>
-                <td class="label">Metadati </td>
-                <td>
-                    <a href="/opendata/{{ fs_metadata_file.file_name }}"
-                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
-                        [<i class="icon-download-alt"></i> xls {{ fs_metadata_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-                <td></td>
-            </tr>
-        </table>
-
-        <p>Ultimo aggiornamento: marzo 2015 su dati al 31/12/2014</p>
-
-    </div>
+        </div>
 
 
-    <h3 class="h3-switcher">
-        <a href="#" data-target="#fsc0713-content" id="fsc0713-title">
-            Fondo per lo Sviluppo e la Coesione (FSC) 2007/2013 <i class="icon-chevron-down"></i>
-        </a>
-    </h3>
+        <h3 class="h3-switcher">
+            <a href="#" data-target="#fsc0713-content" id="fsc0713-title">
+                Fondo per lo Sviluppo e la Coesione (FSC) 2007/2013 <i class="icon-chevron-down"></i>
+            </a>
+        </h3>
 
-    <div id="fsc0713-content">
+        <div id="fsc0713-content">
 
-        <p>
-            Sono scaricabili dati riferiti ai singoli progetti finanziati con il
-            <a href="/fonti-di-finanziamento/#fondi-nazionali">Fondo nazionale per lo Sviluppo e la
-            Coesione (FSC)</a>, organizzati in forma relazionale: "Progetti" è il dataset principale e può essere scaricato
-            anche da solo, mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari
-            collegate al dataset principale attraverso un campo chiave che identifica lo stesso progetto nelle diverse
-            tabelle.
-        </p>
+            <p>
+                Sono scaricabili dati riferiti ai singoli progetti finanziati con il
+                <a href="/fonti-di-finanziamento/#fondi-nazionali">Fondo nazionale per lo Sviluppo e la
+                Coesione (FSC)</a>, organizzati in forma relazionale: "Progetti" è il dataset principale e può essere scaricato
+                anche da solo, mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari
+                collegate al dataset principale attraverso un campo chiave che identifica lo stesso progetto nelle diverse
+                tabelle.
+            </p>
 
-        <p>
-            I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
-            Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_YYYYMMDD"
-            associato a ciascuno di essi.
-            L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
-        </p>
+            <p>
+                I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
+                Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_YYYYMMDD"
+                associato a ciascuno di essi.
+                L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
+            </p>
 
-        <p>
-            I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi,
-            aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_) che facilitano leggibilità e
-            coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
-            <a href="/opendata/raccordo_temi_sintetici.xls"
-               onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>file di raccordo</a> (xls, 1,5 Mb)
-            con i temi prioritari UE e con la classificazione CUP.
-        </p>
+            <p>
+                I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi,
+                aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_) che facilitano leggibilità e
+                coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
+                <a href="/opendata/raccordo_temi_sintetici.xls"
+                   onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>file di raccordo</a> (xls, 1,5 Mb)
+                con i temi prioritari UE e con la classificazione CUP.
+            </p>
 
-        <table class="table" id="fsc0713">
-            <thead>
-            {% for section_code, section in fsc_sections.items %}
-            <tr>
-                <td class="label">{{ section.name|capfirst }}</td>
-                <td>
-                    <a href="/opendata/{{ section.complete_file.file_name }}"
-                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
-                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-            </thead>
-            <tr>
-                <td class="label">Metadati </td>
-                <td>
-                    <a href="/opendata/{{ fsc_metadata_file.file_name }}"
-                       onclick="var that=this;_gaq.push(['_trackEvent','Download','xls',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
-                        [<i class="icon-download-alt"></i> xls {{ fsc_metadata_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
-        </table>
+            <table class="table" id="fsc0713">
+                <thead>
+                {% for section_code, section in fsc_sections.items %}
+                <tr>
+                    <td class="label">{{ section.name|capfirst }}</td>
+                    <td>
+                        <a href="/opendata/{{ section.complete_file.file_name }}"
+                           onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                            [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </thead>
+                <tr>
+                    <td class="label">Metadati </td>
+                    <td>
+                        <a href="/opendata/{{ fsc_metadata_file.file_name }}"
+                           onclick="var that=this;_gaq.push(['_trackEvent','Download','xls',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                            [<i class="icon-download-alt"></i> xls {{ fsc_metadata_file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                </tr>
+            </table>
 
-        <p>Ultimo aggiornamento: marzo 2015 su dati al 31/12/2014</p>
+            <p>Ultimo aggiornamento: marzo 2015 su dati al 31/12/2014</p>
 
-    </div>
+        </div>
 
-    <h3 class="h3-switcher">
-        <a href="#" data-target="#pac-content" id="pac-title">
-            Piano d’Azione per la Coesione <i class="icon-chevron-down"></i>
-        </a>
-    </h3>
+        <h3 class="h3-switcher">
+            <a href="#" data-target="#pac-content" id="pac-title">
+                Piano d’Azione per la Coesione <i class="icon-chevron-down"></i>
+            </a>
+        </h3>
 
-    <div id="pac-content">
+        <div id="pac-content">
 
-        <p>
-            Sono scaricabili dati riferiti ai singoli progetti finanziati nell’ambito del
-            <a href="/pac">Piano d’Azione per la Coesione (PAC)</a>, organizzati in forma relazionale:
-            "Progetti" è il dataset principale e può essere scaricato anche da solo,
-            mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari collegate
-            al dataset principale attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
-        </p>
+            <p>
+                Sono scaricabili dati riferiti ai singoli progetti finanziati nell’ambito del
+                <a href="/pac">Piano d’Azione per la Coesione (PAC)</a>, organizzati in forma relazionale:
+                "Progetti" è il dataset principale e può essere scaricato anche da solo,
+                mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari collegate
+                al dataset principale attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
+            </p>
 
-        <p>
-            Alcuni progetti del PAC sono presenti anche in Programmi dei Fondi Strutturali europei 2007/2013
-            e del Fondo per lo Sviluppo e la Coesione 2007/2013, poiché le modalità programmazione del PAC prevedono
-            sia rimodulazione interna ai Programmi Operativi sia riprogrammazione delle risorse nazionali derivanti
-            dalla riduzione del cofinanziamento nazionale dei Programmi Operativi che, in alcuni casi,
-            sono state assegnate a progetti già inseriti nella programmazione FSC.
-        </p>
+            <p>
+                Alcuni progetti del PAC sono presenti anche in Programmi dei Fondi Strutturali europei 2007/2013
+                e del Fondo per lo Sviluppo e la Coesione 2007/2013, poiché le modalità programmazione del PAC prevedono
+                sia rimodulazione interna ai Programmi Operativi sia riprogrammazione delle risorse nazionali derivanti
+                dalla riduzione del cofinanziamento nazionale dei Programmi Operativi che, in alcuni casi,
+                sono state assegnate a progetti già inseriti nella programmazione FSC.
+            </p>
 
-        <p>
-            I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
-            Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_YYYYMMDD"
-            associato a ciascuno di essi. L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni
-            sono associate a progetti finanziati.
-        </p>
+            <p>
+                I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
+                Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_YYYYMMDD"
+                associato a ciascuno di essi. L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni
+                sono associate a progetti finanziati.
+            </p>
 
-        <p>
-            I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi,
-            aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_) che facilitano leggibilità
-            e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
-            <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb)
-            con i temi prioritari UE e con la classificazione CUP.
-        </p>
+            <p>
+                I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi,
+                aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_) che facilitano leggibilità
+                e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici. Consulta il
+                <a href="/opendata/raccordo_temi_sintetici.xls">file di raccordo</a> (xls, 1,5 Mb)
+                con i temi prioritari UE e con la classificazione CUP.
+            </p>
 
-        <table class="table" id="pac">
-            <thead>
-            {% for section_code, section in pac_sections.items %}
-            <tr>
-                <td class="label">{{ section.name|capfirst }}</td>
-                <td>
-                    <a href="/opendata/{{ section.complete_file.file_name }}">
-                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-            </thead>
-            <tr>
-                <td class="label">Metadati </td>
-                <td>
-                    <a href="/opendata/{{ pac_metadata_file.file_name }}">
-                        [<i class="icon-download-alt"></i> xls {{ pac_metadata_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
-        </table>
+            <table class="table" id="pac">
+                <thead>
+                {% for section_code, section in pac_sections.items %}
+                <tr>
+                    <td class="label">{{ section.name|capfirst }}</td>
+                    <td>
+                        <a href="/opendata/{{ section.complete_file.file_name }}">
+                            [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </thead>
+                <tr>
+                    <td class="label">Metadati </td>
+                    <td>
+                        <a href="/opendata/{{ pac_metadata_file.file_name }}">
+                            [<i class="icon-download-alt"></i> xls {{ pac_metadata_file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                </tr>
+            </table>
 
-        <p>Ultimo aggiornamento: marzo 2015 su dati al 31/12/2014</p>
+            <p>Ultimo aggiornamento: marzo 2015 su dati al 31/12/2014</p>
 
-    </div>
+        </div>
 
 
-    <h3 class="h3-switcher">
-        <a href="#" data-target="#cipe0713-content" id="cipe0713-title">
-            Assegnazioni CIPE 2007/2013 <i class="icon-chevron-down"></i>
-        </a>
-    </h3>
+        <h3 class="h3-switcher">
+            <a href="#" data-target="#cipe0713-content" id="cipe0713-title">
+                Assegnazioni CIPE 2007/2013 <i class="icon-chevron-down"></i>
+            </a>
+        </h3>
 
-    <div id="cipe0713-content">
+        <div id="cipe0713-content">
 
-        <p>
-            La fonte delle assegnazioni del
-            <a href="/fonti-di-finanziamento/#fondi-nazionali">Fondo nazionale per lo Sviluppo e la Coesione (FSC)</a>
-            a destinazione
-            nazionale e regionale sono le <a href="http://www.cipecomitato.it/it">Delibere CIPE</a>,
-            che riguardano le informazioni disponibili al momento in
-            cui è stata assunta la decisione di finanziamento e non hanno caratteristica di monitoraggio. I dati sono
-            scaricabili anche dal <a href="http://www.cipecomitato.it/it/opendata.html">sito del CIPE</a>,
-            senza l’attribuzione del tema sintetico con cui sono visualizzati su
-            OpenCoesione. Consulta il <a href="/opendata/raccordo_temi_sintetici.xls"
-                                         onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>file di raccordo</a> (xls, 1,5 Mb)
-            con i temi prioritari UE e con la classificazione CUP.
-        </p>
+            <p>
+                La fonte delle assegnazioni del
+                <a href="/fonti-di-finanziamento/#fondi-nazionali">Fondo nazionale per lo Sviluppo e la Coesione (FSC)</a>
+                a destinazione
+                nazionale e regionale sono le <a href="http://www.cipecomitato.it/it">Delibere CIPE</a>,
+                che riguardano le informazioni disponibili al momento in
+                cui è stata assunta la decisione di finanziamento e non hanno caratteristica di monitoraggio. I dati sono
+                scaricabili anche dal <a href="http://www.cipecomitato.it/it/opendata.html">sito del CIPE</a>,
+                senza l’attribuzione del tema sintetico con cui sono visualizzati su
+                OpenCoesione. Consulta il <a href="/opendata/raccordo_temi_sintetici.xls"
+                                             onclick="var that=this;_gaq.push(['_trackEvent','Download','XLS',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>file di raccordo</a> (xls, 1,5 Mb)
+                con i temi prioritari UE e con la classificazione CUP.
+            </p>
 
-        <table class="table" id="cipe0713">
-            <thead>
-            {% for section_code, section in cipe_sections.items %}
-            <tr>
-                <td class="label">{{ section.name|capfirst }}</td>
-                <td>
-                    <a href="/opendata/{{ section.complete_file.file_name }}"
-                            onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
-                        [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <td class="label">Metadati </td>
-                <td>
-                    <a href="/opendata/{{ cipe_metadata_file.file_name }}"
-                       onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
-                        [<i class="icon-download-alt"></i> xls {{ cipe_metadata_file.file_size|filesizeformat }}]
-                    </a>
-                </td>
-            </tr>
-            </thead>
-        </table>
+            <table class="table" id="cipe0713">
+                <thead>
+                {% for section_code, section in cipe_sections.items %}
+                <tr>
+                    <td class="label">{{ section.name|capfirst }}</td>
+                    <td>
+                        <a href="/opendata/{{ section.complete_file.file_name }}"
+                                onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                            [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td class="label">Metadati </td>
+                    <td>
+                        <a href="/opendata/{{ cipe_metadata_file.file_name }}"
+                           onclick="var that=this;_gaq.push(['_trackEvent','Download','CSV',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">>
+                            [<i class="icon-download-alt"></i> xls {{ cipe_metadata_file.file_size|filesizeformat }}]
+                        </a>
+                    </td>
+                </tr>
+                </thead>
+            </table>
 
-        <p>Ultimo aggiornamento: marzo 2014 su dati al 31/12/2013</p>
+            <p>Ultimo aggiornamento: marzo 2014 su dati al 31/12/2013</p>
 
+        </div>
     </div>
 
 
@@ -690,34 +692,16 @@
 
 {% endblock %}
 
-
-
-
 {% block sidebar %}
-
     <div class="flat_content">
-        <p>
-            Per open data (letteralmente "dati aperti") si intendono informazioni pubblicate in formato tale che siano:
-        </p>
-
-            <ul>
-                <li>accessibili (soprattutto via internet) senza limitazioni secondo l'identità o lo scopo dell'utente;</li>
-                <li>elaborabili da un'applicazione informatica senza che sia necessaria la disponibilità di uno specifico software;</li>
-                <li>accompagnati da licenze che non pongano restrizioni sull'uso e sul riuso.</li>
-            </ul>
-
-        <p>
-            Per ulteriori informazioni sulla strategia nazionale di open data consulta il portale nazionale <a href="http://dati.gov.it">dati.gov.it</a>.
-        </p>
-
-        <p>
-            Le informazioni sui progetti in attuazione della politica di coesione sono raccolte in un unico sistema di monitoraggio,
-            amministrato dalla <a href="http://www.rgs.mef.gov.it">Ragioneria Generale dello Stato</a> (Ministero dell’Economia e delle Finanze).
-        </p>
-
-        <p>
-            I dataset pubblicati su OpenCoesione offrono una restituzione parziale di  questo monitoraggio in una forma adatta
-            a rispondere agli interessi conoscitivi dei cittadini.
-        </p>
+        <p>Per open data (letteralmente "dati aperti") si intendono informazioni pubblicate in formato tale che siano:</p>
+        <ul>
+            <li>accessibili (soprattutto via internet) senza limitazioni secondo l'identità o lo scopo dell'utente;</li>
+            <li>elaborabili da un'applicazione informatica senza che sia necessaria la disponibilità di uno specifico software;</li>
+            <li>accompagnati da licenze che non pongano restrizioni sull'uso e sul riuso.</li>
+        </ul>
+        <p>Per ulteriori informazioni sulla strategia nazionale di open data consulta il portale nazionale <a href="http://dati.gov.it">dati.gov.it</a>.</p>
+        <p>Le informazioni sui progetti in attuazione della politica di coesione sono raccolte in un unico sistema di monitoraggio, amministrato dalla <a href="http://www.rgs.mef.gov.it">Ragioneria Generale dello Stato</a> (Ministero dell’Economia e delle Finanze).</p>
+        <p>I dataset pubblicati su OpenCoesione offrono una restituzione parziale di  questo monitoraggio in una forma adatta a rispondere agli interessi conoscitivi dei cittadini.</p>
     </div>
 {% endblock %}
