@@ -1,14 +1,11 @@
 # coding=utf-8
-# from functools import wraps
-import glob
-from datetime import datetime
 import os
 import urllib2
-# from django.utils.decorators import available_attrs
+import glob
+from datetime import datetime
 
 from django.views.generic.base import TemplateView, RedirectView, TemplateResponseMixin
 from django.db.models import Sum
-# from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse
 from django.utils.datastructures import SortedDict
@@ -335,9 +332,10 @@ class PressView(ListView):
 
 class OpendataView(TemplateView):
     """
-    Basic template view with an extended context, containing the pointers
-    to the downloadable files.
+    Basic template view with an extended context, containing the pointers to the downloadable files.
     """
+
+    OPEN_DATA_PATH = os.path.join(settings.MEDIA_ROOT, 'open_data')
 
     # dates are attributes in the view, so that it can possibly be used in other views
     data_date = '20141231'
@@ -345,10 +343,7 @@ class OpendataView(TemplateView):
     spesa_date = '20141231'
 
     # get istat_date from file system
-    OPEN_DATA_PATH = os.path.join(settings.MEDIA_ROOT, 'open_data')
-    latest_istat_archive_file_path = sorted(glob.glob(
-        os.path.join(OPEN_DATA_PATH, 'Indicatori_regionali_*.zip')
-    ))[-1]
+    latest_istat_archive_file_path = sorted(glob.glob(os.path.join(OPEN_DATA_PATH, 'Indicatori_regionali_*.zip')))[-1]
     istat_date = os.path.splitext(os.path.basename(latest_istat_archive_file_path))[0].split('_')[-1]
 
     def get_context_data(self, **kwargs):
@@ -359,72 +354,54 @@ class OpendataView(TemplateView):
         spesa_date = self.spesa_date
         istat_date = self.istat_date
 
-        regions = SortedDict([
-            ('VDA', 'Valle d\'Aosta'),
-            ('PIE', 'Piemonte'),
-            ('LOM', 'Lombardia'),
-            ('TN_BZ', 'Trento e Bolzano'),
-            ('VEN', 'Veneto'),
-            ('FVG', 'Friuli-Venezia Giulia'),
-            ('LIG', 'Liguria'),
-            ('EMR', 'Emilia-Romagna'),
-            ('TOS', 'Toscana'),
-            ('UMB', 'Umbria'),
-            ('MAR', 'Marche'),
-            ('LAZ', 'Lazio'),
-            ('ABR', 'Abruzzo'),
-            ('CAM', 'Campania'),
-            ('MOL', 'Molise'),
-            ('PUG', 'Puglia'),
-            ('CAL', 'Calabria'),
-            ('BAS', 'Basilicata'),
-            ('SIC', 'Sicilia'),
-            ('SAR', 'Sardegna'),
-            ('NAZ', 'Italia'),
-            ('EST', 'Estero'),
-            # ('MULTI', 'Multi-regionali'),
+        oc_sections = SortedDict([
+            ('prog', {
+                'name': 'progetti',
+                'complete_file': self.get_complete_file('progetti_OC_{0}.zip'.format(data_date)),
+                'regional_files': self.get_regional_files('prog', 'OC', data_date),
+            }),
+            ('sog', {
+                'name': 'soggetti',
+                'complete_file': self.get_complete_file('soggetti_OC_{0}.zip'.format(data_date)),
+                'regional_files': self.get_regional_files('sog', 'OC', data_date),
+            }),
+            ('loc', {
+                'name': 'localizzazioni',
+                'complete_file': self.get_complete_file('localizzazioni_OC_{0}.zip'.format(data_date)),
+                'regional_files': self.get_regional_files('loc', 'OC', data_date),
+            }),
+            ('pag', {
+                'name': 'pagamenti',
+                'complete_file': self.get_complete_file('pagamenti_OC_{0}.zip'.format(data_date)),
+                'regional_files': self.get_regional_files('pag', 'OC', data_date),
+            }),
         ])
-
-        # themes = SortedDict([
-        #     ('AGENDA_DIGITALE', 'Agenda digitale'),
-        #     ('AMBIENTE', 'Ambiente'),
-        #     ('CULTURA_TURISMO', 'Cultura e turismo'),
-        #     ('COMPETITIVITA_IMPRESE', u'Competitività imprese'),
-        #     ('ENERGIA', 'Energia'),
-        #     ('INCLUSIONE_SOCIALE', 'Inclusione sociale'),
-        #     ('ISTRUZIONE', 'Istruzione'),
-        #     ('OCCUPAZIONE', 'Occupazione'),
-        #     ('RAFFORZAMENTO_PA', 'Rafforzamento PA'),
-        #     ('RICERCA_INNOVAZIONE', 'Ricerca e innovazione'),
-        #     ('CITTA_RURALE', 'Città e aree rurali'),
-        #     ('INFANZIA_ANZIANI', 'Infanzia e anziani'),
-        #     ('TRASPORTI', 'Trasporti'),
-        # ])
+        oc_metadata_file = self.get_complete_file('metadati_OC.xls')
 
         fs_sections = SortedDict([
             ('prog', {
                 'name': 'progetti',
                 'complete_file': self.get_complete_file('progetti_FS0713_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('prog', 'FS0713', regions, data_date),
-                # 'theme_files': self.get_theme_files('prog', 'progetti', themes, data_date)
+                'regional_files': self.get_regional_files('prog', 'FS0713', data_date),
+                # 'theme_files': self.get_theme_files('prog', 'progetti', data_date)
             }),
             ('sog', {
                 'name': 'soggetti',
                 'complete_file': self.get_complete_file('soggetti_FS0713_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('sog', 'FS0713', regions, data_date),
-                # 'theme_files': self.get_theme_files('sog', 'soggetti', themes, data_date)
+                'regional_files': self.get_regional_files('sog', 'FS0713', data_date),
+                # 'theme_files': self.get_theme_files('sog', 'soggetti', data_date)
             }),
             ('loc', {
                 'name': 'localizzazioni',
                 'complete_file': self.get_complete_file('localizzazioni_FS0713_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('loc', 'FS0713', regions, data_date),
-                # 'theme_files': self.get_theme_files('loc', 'localizzazioni', themes, data_date)
+                'regional_files': self.get_regional_files('loc', 'FS0713', data_date),
+                # 'theme_files': self.get_theme_files('loc', 'localizzazioni', data_date)
             }),
             ('pag', {
                 'name': 'pagamenti',
                 'complete_file': self.get_complete_file('pagamenti_FS0713_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('pag', 'FS0713', regions, data_date),
-                # 'theme_files': self.get_theme_files('pag', 'pagamenti', themes, data_date)
+                'regional_files': self.get_regional_files('pag', 'FS0713', data_date),
+                # 'theme_files': self.get_theme_files('pag', 'pagamenti', data_date)
             }),
         ])
         fs_metadata_file = self.get_complete_file('metadati_attuazione.xls')
@@ -481,29 +458,17 @@ class OpendataView(TemplateView):
         ])
         cipe_metadata_file = self.get_complete_file('metadati_attuazione.xls')
 
-        oc_sections = SortedDict([
-            ('prog', {
-                'name': 'progetti',
-                'complete_file': self.get_complete_file('progetti_OC_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('prog', 'OC', regions, data_date),
-            }),
-            ('sog', {
-                'name': 'soggetti',
-                'complete_file': self.get_complete_file('soggetti_OC_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('sog', 'OC', regions, data_date),
-            }),
-            ('loc', {
-                'name': 'localizzazioni',
-                'complete_file': self.get_complete_file('localizzazioni_OC_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('loc', 'OC', regions, data_date),
-            }),
-            ('pag', {
-                'name': 'pagamenti',
-                'complete_file': self.get_complete_file('pagamenti_OC_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('pag', 'OC', regions, data_date),
-            }),
-        ])
-        oc_metadata_file = self.get_complete_file('metadati_OC.xls')
+        context['oc_sections'] = oc_sections
+        context['fs_sections'] = fs_sections
+        context['fsc_sections'] = fsc_sections
+        context['pac_sections'] = pac_sections
+        context['cipe_sections'] = cipe_sections
+
+        context['oc_metadata_file'] = oc_metadata_file
+        context['fs_metadata_file'] = fs_metadata_file
+        context['fsc_metadata_file'] = fsc_metadata_file
+        context['pac_metadata_file'] = pac_metadata_file
+        context['cipe_metadata_file'] = cipe_metadata_file
 
         context['spesa_dotazione_file'] = self.get_complete_file('Dotazioni_Certificazioni_{0}.xls'.format(spesa_date))
         context['spesa_target_file'] = self.get_complete_file('Target_Risultati_{0}.xls'.format(spesa_date))
@@ -522,19 +487,11 @@ class OpendataView(TemplateView):
         context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_SPESE_1996-2012.zip'))
         context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('METADATA', 'CPT_Metadati_perCSV_def.xls'))
 
-        context['data_date'] = data_date
+        context['raccordo_temi_sintetici_file'] = self.get_complete_file('raccordo_temi_sintetici.xls')
 
-        context['fs_sections'] = fs_sections
-        context['fsc_sections'] = fsc_sections
-        context['pac_sections'] = pac_sections
-        context['cipe_sections'] = cipe_sections
-        context['oc_sections'] = oc_sections
-
-        context['fs_metadata_file'] = fs_metadata_file
-        context['fsc_metadata_file'] = fsc_metadata_file
-        context['pac_metadata_file'] = pac_metadata_file
-        context['cipe_metadata_file'] = cipe_metadata_file
-        context['oc_metadata_file'] = oc_metadata_file
+        context['data_date'] = datetime.strptime(data_date, '%Y%m%d')
+        context['cipe_date'] = datetime.strptime(cipe_date, '%Y%m%d')
+        context['spesa_date'] = datetime.strptime(spesa_date, '%Y%m%d')
 
         return context
 
@@ -551,9 +508,9 @@ class OpendataView(TemplateView):
             'file_size': file_size
         }
 
-    @staticmethod
-    def get_complete_file(file_name):
-        file_path = os.path.join(settings.MEDIA_ROOT, 'open_data', file_name)
+    @classmethod
+    def get_complete_file(cls, file_name):
+        file_path = os.path.join(cls.OPEN_DATA_PATH, file_name)
         file_size = os.stat(file_path).st_size if os.path.isfile(file_path) else None
 
         return {
@@ -561,35 +518,67 @@ class OpendataView(TemplateView):
             'file_size': file_size
         }
 
-    @staticmethod
-    def get_theme_files(section_code, section_name, themes, data_date):
+    @classmethod
+    def get_regional_files(cls, section_code, prefix, data_date):
+        regions = SortedDict([
+            ('VDA', "Valle d'Aosta"),
+            ('PIE', 'Piemonte'),
+            ('LOM', 'Lombardia'),
+            ('TN_BZ', 'Trento e Bolzano'),
+            ('VEN', 'Veneto'),
+            ('FVG', 'Friuli-Venezia Giulia'),
+            ('LIG', 'Liguria'),
+            ('EMR', 'Emilia-Romagna'),
+            ('TOS', 'Toscana'),
+            ('UMB', 'Umbria'),
+            ('MAR', 'Marche'),
+            ('LAZ', 'Lazio'),
+            ('ABR', 'Abruzzo'),
+            ('CAM', 'Campania'),
+            ('MOL', 'Molise'),
+            ('PUG', 'Puglia'),
+            ('CAL', 'Calabria'),
+            ('BAS', 'Basilicata'),
+            ('SIC', 'Sicilia'),
+            ('SAR', 'Sardegna'),
+            ('NAZ', 'Italia'),
+            ('EST', 'Estero'),
+            # ('MULTI', 'Multi-regionali'),
+        ])
+
         files = []
-        for theme_code, theme_name in themes.items():
-            file_name = '{0}_{1}_{2}.zip'.format(section_code, theme_code, data_date)
-            file_path = os.path.join(settings.MEDIA_ROOT, 'open_data', section_name, file_name)
-            file_size = os.stat(file_path).st_size if os.path.isfile(file_path) else None
-            files.append({
-                'theme_name': theme_name,
-                'file_name': file_name,
-                'file_size': file_size
-            })
+        for region_code, region_name in regions.items():
+            file = cls.get_complete_file(os.path.join('regione', '{0}_{1}_{2}_{3}.zip'.format(section_code, prefix, region_code, data_date)))
+            file['region_name'] = region_name
+            files.append(file)
 
         return files
 
-    @staticmethod
-    def get_regional_files(section_code, prefix, regions, data_date):
-        files = []
-        for reg_code, reg_name in regions.items():
-            file_name = '{0}_{1}_{2}_{3}.zip'.format(section_code, prefix, reg_code, data_date)
-            file_path = os.path.join(settings.MEDIA_ROOT, 'open_data', 'regione', file_name)
-            file_size = os.stat(file_path).st_size if os.path.isfile(file_path) else None
-            files.append({
-                'region_name': reg_name,
-                'file_name': file_name,
-                'file_size': file_size
-            })
-
-        return files
+    # @classmethod
+    # def get_theme_files(cls, section_code, section_name, data_date):
+    #     themes = SortedDict([
+    #         ('AGENDA_DIGITALE', 'Agenda digitale'),
+    #         ('AMBIENTE', 'Ambiente'),
+    #         ('CULTURA_TURISMO', 'Cultura e turismo'),
+    #         ('COMPETITIVITA_IMPRESE', u'Competitività imprese'),
+    #         ('ENERGIA', 'Energia'),
+    #         ('INCLUSIONE_SOCIALE', 'Inclusione sociale'),
+    #         ('ISTRUZIONE', 'Istruzione'),
+    #         ('OCCUPAZIONE', 'Occupazione'),
+    #         ('RAFFORZAMENTO_PA', 'Rafforzamento PA'),
+    #         ('RICERCA_INNOVAZIONE', 'Ricerca e innovazione'),
+    #         ('CITTA_RURALE', 'Città e aree rurali'),
+    #         ('INFANZIA_ANZIANI', 'Infanzia e anziani'),
+    #         ('TRASPORTI', 'Trasporti'),
+    #     ])
+    #
+    #     files = []
+    #     for theme_code, theme_name in themes.items():
+    #         file = cls.get_complete_file(os.path.join(section_name, '{0}_{1}_{2}.zip'.format(section_code, theme_code, data_date)))
+    #         file['theme_name'] = theme_name
+    #         files.append(file)
+    #
+    #     return files
 
 
 class PilloleView(ListView, TagFilterMixin, DateFilterMixin):
@@ -633,17 +622,15 @@ class FAQView(ListView):
 class DatiISTATView(TemplateView):
     template_name = 'open_coesione/dati_istat.html'
 
-    def get_context_data(self, **kwargs):
-        context = super(DatiISTATView, self).get_context_data(**kwargs)
-
-        # use OpendataView instance to access istat_date and the get_complete_file method,
-        # and avoid code duplication
-        # odv = OpendataView()
-        # istat_date = odv.istat_date
-        # context['istat_data_file'] = odv.get_complete_file('Indicatori_regionali_{0}.zip'.format(istat_date))
-        # context['istat_metadata_file'] = odv.get_complete_file('Metainformazione.xls')
-
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super(DatiISTATView, self).get_context_data(**kwargs)
+    #
+    #     # use OpendataView instance to access istat_date and the get_complete_file method, and avoid code duplication
+    #     istat_date = OpendataView.istat_date
+    #     context['istat_data_file'] = OpendataView.get_complete_file('Indicatori_regionali_{0}.zip'.format(istat_date))
+    #     context['istat_metadata_file'] = OpendataView.get_complete_file('Metainformazione.xls')
+    #
+    #     return context
 
 
 # class EmbedPdfView(TemplateView):

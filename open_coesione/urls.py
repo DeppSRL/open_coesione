@@ -8,7 +8,9 @@ from open_coesione.views import HomeView, FondiView, RisorseView, ContactView, P
 from rubrica.views import NLContactView
 from filebrowser.sites import site
 
+
 admin.autodiscover()
+
 
 urlpatterns = patterns('',
     # admin documentation and reference
@@ -66,14 +68,10 @@ urlpatterns = patterns('',
 
     url(r'^segui/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='flat/fonti_finanziamento.html'), name='fonti-finanziamento'),
-    url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html')),
+    url(r'^pac/', RisorseView.as_view(template_name='flat/pac.html'), name='pac'),
     url(r'^api-faq/', RisorseView.as_view(template_name='flat/api.html'), name='api-faq'),
-    url(r'^spesa-certificata/',
-        SpesaCertificataView.as_view(template_name='flat/spesa_certificata.html'),
-                                     name='flat-spesa-certificata'),
-    url(r'^spesa-certificata-grafici/',
-        SpesaCertificataView.as_view(template_name='flat/spesa_certificata_grafici.html'),
-                                     name='flat-spesa-certificata-grafici'),
+    url(r'^spesa-certificata/', SpesaCertificataView.as_view(template_name='flat/spesa_certificata.html'), name='flat-spesa-certificata'),
+    url(r'^spesa-certificata-grafici/', SpesaCertificataView.as_view(template_name='flat/spesa_certificata_grafici.html'), name='flat-spesa-certificata-grafici'),
 
     url(r'^rassegna-stampa/', PressView.as_view()),
 
@@ -81,7 +79,6 @@ urlpatterns = patterns('',
     url(r'^opendata/$', OpendataView.as_view(template_name='flat/open_data.html'), name='opendata'),
 
     url(r'^documenti/(?P<path>.+)$', DocumentsRedirectView.as_view(), name='documents_clean'),
-
 
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login'),
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),
@@ -96,5 +93,3 @@ if settings.DEBUG:
 urlpatterns += patterns('',
     (r'^tinymce/', include('tinymce.urls')),
 )
-
-
