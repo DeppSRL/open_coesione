@@ -91,7 +91,7 @@ class Config:
             'fsc_pa': lista_programmi_fsc_pa,
             'fsc_pra': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if '(PRA)' in p.descrizione]))),
             'fsc_pna': lista_programmi_fsc_pna,
-            'fsc_pstg': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PIANO STRAORDINARIO TUTELA E GESTIONE RISORSA IDRICA REGIONE' in p.descrizione]))),
+            'fsc_pstg': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PIANO STRAORDINARIO TUTELA E GESTIONE RISORSA IDRICA' in p.descrizione]))),
             'pac_pac_m': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if ' PAC ' in p.descrizione and (' MINISTERO ' in p.descrizione or ' PCM ' in p.descrizione)]))),
             'pac_pac_r': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if ' PAC ' in p.descrizione and not (' MINISTERO ' in p.descrizione or ' PCM ' in p.descrizione)]))),
             'pac_fse': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fse]))),
