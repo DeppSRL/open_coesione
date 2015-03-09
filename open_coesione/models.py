@@ -1,4 +1,5 @@
 # coding=utf-8
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
@@ -46,15 +47,17 @@ class PressReview(models.Model):
     title = models.CharField(max_length=200, verbose_name='Titolo')
     source = models.CharField(max_length=200, verbose_name='Fonte')
     author = models.CharField(max_length=200, verbose_name='Autore')
-
     file = models.FileField(upload_to='press', blank=True, null=True)
     url = models.URLField(blank=True, null=True)
-
     published_at = models.DateField(verbose_name='Data di pubblicazione')
+
+    def __unicode__(self):
+        return u'{0}'.format(self.title)
 
     class Meta:
         verbose_name = 'Articolo'
         verbose_name_plural = 'Rassegna stampa'
+        ordering = ['-published_at']
 
 
 class Pillola(tagging_models.TagMixin, models.Model):
@@ -66,12 +69,18 @@ class Pillola(tagging_models.TagMixin, models.Model):
     file = models.FileField(upload_to='pillole', blank=True, null=True)
     published_at = models.DateField(verbose_name='Data di pubblicazione')
 
+    def get_absolute_url(self):
+        return reverse('pillola', kwargs={'slug': self.slug})
+
+    def __unicode__(self):
+        return u'{0}'.format(self.title)
+
     class Meta:
         verbose_name = 'Pillola'
         verbose_name_plural = 'Pillole'
 
 
-class ResourceBase(models.Model):
+class BaseResource(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.CharField(max_length=255)
     content_object = generic.GenericForeignKey()
@@ -88,7 +97,7 @@ class ResourceBase(models.Model):
         ordering = ['priority', 'description']
 
 
-class File(ResourceBase):
+class File(BaseResource):
     # TYPE = Choices(
     #     ('documento_programma', u'Documento di programma'),
     #     ('rapporto_annuale', u'Rapporto annuale di pubblicazione'),
@@ -99,7 +108,7 @@ class File(ResourceBase):
     file = models.FileField(upload_to=lambda instance, filename: 'files/{0}/{1}'.format(slugify('{0} {1}'.format(instance.content_type, instance.object_id)), filename))
 
 
-class Link(ResourceBase):
+class Link(BaseResource):
     url = models.URLField(max_length=255, verbose_name='URL')
 
 
@@ -118,10 +127,10 @@ class FAQ(models.Model):
         if item in ['domanda', 'risposta', 'slug'] and self.lang in ['it', 'en']:
             return getattr(self, item + '_' + self.lang)
         else:
-            raise AttributeError('%r object has no attribute %r' % (self.__class__.__name__, item))
+            raise AttributeError('{0!r} object has no attribute {1!r}'.format(self.__class__.__name__, item))
 
     def __unicode__(self):
-        return u'{0}'.format(self.domanda_it)
+        return u'{0}'.format(self.domanda)
 
     class Meta:
         verbose_name = 'Domanda frequente'

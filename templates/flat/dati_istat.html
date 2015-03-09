@@ -1,29 +1,48 @@
-{% extends 'base_map.html' %}
+{% extends 'base.html' %}
 
 {% load staticfiles sekizai_tags %}
 
-{% block page_title %}Tema: {{ tema.short_label }}{% endblock %}
+{% block page_title %}Indicatori territoriali e tematici{% endblock %}
 
 {% block container %}
-    {{ block.super }}
-
     <section class="container">
+        <div class="row">
+            <div class="span12" style="margin-top: 2em; margin-right: 2em">
+                <div class="flat_content">
+                    <h1>Indicatori territoriali e tematici</h1>
+                    <p>
+                        Per valutare come le risorse delle politiche di coesione vengono utilizzate rispetto ai bisogni dei territori
+                        in cui intervengono, su diversi ambiti tematici, dall’Agenda Digitale ai Trasporti, dall’Inclusione sociale all’Ambiente,
+                        puoi guardare gli indicatori statistici della banca dati DPS-Istat.
+                    </p>
+                    <p>
+                        La banca dati contiene circa 200 indicatori, in serie storica annuale, articolati per area tematica e
+                        per priorità dei diversi cicli di programmazione, a partire dal 2000-2006.
+                    </p>
+                    <p>
+                        Alla pagina <a href="{% url 'opendata' %}">Open data</a> puoi scaricare il file completo degli Indicatori
+                        (con disaggregazioni per territorio, priorità, asse e tema sintetico) e di seguito puoi visualizzare
+                        i grafici relativi ad una selezione di 50 indicatori, raggruppati per
+                        <a href="{% url 'faq-it' %}#come-vengono-classificati-i-progetti-nei-13-temi-sintetici">tema sintetico</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="span12" id="charts_accordion">
                 <span class="pull-right" style="font-size: 85%">scarica gli <a href="{% url 'opendata' %}#istat-title">Open data sugli Indicatori</a></span>
 
-                <h1>Indicatori sul tema: {{ tema.short_label }}</h1>
-
-                <div class="accordion" id="index_charts">
-                    {% for indice in lista_indici_tema %}
+                <div class="accordion" id="index_charts" style="clear: both; padding-top: 10px">
+                    {% for tema in lista_temi_principali %}
                         <div class="accordion-group">
                             <div class="accordion-heading">
-                                <h2 class="accordion-toggle" data-toggle="collapse" data-target="#index_{{ indice.ID }}">
-                                    {{ indice.Titolo }}
+                                <h2 class="accordion-toggle" data-toggle="collapse" data-target="#theme_index_{{ tema.codice }}">
+                                    {{ tema.short_label }}
                                     <i class="icon-circle-arrow-down pull-right"></i>
                                 </h2>
                             </div>
-                            <div id="index_{{ indice.ID }}" data-topic="{{ tema.codice }}" data-index="{{ indice.ID }}" class="accordion-body collapse">
+                            <div id="theme_index_{{ tema.codice }}" data-topic="{{ tema.codice }}" class="accordion-body collapse">
                                 <div class="accordion-inner">
                                     {% if forloop.first %}
                                         <div id="topic_chart" style="height: 270px"></div>
@@ -32,6 +51,8 @@
                                                 <select id="region-selector" class="span3">
                                                     <option value=""> -- Confronta le regioni -- </option>
                                                 </select><a id="region-reset" class="btn add-on" href="#">reset</a>
+
+                                                <select id="indicator-selector" class="span5"></select>
                                             </div>
                                         </form>
                                     {% endif %}

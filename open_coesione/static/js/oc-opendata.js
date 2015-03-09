@@ -1,21 +1,6 @@
 $(document).ready(function() {
-	$('a[href="#"]').on('click', function(e) {
-		e.preventDefault();
-	});
-
-    var filetypes = /\.(zip|csv|xls*)$/i;
-    $('a').each(function() {
-        var href = $(this).attr('href');
-        if (href && href.match(filetypes)) {
-            $(this).click(function() {
-                var extension = (/[.]/.exec(href)) ? /[^.]+$/.exec(href).toString().toUpperCase() : undefined;
-                _gaq.push(['_trackEvent', 'Download', extension, href]);
-                if ($(this).attr('target') != undefined && $(this).attr('target').toLowerCase() != '_blank') {
-                    setTimeout(function() { location.href = href; }, 200);
-                    return false;
-                }
-            });
-        }
+    $('a[href="#"]').on('click', function(e) {
+        e.preventDefault();
     });
 
     $('.h3-switcher').on('switcher:toggle', function(e, state) {

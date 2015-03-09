@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
-from blog.models import Blog
+from blog.models import Entry
 from progetti.models import ClassificazioneAzione, Tema
 from territori.models import Territorio
 from progetti.gruppo_programmi import Config
@@ -46,6 +46,6 @@ def main_settings(request):
         'lista_regioni': regioni,
         'lista_tipologie_principali': classificazioni,
         'lista_temi_principali': temi,
-        'latest_entry': Blog.get_latest_entries(single=True),
+        'latest_entry': Entry.objects.get_latest_entries(single=True),
         'lista_programmi': Config.get_lista_programmi(),
     }

@@ -207,6 +207,18 @@ class ProgrammaQuerySet(models.query.QuerySet):
     def programmi(self):
         return self.filter(tipo_classificazione=self.model.TIPO.programma)
 
+    def programmi_fesr(self):
+        return self.programmi().filter(descrizione__icontains=' FESR ')
+
+    def programmi_fse(self):
+        return self.programmi().filter(descrizione__icontains=' FSE ')
+
+    def programmi_competitivita(self):
+        return self.programmi().filter(descrizione__icontains=' CRO ')
+
+    def programmi_convergenza(self):
+        return self.programmi().filter(descrizione__icontains=' CONV ')
+
 
 class ProgrammaManager(models.Manager):
     def get_query_set(self):
@@ -214,6 +226,18 @@ class ProgrammaManager(models.Manager):
 
     def programmi(self):
         return self.get_query_set().programmi()
+
+    def programmi_fesr(self):
+        return self.get_query_set().programmi_fesr()
+
+    def programmi_fse(self):
+        return self.get_query_set().programmi_fse()
+
+    def programmi_competitivita(self):
+        return self.get_query_set().programmi_competitivita()
+
+    def programmi_convergenza(self):
+        return self.get_query_set().programmi_convergenza()
 
 
 # class RuoloManager(models.Manager):

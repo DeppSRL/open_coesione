@@ -1,12 +1,8 @@
 {% extends 'base_map.html' %}
+
 {% load humanize %}
 
 {% block page_title %}Programma: {{ programma }}{% endblock %}
-
-
-{% block container %}
-    {{ block.super }}
-{% endblock %}
 
 {% block top_content %}
     {% if programma.descrizione_estesa or programma.dotazione_totale %}

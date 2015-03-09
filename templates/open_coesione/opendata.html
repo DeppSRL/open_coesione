@@ -379,7 +379,11 @@
     </div>
 
     {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/opendata.js' %}"></script>
+        <script src="{% static 'js/oc-opendata.js' %}"></script>
+    {% endaddtoblock %}
+
+    {% addtoblock 'js_script' strip %}
+        <script src="{% static 'js/oc-ga-downloads.js' %}"></script>
     {% endaddtoblock %}
 {% endblock %}
 

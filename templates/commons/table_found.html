@@ -1,31 +1,28 @@
 <table id="{{ table_id }}" class="{{ table_class }} table">
-  <caption>{{ table_name }}</caption>
-  {% for row in table_rows %}
-    {% if forloop.first %}
-      <thead>
-      <tr>
-        {% for val in row %}
-          <th>{{ val }}</th>
-        {% endfor %}
-      </tr>
-      </thead>
-      <tbody>
-      {% else %}
-
-      {% if forloop.last %}
-        </tbody>
-        <tfoot>
-        {% for val in row %}
-          <td>{{ val }}</td>
-        {% endfor %}
-        </tfoot>
-      {% else %}
-        <tr>
-          {% for val in row %}
-            <td>{{ val }}</td>
-          {% endfor %}
-        </tr>
-      {% endif %}
-    {% endif %}
-  {% endfor %}
+    <caption>{{ table_name }}</caption>
+    {% for row in table_rows %}
+        {% if forloop.first %}
+            <thead>
+                <tr>
+                    {% for val in row %}
+                        <th>{{ val }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+        {% elif forloop.last %}
+            </tbody>
+            <tfoot>
+                {% for val in row %}
+                    <td>{{ val }}</td>
+                {% endfor %}
+            </tfoot>
+        {% else %}
+            <tr>
+                {% for val in row %}
+                    <td>{{ val }}</td>
+                {% endfor %}
+            </tr>
+        {% endif %}
+    {% endfor %}
 </table>

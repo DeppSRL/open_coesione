@@ -219,67 +219,88 @@ class AggregatoView(object):
 
 
 class HomeView(AccessControlView, AggregatoView, TemplateView):
-    template_name = 'homepage.html'
+    @cached_context
+    def get_cached_context_data(self):
+        context = {}
+
+        context = self.get_aggregate_data(context)
+
+        context['numero_soggetti'] = Soggetto.objects.count()
+
+        context['top_progetti'] = Progetto.objects.filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico', '-data_fine_effettiva')[:3]
+
+        return context
 
     def get_context_data(self, **kwargs):
-        """
-        low-level caching, to allow adding latest_pillole out of the cached context (fast-refresh)
-        """
-        key = 'context' + self.request.get_full_path()
-        context = cache.get(key)
+        context = super(HomeView, self).get_context_data(**kwargs)
 
-        if context is None:
-            context = super(HomeView, self).get_context_data(**kwargs)
-            context = self.get_aggregate_data(context)
+        context.update(self.get_cached_context_data())
 
-            context['top_progetti'] = Progetto.objects.filter(
-                fin_totale_pubblico__isnull=False,
-            ).order_by('-fin_totale_pubblico')[:3]
-
-            context['numero_soggetti'] = Soggetto.objects.count()
-
-            serializable_context = context.copy()
-            serializable_context.pop('view', None)
-            cache.set(key, serializable_context)
-
-        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(
-            data_fine_effettiva__lte=datetime.now(),
-            privacy_flag=False,
-        ).order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
 
         context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
 
         return context
 
 
-class RisorseView(AccessControlView, TemplateView):
+# class HomeView(AccessControlView, AggregatoView, TemplateView):
+#     def get_context_data(self, **kwargs):
+#         """
+#         low-level caching, to allow adding latest_pillole out of the cached context (fast-refresh)
+#         """
+#         key = 'context' + self.request.get_full_path()
+#         context = cache.get(key)
+#
+#         if context is None:
+#             context = super(HomeView, self).get_context_data(**kwargs)
+#             context = self.get_aggregate_data(context)
+#
+#             context['top_progetti'] = Progetto.objects.filter(
+#                 fin_totale_pubblico__isnull=False,
+#             ).order_by('-fin_totale_pubblico')[:3]
+#
+#             context['numero_soggetti'] = Soggetto.objects.count()
+#
+#             serializable_context = context.copy()
+#             serializable_context.pop('view', None)
+#             cache.set(key, serializable_context)
+#
+#         context['ultimi_progetti_conclusi'] = Progetto.objects.filter(
+#             data_fine_effettiva__lte=datetime.now(),
+#             privacy_flag=False,
+#         ).order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
+#
+#         context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
+#
+#         return context
+
+
+class RisorsaView(AccessControlView, TemplateView):
     def get_context_data(self, **kwargs):
-        context = super(RisorseView, self).get_context_data(**kwargs)
+        context = super(RisorsaView, self).get_context_data(**kwargs)
         context['risorsa'] = True
 
         return context
 
 
-class FondiView(RisorseView):
-    template_name = 'flat/fonti_finanziamento.html'
-
+class FondiView(RisorsaView):
     def get_context_data(self, **kwargs):
-        import csv
+        # import csv
 
         context = super(FondiView, self).get_context_data(**kwargs)
 
-        context['competitivita_fesr_fse'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fesr_fse.csv')))
+        # context['competitivita_fesr_fse'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fesr_fse.csv')))
 
-        context['fesr_data_comp'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fesr.csv')))
-        context['fse_data_comp'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fse.csv')))
+        # context['fesr_data_comp'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fesr.csv')))
+        # context['fse_data_comp'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fse.csv')))
 
-        context['convergenza_fesr_fse'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_fse.csv')))
+        # context['convergenza_fesr_fse'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_fse.csv')))
 
-        context['fesr_data_conv_regioni'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_regioni.csv')))
-        context['fesr_data_conv_temi'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_temi.csv')))
+        # context['fesr_data_conv_regioni'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_regioni.csv')))
+        # context['fesr_data_conv_temi'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_temi.csv')))
 
-        context['fse_data_conv_regioni'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse_regioni.csv')))
-        context['fse_data_conv_temi'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse_temi.csv')))
+        # context['fse_data_conv_regioni'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse_regioni.csv')))
+        # context['fse_data_conv_temi'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse_temi.csv')))
 
         context['delibere'] = DeliberaCIPE.objects.all()
         context['totale_fondi_assegnati'] = DeliberaCIPE.objects.aggregate(s=Sum('fondi_assegnati'))['s']
@@ -287,13 +308,11 @@ class FondiView(RisorseView):
         return context
 
 
-class SpesaCertificataView(RisorseView):
-    template_name = 'flat/spesa_certificata_grafici.html'
-
+class SpesaCertificataGraficiView(RisorsaView):
     def get_context_data(self, **kwargs):
         import csv
 
-        context = super(SpesaCertificataView, self).get_context_data(**kwargs)
+        context = super(SpesaCertificataGraficiView, self).get_context_data(**kwargs)
 
         context['chart_tables'] = []
         for tipo in ['competitivita_fesr', 'competitivita_fse', 'convergenza_fesr', 'convergenza_fse']:
@@ -303,7 +322,6 @@ class SpesaCertificataView(RisorseView):
 
 
 class ContactView(TemplateView):
-
     def get_context_data(self, **kwargs):
         return {
             'contact_form': ContactForm() if self.request.method == 'GET' else ContactForm(self.request.POST),
@@ -322,12 +340,6 @@ class ContactView(TemplateView):
             return HttpResponseRedirect('{0}?completed=true'.format(reverse('oc-contatti')))  # Redirect after POST
 
         return self.get(request, *args, **kwargs)
-
-
-class PressView(ListView):
-    model = PressReview
-    template_name = 'flat/press_review.html'
-    queryset = PressReview.objects.all().order_by('-published_at')
 
 
 class OpendataView(TemplateView):
@@ -581,11 +593,11 @@ class OpendataView(TemplateView):
     #     return files
 
 
-class PilloleView(ListView, TagFilterMixin, DateFilterMixin):
+class PillolaListView(ListView, TagFilterMixin, DateFilterMixin):
     model = Pillola
 
     def get_queryset(self):
-        queryset = super(PilloleView, self).get_queryset()
+        queryset = super(PillolaListView, self).get_queryset()
         queryset = self._apply_date_filter(queryset)
         queryset = self._apply_tag_filter(queryset)
         queryset = queryset.order_by('-published_at', '-id')
@@ -593,53 +605,34 @@ class PilloleView(ListView, TagFilterMixin, DateFilterMixin):
         return queryset
 
     def get_context_data(self, **kwargs):
-        context = super(PilloleView, self).get_context_data(**kwargs)
+        context = super(PillolaListView, self).get_context_data(**kwargs)
         context['date_choices'] = self._get_date_choices()
         context['tag_choices'] = self._get_tag_choices()
 
         return context
 
 
-class PillolaView(DetailView):
+class PillolaDetailView(DetailView):
     model = Pillola
 
 
-class FAQView(ListView):
+class PressReviewListView(ListView):
+    model = PressReview
+
+
+class FAQListView(ListView):
     model = FAQ
     lang = None
 
-    def __init__(self, *args, **kwargs):
-        super(FAQView, self).__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super(FAQListView, self).__init__(**kwargs)
         self.model.lang = self.lang
 
     def get_context_data(self, **kwargs):
-        context = super(FAQView, self).get_context_data(**kwargs)
+        context = super(FAQListView, self).get_context_data(**kwargs)
         context['title'] = 'Frequently Asked Questions' if self.lang == 'en' else 'Domande frequenti'
 
         return context
-
-
-class DatiISTATView(TemplateView):
-    template_name = 'open_coesione/dati_istat.html'
-
-    # def get_context_data(self, **kwargs):
-    #     context = super(DatiISTATView, self).get_context_data(**kwargs)
-    #
-    #     # use OpendataView instance to access istat_date and the get_complete_file method, and avoid code duplication
-    #     istat_date = OpendataView.istat_date
-    #     context['istat_data_file'] = OpendataView.get_complete_file('Indicatori_regionali_{0}.zip'.format(istat_date))
-    #     context['istat_metadata_file'] = OpendataView.get_complete_file('Metainformazione.xls')
-    #
-    #     return context
-
-
-# class EmbedPdfView(TemplateView):
-#     template_name = 'open_coesione/pdfview.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(EmbedPdfView, self).get_context_data(**kwargs)
-#
-#         return context
 
 
 class PilloleRedirectView(RedirectView):

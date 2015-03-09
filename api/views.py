@@ -9,9 +9,8 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from open_coesione.utils import setup_view
 from open_coesione.views import HomeView
-from progetti.models import Progetto, Tema, ProgrammaAsseObiettivo, Ruolo, ClassificazioneQSN, ClassificazioneOggetto
 from progetti.urls import sqs as progetti_sqs
-from progetti.views import TemaView, TipologiaView
+from progetti.views import TemaView, ClassificazioneAzioneView
 from soggetti.urls import sqs as soggetti_sqs
 from api.serializers import *
 from soggetti.views import SoggettoView
@@ -662,7 +661,7 @@ class AggregatoNaturaDetailView(AggregatoView):
     AggregatoView subclass to handle a selected natura page
     """
     def get_aggregate_page_view_class(self):
-        return TipologiaView
+        return ClassificazioneAzioneView
 
     def get_aggregate_page_url(self):
         return "/progetti/nature/{0}/".format(self.kwargs['slug'])

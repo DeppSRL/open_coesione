@@ -211,7 +211,7 @@ class Tema(models.Model):
 
     @property
     def is_root(self):
-        return self.tipo_tema == Tema.TIPO.sintetico
+        return self.tipo_tema == self.TIPO.sintetico
 
     def totale_pro_capite(self, territorio_or_popolazione):
         if isinstance(territorio_or_popolazione, (int, float)):
@@ -323,7 +323,7 @@ class ClassificazioneAzione(models.Model):
 
     @property
     def is_root(self):
-        return self.tipo_classificazione == ClassificazioneAzione.TIPO.natura
+        return self.tipo_classificazione == self.TIPO.natura
 
     def costo_totale(self, territorio=None):
         if self.is_root:

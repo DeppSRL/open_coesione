@@ -1,10 +1,12 @@
+{% load sekizai_tags %}
+
 <article id="{{ object.slug }}">
     <header class="page-header">
         <h1>
             {% if title_linked %}
-                <a href="{% url 'blog_item' object.slug %}">{{ object.title }}</a>
+                <a href="{{ object.get_absolute_url }}">{{ object }}</a>
             {% else %}
-                {{ object.title }}
+                {{ object }}
             {% endif %}
             <small>{{ object.published_at|date:'d/m/Y' }}</small>
         </h1>

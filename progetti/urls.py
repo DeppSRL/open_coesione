@@ -3,7 +3,10 @@ from django.conf.urls import patterns, url
 from django.views.decorators.cache import cache_page
 from django.views.generic.base import TemplateView
 from progetti.search_querysets import sqs
-from progetti.views import ProgettoSearchView, ProgettoView, TipologiaView, TipologiaCSVView, TemaCSVView, TemaView, SegnalaDescrizioneView, SegnalazioneDetailView, ProgettoCSVSearchView, ProgettoCSVPreviewSearchView, ProgettoLocCSVPreviewSearchView, ProgettoLocCSVSearchView, ProgettoFullCSVSearchView, ProgrammaView, ProgrammiView
+from progetti.views import ProgettoSearchView, ProgettoView, ClassificazioneAzioneView, ClassificazioneAzioneCSVView,\
+    TemaCSVView, TemaView, SegnalaDescrizioneView, SegnalazioneDetailView, ProgettoCSVSearchView,\
+    ProgettoCSVPreviewSearchView, ProgettoLocCSVPreviewSearchView, ProgettoLocCSVSearchView, ProgettoFullCSVSearchView,\
+    ProgrammaView, ProgrammiView
 
 
 urlpatterns = patterns('',
@@ -24,9 +27,9 @@ urlpatterns = patterns('',
     url(r'^(?P<slug>[\w-]+)/$', ProgettoView.as_view(), name='progetti_progetto'),
 
     # tipologie
-    url(r'^tipologie/(?P<slug>[\w-]+)/$', TipologiaView.as_view(), name='progetti_tipologia'),
+    url(r'^tipologie/(?P<slug>[\w-]+)/$', ClassificazioneAzioneView.as_view(), name='progetti_tipologia'),
     # csv comuni procapite per natura
-    url(r'^tipologie/(?P<slug>[\w-]+).csv$', cache_page(settings.CACHE_PAGE_DURATION_SECS, TipologiaCSVView.as_view(), key_prefix='tipologie'), name='progetti_tipologia_csv'),
+    url(r'^tipologie/(?P<slug>[\w-]+).csv$', cache_page(settings.CACHE_PAGE_DURATION_SECS, ClassificazioneAzioneCSVView.as_view(), key_prefix='tipologie'), name='progetti_tipologia_csv'),
 
     # temi
     url(r'^temi/(?P<slug>[\w-]+)/$', TemaView.as_view(), name='progetti_tema'),

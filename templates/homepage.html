@@ -1,6 +1,6 @@
 {% extends 'base_map.html' %}
-{% load humanize %}
-{% load sekizai_tags %}
+
+{% load staticfiles sekizai_tags humanize %}
 
 {% block page_title %}Homepage{% endblock %}
 
@@ -17,7 +17,7 @@
                         <p>
                             {{ pillola.published_at|date:'d/m/Y' }}
                             <br/>
-                            <a href="{% url 'pillola_item' pillola.slug %}" style="text-transform: uppercase">{{ pillola.title }}</a>
+                            <a href="{{ pillola.get_absolute_url }}" style="text-transform: uppercase">{{ pillola.title }}</a>
                         </p>
                     </div>
                 </div>
@@ -25,8 +25,6 @@
                 <div class="row">
                     <div class="span5">
                         {% if pillola.image %}
-                            {# {% load fb_versions %} #}
-                            {# <img src="{% version pillola.image 'large' %}" /> #}
                             <img src="{{ pillola.image.url }}" />
                         {% endif %}
                     </div>
@@ -45,7 +43,7 @@
             <section class="span4">
                 <h1 class='title'><span>Indicatori territoriali e tematici</span></h1>
 
-                <p style="padding-top: 1em"><img src="{{ STATIC_URL }}img/home/indicatori.png" alt="Indicatori territoriali e tematici"></p>
+                <p style="padding-top: 1em"><img src="{% static 'img/home/indicatori.png' %}" alt="Indicatori territoriali e tematici"></p>
                 <p style="margin-top: 20px;">In quale contesto socio-economico si attuano le politiche di coesione?</p>
                 <p style="position: absolute; bottom: 0; margin-bottom: 2em">
                     <i class="icon-chevron-right"></i> <a href="{% url 'dati-istat' %}">Consulta gli indicatori territoriali e tematici</a></p>
@@ -54,7 +52,7 @@
             <section class="span4">
                 <h1 class='title'><span>Open data</span></h1>
 
-                <p style="padding-top: 1em"><img src="{{ STATIC_URL }}img/home/opendata.png" alt="Open Data"></p>
+                <p style="padding-top: 1em"><img src="{% static 'img/home/opendata.png' %}" alt="Open Data"></p>
                 <p style="margin-top: 20px;">I dati completi (con extra info rispetto a quanto si visualizza!) sui progetti del portale e sul contesto delle politiche di coesione.</p>
                 <p style="position: absolute; bottom: 0; margin-bottom: 2em">
                     <i class="icon-chevron-right"></i> <a href="{% url 'opendata' %}">I dati aperti di OpenCoesione</a></p>
@@ -63,11 +61,11 @@
             <section class="span4">
                 <h1 class='title'><span>Partecipazione e riuso</span></h1>
 
-                <p style="padding-top: 1em"><img src="{{ STATIC_URL }}img/home/partecipazioneriuso.png" alt="Partecipazione e riuso"></p>
+                <p style="padding-top: 1em"><img src="{% static 'img/home/partecipazioneriuso.png' %}" alt="Partecipazione e riuso"></p>
 
                 <div id="partecipazioneriuso" class="row-fluid">
-                    <div class="span6"><a href="http://www.ascuoladiopencoesione.it"><img src="{{ STATIC_URL }}img/home/ascuoladiopencoesione.png" alt="A Scuola di OpenCoesione (ASOC)"></a></div>
-                    <div class="span6"><a href="http://www.monithon.it"><img src="{{ STATIC_URL }}img/home/monithon.png" alt="Monithon"></a></div>
+                    <div class="span6"><a href="http://www.ascuoladiopencoesione.it"><img src="{% static 'img/home/ascuoladiopencoesione.png' %}" alt="A Scuola di OpenCoesione (ASOC)"></a></div>
+                    <div class="span6"><a href="http://www.monithon.it"><img src="{% static 'img/home/monithon.png' %}" alt="Monithon"></a></div>
                 </div>
 
                 <p style="position: absolute; bottom: 0; margin-bottom: 2em">
@@ -102,13 +100,16 @@
                     I target di spesa sono stati raggiunti da 49 Programmi Operativi su 52.
                 </p>
 
-                <p style="position: absolute; bottom: 0; margin-bottom: 0"><i class="icon-chevron-right"></i> <a href="{% url 'flat-spesa-certificata' %}">Approfondisci</a></p>
+                <p style="position: absolute; bottom: 0; margin-bottom: 0"><i class="icon-chevron-right"></i> <a href="{% url 'spesa-certificata' %}">Approfondisci</a></p>
             </section>
         </div>
     </div>
 
-    {% addtoblock 'js_script' %}
-        <script type='text/javascript'>//<![CDATA[
+    {% addtoblock 'js_script' strip %}
+        <script src="{% static 'js/jquery.matchHeight-min.js' %}"></script>
+    {% endaddtoblock %}
+    {% addtoblock 'js_script' strip %}
+        <script type="text/javascript">//<![CDATA[
             $(document).ready(function() {
                 $('.row').each(function() {
                     $(this).children('section').matchHeight();
