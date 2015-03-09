@@ -51,7 +51,7 @@
             <p>
                 I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che gestiscono i fondi, aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_)
                 che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
-                Consulta il <a href="{% url 'opendata_clean' path=raccordo_temi_sintetici_file.file_name %}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
+                Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
             </p>
 
             {% for section_code, section in oc_sections.items %}
@@ -59,7 +59,7 @@
                     <thead>
                         <tr>
                             <td class="label">{{ section.name|capfirst }}</td>
-                            <td><a href="{% url 'opendata_clean' path=section.complete_file.file_name %}">> [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
+                            <td><a href="{{ section.complete_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
                             <td class="switcher" data-target="oc-{{ section.name }}-reg"><a href="#">Regioni [<i></i>]</a></td>
                         </tr>
                     </thead>
@@ -67,7 +67,7 @@
                     <tbody id="oc-{{ section.name }}-reg">
                         {% for regional_file in section.regional_files %}
                             <tr>
-                                <td colspan="3"><a href="{% url 'opendata_clean' path=regional_file.file_name %}">> {{ regional_file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ regional_file.file_size|filesizeformat }}]</a></td>
+                                <td colspan="3"><a href="{{ regional_file.file_name }}">> {{ regional_file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ regional_file.file_size|filesizeformat }}]</a></td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -77,7 +77,7 @@
             <table class="table">
                 <tr>
                     <td class="label">Metadati</td>
-                    <td><a href="{% url 'opendata_clean' path=oc_metadata_file.file_name %}">>[<i class="icon-download-alt"></i> xls {{ oc_metadata_file.file_size|filesizeformat }}]</a></td>
+                    <td><a href="{{ oc_metadata_file.file_name }}">>[<i class="icon-download-alt"></i> xls {{ oc_metadata_file.file_size|filesizeformat }}]</a></td>
                     <td></td>
                 </tr>
             </table>
@@ -104,7 +104,7 @@
                 <p>
                     I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che gestiscono i fondi, aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_)
                     che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
-                    Consulta il <a href="{% url 'opendata_clean' path=raccordo_temi_sintetici_file.file_name %}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
+                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
                 </p>
 
                 {% for section_code, section in fs_sections.items %}
@@ -112,7 +112,7 @@
                         <thead>
                             <tr>
                                 <td class="label">{{ section.name|capfirst }}</td>
-                                <td><a href="{% url 'opendata_clean' path=section.complete_file.file_name %}">> [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
+                                <td><a href="{{ section.complete_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
                                 <td class="switcher" data-target="fs-{{ section.name }}-reg"><a href="#">Regioni [<i></i>]</a></td>
                             </tr>
                         </thead>
@@ -120,7 +120,7 @@
                         <tbody id="fs-{{ section.name }}-reg">
                             {% for regional_file in section.regional_files %}
                                 <tr>
-                                    <td colspan="3"><a href="{% url 'opendata_clean' path=regional_file.file_name %}">> {{ regional_file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ regional_file.file_size|filesizeformat }}]</a></td>
+                                    <td colspan="3"><a href="{{ regional_file.file_name }}">> {{ regional_file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ regional_file.file_size|filesizeformat }}]</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -130,7 +130,7 @@
                 <table class="table">
                     <tr>
                         <td class="label">Metadati</td>
-                        <td><a href="{% url 'opendata_clean' path=fs_metadata_file.file_name %}">> [<i class="icon-download-alt"></i> xls {{ fs_metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ fs_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ fs_metadata_file.file_size|filesizeformat }}]</a></td>
                         <td></td>
                     </tr>
                 </table>
@@ -158,7 +158,7 @@
                 <p>
                     I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi, aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_)
                     che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
-                    Consulta il <a href="{% url 'opendata_clean' path=raccordo_temi_sintetici_file.file_name %}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
+                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
                 </p>
 
                 <table class="table">
@@ -166,13 +166,13 @@
                         {% for section_code, section in fsc_sections.items %}
                             <tr>
                                 <td class="label">{{ section.name|capfirst }}</td>
-                                <td><a href="{% url 'opendata_clean' path=section.complete_file.file_name %}">>[<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
+                                <td><a href="{{ section.complete_file.file_name }}">>[<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
                             </tr>
                         {% endfor %}
                     </thead>
                     <tr>
                         <td class="label">Metadati</td>
-                        <td><a href="{% url 'opendata_clean' path=fsc_metadata_file.file_name %}">>[<i class="icon-download-alt"></i> xls {{ fsc_metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ fsc_metadata_file.file_name }}">>[<i class="icon-download-alt"></i> xls {{ fsc_metadata_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                 </table>
 
@@ -202,7 +202,7 @@
                 <p>
                     I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi, aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_)
                     che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
-                    Consulta il <a href="{% url 'opendata_clean' path=raccordo_temi_sintetici_file.file_name %}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
+                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
                 </p>
 
                 <table class="table">
@@ -210,13 +210,13 @@
                         {% for section_code, section in pac_sections.items %}
                             <tr>
                                 <td class="label">{{ section.name|capfirst }}</td>
-                                <td><a href="{% url 'opendata_clean' path=section.complete_file.file_name %}"> [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
+                                <td><a href="{{ section.complete_file.file_name }}"> [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
                             </tr>
                         {% endfor %}
                     </thead>
                     <tr>
                         <td class="label">Metadati</td>
-                        <td><a href="{% url 'opendata_clean' path=pac_metadata_file.file_name %}"> [<i class="icon-download-alt"></i> xls {{ pac_metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ pac_metadata_file.file_name }}"> [<i class="icon-download-alt"></i> xls {{ pac_metadata_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                 </table>
 
@@ -234,7 +234,7 @@
                     che riguardano le informazioni disponibili al momento in cui è stata assunta la decisione di finanziamento e non hanno caratteristica di monitoraggio.
                     I dati sono scaricabili anche dal <a href="http://www.cipecomitato.it/it/opendata.html">sito del CIPE</a>,
                     senza l’attribuzione del tema sintetico con cui sono visualizzati su OpenCoesione.
-                    Consulta il <a href="{% url 'opendata_clean' path=raccordo_temi_sintetici_file.file_name %}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
+                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
                 </p>
 
                 <table class="table">
@@ -242,12 +242,12 @@
                         {% for section_code, section in cipe_sections.items %}
                             <tr>
                                 <td class="label">{{ section.name|capfirst }}</td>
-                                <td><a href="{% url 'opendata_clean' path=section.complete_file.file_name %}">> [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
+                                <td><a href="{{ section.complete_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
                             </tr>
                         {% endfor %}
                         <tr>
                             <td class="label">Metadati</td>
-                            <td><a href="{% url 'opendata_clean' path=cipe_metadata_file.file_name %}">> [<i class="icon-download-alt"></i> xls {{ cipe_metadata_file.file_size|filesizeformat }}]</a></td>
+                            <td><a href="{{ cipe_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ cipe_metadata_file.file_size|filesizeformat }}]</a></td>
                         </tr>
                     </thead>
                 </table>
@@ -264,21 +264,21 @@
 
         <div id="spesa-content">
             <p>
-                La <a href="{% url 'flat-spesa-certificata' %}">spesa certificata all’UE</a> corrisponde alle richieste di rimborso delle spese sostenute
+                La <a href="{% url 'spesa-certificata' %}">spesa certificata all’UE</a> corrisponde alle richieste di rimborso delle spese sostenute
                 che vengono presentate alla Commissione Europea dalle Amministrazioni titolari dei Programmi cofinanziati dai Fondi Strutturali.
                 I dati vengono aggiornati in concomitanza all'adozione o all'aggiornamento di ciascun atto programmatorio e alle scadenze per la certificazione.
-                Visualizza i <a href="{% url 'flat-spesa-certificata-grafici' %}">grafici interattivi</a> per ciascun Programma Operativo.
+                Visualizza i <a href="{% url 'spesa-certificata-grafici' %}">grafici interattivi</a> per ciascun Programma Operativo.
             </p>
 
             <table class="table">
                 <thead>
                     <tr>
                         <td class="label" style="width: 50%">Dati e metadati su dotazione finanziaria complessiva e spesa certificata alla UE *</td>
-                        <td><a href="{% url 'opendata_clean' path=spesa_dotazione_file.file_name %}">> [<i class="icon-download-alt"></i> xls {{ spesa_dotazione_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ spesa_dotazione_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ spesa_dotazione_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                     <tr>
                         <td class="label" style="width: 50%">Dati e metadati su target di spesa certificata *</td>
-                        <td><a href="{% url 'opendata_clean' path=spesa_target_file.file_name %}">> [<i class="icon-download-alt"></i> xls {{ spesa_target_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ spesa_target_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ spesa_target_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                 </thead>
             </table>
@@ -292,10 +292,9 @@
 
         <div id="istat-content">
             <p>
-                Gli indicatori territoriali di contesto contengono le statistiche presenti nella banca dati DPS-Istat, composta da circa 200 variabili
-                in serie storica annualea partire generalmente dal 1995, articolate per area tematica e per priorità dei diversi cicli di programmazione e aggiornate con cadenza mensile.
-                I dati sono scaricabili anche dal <a href="http://www.istat.it/it/archivio/16777">sito Istat</a>,
-                con disaggregazioni per territorio (regionali, provinciali e comunali), priorità e asse, senza l’attribuzione del tema sintetico con cui sono visualizzati su OpenCoesione.
+                Gli indicatori territoriali di contesto contengono le statistiche presenti nella banca dati DPS-Istat, composta da circa 200 variabili in serie storica annuale
+                a partire generalmente dal 1995, articolate per area tematica e per priorità dei diversi cicli di programmazione e aggiornate con cadenza mensile.
+                I dati sono scaricabili anche dal <a href="http://www.istat.it/it/archivio/16777">sito Istat</a>, con disaggregazioni per territorio (regionali, provinciali e comunali), priorità e asse.
                 La <a href="http://www.istat.it/it/note-legali">licenza utilizzata da Istat</a> è CC BY 3.0.
             </p>
 
@@ -303,11 +302,11 @@
                 <thead>
                     <tr>
                         <td class="label" style="width: 50%">Indicatori territoriali di contesto</td>
-                        <td><a href="{% url 'opendata_clean' path=istat_data_file.file_name %}">> [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ istat_data_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                     <tr>
                         <td class="label">Metadati</td>
-                        <td><a href="{% url 'opendata_clean' path=istat_metadata_file.file_name %}">> [<i class="icon-download-alt"></i> xls {{ istat_metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ istat_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ istat_metadata_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                 </thead>
             </table>
@@ -365,11 +364,11 @@
                 <thead>
                     <tr>
                         <td class="label" style="width: 50%">Rilevazioni dal 2010 al 2013 *</td>
-                        <td><a href="{% url 'opendata_clean' path=indagine_data_file.file_name %}">> [<i class="icon-download-alt"></i> zip/csv {{ indagine_data_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ indagine_data_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ indagine_data_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                     <tr>
                         <td class="label" style="width: 50%">Metadati</td>
-                        <td><a href="{% url 'opendata_clean' path=indagine_metadata_file.file_name %}">> [<i class="icon-download-alt"></i> xls {{ indagine_metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ indagine_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ indagine_metadata_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                 </thead>
             </table>

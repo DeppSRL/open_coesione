@@ -485,8 +485,11 @@ class OpendataView(TemplateView):
         context['spesa_dotazione_file'] = self.get_complete_file('Dotazioni_Certificazioni_{0}.xls'.format(spesa_date))
         context['spesa_target_file'] = self.get_complete_file('Target_Risultati_{0}.xls'.format(spesa_date))
 
-        context['istat_data_file'] = self.get_complete_file('Indicatori_regionali_{0}.zip'.format(istat_date))
+        # context['istat_data_file'] = self.get_complete_file('Indicatori_regionali_{0}.zip'.format(istat_date))
         context['istat_metadata_file'] = self.get_complete_file('Metainformazione.xls')
+        istat_path = 'http://www.istat.it/it/files/2011/07/{0}'
+        context['istat_data_file'] = self.get_complete_remotefile(istat_path.format('Archivio_unico_indicatori_regionali.zip'))
+        # context['istat_metadata_file'] = self.get_complete_remotefile(istat_path.format('Metainformazione.xlsx'))
 
         context['indagine_data_file'] = self.get_complete_file('indagine_data.zip')
         context['indagine_metadata_file'] = self.get_complete_file('indagine_metadata.xls')
@@ -526,7 +529,7 @@ class OpendataView(TemplateView):
         file_size = os.stat(file_path).st_size if os.path.isfile(file_path) else None
 
         return {
-            'file_name': file_name,
+            'file_name': reverse('opendata_clean', kwargs={'path': file_name}),
             'file_size': file_size
         }
 
