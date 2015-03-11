@@ -25,16 +25,6 @@ from tagging.views import TagFilterMixin
 from open_coesione.mixins import DateFilterMixin
 
 
-# def x_robots_tag(func):
-#     @wraps(func, assigned=available_attrs(func))
-#     def inner(self, *args, **kwargs):
-#         response = func(self, *args, **kwargs)
-#         response['X-Robots-Tag'] = self.xrobots_tag
-#         return response
-#
-#     return inner
-
-
 def cached_context(get_context_data):
     """
     This decorator is used to cache the ``get_context_data()`` method
@@ -57,48 +47,6 @@ def cached_context(get_context_data):
     return decorator
 
 
-class AccessControlView(object):
-    """
-    Define access control for the view
-    """
-    # @method_decorator(login_required)
-    # def dispatch(self, *args, **kwargs):
-    #     return super(AccessControlView, self).dispatch(*args, **kwargs)
-    pass
-
-
-# class CGView(TemplateView):
-#     """
-#     cache generator view
-#     generates the curl invocations to pre-navigate the time-consuming urls
-#     can be filtered by maps or pages
-#     """
-#
-#     template_name = 'cache_generator.txt'
-#     filter = None
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(CGView, self).get_context_data(**kwargs)
-#         context['tematizzazioni'] = '{,?tematizzazione=totale_costi,?tematizzazione=totale_pagamenti,?tematizzazione=totale_progetti}'
-#         context['regioni'] = Territorio.objects.filter(territorio='R')
-#         context['province'] = Territorio.objects.filter(territorio='P')
-#         context['temi'] = Tema.objects.principali()
-#         context['nature'] = ClassificazioneAzione.objects.nature()
-#         context['soggetti'] = Soggetto.objects.annotate(c=Count('progetto')).filter(c__gte=1000).order_by('c')
-#         context['base_url'] = 'http://{0}'.format(Site.objects.get_current())
-#         context['curl_cmd'] = 'curl -L -o/dev/null -w '%{url_effective} - %{http_code} (%{time_total}sec.)\\n''
-#         context['log_file'] = 'cache_generation.log'
-#
-#         context['maps'] = True
-#         context['pages'] = True
-#         if self.filter == 'maps':
-#             context['pages'] = False
-#         if self.filter == 'pages':
-#             context['maps'] = False
-#
-#         return context
-
-
 class XRobotsTagTemplateResponseMixin(TemplateResponseMixin):
     x_robots_tag = False
 
@@ -112,7 +60,7 @@ class XRobotsTagTemplateResponseMixin(TemplateResponseMixin):
         return response
 
 
-class AggregatoView(object):
+class AggregatoMixin(object):
     def get_aggregate_data(self, context, **filter):
         if len(filter) > 1:
             raise Exception('Only one filter kwargs is accepted')
@@ -217,7 +165,17 @@ class AggregatoView(object):
         )[:qnt]
 
 
-class HomeView(AccessControlView, AggregatoView, TemplateView):
+class AccessControlView(object):
+    """
+    Define access control for the view
+    """
+    # @method_decorator(login_required)
+    # def dispatch(self, *args, **kwargs):
+    #     return super(AccessControlView, self).dispatch(*args, **kwargs)
+    pass
+
+
+class HomeView(AccessControlView, AggregatoMixin, TemplateView):
     @cached_context
     def get_cached_context_data(self):
         context = {}
@@ -242,7 +200,7 @@ class HomeView(AccessControlView, AggregatoView, TemplateView):
         return context
 
 
-# class HomeView(AccessControlView, AggregatoView, TemplateView):
+# class HomeView(AccessControlView, AggregatoMixin, TemplateView):
 #     def get_context_data(self, **kwargs):
 #         """
 #         low-level caching, to allow adding latest_pillole out of the cached context (fast-refresh)
@@ -492,7 +450,7 @@ class OpendataView(TemplateView):
         }
 
     @staticmethod
-    def get_latest_localfile(file_name, rel_path=False):
+    def get_latest_localfile(file_name, as_urlpath=False):
         opendata_path = os.path.join(settings.MEDIA_ROOT, 'open_data')
 
         def add_wildcard(file_name):
@@ -500,7 +458,7 @@ class OpendataView(TemplateView):
             file_name, file_ext = os.path.splitext(file_name)
             return file_name + '_' + wildcard + file_ext
 
-        file_path = os.path.join(opendata_path, file_name)
+        file_path = os.path.join(opendata_path, *file_name.split('/'))
         if not os.path.isfile(file_path):
             files = sorted(glob.glob(add_wildcard(file_path)))
             if files:
@@ -508,8 +466,8 @@ class OpendataView(TemplateView):
             else:
                 raise IOError
 
-        if rel_path:
-            file_path = os.path.relpath(file_path, opendata_path)
+        if as_urlpath:
+            file_path = '/'.join(os.path.split(os.path.relpath(file_path, opendata_path)))
 
         return file_path
 
@@ -556,7 +514,7 @@ class OpendataView(TemplateView):
 
         files = []
         for region_code, region_name in regions.items():
-            file = cls.get_complete_localfile(os.path.join('regione', '{0}_{1}_{2}.zip'.format(section_code, prefix, region_code)))
+            file = cls.get_complete_localfile('{0}/{1}_{2}_{3}.zip'.format('regione', section_code, prefix, region_code))
             file['region_name'] = region_name
             files.append(file)
 
@@ -582,7 +540,7 @@ class OpendataView(TemplateView):
     #
     #     files = []
     #     for theme_code, theme_name in themes.items():
-    #         file = cls.get_complete_localfile(os.path.join(section_name, '{0}_{1}.zip'.format(section_code, theme_code)))
+    #         file = cls.get_complete_localfile('{0}/{1}_{2}.zip'.format(section_name, section_code, theme_code))
     #         file['theme_name'] = theme_name
     #         files.append(file)
     #
@@ -592,7 +550,7 @@ class OpendataView(TemplateView):
 class OpendataRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
         try:
-            return '/media/open_data/{0}'.format(OpendataView.get_latest_localfile(kwargs['path'], rel_path=True))
+            return '/media/open_data/{0}'.format(OpendataView.get_latest_localfile(kwargs['path'], as_urlpath=True))
         except:
             raise Http404('File not found.')
 

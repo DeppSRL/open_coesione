@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.cache import cache
 from open_coesione import utils
 from open_coesione.data_classification import DataClassifier
-from open_coesione.views import AccessControlView, AggregatoView, cached_context
+from open_coesione.views import AccessControlView, AggregatoMixin, cached_context
 from progetti.gruppo_programmi import GruppoProgrammi
 from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from progetti.views import BaseCSVView
@@ -468,7 +468,7 @@ class MapnikComuniView(MapnikView):
             raise Exception('a region or a province must be specified for this view')
 
 
-class TerritorioView(AccessControlView, AggregatoView, DetailView):
+class TerritorioView(AccessControlView, AggregatoMixin, DetailView):
     model = Territorio
     tipo_territorio = None
 
@@ -536,7 +536,7 @@ class AmbitoNazionaleView(TerritorioView):
     tipo_territorio = Territorio.TERRITORIO.N
 
 
-class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
+class AmbitoEsteroView(AccessControlView, AggregatoMixin, ListView):
     queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.E)
 
     @cached_context

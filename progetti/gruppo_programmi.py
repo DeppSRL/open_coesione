@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django.utils.datastructures import SortedDict
+from django.utils.functional import cached_property
 from progetti.models import ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from django.core.cache import cache
 
@@ -27,12 +28,12 @@ class Config:
         # cache
         programmi = cache.get('programmi')
         if programmi is None:
-            programmi = ProgrammaAsseObiettivo.objects.filter(tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma)
+            programmi = ProgrammaAsseObiettivo.objects.programmi().order_by('descrizione')
             cache.set('programmi', programmi)
 
         programmi_linea = cache.get('programmi_linea')
         if programmi_linea is None:
-            programmi_linea = ProgrammaLineaAzione.objects.filter(tipo_classificazione=ProgrammaLineaAzione.TIPO.programma)
+            programmi_linea = ProgrammaLineaAzione.objects.programmi().order_by('descrizione')
             cache.set('programmi_linea', programmi_linea)
 
         programmi_pac_fse = cache.get('programmi_pac_fse')
@@ -85,8 +86,8 @@ class Config:
         ])
 
         lista_programmi = {
-            'fse': [p for p in programmi.order_by('descrizione') if ' FSE ' in p.descrizione.upper()],
-            'fesr': [p for p in programmi.order_by('descrizione') if ' FESR ' in p.descrizione.upper()],
+            'fse': [p for p in programmi if ' FSE ' in p.descrizione.upper()],
+            'fesr': [p for p in programmi if ' FESR ' in p.descrizione.upper()],
             'fsc_par': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PAR' == p.descrizione[:3]]))),
             'fsc_pa': lista_programmi_fsc_pa,
             'fsc_pra': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if '(PRA)' in p.descrizione]))),
@@ -104,35 +105,36 @@ class Config:
 class GruppoProgrammi:
     CODICI = ['ue-fesr', 'ue-fse', 'fsc', 'pac']
 
+    codice = None
+
     def __init__(self, codice):
         if codice in self.CODICI:
-            self._codice = codice
-            self._programmi = None
+            self.codice = codice
         else:
-            raise ValueError('Wrong codice: %s' % codice)
+            raise ValueError('Wrong codice: {0}'.format(codice))
 
+    @cached_property
     def programmi(self):
-        if not self._programmi:
-            lista_programmi = Config.get_lista_programmi()
+        programmi = None
 
-            if self._codice == 'ue-fesr' or self._codice == 'ue-fse':
-                self._programmi = lista_programmi[self._codice.replace('ue-', '')]
-            elif self._codice == 'fsc' or self._codice == 'pac':
-                if self._codice == 'fsc':
-                    ids = lista_programmi['fsc_par'].values() + lista_programmi['fsc_pa'].values() + \
-                          lista_programmi['fsc_pra'].values() + lista_programmi['fsc_pna'].values() + \
-                          lista_programmi['fsc_pstg'].values()
-                else:
-                    ids = lista_programmi['pac_pac_m'].values() + lista_programmi['pac_pac_r'].values()
+        lista_programmi = Config.get_lista_programmi()
 
-                from itertools import chain
+        if self.codice == 'ue-fesr' or self.codice == 'ue-fse':
+            programmi = lista_programmi[self.codice.replace('ue-', '')]
+        elif self.codice == 'fsc' or self.codice == 'pac':
+            if self.codice == 'fsc':
+                ids = lista_programmi['fsc_par'].values() + lista_programmi['fsc_pa'].values() + \
+                      lista_programmi['fsc_pra'].values() + lista_programmi['fsc_pna'].values() + \
+                      lista_programmi['fsc_pstg'].values()
+            else:
+                ids = lista_programmi['pac_pac_m'].values() + lista_programmi['pac_pac_r'].values()
 
-                self._programmi = list(chain(ProgrammaAsseObiettivo.objects.filter(pk__in=ids), ProgrammaLineaAzione.objects.filter(pk__in=ids)))
+            from itertools import chain
 
-        return self._programmi
+            programmi = list(chain(ProgrammaAsseObiettivo.objects.filter(pk__in=ids), ProgrammaLineaAzione.objects.filter(pk__in=ids)))
 
-    def codice(self):
-        return self._codice
+        return programmi
 
+    @property
     def descrizione(self):
-        return 'Programmi ' + self._codice.replace('-', ' ').upper()
+        return 'Programmi ' + self.codice.replace('-', ' ').upper()

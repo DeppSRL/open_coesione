@@ -17,7 +17,7 @@ from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin,
 from oc_search.views import ExtendedFacetedSearchView
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from open_coesione import utils
-from open_coesione.views import AggregatoView, AccessControlView, XRobotsTagTemplateResponseMixin, cached_context
+from open_coesione.views import AccessControlView, AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
 from progetti.forms import DescrizioneProgettoForm
 from progetti.gruppo_programmi import GruppoProgrammi, split_by_type
 from progetti.models import Tema, Fonte, SegnalazioneProgetto
@@ -268,7 +268,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         return extra
 
 
-class BaseProgrammaView(AccessControlView, AggregatoView, TemplateView):
+class BaseProgrammaView(AccessControlView, AggregatoMixin, TemplateView):
     @cached_context
     def get_cached_context_data(self, programmi):
         logger = logging.getLogger('console')
@@ -324,7 +324,7 @@ class ProgrammiView(BaseProgrammaView):
             raise Http404
 
         kwargs.update({
-            'programmi': gruppo_programmi.programmi()
+            'programmi': gruppo_programmi.programmi
         })
 
         context = super(ProgrammiView, self).get_context_data(**kwargs)
@@ -366,7 +366,7 @@ class ProgrammaView(BaseProgrammaView):
         return context
 
 
-class ClassificazioneAzioneView(AccessControlView, AggregatoView, DetailView):
+class ClassificazioneAzioneView(AccessControlView, AggregatoMixin, DetailView):
     context_object_name = 'tipologia'
     model = ClassificazioneAzione
 
@@ -404,7 +404,7 @@ class ClassificazioneAzioneView(AccessControlView, AggregatoView, DetailView):
         return context
 
 
-class TemaView(AccessControlView, AggregatoView, DetailView):
+class TemaView(AccessControlView, AggregatoMixin, DetailView):
     model = Tema
 
     @cached_context
@@ -447,7 +447,7 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
         return context
 
 
-class BaseCSVView(AggregatoView, DetailView):
+class BaseCSVView(AggregatoMixin, DetailView):
     filter_field = None
 
     @staticmethod
