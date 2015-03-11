@@ -550,7 +550,7 @@ class OpendataView(TemplateView):
 class OpendataRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
         try:
-            return '/media/open_data/{0}'.format(OpendataView.get_latest_localfile(kwargs['path'], as_urlpath=True))
+            return u'/media/open_data/{0}'.format(OpendataView.get_latest_localfile(kwargs['path'], as_urlpath=True))
         except:
             raise Http404('File not found.')
 
@@ -580,7 +580,7 @@ class PillolaDetailView(DetailView):
 
 class PillolaRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
-        return '/media/pillole/{0}'.format(kwargs['path'])
+        return u'/media/pillole/{0}'.format(kwargs['path'])
 
 
 class PressReviewListView(ListView):
@@ -604,4 +604,4 @@ class FAQListView(ListView):
 
 class DocumentsRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
-        return '/media/uploads/documenti/{0}'.format(kwargs['path'])
+        return u'/media/uploads/documenti/{0}'.format(kwargs['path'])
