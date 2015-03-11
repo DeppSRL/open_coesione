@@ -1,6 +1,8 @@
-var init_charts = function(charts_container, min_regions, max_regions) {
+var init_charts = function(charts_container, base_url, min_regions, max_regions) {
     var $chart_container = $('#topic_chart');
     var $selectors = $chart_container.next('form');
+
+    APP.base_url = base_url;
 
     var $elems = $(charts_container).find('.collapse');
     $elems.on('show', function() {

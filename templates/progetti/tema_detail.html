@@ -60,7 +60,7 @@
     {% addtoblock 'js_script' strip %}
         <script>
             $(document).ready(function() {
-                init_charts('#index_charts', 1 ,{{ lista_regioni|length|add:1 }});
+                init_charts('#index_charts', '{% static '' %}', 1 ,{{ lista_regioni|length|add:1 }});
             });
         </script>
     {% endaddtoblock %}

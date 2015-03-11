@@ -71,7 +71,7 @@
         {% addtoblock 'js_script' strip %}
             <script>
                 $(document).ready(function() {
-                    init_charts('#index_charts', 2 ,3);
+                    init_charts('#index_charts', '{% static '' %}', 2 ,3);
                 });
             </script>
         {% endaddtoblock %}
