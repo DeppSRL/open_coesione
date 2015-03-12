@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block js_content %}
-    {% addtoblock "css_link" %}
+    {% addtoblock 'css_link' %}
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/map-styles.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}leaflet-dist/leaflet.css" />
         <!--[if lte IE 8]>
@@ -23,7 +23,7 @@
         <![endif]-->
     {% endaddtoblock %}
 
-    {% addtoblock "js_script" %}
+    {% addtoblock 'js_script' %}
         <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>
 
@@ -84,7 +84,7 @@
                 me.attr('disabled', true);
 
                 build_map('map', '/territori/leaflet/{{ map_selector }}'+ $(this).data('path') +'.json?tematizzazione='+dataset_name + $('#procapite_selectors .btn.active').data('path'), function() {
-                    me.addClass("active");
+                    me.addClass('active');
                     me.attr('disabled', false);
                     IS_LOADING = false;
                 });
@@ -106,7 +106,7 @@
                 me.attr('disabled', true);
 
                 build_map('map', '/territori/leaflet/{{ map_selector }}'+ $('#selectors .btn.active').data('path') +'.json?tematizzazione='+dataset_name + me.data('path'), function() {
-                    me.addClass("active");
+                    me.addClass('active');
                     me.attr('disabled', false);
                     IS_LOADING = false;
                 });
@@ -178,6 +178,39 @@
                             {% if programma %}
                 	            <h1 class="title black" style="margin-bottom: 0;"><span>Programma: {{ programma.descrizione }}</span></h1>
                                 <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&fonte_fin={{ programma.codice }}">Vai a tutti i progetti</a></p>
+                                {% if programma.documenti.count or programma.collegamenti.count %}
+                                    <ul id="extra-resources" style="list-style-type: none">
+                                        {% for documento in programma.documenti.all %}
+                                            <li class="icon-download-alt" style="padding: 6px 0; border-bottom: 1px solid #DDDDDD">
+                                                <a href="{{ documento.file.url }}">{{ documento }}</a>
+                                                {% if documento.large_description %}
+                                                    <p>{{ documento.large_description }}</p>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                        {% for collegamento in programma.collegamenti.all %}
+                                            <li class="icon-external-link" style="padding: 6px 0; border-bottom: 1px solid #DDDDDD">
+                                                <a href="{{ collegamento.url }}" target="_blank">{{ collegamento }}</a>
+                                                {% if collegamento.large_description %}
+                                                    <p>{{ collegamento.large_description }}</p>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% addtoblock 'js_script' %}
+                                        <script type="text/javascript">
+                                            $(document).ready(function() {
+                                                var elem = $('#extra-resources');
+                                                elem.hide();
+                                                $('<span style="margin-left: 100px" class="icon-align-justify"> <a href="#">Visualizza documenti e collegamenti</a></span>').appendTo(elem.prev()).find('a').on('click', function(e) {
+                                                    var self = $(this);
+                                                    elem.slideToggle('fast', function() { self.text(($(this).is(':visible') ? 'Nascondi' : 'Visualizza') + ' ' + self.text().split(' ').slice(1).join(' ')) });
+                                                    e.preventDefault();
+                                                });
+                                            });
+                                        </script>
+                                    {% endaddtoblock %}
+                                {% endif %}
                             {% endif %}
                             {% if gruppo_programmi %}
                 	            <h1 class="title black" style="margin-bottom: 0;"><span>{{ gruppo_programmi.descrizione }}</span></h1>
@@ -196,10 +229,10 @@
 
                     <div class="row-fluid">
                         {% if tema %}
-                            <div class="span6">{{ tema.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
+                            <div class="span6">{{ tema.descrizione_estesa|default_if_none:'&nbsp;' }}</div>
                         {% endif %}
                         {% if tipologia %}
-                            <div class="span6">{{ tipologia.descrizione_estesa|default_if_none:"&nbsp;" }}</div>
+                            <div class="span6">{{ tipologia.descrizione_estesa|default_if_none:'&nbsp;' }}</div>
                         {% endif %}
                         {% if nature_principali %}
                             <div class="span6">
@@ -225,7 +258,7 @@
                                                     <a href="{{ tipologia.get_absolute_url }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a>
                                                 {% endif %}
                                             </td>
-                                            <td class="amount"><strong>{{ tipologia.tot|default:"0"|floatformat:"0" }}</strong></td>
+                                            <td class="amount"><strong>{{ tipologia.tot|default:'0'|floatformat:'0' }}</strong></td>
                                         </tr>
                                     {% endfor %}
                                 </table>
@@ -255,7 +288,7 @@
                                                     <a href="{{ tema.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a>
                                                 {% endif %}
                                             </td>
-                                            <td class="amount"><strong>{{ tema.tot|default:"0"|floatformat:"0" }}</strong></td>
+                                            <td class="amount"><strong>{{ tema.tot|default:'0'|floatformat:'0' }}</strong></td>
                                         </tr>
                                     {% endfor %}
                                 </table>
@@ -286,13 +319,13 @@
                                 {% elif territorio.territorio == 'P' %}
                                     <a href="#" id="province_{{ territorio.cod_prov }}_comuni" data-path="province/{{ territorio.cod_prov }}/comuni" class="btn active">comuni</a>
                                 {% elif territorio.territorio == 'C' %}
-                                    <a href="#" id="comuni" data-path="world" data-coords="{{ territorio.geom.centroid.coords|join:"," }}" class="btn active">{{ territorio }}</a>
+                                    <a href="#" id="comuni" data-path="world" data-coords="{{ territorio.geom.centroid.coords|join:',' }}" class="btn active">{{ territorio }}</a>
                                 {% else %}
                                     <a href="#" id="regioni" data-path="regioni" class="btn">regioni</a><a href="#" id="province" data-path="province" class="btn active">province</a>
                                 {% endif %}
                             </div>
                         </div>
-                        <div id="map"{% if territorio.territorio == 'C' %} style=" height: 400px; "{% endif %}></div>
+                        <div id="map"{% if territorio.territorio == 'C' %} style="height: 400px;"{% endif %}></div>
                         <div id="map-search">
                             <form class="form-search content">
                                 <div class="input-append">
@@ -310,7 +343,7 @@
                     <div class="row">
                         {% if top_progetti_per_costo %}
                             <section class="span6">
-                                <h1 class='title'><span>Progetti con maggiori finanziamenti</span></h1>
+                                <h1 class="title"><span>Progetti con maggiori finanziamenti</span></h1>
                                 <table class="table">
                                     {% for progetto in top_progetti_per_costo %}
                                         <tr>
@@ -324,8 +357,8 @@
 
                         {% if ultimi_progetti_conclusi %}
                             <section class="span3">
-                                <h1 class='title'><span>Ultimi progetti conclusi</span></h1>
-                                <ul class='spaced'>
+                                <h1 class="title"><span>Ultimi progetti conclusi</span></h1>
+                                <ul class="spaced">
                                     {% for progetto in ultimi_progetti_conclusi %}
                                         <li>
                                             {{ progetto.data_fine_effettiva|date:'d/m/Y' }}
@@ -339,7 +372,7 @@
 
                         {% if territori_piu_finanziati_pro_capite %}
                             <section class="span3">
-                                <h1 class='title'><span>
+                                <h1 class="title"><span>
                                     {% if territorio and territorio.territorio == 'C' %}
                                         Finanziamenti pro capite
                                     {% else %}

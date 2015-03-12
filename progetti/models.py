@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 from decimal import Decimal
-
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.functional import cached_property
 from django.contrib.contenttypes import generic
-from django.contrib.contenttypes.models import ContentType
 from django_extensions.db.fields import AutoSlugField
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaManager, FullProgettiManager
 from django.core.cache import cache
 from soggetti.models import Soggetto
-from open_coesione.models import URL
+from open_coesione.models import File, Link
 
 
 class ClassificazioneQSN(models.Model):
@@ -21,9 +20,8 @@ class ClassificazioneQSN(models.Model):
         ('OBIETTIVO_GENERALE', 'generale', u'Obiettivo generale'),
         ('OBIETTIVO_SPECIFICO', 'specifico', u'Obiettivo specifico')
     )
-    classificazione_superiore = models.ForeignKey('self', default=None,
-                                                  related_name='classificazione_set',
-                                                  db_column='classificazione_superiore', null=True, blank=True)
+
+    classificazione_superiore = models.ForeignKey('self', default=None, related_name='classificazione_set', db_column='classificazione_superiore', null=True, blank=True)
     codice = models.CharField(max_length=16, primary_key=True)
     descrizione = models.TextField()
     tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
@@ -37,7 +35,7 @@ class ClassificazioneQSN(models.Model):
         return self.progetto_set
 
     def __unicode__(self):
-        return self.codice
+        return u'{0}'.format(self.codice)
 
     class Meta:
         verbose_name = 'Classificazione QSN'
@@ -45,40 +43,20 @@ class ClassificazioneQSN(models.Model):
         db_table = 'progetti_classificazione_qsn'
 
 
-class Documento(models.Model):
-    TIPO = Choices(
-        ('documento_programma', u'Documento di programma'),
-        ('rapporto_annuale', u'Rapporto annuale di pubblicazione'),
-    )
-
-    tipo = models.CharField(max_length=32, choices=TIPO)
-    file = models.FileField(upload_to='documenti')
-    data = models.DateField(blank=True, null=True)
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.CharField(max_length=255)
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
-
-    class Meta:
-        verbose_name_plural = 'Documenti'
-
-
 class ProgrammaBase(models.Model):
-
-    objects = ProgrammaManager()
-
     TIPO = {}
 
-    classificazione_superiore = models.ForeignKey('self', default=None,
-                                                  related_name='classificazione_set',
-                                                  db_column='classificazione_superiore',
-                                                  null=True, blank=True)
+    classificazione_superiore = models.ForeignKey('self', default=None, related_name='classificazione_set', db_column='classificazione_superiore', null=True, blank=True)
     codice = models.CharField(max_length=32, primary_key=True)
     descrizione = models.TextField()
+    descrizione_estesa = models.TextField(null=True, blank=True)
     tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
     dotazione_totale = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
-    url_riferimento = models.URLField(max_length=255, blank=True, null=True)
-    links = generic.GenericRelation(URL)
-    documenti = generic.GenericRelation(Documento)
+    # url_riferimento = models.URLField(max_length=255, blank=True, null=True)
+    documenti = generic.GenericRelation(File)
+    collegamenti = generic.GenericRelation(Link)
+
+    objects = ProgrammaManager()
 
     @property
     def programma(self):
@@ -95,11 +73,14 @@ class ProgrammaBase(models.Model):
     def is_root(self):
         return self.tipo_classificazione == self.TIPO.programma
 
-    def __getattr__(self, item):
-        if item in ['descrizione_estesa', 'links', 'documenti']:
-            return getattr(self.extra_info, item)
-        else:
-            raise AttributeError('{0!r} object has no attribute {1!r}'.format(self.__class__.__name__, item))
+    def get_absolute_url(self):
+        return reverse('progetti_programma', kwargs={'codice': self.codice})
+
+    # def __getattr__(self, item):
+    #     if item in ['descrizione_estesa', 'links', 'documenti']:
+    #         return getattr(self.extra_info, item)
+    #     else:
+    #         raise AttributeError('{0!r} object has no attribute {1!r}'.format(self.__class__.__name__, item))
 
     def __unicode__(self):
         return u'{0}'.format(self.descrizione[0:100])
@@ -109,21 +90,16 @@ class ProgrammaBase(models.Model):
 
 
 class ProgrammaAsseObiettivo(ProgrammaBase):
-
     TIPO = Choices(
         ('PROGRAMMA_FS', 'programma', u'Programma FS'),
         ('ASSE', 'asse', u'Asse'),
         ('OBIETTIVO_OPERATIVO', 'obiettivo', u'Obiettivo operativo')
     )
 
-    class Meta(ProgrammaBase.Meta):
-        verbose_name_plural = 'Programmi - Assi - Obiettivi operativi'
-        db_table = 'progetti_programma_asse_obiettivo'
-
-    @property
-    def extra_info(self):
-        extra_info, created = ProgrammaAsseObiettivoExtraInfo.objects.get_or_create(programma=self)
-        return extra_info
+    # @property
+    # def extra_info(self):
+    #     extra_info, created = ProgrammaAsseObiettivoExtraInfo.objects.get_or_create(programma=self)
+    #     return extra_info
 
     @property
     def progetti_di_programma(self):
@@ -138,6 +114,10 @@ class ProgrammaAsseObiettivo(ProgrammaBase):
         else:
             raise Exception('This property is not available for Asse or Obiettivo classifications.')
 
+    class Meta(ProgrammaBase.Meta):
+        verbose_name_plural = 'Programmi - Assi - Obiettivi operativi'
+        db_table = 'progetti_programma_asse_obiettivo'
+
 
 class ProgrammaLineaAzione(ProgrammaBase):
     """
@@ -151,14 +131,10 @@ class ProgrammaLineaAzione(ProgrammaBase):
         ('AZIONE', 'azione', u'Azione')
     )
 
-    class Meta(ProgrammaBase.Meta):
-        verbose_name_plural = 'Programmi - Linee - Azioni'
-        db_table = 'progetti_programma_linea_azione'
-
-    @property
-    def extra_info(self):
-        extra_info, created = ProgrammaLineaAzioneExtraInfo.objects.get_or_create(programma=self)
-        return extra_info
+    # @property
+    # def extra_info(self):
+    #     extra_info, created = ProgrammaLineaAzioneExtraInfo.objects.get_or_create(programma=self)
+    #     return extra_info
 
     @property
     def progetti_di_programma(self):
@@ -173,35 +149,39 @@ class ProgrammaLineaAzione(ProgrammaBase):
         else:
             raise Exception('This property is not available for Linea or Azione classifications.')
 
-
-class ProgrammaExtraInfoBase(models.Model):
-    descrizione_estesa = models.TextField(null=True, blank=True)
-    links = generic.GenericRelation(URL)
-    documenti = generic.GenericRelation(Documento)
-
-    def __unicode__(self):
-        return self.programma.codice
-
-    class Meta:
-        abstract = True
+    class Meta(ProgrammaBase.Meta):
+        verbose_name_plural = 'Programmi - Linee - Azioni'
+        db_table = 'progetti_programma_linea_azione'
 
 
-class ProgrammaAsseObiettivoExtraInfo(ProgrammaExtraInfoBase):
-    programma = models.OneToOneField(ProgrammaAsseObiettivo, primary_key=True)
+# class ProgrammaExtraInfoBase(models.Model):
+#     descrizione_estesa = models.TextField(null=True, blank=True)
+#     links = generic.GenericRelation(URL)
+#     documenti = generic.GenericRelation(Documento)
+#
+#     def __unicode__(self):
+#         return self.programma.codice
+#
+#     class Meta:
+#         abstract = True
 
-    class Meta(ProgrammaExtraInfoBase.Meta):
-        verbose_name = 'Programma - Asse - Obiettivo operativo (informazioni aggiuntive)'
-        verbose_name_plural = 'Programmi - Assi - Obiettivi operativi (informazioni aggiuntive)'
-        db_table = 'progetti_programma_asse_obiettivo_extra_info'
+
+# class ProgrammaAsseObiettivoExtraInfo(ProgrammaExtraInfoBase):
+#     programma = models.OneToOneField(ProgrammaAsseObiettivo, primary_key=True)
+#
+#     class Meta(ProgrammaExtraInfoBase.Meta):
+#         verbose_name = 'Programma - Asse - Obiettivo operativo (informazioni aggiuntive)'
+#         verbose_name_plural = 'Programmi - Assi - Obiettivi operativi (informazioni aggiuntive)'
+#         db_table = 'progetti_programma_asse_obiettivo_extra_info'
 
 
-class ProgrammaLineaAzioneExtraInfo(ProgrammaExtraInfoBase):
-    programma = models.OneToOneField(ProgrammaLineaAzione, primary_key=True)
-
-    class Meta(ProgrammaExtraInfoBase.Meta):
-        verbose_name = 'Programma - Linea - Azione (informazioni aggiuntive)'
-        verbose_name_plural = 'Programmi - Linee - Azioni (informazioni aggiuntive)'
-        db_table = 'progetti_programma_linea_azione_extra_info'
+# class ProgrammaLineaAzioneExtraInfo(ProgrammaExtraInfoBase):
+#     programma = models.OneToOneField(ProgrammaLineaAzione, primary_key=True)
+#
+#     class Meta(ProgrammaExtraInfoBase.Meta):
+#         verbose_name = 'Programma - Linea - Azione (informazioni aggiuntive)'
+#         verbose_name_plural = 'Programmi - Linee - Azioni (informazioni aggiuntive)'
+#         db_table = 'progetti_programma_linea_azione_extra_info'
 
 
 class Tema(models.Model):
@@ -209,16 +189,15 @@ class Tema(models.Model):
         ('sintetico', 'Sintetico'),
         ('prioritario', 'Prioritario'),
     )
-    tema_superiore = models.ForeignKey('self', default=None,
-                                       related_name='tema_set',
-                                       db_column='tema_superiore', null=True, blank=True)
+
+    tema_superiore = models.ForeignKey('self', default=None, related_name='tema_set', db_column='tema_superiore', null=True, blank=True)
     codice = models.CharField(max_length=16, primary_key=True)
     descrizione = models.CharField(max_length=255)
     descrizione_estesa = models.TextField(null=True, blank=True)
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_tema = models.CharField(max_length=16, choices=TIPO)
     slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True, null=True)
-    priorita = models.PositiveSmallIntegerField(default=0)
+    priorita = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
 
     objects = TemiManager()
 
@@ -232,7 +211,7 @@ class Tema(models.Model):
 
     @property
     def is_root(self):
-        return self.tipo_tema == Tema.TIPO.sintetico
+        return self.tipo_tema == self.TIPO.sintetico
 
     def totale_pro_capite(self, territorio_or_popolazione):
         if isinstance(territorio_or_popolazione, (int, float)):
@@ -266,11 +245,8 @@ class Tema(models.Model):
             cache.set(cache_key, result)
         return result
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('progetti_tema', (), {
-            'slug': self.slug
-        })
+        return reverse('progetti_tema', kwargs={'slug': self.slug})
 
     def __unicode__(self):
         return u'{0} {1}'.format(self.codice, self.descrizione)
@@ -321,23 +297,21 @@ class Fonte(models.Model):
 
 
 class ClassificazioneAzione(models.Model):
-
-    objects = ClassificazioneAzioneManager()
-
     TIPO = Choices(
         ('natura', 'Natura'),
         ('tipologia', 'Tipologia'),
     )
-    classificazione_superiore = models.ForeignKey('self', default=None,
-                                                  related_name='classificazione_set',
-                                                  db_column='classificazione_superiore', null=True, blank=True)
+
+    classificazione_superiore = models.ForeignKey('self', default=None, related_name='classificazione_set', db_column='classificazione_superiore', null=True, blank=True)
     codice = models.CharField(max_length=8, primary_key=True)
     descrizione = models.TextField()
     descrizione_estesa = models.TextField(null=True, blank=True)
     short_label = models.CharField(max_length=64, blank=True, null=True)
     tipo_classificazione = models.CharField(max_length=16, choices=TIPO)
     slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True, null=True)
-    priorita = models.IntegerField(blank=True, null=True)
+    priorita = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
+
+    objects = ClassificazioneAzioneManager()
 
     @property
     def classificazioni_figlie(self):
@@ -349,7 +323,7 @@ class ClassificazioneAzione(models.Model):
 
     @property
     def is_root(self):
-        return self.tipo_classificazione == ClassificazioneAzione.TIPO.natura
+        return self.tipo_classificazione == self.TIPO.natura
 
     def costo_totale(self, territorio=None):
         if self.is_root:
@@ -364,11 +338,8 @@ class ClassificazioneAzione(models.Model):
 
         return query_set.aggregate(totale=models.Sum('{0}fin_totale_pubblico'.format(prefix)))['totale'] or 0.0
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('progetti_tipologia', (), {
-            'slug': self.slug
-        })
+        return reverse('progetti_tipologia', kwargs={'slug': self.slug})
 
     def __unicode__(self):
         return u'{0} {1}'.format(self.codice, self.descrizione)
@@ -385,9 +356,8 @@ class ClassificazioneOggetto(models.Model):
         ('sottosettore', 'Sotto settore'),
         ('categoria', 'Categoria'),
     )
-    classificazione_superiore = models.ForeignKey('self', default=None,
-                                                  related_name='classificazione_set',
-                                                  db_column='classificazione_superiore', null=True, blank=True)
+
+    classificazione_superiore = models.ForeignKey('self', default=None, related_name='classificazione_set', db_column='classificazione_superiore', null=True, blank=True)
     codice = models.CharField(max_length=16, primary_key=True)
     descrizione = models.TextField()
     tipo_classificazione = models.CharField(max_length=16, choices=TIPO)
@@ -410,15 +380,10 @@ class ClassificazioneOggetto(models.Model):
 
 
 class Progetto(TimeStampedModel):
-
-    objects = ProgettiManager()    # override the default manager
-    fullobjects = FullProgettiManager()
-
     TIPI_PROGETTO = Choices(
         ('PM', 'progetto_monitorato', u'Progetto monitorato'),
         ('CIPE', 'assegnazione_cipe', u'Assegnazione CIPE'),
     )
-
     DPS_FLAG_CUP = Choices(
         ('0', u'CUP non valido'),
         ('1', u'CUP valido'),
@@ -461,6 +426,7 @@ class Progetto(TimeStampedModel):
         ('1', u'Il progetto appartiene al PAC ed è finanziato con risorse dedicate, al di fuori dei Programmi Operativi'),
         ('2', u"Il progetto appartiene al PAC ed è finanziato nell'ambito dei Programmi Operativi"),
     )
+
     codice_locale = models.CharField(max_length=100, primary_key=True, db_column='cod_locale_progetto')
 
     cup = models.CharField(max_length=15, blank=True)
@@ -471,28 +437,15 @@ class Progetto(TimeStampedModel):
     titolo_progetto = models.TextField()
     descrizione = models.TextField(blank=True, null=True)
     slug = models.SlugField(max_length=128, blank=True, null=True, unique=True, db_index=True)
-    classificazione_qsn = models.ForeignKey('ClassificazioneQSN',
-                                            related_name='progetto_set',
-                                            db_column='classificazione_qsn',
-                                            null=True, blank=True)
 
-    programma_asse_obiettivo = models.ForeignKey('ProgrammaAsseObiettivo',
-                                                 related_name='progetto_set',
-                                                 db_column='programma_asse_progetto',
-                                                 null=True, blank=True)
-
-    programma_linea_azione = models.ForeignKey('ProgrammaLineaAzione',
-                                               related_name='progetto_set',
-                                               db_column='programma_linea_azione',
-                                               null=True, blank=True)
+    classificazione_qsn = models.ForeignKey('ClassificazioneQSN', related_name='progetto_set', db_column='classificazione_qsn', null=True, blank=True)
+    programma_asse_obiettivo = models.ForeignKey('ProgrammaAsseObiettivo', related_name='progetto_set', db_column='programma_asse_progetto', null=True, blank=True)
+    programma_linea_azione = models.ForeignKey('ProgrammaLineaAzione', related_name='progetto_set', db_column='programma_linea_azione', null=True, blank=True)
 
     obiettivo_sviluppo = models.CharField(max_length=16, blank=True, null=True, choices=OBIETTIVO_SVILUPPO)
     tipo_operazione = models.IntegerField(blank=True, null=True, choices=TIPO_OPERAZIONE)
     fondo_comunitario = models.CharField(max_length=4, blank=True, null=True, choices=FONDO_COMUNITARIO)
-    tema = models.ForeignKey('Tema',
-                             related_name='progetto_set',
-                             db_column='tema',
-                             null=True, blank=True)
+    tema = models.ForeignKey('Tema', related_name='progetto_set', db_column='tema', null=True, blank=True)
 
     # fonte = models.ForeignKey('Fonte',
     #                           related_name='progetto_correlato_set',
@@ -503,15 +456,8 @@ class Progetto(TimeStampedModel):
     # fonte_descrizione = models.TextField(blank=True, null=True)
     # fonte_url = models.URLField(blank=True, null=True)
 
-    classificazione_azione = models.ForeignKey('ClassificazioneAzione',
-                                               related_name='progetto_set',
-                                               db_column='classificazione_azione',
-                                               null=True, blank=True)
-
-    classificazione_oggetto = models.ForeignKey('ClassificazioneOggetto',
-                                                related_name='progetto_set',
-                                                db_column='classificazione_oggetto',
-                                                null=True, blank=True)
+    classificazione_azione = models.ForeignKey('ClassificazioneAzione', related_name='progetto_set', db_column='classificazione_azione', null=True, blank=True)
+    classificazione_oggetto = models.ForeignKey('ClassificazioneOggetto', related_name='progetto_set', db_column='classificazione_oggetto', null=True, blank=True)
 
     # cipe_num_delibera = models.IntegerField(null=True, blank=True)
     # cipe_anno_delibera = models.CharField(max_length=4, null=True, blank=True)
@@ -565,6 +511,9 @@ class Progetto(TimeStampedModel):
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
+
+    objects = ProgettiManager()    # override the default manager
+    fullobjects = FullProgettiManager()
 
     @property
     def tipo_progetto(self):
@@ -708,15 +657,6 @@ class Progetto(TimeStampedModel):
             return self.data_aggiornamento
         return max(self.data_aggiornamento, *[p.data for p in pagamenti])
 
-    def __unicode__(self):
-        return self.codice_locale
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ('progetti_progetto', (), {
-            'slug': self.slug
-        })
-
     def percentuale_pagamenti(self):
         if not self.fin_totale_pubblico or not self.pagamento:
             return 0.0
@@ -758,6 +698,16 @@ class Progetto(TimeStampedModel):
 
         return fonti_fin
 
+    def get_absolute_url(self):
+        return reverse('progetti_progetto', kwargs={'slug': self.slug})
+
+    def update(self, **kwargs):
+        for k, v in kwargs.iteritems():
+            setattr(self, k, v)
+        self.save()
+
+        return self
+
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.slug is None:
             original_slug = slugify(u'{0}'.format(self.codice_locale))
@@ -786,12 +736,8 @@ class Progetto(TimeStampedModel):
     #         self.note = notes
     #     super(Progetto, self).save(force_insert, force_update, using)
 
-    def update(self, **kwargs):
-        for k, v in kwargs.iteritems():
-            setattr(self, k, v)
-        self.save()
-
-        return self
+    def __unicode__(self):
+        return u'{0}'.format(self.codice_locale)
 
     class Meta:
         verbose_name_plural = 'Progetti'
@@ -853,6 +799,7 @@ class Localizzazione(TimeStampedModel):
         ('1', 'CAP valido e coerente'),
         ('2', 'CAP mancante o territorio nazionale o estero'),
     )
+
     territorio = models.ForeignKey('territori.Territorio', verbose_name='Territorio')
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
     indirizzo = models.CharField(max_length=550, blank=True, null=True)
@@ -915,7 +862,6 @@ class Ruolo(TimeStampedModel):
 
 
 class SegnalazioneProgetto(TimeStampedModel):
-
     TIPOLOGIA_FINANZIATORE = 'FINAZIATORE'
     TIPOLOGIA_ATTUATORE = 'ATTUATORE'
     TIPOLOGIA_REALIZZATORE = 'REALIZZATORE'
@@ -964,14 +910,13 @@ class SegnalazioneProgetto(TimeStampedModel):
 
 
 class PagamentoProgetto(TimeStampedModel):
-
     progetto = models.ForeignKey(Progetto)
     data = models.DateField()
     ammontare = models.DecimalField(max_digits=14, decimal_places=2)
 
     @property
     def percentuale(self):
-        return (self.ammontare / self.progetto.fin_totale_pubblico) * Decimal(100)
+        return (self.ammontare / self.progetto.fin_totale_pubblico) * Decimal(100) if self.progetto.fin_totale_pubblico else 0.0
 
     def __unicode__(self):
         return u'Pagamento del progetto {0} per {1} di {2}'.format(self.progetto_id, self.data, self.ammontare)

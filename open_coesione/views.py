@@ -1,16 +1,12 @@
 # coding=utf-8
-# from functools import wraps
-import glob
-from datetime import datetime
 import os
 import urllib2
-# from django.utils.decorators import available_attrs
+import glob
 
 from django.views.generic.base import TemplateView, RedirectView, TemplateResponseMixin
 from django.db.models import Sum
-# from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse
+from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse, Http404
 from django.utils.datastructures import SortedDict
 from django.views.generic import ListView
 from django.conf import settings
@@ -27,16 +23,6 @@ from territori.models import Territorio
 
 from tagging.views import TagFilterMixin
 from open_coesione.mixins import DateFilterMixin
-
-
-# def x_robots_tag(func):
-#     @wraps(func, assigned=available_attrs(func))
-#     def inner(self, *args, **kwargs):
-#         response = func(self, *args, **kwargs)
-#         response['X-Robots-Tag'] = self.xrobots_tag
-#         return response
-#
-#     return inner
 
 
 def cached_context(get_context_data):
@@ -61,48 +47,6 @@ def cached_context(get_context_data):
     return decorator
 
 
-class AccessControlView(object):
-    """
-    Define access control for the view
-    """
-    # @method_decorator(login_required)
-    # def dispatch(self, *args, **kwargs):
-    #     return super(AccessControlView, self).dispatch(*args, **kwargs)
-    pass
-
-
-# class CGView(TemplateView):
-#     """
-#     cache generator view
-#     generates the curl invocations to pre-navigate the time-consuming urls
-#     can be filtered by maps or pages
-#     """
-#
-#     template_name = 'cache_generator.txt'
-#     filter = None
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(CGView, self).get_context_data(**kwargs)
-#         context['tematizzazioni'] = '{,?tematizzazione=totale_costi,?tematizzazione=totale_pagamenti,?tematizzazione=totale_progetti}'
-#         context['regioni'] = Territorio.objects.filter(territorio='R')
-#         context['province'] = Territorio.objects.filter(territorio='P')
-#         context['temi'] = Tema.objects.principali()
-#         context['nature'] = ClassificazioneAzione.objects.nature()
-#         context['soggetti'] = Soggetto.objects.annotate(c=Count('progetto')).filter(c__gte=1000).order_by('c')
-#         context['base_url'] = 'http://{0}'.format(Site.objects.get_current())
-#         context['curl_cmd'] = 'curl -L -o/dev/null -w '%{url_effective} - %{http_code} (%{time_total}sec.)\\n''
-#         context['log_file'] = 'cache_generation.log'
-#
-#         context['maps'] = True
-#         context['pages'] = True
-#         if self.filter == 'maps':
-#             context['pages'] = False
-#         if self.filter == 'pages':
-#             context['maps'] = False
-#
-#         return context
-
-
 class XRobotsTagTemplateResponseMixin(TemplateResponseMixin):
     x_robots_tag = False
 
@@ -116,7 +60,7 @@ class XRobotsTagTemplateResponseMixin(TemplateResponseMixin):
         return response
 
 
-class AggregatoView(object):
+class AggregatoMixin(object):
     def get_aggregate_data(self, context, **filter):
         if len(filter) > 1:
             raise Exception('Only one filter kwargs is accepted')
@@ -221,68 +165,99 @@ class AggregatoView(object):
         )[:qnt]
 
 
-class HomeView(AccessControlView, AggregatoView, TemplateView):
-    template_name = 'homepage.html'
+class AccessControlView(object):
+    """
+    Define access control for the view
+    """
+    # @method_decorator(login_required)
+    # def dispatch(self, *args, **kwargs):
+    #     return super(AccessControlView, self).dispatch(*args, **kwargs)
+    pass
+
+
+class HomeView(AccessControlView, AggregatoMixin, TemplateView):
+    @cached_context
+    def get_cached_context_data(self):
+        context = {}
+
+        context = self.get_aggregate_data(context)
+
+        context['numero_soggetti'] = Soggetto.objects.count()
+
+        context['top_progetti'] = Progetto.objects.filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico', '-data_fine_effettiva')[:3]
+
+        return context
 
     def get_context_data(self, **kwargs):
-        """
-        low-level caching, to allow adding latest_pillole out of the cached context (fast-refresh)
-        """
-        key = 'context' + self.request.get_full_path()
-        context = cache.get(key)
+        context = super(HomeView, self).get_context_data(**kwargs)
 
-        if context is None:
-            context = super(HomeView, self).get_context_data(**kwargs)
-            context = self.get_aggregate_data(context)
+        context.update(self.get_cached_context_data())
 
-            context['top_progetti'] = Progetto.objects.filter(
-                fin_totale_pubblico__isnull=False,
-            ).order_by('-fin_totale_pubblico')[:3]
-
-            context['numero_soggetti'] = Soggetto.objects.count()
-
-            serializable_context = context.copy()
-            serializable_context.pop('view', None)
-            cache.set(key, serializable_context)
-
-        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(
-            data_fine_effettiva__lte=datetime.now(),
-            privacy_flag=False,
-        ).order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
 
         context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
 
         return context
 
 
-class RisorseView(AccessControlView, TemplateView):
+# class HomeView(AccessControlView, AggregatoMixin, TemplateView):
+#     def get_context_data(self, **kwargs):
+#         """
+#         low-level caching, to allow adding latest_pillole out of the cached context (fast-refresh)
+#         """
+#         key = 'context' + self.request.get_full_path()
+#         context = cache.get(key)
+#
+#         if context is None:
+#             context = super(HomeView, self).get_context_data(**kwargs)
+#             context = self.get_aggregate_data(context)
+#
+#             context['top_progetti'] = Progetto.objects.filter(
+#                 fin_totale_pubblico__isnull=False,
+#             ).order_by('-fin_totale_pubblico')[:3]
+#
+#             context['numero_soggetti'] = Soggetto.objects.count()
+#
+#             serializable_context = context.copy()
+#             serializable_context.pop('view', None)
+#             cache.set(key, serializable_context)
+#
+#         context['ultimi_progetti_conclusi'] = Progetto.objects.filter(
+#             data_fine_effettiva__lte=datetime.now(),
+#             privacy_flag=False,
+#         ).order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
+#
+#         context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
+#
+#         return context
+
+
+class RisorsaView(AccessControlView, TemplateView):
     def get_context_data(self, **kwargs):
-        context = super(RisorseView, self).get_context_data(**kwargs)
+        context = super(RisorsaView, self).get_context_data(**kwargs)
         context['risorsa'] = True
 
         return context
 
 
-class FondiView(RisorseView):
-    template_name = 'flat/fonti_finanziamento.html'
-
+class FondiView(RisorsaView):
     def get_context_data(self, **kwargs):
-        import csv
+        # import csv
 
         context = super(FondiView, self).get_context_data(**kwargs)
 
-        context['competitivita_fesr_fse'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fesr_fse.csv')))
+        # context['competitivita_fesr_fse'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fesr_fse.csv')))
 
-        context['fesr_data_comp'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fesr.csv')))
-        context['fse_data_comp'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fse.csv')))
+        # context['fesr_data_comp'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fesr.csv')))
+        # context['fse_data_comp'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fse.csv')))
 
-        context['convergenza_fesr_fse'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_fse.csv')))
+        # context['convergenza_fesr_fse'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_fse.csv')))
 
-        context['fesr_data_conv_regioni'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_regioni.csv')))
-        context['fesr_data_conv_temi'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_temi.csv')))
+        # context['fesr_data_conv_regioni'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_regioni.csv')))
+        # context['fesr_data_conv_temi'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_temi.csv')))
 
-        context['fse_data_conv_regioni'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse_regioni.csv')))
-        context['fse_data_conv_temi'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse_temi.csv')))
+        # context['fse_data_conv_regioni'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse_regioni.csv')))
+        # context['fse_data_conv_temi'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse_temi.csv')))
 
         context['delibere'] = DeliberaCIPE.objects.all()
         context['totale_fondi_assegnati'] = DeliberaCIPE.objects.aggregate(s=Sum('fondi_assegnati'))['s']
@@ -290,13 +265,11 @@ class FondiView(RisorseView):
         return context
 
 
-class SpesaCertificataView(RisorseView):
-    template_name = 'flat/spesa_certificata_grafici.html'
-
+class SpesaCertificataGraficiView(RisorsaView):
     def get_context_data(self, **kwargs):
         import csv
 
-        context = super(SpesaCertificataView, self).get_context_data(**kwargs)
+        context = super(SpesaCertificataGraficiView, self).get_context_data(**kwargs)
 
         context['chart_tables'] = []
         for tipo in ['competitivita_fesr', 'competitivita_fse', 'convergenza_fesr', 'convergenza_fse']:
@@ -306,7 +279,6 @@ class SpesaCertificataView(RisorseView):
 
 
 class ContactView(TemplateView):
-
     def get_context_data(self, **kwargs):
         return {
             'contact_form': ContactForm() if self.request.method == 'GET' else ContactForm(self.request.POST),
@@ -327,40 +299,195 @@ class ContactView(TemplateView):
         return self.get(request, *args, **kwargs)
 
 
-class PressView(ListView):
-    model = PressReview
-    template_name = 'flat/press_review.html'
-    queryset = PressReview.objects.all().order_by('-published_at')
-
-
 class OpendataView(TemplateView):
     """
-    Basic template view with an extended context, containing the pointers
-    to the downloadable files.
+    Basic template view with an extended context, containing the pointers to the downloadable files.
     """
 
-    # dates are attributes in the view, so that it can possibly be used in other views
-    data_date = '20141031'
-    cipe_date = '20121231'
-    spesa_date = '20141231'
-
-    # get istat_date from file system
-    OPEN_DATA_PATH = os.path.join(settings.MEDIA_ROOT, 'open_data')
-    latest_istat_archive_file_path = sorted(glob.glob(
-        os.path.join(OPEN_DATA_PATH, 'Indicatori_regionali_*.zip')
-    ))[-1]
-    istat_date = os.path.splitext(os.path.basename(latest_istat_archive_file_path))[0].split('_')[-1]
-
+    @cached_context
     def get_context_data(self, **kwargs):
         context = super(OpendataView, self).get_context_data(**kwargs)
 
-        data_date = self.data_date
-        cipe_date = self.cipe_date
-        spesa_date = self.spesa_date
-        istat_date = self.istat_date
+        context['oc_sections'] = SortedDict([
+            ('prog', {
+                'name': 'progetti',
+                'complete_file': self.get_complete_localfile('progetti_OC.zip'),
+                'regional_files': self.get_regional_files('prog', 'OC'),
+            }),
+            ('sog', {
+                'name': 'soggetti',
+                'complete_file': self.get_complete_localfile('soggetti_OC.zip'),
+                'regional_files': self.get_regional_files('sog', 'OC'),
+            }),
+            ('loc', {
+                'name': 'localizzazioni',
+                'complete_file': self.get_complete_localfile('localizzazioni_OC.zip'),
+                'regional_files': self.get_regional_files('loc', 'OC'),
+            }),
+            ('pag', {
+                'name': 'pagamenti',
+                'complete_file': self.get_complete_localfile('pagamenti_OC.zip'),
+                'regional_files': self.get_regional_files('pag', 'OC'),
+            }),
+        ])
+        context['oc_metadata_file'] = self.get_complete_localfile('metadati_OC.xls')
 
+        context['fs_sections'] = SortedDict([
+            ('prog', {
+                'name': 'progetti',
+                'complete_file': self.get_complete_localfile('progetti_FS0713.zip'),
+                'regional_files': self.get_regional_files('prog', 'FS0713'),
+                # 'theme_files': self.get_theme_files('prog', 'progetti')
+            }),
+            ('sog', {
+                'name': 'soggetti',
+                'complete_file': self.get_complete_localfile('soggetti_FS0713.zip'),
+                'regional_files': self.get_regional_files('sog', 'FS0713'),
+                # 'theme_files': self.get_theme_files('sog', 'soggetti')
+            }),
+            ('loc', {
+                'name': 'localizzazioni',
+                'complete_file': self.get_complete_localfile('localizzazioni_FS0713.zip'),
+                'regional_files': self.get_regional_files('loc', 'FS0713'),
+                # 'theme_files': self.get_theme_files('loc', 'localizzazioni')
+            }),
+            ('pag', {
+                'name': 'pagamenti',
+                'complete_file': self.get_complete_localfile('pagamenti_FS0713.zip'),
+                'regional_files': self.get_regional_files('pag', 'FS0713'),
+                # 'theme_files': self.get_theme_files('pag', 'pagamenti')
+            }),
+        ])
+        context['fs_metadata_file'] = self.get_complete_localfile('metadati_attuazione.xls')
+
+        context['fsc_sections'] = SortedDict([
+            ('prog', {
+                'name': 'progetti',
+                'complete_file': self.get_complete_localfile('progetti_FSC0713.zip'),
+            }),
+            ('sog', {
+                'name': 'soggetti',
+                'complete_file': self.get_complete_localfile('soggetti_FSC0713.zip'),
+            }),
+            ('loc', {
+                'name': 'localizzazioni',
+                'complete_file': self.get_complete_localfile('localizzazioni_FSC0713.zip'),
+            }),
+            ('pag', {
+                'name': 'pagamenti',
+                'complete_file': self.get_complete_localfile('pagamenti_FSC0713.zip'),
+            }),
+        ])
+        context['fsc_metadata_file'] = self.get_complete_localfile('metadati_attuazione.xls')
+
+        context['pac_sections'] = SortedDict([
+            ('prog', {
+                'name': 'progetti',
+                'complete_file': self.get_complete_localfile('progetti_PAC.zip'),
+            }),
+            ('sog', {
+                'name': 'soggetti',
+                'complete_file': self.get_complete_localfile('soggetti_PAC.zip'),
+            }),
+            ('loc', {
+                'name': 'localizzazioni',
+                'complete_file': self.get_complete_localfile('localizzazioni_PAC.zip'),
+            }),
+            ('pag', {
+                'name': 'pagamenti',
+                'complete_file': self.get_complete_localfile('pagamenti_PAC.zip'),
+            }),
+        ])
+        context['pac_metadata_file'] = self.get_complete_localfile('metadati_attuazione.xls')
+
+        context['cipe_sections'] = SortedDict([
+            ('prog', {
+                'name': 'progetti',
+                'complete_file': self.get_complete_localfile('assegnazioni_CIPE.zip'),
+            }),
+            ('loc', {
+                'name': 'localizzazioni',
+                'complete_file': self.get_complete_localfile('localizzazioni_CIPE.zip'),
+            }),
+        ])
+        context['cipe_metadata_file'] = self.get_complete_localfile('metadati_attuazione.xls')
+
+        context['spesa_dotazione_file'] = self.get_complete_localfile('Dotazioni_Certificazioni.xls')
+        context['spesa_target_file'] = self.get_complete_localfile('Target_Risultati.xls')
+
+        # context['istat_data_file'] = self.get_complete_localfile('Indicatori_regionali.zip')
+        context['istat_metadata_file'] = self.get_complete_localfile('Metainformazione.xls')
+        istat_path = 'http://www.istat.it/it/files/2011/07/{0}'
+        context['istat_data_file'] = self.get_complete_remotefile(istat_path.format('Archivio_unico_indicatori_regionali.zip'))
+        # context['istat_metadata_file'] = self.get_complete_remotefile(istat_path.format('Metainformazione.xlsx'))
+
+        context['indagine_data_file'] = self.get_complete_localfile('indagine_data.zip')
+        context['indagine_metadata_file'] = self.get_complete_localfile('indagine_metadata.xls')
+
+        cpt_path = 'http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/{0}/{1}'
+        cpt_subpath = 'BD_CPT/2014_CSV/CSV'
+        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'PA_ENTRATE_1996-2012.zip'))
+        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'PA_SPESE_1996-2012.zip'))
+        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_ENTRATE_1996-2012.zip'))
+        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_SPESE_1996-2012.zip'))
+        context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('METADATA', 'CPT_Metadati_perCSV_def.xls'))
+
+        context['raccordo_temi_sintetici_file'] = self.get_complete_localfile('raccordo_temi_sintetici.xls')
+
+        return context
+
+    @staticmethod
+    def get_complete_remotefile(file_name):
+        try:
+            f = urllib2.urlopen(file_name)
+            file_size = f.headers['Content-Length']
+        except urllib2.HTTPError:
+            file_size = None
+
+        return {
+            'file_name': file_name,
+            'file_size': file_size
+        }
+
+    @staticmethod
+    def get_latest_localfile(file_name, as_urlpath=False):
+        opendata_path = os.path.join(settings.MEDIA_ROOT, 'open_data')
+
+        def add_wildcard(file_name):
+            wildcard = '201?????'
+            file_name, file_ext = os.path.splitext(file_name)
+            return file_name + '_' + wildcard + file_ext
+
+        file_path = os.path.join(opendata_path, *file_name.split('/'))
+        if not os.path.isfile(file_path):
+            files = sorted(glob.glob(add_wildcard(file_path)))
+            if files:
+                file_path = files[-1]
+            else:
+                raise IOError
+
+        if as_urlpath:
+            file_path = '/'.join(os.path.split(os.path.relpath(file_path, opendata_path)))
+
+        return file_path
+
+    @classmethod
+    def get_complete_localfile(cls, file_name):
+        try:
+            file_path = cls.get_latest_localfile(file_name)
+            file_size = os.stat(file_path).st_size
+        except:
+            file_size = None
+
+        return {
+            'file_name': reverse('opendata_clean', kwargs={'path': file_name}),
+            'file_size': file_size
+        }
+
+    @classmethod
+    def get_regional_files(cls, section_code, prefix):
         regions = SortedDict([
-            ('VDA', 'Valle d\'Aosta'),
+            ('VDA', "Valle d'Aosta"),
             ('PIE', 'Piemonte'),
             ('LOM', 'Lombardia'),
             ('TN_BZ', 'Trento e Bolzano'),
@@ -385,218 +512,54 @@ class OpendataView(TemplateView):
             # ('MULTI', 'Multi-regionali'),
         ])
 
-        # themes = SortedDict([
-        #     ('AGENDA_DIGITALE', 'Agenda digitale'),
-        #     ('AMBIENTE', 'Ambiente'),
-        #     ('CULTURA_TURISMO', 'Cultura e turismo'),
-        #     ('COMPETITIVITA_IMPRESE', u'Competitività imprese'),
-        #     ('ENERGIA', 'Energia'),
-        #     ('INCLUSIONE_SOCIALE', 'Inclusione sociale'),
-        #     ('ISTRUZIONE', 'Istruzione'),
-        #     ('OCCUPAZIONE', 'Occupazione'),
-        #     ('RAFFORZAMENTO_PA', 'Rafforzamento PA'),
-        #     ('RICERCA_INNOVAZIONE', 'Ricerca e innovazione'),
-        #     ('CITTA_RURALE', 'Città e aree rurali'),
-        #     ('INFANZIA_ANZIANI', 'Infanzia e anziani'),
-        #     ('TRASPORTI', 'Trasporti'),
-        # ])
+        files = []
+        for region_code, region_name in regions.items():
+            file = cls.get_complete_localfile('{0}/{1}_{2}_{3}.zip'.format('regione', section_code, prefix, region_code))
+            file['region_name'] = region_name
+            files.append(file)
 
-        fs_sections = SortedDict([
-            ('prog', {
-                'name': 'progetti',
-                'complete_file': self.get_complete_file('progetti_FS0713_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('prog', 'FS0713', regions, data_date),
-                # 'theme_files': self.get_theme_files('prog', 'progetti', themes, data_date)
-            }),
-            ('sog', {
-                'name': 'soggetti',
-                'complete_file': self.get_complete_file('soggetti_FS0713_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('sog', 'FS0713', regions, data_date),
-                # 'theme_files': self.get_theme_files('sog', 'soggetti', themes, data_date)
-            }),
-            ('loc', {
-                'name': 'localizzazioni',
-                'complete_file': self.get_complete_file('localizzazioni_FS0713_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('loc', 'FS0713', regions, data_date),
-                # 'theme_files': self.get_theme_files('loc', 'localizzazioni', themes, data_date)
-            }),
-            ('pag', {
-                'name': 'pagamenti',
-                'complete_file': self.get_complete_file('pagamenti_FS0713_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('pag', 'FS0713', regions, data_date),
-                # 'theme_files': self.get_theme_files('pag', 'pagamenti', themes, data_date)
-            }),
-        ])
-        fs_metadata_file = self.get_complete_file('metadati_attuazione.xls')
+        return files
 
-        fsc_sections = SortedDict([
-            ('prog', {
-                'name': 'progetti',
-                'complete_file': self.get_complete_file('progetti_FSC0713_{0}.zip'.format(data_date)),
-            }),
-            ('sog', {
-                'name': 'soggetti',
-                'complete_file': self.get_complete_file('soggetti_FSC0713_{0}.zip'.format(data_date)),
-            }),
-            ('loc', {
-                'name': 'localizzazioni',
-                'complete_file': self.get_complete_file('localizzazioni_FSC0713_{0}.zip'.format(data_date)),
-            }),
-            ('pag', {
-                'name': 'pagamenti',
-                'complete_file': self.get_complete_file('pagamenti_FSC0713_{0}.zip'.format(data_date)),
-            }),
-        ])
-        fsc_metadata_file = self.get_complete_file('metadati_attuazione.xls')
+    # @classmethod
+    # def get_theme_files(cls, section_code, section_name):
+    #     themes = SortedDict([
+    #         ('AGENDA_DIGITALE', 'Agenda digitale'),
+    #         ('AMBIENTE', 'Ambiente'),
+    #         ('CULTURA_TURISMO', 'Cultura e turismo'),
+    #         ('COMPETITIVITA_IMPRESE', u'Competitività imprese'),
+    #         ('ENERGIA', 'Energia'),
+    #         ('INCLUSIONE_SOCIALE', 'Inclusione sociale'),
+    #         ('ISTRUZIONE', 'Istruzione'),
+    #         ('OCCUPAZIONE', 'Occupazione'),
+    #         ('RAFFORZAMENTO_PA', 'Rafforzamento PA'),
+    #         ('RICERCA_INNOVAZIONE', 'Ricerca e innovazione'),
+    #         ('CITTA_RURALE', 'Città e aree rurali'),
+    #         ('INFANZIA_ANZIANI', 'Infanzia e anziani'),
+    #         ('TRASPORTI', 'Trasporti'),
+    #     ])
+    #
+    #     files = []
+    #     for theme_code, theme_name in themes.items():
+    #         file = cls.get_complete_localfile('{0}/{1}_{2}.zip'.format(section_name, section_code, theme_code))
+    #         file['theme_name'] = theme_name
+    #         files.append(file)
+    #
+    #     return files
 
-        pac_sections = SortedDict([
-            ('prog', {
-                'name': 'progetti',
-                'complete_file': self.get_complete_file('progetti_PAC_{0}.zip'.format(data_date)),
-            }),
-            ('sog', {
-                'name': 'soggetti',
-                'complete_file': self.get_complete_file('soggetti_PAC_{0}.zip'.format(data_date)),
-            }),
-            ('loc', {
-                'name': 'localizzazioni',
-                'complete_file': self.get_complete_file('localizzazioni_PAC_{0}.zip'.format(data_date)),
-            }),
-            ('pag', {
-                'name': 'pagamenti',
-                'complete_file': self.get_complete_file('pagamenti_PAC_{0}.zip'.format(data_date)),
-            }),
-        ])
-        pac_metadata_file = self.get_complete_file('metadati_attuazione.xls')
 
-        cipe_sections = SortedDict([
-            ('prog', {
-                'name': 'progetti',
-                'complete_file': self.get_complete_file('assegnazioni_CIPE_{0}.zip'.format(cipe_date)),
-            }),
-            ('loc', {
-                'name': 'localizzazioni',
-                'complete_file': self.get_complete_file('localizzazioni_CIPE_{0}.zip'.format(cipe_date)),
-            }),
-        ])
-        cipe_metadata_file = self.get_complete_file('metadati_attuazione.xls')
-
-        oc_sections = SortedDict([
-            ('prog', {
-                'name': 'progetti',
-                'complete_file': self.get_complete_file('progetti_OC_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('prog', 'OC', regions, data_date),
-            }),
-            ('sog', {
-                'name': 'soggetti',
-                'complete_file': self.get_complete_file('soggetti_OC_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('sog', 'OC', regions, data_date),
-            }),
-            ('loc', {
-                'name': 'localizzazioni',
-                'complete_file': self.get_complete_file('localizzazioni_OC_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('loc', 'OC', regions, data_date),
-            }),
-            ('pag', {
-                'name': 'pagamenti',
-                'complete_file': self.get_complete_file('pagamenti_OC_{0}.zip'.format(data_date)),
-                'regional_files': self.get_regional_files('pag', 'OC', regions, data_date),
-            }),
-        ])
-        oc_metadata_file = self.get_complete_file('metadati_OC.xls')
-
-        context['spesa_dotazione_file'] = self.get_complete_file('Dotazioni_Certificazioni_{0}.xls'.format(spesa_date))
-        context['spesa_target_file'] = self.get_complete_file('Target_Risultati_{0}.xls'.format(spesa_date))
-
-        context['istat_data_file'] = self.get_complete_file('Indicatori_regionali_{0}.zip'.format(istat_date))
-        context['istat_metadata_file'] = self.get_complete_file('Metainformazione.xls')
-
-        context['indagine_data_file'] = self.get_complete_file('indagine_data.zip')
-        context['indagine_metadata_file'] = self.get_complete_file('indagine_metadata.xls')
-
-        cpt_path = 'http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/{0}/{1}'
-        cpt_subpath = 'BD_CPT/2014_CSV/CSV'
-        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'PA_ENTRATE_1996-2012.zip'))
-        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'PA_SPESE_1996-2012.zip'))
-        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_ENTRATE_1996-2012.zip'))
-        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_SPESE_1996-2012.zip'))
-        context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('METADATA', 'CPT_Metadati_perCSV_def.xls'))
-
-        context['data_date'] = data_date
-
-        context['fs_sections'] = fs_sections
-        context['fsc_sections'] = fsc_sections
-        context['pac_sections'] = pac_sections
-        context['cipe_sections'] = cipe_sections
-        context['oc_sections'] = oc_sections
-
-        context['fs_metadata_file'] = fs_metadata_file
-        context['fsc_metadata_file'] = fsc_metadata_file
-        context['pac_metadata_file'] = pac_metadata_file
-        context['cipe_metadata_file'] = cipe_metadata_file
-        context['oc_metadata_file'] = oc_metadata_file
-
-        return context
-
-    @staticmethod
-    def get_complete_remotefile(file_name):
+class OpendataRedirectView(RedirectView):
+    def get_redirect_url(self, **kwargs):
         try:
-            f = urllib2.urlopen(file_name)
-            file_size = f.headers['Content-Length']
-        except urllib2.HTTPError:
-            file_size = None
-
-        return {
-            'file_name': file_name,
-            'file_size': file_size
-        }
-
-    @staticmethod
-    def get_complete_file(file_name):
-        file_path = os.path.join(settings.MEDIA_ROOT, 'open_data', file_name)
-        file_size = os.stat(file_path).st_size if os.path.isfile(file_path) else None
-
-        return {
-            'file_name': file_name,
-            'file_size': file_size
-        }
-
-    @staticmethod
-    def get_theme_files(section_code, section_name, themes, data_date):
-        files = []
-        for theme_code, theme_name in themes.items():
-            file_name = '{0}_{1}_{2}.zip'.format(section_code, theme_code, data_date)
-            file_path = os.path.join(settings.MEDIA_ROOT, 'open_data', section_name, file_name)
-            file_size = os.stat(file_path).st_size if os.path.isfile(file_path) else None
-            files.append({
-                'theme_name': theme_name,
-                'file_name': file_name,
-                'file_size': file_size
-            })
-
-        return files
-
-    @staticmethod
-    def get_regional_files(section_code, prefix, regions, data_date):
-        files = []
-        for reg_code, reg_name in regions.items():
-            file_name = '{0}_{1}_{2}_{3}.zip'.format(section_code, prefix, reg_code, data_date)
-            file_path = os.path.join(settings.MEDIA_ROOT, 'open_data', 'regione', file_name)
-            file_size = os.stat(file_path).st_size if os.path.isfile(file_path) else None
-            files.append({
-                'region_name': reg_name,
-                'file_name': file_name,
-                'file_size': file_size
-            })
-
-        return files
+            return u'/media/open_data/{0}'.format(OpendataView.get_latest_localfile(kwargs['path'], as_urlpath=True))
+        except:
+            raise Http404('File not found.')
 
 
-class PilloleView(ListView, TagFilterMixin, DateFilterMixin):
+class PillolaListView(ListView, TagFilterMixin, DateFilterMixin):
     model = Pillola
 
     def get_queryset(self):
-        queryset = super(PilloleView, self).get_queryset()
+        queryset = super(PillolaListView, self).get_queryset()
         queryset = self._apply_date_filter(queryset)
         queryset = self._apply_tag_filter(queryset)
         queryset = queryset.order_by('-published_at', '-id')
@@ -604,67 +567,41 @@ class PilloleView(ListView, TagFilterMixin, DateFilterMixin):
         return queryset
 
     def get_context_data(self, **kwargs):
-        context = super(PilloleView, self).get_context_data(**kwargs)
+        context = super(PillolaListView, self).get_context_data(**kwargs)
         context['date_choices'] = self._get_date_choices()
         context['tag_choices'] = self._get_tag_choices()
 
         return context
 
 
-class PillolaView(DetailView):
+class PillolaDetailView(DetailView):
     model = Pillola
 
 
-class FAQView(ListView):
+class PillolaRedirectView(RedirectView):
+    def get_redirect_url(self, **kwargs):
+        return u'/media/pillole/{0}'.format(kwargs['path'])
+
+
+class PressReviewListView(ListView):
+    model = PressReview
+
+
+class FAQListView(ListView):
     model = FAQ
     lang = None
 
-    def __init__(self, *args, **kwargs):
-        super(FAQView, self).__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super(FAQListView, self).__init__(**kwargs)
         self.model.lang = self.lang
 
     def get_context_data(self, **kwargs):
-        context = super(FAQView, self).get_context_data(**kwargs)
+        context = super(FAQListView, self).get_context_data(**kwargs)
         context['title'] = 'Frequently Asked Questions' if self.lang == 'en' else 'Domande frequenti'
 
         return context
 
 
-class DatiISTATView(TemplateView):
-    template_name = 'open_coesione/dati_istat.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(DatiISTATView, self).get_context_data(**kwargs)
-
-        # use OpendataView instance to access istat_date and the get_complete_file method,
-        # and avoid code duplication
-        # odv = OpendataView()
-        # istat_date = odv.istat_date
-        # context['istat_data_file'] = odv.get_complete_file('Indicatori_regionali_{0}.zip'.format(istat_date))
-        # context['istat_metadata_file'] = odv.get_complete_file('Metainformazione.xls')
-
-        return context
-
-
-# class EmbedPdfView(TemplateView):
-#     template_name = 'open_coesione/pdfview.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(EmbedPdfView, self).get_context_data(**kwargs)
-#
-#         return context
-
-
-class PilloleRedirectView(RedirectView):
-    def get_redirect_url(self, **kwargs):
-        return '/media/pillole/{0}'.format(kwargs['path'])
-
-
-class OpendataRedirectView(RedirectView):
-    def get_redirect_url(self, **kwargs):
-        return '/media/open_data/{0}'.format(kwargs['path'])
-
-
 class DocumentsRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
-        return '/media/uploads/documenti/{0}'.format(kwargs['path'])
+        return u'/media/uploads/documenti/{0}'.format(kwargs['path'])

@@ -217,34 +217,23 @@
               </h3>
               <ul class="spaced" id="overlapping-projects">
               {% for overlapping_project in overlapping_projects %}
+                  {% if forloop.counter == 6 %}
+                      </ul>
+                      <ul class="spaced" id="overlapping-projects-extra">
+                  {% endif %}
                 <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
               {% endfor %}
               </ul>
               {% if overlapping_projects.count > 5 %}
-                  {% addtoblock "js_script" %}
+                  {% addtoblock 'js_script' %}
                     <script type="text/javascript">
                         $(document).ready(function() {
-                            var elem = $('#overlapping-projects');
-                            var maxHeight = 100;
-
-                            if (elem.height() > maxHeight) {
-                                elem.attr('data-height', elem.height()).css({'height': maxHeight, 'overflow': 'hidden'});
-
-                                $('<button type="button" style="margin-top: 20px">Vedi tutti i progetti</button>').insertAfter(elem).on('click', function() {
-                                    var self = $(this);
-                                    var curH = elem.height();
-
-                                    if (elem.is(':animated')) {
-                                        return false;
-                                    }
-                                    else if (curH == elem.attr('data-height')) {
-                                        elem.animate({'height': maxHeight}, 1000, function() {self.text('Vedi tutti i progetti')});
-                                    }
-                                    else if (curH == maxHeight) {
-                                        elem.animate({'height': elem.attr('data-height')}, 1000, function() {self.text('Chiudi')});
-                                    }
-                                });
-                            }
+                            var elem = $('#overlapping-projects-extra');
+                            elem.hide();
+                            $('<button type="button" style="margin-top: 20px">Vedi tutti i progetti</button>').insertAfter(elem).on('click', function() {
+                                var self = $(this);
+                                elem.slideToggle(1000, function() { self.text($(this).is(':visible') ? 'Chiudi' : 'Vedi tutti i progetti') });
+                            });
                         });
                     </script>
                   {% endaddtoblock %}
@@ -591,7 +580,7 @@
 
                 <dt>Programma</dt>
                 <dd>
-                  <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}" target="_blank">
+                  <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.get_absolute_url }}">
                     {{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}
                   </a>
                 </dd>
@@ -616,7 +605,9 @@
                 {% if progetto.programma_linea_azione %}
                     <dt>Programma</dt>
                     <dd>
-                      {{ progetto.programma_linea_azione.classificazione_superiore.classificazione_superiore.descrizione }}
+                      <a href="{{ progetto.programma_linea_azione.classificazione_superiore.classificazione_superiore.get_absolute_url }}">
+                        {{ progetto.programma_linea_azione.classificazione_superiore.classificazione_superiore.descrizione }}
+                      </a>
                     </dd>
 
                     <dt>Linea</dt>
@@ -637,7 +628,7 @@
 
                 <dt>Programma</dt>
                 <dd>
-                  <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.url_riferimento|default_if_none:"#" }}" target="_blank">
+                  <a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.get_absolute_url }}">
                     {{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}
                   </a>
                 </dd>

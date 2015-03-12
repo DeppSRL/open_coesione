@@ -17,7 +17,7 @@ from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin,
 from oc_search.views import ExtendedFacetedSearchView
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from open_coesione import utils
-from open_coesione.views import AggregatoView, AccessControlView, XRobotsTagTemplateResponseMixin, cached_context
+from open_coesione.views import AccessControlView, AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
 from progetti.forms import DescrizioneProgettoForm
 from progetti.gruppo_programmi import GruppoProgrammi, split_by_type
 from progetti.models import Tema, Fonte, SegnalazioneProgetto
@@ -27,14 +27,12 @@ from territori.models import Territorio
 
 class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailView):
     model = Progetto
-    context_object_name = 'progetto'
     queryset = Progetto.fullobjects.get_query_set()
 
     def get_x_robots_tag(self):
         return 'noindex' if (self.object.privacy_flag or (not self.object.active_flag)) else False
 
     def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
         context = super(ProgettoView, self).get_context_data(**kwargs)
 
         context['durata_progetto_effettiva'] = ''
@@ -270,15 +268,12 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         return extra
 
 
-class ProgrammaBaseView(AccessControlView, AggregatoView, TemplateView):
+class BaseProgrammaView(AccessControlView, AggregatoMixin, TemplateView):
     @cached_context
-    def get_cached_context_data(self, **kwargs):
+    def get_cached_context_data(self, programmi):
         logger = logging.getLogger('console')
 
-        # Call the base implementation first to get a context
-        context = super(ProgrammaBaseView, self).get_context_data(**kwargs)
-
-        programmi = kwargs.get('programmi', [])
+        context = {}
 
         logger.debug('get_aggregate_data start')
         context = self.get_aggregate_data(context, programmi=programmi)
@@ -305,19 +300,18 @@ class ProgrammaBaseView(AccessControlView, AggregatoView, TemplateView):
         return context
 
     def get_context_data(self, **kwargs):
-        logger = logging.getLogger('console')
-
-        context = self.get_cached_context_data(**kwargs)
-
         programmi = kwargs.get('programmi', [])
 
-        logger.debug('ultimi_progetti_conclusi start')
+        context = super(BaseProgrammaView, self).get_context_data(**kwargs)
+
+        context.update(self.get_cached_context_data(programmi=programmi))
+
         context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().con_programmi(programmi)[:5]
 
         return context
 
 
-class ProgrammiView(ProgrammaBaseView):
+class ProgrammiView(BaseProgrammaView):
     template_name = 'progetti/programmi_detail.html'
 
     def get_object(self):
@@ -330,10 +324,9 @@ class ProgrammiView(ProgrammaBaseView):
             raise Http404
 
         kwargs.update({
-            'programmi': gruppo_programmi.programmi()
+            'programmi': gruppo_programmi.programmi
         })
 
-        # Call the base implementation first to get a context
         context = super(ProgrammiView, self).get_context_data(**kwargs)
 
         context['map_selector'] = 'gruppo-programmi/{0}/'.format(self.kwargs['slug'])
@@ -343,7 +336,7 @@ class ProgrammiView(ProgrammaBaseView):
         return context
 
 
-class ProgrammaView(ProgrammaBaseView):
+class ProgrammaView(BaseProgrammaView):
     template_name = 'progetti/programma_detail.html'
 
     def get_object(self):
@@ -364,7 +357,6 @@ class ProgrammaView(ProgrammaBaseView):
             'programmi': [programma]
         })
 
-        # Call the base implementation first to get a context
         context = super(ProgrammaView, self).get_context_data(**kwargs)
 
         context['map_selector'] = 'programmi/{0}/'.format(self.kwargs['codice'])
@@ -374,15 +366,15 @@ class ProgrammaView(ProgrammaBaseView):
         return context
 
 
-class TipologiaView(AccessControlView, AggregatoView, DetailView):
+class ClassificazioneAzioneView(AccessControlView, AggregatoMixin, DetailView):
     context_object_name = 'tipologia'
+    model = ClassificazioneAzione
 
     @cached_context
-    def get_cached_context_data(self, **kwargs):
+    def get_cached_context_data(self):
         logger = logging.getLogger('console')
 
-        # Call the base implementation first to get a context
-        context = super(TipologiaView, self).get_context_data(**kwargs)
+        context = {}
 
         logger.debug('get_aggregate_data start')
         context = self.get_aggregate_data(context, classificazione=self.object)
@@ -403,28 +395,23 @@ class TipologiaView(AccessControlView, AggregatoView, DetailView):
         return context
 
     def get_context_data(self, **kwargs):
-        logger = logging.getLogger('console')
+        context = super(ClassificazioneAzioneView, self).get_context_data(**kwargs)
 
-        context = self.get_cached_context_data(**kwargs)
+        context.update(self.get_cached_context_data())
 
-        logger.debug('ultimi_progetti_conclusi start')
         context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().con_natura(self.object)[:5]
 
         return context
 
-    def get_object(self, queryset=None):
-        return ClassificazioneAzione.objects.get(slug=self.kwargs.get('slug'))
 
-
-class TemaView(AccessControlView, AggregatoView, DetailView):
-    context_object_name = 'tema'
+class TemaView(AccessControlView, AggregatoMixin, DetailView):
+    model = Tema
 
     @cached_context
-    def get_cached_context_data(self, **kwargs):
+    def get_cached_context_data(self):
         logger = logging.getLogger('console')
 
-        # Call the base implementation first to get a context
-        context = super(TemaView, self).get_context_data(**kwargs)
+        context = {}
 
         logger.debug('get_aggregate_data start')
         context = self.get_aggregate_data(context, tema=self.object)
@@ -445,21 +432,12 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
         return context
 
     def get_context_data(self, **kwargs):
-        logger = logging.getLogger('console')
+        context = super(TemaView, self).get_context_data(**kwargs)
 
-        context = self.get_cached_context_data(**kwargs)
+        context.update(self.get_cached_context_data())
 
-        # use OpendataView instance to access istat_date and the get_complete_file method,
-        # and avoid code duplication
-        #odv = OpendataView()
-        #istat_date = odv.istat_date
-        #context['istat_data_file'] = odv.get_complete_file('Indicatori_regionali_{0}.zip'.format(istat_date))
-        #context['istat_metadata_file'] = odv.get_complete_file('Metainformazione.xls')
-
-        logger.debug('ultimi_progetti_conclusi start')
         context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().con_tema(self.object)[:5]
 
-        logger.debug('build lista_indici_tema from csv file start')
         context['lista_indici_tema'] = []
         with open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))) as csvfile:
             reader = csv.DictReader(csvfile)
@@ -468,12 +446,9 @@ class TemaView(AccessControlView, AggregatoView, DetailView):
 
         return context
 
-    def get_object(self, queryset=None, **kwargs):
-        return Tema.objects.get(slug=self.kwargs.get('slug'))
 
-
-class CSVView(AggregatoView, DetailView):
-    filter_field = ''
+class BaseCSVView(AggregatoMixin, DetailView):
+    filter_field = None
 
     @staticmethod
     def get_first_row():
@@ -515,16 +490,13 @@ class CSVView(AggregatoView, DetailView):
 
         return response
 
-    def get_object(self, queryset=None):
-        return self.model.objects.get(slug=self.kwargs.get('slug'))
 
-
-class TipologiaCSVView(CSVView):
+class ClassificazioneAzioneCSVView(BaseCSVView):
     model = ClassificazioneAzione
     filter_field = 'progetto__classificazione_azione__classificazione_superiore'
 
 
-class TemaCSVView(CSVView):
+class TemaCSVView(BaseCSVView):
     model = Tema
     filter_field = 'progetto__tema__tema_superiore'
 
@@ -820,6 +792,6 @@ class SegnalaDescrizioneView(FormView):
 
 
 class SegnalazioneDetailView(DetailView):
+    context_object_name = 'segnalazione'
     model = SegnalazioneProgetto
     template_name = 'segnalazione/singola.html'
-    context_object_name = 'segnalazione'

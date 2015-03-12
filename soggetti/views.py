@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic.detail import DetailView
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
-from open_coesione.views import AggregatoView, AccessControlView, XRobotsTagTemplateResponseMixin
+from open_coesione.views import AccessControlView, AggregatoMixin, XRobotsTagTemplateResponseMixin
 from progetti.models import Progetto, Tema, Ruolo
 from soggetti.models import Soggetto
 from territori.models import Territorio
@@ -15,7 +15,7 @@ from territori.models import Territorio
 import logging
 
 
-class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoView, DetailView):
+class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
     model = Soggetto
     context_object_name = 'soggetto'
 

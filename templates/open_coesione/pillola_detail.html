@@ -1,6 +1,8 @@
 {% extends 'base_two_columns.html' %}
 
-{% block page_title %}{{ object.title }}{% endblock %}
+{% load staticfiles sekizai_tags %}
+
+{% block page_title %}{{ object }}{% endblock %}
 
 {% block content %}
     <div id="pillole">
@@ -11,15 +13,21 @@
 {% block sidebar %}
     {% if object.file %}
         <h2 class='title'><span>Download</span></h2>
+
         <div style="margin: 16px 0">
-            <a href="/{{ object.file.name }}" class="btn" style="background-image: none; border: 2px solid #005652; text-transform: uppercase; margin-right: 10px; padding-top: 0; padding-bottom: 0" onclick="var that=this;_gaq.push(['_trackEvent','Download','PDF',this.href]);setTimeout(function(){location.href=that.href;},200);return false;">
+            <a href="/{{ object.file.name }}" class="btn" style="background-image: none; border: 2px solid #005652; text-transform: uppercase; margin-right: 10px; padding-top: 0; padding-bottom: 0">
                 <i class="icon-download-alt"></i>
-                <span style="color: black;">{{ object.file.name|slice:"-3:"|lower }}</span>
+                <span style="color: #000000">{{ object.file.name|slice:'-3:'|lower }}</span>
             </a>
             {{ object.file.size|filesizeformat }}
         </div>
-        <p><i class="icon-chevron-left"></i> <a href="{% url 'pillole' %}">Torna alle Pillole di OpenCoesione</a></p>
+
+        {% addtoblock 'js_script' strip %}
+            <script src="{% static 'js/oc-ga-downloads.js' %}"></script>
+        {% endaddtoblock %}
     {% endif %}
+
+    <p><i class="icon-chevron-left"></i> <a href="{% url 'pillole' %}">Torna alle Pillole di OpenCoesione</a></p>
 
     <div class="addthis_toolbox addthis_default_style addthis_20x20_style" style="margin-top: 32px">
         <a class="addthis_button_facebook"></a>
@@ -29,4 +37,8 @@
         <a class="addthis_button_email"></a>
         <a class="addthis_button_compact"></a>
     </div>
+
+    {% addtoblock 'js_script' strip %}
+        <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-53d8e08b53d5d0b4"></script>
+    {% endaddtoblock %}
 {% endblock %}

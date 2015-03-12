@@ -54,7 +54,7 @@ class ProgettiQuerySet(models.query.QuerySet):
             raise Exception('Territorio non valido {0}'.format(territorio))
 
     def nei_territori(self, territori):
-        conditions = False # zero
+        conditions = False  # zero
         for territorio in territori:
             if not conditions:
                 conditions = models.Q(**territorio.get_cod_dict('territorio_set__'))
@@ -95,21 +95,21 @@ class ProgettiQuerySet(models.query.QuerySet):
     def totale_costi(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programmi=None):
         return round(float(sum([l['fin_totale_pubblico'] for l in self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programmi).filter(fin_totale_pubblico__isnull=False).values('codice_locale', 'fin_totale_pubblico')]) or 0.0))
 
-    def totale_pagamenti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programmi=None):
-        return round(float(sum([l['pagamento'] for l in self.totali(territorio, tema, tipo,classificazione, soggetto, territori, programmi).filter(pagamento__isnull=False).values('codice_locale', 'pagamento')]) or 0.0))
+    def totale_pagamenti(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programmi=None):
+        return round(float(sum([l['pagamento'] for l in self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programmi).filter(pagamento__isnull=False).values('codice_locale', 'pagamento')]) or 0.0))
 
-    def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programmi=None):
-        return self.totali(territorio, tema, tipo,classificazione, soggetto, territori, programmi).count()
+    def totale_progetti(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programmi=None):
+        return self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programmi).count()
 
 
 class ProgettiManager(models.Manager):
 
-    territorio=None
-    tema=None
-    tipo=None
+    territorio = None
+    tema = None
+    tipo = None
 
     def get_query_set(self):
-        return ProgettiQuerySet(self.model, using=self._db).filter(active_flag=True) # note the `using` parameter, new in 1.2
+        return ProgettiQuerySet(self.model, using=self._db).filter(active_flag=True)  # note the `using` parameter, new in 1.2
 
     def conclusi(self, date=datetime.now()):
         return self.get_query_set().conclusi(date)
@@ -138,19 +138,19 @@ class ProgettiManager(models.Manager):
     def del_soggetto(self, soggetto):
         return self.totali(soggetto=soggetto)
 
-    def totali(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programmi=None):
+    def totali(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programmi=None):
         return self.get_query_set().totali(territorio, tema, tipo, classificazione, soggetto, territori, programmi)
 
-    def totale_costi(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programmi=None):
-        return self.get_query_set().totale_costi(territorio, tema, tipo,classificazione, soggetto, territori, programmi)
+    def totale_costi(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programmi=None):
+        return self.get_query_set().totale_costi(territorio, tema, tipo, classificazione, soggetto, territori, programmi)
 
-    def totale_pagamenti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programmi=None):
-        return self.get_query_set().totale_pagamenti(territorio, tema, tipo,classificazione, soggetto, territori, programmi)
+    def totale_pagamenti(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programmi=None):
+        return self.get_query_set().totale_pagamenti(territorio, tema, tipo, classificazione, soggetto, territori, programmi)
 
-    def totale_progetti(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programmi=None):
-        return self.get_query_set().totale_progetti(territorio, tema, tipo,classificazione, soggetto, territori, programmi)
+    def totale_progetti(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programmi=None):
+        return self.get_query_set().totale_progetti(territorio, tema, tipo, classificazione, soggetto, territori, programmi)
 
-    def totale_costi_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programmi=None):
+    def totale_costi_procapite(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programmi=None):
         from territori.models import Territorio
         territorio = territorio or Territorio.objects.nazione()
 
@@ -159,17 +159,17 @@ class ProgettiManager(models.Manager):
         if territorio.popolazione_totale is 0:
             return 0
         else:
-            return round(self.get_query_set().totale_costi(territorio, tema, tipo,classificazione, soggetto, territori, programmi) / territorio.popolazione_totale)
+            return round(self.get_query_set().totale_costi(territorio, tema, tipo, classificazione, soggetto, territori, programmi) / territorio.popolazione_totale)
 
-    def totale_pagamenti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programmi=None):
+    def totale_pagamenti_procapite(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programmi=None):
         from territori.models import Territorio
         territorio = territorio or Territorio.objects.nazione()
-        return round(self.get_query_set().totale_pagamenti(territorio, tema, tipo,classificazione, soggetto, territori, programmi) / territorio.popolazione_totale)
+        return round(self.get_query_set().totale_pagamenti(territorio, tema, tipo, classificazione, soggetto, territori, programmi) / territorio.popolazione_totale)
 
-    def totale_progetti_procapite(self, territorio=None, tema=None, tipo=None,classificazione=None, soggetto=None, territori=None, programmi=None):
+    def totale_progetti_procapite(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programmi=None):
         from territori.models import Territorio
         territorio = territorio or Territorio.objects.nazione()
-        return self.get_query_set().totale_progetti(territorio, tema, tipo,classificazione, soggetto, territori, programmi) / territorio.popolazione_totale
+        return self.get_query_set().totale_progetti(territorio, tema, tipo, classificazione, soggetto, territori, programmi) / territorio.popolazione_totale
 
 #    def totale_risorse_stanziate(self, territorio=None, tema=None, tipo=None,classificazione=None):
 #        return self.totali(territorio, tema, tipo,classificazione).aggregate(total=models.Sum('fin_totale_pubblico'))['total'] or 0.0
@@ -177,7 +177,7 @@ class ProgettiManager(models.Manager):
 
 class FullProgettiManager(ProgettiManager):
     def get_query_set(self):
-        return ProgettiQuerySet(self.model, using=self._db) # note the `using` parameter, new in 1.2
+        return ProgettiQuerySet(self.model, using=self._db)  # note the `using` parameter, new in 1.2
 
 
 class TemiManager(models.Manager):
@@ -203,10 +203,41 @@ class ClassificazioneAzioneManager(models.Manager):
         return self.get_query_set().annotate(totale=models.Sum('progetto_set__fin_totale_pubblico'))
 
 
+class ProgrammaQuerySet(models.query.QuerySet):
+    def programmi(self):
+        return self.filter(tipo_classificazione=self.model.TIPO.programma)
+
+    def programmi_fesr(self):
+        return self.programmi().filter(descrizione__icontains=' FESR ')
+
+    def programmi_fse(self):
+        return self.programmi().filter(descrizione__icontains=' FSE ')
+
+    def programmi_competitivita(self):
+        return self.programmi().filter(descrizione__icontains=' CRO ')
+
+    def programmi_convergenza(self):
+        return self.programmi().filter(descrizione__icontains=' CONV ')
+
+
 class ProgrammaManager(models.Manager):
+    def get_query_set(self):
+        return ProgrammaQuerySet(self.model, using=self._db)
 
     def programmi(self):
-        return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.programma)
+        return self.get_query_set().programmi()
+
+    def programmi_fesr(self):
+        return self.get_query_set().programmi_fesr()
+
+    def programmi_fse(self):
+        return self.get_query_set().programmi_fse()
+
+    def programmi_competitivita(self):
+        return self.get_query_set().programmi_competitivita()
+
+    def programmi_convergenza(self):
+        return self.get_query_set().programmi_convergenza()
 
 
 # class RuoloManager(models.Manager):

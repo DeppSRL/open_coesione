@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.flatpages.models import FlatPage
-from models import ContactMessage, PressReview, Pillola, URL, FAQ
+from models import ContactMessage, PressReview, Pillola, File, Link, FAQ
 from django.forms import ModelForm
 from django.contrib.contenttypes import generic
 
@@ -89,12 +89,22 @@ class PillolaAdmin(admin.ModelAdmin):
 
 class FAQAdmin(admin.ModelAdmin):
     list_display = ('domanda_it', 'domanda_en', 'priorita')
+    list_editable = ('priorita',)
     prepopulated_fields = {'slug_it': ('domanda_it',), 'slug_en': ('domanda_en',)}
     form = FAQAdminForm
 
 
-class URLInline(generic.GenericTabularInline):
-    model = URL
+class FileInline(generic.GenericTabularInline):
+    model = File
+    verbose_name = 'Documento'
+    verbose_name_plural = 'Documenti'
+    extra = 0
+
+
+class LinkInline(generic.GenericTabularInline):
+    model = Link
+    verbose_name = 'Collegamento'
+    verbose_name_plural = 'Collegamenti'
     extra = 0
 
 

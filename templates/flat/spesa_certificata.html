@@ -1,11 +1,10 @@
 {% extends 'base_two_columns.html' %}
-{% load sekizai_tags %}
+
+{% load staticfiles %}
 
 {% block page_title %}Spesa certificata all'UE{% endblock %}
 
-
 {% block content %}
-
     <div class="flat_content">
         <h1>La spesa certificata all’UE per i programmi cofinanziati dai Fondi Strutturali</h1>
         <p>
@@ -22,36 +21,33 @@
         <p>(% della spesa certificata all’UE rispetto alla dotazione finanziaria disponibile - aggiornamento al 31 dicembre 2014)</p>
         <p>
             <figure style="-webkit-margin-start: 0;">
-                <img src="{{ STATIC_URL }}img/spesa_certificata_20141231.jpg"/>
+                <img src="{% static 'img/spesa_certificata_20141231.jpg' %}" />
                 <figcaption>
                     Nota: Gli obiettivi nazionali sono stati definiti dal Comitato QSN
                     del 9 aprile 2013, gli obiettivi comunitari sono quelli definiti dalla regola &ldquo;n+2&rdquo;
                 </figcaption>
             </figure>
-
         </p>
         <p style="margin-left: 1em;">
             <i class="icon-download-alt"></i> <b>Scarica</b> dati e metadati per ciascun Programma Operativo su:
             <ul style="margin-left: 40px;">
-                <li><a href="/opendata/Dotazioni_Certificazioni_20141231.xls">
-                    dotazione finanziaria complessiva e spesa certificata alla UE </a>
-                    (xls, 119,0 Kb)
-                    (aggiornamento al 31 dicembre 2014)</li>
-                <li><a href="/opendata/Target_Risultati_20141231.xls">
-                    target di spesa certificata</a> (xls, 74,5 Kb)
-                    (aggiornamento al 31 dicembre 2014)</li>
+                <li>
+                    <a href="/opendata/Dotazioni_Certificazioni_20141231.xls">dotazione finanziaria complessiva e spesa certificata alla UE</a>
+                    (xls, 119,0 Kb) (aggiornamento al 31 dicembre 2014)
+                </li>
+                <li>
+                    <a href="/opendata/Target_Risultati_20141231.xls">target di spesa certificata</a>
+                    (xls, 74,5 Kb) (aggiornamento al 31 dicembre 2014)
+                </li>
             </ul>
         </p>
         <p style="margin-left: 1em;">
-            <i class="icon-download-alt"></i> <b>Visualizza</b> i <a href="{% url 'flat-spesa-certificata-grafici' %}">grafici interattivi</a>
-            per ciascun Programma Operativo
+            <i class="icon-download-alt"></i> <b>Visualizza</b> i <a href="{% url 'spesa-certificata-grafici' %}">grafici interattivi</a> per ciascun Programma Operativo
         </p>
         <p style="margin-left: 1em;">
             <i class="icon-download-alt"></i> <b>Leggi</b> le <a href="{% url 'pillole' %}">Pillole di OpenCoesione</a> con approfondimenti sui risultati raggiunti
             <ul style="margin-left: 40px;">
-                <li><a href="/pillole/Pillola_OpenCoesione_n.3_-_La_spesa_certificata_al_31_dicembre_2013.pdf">
-                    La certificazione della spesa dei Fondi Strutturali all’UE al 31/12/2013
-                </a></li>
+                <li><a href="/pillole/Pillola_OpenCoesione_n.3_-_La_spesa_certificata_al_31_dicembre_2013.pdf">La certificazione della spesa dei Fondi Strutturali all’UE al 31/12/2013</a></li>
             </ul>
         </p>
 
@@ -125,10 +121,5 @@
             Pertanto la somma dei pagamenti rendicontabili all’UE di ciascun Programma possono non
             corrispondere al valore più recente di certificazione ufficiale delle spese alla Commissione Europea.
         </p>
-
     </div>
-
-
 {% endblock %}
-
-{% block sidebar %}{% endblock %}

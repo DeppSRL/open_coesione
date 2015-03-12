@@ -1,13 +1,13 @@
 {% extends 'base_two_columns.html' %}
-{% load sekizai_tags %}
 
-{% block page_title %}
-    {{ title }}
-{% endblock %}
+{% load staticfiles sekizai_tags %}
+
+{% block page_title %}{{ title }}{% endblock %}
 
 {% block content %}
     <div class="flat_content" id="faq_list">
         <h1>{{ title }}</h1>
+
         <hr>
 
         {% for object in object_list %}
@@ -18,22 +18,7 @@
         {% endfor %}
     </div>
 
-    {% addtoblock 'js_script' %}
-        <script type='text/javascript'>//<![CDATA[
-            $(window).load(function() {
-                jQuery('.faq-risposta').hide();
-                jQuery('.faq-domanda').css('cursor', 'pointer').on('click', function() {
-                    var self = jQuery(this);
-                    jQuery('.faq-risposta').each(function() {
-                        jQuery(this).prev().is(self) ? jQuery(this).toggle() : jQuery(this).hide();
-                    });
-                    if (self.next().is(':visible')) {
-                        location.href = '#' + self.closest('.faq').attr('id');
-                    }
-                });
-
-                $('#faq_list').find(location.hash + '.faq:first .faq-domanda').trigger('click');
-            });//]]>
-        </script>
+    {% addtoblock 'js_script' strip %}
+        <script src="{% static 'js/oc-faq.js' %}"></script>
     {% endaddtoblock %}
 {% endblock %}

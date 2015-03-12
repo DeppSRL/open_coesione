@@ -1,3 +1,4 @@
+# coding=utf-8
 from django.db import models
 from django_extensions.db.fields import AutoSlugField
 from django.contrib.contenttypes.models import ContentType
@@ -7,9 +8,13 @@ from django.contrib.contenttypes import generic
 class Tag(models.Model):
     name = models.CharField(max_length=100, verbose_name='Termine')
     slug = AutoSlugField(populate_from='name')
+    priority = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        ordering = ['priority']
 
 
 class TaggedItem(models.Model):

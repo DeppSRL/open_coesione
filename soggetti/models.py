@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.urlresolvers import reverse
 from django.db import models
 from django_extensions.db.fields import AutoSlugField
 from model_utils.models import TimeStampedModel
@@ -91,14 +92,11 @@ class Soggetto(TimeStampedModel):
         """
         return set(chain.from_iterable([list(p.regioni) for p in self.progetti]))
 
+    def get_absolute_url(self):
+        return reverse('soggetti_soggetto', kwargs={'slug': self.slug})
+
     def __unicode__(self):
         return u'{0}'.format(self.denominazione)
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ('soggetti_soggetto', (), {
-            'slug': self.slug
-        })
 
     class Meta:
         verbose_name_plural = 'Soggetti'

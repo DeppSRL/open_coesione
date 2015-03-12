@@ -1,0 +1,27 @@
+{% extends 'base_two_columns.html' %}
+
+{% block page_title %}Contatti{% endblock %}
+
+{% block content %}
+    <div class="flat_content">
+        <h1>Cosa dicono di OpenCoesione</h1>
+
+        <br><br>
+
+        {% for object in object_list %}
+            <p>
+                {% if object.url %}
+                    <a href="{{ object.url }}">{{ object }}</a>
+                {% elif object.file %}
+                    <a href="{{ object.file.url }}">{{ object }}</a> ({{ object.file.name|slice:'-3:'|lower }}, {{ object.file.size|filesizeformat }})
+                {% else %}
+                    {{ object }}
+                {% endif %}
+            </p>
+
+            <p>di {{ object.author }} - {{ object.source }}, {{ object.published_at|date:'d M Y' }}</p>
+
+            <hr>
+        {% endfor %}
+    </div>
+{% endblock %}

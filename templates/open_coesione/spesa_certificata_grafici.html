@@ -1,0 +1,67 @@
+{% extends 'base_two_columns.html' %}
+
+{% load staticfiles sekizai_tags %}
+
+{% block page_title %}Grafici spesa certificata all'UE{% endblock %}
+
+{% block content %}
+    <div class="flat_content">
+        <h1>Spesa certificata UE - Risultati e obiettivi per i singoli Programmi Operativi</h1>
+
+        <p>
+            Qui di seguito si riportano i grafici dei singoli Programmi Operativi, in sezioni distinte per Area Obiettivo (Competitività, Convergenza) e Fondo (FESR, FSE).
+            Per selezionare il grafico di interesse, scegliere dal menu a tendina nella sezione di riferimento.
+        </p>
+        <p>
+            I target riportati nei grafici sono quelli nazionali, generalmente più ambiziosi di quelli comunitari e fissati,
+            oltre che al 31 dicembre di ciascun anno, anche al 31 maggio e al 31 ottobre, a partire da ottobre 2011.
+        </p>
+
+        {% for tipo_di_spesa, csv_file in chart_tables %}
+            <div id="chart_{{ tipo_di_spesa }}" class="chart_container">
+                <div class="chart_canvas"></div>
+                <form action="#">
+                    <div class="text-center">
+                        <select class="span3 chart_selector"></select>
+                    </div>
+                </form>
+                <table class="chart_table hide">
+                    {% for row in csv_file %}
+                        {% if forloop.first %}
+                            <thead>
+                                <tr>
+                                    {% for value in row %}
+                                        <th>{{ value }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                        {% else %}
+                            {% ifequal forloop.counter 2 %}
+                                <tbody>
+                            {% endifequal %}
+                            <tr>
+                                {% for value in row %}
+                                    <td>{{ value }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% if forloop.last %}
+                                </tbody>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </div>
+
+            <hr>
+        {% endfor %}
+    </div>
+
+    {% addtoblock 'js_script' strip %}
+        <script src="{% static 'js/highcharts.js' %}"></script>
+        <script src="{% static 'js/charts.js' %}"></script>
+    {% endaddtoblock %}
+
+    {% addtoblock 'js_script' strip %}
+        <script src="{% static 'js/oc-spesacertificata-grafici.js' %}"></script>
+    {% endaddtoblock %}
+{% endblock %}

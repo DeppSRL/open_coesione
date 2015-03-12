@@ -11,10 +11,10 @@ from django.conf import settings
 from django.core.cache import cache
 from open_coesione import utils
 from open_coesione.data_classification import DataClassifier
-from open_coesione.views import AccessControlView, AggregatoView, cached_context
+from open_coesione.views import AccessControlView, AggregatoMixin, cached_context
 from progetti.gruppo_programmi import GruppoProgrammi
 from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
-from progetti.views import CSVView
+from progetti.views import BaseCSVView
 from territori.models import Territorio
 
 import json
@@ -246,8 +246,8 @@ class LeafletView(TemplateView):
 
         # read legend html directly from mapnik xml (which should be cached at this point)
         mapnik_xml_path = '{0}.xml?tematizzazione={1}'.format(re.sub(r'leaflet', 'mapnik', path), tematizzazione)
-        MAPNIK_HOST = settings.MAPNIK_HOST or Site.objects.get_current()
-        mapnik_xml_url = 'http://{0}{1}'.format(MAPNIK_HOST, mapnik_xml_path)
+        mapnik_host = settings.MAPNIK_HOST or Site.objects.get_current()
+        mapnik_xml_url = 'http://{0}{1}'.format(mapnik_host, mapnik_xml_path)
         try:
             mapnik_xml = urllib.urlopen(mapnik_xml_url)
         except IOError:
@@ -293,8 +293,8 @@ class TilesConfigView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(TilesConfigView, self).get_context_data(**kwargs)
         context['tematizzazioni'] = self.TEMATIZZAZIONI
-        context['regioni'] = Territorio.objects.filter(territorio='R')
-        context['province'] = Territorio.objects.filter(territorio='P')
+        context['regioni'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R)
+        context['province'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.P)
         context['temi'] = Tema.objects.principali()
         context['nature'] = ClassificazioneAzione.objects.nature()
         context['programmi'] = list(ProgrammaAsseObiettivo.objects.programmi()) + list(ProgrammaLineaAzione.objects.programmi())
@@ -426,7 +426,7 @@ class MapnikRegioniView(MapnikView):
     codice_field = 'COD_REG'
     srs = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over'
     shp_file = '{0}/dati/reg2011_g/regioni_stats.shp'.format(settings.REPO_ROOT)
-    queryset = Territorio.objects.filter(territorio='R')
+    queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R)
 
     def refine_context(self, context):
         pass
@@ -442,10 +442,10 @@ class MapnikProvinceView(MapnikView):
         #super(MapnikProvinceView, self).refine_context(context)
         if 'cod_reg' in context:
             cod_reg = context['cod_reg']
-            self.queryset = Territorio.objects.filter(territorio='P', cod_reg=cod_reg)
+            self.queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.P, cod_reg=cod_reg)
             self.territori_name = 'regioni_{0}_province'.format(cod_reg)
         else:
-            self.queryset = Territorio.objects.filter(territorio='P')
+            self.queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.P)
 
 
 class MapnikComuniView(MapnikView):
@@ -458,27 +458,25 @@ class MapnikComuniView(MapnikView):
         #super(MapnikComuniView, self).refine_context(context)
         if 'cod_reg' in context:
             cod_reg = context['cod_reg']
-            self.queryset = Territorio.objects.filter(territorio='C', cod_reg=cod_reg)
+            self.queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C, cod_reg=cod_reg)
             self.territori_name = 'regioni_{0}_comuni'.format(cod_reg)
         elif 'cod_prov' in context:
             cod_prov = context['cod_prov']
-            self.queryset = Territorio.objects.filter(territorio='C', cod_prov=cod_prov)
+            self.queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C, cod_prov=cod_prov)
             self.territori_name = 'province_{0}_comuni'.format(cod_prov)
         else:
             raise Exception('a region or a province must be specified for this view')
 
 
-class TerritorioView(AccessControlView, AggregatoView, DetailView):
-    context_object_name = 'territorio'
-    tipo_territorio = ''
-    model = 'Territorio'
+class TerritorioView(AccessControlView, AggregatoMixin, DetailView):
+    model = Territorio
+    tipo_territorio = None
 
     @cached_context
-    def get_cached_context_data(self, **kwargs):
+    def get_cached_context_data(self):
         logger = logging.getLogger('console')
 
-        # Call the base implementation first to get a context
-        context = super(TerritorioView, self).get_context_data(**kwargs)
+        context = {}
 
         logger.debug('get_aggregate_data start')
         context = self.get_aggregate_data(context, territorio=self.object)
@@ -494,18 +492,10 @@ class TerritorioView(AccessControlView, AggregatoView, DetailView):
         return context
 
     def get_context_data(self, **kwargs):
-        logger = logging.getLogger('console')
+        context = super(TerritorioView, self).get_context_data(**kwargs)
 
-        context = self.get_cached_context_data(**kwargs)
+        context.update(self.get_cached_context_data())
 
-        # use OpendataView instance to access istat_date and the get_complete_file method,
-        # and avoid code duplication
-        #odv = OpendataView()
-        #istat_date = odv.istat_date
-        #context['istat_data_file'] = odv.get_complete_file('Indicatori_regionali_{0}.zip'.format(istat_date))
-        #context['istat_metadata_file'] = odv.get_complete_file('Metainformazione.xls')
-
-        logger.debug('ultimi_progetti_conclusi start')
         context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().nel_territorio(self.object)[:5]
 
         return context
@@ -524,7 +514,6 @@ class RegioneView(TerritorioView):
     tipo_territorio = Territorio.TERRITORIO.R
 
     def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
         context = super(RegioneView, self).get_context_data(**kwargs)
 
         try:
@@ -547,21 +536,18 @@ class AmbitoNazionaleView(TerritorioView):
     tipo_territorio = Territorio.TERRITORIO.N
 
 
-class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
+class AmbitoEsteroView(AccessControlView, AggregatoMixin, ListView):
     queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.E)
 
     @cached_context
-    def get_cached_context_data(self, **kwargs):
+    def get_cached_context_data(self, territori):
         logger = logging.getLogger('console')
 
-        # add object_list to kwargs, to make the get_context_data work in the setup_view environment
+        context = {}
+
+        # add object_list to context, to make the get_context_data work in the setup_view environment
         # used in cache generators scripts and in the API
-        kwargs['object_list'] = self.object_list if hasattr(self, 'object_list') else None
-
-        # Call the base implementation first to get a context
-        context = super(AmbitoEsteroView, self).get_context_data(**kwargs)
-
-        territori = self.queryset.all()
+        context['object_list'] = self.object_list if hasattr(self, 'object_list') else None
 
         logger.debug('totale_costi start')
         context['totale_costi'] = Progetto.objects.totale_costi(territori=territori)
@@ -645,7 +631,7 @@ class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
         for key in multi_territori:
             context['lista_finanziamenti_per_nazione'].append(
                 (
-                    Territorio(denominazione=key, territorio='E'), getattr(Progetto.objects.filter(pk__in=multi_territori[key]), context['tematizzazione'])()
+                    Territorio(denominazione=key, territorio=Territorio.TERRITORIO.E), getattr(Progetto.objects.filter(pk__in=multi_territori[key]), context['tematizzazione'])()
                 )
             )
 
@@ -654,19 +640,18 @@ class AmbitoEsteroView(AccessControlView, AggregatoView, ListView):
         return context
 
     def get_context_data(self, **kwargs):
-        logger = logging.getLogger('console')
-
-        context = self.get_cached_context_data(**kwargs)
-
         territori = self.queryset.all()
 
-        logger.debug('ultimi_progetti_conclusi start')
+        context = super(AmbitoEsteroView, self).get_context_data(**kwargs)
+
+        context.update(self.get_cached_context_data(territori=territori))
+
         context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().nei_territori(territori)[:5]
 
         return context
 
 
-class RegioneCSVView(CSVView):
+class RegioneCSVView(BaseCSVView):
     model = Territorio
 
     def write_csv(self, response):
@@ -693,7 +678,8 @@ class RegioneCSVView(CSVView):
             ])
 
 
-class ProvinciaCSVView(RegioneCSVView):
+class ProvinciaCSVView(BaseCSVView):
+    model = Territorio
 
     def write_csv(self, response):
         territorio_filter = self.object.get_cod_dict()
@@ -730,5 +716,5 @@ class ChartView(TemplateView):
             'temi_principali': Tema.objects.principali(),
             'tema': Tema.objects.get(codice=self.request.GET.get('tema', '1')),
             'regioni': Territorio.objects.regioni(),
-            'territorio': Territorio.objects.get(cod_reg=self.request.GET.get('regione', '1'), territorio='R'),
+            'territorio': Territorio.objects.get(cod_reg=self.request.GET.get('regione', '1'), territorio=Territorio.TERRITORIO.R),
         }

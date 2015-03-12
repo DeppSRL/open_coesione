@@ -2,17 +2,11 @@
     <header>
         <h1>
             {% if title_linked %}
-                <a href="{% url 'pillola_item' object.slug %}">{{ object.title }}</a>
+                <a href="{{ object.get_absolute_url }}">{{ object }}</a>
             {% else %}
-                {{ object.title }}
+                {{ object }}
             {% endif %}
             <small>{{ object.published_at|date:'d/m/Y' }}</small>
-            {# {% if object.file %} #}
-            {#    <small> #}
-            {#        <a href="/{{ object.file.name }}"><i class="icon-download-alt"></i> #}
-            {#        <span style="color:black;">{{ object.file.name|slice:"-3:"|lower }}, {{ object.file.size|filesizeformat }}</span></a> #}
-            {#    </small> #}
-            {# {% endif %} #}
         </h1>
     </header>
     {% if full_view %}
@@ -24,6 +18,6 @@
         {% if object.abstract %}
             {{ object.abstract|safe }}
         {% endif %}
-        <p><a href="{% url 'pillola_item' object.slug %}">Leggi tutto</a></p>
+        <p><a href="{{ object.get_absolute_url }}">Leggi tutto</a></p>
     {% endif %}
 </article>

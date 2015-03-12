@@ -1,19 +1,15 @@
 {% extends 'base_map.html' %}
+
 {% load humanize %}
 
 {% block page_title %}Programma: {{ programma }}{% endblock %}
-
-
-{% block container %}
-    {{ block.super }}
-{% endblock %}
 
 {% block top_content %}
     {% if programma.descrizione_estesa or programma.dotazione_totale %}
         <div id="claim-container">
             {% if programma.dotazione_totale %}
                 <span class="block-chart block-gray pull-right" style="cursor: default">
-                    <strong class="title">Dotazione totale</strong>
+                    <strong class="title">Dotazione programma</strong>
                     <p>{{ programma.dotazione_totale|intword }} <span>di euro</span></p>
                 </span>
             {% endif %}

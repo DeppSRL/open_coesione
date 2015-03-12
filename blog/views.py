@@ -4,12 +4,13 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from blog.models import Entry
-from open_coesione.views import PilloleView
+from open_coesione.views import PillolaListView
 from tagging.views import TagFilterMixin
 from open_coesione.mixins import DateFilterMixin
 
 # from tagging.models import TaggedItem
 # from django.contrib.contenttypes.models import ContentType
+
 
 class BlogView(ListView, TagFilterMixin, DateFilterMixin):
     model = Entry
@@ -26,16 +27,19 @@ class BlogView(ListView, TagFilterMixin, DateFilterMixin):
         context['date_choices'] = self._get_date_choices()
         context['tag_choices'] = self._get_tag_choices()
 
-        context['related_pillole'] = PilloleView(request=self.request).get_queryset() if self._get_tag_filter_value() else None
+        context['related_pillole'] = PillolaListView(request=self.request).get_queryset() if self._get_tag_filter_value() else None
 
         return context
+
 
 class BlogEntryView(DetailView):
     model = Entry
 
-def blogEntryItem(request, slug):
-    entry = get_object_or_404(Entry, slug=slug);
+
+def blog_entry_item(request, slug):
+    entry = get_object_or_404(Entry, slug=slug)
     return render_to_response('blog/entry_item.html', {'full_view': True, 'title_linked': True, 'object': entry, 'SITE_URL': 'http://' + Site.objects.get(pk=settings.SITE_ID).domain})
+
 
 # class BlogByTagView(BlogView):
 #     def get_queryset(self):
