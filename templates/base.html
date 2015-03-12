@@ -48,6 +48,8 @@
   <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.21.custom.min.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-dropdown.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-modal.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-transition.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-tab.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-tooltip.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-popover.js"></script>
@@ -105,7 +107,29 @@
                     <li><a rel="info-tooltip" data-placement="bottom" title="OpenCoesione su Twitter" class="twitter" href="https://twitter.com/OpenCoesione">Twitter</a></li>
                     <li><a rel="info-tooltip" data-placement="bottom" title="Il canale OpenCoesione su Vimeo" class="vimeo" href="https://vimeo.com/channels/787486">Vimeo</a></li>
                     <li><a rel="info-tooltip" data-placement="bottom" title="Le slide di OpenCoesione su SlideShare" class="slideshare" href="http://www.slideshare.net/OpenCoesione">SlideShare</a></li>
+                    <li><a rel="info-tooltip" data-placement="bottom" title="Open Government Awards" class="oga" data-toggle="modal" href="#ogaModal">Open Government Awards</a></li>
                 </ul>
+
+                <!-- OpenGovernment Awards Modal -->
+                <div id="ogaModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="myModalLabel">Open Government Awards</h3>
+                  </div>
+                  <div class="modal-body">
+                    <p style="text-align: center"><img src="{{ STATIC_URL }}img/home/opengovernmentawards.jpg" width="50%"/></p>
+                      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus imperdiet commodo semper.
+                          Donec eu nulla nisi. Cras id tempor metus. Phasellus sit amet elit ac erat blandit fringilla.
+                          Proin ultrices, erat vel pretium dapibus, enim est pretium ligula, id dapibus est eros a lacus.</p>
+                      <p><a href="https://www.opengovawards.org/RESULTS">Puoi vedere qui il dettaglio dei risultati</a></p>
+                      <p><a href="https://www.opengovawards.org/Awards_Booklet_Final.pdf">Scarica qui il PDF</a></p>
+
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Chiudi</button>
+                  </div>
+                </div>
+
                 {% block header_flags %}
                     {% if latest_entry %}
                         <div id="blog_info">
