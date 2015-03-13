@@ -775,6 +775,7 @@ class DeliberaCIPE(models.Model):
     class Meta:
         verbose_name = 'Delibera CIPE'
         verbose_name_plural = 'Delibere CIPE'
+        ordering = ['-anno', '-num']
 
 
 class CUP(models.Model):
