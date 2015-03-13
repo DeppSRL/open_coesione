@@ -329,7 +329,7 @@ class ProgrammiView(BaseProgrammaView):
             # dotazioni_totali = csv.DictReader(open(OpendataView.get_latest_localfile('Dotazioni_Certificazioni.csv')), delimiter=';')
             # dotazioni_totali.fieldnames = [field.strip() for field in dotazioni_totali.fieldnames]
             # dotazioni_totali = list(dotazioni_totali)
-            dotazioni_totali = list(csv.DictReader(subprocess.check_output(['in2csv', OpendataView.get_latest_localfile('Dotazioni_Certificazioni.xls')]).splitlines()))
+            dotazioni_totali = list(csv.DictReader(subprocess.check_output(['in2csv', OpendataView.get_latest_localfile('Dotazioni_Certificazioni.xls')], env=os.environ).splitlines()))
 
             for trend in ('tutti', 'conv', 'cro'):
                 programmi_codici = [programma.codice for programma in programmi if trend == 'tutti' or ' {0} '.format(trend) in programma.descrizione.lower()]
