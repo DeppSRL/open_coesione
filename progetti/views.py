@@ -334,13 +334,13 @@ class ProgrammiView(BaseProgrammaView):
             for trend in ('tutti', 'conv', 'cro'):
                 programmi_codici = [programma.codice for programma in programmi if trend == 'tutti' or ' {0} '.format(trend) in programma.descrizione.lower()]
 
-                pagamenti_per_anno = PagamentoProgetto.objects.filter(progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).extra(select={'anno': connection.ops.date_trunc_sql('year', 'data')}).values('anno').annotate(ammontare=Sum('ammontare')).order_by('anno')
+                pagamenti_per_anno = PagamentoProgetto.objects.filter(progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).extra(select={'data': connection.ops.date_trunc_sql('year', 'data')}).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
 
-                dotazioni_totali_per_anno = {pagamento['anno'].year: 0 for pagamento in pagamenti_per_anno}
+                dotazioni_totali_per_anno = {pagamento['data'].year: 0 for pagamento in pagamenti_per_anno}
                 for row in dotazioni_totali:
-                    if row['DPS_CODICE_PROGRAMMA'].strip() in programmi_codici:
+                    if row['OC_CODICE_PROGRAMMA'].strip() in programmi_codici:
                         for anno in dotazioni_totali_per_anno:
-                            data = '{0}1231'.format(max(anno, 2009))
+                            data = '{0}1231'.format(max(anno, 2009))  # i dati delle dotazioni totali partono dal 2009; per gli anni precedenti valgono i dati del 2009
                             try:
                                 valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {0}'.format(data)]
                             except KeyError:
@@ -349,7 +349,7 @@ class ProgrammiView(BaseProgrammaView):
                             # dotazioni_totali_per_anno[anno] += float(valore.strip().replace('.', '').replace(',', '.'))
                             dotazioni_totali_per_anno[anno] += float(valore)
 
-                context['pagamenti_timeline_{0}'.format(trend)] = [{'year': pagamento['anno'].year, 'percentage': 100 * float(pagamento['ammontare']) / dotazioni_totali_per_anno[pagamento['anno'].year]} for pagamento in pagamenti_per_anno]
+                context['pagamenti_timeline_{0}'.format(trend)] = [{'year': pagamento['data'].year, 'percentage': 100 * float(pagamento['ammontare']) / dotazioni_totali_per_anno[pagamento['data'].year]} for pagamento in pagamenti_per_anno]
 
         return context
 
@@ -540,7 +540,7 @@ class CSVSearchResultsWriterMixin(object):
         """
         writer.writerow([
             'COD_LOCALE_PROGETTO',
-            'DPS_TERRITORIO_PROG', 'COD_COMUNE', 'COD_PROVINCIA', 'COD_REGIONE'
+            'OC_TERRITORIO_PROG', 'COD_COMUNE', 'COD_PROVINCIA', 'COD_REGIONE'
         ])
         for r in results:
 
@@ -571,8 +571,8 @@ class CSVSearchResultsWriterMixin(object):
 
         writer.writerow([
             'COD_LOCALE_PROGETTO', 'CUP',
-            'DPS_TITOLO_PROGETTO',
-            'DPS_TEMA_SINTETICO', 'CUP_DESCR_NATURA',
+            'OC_TITOLO_PROGETTO',
+            'OC_TEMA_SINTETICO', 'CUP_DESCR_NATURA',
             'TIPO_PROGETTO',
             'FINANZ_UE',
             'FINANZ_STATO_FONDO_ROTAZIONE', 'FINANZ_STATO_FSC', 'FINANZ_STATO_PAC', 'FINANZ_STATO_ALTRI_PROVVEDIMENTI',
@@ -582,8 +582,8 @@ class CSVSearchResultsWriterMixin(object):
             'FINANZ_TOTALE_PUBBLICO',
             'TOT_PAGAMENTI',
             'QSN_FONDO_COMUNITARIO',
-            'DPS_DATA_INIZIO_PREVISTA', 'DPS_DATA_FINE_PREVISTA',
-            'DPS_DATA_INIZIO_EFFETTIVA', 'DPS_DATA_FINE_EFFETTIVA',
+            'OC_DATA_INIZIO_PREVISTA', 'OC_DATA_FINE_PREVISTA',
+            'OC_DATA_INIZIO_EFFETTIVA', 'OC_DATA_FINE_EFFETTIVA',
             'SOGGETTI_PROGRAMMATORI', 'SOGGETTI_ATTUATORI',
             'AMBITI_TERRITORIALI', 'TERRITORI'
         ])

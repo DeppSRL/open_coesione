@@ -147,9 +147,9 @@ class Command(BaseCommand):
             else:
                 territorio = None
 
-                tipo_territorio = self._get_value(row, 'DPS_TERRITORIO_PROG')
+                tipo_territorio = self._get_value(row, 'OC_TERRITORIO_PROG')
 
-                # per i progetti CIPE non c'è il campo DPS_TERRITORIO_PROG
+                # per i progetti CIPE non c'è il campo OC_TERRITORIO_PROG
                 if not tipo_territorio:
                     if row['COD_PROVINCIA'] in ('000', '900'):
                         tipo_territorio = Territorio.TERRITORIO.R
@@ -205,7 +205,7 @@ class Command(BaseCommand):
                             territorio=territorio,
                             indirizzo=self._get_value(row, 'INDIRIZZO_PROG'),
                             cap=self._get_value(row, 'CAP_PROG'),
-                            dps_flag_cap=int(self._get_value(row, 'DPS_FLAG_CAP_PROG') or 0),
+                            dps_flag_cap=int(self._get_value(row, 'OC_FLAG_CAP_PROG') or 0),
                         )
                     )
                     self.logger.info(u'{0}/{1} - Creata localizzazione progetto: {2}'.format(n, df_count, insert_list[-1]))
