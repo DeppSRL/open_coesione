@@ -5242,6 +5242,10 @@ section h2.title span {
   background-image: url('../img/header/social-slideshare.png');
   margin-left: 2px;
 }
+#wrapper > header > div > .container #social_links li a.oga {
+  background-image: url('../img/header/social-award.png');
+  background-color: darkslateblue;
+}
 #wrapper > header > div > .container #social_links li:first-child a {
   margin-left: 0;
 }
@@ -5283,6 +5287,11 @@ section h2.title span {
 #sidebar ul#social_links li a.twitter.slideshare,
 #sidebar ul#social_links li a.slideshare.slideshare {
   background-image: url('../img/header/social-slideshare.png');
+}
+#sidebar ul#social_links li a.vimeo.oga,
+#sidebar ul#social_links li a.twitter.oga,
+#sidebar ul#social_links li a.slideshare.oga {
+  background-image: url('../img/header/social-award.png');
 }
 #wrapper > section#main {
   min-height: 300px;
