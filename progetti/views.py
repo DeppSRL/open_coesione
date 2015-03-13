@@ -349,7 +349,7 @@ class ProgrammiView(BaseProgrammaView):
                             # dotazioni_totali_per_anno[anno] += float(valore.strip().replace('.', '').replace(',', '.'))
                             dotazioni_totali_per_anno[anno] += float(valore)
 
-                context['pagamenti_timeline_{0}'.format(trend)] = [{'year': pagamento['data'].year, 'percentage': 100 * float(pagamento['ammontare']) / dotazioni_totali_per_anno[pagamento['data'].year]} for pagamento in pagamenti_per_anno]
+                context['pagamenti_timeline_{0}'.format(trend)] = [{'year': pagamento['data'].year, 'percentage': 100 * float(pagamento['ammontare'] or 0) / dotazioni_totali_per_anno[pagamento['data'].year]} for pagamento in pagamenti_per_anno]
 
         return context
 
