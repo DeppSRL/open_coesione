@@ -1,6 +1,6 @@
 {% extends 'base_map.html' %}
 
-{% load staticfiles sekizai_tags jsonify %}
+{% load staticfiles sekizai_tags humanize jsonify %}
 
 {% block page_title %}{{ gruppo_programmi }}{% endblock %}
 
@@ -60,5 +60,16 @@
                 });
             </script>
         {% endaddtoblock %}
+    {% endif %}
+{% endblock %}
+
+{% block top_content %}
+    {% if gruppo_programmi.dotazione_totale %}
+        <div id="claim-container">
+            <span class="block-chart block-gray pull-right" style="cursor: default">
+                <strong class="title">Dotazione programmi</strong>
+                <p>{{ gruppo_programmi.dotazione_totale|intword }} <span>di euro</span></p>
+            </span>
+        </div>
     {% endif %}
 {% endblock %}

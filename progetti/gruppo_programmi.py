@@ -120,6 +120,10 @@ class GruppoProgrammi(object):
     def __unicode__(self):
         return u'{0}'.format(self.descrizione)
 
+    @property
+    def descrizione(self):
+        return u'Programmi {0}'.format(self.codice.replace('-', ' ').upper())
+
     @cached_property
     def programmi(self):
         programmi = None
@@ -142,6 +146,11 @@ class GruppoProgrammi(object):
 
         return programmi
 
-    @property
-    def descrizione(self):
-        return u'Programmi {0}'.format(self.codice.replace('-', ' ').upper())
+    @cached_property
+    def dotazione_totale(self):
+        dotazione_totale = 0
+        for programma in self.programmi:
+            if programma.dotazione_totale:
+                dotazione_totale += programma.dotazione_totale
+
+        return dotazione_totale
