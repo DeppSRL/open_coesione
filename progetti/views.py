@@ -330,7 +330,7 @@ class ProgrammiView(BaseProgrammaView):
             # dotazioni_totali.fieldnames = [field.strip() for field in dotazioni_totali.fieldnames]
             # dotazioni_totali = list(dotazioni_totali)
             env = os.environ.copy()
-            env['PYTHONPATH'] = ":".join(sys.path)
+            # env['PYTHONPATH'] = ":".join(sys.path)
             dotazioni_totali = list(csv.DictReader(subprocess.check_output(['in2csv', OpendataView.get_latest_localfile('Dotazioni_Certificazioni.xls')], env=env).splitlines()))
 
             for trend in ('tutti', 'conv', 'cro'):
