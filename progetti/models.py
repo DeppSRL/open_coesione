@@ -923,7 +923,7 @@ class SegnalazioneProgetto(TimeStampedModel):
 
 
 class PagamentoProgetto(TimeStampedModel):
-    progetto = models.ForeignKey(Progetto)
+    progetto = models.ForeignKey(Progetto, related_name='pagamentoprogetto_set')
     data = models.DateField()
     ammontare = models.DecimalField(max_digits=14, decimal_places=2)
     ammontare_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)

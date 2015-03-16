@@ -335,7 +335,7 @@ class ProgrammiView(BaseProgrammaView):
             for trend in ('tutti', 'conv', 'cro'):
                 programmi_codici = [programma.codice for programma in programmi if trend == 'tutti' or ' {0} '.format(trend) in programma.descrizione.lower()]
 
-                pagamenti_per_anno = PagamentoProgetto.objects.filter(progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).extra(select={'data': connection.ops.date_trunc_sql('year', 'data')}).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
+                pagamenti_per_anno = PagamentoProgetto.objects.filter(progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).extra(select={'data': connection.ops.date_trunc_sql('year', 'data')}).values('data').annotate(ammontare=Sum('ammontare')).order_by('data')
 
                 dotazioni_totali_per_anno = {pagamento['data'].year: 0 for pagamento in pagamenti_per_anno}
                 for row in dotazioni_totali:
@@ -350,7 +350,11 @@ class ProgrammiView(BaseProgrammaView):
                             # dotazioni_totali_per_anno[anno] += float(valore.strip().replace('.', '').replace(',', '.'))
                             dotazioni_totali_per_anno[anno] += float(valore)
 
-                context['pagamenti_timeline_{0}'.format(trend)] = [{'year': pagamento['data'].year, 'percentage': 100 * float(pagamento['ammontare'] or 0) / dotazioni_totali_per_anno[pagamento['data'].year]} for pagamento in pagamenti_per_anno]
+                context['pagamenti_per_anno_{0}'.format(trend)] = [{'year': pagamento['data'].year, 'percentage': 100 * float(pagamento['ammontare'] or 0) / dotazioni_totali_per_anno[pagamento['data'].year]} for pagamento in pagamenti_per_anno]
+
+                if trend in ('conv', 'cro'):
+                    programmi_con_pagamenti = ProgrammaAsseObiettivo.objects.filter(codice__in=programmi_codici).annotate(ammontare=Sum('classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__ammontare')).order_by('descrizione')
+                    context['pagamenti_per_programma_{0}'.format(trend)] = [{'program': programma.descrizione, 'amount': programma.ammontare, 'total': programma.dotazione_totale} for programma in programmi_con_pagamenti]
 
         return context
 
