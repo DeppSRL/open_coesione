@@ -319,6 +319,7 @@ class ProgrammiView(BaseProgrammaView):
     def get_object(self):
         return GruppoProgrammi(codice=self.kwargs.get('slug'))
 
+    @cached_context
     def get_cached_context_data(self, programmi):
         context = super(ProgrammiView, self).get_cached_context_data(programmi=programmi)
 
