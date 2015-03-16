@@ -323,13 +323,15 @@ class ProgrammiView(BaseProgrammaView):
         context = super(ProgrammiView, self).get_cached_context_data(programmi=programmi)
 
         if self.kwargs.get('slug') in ('ue-fesr', 'ue-fse'):
-            import subprocess
+            import sys, subprocess
             from open_coesione.views import OpendataView
 
             # dotazioni_totali = csv.DictReader(open(OpendataView.get_latest_localfile('Dotazioni_Certificazioni.csv')), delimiter=';')
             # dotazioni_totali.fieldnames = [field.strip() for field in dotazioni_totali.fieldnames]
             # dotazioni_totali = list(dotazioni_totali)
-            dotazioni_totali = list(csv.DictReader(subprocess.check_output(['in2csv', OpendataView.get_latest_localfile('Dotazioni_Certificazioni.xls')], env=os.environ.copy()).splitlines()))
+            env = os.environ.copy()
+            env['PYTHONPATH'] = ":".join(sys.path)
+            dotazioni_totali = list(csv.DictReader(subprocess.check_output(['in2csv', OpendataView.get_latest_localfile('Dotazioni_Certificazioni.xls')], env=env).splitlines()))
 
             for trend in ('tutti', 'conv', 'cro'):
                 programmi_codici = [programma.codice for programma in programmi if trend == 'tutti' or ' {0} '.format(trend) in programma.descrizione.lower()]
