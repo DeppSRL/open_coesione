@@ -5244,7 +5244,7 @@ section h2.title span {
 }
 #wrapper > header > div > .container #social_links li a.oga {
   background-image: url('../img/header/social-award.png');
-  background-color: darkslateblue;
+  background-color: #5B5955;
 }
 #wrapper > header > div > .container #social_links li:first-child a {
   margin-left: 0;
