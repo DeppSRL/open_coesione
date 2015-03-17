@@ -6,7 +6,7 @@ from django.test import RequestFactory
 import logging
 
 from open_coesione.views import HomeView
-from progetti.views import TipologiaView, TemaView, ProgrammaView, ProgrammiView
+from progetti.views import ClassificazioneAzioneView, TemaView, ProgrammaView, ProgrammiView
 from territori.models import Territorio
 from territori.views import TerritorioView, MapnikRegioniView, MapnikProvinceView, MapnikComuniView, LeafletView, AmbitoNazionaleView, AmbitoEsteroView
 from django.core.cache import cache
@@ -122,7 +122,7 @@ class Command(BaseCommand):
                 ),
             }),
             'natura': (self.handle_other, {
-                'aggregate_view_class': TipologiaView,
+                'aggregate_view_class': ClassificazioneAzioneView,
                 'url_name': 'progetti_tipologia',
                 'inner_filter': 'natura',
                 'mapnik_url_names_views': (

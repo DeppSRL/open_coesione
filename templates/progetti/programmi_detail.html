@@ -1,3 +1,92 @@
 {% extends 'base_map.html' %}
 
-{% block page_title %}{{ gruppo_programmi.descrizione }}{% endblock %}
+{% load staticfiles sekizai_tags humanize jsonify %}
+
+{% block page_title %}{{ gruppo_programmi }}{% endblock %}
+
+{% block container %}
+    {{ block.super }}
+
+    {% if gruppo_programmi.codice == 'ue-fesr' or gruppo_programmi.codice == 'ue-fse' %}
+        <section class="container">
+            <div class="row">
+                <div class="span12">
+                    <p style="margin: 20px 0">
+                        {% if gruppo_programmi.codice == 'ue-fesr' %}
+                            I seguenti grafici mostrano l'avanzamento finanziario dei programmi del Fondo europeo per lo sviluppo regionale (FESR), che sostiene programmi in materia di sviluppo regionale, di potenziamento della competitività, di investimenti nella ricerca e nello sviluppo sostenibile. Nei grafici la spesa è rappresentata dall'importo totale dei pagamenti, al netto dei recuperi, che possono essere considerati per la richiesta dei rimborsi alla Commissione Europea alla data di aggiornamento.
+                        {% elif gruppo_programmi.codice == 'ue-fse' %}
+                            I seguenti grafici mostrano l'avanzamento finanziario dei programmi del Fondo sociale europeo (FSE), modellato sulla strategia europea per l’occupazione e si concentra sull’inclusione sociale e su un accesso al mercato del lavoro che sia privo di discriminazioni di genere. Nei grafici la spesa è rappresentata dall'importo totale dei pagamenti, al netto dei recuperi​, che possono essere considerati per la richiesta dei rimborsi alla Commissione Europea alla data di aggiornamento.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="span12" id="spline_chart"></div>
+            </div>
+            <div class="row">
+                <div class="span12">
+                    <h3><a href="{% url 'faq-it' %}">Area Convergenza</a></h3>
+                    <div class="span12" id="conv_column_chart" style="height: 800px"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="span12">
+                    <h3><a href="{% url 'faq-it' %}">Area Competitività</a></h3>
+                    <div class="span12" id="cro_column_chart" style="height: 800px"></div>
+                </div>
+            </div>
+        </section>
+
+        {% addtoblock 'js_script' strip %}
+            <script src="{% static 'js/highcharts.js' %}"></script>
+        {% endaddtoblock %}
+
+        {% addtoblock 'js_script' strip %}
+            <script src="{% static 'js/oc-programmi.js' %}"></script>
+        {% endaddtoblock %}
+
+        {% addtoblock 'js_script' strip %}
+            <script>
+                $(document).ready(function() {
+                    var series = [];
+                    series.push({
+                        name: 'Totale',
+                        data: {{ pagamenti_per_anno_tutti|jsonify }}
+                    });
+                    series.push({
+                        name: 'Convergenza',
+                        data: {{ pagamenti_per_anno_conv|jsonify }}
+                    });
+                    series.push({
+                        name: 'Competitività',
+                        data: {{ pagamenti_per_anno_cro|jsonify }}
+                    });
+
+                    for (var i = 0; i < series.length; i++) {
+                        for (var j = 0; j < series[i]['data'].length; j++) {
+                            series[i]['data'][j] = [Date.UTC(series[i]['data'][j]['year'], 0, 1), series[i]['data'][j]['percentage']];
+                        }
+                    }
+
+                    print_spline_chart('spline_chart', series, 'Andamento percentuale dei pagamenti rispetto al costo pubblico');
+
+                    {% with update_date='31/12/2014' %}
+                        print_column_chart('conv_column_chart', {{ pagamenti_per_programma_conv|jsonify }}, 'Avanzamento finanziario dei programmi: confronto della spesa tra i programmi operativi regionali e nazionali al {{ update_date }}');
+                        print_column_chart('cro_column_chart', {{ pagamenti_per_programma_cro|jsonify }}, 'Avanzamento finanziario dei programmi: confronto della spesa tra i programmi operativi regionali{% if gruppo_programmi.codice == 'ue-fse' %} e nazionali{% endif %} al {{ update_date }}');
+                    {% endwith %}
+                });
+            </script>
+        {% endaddtoblock %}
+    {% endif %}
+{% endblock %}
+
+{% block top_content %}
+    {% if gruppo_programmi.dotazione_totale %}
+        <div id="claim-container">
+            <span class="block-chart block-gray pull-right" style="cursor: default">
+                <strong class="title">Dotazione programmi</strong>
+                <p>{{ gruppo_programmi.dotazione_totale|intword }} <span>di euro</span></p>
+            </span>
+        </div>
+    {% endif %}
+{% endblock %}

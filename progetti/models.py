@@ -488,10 +488,12 @@ class Progetto(TimeStampedModel):
     fin_da_reperire = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
 
     costo = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
-    costo_ammesso = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    costo_rendicontabile_ue = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+
     pagamento = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
-    pagamento_ammesso = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    pagamento_rendicontabile_ue = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     pagamento_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    pagamento_pac = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
 
     data_inizio_prevista = models.DateField(null=True, blank=True)
     data_fine_prevista = models.DateField(null=True, blank=True)
@@ -514,6 +516,16 @@ class Progetto(TimeStampedModel):
 
     objects = ProgettiManager()    # override the default manager
     fullobjects = FullProgettiManager()
+
+    @property
+    def costo_ammesso(self):
+        # backward compatibility
+        return self.costo_rendicontabile_ue
+
+    @property
+    def pagamento_ammesso(self):
+        # backward compatibility
+        return self.pagamento_rendicontabile_ue
 
     @property
     def tipo_progetto(self):
@@ -775,6 +787,7 @@ class DeliberaCIPE(models.Model):
     class Meta:
         verbose_name = 'Delibera CIPE'
         verbose_name_plural = 'Delibere CIPE'
+        ordering = ['-anno', '-num']
 
 
 class CUP(models.Model):
@@ -910,9 +923,12 @@ class SegnalazioneProgetto(TimeStampedModel):
 
 
 class PagamentoProgetto(TimeStampedModel):
-    progetto = models.ForeignKey(Progetto)
+    progetto = models.ForeignKey(Progetto, related_name='pagamentoprogetto_set')
     data = models.DateField()
     ammontare = models.DecimalField(max_digits=14, decimal_places=2)
+    ammontare_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    ammontare_pac = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    ammontare_rendicontabile_ue = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
 
     @property
     def percentuale(self):

@@ -136,9 +136,7 @@ var line_chart_options = {
         dateTimeLabelFormats: {
             month: '%Y',
             year: '%Y'
-        },
-        min: Date.UTC(1994, 1, 1),
-        max: Date.UTC((new Date()).getFullYear(), 1, 1)
+        }
     },
     yAxis: {
         title: {
@@ -235,7 +233,7 @@ var read_values = function(values, years)
         // skip empty
         if ( isNaN(value) ) continue;
         // add index data
-        results.push([ Date.UTC(years[i], 1, 1), value ]);
+        results.push([ Date.UTC(years[i], 0, 1), value ]);
     }
     return results;
 };

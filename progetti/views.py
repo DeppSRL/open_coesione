@@ -7,6 +7,8 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import connection
+from django.db.models import Sum
 from django.http import HttpResponse, Http404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -15,7 +17,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin, FacetRangePercPayMixin
 from oc_search.views import ExtendedFacetedSearchView
-from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
+from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione, PagamentoProgetto
 from open_coesione import utils
 from open_coesione.views import AccessControlView, AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
 from progetti.forms import DescrizioneProgettoForm
@@ -300,7 +302,7 @@ class BaseProgrammaView(AccessControlView, AggregatoMixin, TemplateView):
         return context
 
     def get_context_data(self, **kwargs):
-        programmi = kwargs.get('programmi', [])
+        programmi = kwargs.pop('programmi', [])
 
         context = super(BaseProgrammaView, self).get_context_data(**kwargs)
 
@@ -317,17 +319,52 @@ class ProgrammiView(BaseProgrammaView):
     def get_object(self):
         return GruppoProgrammi(codice=self.kwargs.get('slug'))
 
+    @cached_context
+    def get_cached_context_data(self, programmi):
+        context = super(ProgrammiView, self).get_cached_context_data(programmi=programmi)
+
+        if self.kwargs.get('slug') in ('ue-fesr', 'ue-fse'):
+            from csvkit import convert
+            from open_coesione.views import OpendataView
+
+            # dotazioni_totali = csv.DictReader(open(OpendataView.get_latest_localfile('Dotazioni_Certificazioni.csv')), delimiter=';')
+            # dotazioni_totali.fieldnames = [field.strip() for field in dotazioni_totali.fieldnames]
+            # dotazioni_totali = list(dotazioni_totali)
+            dotazioni_totali = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Dotazioni_Certificazioni.xls'), 'rb')).splitlines()))
+
+            for trend in ('tutti', 'conv', 'cro'):
+                programmi_codici = [programma.codice for programma in programmi if trend == 'tutti' or ' {0} '.format(trend) in programma.descrizione.lower()]
+
+                pagamenti_per_anno = PagamentoProgetto.objects.filter(progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).extra(select={'data': connection.ops.date_trunc_sql('year', 'data')}).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
+
+                dotazioni_totali_per_anno = {pagamento['data'].year: 0 for pagamento in pagamenti_per_anno}
+                for row in dotazioni_totali:
+                    if row['DPS_CODICE_PROGRAMMA'].strip() in programmi_codici:
+                        for anno in dotazioni_totali_per_anno:
+                            data = '{0}1231'.format(max(anno, 2009))  # i dati delle dotazioni totali partono dal 2009; per gli anni precedenti valgono i dati del 2009
+                            try:
+                                valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {0}'.format(data)]
+                            except KeyError:
+                                valore = row['DOTAZIONE TOTALE PROGRAMMA {0}'.format(data)]
+
+                            # dotazioni_totali_per_anno[anno] += float(valore.strip().replace('.', '').replace(',', '.'))
+                            dotazioni_totali_per_anno[anno] += float(valore)
+
+                context['pagamenti_per_anno_{0}'.format(trend)] = [{'year': pagamento['data'].year, 'percentage': 100 * float(pagamento['ammontare'] or 0) / dotazioni_totali_per_anno[pagamento['data'].year]} for pagamento in pagamenti_per_anno]
+
+                if trend in ('conv', 'cro'):
+                    programmi_con_pagamenti = ProgrammaAsseObiettivo.objects.filter(codice__in=programmi_codici).annotate(ammontare=Sum('classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__ammontare_rendicontabile_ue')).order_by('descrizione')
+                    context['pagamenti_per_programma_{0}'.format(trend)] = [{'program': programma.descrizione, 'amount': programma.ammontare, 'total': programma.dotazione_totale} for programma in programmi_con_pagamenti]
+
+        return context
+
     def get_context_data(self, **kwargs):
         try:
             gruppo_programmi = self.get_object()
         except:
             raise Http404
 
-        kwargs.update({
-            'programmi': gruppo_programmi.programmi
-        })
-
-        context = super(ProgrammiView, self).get_context_data(**kwargs)
+        context = super(ProgrammiView, self).get_context_data(programmi=gruppo_programmi.programmi, **kwargs)
 
         context['map_selector'] = 'gruppo-programmi/{0}/'.format(self.kwargs['slug'])
 
@@ -343,21 +380,15 @@ class ProgrammaView(BaseProgrammaView):
         try:
             return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
         except ObjectDoesNotExist:
-            try:
-                return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
-            except ObjectDoesNotExist:
-                return None
+            return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
 
     def get_context_data(self, **kwargs):
-        programma = self.get_object()
-        if programma is None:
+        try:
+            programma = self.get_object()
+        except:
             raise Http404
 
-        kwargs.update({
-            'programmi': [programma]
-        })
-
-        context = super(ProgrammaView, self).get_context_data(**kwargs)
+        context = super(ProgrammaView, self).get_context_data(programmi=[programma], **kwargs)
 
         context['map_selector'] = 'programmi/{0}/'.format(self.kwargs['codice'])
 
@@ -514,7 +545,7 @@ class CSVSearchResultsWriterMixin(object):
         """
         writer.writerow([
             'COD_LOCALE_PROGETTO',
-            'DPS_TERRITORIO_PROG', 'COD_COMUNE', 'COD_PROVINCIA', 'COD_REGIONE'
+            'OC_TERRITORIO_PROG', 'COD_COMUNE', 'COD_PROVINCIA', 'COD_REGIONE'
         ])
         for r in results:
 
@@ -545,8 +576,8 @@ class CSVSearchResultsWriterMixin(object):
 
         writer.writerow([
             'COD_LOCALE_PROGETTO', 'CUP',
-            'DPS_TITOLO_PROGETTO',
-            'DPS_TEMA_SINTETICO', 'CUP_DESCR_NATURA',
+            'OC_TITOLO_PROGETTO',
+            'OC_TEMA_SINTETICO', 'CUP_DESCR_NATURA',
             'TIPO_PROGETTO',
             'FINANZ_UE',
             'FINANZ_STATO_FONDO_ROTAZIONE', 'FINANZ_STATO_FSC', 'FINANZ_STATO_PAC', 'FINANZ_STATO_ALTRI_PROVVEDIMENTI',
@@ -556,8 +587,8 @@ class CSVSearchResultsWriterMixin(object):
             'FINANZ_TOTALE_PUBBLICO',
             'TOT_PAGAMENTI',
             'QSN_FONDO_COMUNITARIO',
-            'DPS_DATA_INIZIO_PREVISTA', 'DPS_DATA_FINE_PREVISTA',
-            'DPS_DATA_INIZIO_EFFETTIVA', 'DPS_DATA_FINE_EFFETTIVA',
+            'OC_DATA_INIZIO_PREVISTA', 'OC_DATA_FINE_PREVISTA',
+            'OC_DATA_INIZIO_EFFETTIVA', 'OC_DATA_FINE_EFFETTIVA',
             'SOGGETTI_PROGRAMMATORI', 'SOGGETTI_ATTUATORI',
             'AMBITI_TERRITORIALI', 'TERRITORI'
         ])

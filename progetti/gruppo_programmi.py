@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.db.models import Q
 from django.utils.datastructures import SortedDict
 from django.utils.functional import cached_property
@@ -22,7 +23,8 @@ def split_by_type(programmi):
 
     return programmi_splitted
 
-class Config:
+
+class Config(object):
     @staticmethod
     def get_lista_programmi():
         # cache
@@ -66,8 +68,9 @@ class Config:
         programmi_pac_fsc = cache.get('programmi_pac_fsc')
         if programmi_pac_fsc is None:
             programmi_pac_fsc = programmi_linea.filter(
-                Q(descrizione__contains='GIUSTIZIA CIVILE') |
                 Q(descrizione__contains='DIRETTRICI FERROVIARIE') |
+                Q(descrizione__contains='GIUSTIZIA CIVILE') |
+                Q(descrizione__contains='(PRA) FSC CAMPANIA') |
                 Q(descrizione__contains='(PRA) FSC SARDEGNA')
             )
             cache.set('programmi_pac_fsc', programmi_pac_fsc)
@@ -88,13 +91,13 @@ class Config:
         lista_programmi = {
             'fse': [p for p in programmi if ' FSE ' in p.descrizione.upper()],
             'fesr': [p for p in programmi if ' FESR ' in p.descrizione.upper()],
-            'fsc_par': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PAR' == p.descrizione[:3]]))),
+            'fsc_par': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PAR' == p.descrizione.upper()[:3]]))),
             'fsc_pa': lista_programmi_fsc_pa,
-            'fsc_pra': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if '(PRA)' in p.descrizione]))),
+            'fsc_pra': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if '(PRA)' in p.descrizione.upper()]))),
             'fsc_pna': lista_programmi_fsc_pna,
-            'fsc_pstg': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PIANO STRAORDINARIO TUTELA E GESTIONE RISORSA IDRICA' in p.descrizione]))),
-            'pac_pac_m': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if ' PAC ' in p.descrizione and (' MINISTERO ' in p.descrizione or ' PCM ' in p.descrizione)]))),
-            'pac_pac_r': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if ' PAC ' in p.descrizione and not (' MINISTERO ' in p.descrizione or ' PCM ' in p.descrizione)]))),
+            'fsc_pstg': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PIANO STRAORDINARIO TUTELA E GESTIONE RISORSA IDRICA' in p.descrizione.upper()]))),
+            'pac_pac_m': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if ' PAC ' in p.descrizione.upper() and (' MINISTERO ' in p.descrizione.upper() or ' PCM ' in p.descrizione.upper())]))),
+            'pac_pac_r': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if ' PAC ' in p.descrizione.upper() and not (' MINISTERO ' in p.descrizione.upper() or ' PCM ' in p.descrizione.upper())]))),
             'pac_fse': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fse]))),
             'pac_fesr': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fesr]))),
             'pac_fsc': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fsc]))),
@@ -102,8 +105,9 @@ class Config:
 
         return lista_programmi
 
-class GruppoProgrammi:
-    CODICI = ['ue-fesr', 'ue-fse', 'fsc', 'pac']
+
+class GruppoProgrammi(object):
+    CODICI = ('ue-fesr', 'ue-fse', 'fsc', 'pac')
 
     codice = None
 
@@ -112,6 +116,13 @@ class GruppoProgrammi:
             self.codice = codice
         else:
             raise ValueError('Wrong codice: {0}'.format(codice))
+
+    def __unicode__(self):
+        return u'{0}'.format(self.descrizione)
+
+    @property
+    def descrizione(self):
+        return u'Programmi {0}'.format(self.codice.replace('-', ' ').upper())
 
     @cached_property
     def programmi(self):
@@ -135,6 +146,11 @@ class GruppoProgrammi:
 
         return programmi
 
-    @property
-    def descrizione(self):
-        return 'Programmi ' + self.codice.replace('-', ' ').upper()
+    @cached_property
+    def dotazione_totale(self):
+        dotazione_totale = 0
+        for programma in self.programmi:
+            if programma.dotazione_totale:
+                dotazione_totale += programma.dotazione_totale
+
+        return dotazione_totale
