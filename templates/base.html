@@ -279,13 +279,18 @@
             // enable popovers and tooltips
             $('a[rel=info-popover]').clickover();
             $('a[rel=info-tooltip]').tooltip()
-                .filter('[href="#"]').click(function() { return false; });
-
 
             // all links to /media/uploads/documenti/* are changed into /documenti/*
             var re = /media\/uploads\/documenti/;
             $('a[href*="media/uploads/documenti"]')
                 .each(function() { this.href = this.href.replace(re, 'documenti'); });
+        });
+
+        $(document).ready(function() {
+            $('a[href="#"]').on('click', function(e) {
+                e.preventDefault();
+            });
+            $('a[href^="http"]').attr('target', '_blank');
         });
     </script>
 {% endblock %}
