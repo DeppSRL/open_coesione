@@ -103,7 +103,7 @@ var print_column_chart = function(container, data, title) {
                         str.push(words[word]);
                     }
 
-                    return str.join(' ').replace(' <br>', '<br>');
+                    return str.join(' ').replace(' <br> ', '<br>');
                 },
                 rotation: -45,
                 align: 'right',
