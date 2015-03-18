@@ -1,5 +1,4 @@
 import StringIO
-import copy
 import csv
 import json
 import zipfile
@@ -8,7 +7,6 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import connection
 from django.db.models import Sum
 from django.http import HttpResponse, Http404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -328,6 +326,8 @@ class ProgrammiView(BaseProgrammaView):
             from csvkit import convert
             from open_coesione.views import OpendataView
 
+            logger = logging.getLogger('console')
+
             # dotazioni_totali = csv.DictReader(open(OpendataView.get_latest_localfile('Dotazioni_Certificazioni.csv')), delimiter=';')
             # dotazioni_totali.fieldnames = [field.strip() for field in dotazioni_totali.fieldnames]
             # dotazioni_totali = list(dotazioni_totali)
@@ -335,6 +335,8 @@ class ProgrammiView(BaseProgrammaView):
 
             for trend in ('conv', 'cro'):
                 programmi_codici = [programma.codice for programma in programmi if ' {0} '.format(trend) in programma.descrizione.lower()]
+
+                logger.debug('pagamenti_per_anno_{0} start'.format(trend))
 
                 pagamenti_per_anno = PagamentoProgetto.objects.filter(data__day=31, data__month=12, progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).values('data').annotate(ammontare=Sum('ammontare')).order_by('data')
 
@@ -352,6 +354,8 @@ class ProgrammiView(BaseProgrammaView):
                             dotazioni_totali_per_anno[anno] += float(valore)
 
                 context['pagamenti_per_anno_{0}'.format(trend)] = [{'year': pagamento['data'].year, 'total_amount': dotazioni_totali_per_anno[pagamento['data'].year], 'paid_amount': pagamento['ammontare'] or 0} for pagamento in pagamenti_per_anno]
+
+                logger.debug('pagamenti_per_programma_{0} start'.format(trend))
 
                 programmi_con_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__data__day=31, classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__data__month=12, codice__in=programmi_codici).values('descrizione', 'dotazione_totale').annotate(ammontare=Sum('classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__ammontare')).order_by('descrizione')
                 context['pagamenti_per_programma_{0}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': programma['dotazione_totale'], 'paid_amount': programma['ammontare']} for programma in programmi_con_pagamenti]
