@@ -338,7 +338,7 @@ class ProgrammiView(BaseProgrammaView):
 
                 logger.debug('pagamenti_per_anno_{0} start'.format(trend))
 
-                pagamenti_per_anno = PagamentoProgetto.objects.filter(data__day=31, data__month=12, progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
+                pagamenti_per_anno = PagamentoProgetto.objects.filter(data__day=31, data__month=12, progetto__active_flag=True, progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
 
                 dotazioni_totali_per_anno = {pagamento['data'].year: 0 for pagamento in pagamenti_per_anno}
                 for row in dotazioni_totali:
@@ -357,7 +357,7 @@ class ProgrammiView(BaseProgrammaView):
 
                 logger.debug('pagamenti_per_programma_{0} start'.format(trend))
 
-                programmi_con_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__data__day=31, classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__data__month=12, codice__in=programmi_codici).values('descrizione', 'dotazione_totale').annotate(ammontare=Sum('classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__ammontare_rendicontabile_ue')).order_by('descrizione')
+                programmi_con_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__data__day=31, classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__data__month=12, classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_codici).values('descrizione', 'dotazione_totale').annotate(ammontare=Sum('classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__ammontare_rendicontabile_ue')).order_by('descrizione')
                 context['pagamenti_per_programma_{0}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': programma['dotazione_totale'], 'paid_amount': programma['ammontare']} for programma in programmi_con_pagamenti]
 
             pagamenti_per_anno_tutti = {}
