@@ -418,7 +418,7 @@ class OpendataView(TemplateView):
 
         # context['istat_data_file'] = self.get_complete_localfile('Indicatori_regionali.zip')
         context['istat_metadata_file'] = self.get_complete_localfile('Metainformazione.xls')
-        istat_path = 'http://www.istat.it/it/files/2011/07/{0}'
+        istat_path = 'http://www.istat.it/storage/politiche-sviluppo/{0}'
         context['istat_data_file'] = self.get_complete_remotefile(istat_path.format('Archivio_unico_indicatori_regionali.zip'))
         # context['istat_metadata_file'] = self.get_complete_remotefile(istat_path.format('Metainformazione.xlsx'))
 
