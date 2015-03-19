@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load sekizai_tags %}
+{% load staticfiles sekizai_tags %}
 <!DOCTYPE html>
 <!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
 <!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
@@ -49,6 +49,7 @@
   <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.21.custom.min.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-dropdown.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-modal.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-transition.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-tab.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-tooltip.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-popover.js"></script>
@@ -104,32 +105,80 @@
                     <li><a rel="info-tooltip" data-placement="bottom" title="OpenCoesione su Twitter" class="twitter" href="https://twitter.com/OpenCoesione">Twitter</a></li>
                     <li><a rel="info-tooltip" data-placement="bottom" title="Il canale OpenCoesione su Vimeo" class="vimeo" href="https://vimeo.com/channels/787486">Vimeo</a></li>
                     <li><a rel="info-tooltip" data-placement="bottom" title="Le slide di OpenCoesione su SlideShare" class="slideshare" href="http://www.slideshare.net/OpenCoesione">SlideShare</a></li>
-                    <li><a rel="info-tooltip" data-placement="bottom" title="Premi e riconoscimenti" class="oga" data-toggle="modal" href="#ogaModal">Premi e riconoscimenti</a></li>
+                    <li><a rel="info-tooltip" data-placement="bottom" title="Premi e riconoscimenti" class="oga" data-toggle="modal" href="#aw-modal">Premi e riconoscimenti</a></li>
                 </ul>
 
                 <!-- OpenGovernment Awards Modal -->
-                <div id="ogaModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div id="aw-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="aw-modal-label" aria-hidden="true"
+                        style="margin-left: auto;margin-right:auto;width:90%;left:5%;z-index:100000;">
                   <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3 id="myModalLabel">Premi e riconoscimenti</h3>
+                    <h3 id="aw-modal-label">Premi e riconoscimenti</h3>
                   </div>
                   <div class="modal-body">
-                      <h3>Open Government Awards</h3>
-                    <p style="text-align: center"><img src="{{ STATIC_URL }}img/home/opengovernmentawards.jpg" width="50%"/></p>
-                      <p>
-                          La candidatura italiana OpenCoesione-Monithon agli OGP Awards 2014
-                          si è classificata quarta su 33 paesi candidati ed è stata
-                          insignita del silver award.
-                      </p>
-                      <p><a href="http://www.opencoesione.gov.it/news/#opencoesione-e-monithon-al-quarto-posto-degli-open-government-awards-2014">
-                          Puoi leggere la notizia completa
-                      </a></p>
+                    <div class="container">
+                      <div class="row">
+                        <div class="span4">
+                          <h3 class="aw-header">Wind Transparency Awards</h3>
+                            <p class="aw-logo" style="text-align: center; margin: 15px 0"><img src="{{ STATIC_URL }}img/home/windtransparencyforum.png" width="70%"/></p>
+                            <p class="aw-text">
+                              OpenCoesione ha ricevuto il premio 2015 nella categoria Istituzioni per la capacità di coniugare
+                               la trasparenza dei dati sui progetti finanziati dalle politiche di
+                               coesione pubblicati in formato aperto, con l'analisi, il monitoraggio attivo e
+                               l'utilizzo degli open data nelle scuole.
+                            </p>
+                            <p class="aw-link"><a href="http://opencoesione.gov.it/news/#opencoesione-riceve-il-premio-wind-transparency-award-2015">
+                              Puoi leggere la notizia completa
+                            </a></p>
+                        </div>
 
+                        <div class="span4">
+                          <h3 class="aw-header">Open Government Awards</h3>
+                          <p class="aw-logo" style="text-align: center; margin: 15px 0"><img src="{{ STATIC_URL }}img/home/opengovernmentawards.jpg" width="50%"/></p>
+                          <p class="aw-text">
+                              La candidatura italiana OpenCoesione-Monithon agli OGP Awards 2014
+                              si è classificata quarta su 33 paesi candidati ed è stata
+                              insignita del silver award.
+                          </p>
+                          <p class="aw-link"><a href="http://www.opencoesione.gov.it/news/#opencoesione-e-monithon-al-quarto-posto-degli-open-government-awards-2014">
+                              Puoi leggere la notizia completa
+                          </a></p>
+                        </div>
+
+                        <div class="span4">
+                          <h3 class="aw-header">Riconoscimento Open PA dalla trasparenza statica alla trasparenza dinamica</h3>
+                          <p class="aw-logo" style="text-align: center; margin: 15px 0"><img src="{{ STATIC_URL }}img/home/forumpalogo.png" width="40%"/></p>
+                          <p class="aw-text">
+                              Ad OpenCoesione è stato assegnato uno dei dodici riconoscimenti del Forum PA 2013 per progetti e iniziative
+                              di "trasparenza dinamica", che premiano le Amministrazioni più attive nel perseguimento
+                              dell’accountability.
+                          </p>
+                          <p class="aw-link"><a href="http://opencoesione.gov.it/news/#opencoesione-al-forum-pa-premio-per-la-trasparenza-dinamica-e-presentazioni-del-workshop">
+                              Puoi leggere la notizia completa
+                          </a></p>
+                        </div>
+
+                      </div>
+                    </div>
                   </div>
                   <div class="modal-footer">
                     <button class="btn" data-dismiss="modal" aria-hidden="true">Chiudi</button>
                   </div>
                 </div>
+
+                {% addtoblock 'js_script' strip %}
+                    <script src="{% static 'js/jquery.matchHeight-min.js' %}"></script>
+                {% endaddtoblock %}
+                {% addtoblock 'js_script' strip %}
+                    <script type="text/javascript">//<![CDATA[
+                        $(document).ready(function() {
+                            $('#aw-modal .aw-header').matchHeight();
+                            $('#aw-modal .aw-logo').matchHeight();
+                            $('#aw-modal .aw-text').matchHeight();
+                            $('#aw-modal .aw-link').matchHeight();
+                        });//]]>
+                    </script>
+                {% endaddtoblock %}
 
                 {% block header_flags %}
                     {% if latest_entry %}
