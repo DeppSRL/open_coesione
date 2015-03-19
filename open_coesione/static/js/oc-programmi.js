@@ -1,4 +1,10 @@
 var print_spline_chart = function(container, data, title) {
+    for (var i = 0; i < data.length; i++) {
+        for (var j = 0; j < data[i]['data'].length; j++) {
+            data[i]['data'][j] = [Date.UTC(data[i]['data'][j]['year'], 0, 1), 100 * data[i]['data'][j]['paid_amount'] / data[i]['data'][j]['total_amount']];
+        }
+    }
+
     new Highcharts.Chart({
         chart: {
             renderTo: container,
@@ -37,8 +43,8 @@ var print_column_chart = function(container, data, title) {
     var data_reg = [];
     var data_naz = [];
     var categories = [];
-    var serie_spesi = [];
-    var serie_da_spendere = [];
+    var series_spesi = [];
+    var series_da_spendere = [];
     var item, i;
 
     var num_format = function(num) {
@@ -58,8 +64,8 @@ var print_column_chart = function(container, data, title) {
     if (data_naz.length) {
         data.push({
             'program': '',
-            'total': 0,
-            'amount': 0
+            'total_amount': 0,
+            'paid_amount': 0
         });
         data = data.concat(data_naz);
     }
@@ -68,8 +74,8 @@ var print_column_chart = function(container, data, title) {
         item = data[i];
 
         categories.push(item['program']);
-        serie_spesi.push(item['amount']);
-        serie_da_spendere.push(item['total'] - item['amount']);
+        series_spesi.push(item['paid_amount']);
+        series_da_spendere.push(item['total_amount'] - item['paid_amount']);
     }
 
     return new Highcharts.Chart({
@@ -84,7 +90,22 @@ var print_column_chart = function(container, data, title) {
         xAxis: {
             categories: categories,
             labels: {
-                rotation: -90,
+                formatter: function() {
+                    var value = this.value.replace(' FESR ', ' ').replace(' FSE ', ' ').replace(' CONV ', ' ').replace(' CRO ', ' ');
+                    var words = value.split(/[\s]+/);
+                    var numWordsPerLine = 2;
+                    var str = [];
+
+                    for (var word in words) {
+                        if (word > 0 && word % numWordsPerLine == 0)
+                            str.push('<br>');
+
+                        str.push(words[word]);
+                    }
+
+                    return str.join(' ').replace(' <br> ', '<br>').replace(' <br>', '');
+                },
+                rotation: -45,
                 align: 'right',
                 style: {
                     font: 'normal 13px Verdana, sans-serif'
@@ -96,7 +117,7 @@ var print_column_chart = function(container, data, title) {
             title: {
                 text: 'Milioni di €'
             },
-            labels:{
+            labels: {
                 formatter: function() {
                     return num_format(this.value)
                 }
@@ -110,13 +131,13 @@ var print_column_chart = function(container, data, title) {
         },
         series: [
             {
-                name: 'Da spendere',
-                data: serie_da_spendere,
+                name: 'Spesi',
+                data: series_spesi,
                 stack: 0
             },
             {
-                name: 'Spesi',
-                data: serie_spesi,
+                name: 'Da spendere',
+                data: series_da_spendere,
                 stack: 0
             }
         ],

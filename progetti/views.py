@@ -1,5 +1,6 @@
 import StringIO
 import csv
+from datetime import date
 import json
 import zipfile
 import os
@@ -7,7 +8,6 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import connection
 from django.db.models import Sum
 from django.http import HttpResponse, Http404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -327,15 +327,21 @@ class ProgrammiView(BaseProgrammaView):
             from csvkit import convert
             from open_coesione.views import OpendataView
 
+            data_pagamenti_per_programma = date(2014, 12, 31)
+
+            logger = logging.getLogger('console')
+
             # dotazioni_totali = csv.DictReader(open(OpendataView.get_latest_localfile('Dotazioni_Certificazioni.csv')), delimiter=';')
             # dotazioni_totali.fieldnames = [field.strip() for field in dotazioni_totali.fieldnames]
             # dotazioni_totali = list(dotazioni_totali)
             dotazioni_totali = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Dotazioni_Certificazioni.xls'), 'rb')).splitlines()))
 
-            for trend in ('tutti', 'conv', 'cro'):
-                programmi_codici = [programma.codice for programma in programmi if trend == 'tutti' or ' {0} '.format(trend) in programma.descrizione.lower()]
+            for trend in ('conv', 'cro'):
+                programmi_codici = [programma.codice for programma in programmi if ' {0} '.format(trend) in programma.descrizione.lower()]
 
-                pagamenti_per_anno = PagamentoProgetto.objects.filter(progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).extra(select={'data': connection.ops.date_trunc_sql('year', 'data')}).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
+                logger.debug('pagamenti_per_anno_{0} start'.format(trend))
+
+                pagamenti_per_anno = PagamentoProgetto.objects.filter(data__day=31, data__month=12, progetto__active_flag=True, progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
 
                 dotazioni_totali_per_anno = {pagamento['data'].year: 0 for pagamento in pagamenti_per_anno}
                 for row in dotazioni_totali:
@@ -350,11 +356,37 @@ class ProgrammiView(BaseProgrammaView):
                             # dotazioni_totali_per_anno[anno] += float(valore.strip().replace('.', '').replace(',', '.'))
                             dotazioni_totali_per_anno[anno] += float(valore)
 
-                context['pagamenti_per_anno_{0}'.format(trend)] = [{'year': pagamento['data'].year, 'percentage': 100 * float(pagamento['ammontare'] or 0) / dotazioni_totali_per_anno[pagamento['data'].year]} for pagamento in pagamenti_per_anno]
+                context['pagamenti_per_anno_{0}'.format(trend)] = [{'year': pagamento['data'].year, 'total_amount': dotazioni_totali_per_anno[pagamento['data'].year], 'paid_amount': pagamento['ammontare'] or 0} for pagamento in pagamenti_per_anno]
 
-                if trend in ('conv', 'cro'):
-                    programmi_con_pagamenti = ProgrammaAsseObiettivo.objects.filter(codice__in=programmi_codici).annotate(ammontare=Sum('classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__ammontare_rendicontabile_ue')).order_by('descrizione')
-                    context['pagamenti_per_programma_{0}'.format(trend)] = [{'program': programma.descrizione, 'amount': programma.ammontare, 'total': programma.dotazione_totale} for programma in programmi_con_pagamenti]
+                logger.debug('pagamenti_per_programma_{0} start'.format(trend))
+
+                programmi_con_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__data=data_pagamenti_per_programma, classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_codici).values('descrizione', 'codice').annotate(ammontare=Sum('classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__ammontare_rendicontabile_ue')).order_by('descrizione')
+
+                dotazioni_totali_per_programma = {}
+                for row in dotazioni_totali:
+                    programma = row['DPS_CODICE_PROGRAMMA'].strip()
+                    if programma in programmi_codici:
+                        data = data_pagamenti_per_programma.strftime('%Y%m%d')
+                        try:
+                            valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {0}'.format(data)]
+                        except KeyError:
+                            valore = row['DOTAZIONE TOTALE PROGRAMMA {0}'.format(data)]
+
+                        dotazioni_totali_per_programma[programma] = float(valore)
+
+                context['pagamenti_per_programma_{0}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': dotazioni_totali_per_programma[programma['codice']], 'paid_amount': programma['ammontare']} for programma in programmi_con_pagamenti]
+
+            pagamenti_per_anno_tutti = {}
+            for item in context['pagamenti_per_anno_conv'] + context['pagamenti_per_anno_cro']:
+                if not item['year'] in pagamenti_per_anno_tutti:
+                    pagamenti_per_anno_tutti[item['year']] = item.copy()
+                else:
+                    pagamenti_per_anno_tutti[item['year']]['total_amount'] += item['total_amount']
+                    pagamenti_per_anno_tutti[item['year']]['paid_amount'] += item['paid_amount']
+
+            context['pagamenti_per_anno_tutti'] = pagamenti_per_anno_tutti.values()
+
+            context['data_pagamenti_per_programma'] = data_pagamenti_per_programma
 
         return context
 

@@ -370,7 +370,7 @@ class MapnikView(TemplateView):
                 gruppo_programmi = GruppoProgrammi(codice=self.kwargs['slug'])
             except:
                 raise Exception('Could not find appropriate gruppo programmi')
-            programmi = gruppo_programmi.programmi()
+            programmi = gruppo_programmi.programmi
 
         # loop over all territories
         # foreach, invoke the tematizzazione method, with specified filters

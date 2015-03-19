@@ -53,6 +53,9 @@
                 che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
                 Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
             </p>
+            <p>
+                Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. <a href="{{ oc_utility_metadata_file.file_name }}">Qui</a> (xlsx, {{ oc_utility_metadata_file.file_size|filesizeformat }}) trovi il file utility per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
+            </p>
 
             {% for section_code, section in oc_sections.items %}
                 <table class="table">
@@ -106,6 +109,9 @@
                     che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
                     Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
                 </p>
+                <p>
+                    Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. <a href="{{ utility_metadata_file.file_name }}">Qui</a> (xlsx, {{ utility_metadata_file.file_size|filesizeformat }}) trovi il file utility per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
+                </p>
 
                 {% for section_code, section in fs_sections.items %}
                     <table class="table">
@@ -130,7 +136,7 @@
                 <table class="table">
                     <tr>
                         <td class="label">Metadati</td>
-                        <td><a href="{{ fs_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ fs_metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ metadata_file.file_size|filesizeformat }}]</a></td>
                         <td></td>
                     </tr>
                 </table>
@@ -160,6 +166,9 @@
                     che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
                     Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
                 </p>
+                <p>
+                    Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. <a href="{{ utility_metadata_file.file_name }}">Qui</a> (xlsx, {{ utility_metadata_file.file_size|filesizeformat }}) trovi il file utility per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
+                </p>
 
                 <table class="table">
                     <thead>
@@ -172,7 +181,7 @@
                     </thead>
                     <tr>
                         <td class="label">Metadati</td>
-                        <td><a href="{{ fsc_metadata_file.file_name }}">>[<i class="icon-download-alt"></i> xls {{ fsc_metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ metadata_file.file_name }}">>[<i class="icon-download-alt"></i> xls {{ metadata_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                 </table>
 
@@ -204,6 +213,9 @@
                     che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
                     Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
                 </p>
+                <p>
+                    Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. <a href="{{ utility_metadata_file.file_name }}">Qui</a> (xlsx, {{ utility_metadata_file.file_size|filesizeformat }}) trovi il file utility per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
+                </p>
 
                 <table class="table">
                     <thead>
@@ -216,7 +228,7 @@
                     </thead>
                     <tr>
                         <td class="label">Metadati</td>
-                        <td><a href="{{ pac_metadata_file.file_name }}"> [<i class="icon-download-alt"></i> xls {{ pac_metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ metadata_file.file_name }}"> [<i class="icon-download-alt"></i> xls {{ metadata_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                 </table>
 
@@ -247,7 +259,7 @@
                         {% endfor %}
                         <tr>
                             <td class="label">Metadati</td>
-                            <td><a href="{{ cipe_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ cipe_metadata_file.file_size|filesizeformat }}]</a></td>
+                            <td><a href="{{ metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ metadata_file.file_size|filesizeformat }}]</a></td>
                         </tr>
                     </thead>
                 </table>

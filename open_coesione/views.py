@@ -330,7 +330,6 @@ class OpendataView(TemplateView):
                 'regional_files': self.get_regional_files('pag', 'OC'),
             }),
         ])
-        context['oc_metadata_file'] = self.get_complete_localfile('metadati_OC.xls')
 
         context['fs_sections'] = SortedDict([
             ('prog', {
@@ -358,7 +357,6 @@ class OpendataView(TemplateView):
                 # 'theme_files': self.get_theme_files('pag', 'pagamenti')
             }),
         ])
-        context['fs_metadata_file'] = self.get_complete_localfile('metadati_attuazione.xls')
 
         context['fsc_sections'] = SortedDict([
             ('prog', {
@@ -378,7 +376,6 @@ class OpendataView(TemplateView):
                 'complete_file': self.get_complete_localfile('pagamenti_FSC0713.zip'),
             }),
         ])
-        context['fsc_metadata_file'] = self.get_complete_localfile('metadati_attuazione.xls')
 
         context['pac_sections'] = SortedDict([
             ('prog', {
@@ -398,7 +395,6 @@ class OpendataView(TemplateView):
                 'complete_file': self.get_complete_localfile('pagamenti_PAC.zip'),
             }),
         ])
-        context['pac_metadata_file'] = self.get_complete_localfile('metadati_attuazione.xls')
 
         context['cipe_sections'] = SortedDict([
             ('prog', {
@@ -410,14 +406,19 @@ class OpendataView(TemplateView):
                 'complete_file': self.get_complete_localfile('localizzazioni_CIPE.zip'),
             }),
         ])
-        context['cipe_metadata_file'] = self.get_complete_localfile('metadati_attuazione.xls')
+
+        context['oc_metadata_file'] = self.get_complete_localfile('Metadati_OC.xls')
+        context['oc_utility_metadata_file'] = self.get_complete_localfile('Utility Metadati OC.xlsx')
+
+        context['metadata_file'] = self.get_complete_localfile('Metadati_attuazione.xls')
+        context['utility_metadata_file'] = self.get_complete_localfile('Utility Metadati Attuazione.xlsx')
 
         context['spesa_dotazione_file'] = self.get_complete_localfile('Dotazioni_Certificazioni.xls')
         context['spesa_target_file'] = self.get_complete_localfile('Target_Risultati.xls')
 
         # context['istat_data_file'] = self.get_complete_localfile('Indicatori_regionali.zip')
         context['istat_metadata_file'] = self.get_complete_localfile('Metainformazione.xls')
-        istat_path = 'http://www.istat.it/it/files/2011/07/{0}'
+        istat_path = 'http://www.istat.it/storage/politiche-sviluppo/{0}'
         context['istat_data_file'] = self.get_complete_remotefile(istat_path.format('Archivio_unico_indicatori_regionali.zip'))
         # context['istat_metadata_file'] = self.get_complete_remotefile(istat_path.format('Metainformazione.xlsx'))
 

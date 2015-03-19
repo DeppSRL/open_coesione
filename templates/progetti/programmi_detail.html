@@ -25,14 +25,14 @@
             </div>
             <div class="row">
                 <div class="span12">
-                    <h3><a href="{% url 'faq-it' %}">Area Convergenza</a></h3>
-                    <div class="span12" id="conv_column_chart" style="height: 800px"></div>
+                    <h3><a href="{% url 'faq-it' %}#come-sono-classificate-le-regioni-italiane-nelle-politiche-di-coesione">Area Convergenza</a></h3>
+                    <div class="span12" id="conv_column_chart"></div>
                 </div>
             </div>
             <div class="row">
                 <div class="span12">
-                    <h3><a href="{% url 'faq-it' %}">Area Competitività</a></h3>
-                    <div class="span12" id="cro_column_chart" style="height: 800px"></div>
+                    <h3><a href="{% url 'faq-it' %}#come-sono-classificate-le-regioni-italiane-nelle-politiche-di-coesione">Area Competitività</a></h3>
+                    <div class="span12" id="cro_column_chart"></div>
                 </div>
             </div>
         </section>
@@ -62,18 +62,10 @@
                         data: {{ pagamenti_per_anno_cro|jsonify }}
                     });
 
-                    for (var i = 0; i < series.length; i++) {
-                        for (var j = 0; j < series[i]['data'].length; j++) {
-                            series[i]['data'][j] = [Date.UTC(series[i]['data'][j]['year'], 0, 1), series[i]['data'][j]['percentage']];
-                        }
-                    }
-
                     print_spline_chart('spline_chart', series, 'Andamento percentuale dei pagamenti rispetto al costo pubblico');
 
-                    {% with update_date='31/12/2014' %}
-                        print_column_chart('conv_column_chart', {{ pagamenti_per_programma_conv|jsonify }}, 'Avanzamento finanziario dei programmi: confronto della spesa tra i programmi operativi regionali e nazionali al {{ update_date }}');
-                        print_column_chart('cro_column_chart', {{ pagamenti_per_programma_cro|jsonify }}, 'Avanzamento finanziario dei programmi: confronto della spesa tra i programmi operativi regionali{% if gruppo_programmi.codice == 'ue-fse' %} e nazionali{% endif %} al {{ update_date }}');
-                    {% endwith %}
+                    print_column_chart('conv_column_chart', {{ pagamenti_per_programma_conv|jsonify }}, 'Avanzamento finanziario dei programmi: confronto della spesa tra i programmi operativi regionali e nazionali al {{ data_pagamenti_per_programma|date:'SHORT_DATE_FORMAT' }}');
+                    print_column_chart('cro_column_chart', {{ pagamenti_per_programma_cro|jsonify }}, 'Avanzamento finanziario dei programmi: confronto della spesa tra i programmi operativi regionali{% if gruppo_programmi.codice == 'ue-fse' %} e nazionali{% endif %} al {{ data_pagamenti_per_programma|date:'SHORT_DATE_FORMAT' }}');
                 });
             </script>
         {% endaddtoblock %}
