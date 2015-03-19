@@ -1,127 +1,11 @@
 {% extends 'base.html' %}
 
-{% load humanize %}
-{% load sekizai_tags %}
-{% load template_functions %}
-{% load search_url_filters %}
-
-{% block css_header %}
-    {{ block.super }}
-    <style type="text/css">
-        {% for class, color in map_legend_colors.items %}
-            .{{ class }} i { color:{{ color }}; }
-        {% endfor %}
-    </style>
-{% endblock %}
-
-{% block js_content %}
-    {% addtoblock 'css_link' %}
-        <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/map-styles.css">
-        <link rel="stylesheet" href="{{ STATIC_URL }}leaflet-dist/leaflet.css" />
-        <!--[if lte IE 8]>
-            <link rel="stylesheet" href="{{ STATIC_URL }}leaflet-dist/leaflet.ie.css" />
-        <![endif]-->
-    {% endaddtoblock %}
-
-    {% addtoblock 'js_script' %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/highcharts.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/charts.js"></script>
-
-        <script type="text/javascript" src="{{ STATIC_URL }}leaflet-dist/leaflet.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-loader.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/oc-maps.js"></script>
-    {% endaddtoblock %}
-
-    {{ block.super }}
-
-    <script type="text/javascript">
-        /*
-         * Map
-         */
-
-        var MAPPA, MAPPA_LAYER, MAPPA_MONDO, MAPPA_ONCLICK, MAPPA_POPUP, MAPPA_CACHE = {}, IS_LOADING = false;
-
-        $(document).ready(function() {
-
-            $('#main_topics').length && print_pie_chart('#main_topics', 'main_topics_chart' );
-            $('#main_types').length && print_pie_chart('#main_types', 'main_types_chart' );
-
-            // costo or pagamento or numero
-            if ( !$('#map').length ) {
-                return;
-            }
-            /*
-             * Get required dataset directly from tabs in html
-             */
-            var dataset_name = $('#map-layer-selector .block-chart.block-active').data('dataset');
-            var layer_name = $('#selectors .active').prop('id');
-
-            // init MAPPA
-            build_map('map', '/territori/leaflet/{{ map_selector }}'+$('#selectors .active').data('path')+'.json?tematizzazione='+dataset_name, function(data) {
-                if ( data.layer_name == 'world' ) {
-                    // marker added if necessary
-                    var marker = $('#selectors .btn.active').data('coords');
-                    if ( marker ) {
-                        marker = marker.split(',');
-                        MAPPA.addLayer(new L.Circle(new L.LatLng( marker[1], marker[0]), 30 * 1000, {
-                            color: '#343434'
-                        }));
-                    }
-                }
-            });
-
-            $('#selectors .btn').click(function() {
-                if ($(this).hasClass('active') || IS_LOADING) {
-                    return false;
-                }
-                IS_LOADING = true;
-
-                // close popup if opened
-                MAPPA_POPUP && MAPPA.closePopup(MAPPA_POPUP);
-
-                var me = $(this);
-                me.siblings().removeClass('active');
-                me.attr('disabled', true);
-
-                build_map('map', '/territori/leaflet/{{ map_selector }}'+ $(this).data('path') +'.json?tematizzazione='+dataset_name + $('#procapite_selectors .btn.active').data('path'), function() {
-                    me.addClass('active');
-                    me.attr('disabled', false);
-                    IS_LOADING = false;
-                });
-
-                return false;
-            });
-
-            $('#procapite_selectors .btn').click(function() {
-                if ($(this).hasClass('active') || IS_LOADING) {
-                    return false;
-                }
-                IS_LOADING = true;
-
-                // close popup if opened
-                MAPPA_POPUP && MAPPA.closePopup(MAPPA_POPUP);
-
-                var me = $(this);
-                me.siblings().removeClass('active');
-                me.attr('disabled', true);
-
-                build_map('map', '/territori/leaflet/{{ map_selector }}'+ $('#selectors .btn.active').data('path') +'.json?tematizzazione='+dataset_name + me.data('path'), function() {
-                    me.addClass('active');
-                    me.attr('disabled', false);
-                    IS_LOADING = false;
-                });
-
-                return false;
-            })
-
-        });
-    </script>
-{% endblock %}
+{% load staticfiles sekizai_tags humanize search_url_filters template_functions %}
 
 {% block container %}
     <div class="container" id="content-header">
         <div class="row">
-            <div class="span6 block-container" id="map-layer-selector">
+            <div id="map-layer-selector" class="span6 block-container">
                 <a href="{{ request.path }}?tematizzazione=totale_costi" class="block-chart{% if tematizzazione == 'totale_costi' %} block-active{% endif %}" data-dataset="totale_costi">
                     <strong class="title">Finanziamenti monitorati</strong>
                     <p>{{ totale_costi|intword }} <span>di euro</span></p>
@@ -148,84 +32,10 @@
     <div class="area">
         <div class="container">
             <div class="row" id="statistics">
-                {% if soggetto %}
-                    <div class="span12">
-                        <h1 class="title violet" style="margin-bottom: 0;"><span>{{ soggetto.denominazione }}</span></h1>
-                        <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}">Tutti i progetti</a></p>
-                        <ul class="unstyled">
-                            {% if soggetto.forma_giuridica %}<li>{{ soggetto.forma_giuridica }}</li>{% endif %}
-                            {% if soggetto.indirizzo %}<li>{{ soggetto.indirizzo }}</li>{% endif %}
-                            {% if soggetto.territorio %}<li>{% if soggetto.cap %}{{ soggetto.cap }}{% endif %} {{ soggetto.territorio.denominazione }}</li>{% endif %}
-                            {% if soggetto.rappresentante_legale %}<li>Rappresentante legale: {{ soggetto.rappresentante_legale }}</li>{% endif %}
-                            {% if soggetto.codice_fiscale.strip %}<li>CF.: {{ soggetto.codice_fiscale }}</li>{% endif %}
-                        </ul>
-                    </div>
-                {% endif %}
-
-                {% if territori_esteri %}
-                    <div class="span12">
-                        <h1 class="title black" style="margin-bottom: 0;"><span>Estero</span></h1>
-                    </div>
-                {% endif %}
+                {% block page_header %}{% endblock %}  {# Definito in 'soggetto_detail.html', 'territorio_list.html'#}
 
                 <div class="span6">
-                    {% if territorio or programma or gruppo_programmi or tema or tipologia %}
-                        <div class="page-header">
-                            {% if territorio %}
-        						<h1 class="title black" style="margin-bottom: 0;"><span>{% if territorio.territorio != 'N' %}{{ territorio.get_territorio_display }} {% if territorio.territorio != 'R' %}di {% endif %}{% endif %}{{ territorio }}</span></h1>
-                                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{{ territorio|progetti_search_url }}">Vai a tutti i progetti</a></p>
-                            {% endif %}
-                            {% if programma %}
-                	            <h1 class="title black" style="margin-bottom: 0;"><span>Programma: {{ programma.descrizione }}</span></h1>
-                                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&fonte_fin={{ programma.codice }}">Vai a tutti i progetti</a></p>
-                                {% if programma.documenti.count or programma.collegamenti.count %}
-                                    <ul id="extra-resources" style="list-style-type: none">
-                                        {% for documento in programma.documenti.all %}
-                                            <li class="icon-download-alt" style="padding: 6px 0; border-bottom: 1px solid #DDDDDD">
-                                                <a href="{{ documento.file.url }}">{{ documento }}</a>
-                                                {% if documento.large_description %}
-                                                    <p>{{ documento.large_description }}</p>
-                                                {% endif %}
-                                            </li>
-                                        {% endfor %}
-                                        {% for collegamento in programma.collegamenti.all %}
-                                            <li class="icon-external-link" style="padding: 6px 0; border-bottom: 1px solid #DDDDDD">
-                                                <a href="{{ collegamento.url }}" target="_blank">{{ collegamento }}</a>
-                                                {% if collegamento.large_description %}
-                                                    <p>{{ collegamento.large_description }}</p>
-                                                {% endif %}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                    {% addtoblock 'js_script' %}
-                                        <script type="text/javascript">
-                                            $(document).ready(function() {
-                                                var elem = $('#extra-resources');
-                                                elem.hide();
-                                                $('<span style="margin-left: 100px" class="icon-align-justify"> <a href="#">Visualizza documenti e collegamenti</a></span>').appendTo(elem.prev()).find('a').on('click', function(e) {
-                                                    var self = $(this);
-                                                    elem.slideToggle('fast', function() { self.text(($(this).is(':visible') ? 'Nascondi' : 'Visualizza') + ' ' + self.text().split(' ').slice(1).join(' ')) });
-                                                    e.preventDefault();
-                                                });
-                                            });
-                                        </script>
-                                    {% endaddtoblock %}
-                                {% endif %}
-                            {% endif %}
-                            {% if gruppo_programmi %}
-                	            <h1 class="title black" style="margin-bottom: 0;"><span>{{ gruppo_programmi.descrizione }}</span></h1>
-                                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&gruppo_programmi={{ gruppo_programmi.codice }}">Vai a tutti i progetti</a></p>
-                            {% endif %}
-                            {% if tema %}
-                	            <h1 class="title black" style="margin-bottom: 0;"><span>Tema: {{ tema.short_label }}</span></h1>
-                                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}">Vai a tutti i progetti</a></p>
-                            {% endif %}
-                            {% if tipologia %}
-                	            <h1 class="title black" style="margin-bottom: 0;"><span>Natura: {{ tipologia.short_label }}</span></h1>
-                                <p style="padding-left: 25px;"><i class="icon-align-justify"></i> <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}">Vai a tutti i progetti</a></p>
-                            {% endif %}
-                        </div>
-                    {% endif %}
+                    {% block page_header_short %}{% endblock %}  {# Definito in 'classificazioneazione_detail.html', 'programma_detail.html', 'programmi_detail.html', 'tema_detail.html', 'territorio_detail.html'#}
 
                     <div class="row-fluid">
                         {% if tema %}
@@ -303,8 +113,8 @@
                 <div class="span6" id="map_container">
                     {% block map %}
                         <div class="map-header clearfix">
-                            {% if territorio.territorio != 'C' %}
-                                <div class="btn-group pull-left" id="procapite_selectors">
+                            {% if not territorio.is_comune %}
+                                <div id="procapite_selectors" class="btn-group pull-left">
                                     <a class="btn active" data-path="" href="#">Totali</a>
                                     {% if tematizzazione == 'totale_costi' %}
                                         <a class="btn" href="#" data-path="_procapite">Pro capite</a>
@@ -313,19 +123,20 @@
                             {% endif %}
 
                             <div id="selectors" class="btn-group">
-                                {% if territorio.territorio == 'R' %}
+                                {% if territorio.is_regione %}
                                     <a href="#" id="regioni_{{ territorio.cod_reg }}_province" data-path="regioni/{{ territorio.cod_reg }}/province" class="btn">province</a>
                                     <a href="#" id="regioni_{{ territorio.cod_reg }}_comuni" data-path="regioni/{{ territorio.cod_reg }}/comuni" class="btn active">comuni</a>
-                                {% elif territorio.territorio == 'P' %}
+                                {% elif territorio.is_provincia %}
                                     <a href="#" id="province_{{ territorio.cod_prov }}_comuni" data-path="province/{{ territorio.cod_prov }}/comuni" class="btn active">comuni</a>
-                                {% elif territorio.territorio == 'C' %}
+                                {% elif territorio.is_comune %}
                                     <a href="#" id="comuni" data-path="world" data-coords="{{ territorio.geom.centroid.coords|join:',' }}" class="btn active">{{ territorio }}</a>
                                 {% else %}
-                                    <a href="#" id="regioni" data-path="regioni" class="btn">regioni</a><a href="#" id="province" data-path="province" class="btn active">province</a>
+                                    <a href="#" id="regioni" data-path="regioni" class="btn">regioni</a>
+                                    <a href="#" id="province" data-path="province" class="btn active">province</a>
                                 {% endif %}
                             </div>
                         </div>
-                        <div id="map"{% if territorio.territorio == 'C' %} style="height: 400px;"{% endif %}></div>
+                        <div id="map"{% if territorio.is_comune %} style="height: 400px"{% endif %}></div>
                         <div id="map-search">
                             <form class="form-search content">
                                 <div class="input-append">
@@ -361,7 +172,7 @@
                                 <ul class="spaced">
                                     {% for progetto in ultimi_progetti_conclusi %}
                                         <li>
-                                            {{ progetto.data_fine_effettiva|date:'d/m/Y' }}
+                                            {{ progetto.data_fine_effettiva|date:'SHORT_DATE_FORMAT' }}
                                             <br/>
                                             <a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a>
                                         </li>
@@ -373,7 +184,7 @@
                         {% if territori_piu_finanziati_pro_capite %}
                             <section class="span3">
                                 <h1 class="title"><span>
-                                    {% if territorio and territorio.territorio == 'C' %}
+                                    {% if territorio and territorio.is_comune %}
                                         Finanziamenti pro capite
                                     {% else %}
                                         Comuni con maggiori finanziamenti pro capite
@@ -382,7 +193,7 @@
                                 <table class="table">
                                     {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
                                         <tr>
-                                            <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
+                                            <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato.nome_completo }}</a></td>
                                             <td class="amount"><strong>{{ territorio_finanziato.totale_pro_capite|intcomma }}</strong> euro</td>
                                         </tr>
                                     {% endfor %}
@@ -393,9 +204,9 @@
                                 {% elif tipologia %}
                                     <a href="{% url 'progetti_tipologia_csv' slug=tipologia.slug %}">Scarica i dati di tutti i comuni</a>
                                 {% elif territorio %}
-                                    {% if territorio.territorio == 'P' %}
+                                    {% if territorio.is_provincia %}
                                         <a href="{% url 'progetti_provincia_csv' slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>
-                                    {% elif territorio.territorio == 'R' %}
+                                    {% elif territorio.is_regione %}
                                           <a href="{% url 'progetti_regione_csv' slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>
                                     {% endif %}
                                 {% endif %}
@@ -408,4 +219,96 @@
             {% endblock %}
         </div>
     </div>
+
+    {% addtoblock 'js_script' strip %}
+        <script src="{% static 'js/highcharts.js' %}"></script>
+        <script src="{% static 'js/charts.js' %}"></script>
+    {% endaddtoblock %}
+
+    {% addtoblock 'js_script' strip %}
+        <script src="{% static 'leaflet-dist/leaflet.js' %}"></script>
+        <script src="{% static 'js/jquery-loader.js' %}"></script>
+        <script src="{% static 'js/oc-maps.js' %}"></script>
+    {% endaddtoblock %}
+
+    {% addtoblock 'js_script' strip %}
+        <script>
+            $(document).ready(function() {
+                $('#main_topics').length && print_pie_chart('#main_topics', 'main_topics_chart');
+                $('#main_types').length && print_pie_chart('#main_types', 'main_types_chart');
+            });
+        </script>
+    {% endaddtoblock %}
+
+    {% addtoblock 'js_script' strip %}
+        <script>
+            var MAPPA, MAPPA_LAYER, MAPPA_MONDO, MAPPA_ONCLICK, MAPPA_POPUP, MAPPA_CACHE = {}, IS_LOADING = false;
+
+            $(document).ready(function() {
+                // costo or pagamento or numero
+                if (!$('#map').length) {
+                    return;
+                }
+
+                var selectors1 = $('#selectors');
+                var selectors2 = $('#procapite_selectors');
+
+                var layer_name = selectors1.find('.btn.active').prop('id');
+                var dataset_name = $('#map-layer-selector').find('.block-chart.block-active').data('dataset');
+
+                var data_url = function() {
+                    return '/territori/leaflet/{{ map_selector }}' + selectors1.find('.btn.active').data('path') + '.json?tematizzazione=' + dataset_name + selectors2.find('.btn.active').data('path');
+                }
+
+                build_map('map', data_url(), function(data) {
+                    if (data.layer_name == 'world') {
+                        // marker added if necessary
+                        var marker = selectors1.find('.btn.active').data('coords');
+                        if (marker) {
+                            marker = marker.split(',');
+                            MAPPA.addLayer(new L.Circle(new L.LatLng(marker[1], marker[0]), 30 * 1000, {
+                                color: '#343434'
+                            }));
+                        }
+                    }
+                });
+
+                $([selectors1, selectors2]).each(function() {
+                    $(this).find('.btn').on('click', function() {
+                        var self = $(this);
+
+                        if (!IS_LOADING && !self.hasClass('active')) {
+                            IS_LOADING = true;
+
+                            self.attr('disabled', true).addClass('active').siblings().removeClass('active');
+
+                            // close popup if opened
+                            MAPPA_POPUP && MAPPA.closePopup(MAPPA_POPUP);
+
+                            build_map('map', data_url(), function() {
+                                self.attr('disabled', false);
+                                IS_LOADING = false;
+                            });
+                        }
+                    });
+                });
+            });
+        </script>
+    {% endaddtoblock %}
+
+    {% addtoblock 'css_link' strip %}
+        <link rel="stylesheet" href="{% static 'css/map-styles.css' %}" />
+        <link rel="stylesheet" href="{% static 'leaflet-dist/leaflet.css' %}" />
+        <!--[if lte IE 8]>
+            <link rel="stylesheet" href="{% static 'leaflet-dist/leaflet.ie.css' %}" />
+        <![endif]-->
+    {% endaddtoblock %}
+
+    {% addtoblock 'css_link' strip %}
+        <style type="text/css">
+            {% for class, color in map_legend_colors.items %}
+                .{{ class }} i { color:{{ color }}; }
+            {% endfor %}
+        </style>
+    {% endaddtoblock %}
 {% endblock %}

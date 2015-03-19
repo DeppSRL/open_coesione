@@ -1,6 +1,6 @@
 {% extends 'base_map.html' %}
 
-{% load humanize %}
+{% load sekizai_tags humanize %}
 
 {% block page_title %}Programma: {{ programma }}{% endblock %}
 
@@ -19,4 +19,45 @@
             {% endif %}
         </div>
     {% endif %}
+{% endblock %}
+
+{% block page_header_short %}
+    <div class="page-header">
+        <h1 class="title black"><span>Programma: {{ programma.descrizione }}</span></h1>
+        <p style="padding: 0 25px">
+            <span class="icon-align-justify"> <a href="{% url 'progetti_search' %}?q=&fonte_fin={{ programma.codice }}">Vai a tutti i progetti</a></span>
+        </p>
+
+        {% if programma.documenti.count or programma.collegamenti.count %}
+            <ul id="extra-resources" style="list-style-type: none">
+                {% for documento in programma.documenti.all %}
+                    <li class="icon-download-alt" style="padding: 6px 0; border-bottom: 1px solid #DDDDDD">
+                        <a href="{{ documento.file.url }}">{{ documento }}</a>
+                        {% if documento.large_description %}
+                            <p>{{ documento.large_description }}</p>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+                {% for collegamento in programma.collegamenti.all %}
+                    <li class="icon-external-link" style="padding: 6px 0; border-bottom: 1px solid #DDDDDD">
+                        <a href="{{ collegamento.url }}" target="_blank">{{ collegamento }}</a>
+                        {% if collegamento.large_description %}
+                            <p>{{ collegamento.large_description }}</p>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+            {% addtoblock 'js_script' strip %}
+                <script type="text/javascript">
+                    $(document).ready(function() {
+                        var elem = $('#extra-resources').hide();
+                        $('<span class="icon-align-justify" style="margin-left: 100px"> <a href="#">Visualizza documenti e collegamenti</a></span>').appendTo(elem.prev()).find('a').on('click', function(e) {
+                            var self = $(this);
+                            elem.slideToggle('fast', function() { self.text(($(this).is(':visible') ? 'Nascondi' : 'Visualizza') + ' ' + self.text().split(' ').slice(1).join(' ')) });
+                        });
+                    });
+                </script>
+            {% endaddtoblock %}
+        {% endif %}
+    </div>
 {% endblock %}

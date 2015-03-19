@@ -635,7 +635,7 @@ class AmbitoEsteroView(AccessControlView, AggregatoMixin, ListView):
                 )
             )
 
-        context['territori_esteri'] = territori
+        # context['territori_esteri'] = territori
 
         return context
 

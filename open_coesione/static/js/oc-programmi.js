@@ -91,19 +91,18 @@ var print_column_chart = function(container, data, title) {
             categories: categories,
             labels: {
                 formatter: function() {
-                    var value = this.value.replace(' FESR ', ' ').replace(' FSE ', ' ').replace(' CONV ', ' ').replace(' CRO ', ' ');
-                    var words = value.split(/[\s]+/);
+                    var words = this.value.replace(/ FESR|FSE|CONV|CRO /g, ' ').split(/[\s]+/);
                     var numWordsPerLine = 2;
                     var str = [];
 
-                    for (var word in words) {
-                        if (word > 0 && word % numWordsPerLine == 0)
+                    for (var i = 0; i < words.length; i++) {
+                        if (i > 0 && i % numWordsPerLine == 0)
                             str.push('<br>');
 
-                        str.push(words[word]);
+                        str.push(words[i]);
                     }
 
-                    return str.join(' ').replace(' <br> ', '<br>').replace(' <br>', '');
+                    return str.join(' ').replace(/ <br> /g, '<br>');
                 },
                 rotation: -45,
                 align: 'right',
@@ -131,13 +130,13 @@ var print_column_chart = function(container, data, title) {
         },
         series: [
             {
-                name: 'Spesi',
-                data: series_spesi,
+                name: 'Da spendere',
+                data: series_da_spendere,
                 stack: 0
             },
             {
-                name: 'Da spendere',
-                data: series_da_spendere,
+                name: 'Spesi',
+                data: series_spesi,
                 stack: 0
             }
         ],
@@ -153,6 +152,6 @@ var print_column_chart = function(container, data, title) {
             href: 'http://www.dps.tesoro.it/',
             text: 'Fonte: DPS'
         },
-        colors: ['#b5b299', '#707005']
+        colors: ['#707005', '#b5b299']
     });
 }

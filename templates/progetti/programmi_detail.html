@@ -4,11 +4,35 @@
 
 {% block page_title %}{{ gruppo_programmi }}{% endblock %}
 
+{% block top_content %}
+    {% if gruppo_programmi.dotazione_totale %}
+        <div id="claim-container">
+            <span class="block-chart block-gray pull-right" style="cursor: default">
+                <strong class="title">Dotazione programmi</strong>
+                <p>{{ gruppo_programmi.dotazione_totale|intword }} <span>di euro</span></p>
+            </span>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block page_header_short %}
+    <div class="page-header">
+        <h1 class="title black"><span>{{ gruppo_programmi }}</span></h1>
+        <p style="padding: 0 25px">
+            <span class="icon-align-justify"> <a href="{% url 'progetti_search' %}?q=&gruppo_programmi={{ gruppo_programmi.codice }}">Vai a tutti i progetti</a></span>
+
+            {% if gruppo_programmi.codice == 'ue-fesr' or gruppo_programmi.codice == 'ue-fse' %}
+                <span class="icon-bar-chart" style="float: right"> <a href="#charts">Vai ai grafici</a></span>
+            {% endif %}
+        </p>
+    </div>
+{% endblock %}
+
 {% block container %}
     {{ block.super }}
 
     {% if gruppo_programmi.codice == 'ue-fesr' or gruppo_programmi.codice == 'ue-fse' %}
-        <section class="container">
+        <section class="container" id="charts">
             <div class="row">
                 <div class="span12">
                     <p style="margin: 20px 0">
@@ -69,16 +93,5 @@
                 });
             </script>
         {% endaddtoblock %}
-    {% endif %}
-{% endblock %}
-
-{% block top_content %}
-    {% if gruppo_programmi.dotazione_totale %}
-        <div id="claim-container">
-            <span class="block-chart block-gray pull-right" style="cursor: default">
-                <strong class="title">Dotazione programmi</strong>
-                <p>{{ gruppo_programmi.dotazione_totale|intword }} <span>di euro</span></p>
-            </span>
-        </div>
     {% endif %}
 {% endblock %}

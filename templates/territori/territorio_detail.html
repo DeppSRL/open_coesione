@@ -1,8 +1,27 @@
 {% extends 'base_map.html' %}
 
-{% load staticfiles sekizai_tags humanize template_functions %}
+{% load staticfiles sekizai_tags humanize search_url_filters template_functions %}
 
-{% block page_title %}{{ territorio }}{% endblock %}
+{% block page_title %}{{ territorio.nome_completo }}{% endblock %}
+
+{% block top_content %}
+    {% if territorio.is_comune %}
+        <div id="claim-container">
+            <p class="claim">
+                Al comune è associato l'intero finanziamento dei progetti, anche quando il progetto è localizzato in più comuni
+            </p>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block page_header_short %}
+    <div class="page-header">
+        <h1 class="title black"><span>{{ territorio.nome_completo }}</span></h1>
+        <p style="padding: 0 25px">
+            <span class="icon-align-justify"> <a href="{{ territorio|progetti_search_url }}">Vai a tutti i progetti</a></span>
+        </p>
+    </div>
+{% endblock %}
 
 {% block container %}
     {{ block.super }}
@@ -75,16 +94,6 @@
                 });
             </script>
         {% endaddtoblock %}
-    {% endif %}
-{% endblock %}
-
-{% block top_content %}
-    {% if territorio.is_comune %}
-        <div id="claim-container">
-            <p class="claim">
-                Al comune è associato l'intero finanziamento dei progetti, anche quando il progetto è localizzato in più comuni
-            </p>
-        </div>
     {% endif %}
 {% endblock %}
 

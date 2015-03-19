@@ -4,6 +4,15 @@
 
 {% block page_title %}Tema: {{ tema.short_label }}{% endblock %}
 
+{% block page_header_short %}
+    <div class="page-header">
+        <h1 class="title black"><span>Tema: {{ tema.short_label }}</span></h1>
+        <p style="padding: 0 25px">
+            <span class="icon-align-justify"> <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}">Vai a tutti i progetti</a></span>
+        </p>
+    </div>
+{% endblock %}
+
 {% block container %}
     {{ block.super }}
 

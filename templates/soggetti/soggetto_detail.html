@@ -1,125 +1,123 @@
 {% extends 'base_map.html' %}
-{% load humanize %}
 
-{% block page_title %}Soggetto: {{ soggetto.denominazione }}{% endblock %}
-{% block page_description %}Informazioni sui progetti in cui partecipa {{ soggetto.denominazione }}{% endblock %}
+{% load sekizai_tags humanize %}
+
+{% block page_title %}Soggetto: {{ soggetto }}{% endblock %}
+{% block page_description %}Informazioni sui progetti in cui partecipa {{ soggetto }}{% endblock %}
 
 {% block top_content %}
-<div id="claim-container">
-  <p class="claim">
-    Al soggetto è associato l'intero finanziamento dei progetti in cui è coinvolto, anche quando i progetti coinvolgono più soggetti.
-  </p>
-</div>
+    <div id="claim-container">
+        <p class="claim">Al soggetto è associato l'intero finanziamento dei progetti in cui è coinvolto, anche quando i progetti coinvolgono più soggetti.</p>
+    </div>
+{% endblock %}
+
+{% block page_header %}
+    <div class="span12">
+        <h1 class="title violet"><span>{{ soggetto }}</span></h1>
+        <p style="padding: 0 25px">
+            <span class="icon-align-justify"> <a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}">Tutti i progetti</a></span>
+        </p>
+
+        <ul class="unstyled">
+            {% if soggetto.forma_giuridica %}<li>{{ soggetto.forma_giuridica }}</li>{% endif %}
+            {% if soggetto.indirizzo %}<li>{{ soggetto.indirizzo }}</li>{% endif %}
+            {% if soggetto.territorio %}<li>{% if soggetto.cap %}{{ soggetto.cap }}{% endif %} {{ soggetto.territorio }}</li>{% endif %}
+            {% if soggetto.rappresentante_legale %}<li>Rappresentante legale: {{ soggetto.rappresentante_legale }}</li>{% endif %}
+            {% if soggetto.codice_fiscale.strip %}<li>CF.: {{ soggetto.codice_fiscale }}</li>{% endif %}
+        </ul>
+    </div>
 {% endblock %}
 
 {% block container %}
-  {{ block.super }}
+    {{ block.super }}
 
-  <div class="container">
-    <div class="row">
-      <section class="span6">
-        <h1 class='title'><span>Progetti con maggiori finanziamenti</span></h1>
-        <table class="table">
-          {% for progetto in top_progetti %}
-            <tr>
-              <th><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></th>
-              <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
-            </tr>
-          {% endfor %}
-        </table>
+    <div class="container">
+        <div class="row">
+            <section class="span6">
+                <h2 class="title"><span>Progetti con maggiori finanziamenti</span></h2>
+                <table class="table">
+                    {% for progetto in top_progetti %}
+                        <tr>
+                            <th><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></th>
+                            <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </section>
+            <section class="span6">
+                <h2 class="title"><span>I soggetti con cui lavora di più</span></h2>
+                <table class="table">
+                    {% for partner in top_collaboratori %}
+                        <tr>
+                            <th><a href="{{ partner.soggetto.get_absolute_url }}">{{ partner.soggetto }}</a></th>
+                            <td class="amount"><strong>{{ partner.numero }}</strong> progetti</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </section>
+        </div>
 
-      </section>
-      <section class="span6">
-        <h1 class='title'><span>I soggetti con cui lavora di più</span></h1>
-        <table class="table">
-          {% for partner in top_collaboratori %}
-            <tr>
-              <th><a href="{{ partner.soggetto.get_absolute_url }}">{{ partner.soggetto.denominazione }}</a></th>
-              <td class="amount"><strong>{{ partner.numero }}</strong> progetti</td>
-            </tr>
-          {% endfor %}
-        </table>
-      </section>
-
+        <section class="row">
+            <div class="span4">
+                <h2 class="title"><span>I comuni con più progetti</span></h2>
+                <table class="table">
+                    {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
+                        <tr>
+                            <th><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></th>
+                            <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </section>
     </div>
-
-    <section class="row">
-      <div class="span4">
-        <h1 class='title'><span>I comuni con più progetti</span></h1>
-        <table class="table">
-          {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
-            <tr>
-              <td><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></td>
-              <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
-            </tr>
-          {% endfor %}
-        </table>
-      </div>
-    </section>
-  </div>
-{% endblock %}
-
-
-{% block js_content %}
-  {{ block.super }}
-
-  <script type="text/javascript">
-
-  $(document).ready(function() {
-
-    print_pie_chart('#regions_chart_table', 'regions_chart');
-    print_pie_chart('#roles_chart_table', 'roles_chart');
-
-  });
-  </script>
 {% endblock %}
 
 {% block map %}
-  <div class="row">
-    <div class="span3">
-      <h4>Territori</h4>
+    <div class="row">
+        <div class="span3">
+            <h4>Territori</h4>
 
-      <p>In quali luoghi si interviene?</p>
+            <p>In quali luoghi si interviene?</p>
 
-      <div id="regions_chart" style="width: 100%; height: 250px"></div>
+            <div id="regions_chart" style="width: 100%; height: 250px"></div>
 
-      <table class="table" id="regions_chart_table">
-        {% for regione, totale in lista_finanziamenti_per_regione %}
-          {% if totale > 0  %}
-            <tr>
-              <th>
-                  {% if regione.cod_reg %}<a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}&territorio_reg={{ regione.cod_reg }}">{{ regione.denominazione }}</a>
-                  {% else %}{{ regione.denominazione }}{% endif %}
-              </th>
-              <td class="amount">
-                  <strong>{{ totale|default:"0"|floatformat:"0" }}</strong>
-              </td>
-            </tr>
-          {% endif %}
-        {% endfor %}
-      </table>
+            <table id="regions_chart_table" class="table">
+                {% for regione, totale in lista_finanziamenti_per_regione %}
+                    {% if totale > 0  %}
+                        <tr>
+                            <th>{% if regione.cod_reg %}<a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}&territorio_reg={{ regione.cod_reg }}">{{ regione }}</a>{% else %}{{ regione }}{% endif %}</th>
+                            <td class="amount"><strong>{{ totale|default:'0'|floatformat:'0' }}</strong></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="span3">
+            <h4>Finanziamenti per ruolo</h4>
+
+            <p>Che ruolo ha nei progetti?</p>
+
+            <div id="roles_chart" style="width: 100%; height: 250px"></div>
+
+            <table id="roles_chart_table" class="table">
+                {% for ruolo, finanziamento in lista_finanziamenti_per_ruolo %}
+                    <tr>
+                        <th>{{ ruolo }}</th>
+                        <td class="amount"><strong>{{ finanziamento|default:'0'|floatformat:'0' }}</strong></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
 
-
-    <div class="span3">
-      <h4>Finanziamenti per ruolo</h4>
-
-      <p>Che ruolo ha nei progetti?</p>
-
-      <div id="roles_chart" style="width: 100%; height: 250px"></div>
-
-      <table id="roles_chart_table" class="table">
-        {% for ruolo, finanziamento in lista_finanziamenti_per_ruolo %}
-          <tr>
-            <th>{{ ruolo }}</th>
-            <td class="amount">
-              <strong>{{ finanziamento|default:"0"|floatformat:"0" }}</strong>
-            </td>
-          </tr>
-        {% endfor %}
-      </table>
-
-    </div>
-
-  </div>
+    {% addtoblock 'js_script' strip %}
+        <script type="text/javascript">
+            $(document).ready(function() {
+                print_pie_chart('#regions_chart_table', 'regions_chart');
+                print_pie_chart('#roles_chart_table', 'roles_chart');
+            });
+        </script>
+    {% endaddtoblock %}
 {% endblock %}
