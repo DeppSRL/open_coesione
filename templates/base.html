@@ -49,6 +49,7 @@
   <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.21.custom.min.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-dropdown.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-modal.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-transition.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-tab.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-tooltip.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-popover.js"></script>
@@ -108,23 +109,56 @@
                 </ul>
 
                 <!-- OpenGovernment Awards Modal -->
-                <div id="ogaModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div id="ogaModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="awModalLabel" aria-hidden="true"
+                        style="margin-left: auto;margin-right: auto;width: 90%;left: 5%;z-index:100000;">
                   <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3 id="myModalLabel">Premi e riconoscimenti</h3>
+                    <h3 id="awModalLabel">Premi e riconoscimenti</h3>
                   </div>
                   <div class="modal-body">
-                      <h3>Open Government Awards</h3>
-                    <p style="text-align: center"><img src="{{ STATIC_URL }}img/home/opengovernmentawards.jpg" width="50%"/></p>
-                      <p>
-                          La candidatura italiana OpenCoesione-Monithon agli OGP Awards 2014
-                          si è classificata quarta su 33 paesi candidati ed è stata
-                          insignita del silver award.
-                      </p>
-                      <p><a href="http://www.opencoesione.gov.it/news/#opencoesione-e-monithon-al-quarto-posto-degli-open-government-awards-2014">
-                          Puoi leggere la notizia completa
-                      </a></p>
+                      <div class="row">
 
+                        <div class="span4">
+                          <h3>Wind Transparency Awards</h3>
+                            <p style="text-align: center; margin: 15px 0"><img src="{{ STATIC_URL }}img/home/windtransparencyforum.png" width="50%"/></p>
+                           <p>
+                              OpenCoesione ha ricevuto il premio nella categoria Istituzioni per la capacità di coniugare
+                               la trasparenza dei dati sui progetti finanziati dalle politiche di
+                               coesione pubblicati in formato aperto, con l'analisi, il monitoraggio attivo e
+                               l'utilizzo degli open data nelle scuole.
+                           </p>
+                           <p><a href="http://opencoesione.gov.it/news/#opencoesione-riceve-il-premio-wind-transparency-award-2015">
+                              Puoi leggere la notizia completa
+                           </a></p>
+                        </div>
+
+                        <div class="span4">
+                          <h3>Open Government Awards</h3>
+                            <p style="text-align: center; margin: 15px 0"><img src="{{ STATIC_URL }}img/home/opengovernmentawards.jpg" width="50%"/></p>
+                           <p>
+                              La candidatura italiana OpenCoesione-Monithon agli OGP Awards 2014
+                              si è classificata quarta su 33 paesi candidati ed è stata
+                              insignita del silver award.
+                           </p>
+                           <p><a href="http://www.opencoesione.gov.it/news/#opencoesione-e-monithon-al-quarto-posto-degli-open-government-awards-2014">
+                              Puoi leggere la notizia completa
+                           </a></p>
+                        </div>
+
+                        <div class="span4">
+                          <h3>Forum PA: Riconoscimento Open PA "dalla trasparenza statica alla trasparenza dinamica"</h3>
+                            <p style="text-align: center; margin: 15px 0"><img src="{{ STATIC_URL }}img/home/partecipazioneriuso.png" width="50%"/></p>
+                           <p>
+                              Ad OpenCoesione è stato assegnato uno dei dodici riconoscimenti per progetti e iniziative
+                               di "trasparenza dinamica", che premiano le Amministrazioni più attive nel perseguimento
+                               dell’accountability.
+                           </p>
+                           <p><a href="http://opencoesione.gov.it/news/#opencoesione-al-forum-pa-premio-per-la-trasparenza-dinamica-e-presentazioni-del-workshop">
+                              Puoi leggere la notizia completa
+                           </a></p>
+                        </div>
+
+                      </div>
                   </div>
                   <div class="modal-footer">
                     <button class="btn" data-dismiss="modal" aria-hidden="true">Chiudi</button>
