@@ -300,10 +300,6 @@ class ContactView(TemplateView):
 
 
 class OpendataView(TemplateView):
-    """
-    Basic template view with an extended context, containing the pointers to the downloadable files.
-    """
-
     @cached_context
     def get_context_data(self, **kwargs):
         context = super(OpendataView, self).get_context_data(**kwargs)
