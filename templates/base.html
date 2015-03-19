@@ -49,7 +49,7 @@
   <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.21.custom.min.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-dropdown.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-modal.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-transition.js"></script>
+  {% comment "eliminato perché entra in conflitto con l'accordion degli indicatori tematici" %}<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-transition.js"></script>{% endcomment %}
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-tab.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-tooltip.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-popover.js"></script>
