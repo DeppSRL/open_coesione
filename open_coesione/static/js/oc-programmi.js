@@ -152,6 +152,6 @@ var print_column_chart = function(container, data, title) {
             href: 'http://www.dps.tesoro.it/',
             text: 'Fonte: DPS'
         },
-        colors: ['#707005', '#b5b299']
+        colors: ['#b5b299', '#707005']
     });
 }
