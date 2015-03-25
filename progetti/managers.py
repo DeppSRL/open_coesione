@@ -4,10 +4,12 @@ from django.db import models
 
 class ProgettiQuerySet(models.query.QuerySet):
 
-    def conclusi(self, date=datetime.now()):
+    def conclusi(self, date=None):
+        date = date or datetime.now()
         return self.filter(data_fine_effettiva__lte=date).order_by('-data_fine_effettiva')
 
-    def avviati(self, date=datetime.now()):
+    def avviati(self, date=None):
+        date = date or datetime.now()
         return self.filter(data_inizio_effettiva__lte=date).order_by('-data_inizio_effettiva')
 
     def totali(self, territorio=None, tema=None, tipo=None, classificazione=None, soggetto=None, territori=None, programmi=None):
@@ -111,10 +113,10 @@ class ProgettiManager(models.Manager):
     def get_query_set(self):
         return ProgettiQuerySet(self.model, using=self._db).filter(active_flag=True)  # note the `using` parameter, new in 1.2
 
-    def conclusi(self, date=datetime.now()):
+    def conclusi(self, date=None):
         return self.get_query_set().conclusi(date)
 
-    def avviati(self, date=datetime.now()):
+    def avviati(self, date=None):
         return self.get_query_set().avviati(date)
 
     def nel_territorio(self, territorio):

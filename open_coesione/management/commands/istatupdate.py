@@ -68,8 +68,8 @@ CSV_COLUMNS = (CSV_CODE, CSV_TITLE, CSV_SUBTITLE, "UNITA_MISURA", "ID_TEMA1",
 # elaboration helpers
 VALID_INDEXES = settings.INDICATORI_VALIDI
 VALID_REGIONS = range(1, 21) + [23]
-#VALID_TOPIC_IDS_BY_NAME = settings.TEMI_DB_MAPPING
-VALID_TOPIC_IDS_BY_NAME = dict((tema.descrizione, tema.codice) for tema in Tema.objects.principali())
+VALID_TOPIC_IDS_BY_NAME = settings.TEMI_DB_MAPPING
+# VALID_TOPIC_IDS_BY_NAME = dict((tema.descrizione, tema.codice) for tema in Tema.objects.principali())
 
 
 class Storage(object):
