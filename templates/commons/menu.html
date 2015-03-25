@@ -1,210 +1,262 @@
-{% load list_to_columns %}
+{% load sekizai_tags list_to_columns %}
+
 {% list_to_columns lista_regioni as colonne_regioni 3 %}
 
 <nav class="navbar navbar-full-width">
-  <h2 class="hidden"><a name="menu"></a>Navigazione del sito</h2>
-  <div class="navbar-inner">
-    <div class="container">
-      <form method="get" action="{% if soggetto %}{% url 'soggetti_search' %}{% else %}{% url 'progetti_search' %}{% endif %}" class="navbar-search form-search pull-right">
-        <select id="menu-search-type-selector" name="" class="input-small">
-            <option value="progetti"{% if progetto %} selected="selected"{% endif %}>Progetti</option>
-            <option value="soggetti"{% if soggetto %} selected="selected"{% endif %}>Soggetti</option>
-            <option value="territori">Territori</option>
-        </select>
-        <div class="input-append" style="margin-right: 5px;">
-          <input id="menu-search" type="text"
-                 class="input-medium search-query"
-                 name="q" {% if form.q.value %}value="{{ form.q.value }}"{% endif %}
-                 placeholder="Cerca tra i {% if soggetto %}soggetti{% else %}progetti{% endif %}" /><input
-              id="menu-search-territori" type="text" style="display:none"
-                 class="input-medium search-query"
-                 placeholder="Cerca tra i territori" /><button type="submit" class="btn"><i class="icon-search"></i></button>
+    <h2 id="menu" class="hidden">Navigazione del sito</h2>
+    <div class="navbar-inner">
+        <div class="container">
+            <form method="get" action="{% if soggetto %}{% url 'soggetti_search' %}{% else %}{% url 'progetti_search' %}{% endif %}" class="navbar-search form-search pull-right">
+                <select id="menu-search-type-selector" name="" class="input-small">
+                    <option value="progetti"{% if progetto %} selected="selected"{% endif %}>Progetti</option>
+                    <option value="soggetti"{% if soggetto %} selected="selected"{% endif %}>Soggetti</option>
+                    <option value="territori">Territori</option>
+                </select>
+                <div class="input-append" style="margin-right: 5px">
+                    {% spaceless %}
+                        <input id="menu-search" type="text" class="input-medium search-query" name="q"{% if form.q.value %} value="{{ form.q.value }}"{% endif %} placeholder="Cerca tra i {% if soggetto %}soggetti{% else %}progetti{% endif %}" />
+                        <input id="menu-search-territori" type="text" class="input-medium search-query" placeholder="Cerca tra i territori" style="display: none" />
+                        <button type="submit" class="btn"><i class="icon-search"></i></button>
+                    {% endspaceless %}
+                </div>
+            </form>
+
+            <ul class="nav">
+                <li class="dropdown{% if progetto or tipologia or tema or territorio or programma or gruppo_programmi %}{% if not soggetto and not risorsa %} active{% endif %}{% endif %}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Progetti <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li class="submenu">
+                            <a href="#">Natura</a>
+                            <ul class="dropdown-menu">
+                                <li class="clearfix">
+                                    <ul>
+                                        {% for tipologia in lista_tipologie_principali %}
+                                            <li><a href="{{ tipologia.get_absolute_url }}">{{ tipologia.short_label }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#">Temi</a>
+                            <ul class="dropdown-menu">
+                                <li class="clearfix">
+                                    <ul>
+                                        {% for temi in lista_temi_principali %}
+                                            <li><a href="{{ temi.get_absolute_url }}">{{ temi.short_label }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#">Territori</a>
+                            <ul class="dropdown-menu">
+                                <li class="clearfix" style="width: 500px">
+                                    <ul style="width: 30%">
+                                        {% for regione in colonne_regioni.0 %}
+                                            <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                    <ul style="width: 30%">
+                                        {% for regione in colonne_regioni.1 %}
+                                            <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                    <ul style="width: 40%">
+                                        {% for regione in colonne_regioni.2 %}
+                                            <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
+                                        {% endfor %}
+                                        <li><a href="{% url 'territori_nazionale' %}">Ambito nazionale</a></li>
+                                        <li><a href="{% url 'territori_estero' %}">Ambito estero</a></li>
+                                    </ul>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <form class="form-search content" method="get">
+                                        <h5>Cerca una provincia o un comune</h5>
+                                        <div class="input-append">
+                                            {% spaceless %}
+                                                <input id="city" type="text" class="input-large search-query" placeholder="Inserisci il nome">
+                                                <button type="submit" class="btn"><i class="icon-search"></i></button>
+                                            {% endspaceless %}
+                                        </div>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="submenu" style="position: relative">
+                            <a href="#">Programmi</a>
+                            <ul class="dropdown-menu" style="padding-right: 0">
+                                <li class="submenu">
+                                    <a href="#">Programmi UE FESR</a>
+                                    <ul class="dropdown-menu">
+                                        <li class="clearfix">
+                                            <ul>
+                                                <li><a href="{% url 'progetti_programmi' 'ue-fesr' %}">Tutti</a></li>
+                                                <li class="divider"></li>
+                                                {% for programma in lista_programmi.fesr %}
+                                                    <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione|cut:'FESR ' }}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="submenu">
+                                    <a href="#">Programmi UE FSE</a>
+                                    <ul class="dropdown-menu">
+                                        <li class="clearfix">
+                                            <ul>
+                                                <li><a href="{% url 'progetti_programmi' 'ue-fse' %}">Tutti</a></li>
+                                                <li class="divider"></li>
+                                                {% for programma in lista_programmi.fse %}
+                                                    <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione|cut:'FSE ' }}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="submenu">
+                                    <a href="#">Programmi FSC</a>
+                                    <ul class="dropdown-menu">
+                                        <li class="clearfix">
+                                            <ul>
+                                                <li><a href="{% url 'progetti_programmi' 'fsc' %}">Tutti</a></li>
+                                                <li class="divider"></li>
+                                                {% for pdesc,pcode in lista_programmi.fsc_par.items %}
+                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                                                {% endfor %}
+                                                <li class="divider"></li>
+                                                {% for pdesc,pcode in lista_programmi.fsc_pa.items %}
+                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                                                {% endfor %}
+                                                <li class="divider"></li>
+                                                {% for pdesc,pcode in lista_programmi.fsc_pra.items %}
+                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                                                {% endfor %}
+                                                <li class="divider"></li>
+                                                {% for pdesc,pcode in lista_programmi.fsc_pna.items %}
+                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                                                {% endfor %}
+                                                <li class="divider"></li>
+                                                {% for pdesc,pcode in lista_programmi.fsc_pstg.items %}
+                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="submenu">
+                                    <a href="#">Programmi PAC</a>
+                                    <ul class="dropdown-menu">
+                                        <li class="clearfix">
+                                            <ul>
+                                                {% for pdesc,pcode in lista_programmi.pac_pac_m.items %}
+                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                                                {% endfor %}
+                                                <li class="divider"></li>
+                                                {% for pdesc,pcode in lista_programmi.pac_pac_r.items %}
+                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                                                {% endfor %}
+                                                <li class="divider"></li>
+                                                {% for pdesc,pcode in lista_programmi.pac_fsc.items %}
+                                                    <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Progetti PAC nel {{ pdesc }}</a></li>
+                                                {% endfor %}
+                                                <li class="divider"></li>
+                                                {% for pdesc,pcode in lista_programmi.pac_fesr.items %}
+                                                    <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Progetti PAC nel {{ pdesc }}</a></li>
+                                                {% endfor %}
+                                                <li class="divider"></li>
+                                                {% for pdesc,pcode in lista_programmi.pac_fse.items %}
+                                                    <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Progetti PAC nel {{ pdesc }}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown violet{% if soggetto %} active{% endif %}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Soggetti <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'soggetti_search' %}?q=&selected_facets=ruolo:1">Programmatore</a></li>
+                        <li><a href="{% url 'soggetti_search' %}?q=&selected_facets=ruolo:2">Attuatore</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown brown{% if risorsa %} active{% endif %}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Risorse <b class="caret"></b></a>
+                    <ul class="dropdown-menu" style="min-width: 215px">
+                        <li><a href="{% url 'fonti-finanziamento' %}">Fonti di finanziamento</a></li>
+                        <li><a href="{% url 'pac' %}">Piano di azione per la coesione</a></li>
+                        <li><a href="{% url 'spesa-certificata' %}">Spesa certificata UE</a></li>
+                    </ul>
+                </li>
+            </ul>
         </div>
-      </form>
-      <ul class="nav">
-        <li class="dropdown{% if progetto or not soggetto and tema or tipologia or territorio   %} active{% endif %}">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Progetti <b class="caret"></b></a>
-          <ul class="dropdown-menu">
-            <li class="submenu">
-              <a href="#">Natura</a>
-              <ul class="dropdown-menu">
-                <li class="clearfix">
-                  <ul>
-                    {% for tipologia in lista_tipologie_principali %}
-                      <li><a href="{{ tipologia.get_absolute_url }}">{{ tipologia.short_label }}</a></li>
-                    {% endfor %}
-                  </ul>
-                </li>
-              </ul>
-            </li>
-            <li class="submenu">
-              <a href="#">Temi</a>
-              <ul class="dropdown-menu">
-                <li class="clearfix">
-                  <ul>
-                    {% for temi in lista_temi_principali %}
-                      <li><a href="{{ temi.get_absolute_url }}">{{ temi.short_label }}</a></li>
-                    {% endfor %}
-                  </ul>
-                </li>
-              </ul>
-            </li>
-            <li class="submenu">
-              <a href="#">Territori</a>
-              <ul class="dropdown-menu">
-                <li class="clearfix" style="width:500px;">
-                  <ul style="width:30%">
-                    {% for regione in colonne_regioni.0 %}
-                      <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
-                    {% endfor %}
-                  </ul>
-                  <ul style="width:30%">
-                    {% for regione in colonne_regioni.1 %}
-                      <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
-                    {% endfor %}
-                  </ul>
-                  <ul style="width:40%">
-                    {% for regione in colonne_regioni.2 %}
-                      <li><a href="{{ regione.get_absolute_url }}">{{ regione|title }}</a></li>
-                    {% endfor %}
-                    <li><a href="{% url 'territori_nazionale' %}">Ambito nazionale</a></li>
-                    <li><a href="{% url 'territori_estero' %}">Ambito estero</a></li>
-                  </ul>
-                </li>
-                <li class="divider"></li>
-                <li>
-                  <form class="form-search content" method="get">
-                    <h5>Cerca una provincia o un comune</h5>
-                    <div class="input-append">
-                      <input id="city" type="text" class="input-large search-query"
-                             placeholder="Inserisci il nome"><button type="submit" class="btn"><i class="icon-search"></i></button>
-                    </div>
-                  </form>
-                </li>
-              </ul>
-            </li>
-            <li class="submenu" style="position: relative;">
-              <a href="#">Programmi</a>
-              <ul class="dropdown-menu" style="padding-right: 0;">
-                <li class="submenu">
-                  <a href="#">Programmi UE FESR</a>
-                  <ul class="dropdown-menu">
-                    <li class="clearfix">
-                      <ul>
-                        <li><a href="{% url 'progetti_programmi' 'ue-fesr' %}">Tutti</a></li>
-                        <li class="divider"></li>
-                        {% for programma in lista_programmi.fesr %}
-                          <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione|cut:"FESR " }}</a></li>
-                        {% endfor %}
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-                <li class="submenu">
-                  <a href="#">Programmi UE FSE</a>
-                  <ul class="dropdown-menu">
-                    <li class="clearfix">
-                      <ul>
-                        <li><a href="{% url 'progetti_programmi' 'ue-fse' %}">Tutti</a></li>
-                        <li class="divider"></li>
-                        {% for programma in lista_programmi.fse %}
-                          <li><a href="{% url 'progetti_programma' programma.codice %}">{{ programma.descrizione|cut:"FSE " }}</a></li>
-                        {% endfor %}
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-
-                <li class="submenu">
-                  <a href="#">Programmi FSC</a>
-                  <ul class="dropdown-menu">
-                    <li class="clearfix">
-                      <ul>
-                        <li><a href="{% url 'progetti_programmi' 'fsc' %}">Tutti</a></li>
-                        <li class="divider"></li>
-                        {% for pdesc,pcode in lista_programmi.fsc_par.items %}
-                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                        {% endfor %}
-                        <li class="divider"></li>
-                        {% for pdesc,pcode in lista_programmi.fsc_pa.items %}
-                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                        {% endfor %}
-                        <li class="divider"></li>
-                        {% for pdesc,pcode in lista_programmi.fsc_pra.items %}
-                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                        {% endfor %}
-                        <li class="divider"></li>
-                        {% for pdesc,pcode in lista_programmi.fsc_pna.items %}
-                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                        {% endfor %}
-                        <li class="divider"></li>
-                        {% for pdesc,pcode in lista_programmi.fsc_pstg.items %}
-                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                        {% endfor %}
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-
-                <li class="submenu">
-                  <a href="#">Programmi PAC</a>
-                  <ul class="dropdown-menu">
-                    <li class="clearfix">
-                      <ul>
-                        <!--
-                        <li><a href="{% url 'progetti_programmi' 'pac' %}">Tutti</a></li>
-                        <li class="divider"></li>
-                        -->
-                        {% for pdesc,pcode in lista_programmi.pac_pac_m.items %}
-                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                        {% endfor %}
-                        <li class="divider"></li>
-                        {% for pdesc,pcode in lista_programmi.pac_pac_r.items %}
-                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                        {% endfor %}
-                        <li class="divider"></li>
-                        {% for pdesc,pcode in lista_programmi.pac_fsc.items %}
-                            <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Progetti PAC nel {{ pdesc }}</a></li>
-                        {% endfor %}
-                        <li class="divider"></li>
-                        {% for pdesc,pcode in lista_programmi.pac_fesr.items %}
-                            <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Progetti PAC nel {{ pdesc }}</a></li>
-                        {% endfor %}
-                        <li class="divider"></li>
-                        {% for pdesc,pcode in lista_programmi.pac_fse.items %}
-                            <li><a href="{% url 'progetti_search'%}?q=&selected_facets=fonte_fin:{{ pcode }}&selected_facets=fonte:PAC">Progetti PAC nel {{ pdesc }}</a></li>
-                        {% endfor %}
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-
-              </ul>
-            </li>
-
-
-          </ul>
-        </li>
-
-
-
-        <li class="dropdown violet{% if soggetto %} active{% endif %}">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Soggetti <b class="caret"></b></a>
-          <ul class="dropdown-menu">
-            <li><a href="{% url 'soggetti_search' %}?q=&selected_facets=ruolo:1">Programmatore</a></li>
-            <li><a href="{% url 'soggetti_search' %}?q=&selected_facets=ruolo:2">Attuatore</a></li>
-          </ul>
-        </li>
-        <li class="dropdown brown{% if risorsa %} active{% endif %}">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Risorse <b class="caret"></b></a>
-          <ul class="dropdown-menu" style="min-width: 215px;">
-            <li><a href="{% url 'fonti-finanziamento' %}">Fonti di finanziamento</a></li>
-            <li><a href="{% url 'pac' %}">Piano di azione per la coesione</a></li>
-            <li><a href="{% url 'spesa-certificata' %}">Spesa certificata UE</a></li>
-          </ul>
-        </li>
-
-      </ul>
     </div>
-  </div>
 </nav>
+
+{% addtoblock 'js' %}
+    <script>
+        $(document).ready(function() {
+            $('html').on('click.dropdown.data-api', function() {
+                $('.submenu').children('ul').removeClass('submenu-show').addClass('submenu-hide');
+            })
+
+            $('.submenu').on('click', function(e) {
+                $('.submenu').not($(this).parents('.submenu')).children('ul').removeClass('submenu-show').addClass('submenu-hide');
+                $(this).children('ul').removeClass('submenu-hide').addClass('submenu-show');
+                e.stopPropagation();
+            }).children('a').append(' &raquo; ');
+
+            $('#menu-search-type-selector').on('change', function() {
+                $(this).closest('form').attr('action', '/' + $(this).val() + '/').find('input').attr('placeholder', 'Cerca tra i ' +  $(this).val());
+
+                var is_territori = $(this).val() == 'territori';
+                $('#menu-search').toggle(!is_territori);
+                $('#menu-search-territori').toggle(is_territori);
+            }).trigger('change');
+        });
+    </script>
+
+    <script>
+        /*
+        * Autocompleter for the map and menu search field
+        */
+        $(document).ready(function() {
+            $('#menu-search-territori,#city,#map-city').on('focus', function() {
+                if (!$(this)._cleared) {
+                    $(this)._cleared = true;
+                    $(this).val('');
+                }
+            }).autocomplete({
+                source: function(request, response) {
+                    $.getJSON(
+                        '{% url 'territori_autocomplete' %}',
+                        {'query': request.term},
+                        function(data) {
+                            response($.map(data.territori, function(item) {
+                                return {
+                                    label: item.denominazione,
+                                    url: item.url
+                                }
+                            }));
+                        }
+                    );
+                },
+                minLength: 2,
+                select: function(event, ui) {
+                    window.location.href = ui.item.url;
+                },
+                open: function() {
+                    $(this).removeClass('ui-corner-all').addClass('ui-corner-top');
+                },
+                close: function() {
+                    $(this).removeClass('ui-corner-top').addClass('ui-corner-all');
+                }
+            }).css('z-index', 100000);
+        });
+    </script>
+{% endaddtoblock %}

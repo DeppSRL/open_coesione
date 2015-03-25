@@ -18,7 +18,5 @@
         {% endfor %}
     </div>
 
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/oc-faq.js' %}"></script>
-    {% endaddtoblock %}
+    {% add_data 'js-data' 'js/oc-faq.js' %}
 {% endblock %}

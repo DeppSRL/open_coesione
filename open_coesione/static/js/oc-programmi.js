@@ -97,12 +97,12 @@ var print_column_chart = function(container, data, title) {
 
                     for (var i = 0; i < words.length; i++) {
                         if (i > 0 && i % numWordsPerLine == 0)
-                            str.push('<br>');
+                            str.push('<br/>');
 
                         str.push(words[i]);
                     }
 
-                    return str.join(' ').replace(/ <br> /g, '<br>');
+                    return str.join(' ').replace(/ <br\/> /g, '<br/>');
                 },
                 rotation: -45,
                 align: 'right',

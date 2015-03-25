@@ -11,15 +11,14 @@
         {% endfor %}
     </div>
 
-    {% addtoblock 'js_script' strip %}
+    {% addtoblock 'js' strip %}
         <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-53d8e08b53d5d0b4"></script>
     {% endaddtoblock %}
 
-    {% addtoblock 'js_script' %}
-        <script type='text/javascript'>//<![CDATA[
+    {% addtoblock 'js' %}
+        <script>
             $(window).load(function() {
                 var blog = $('#blog');
-
                 var loaded = [];
 
                 blog.on('click', 'article header a', function() {
@@ -44,12 +43,10 @@
                             location.href = '#' + slug;
                         }
                     }
-
-                    return false;
                 });
 
                 blog.find('article' + location.hash + ':first header a').trigger('click');
-            });//]]>
+            });
         </script>
     {% endaddtoblock %}
 {% endblock %}

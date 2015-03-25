@@ -112,8 +112,10 @@
         </div>
     </div>
 
-    {% addtoblock 'js_script' strip %}
-        <script type="text/javascript">
+    {% add_data 'js-data' 'js/highcharts.js' %}
+    {% add_data 'js-data' 'js/oc-charts-pie.js' %}
+    {% addtoblock 'js' strip %}
+        <script>
             $(document).ready(function() {
                 print_pie_chart('#regions_chart_table', 'regions_chart');
                 print_pie_chart('#roles_chart_table', 'roles_chart');

@@ -56,12 +56,6 @@
         {% endfor %}
     </div>
 
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/highcharts.js' %}"></script>
-        <script src="{% static 'js/charts.js' %}"></script>
-    {% endaddtoblock %}
-
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/oc-spesacertificata-grafici.js' %}"></script>
-    {% endaddtoblock %}
+    {% add_data 'js-data' 'js/highcharts.js' %}
+    {% add_data 'js-data' 'js/oc-spesacertificata-grafici.js' %}
 {% endblock %}

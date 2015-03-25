@@ -22,9 +22,7 @@
             {{ object.file.size|filesizeformat }}
         </div>
 
-        {% addtoblock 'js_script' strip %}
-            <script src="{% static 'js/oc-ga-downloads.js' %}"></script>
-        {% endaddtoblock %}
+        {% add_data 'js-data' 'js/oc-ga-downloads.js' %}
     {% endif %}
 
     <p><i class="icon-chevron-left"></i> <a href="{% url 'pillole' %}">Torna alle Pillole di OpenCoesione</a></p>
@@ -38,7 +36,7 @@
         <a class="addthis_button_compact"></a>
     </div>
 
-    {% addtoblock 'js_script' strip %}
+    {% addtoblock 'js' strip %}
         <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-53d8e08b53d5d0b4"></script>
     {% endaddtoblock %}
 {% endblock %}
