@@ -6,9 +6,9 @@ from tagging import models as tagging_models
 
 
 class EntryManager(models.Manager):
-    def get_latest_entries(self, qnt=10, start_date=None, end_date=datetime.now(), single=False):
-        if single:
-            qnt = 1
+    def get_latest_entries(self, qnt=10, start_date=None, end_date=None, single=False):
+        end_date = end_date or datetime.now()
+        qnt = qnt if not single else 1
 
         if start_date:
             entries = self.get_query_set().filter(published_at__range=(start_date, end_date))[:qnt]
