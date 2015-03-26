@@ -13,14 +13,14 @@
             {% tinymce_preview 'page' %}
         </div>
     </article>
-{% endblock %}
 
-{% addtoblock 'js' strip %}
-    <script>
-        $(document).ready(function() {
-            var tit = window.opener.document.getElementById('id_title').value;
-            var h = window.document.getElementsByClassName('page-header').item().getElementsByTagName('h1').item();
-            h.innerHTML = tit;
-        });
-    </script>
-{% endaddtoblock %}
+    {% addtoblock 'js' strip %}
+        <script>
+            $(document).ready(function() {
+                var tit = window.opener.document.getElementById('id_title').value;
+                var h = window.document.getElementsByClassName('page-header').item().getElementsByTagName('h1').item();
+                h.innerHTML = tit;
+            });
+        </script>
+    {% endaddtoblock %}
+{% endblock %}

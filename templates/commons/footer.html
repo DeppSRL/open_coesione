@@ -1,77 +1,78 @@
+{% load staticfiles %}
+
 <div class="container">
-  <div id="menu" class="row">
-    <div class="span3">
-      <h1>OpenCoesione</h1>
+    <div id="menu" class="row">
+        <div class="span3">
+            <h1>OpenCoesione</h1>
+            <p>
+                Iniziativa di open government sulle politiche di coesione in Italia con lo scopo di promuovere
+                l'efficacia degli interventi attraverso la pubblicazione dei dati sui progetti
+                finanziati e una diffusa partecipazione civica.
+            </p>
+            <ul class="list-hypen">
+                <li class="bi-lingual">
+                    <a href="/progetto/">Cos'è</a>
+                    <br/>&nbsp;
+                    <em><a href="/progetto/en/">About <img src="{% static 'img/flag-uk.png' %}" alt="english version"></a></em>
+                </li>
+                <li><a href="/team/">Il team</a></li>
+                <li><a href="/gruppo-tecnico/">Il Gruppo Tecnico</a></li>
+                <li><a href="/iniziative-internazionali/">Iniziative internazionali</a>
+                <li><a href="/partnership/">Partnership</a></li>
+                <li><a href="/politiche-di-coesione-e-trasparenza/">Politiche di coesione e trasparenza</a></li>
+                <li><a href="/termini-e-condizioni/">Termini e condizioni</a></li>
+                <li><a href="/contatti/">Contatti</a></li>
+            </ul>
+        </div>
 
-      <p>
-        Iniziativa di open government sulle politiche di coesione in Italia con lo scopo di promuovere
-          l'efficacia degli interventi attraverso la pubblicazione dei dati sui progetti
-          finanziati e una diffusa partecipazione civica.
-      </p>
-      <ul class="list-hypen">
-        <li class="bi-lingual"><a href="/progetto/">Cos'è</a><br/>&nbsp;
-        <em><a href="/progetto/en/">About <img src="{{ STATIC_URL }}img/flag-uk.png" alt="english version"></a></em></li>
-        <li><a href="/team/">Il team</a></li>
-        <li><a href="/gruppo-tecnico/">Il Gruppo Tecnico</a></li>
-        <li class="bi-lingual"><a href="/iniziative-internazionali/">Iniziative internazionali</a>
-            <!-- <br/>&nbsp;
-            <em><a href="/international-events/">International initiatives  <img src="{{ STATIC_URL }}img/flag-uk.png" alt="english version"></a></em></li>
-            -->
-        <li><a href="/partnership/">Partnership</a></li>
-        <li><a href="/politiche-di-coesione-e-trasparenza/">Politiche di coesione e trasparenza</a></li>
-        <li><a href="/termini-e-condizioni/">Termini e condizioni</a></li>
-        <li><a href="/contatti/">Contatti</a></li>
-      </ul>
-    </div>
-    <div class="span3">
-      <h1>Materiali</h1>
+        <div class="span3">
+            <h1>Materiali</h1>
+            <p>
+                Documenti, video, storie, articoli realizzati a partire dai dati di OpenCoesione.
+                Pillole di OpenCoesione con analisi e spunti di riflessione.
+                Domande frequenti (FAQ), newsletter e aggiornamenti su eventi e iniziative.
+            </p>
+            <ul class="list-hypen">
+                <li><a href="{% url 'pillole' %}">Pillole di OpenCoesione</a></li>
+                <li><a href="/scopri/">Scopri: documenti e video</a></li>
+                <li><a href="/segui/">Segui: newsletter</a></li>
+                <li><a href="/sollecita/">Sollecita: partecipazione e riuso</a></li>
+                <li><a href="/rassegna-stampa/">Dicono di noi</a></li>
+                <li class="bi-lingual">
+                    <a href="{% url 'faq-it' %}">Domande frequenti</a>
+                    <br/>&nbsp;
+                    <em><a href="{% url 'faq-en' %}">FAQ <img src="{% static 'img/flag-uk.png' %}" alt="english version"></a></em>
+                </li>
+            </ul>
+        </div>
 
-      <p>
-        Documenti, video, storie, articoli realizzati a partire dai dati di OpenCoesione.
-        Pillole di OpenCoesione con analisi e spunti di riflessione.
-        Domande frequenti (FAQ), newsletter e aggiornamenti su eventi e iniziative.
-      </p>
-      <ul class="list-hypen">
-        <li><a href="{% url 'pillole' %}">Pillole di OpenCoesione</a></li>
-        <li><a href="/scopri/">Scopri: documenti e video</a></li>
-        <li><a href="/segui/">Segui: newsletter</a></li>
-        <li><a href="/sollecita/">Sollecita: partecipazione e riuso</a></li>
-        <li><a href="/rassegna-stampa/">Dicono di noi</a></li>
-        <li class="bi-lingual"><a href="/faq/">Domande frequenti</a> <br/>&nbsp;
-            <em><a href="/faq/en/">FAQ <img src="{{ STATIC_URL }}img/flag-uk.png" alt="english version"></a></em></li>
-      </ul>
-    </div>
-    <div class="span3">
-      <h1>Open data</h1>
+        <div class="span3">
+            <h1>Open data</h1>
+            <p>
+                Per open data (“dati aperti”) si intendono informazioni accessibili online,
+                disponibili in un linguaggio macchina utilizzabile da comuni programmi per elaboratore,
+                associati a metadati e liberamente riutilizzabili dagli utenti.
+            </p>
+            <ul class="list-hypen">
+                <li><a href="{% url 'opendata' %}">Scarica gli Open Data</a></li>
+                <li><a href="{% url 'api-faq' %}">Le API di OpenCoesione</a></li>
+                <li><a href="/licenza/">Licenza</a></li>
+            </ul>
+        </div>
 
-      <p>
-        Per open data (“dati aperti”) si intendono informazioni accessibili online,
-          disponibili in un linguaggio macchina utilizzabile da comuni programmi per elaboratore,
-          associati a metadati e liberamente riutilizzabili dagli utenti.
-      </p>
-      <ul class="list-hypen">
-        <li><a href="{% url 'opendata' %}">Scarica gli Open Data</a></li>
-        <li><a href="{% url 'api-faq' %}">Le API di OpenCoesione</a></li>
-        <!--
-        <li><a href="/accessi/">Accessi al portale OpenCoesione</a></li>
-        -->
-        <li><a href="/licenza/">Licenza</a></li>
-      </ul>
+        <div class="span3">
+            <br/>
+            <div class="data-disclaimer">I dati sui progetti sono forniti da:</div>
+            <br/>
+            <a href="http://www.rgs.mef.gov.it/" class="flag flag-rgs"></a>
+            <br/>
+            <a href="http://www.cipecomitato.it/" class="flag flag-cipe" style="margin-bottom: 1em;"></a>
+            <br/><br/><br/>
+            <div class="data-disclaimer">Portale realizzato con il <br>cofinanziamento dell’Unione Europea</div>
+            <br/>
+            <a href="http://ec.europa.eu/regional_policy/index_it.cfm" class="flag flag-ue" title="Unione Europea"></a>
+            <br/>
+            <a href="http://www.dps.gov.it/it/pongat/" class="flag pon-gat" title="Pon GAT"></a>
+        </div>
     </div>
-    <div class="span3">
-      <br>
-      <div class="data-disclaimer">I dati sui progetti sono forniti da:</div>
-      <br>
-      <a href="http://www.rgs.mef.gov.it/" class="flag flag-rgs"></a>
-      <br>
-      <a href="http://www.cipecomitato.it/" class="flag flag-cipe" style="margin-bottom: 1em;"></a>
-      <br><br><br>
-      <div class="data-disclaimer">Portale realizzato con il <br>cofinanziamento dell’Unione Europea</div>
-      <br>
-      <a href="http://ec.europa.eu/regional_policy/index_it.cfm" class="flag flag-ue" title="Unione Europea"></a>
-      <br>
-      <a href="http://www.dps.gov.it/it/pongat/" class="flag pon-gat" title="Pon GAT"></a>
-    </div>
-  </div>
-
 </div>

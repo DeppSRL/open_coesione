@@ -38,9 +38,12 @@
                                         <div id="topic_chart" style="height: 270px"></div>
                                         <form action="#">
                                             <div class="input-append text-center">
-                                                <select id="region-selector" class="span3">
-                                                    <option value=""> -- Confronta le regioni -- </option>
-                                                </select><a id="region-reset" class="btn add-on" href="#">reset</a>
+                                                {% spaceless %}
+                                                    <select id="region-selector" class="span3">
+                                                        <option value=""> -- Confronta le regioni -- </option>
+                                                    </select>
+                                                    <a id="region-reset" class="btn add-on" href="#">reset</a>
+                                                {% endspaceless %}
                                             </div>
                                         </form>
                                     {% endif %}

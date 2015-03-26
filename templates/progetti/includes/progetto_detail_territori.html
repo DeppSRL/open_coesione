@@ -1,0 +1,59 @@
+{% load staticfiles sekizai_tags %}
+
+{% add_data 'js-data' 'leaflet-dist/leaflet.js' %}
+{% add_data 'js-data' 'js/jquery-loader.js' %}
+{% add_data 'js-data' 'js/oc-maps.js' %}
+
+{% addtoblock 'css' strip %}
+    <link rel="stylesheet" href="{% static 'leaflet-dist/leaflet.css' %}" />
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="{% static 'leaflet-dist/leaflet.ie.css' %}" />
+    <![endif]-->
+    <link rel="stylesheet" href="{% static 'css/map-styles.css' %}" />
+    <style type="text/css">
+        .map-location-active { text-decoration: underline; }
+    </style>
+{% endaddtoblock %}
+
+{% addtoblock 'js' strip %}
+    <script>
+        var MAPPA, MAPPA_LAYER, MAPPA_MONDO, MAPPA_ONCLICK, MAPPA_POPUP, MAPPA_CACHE = {};
+
+        $(document).ready(function() {
+            build_map('map', '/territori/leaflet/world.json', function(data) {
+                var base_style = {
+                    color: '#343434',
+                    radius: 6
+                },
+                hover_style = {
+                    color: '#003A33',
+                    radius: 10
+                };
+                $('.map-location').each(function() {
+                    var $this = $(this);
+                    if ($this.data('coords')) {
+                        var marker = $this.data('coords').split(',');
+                        var circle = new L.CircleMarker(new L.LatLng(marker[1], marker[0]), base_style);
+                        MAPPA.addLayer(circle);
+                        // add mouse hover effect
+                        $this.hover(function() { circle.setStyle(hover_style).setRadius(hover_style.radius) }, function() { circle.setStyle(base_style).setRadius(base_style.radius) });
+                        $(circle).hover(function() { $this.addClass('map-location-active') }, function() { $this.removeClass('map-location-active') })
+                    }
+                });
+            });
+        });
+    </script>
+{% endaddtoblock %}
+
+<div style="float: right; width: 46%; margin-left: 10px; margin-right: 10px">
+    <h1 class="title" id="map-header">
+        <div>
+            Territorio
+            {% for territorio in progetto.territori %}
+                <a href="{{ territorio.get_absolute_url }}" class="map-location" data-coords="{{ territorio.geom.centroid.coords|join:',' }}">{{ territorio.denominazione }}</a>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </div>
+    </h1>
+
+    <div id="map" style="height: 250px; width: 100%; margin-bottom: 0.75em"></div>
+</div>

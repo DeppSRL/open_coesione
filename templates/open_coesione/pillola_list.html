@@ -6,7 +6,7 @@
     <div class="flat_content">
         <h1>Pillole di OpenCoesione</h1>
 
-        <hr>
+        <hr/>
 
         <p style="text-align: justify">
             Le Pillole di OpenCoesione sono brevi testi che propongono spunti di
@@ -18,15 +18,15 @@
             in attuazione e delle politiche di coesione più in generale.
         </p>
 
-        <hr>
+        <hr/>
 
         {% for object in object_list %}
             {% include 'open_coesione/pillola_item.html' with object=object title_linked=True full_view=forloop.first only %}
-            <hr>
+            <hr/>
         {% endfor %}
     </div>
 {% endblock %}
 
 {% block sidebar %}
-    {% include 'sidebar_filter.html' with tag_choices=tag_choices date_choices=date_choices base_url='pillole' all_text='Tutte le pillole' only %}
+    {% include 'commons/sidebar_filter.html' with tag_choices=tag_choices date_choices=date_choices base_url='pillole' all_text='Tutte le pillole' only %}
 {% endblock %}

@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load sekizai_tags %}
+
 {% block page_title %}Racconta un progetto{% endblock %}
 
 {% block container %}
@@ -40,39 +42,39 @@
             </div>
         </div>
     </div>
-{% endblock %}
 
-{% addtoblock 'js' strip %}
-    <script>
-        $(document).ready(function() {
-            var $input = $('#id_come_lo_conosci');
-            var $verbose_input = $('#id_come_lo_conosci_altro');
+    {% addtoblock 'js' strip %}
+        <script>
+            $(document).ready(function() {
+                var $input = $('#id_come_lo_conosci');
+                var $verbose_input = $('#id_come_lo_conosci_altro');
 
-            if ($input.val() !== 'ALTRO') {
-                $verbose_input.parent().parent().hide();
-            }
-
-            $input.change(function() {
-                if ($(this).val() == 'ALTRO') {
-                    // set saved value
-                    $verbose_input.val($verbose_input.data('currvalue'));
-                    // show
-                    $verbose_input.parent().parent().slideDown();
-                } else {
-                    // save current value
-                    $verbose_input.data('currvalue', $verbose_input.val());
-                    // reset value
-                    $verbose_input.val('');
-                    // hide
-                    $verbose_input.parent().parent().slideUp()
+                if ($input.val() !== 'ALTRO') {
+                    $verbose_input.parent().parent().hide();
                 }
-            });
-        });
-    </script>
-{% endaddtoblock %}
 
-{% addtoblock 'css' strip %}
-    <style type="text/css">
-        #contact-form .recaptchatable label.recaptcha_input_area_text { float: none; }
-    </style>
-{% endaddtoblock %}
+                $input.change(function() {
+                    if ($(this).val() == 'ALTRO') {
+                        // set saved value
+                        $verbose_input.val($verbose_input.data('currvalue'));
+                        // show
+                        $verbose_input.parent().parent().slideDown();
+                    } else {
+                        // save current value
+                        $verbose_input.data('currvalue', $verbose_input.val());
+                        // reset value
+                        $verbose_input.val('');
+                        // hide
+                        $verbose_input.parent().parent().slideUp()
+                    }
+                });
+            });
+        </script>
+    {% endaddtoblock %}
+
+    {% addtoblock 'css' strip %}
+        <style type="text/css">
+            #contact-form .recaptchatable label.recaptcha_input_area_text { float: none }
+        </style>
+    {% endaddtoblock %}
+{% endblock %}

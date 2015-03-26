@@ -4,199 +4,6 @@
 
 {% block page_title %}Progetto: {{ progetto.titolo_progetto }}{% endblock %}
 
-{% add_data 'js-data' 'js/bootstrap-modal.js' %}
-{% add_data 'js-data' 'js/jquery.expander.min.js' %}
-{#{% add_data 'js-data' 'js/jquery.tipsy.js' %}#}
-
-{% add_data 'js-data' 'js/highcharts.js' %}
-{% add_data 'js-data' 'js/oc-charts-pie.js' %}
-
-{% add_data 'js-data' 'leaflet-dist/leaflet.js' %}
-{% add_data 'js-data' 'js/jquery-loader.js' %}
-{% add_data 'js-data' 'js/oc-maps.js' %}
-
-{% addtoblock 'css' strip %}
-    <link rel="stylesheet" href="{% static 'leaflet-dist/leaflet.css' %}" />
-    <!--[if lte IE 8]>
-        <link rel="stylesheet" href="{% static 'leaflet-dist/leaflet.ie.css' %}" />
-    <![endif]-->
-    <link rel="stylesheet" href="{% static 'css/map-styles.css' %}" />
-    <style type="text/css">
-        .map-location-active { text-decoration: underline; }
-    </style>
-{% endaddtoblock %}
-
-{% addtoblock 'js' %}
-  <script>
-    var pie_chart_options = {
-      chart: {
-        renderTo: 'container',
-        plotBackgroundColor: null,
-        plotBorderWidth: null,
-        plotShadow: false,
-        backgroundColor: null
-      },
-      title: {
-        text: ''
-      },
-      tooltip: {
-        formatter: function() {
-          return '<b>' + this.point.name + '</b>: ' + this.percentage.toFixed(2) + ' %';
-        },
-        useHTML: true
-      },
-      plotOptions: {
-        pie: {
-          allowPointSelect: true,
-          cursor: 'pointer',
-          dataLabels: {
-            enabled: false,
-            color: '#000000',
-            connectorColor: '#000000',
-            formatter: function() {
-              return '<b>' + this.point.name + '</b>: ' + this.percentage.toFixed(2) + ' %';
-            }
-          },
-          showInLegend: false
-
-        }
-      },
-      series: [],
-      credits: { enabled: false },
-      colors: [
-        '#c1dccb', '#aed4bd', '#bae2d4', '#bee2cc', '#d0e2d7', '#cae7d5', '#afded4', '#d3ece2', '#dcefe2', '#91c9a8', '#e3f2e8', '#bde3d2', '#b3d7c9'
-      ]
-
-    };
-
-    var MAPPA, MAPPA_LAYER, MAPPA_MONDO, MAPPA_ONCLICK, MAPPA_POPUP, MAPPA_CACHE = {};
-
-    $(document).ready(function() {
-
-      // init MAPPA variabless
-      build_map('map', '/territori/leaflet/world.json', function(data) {
-        var base_style = {
-              color: '#343434',
-              radius: 6
-            },
-            hover_style = {
-              color: '#003A33',
-              radius: 10
-            };
-        $('.map-location').each(function() {
-          var $this = $(this);
-          if ($this.data('coords')) {
-            var marker = $this.data('coords').split(',');
-            var circle = new L.CircleMarker(new L.LatLng(marker[1], marker[0]), base_style);
-            MAPPA.addLayer(circle);
-            // add mouse hover effect
-            $this.hover(function() { circle.setStyle(hover_style).setRadius(hover_style.radius) }, function() { circle.setStyle(base_style).setRadius(base_style.radius) });
-            $(circle).hover(function() { $this.addClass('map-location-active') }, function() { $this.removeClass('map-location-active') })
-          }
-        });
-      });
-
-      print_pie_chart('#finanziamento_chart_table', 'finanziamento_chart');
-
-      // open popup for segnalazioni
-      $('#segnalazioni_progetto a').click(function(){
-
-        var width = 550, height = 450,
-            sheight = screen.height, swidth = screen.width,
-            left = Math.round((swidth / 2) - (width / 2)),
-            top = 0;
-        if (sheight > height) {
-          top = Math.round((sheight / 2) - (height / 2))
-        }
-        // open window
-        window.open($(this).prop('href'), '', 'left=' + left + ',top=' + top + ',width=' + width + ',height=' + height + ',personalbar=0,toolbar=0,scrollbars=1,resizable=1');
-
-        return false; // stop propagation
-      });
-
-      // read more for project description
-      $('#project_description').expander({
-        // the number of characters at which the contents will be sliced into two parts.
-        slicePoint: 400,
-
-        // text displayed in a link instead of the hidden part of the element.
-        // clicking this will expand/show the hidden/collapsed text
-        expandText: 'leggi tutto',
-        expandPrefix: '&hellip; ',
-
-        // text to use for the link to re-collapse the text
-        userCollapseText: 'chiudi',
-        userCollapsePrefix: ' '
-      });
-
-      {% if progetto.pagamenti %}
-      var serie = {
-        'data': [],
-        'key_to_value': {}
-      };
-      var line_options = {
-        chart: {
-          renderTo: 'payments_chart',
-          type: 'spline',
-          backgroundColor: null
-        },
-        title: {
-          text: ''
-        },
-        subtitle: {
-          //text: 'Il grafico mostra'
-        },
-        xAxis: {
-          categories: [],
-          labels: {rotation: -90, y: 40}
-        },
-        yAxis: {
-          title: { text: '% pagamenti' },
-          min: 0, max: 100
-        },
-        series: [{
-          name: 'Pagamenti',
-          data: []
-        }],
-        credits: { enabled: false },
-        legend: { enabled: false },
-        tooltip: {
-          valueDecimals: 2,
-          formatter: function() {
-            return '' + this.x + ': ' + Highcharts.numberFormat(this.y, 2, ',', '.') + '% <br/>Pagamento: ' + Highcharts.numberFormat(serie['key_to_value'][this.x], 2, ',', '.') + ' euro';
-          }
-        }
-      };
-
-      $('#payments_chart_table').find('tr').map(function() {
-        var values = $('th, td, td', this).map(function() { return $(this).text() });
-        if (line_options['xAxis']['categories'].indexOf(values[0]) == -1) {
-          // init headers
-          line_options['xAxis']['categories'].push(values[0]);
-        }
-        serie['key_to_value'][values[0]] = parseFloat(values[1].replace(/\./g, '').replace(',', '.'));
-        serie['data'].push(parseFloat(values[2].replace(/\./g, '').replace(',', '.')));
-
-      });
-      line_options['series'][0]['data'] = serie['data'];
-
-        var payment_chart = false;
-
-        var $navigator = $('#navigator');
-        $navigator.modal('hide');
-        $('#payments_chart_link').on('click', function() {
-          if (!payment_chart) {
-            payment_chart = new Highcharts.Chart($.extend(true, {}, line_options, {}));
-          }
-          $navigator.modal('show');
-          return false;
-        });
-      {% endif %}
-
-    });
-  </script>
-{% endaddtoblock %}
-
 {% block container %}
     <div class="container{% if not progetto.active_flag %} non_active{% endif %}" id="progetto-container">
         {% if not progetto.active_flag %}
@@ -215,7 +22,7 @@
                             {% endfor %}
                         </ul>
 
-                        {% addtoblock 'js' %}
+                        {% addtoblock 'js' strip %}
                             <script>
                                 $(document).ready(function() {
                                     var elem = $('#overlapping-projects-extra').hide();
@@ -282,6 +89,21 @@
                         </p>
                     </div>
                     <p id="project_description">{{ progetto.descrizione }}</p>
+
+                    {% add_data 'js-data' 'js/jquery.expander.min.js' %}
+                    {% addtoblock 'js' %}
+                        <script>
+                            $(document).ready(function() {
+                                $('#project_description').expander({
+                                    slicePoint: 400,
+                                    expandText: 'leggi tutto',
+                                    expandPrefix: '&hellip; ',
+                                    userCollapseText: 'chiudi',
+                                    userCollapsePrefix: ' '
+                                });
+                            });
+                        </script>
+                    {% endaddtoblock %}
                 {% endif %}
 
                 <a href="{% url 'progetti_segnalazione' %}?{% if progetto.cipe_flag %}clp={{ progetto.codice_locale }}{% else %}cup={{ progetto.cup }}{% endif %}" id="banner_segnalazione_progetto" class="baloons-block">
@@ -299,6 +121,25 @@
                             {% endfor %}
                         </p>
                     </div>
+
+                    {% addtoblock 'js' %}
+                        <script>
+                            $(document).ready(function() {
+                                $('#segnalazioni_progetto').on('click', 'a', function() {
+                                    var width = 550,
+                                        height = 450,
+                                        sheight = screen.height, swidth = screen.width,
+                                        left = Math.round((swidth / 2) - (width / 2)),
+                                        top = 0;
+
+                                    if (sheight > height) {
+                                        top = Math.round((sheight / 2) - (height / 2));
+                                    }
+                                    window.open($(this).prop('href'), '', 'left=' + left + ',top=' + top + ',width=' + width + ',height=' + height + ',personalbar=0,toolbar=0,scrollbars=1,resizable=1');
+                                });
+                            });
+                        </script>
+                    {% endaddtoblock %}
                 {% endif %}
 
                 <hr class="big">
@@ -307,8 +148,8 @@
                     <h1 class="title"><span>Soggetti</span></h1>
 
                     <div class="row">
-                        {% include 'progetti/progetto_detail_soggetti.html' with titolo='Programmatore' soggetti=progetto.programmatori only %}
-                        {% include 'progetti/progetto_detail_soggetti.html' with titolo='Attuatore' soggetti=progetto.attuatori only %}
+                        {% include 'progetti/includes/progetto_detail_soggetti.html' with titolo='Programmatore' soggetti=progetto.programmatori only %}
+                        {% include 'progetti/includes/progetto_detail_soggetti.html' with titolo='Attuatore' soggetti=progetto.attuatori only %}
                     </div>
                 </section>
 
@@ -319,13 +160,13 @@
                         <h1 class="title"><span>Tempi</span></h1>
 
                         <div class="row">
-                            {% include 'progetti/progetto_detail_data.html' with titolo='Inizio previsto' data=progetto.data_inizio_prevista only %}
-                            {% include 'progetti/progetto_detail_data.html' with titolo='Inizio effettivo' data=progetto.data_inizio_effettiva only %}
+                            {% include 'progetti/includes/progetto_detail_data.html' with titolo='Inizio previsto' data=progetto.data_inizio_prevista only %}
+                            {% include 'progetti/includes/progetto_detail_data.html' with titolo='Inizio effettivo' data=progetto.data_inizio_effettiva only %}
                         </div>
                         <hr>
                         <div class="row">
-                            {% include 'progetti/progetto_detail_data.html' with titolo='Fine prevista' data=progetto.data_fine_prevista only %}
-                            {% include 'progetti/progetto_detail_data.html' with titolo='Fine effettiva' data=progetto.data_fine_effettiva only %}
+                            {% include 'progetti/includes/progetto_detail_data.html' with titolo='Fine prevista' data=progetto.data_fine_prevista only %}
+                            {% include 'progetti/includes/progetto_detail_data.html' with titolo='Fine effettiva' data=progetto.data_fine_effettiva only %}
                         </div>
                     </section>
                 {% endif %}
@@ -333,17 +174,7 @@
                 <hr class="big">
 
                 <section>
-                    <div style="float: right; width: 46%; margin-left: 10px; margin-right: 10px">
-                        <h1 class="title" id="map-header">
-                            <div>
-                                Territorio
-                                {% for territorio in progetto.territori %}
-                                    <a href="{{ territorio.get_absolute_url }}" class="map-location" data-coords="{{ territorio.geom.centroid.coords|join:',' }}">{{ territorio.denominazione }}</a>{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
-                            </div>
-                        </h1>
-                        <div id="map" style="height: 250px; width: 100%; margin-bottom: 0.75em"></div>
-                    </div>
+                    {% include 'progetti/includes/progetto_detail_territori.html' %}
 
                     {% if not progetto.cipe_flag %}
                         <h3>Priorità QSN</h3>
@@ -385,44 +216,8 @@
                     </div>
 
                     <div class="row" style="height: 150px">
-                        <div class="span3">
-                            <div id="finanziamento_chart" style="width: 100%; height: 150px"></div>
-                            <table class="table" id="finanziamento_chart_table" style="margin-left: 25px">
-                                {% if progetto.fin_ue %}
-                                    <tr><th>Unione europea</th><td class="amount"><strong>{{ progetto.fin_ue|intcomma }}</strong> euro</td></tr>
-                                {% endif %}
-                                {% if progetto.fin_stato_fondo_rotazione %}
-                                    <tr><th>Fondo di Rotazione{% if progetto.is_fonte_fs_flag and progetto.fonte_fs_codice == 'FS0713' %} (Co-finanziamento nazionale){% endif %}</th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|intcomma }}</strong> euro</td></tr>
-                                {% endif %}
-                                {% if progetto.fin_stato_fsc %}
-                                    <tr><th>Fondo per lo Sviluppo e la Coesione 2007-2013</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|intcomma }}</strong> euro</td></tr>
-                                {% endif %}
-                                {% if progetto.fin_stato_pac %}
-                                    <tr><th>Fondo di Rotazione (Piano d’Azione per la Coesione)</th><td class="amount"><strong>{{ progetto.fin_stato_pac|intcomma }}</strong> euro</td></tr>
-                                {% endif %}
-                                {% if progetto.cipe_flag %}
-                                    <tr><th>Stato: {{ progetto.fonte.short_label }}</th><td class="amount"><strong>{{ progetto.fin_totale_pubblico|default_if_none:'0'|intcomma }}</strong> euro</td></tr>
-                                {% endif %}
-                                {% if progetto.fin_stato_altri_provvedimenti %}
-                                    <tr><th>Stato: altri provvedimenti</th><td class="amount"><strong>{{ progetto.fin_stato_altri_provvedimenti|intcomma }}</strong> euro</td></tr>
-                                {% endif %}
-                                {% if progetto.fin_regione %}
-                                    <tr><th>Regione</th><td class="amount"><strong>{{ progetto.fin_regione|intcomma }}</strong> euro</td></tr>
-                                {% endif %}
-                                {% if progetto.fin_provincia %}
-                                    <tr><th>Provincia</th><td class="amount"><strong>{{ progetto.fin_provincia|intcomma }}</strong> euro</td></tr>
-                                {% endif %}
-                                {% if progetto.fin_comune %}
-                                    <tr><th>Comune</th><td class="amount"><strong>{{ progetto.fin_comune|intcomma }}</strong> euro</td></tr>
-                                {% endif %}
-                                {% if progetto.fin_altro_pubblico %}
-                                    <tr><th>Altra fonte pubblica</th><td class="amount"><strong>{{ progetto.fin_altro_pubblico|intcomma }}</strong> euro</td></tr>
-                                {% endif %}
-                                {% if progetto.fin_risorse_liberate %}
-                                    <tr><th>Risorse liberate</th><td class="amount"><strong>{{ progetto.fin_risorse_liberate|intcomma }}</strong> euro</td></tr>
-                                {% endif %}
-                            </table>
-                        </div>
+                        {% include 'progetti/includes/progetto_detail_finanziamento.html' %}
+
                         <div class="span3">
                             {% if not progetto.cipe_flag %}
                                 <div class="block-chart" title="{{ cost_payments_ratio }} del totale">
@@ -433,17 +228,18 @@
 
                             {% if progetto.pagamenti or total_economie %}
                                 <table class="table" id="pagamenti_riassunto_chart_table" style="margin-left: 15px; width: 91%">
-                                    <tr><td colspan="2"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></td></tr>
+                                    {% if progetto.pagamenti %}
+                                        <tr><td colspan="2"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></td></tr>
+                                    {% endif %}
                                     {% if total_economie %}
                                         <tr><th>Economie</th><td class="amount"><strong>{{ total_economie|intcomma }}</strong> euro</td></tr>
                                     {% endif %}
                                 </table>
-                                <p style="text-align: center"></p>
-                                <table id="payments_chart_table" class="hide">
-                                    {% for pagamento in progetto.pagamenti %}
-                                        <tr><th>{{ pagamento.data|date:'N Y' }}</th><td>{{ pagamento.ammontare|floatformat:'2' }}</td><td>{{ pagamento.percentuale|floatformat:'2' }}</td></tr>
-                                    {% endfor %}
-                                </table>
+                                {% comment %}<p style="text-align: center"></p>{% endcomment %}
+
+                                {% if progetto.pagamenti %}
+                                    {% include 'progetti/includes/progetto_detail_pagamenti.html' %}
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -506,7 +302,7 @@
 
                             <table>
                                 <tr>
-                                    <td>Delibere CIPE</td>
+                                    <td><dt>Delibere CIPE</dt></td>
                                     <td style="padding-left: 0.5em">Assegnazioni</td>
                                 </tr>
                                 {% for assegnazione in progetto.assegnazioni_delibere %}
@@ -586,68 +382,19 @@
                 <div class="row">
                     <h3 class="span12">Altri progetti sul territorio</h3>
                 </div>
+
                 <div class="row">
-                    <div class="span6">
-                        <h1 class="title"><span>Stesso tema</span></h1>
-                        <table>
-                            {% for p in stesso_tema  %}
-                                <tr>
-                                    <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
-                                    <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                    <div class="span6">
-                        <h1 class="title"><span>Stessi attuatori</span></h1>
-                        <table>
-                            {% for p in stessi_attuatori  %}
-                                <tr>
-                                    <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
-                                    <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
+                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo='Stesso tema' progetti=progetti_stesso_tema only %}
+                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo='Stessi attuatori' progetti=progetti_stessi_attuatori only %}
                 </div>
 
                 <hr class="big">
 
                 <div class="row">
-                    <div class="span6">
-                        <h1 class="title"><span>Stessa natura dell'investimento</span></h1>
-                        <table>
-                            {% for p in stessa_natura  %}
-                                <tr>
-                                    <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
-                                    <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                    <div class="span6">
-                        <h1 class="title"><span>Stessi programmatori</span></h1>
-                        <table>
-                            {% for p in stessi_programmatori  %}
-                                <tr>
-                                    <td class="span6"><a href="{{ p.get_absolute_url }}">{{ p.titolo_progetto }}</a></td>
-                                    <td class="amount"><strong>{{ p.fin_totale_pubblico|intcomma }}</strong> euro</td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
+                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo="Stessa natura dell'investimento" progetti=progetti_stessa_natura only %}
+                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo='Stessi programmatori' progetti=progetti_stessi_programmatori only %}
                 </div>
             </div>
         </div>
     {% endif %}
-
-    <div class="modal hide" id="navigator">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">×</button>
-            <h3>Andamento dei pagamenti</h3>
-        </div>
-        <div class="modal-body">
-            <div id="payments_chart" style="width: 500px; height: 200px"></div>
-        </div>
-    </div>
 {% endblock %}

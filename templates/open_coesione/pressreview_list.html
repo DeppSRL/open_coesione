@@ -6,7 +6,7 @@
     <div class="flat_content">
         <h1>Cosa dicono di OpenCoesione</h1>
 
-        <br><br>
+        <br/><br/>
 
         {% for object in object_list %}
             <p>
@@ -21,7 +21,7 @@
 
             <p>di {{ object.author }} - {{ object.source }}, {{ object.published_at|date:'d M Y' }}</p>
 
-            <hr>
+            <hr/>
         {% endfor %}
     </div>
 {% endblock %}

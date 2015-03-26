@@ -1,5 +1,9 @@
 {% load sekizai_tags list_to_columns %}
 
+{% add_data 'js-data' 'js/bootstrap-dropdown.js' %}
+{% add_data 'js-data' 'js/oc-menu.js' %}
+{% add_data 'js-data' 'js/oc-territori-autocomplete.js' %}
+
 {% list_to_columns lista_regioni as colonne_regioni 3 %}
 
 <nav class="navbar navbar-full-width">
@@ -197,66 +201,3 @@
         </div>
     </div>
 </nav>
-
-{% addtoblock 'js' %}
-    <script>
-        $(document).ready(function() {
-            $('html').on('click.dropdown.data-api', function() {
-                $('.submenu').children('ul').removeClass('submenu-show').addClass('submenu-hide');
-            })
-
-            $('.submenu').on('click', function(e) {
-                $('.submenu').not($(this).parents('.submenu')).children('ul').removeClass('submenu-show').addClass('submenu-hide');
-                $(this).children('ul').removeClass('submenu-hide').addClass('submenu-show');
-                e.stopPropagation();
-            }).children('a').append(' &raquo; ');
-
-            $('#menu-search-type-selector').on('change', function() {
-                $(this).closest('form').attr('action', '/' + $(this).val() + '/').find('input').attr('placeholder', 'Cerca tra i ' +  $(this).val());
-
-                var is_territori = $(this).val() == 'territori';
-                $('#menu-search').toggle(!is_territori);
-                $('#menu-search-territori').toggle(is_territori);
-            }).trigger('change');
-        });
-    </script>
-
-    <script>
-        /*
-        * Autocompleter for the map and menu search field
-        */
-        $(document).ready(function() {
-            $('#menu-search-territori,#city,#map-city').on('focus', function() {
-                if (!$(this)._cleared) {
-                    $(this)._cleared = true;
-                    $(this).val('');
-                }
-            }).autocomplete({
-                source: function(request, response) {
-                    $.getJSON(
-                        '{% url 'territori_autocomplete' %}',
-                        {'query': request.term},
-                        function(data) {
-                            response($.map(data.territori, function(item) {
-                                return {
-                                    label: item.denominazione,
-                                    url: item.url
-                                }
-                            }));
-                        }
-                    );
-                },
-                minLength: 2,
-                select: function(event, ui) {
-                    window.location.href = ui.item.url;
-                },
-                open: function() {
-                    $(this).removeClass('ui-corner-all').addClass('ui-corner-top');
-                },
-                close: function() {
-                    $(this).removeClass('ui-corner-top').addClass('ui-corner-all');
-                }
-            }).css('z-index', 100000);
-        });
-    </script>
-{% endaddtoblock %}

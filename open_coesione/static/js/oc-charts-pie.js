@@ -39,8 +39,8 @@ var pie_chart_options = {
     series: [],
     credits: { enabled: false },
     colors: [
-        "#c1dccb", "#aed4bd", "#bae2d4", "#bee2cc", "#d0e2d7", "#cae7d5", "#afded4", "#d3ece2", "#dcefe2", "#91c9a8", "#e3f2e8", "#bde3d2", "#b3d7c9"
-        //"#ECE7DF", "#CAC7C3", "#979491", "#686462", "#2E2B2A", "#777777", "#AAAAAA", "#BBBBBB", "#CCCCCC", "#DDDDDD", "#EEEEEE"
+        '#c1dccb', '#aed4bd', '#bae2d4', '#bee2cc', '#d0e2d7', '#cae7d5', '#afded4', '#d3ece2', '#dcefe2', '#91c9a8', '#e3f2e8', '#bde3d2', '#b3d7c9'
+        //'#ECE7DF', '#CAC7C3', '#979491', '#686462', '#2E2B2A', '#777777', '#AAAAAA', '#BBBBBB', '#CCCCCC', '#DDDDDD', '#EEEEEE'
     ]
 };
 
@@ -82,6 +82,7 @@ var print_pie_chart = function( source, destination )
         series.data[ix][1] = series.data[ix][1] / total;
     });
     main_topics_options.series.push(series);
+    console.log(series);
 
     return new Highcharts.Chart(main_topics_options);
 };

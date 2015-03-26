@@ -52,7 +52,7 @@
 {% endblock %}
 
 {% block sidebar %}
-    {% include 'sidebar_filter.html' with tag_choices=tag_choices date_choices=date_choices base_url='blog_home' all_text='Tutte le news' only %}
+    {% include 'commons/sidebar_filter.html' with tag_choices=tag_choices date_choices=date_choices base_url='blog_home' all_text='Tutte le news' only %}
 
     {% if related_pillole %}
         <div class="flat_content">
