@@ -75,7 +75,7 @@
     {% addtoblock 'js' strip %}
         <script>
             $(document).ready(function() {
-                init_charts('#index_charts', '{% static 'dati_istat.html' %}', 1 ,{{ lista_regioni|length|add:1 }});
+                init_charts('#index_charts', '{% static '' %}', 1 ,{{ lista_regioni|length|add:1 }});
             });
         </script>
     {% endaddtoblock %}
