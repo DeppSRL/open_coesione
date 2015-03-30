@@ -30,7 +30,9 @@
         </div>
     </div>
 
-    {% addtoblock 'js_script' strip %}
+    {% add_data 'js-data' 'js/highcharts.js' %}
+    {% add_data 'js-data' 'js/oc-charts-pie.js' %}
+    {% addtoblock 'js' strip %}
         <script type="text/javascript">
             $(document).ready(function() {
                 print_pie_chart('#regions_chart_table', 'regions_chart');

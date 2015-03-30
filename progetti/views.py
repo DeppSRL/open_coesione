@@ -37,34 +37,25 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailVie
     def get_context_data(self, **kwargs):
         context = super(ProgettoView, self).get_context_data(**kwargs)
 
-        context['durata_progetto_effettiva'] = ''
-        context['durata_progetto_prevista'] = ''
-        if self.object.data_fine_effettiva and self.object.data_inizio_effettiva:
-            context['durata_progetto_effettiva'] = (self.object.data_fine_effettiva - self.object.data_inizio_effettiva).days
-        if self.object.data_fine_prevista and self.object.data_inizio_prevista:
-            context['durata_progetto_prevista'] = (self.object.data_fine_prevista - self.object.data_inizio_prevista).days
-
-        numero_collaboratori = 5
         if self.object.territori:
+            numero_collaboratori = 5
             altri_progetti_nei_territori = Progetto.fullobjects.exclude(codice_locale=self.object.codice_locale).nei_territori(self.object.territori).distinct().order_by('-fin_totale_pubblico')
-            context['stesso_tema'] = altri_progetti_nei_territori.con_tema(self.object.tema)[:numero_collaboratori]
-            context['stessa_natura'] = altri_progetti_nei_territori.con_natura(self.object.classificazione_azione)[:numero_collaboratori]
-            context['stessi_attuatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.attuatori)[:numero_collaboratori]
-            context['stessi_programmatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.programmatori)[:numero_collaboratori]
+            context['progetti_stesso_tema'] = altri_progetti_nei_territori.con_tema(self.object.tema)[:numero_collaboratori]
+            context['progetti_stessa_natura'] = altri_progetti_nei_territori.con_natura(self.object.classificazione_azione)[:numero_collaboratori]
+            context['progetti_stessi_attuatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.attuatori)[:numero_collaboratori]
+            context['progetti_stessi_programmatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.programmatori)[:numero_collaboratori]
 
-        context['total_cost'] = float(self.object.fin_totale_pubblico) if self.object.fin_totale_pubblico else 0.0
-        context['total_net_cost'] = float(self.object.fin_totale_pubblico_netto) if self.object.fin_totale_pubblico_netto else context['total_cost']
-        context['total_economie'] = float(self.object.economie_totali_pubbliche) if self.object.economie_totali_pubbliche else 0.0
-        context['total_cost_paid'] = float(self.object.pagamento) if self.object.pagamento else 0.0
+        context['total_cost'] = float(self.object.fin_totale_pubblico or 0)
+        context['total_cost_paid'] = float(self.object.pagamento or 0)
+        context['total_economie'] = float(self.object.economie_totali_pubbliche or 0)
 
         # calcolo della percentuale del finanziamento erogato
-        context['cost_payments_ratio'] = '{0:.0%}'.format(context['total_cost_paid'] / context['total_net_cost'] if context['total_net_cost'] > 0.0 else 0.0)
+        total_net_cost = float(self.object.fin_totale_pubblico_netto or self.object.fin_totale_pubblico or 0)
+        context['cost_payments_ratio'] = '{0:.0%}'.format(context['total_cost_paid'] / total_net_cost if total_net_cost > 0.0 else 0.0)
 
         context['segnalazioni_pubblicate'] = self.object.segnalazioni
 
-        overlapping = Progetto.fullobjects.filter(overlapping_projects=self.object)
-        context['n_overlapping_projects'] = overlapping.count()
-        context['overlapping_projects'] = overlapping
+        context['overlapping_projects'] = Progetto.fullobjects.filter(overlapping_projects=self.object)
 
         return context
 

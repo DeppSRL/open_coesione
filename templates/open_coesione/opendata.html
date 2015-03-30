@@ -1,6 +1,6 @@
 {% extends 'base_two_columns.html' %}
 
-{% load staticfiles sekizai_tags %}
+{% load sekizai_tags %}
 
 {% block page_title %}Open data{% endblock %}
 
@@ -389,13 +389,8 @@
         </div>
     </div>
 
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/oc-opendata.js' %}"></script>
-    {% endaddtoblock %}
-
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/oc-ga-downloads.js' %}"></script>
-    {% endaddtoblock %}
+    {% add_data 'js-data' 'js/oc-opendata.js' %}
+    {% add_data 'js-data' 'js/oc-ga-downloads.js' %}
 {% endblock %}
 
 {% block sidebar %}

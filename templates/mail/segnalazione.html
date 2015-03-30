@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Email da {{ utente }}</title>
+    <title>Email da {{ utente }}</title>
 </head>
 <body>
     <header>
-      <h1>Segnalazione relativa al progetto con CUP: {{ cup}}</h1>
-      <strong>Inviata dall'utente:{{ utente }}</strong>
-      <br>
-      <i>{{ organizzazione }}</i>
-      <p>
-          <a href="{{ segnalazione_url }}">link alla segnalazione</a>
-          (backend, è necessario autenticarsi)
-      </p>
-      {% if progetto_url %}
-          <p><a href="{{ progetto_url }}">link al progetto</a> (frontend)</p>
-      {% endif %}
+        <h1>Segnalazione relativa al progetto con CUP: {{ cup}}</h1>
+        <strong>Inviata dall'utente:{{ utente }}</strong>
+        <br>
+        <i>{{ organizzazione }}</i>
+        <p><a href="{{ segnalazione_url }}">link alla segnalazione</a> (backend, è necessario autenticarsi)</p>
+        {% if progetto_url %}
+            <p><a href="{{ progetto_url }}">link al progetto</a> (frontend)</p>
+        {% endif %}
     </header>
 
     {% if descrizione.value %}
@@ -57,10 +54,5 @@
         <h4>{{ quanto_utile.label }}</h4>
         <p>{{ quanto_utile.value }}</p>
    {% endif %}
-
-
-
-
-
 </body>
 </html>

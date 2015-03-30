@@ -1,111 +1,80 @@
 {% extends 'base_two_columns.html' %}
-{% load highlight %}
-{% load i18n %}
-{% load utils %}
-{% load digg_paginator %}
-{% load humanize %}
+
+{% load staticfiles sekizai_tags digg_paginator utils %}
+
 {% block page_title %}Elenco soggetti {% endblock page_title %}
 {% block page_description %}Elenco dei soggetti, navigabile a faccette, con possibilità di ricerca testuale.{% endblock page_description %}
 
-{% block css_header %}
-    {{ block.super }}
-    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/digg_paginator.css">
-{% endblock %}
-
 {% block content %}
     {% if n_results %}
-
-        <section style="clear: both;">
+        <section style="clear: both">
             <h3>Trovati {{ n_results }} soggetti</h3>
 
             <hr class="big">
 
             <table class="search-results table">
                 <thead>
-                <tr>
-                  <th>Ruolo</th>
-                  <th>Denominazione</th>
-                  <th class="text-right">Finanziamenti (&euro;)</th>
-                  <th class="text-right">Progetti</th>
-                </tr>
+                    <tr>
+                        <th>Ruolo</th>
+                        <th>Denominazione</th>
+                        <th class="text-right">Finanziamenti (€)</th>
+                        <th class="text-right">Progetti</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {% for result in page_obj.object_list %}
-                    <tr>
-                        <!-- ruoli -->
-                        <td class="span1">
-                            {% for r in result.ruolo %}
-                                {{ ruolo.denominazione|key:r }}<br/>
-                            {% endfor %}
-                        </td>
-
-                        <!-- denomination -->
-                        <td class="span5">
-                            {{ result.rendered|safe }}
-                        </td>
-
-                        <!-- finanziamenti -->
-                        <td class="amount span1"><strong>{{ result.costo|default:"0.0"|floatformat:2 }}</strong></td>
-
-                        <td class="amount span1"><strong>{{ result.n_progetti|default:"0" }}</strong></td>
-                    </tr>
-                {% endfor %}
+                    {% for result in page_obj.object_list %}
+                        <tr>
+                            <td class="span1">
+                                {% for r in result.ruolo %}
+                                    {{ ruolo.denominazione|key:r }}<br/>
+                                {% endfor %}
+                            </td>
+                            <td class="span5">
+                                {{ result.rendered|safe }}
+                            </td>
+                            <td class="amount span1">
+                                <strong>{{ result.costo|default:'0.0'|floatformat:'2' }}</strong>
+                            </td>
+                            <td class="amount span1">
+                                <strong>{{ result.n_progetti|default:'0' }}</strong>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </section>
 
+        {% addtoblock 'css' strip %}
+            <link rel="stylesheet" href="{% static 'css/digg_paginator.css' %}" />
+        {% endaddtoblock %}
+
         {% digg_paginator %}
-
-
     {% else %}
         <p>Nessun risultato trovato.</p>
     {% endif %}
-
 {% endblock %}
 
 {% block sidebar %}
     <div class="flat_content">
         <h4>Cerca tra i soggetti</h4>
-        <form method="get" action="{% url 'soggetti_search' %}" class="form-search form-condensed">
-            <div class="control-group input-append">
-              {%  spaceless %}
-                <input id="query" type="text" class="input-medium search-query" name="{{ form.q.html_name }}"
-                       value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
-                <span id="clear-query" class="btn add-on  "><i class="icon-remove"></i></span>
-              {%  endspaceless %}
-            </div>
-            <div class="control-group input-append">
-                {%  spaceless %}
-                  <input id="location" type="text" class="input-large search-query"
-                         value="{% if territorio %}{{ territorio }}{% endif %}"
-                         placeholder="Inserisci il territorio"/>
-                  <span id="clear-location" class="btn add-on"><i class="icon-remove"></i></span>
-                {%  endspaceless %}
-            </div>
 
-            <input id="territorio-com" name="{{ form.territorio_com.html_name }}"
-                   value="{% if form.territorio_com.value %}{{ form.territorio_com.value }}{% endif %}" type="hidden"/>
-            <input id="territorio-prov" name="{{ form.territorio_prov.html_name }}"
-                   value="{% if form.territorio_prov.value %}{{ form.territorio_prov.value }}{% endif %}" type="hidden"/>
-            <input id="territorio-reg" name="{{ form.territorio_reg.html_name }}"
-                   value="{% if form.territorio_reg.value %}{{ form.territorio_reg.value }}{% endif %}" type="hidden"/>
-            <button id="search-button" type="submit" class="btn"><i class="icon-search"></i> Cerca</button>
+        <form method="get" action="{% url 'soggetti_search' %}" class="form-search form-condensed">
+            {% include 'commons/search_form.html' %}
         </form>
 
-        <br>
+        <br/>
 
         {% if n_results %}
-            <!-- Begin faceting. -->
             {% if selected_facets %}
                 <h3>Modifica i filtri</h3>
-                {% for facet in selected_facets  %}
+                {% for facet in selected_facets %}
                     {% if facet.field == 'ruolo' and facets.fields.ruolo.is_field_selected %}
                         <dt>Ruoli</dt>
                         <dd>
                             <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
                             {{ ruolo.denominazione|key:facet.r_label|safe }}
                         </dd>
-                    {%  endif %}
+                    {% endif %}
                     {% if facet.field == 'tema' and facets.fields.tema.is_field_selected %}
                         <dt>Tema</dt>
                         <dd>
@@ -130,11 +99,12 @@
                 {% endfor %}
             {% else %}
                 <h4>Filtra</h4>
-                <p>Puoi trovare il soggetto scorrendo la lista degli ultimi pubblicati, qui sotto.
-                    Puoi perfezionare la ricerca usando i filtri nella colonna qui a destra, oppure puoi usare il form di
-                    ricerca con una parola che pensi sia contenuta nella denominazione del soggetto o con il suo codice fiscale.,
-                    in cima a questa colonna</p>
+                <p>
+                    Puoi trovare il soggetto scorrendo la lista, qui al lato. Puoi perfezionare la ricerca usando i filtri qui sotto,
+                    oppure puoi usare il form di ricerca con una parola che pensi sia contenuta nella denominazione del soggetto o con il suo codice fiscale, in cima a questa colonna.
+                </p>
             {% endif %}
+
             <div>
                 <dl>
                     {% if facets.fields.ruolo and not facets.fields.ruolo.is_field_selected %}
@@ -143,8 +113,8 @@
                             {% if t.1 %}
                                 <dd>
                                     {% if not t.2 %}
-                                        <a href="{{ base_url }}&selected_facets=ruolo:{{ t.0|urlencode }}"
-                                           title="{{ ruolo.denominazione|key:t.0 }}">{{ ruolo.denominazione|key:t.0 }}</a> ({{ t.1 }})
+                                        <a href="{{ base_url }}&selected_facets=ruolo:{{ t.0|urlencode }}" title="{{ ruolo.denominazione|key:t.0 }}">{{ ruolo.denominazione|key:t.0 }}</a>
+                                        ({{ t.1 }})
                                     {% endif %}
                                 </dd>
                             {% endif %}
@@ -158,8 +128,8 @@
                             {% if t.1 %}
                                 <dd>
                                     {% if not t.2 %}
-                                        <a href="{{ base_url }}&selected_facets=tema:{{ t.0|urlencode }}"
-                                           title="{{ tema.descrizione|key:t.0 }}">{{ tema.short_label|key:t.0 }}</a> ({{ t.1 }})
+                                        <a href="{{ base_url }}&selected_facets=tema:{{ t.0|urlencode }}" title="{{ tema.descrizione|key:t.0 }}">{{ tema.short_label|key:t.0 }}</a>
+                                        ({{ t.1 }})
                                     {% endif %}
                                 </dd>
                             {% endif %}
@@ -171,106 +141,24 @@
                         <dt>Finanziamenti</dt>
                         {% for range in facet_queries_costo.ranges %}
                             <dd>
-                                <a href="{{ base_url }}&selected_facets={{ range.key }}">
-                                    {{ range.label|safe }}
-                                </a> ({{ range.count }})
+                                <a href="{{ base_url }}&selected_facets={{ range.key }}">{{ range.label|safe }}</a>
+                                ({{ range.count }})
                             </dd>
                         {% endfor %}
                     {% endif %}
                 </dl>
-
                 <dl>
                     {% if not facet_queries_n_progetti.is_selected %}
                         <dt>Numero di progetti</dt>
                         {% for range in facet_queries_n_progetti.ranges %}
                             <dd>
-                                <a href="{{ base_url }}&selected_facets={{ range.key }}">
-                                    {{ range.label|safe }}
-                                </a> ({{ range.count }})
+                                <a href="{{ base_url }}&selected_facets={{ range.key }}">{{ range.label|safe }}</a>
+                                ({{ range.count }})
                             </dd>
                         {% endfor %}
                     {% endif %}
                 </dl>
-
-
             </div>
-            <!-- End faceting -->
         {% endif %}
     </div>
-{% endblock %}
-
-{% block js_content %}
-    {{ block.super }}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('#location').focus(function(){
-                if ($(this)._cleared) return;
-                $(this).val('');
-                $(this)._cleared = true;
-            });
-
-
-            $( "#location" ).autocomplete({
-                source: function( request, response ) {
-                    $.getJSON(
-                            "/territori/autocomplete/",
-                            {'query': request.term },
-                            function( data ) {
-                                response( $.map( data.territori, function( item ) {
-                                    return {
-                                        label: item.denominazione,
-                                        url: item.url,
-                                        cod_com: item.cod_com,
-                                        cod_prov: item.cod_prov,
-                                        cod_reg: item.cod_reg
-                                    }
-                                }));
-                            }
-                    );
-                },
-                minLength: 2,
-                select: function( event, ui ) {
-                    $('#territorio-com').val(ui.item.cod_com);
-                    $('#territorio-prov').val(ui.item.cod_prov);
-                    $('#territorio-reg').val(ui.item.cod_reg);
-                },
-                open: function() {
-                    $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-                },
-                close: function() {
-                    $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-                }
-            }).css('z-index', 10000);
-
-            function handle_keydown(event) {
-                // track enter key
-                var keycode = (event.keyCode ? event.keyCode : (event.which ? event.which : event.charCode));
-                if (keycode == 13) { // keycode for enter key
-                    // force the 'Enter Key' to implicitly click the Update button
-                    document.getElementById('search-button').click();
-                    return false;
-                } else  {
-                    return true;
-                }
-            } // end of function
-
-            $("#query").bind("keydown", handle_keydown);
-            $("#location").bind("keydown", handle_keydown);
-
-            $( "#clear-location").click( function (){
-                $("#location").val('');
-                $('#territorio-com').val('');
-                $('#territorio-prov').val('');
-                $('#territorio-reg').val('');
-                document.getElementById('search-button').click();
-                return false;
-            });
-            $( "#clear-query").click( function (){
-                $("#query").val('');
-                document.getElementById('search-button').click();
-                return false;
-            });
-
-        });
-    </script>
 {% endblock %}

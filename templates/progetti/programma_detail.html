@@ -47,8 +47,9 @@
                     </li>
                 {% endfor %}
             </ul>
-            {% addtoblock 'js_script' strip %}
-                <script type="text/javascript">
+
+            {% addtoblock 'js' strip %}
+                <script>
                     $(document).ready(function() {
                         var elem = $('#extra-resources').hide();
                         $('<span class="icon-align-justify" style="margin-left: 100px"> <a href="#">Visualizza documenti e collegamenti</a></span>').appendTo(elem.prev()).find('a').on('click', function(e) {

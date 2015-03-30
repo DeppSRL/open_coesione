@@ -48,9 +48,12 @@
                                         <div id="topic_chart" style="height: 270px"></div>
                                         <form action="#">
                                             <div class="input-append text-center">
-                                                <select id="region-selector" class="span3">
-                                                    <option value=""> -- Confronta le regioni -- </option>
-                                                </select><a id="region-reset" class="btn add-on" href="#">reset</a>
+                                                {% spaceless %}
+                                                    <select id="region-selector" class="span3">
+                                                        <option value=""> -- Confronta le regioni -- </option>
+                                                    </select>
+                                                    <a id="region-reset" class="btn add-on" href="#">reset</a>
+                                                {% endspaceless %}
 
                                                 <select id="indicator-selector" class="span5"></select>
                                             </div>
@@ -65,23 +68,14 @@
         </div>
     </section>
 
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/highcharts.js' %}"></script>
-        <script src="{% static 'js/charts.js' %}"></script>
-    {% endaddtoblock %}
-
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/bootstrap-collapse.js' %}"></script>
-    {% endaddtoblock %}
-
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/oc-indicatori.js' %}"></script>
-    {% endaddtoblock %}
-
-    {% addtoblock 'js_script' strip %}
+    {% add_data 'js-data' 'js/bootstrap-collapse.js' %}
+    {% add_data 'js-data' 'js/highcharts.js' %}
+    {% add_data 'js-data' 'js/oc-charts.js' %}
+    {% add_data 'js-data' 'js/oc-indicatori.js' %}
+    {% addtoblock 'js' strip %}
         <script>
             $(document).ready(function() {
-                init_charts('#index_charts', '{% static '' %}', 1 ,{{ lista_regioni|length|add:1 }});
+                init_charts('#index_charts', '{% static 'dati_istat.html' %}', 1 ,{{ lista_regioni|length|add:1 }});
             });
         </script>
     {% endaddtoblock %}

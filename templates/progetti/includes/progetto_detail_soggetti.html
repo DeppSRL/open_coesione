@@ -1,0 +1,18 @@
+<div class="span3">
+    {% for soggetto in soggetti %}
+        {% if forloop.first %}
+            <h4 class="title">{{ titolo }}</h4>
+        {% endif %}
+
+        {% spaceless %}
+            {% if soggetto.has_progetti %}
+                <a href="{{ soggetto.get_absolute_url }}"><strong>{{ soggetto }}</strong></a>
+            {% else %}
+                <strong>{{ soggetto }}</strong>
+            {% endif %}
+            {% if not forloop.last %},{% endif %}
+        {% endspaceless %}
+    {% empty %}
+        &nbsp;
+    {% endfor %}
+</div>

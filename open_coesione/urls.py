@@ -61,10 +61,12 @@ urlpatterns = patterns('',
     url(r'^cerca-un-soggetto/', TemplateView.as_view(template_name='flat/cerca_soggetto.html')),
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
     url(r'^info-disponibili/', TemplateView.as_view(template_name='flat/info_disponibili.html')),
-    url(r'^dati-istat-di-contesto/$', TemplateView.as_view(template_name='flat/dati_istat.html'), name='dati-istat'),
-    url(r'^pac/', RisorsaView.as_view(template_name='flat/pac.html'), name='pac'),
-    url(r'^api-faq/', RisorsaView.as_view(template_name='flat/api.html'), name='api-faq'),
-    url(r'^spesa-certificata/', RisorsaView.as_view(template_name='flat/spesa_certificata.html'), name='spesa-certificata'),
+    url(r'^api-faq/', TemplateView.as_view(template_name='flat/api.html'), name='api-faq'),
+
+    url(r'^dati-istat-di-contesto/$', TemplateView.as_view(template_name='open_coesione/dati_istat.html'), name='dati-istat'),
+
+    url(r'^pac/', RisorsaView.as_view(template_name='open_coesione/pac.html'), name='pac'),
+    url(r'^spesa-certificata/', RisorsaView.as_view(template_name='open_coesione/spesa_certificata.html'), name='spesa-certificata'),
 
     url(r'^segui/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
 

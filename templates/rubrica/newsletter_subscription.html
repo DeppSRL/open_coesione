@@ -2,24 +2,11 @@
 
 {% block page_title %}Seguici{% endblock %}
 
-{% block sidebar %}
-    <p>
-        Seguici sui nostri canali <em>social</em>
-    </p>
-    <ul id="social_links">
-        <li><a class="twitter" href="https://twitter.com/OpenCoesione">Twitter</a>
-            <a href="https://twitter.com/OpenCoesione">@OpenCoesione</a> su Twitter</li>
-        <li><a class="vimeo" href="https://vimeo.com/channels/787486">Vimeo</a>
-            il <a href="https://vimeo.com/channels/787486">canale OpenCoesione</a> su Vimeo</li>
-        <li><a class="slideshare" href="http://www.slideshare.net/OpenCoesione">SlideShare</a>
-            le slide di <a href="http://www.slideshare.net/OpenCoesione">OpenCoesione</a> su SlideShare</li>
-    </ul>
-{% endblock %}
-
 {% block content %}
     <div class="flat_content">
         <h1>La newsletter di OpenCoesione</h1>
-        <hr>
+
+        <hr/>
 
         {% if nl_form_submitted %}
             <p class="well">Grazie per averci inviato i tuoi contatti, riceverai al più presto una nostra mail</p>
@@ -115,4 +102,13 @@
             </form>
         {% endif %}
     </div>
+{% endblock %}
+
+{% block sidebar %}
+    <p>Seguici sui nostri canali <em>social</em></p>
+    <ul id="social_links">
+        <li><a class="twitter" href="https://twitter.com/OpenCoesione">Twitter</a> <a href="https://twitter.com/OpenCoesione">@OpenCoesione</a> su Twitter</li>
+        <li><a class="vimeo" href="https://vimeo.com/channels/787486">Vimeo</a> il <a href="https://vimeo.com/channels/787486">canale OpenCoesione</a> su Vimeo</li>
+        <li><a class="slideshare" href="http://www.slideshare.net/OpenCoesione">SlideShare</a> le slide di <a href="http://www.slideshare.net/OpenCoesione">OpenCoesione</a> su SlideShare</li>
+    </ul>
 {% endblock %}

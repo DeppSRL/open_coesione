@@ -1,0 +1,61 @@
+{% load sekizai_tags humanize %}
+
+{% add_data 'js-data' 'js/highcharts.js' %}
+{% add_data 'js-data' 'js/oc-charts-pie.js' %}
+
+{% addtoblock 'js' strip %}
+    <script>
+        var pie_chart_options = $.extend(false, {}, pie_chart_options, {
+            tooltip: {
+                formatter: function() {
+                    return '<b>' + this.point.name + '</b>: ' + this.percentage.toFixed(2) + ' %';
+                },
+                useHTML: true
+            }
+        });
+
+        $(document).ready(function() {
+            print_pie_chart('#finanziamento_chart_table', 'finanziamento_chart');
+        });
+    </script>
+{% endaddtoblock %}
+
+<div class="span3">
+    <div id="finanziamento_chart" style="width: 100%; height: 150px"></div>
+
+    <table class="table" id="finanziamento_chart_table" style="margin-left: 25px">
+        {% if progetto.fin_ue %}
+            <tr><th>Unione europea</th><td class="amount"><strong>{{ progetto.fin_ue|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_stato_fondo_rotazione %}
+            <tr><th>Fondo di Rotazione{% if progetto.is_fonte_fs_flag and progetto.fonte_fs_codice == 'FS0713' %} (Co-finanziamento nazionale){% endif %}</th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_stato_fsc %}
+            <tr><th>Fondo per lo Sviluppo e la Coesione 2007-2013</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_stato_pac %}
+            <tr><th>Fondo di Rotazione (Piano d’Azione per la Coesione)</th><td class="amount"><strong>{{ progetto.fin_stato_pac|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.cipe_flag %}
+            <tr><th>Stato: {{ progetto.fonte.short_label }}</th><td class="amount"><strong>{{ progetto.fin_totale_pubblico|default_if_none:'0'|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_stato_altri_provvedimenti %}
+            <tr><th>Stato: altri provvedimenti</th><td class="amount"><strong>{{ progetto.fin_stato_altri_provvedimenti|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_regione %}
+            <tr><th>Regione</th><td class="amount"><strong>{{ progetto.fin_regione|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_provincia %}
+            <tr><th>Provincia</th><td class="amount"><strong>{{ progetto.fin_provincia|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_comune %}
+            <tr><th>Comune</th><td class="amount"><strong>{{ progetto.fin_comune|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_altro_pubblico %}
+            <tr><th>Altra fonte pubblica</th><td class="amount"><strong>{{ progetto.fin_altro_pubblico|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+        {% if progetto.fin_risorse_liberate %}
+            <tr><th>Risorse liberate</th><td class="amount"><strong>{{ progetto.fin_risorse_liberate|intcomma }}</strong> euro</td></tr>
+        {% endif %}
+    </table>
+</div>

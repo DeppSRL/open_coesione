@@ -4,6 +4,26 @@
 
 {% block page_title %}Homepage{% endblock %}
 
+{% block top_content %}
+    <div id="claim-container">
+        <a class="block-chart block-gray pull-right" href="{% url 'fonti-finanziamento' %}">
+            <strong class="title">Risorse totali 2007-2013</strong>
+            <p>99,286 miliardi <span>di euro</span></p>
+            <i class="icon-share-alt"></i>
+        </a>
+
+        <p id="claim">
+            OpenCoesione è il portale sull'attuazione dei progetti finanziati dalle politiche di coesione in Italia.
+            Sono navigabili dati su risorse assegnate e spese, localizzazioni, ambiti tematici, soggetti
+            programmatori e attuatori, tempi di realizzazione e pagamenti dei singoli progetti. Tutti possono così
+            valutare come le risorse vengono utilizzate rispetto ai bisogni dei territori.
+
+            I dati pubblicati sono aggiornati al <b>31/12/2014</b> e riguardano
+            <a href="{% url 'soggetti_search' %}">{{ numero_soggetti|intcomma }} soggetti</a>
+        </p>
+    </div>
+{% endblock %}
+
 {% block container %}
     {{ block.super }}
 
@@ -15,7 +35,7 @@
                         <h1 class='title'><span>Pillole di OpenCoesione</span></h1>
 
                         <p>
-                            {{ pillola.published_at|date:'d/m/Y' }}
+                            {{ pillola.published_at|date:'SHORT_DATE_FORMAT' }}
                             <br/>
                             <a href="{{ pillola.get_absolute_url }}" style="text-transform: uppercase">{{ pillola.title }}</a>
                         </p>
@@ -33,7 +53,7 @@
                         {% if pillola.abstract %}
                             {{ pillola.abstract|safe }}
                         {% endif %}
-                        <p><i class="icon-chevron-right"></i> <a href="{% url 'pillole' %}">Vai a tutte le Pillole di OpenCoesione</a></p>
+                        <p><span class="icon-chevron-right"> <a href="{% url 'pillole' %}">Vai a tutte le Pillole di OpenCoesione</a></span></p>
                     </div>
                 </div>
             </section>
@@ -45,8 +65,7 @@
 
                 <p style="padding-top: 1em"><img src="{% static 'img/home/indicatori.png' %}" alt="Indicatori territoriali e tematici"></p>
                 <p style="margin-top: 20px;">In quale contesto socio-economico si attuano le politiche di coesione?</p>
-                <p style="position: absolute; bottom: 0; margin-bottom: 2em">
-                    <i class="icon-chevron-right"></i> <a href="{% url 'dati-istat' %}">Consulta gli indicatori territoriali e tematici</a></p>
+                <p style="position: absolute; bottom: 0; margin-bottom: 2em"><span class="icon-chevron-right"> <a href="{% url 'dati-istat' %}">Consulta gli indicatori territoriali e tematici</a></span></p>
             </section>
 
             <section class="span4">
@@ -54,8 +73,7 @@
 
                 <p style="padding-top: 1em"><img src="{% static 'img/home/opendata.png' %}" alt="Open Data"></p>
                 <p style="margin-top: 20px;">I dati completi (con extra info rispetto a quanto si visualizza!) sui progetti del portale e sul contesto delle politiche di coesione.</p>
-                <p style="position: absolute; bottom: 0; margin-bottom: 2em">
-                    <i class="icon-chevron-right"></i> <a href="{% url 'opendata' %}">I dati aperti di OpenCoesione</a></p>
+                <p style="position: absolute; bottom: 0; margin-bottom: 2em"><span class="icon-chevron-right"> <a href="{% url 'opendata' %}">I dati aperti di OpenCoesione</a></span></p>
             </section>
 
             <section class="span4">
@@ -68,8 +86,7 @@
                     <div class="span6"><a href="http://www.monithon.it"><img src="{% static 'img/home/monithon.png' %}" alt="Monithon"></a></div>
                 </div>
 
-                <p style="position: absolute; bottom: 0; margin-bottom: 2em">
-                    <i class="icon-chevron-right"></i> <a href="/sollecita/">Partecipazione e riuso</a></p>
+                <p style="position: absolute; bottom: 0; margin-bottom: 2em"><span class="icon-chevron-right"> <a href="/sollecita/">Partecipazione e riuso</a></span></p>
             </section>
         </div>
 
@@ -85,7 +102,7 @@
                     eguaglianza di opportunità e di qualità della vita nei diversi territori.
                 </p>
 
-                <p style="position: absolute; bottom: 0; margin-bottom: 0"><i class="icon-chevron-right"></i> <a href="{% url 'fonti-finanziamento' %}">Approfondisci</a></p>
+                <p style="position: absolute; bottom: 0; margin-bottom: 0"><span class="icon-chevron-right"> <a href="{% url 'fonti-finanziamento' %}">Approfondisci</a></span></p>
             </section>
 
             <section class="span6">
@@ -100,21 +117,19 @@
                     I target di spesa sono stati raggiunti da 49 Programmi Operativi su 52.
                 </p>
 
-                <p style="position: absolute; bottom: 0; margin-bottom: 0"><i class="icon-chevron-right"></i> <a href="{% url 'spesa-certificata' %}">Approfondisci</a></p>
+                <p style="position: absolute; bottom: 0; margin-bottom: 0"><span class="icon-chevron-right"> <a href="{% url 'spesa-certificata' %}">Approfondisci</a></span></p>
             </section>
         </div>
     </div>
 
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/jquery.matchHeight-min.js' %}"></script>
-    {% endaddtoblock %}
-    {% addtoblock 'js_script' strip %}
-        <script type="text/javascript">//<![CDATA[
+    {% add_data 'js-data' 'js/jquery.matchHeight-min.js' %}
+    {% addtoblock 'js' strip %}
+        <script>
             $(document).ready(function() {
                 $('.row').each(function() {
                     $(this).children('section').matchHeight();
                 });
-            });//]]>
+            });
         </script>
     {% endaddtoblock %}
 {% endblock %}
@@ -140,32 +155,12 @@
             <ul class='spaced'>
                 {% for progetto in ultimi_progetti_conclusi %}
                     <li>
-                        {{ progetto.data_fine_effettiva|date:'d/m/Y' }}
+                        {{ progetto.data_fine_effettiva|date:'SHORT_DATE_FORMAT' }}
                         <br/>
                         <a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a>
                     </li>
                 {% endfor %}
             </ul>
         </section>
-    </div>
-{% endblock %}
-
-{% block top_content %}
-    <div id="claim-container">
-        <a class="block-chart block-gray pull-right" href="{% url 'fonti-finanziamento' %}">
-            <strong class="title">Risorse totali 2007-2013</strong>
-            <p>99,286 miliardi <span>di euro</span></p>
-            <i class="icon-share-alt"></i>
-        </a>
-
-        <p id="claim">
-            OpenCoesione è il portale sull'attuazione dei progetti finanziati dalle politiche di coesione in Italia.
-            Sono navigabili dati su risorse assegnate e spese, localizzazioni, ambiti tematici, soggetti
-            programmatori e attuatori, tempi di realizzazione e pagamenti dei singoli progetti. Tutti possono così
-            valutare come le risorse vengono utilizzate rispetto ai bisogni dei territori.
-
-            I dati pubblicati sono aggiornati al <b>31/12/2014</b> e riguardano
-            <a href="{% url 'soggetti_search' %}">{{ numero_soggetti|intcomma }} soggetti</a>
-        </p>
     </div>
 {% endblock %}

@@ -6,7 +6,7 @@
 {% block page_title %}{{ block.super }}Widget{% if widget %} {{ widget.name }}{% endif %}{% endblock %}
 
 {% block container %}
-{% addtoblock "css_link" %}
+{% addtoblock "css" %}
 <style type="text/css">
 #widget-builder ul { list-style: none; margin-left: 0;}
 #widget-builder.form-horizontal .control-label { width: 90px; }
@@ -16,66 +16,8 @@
 </style>
 {% endaddtoblock %}
 
-
-<div class="container">
-	{% if widget %}
-	<div class="page-header">
-		<h2><a href="{% url 'widgets-select' %}" class="muted">Widgets</a> &raquo; {% block widget_title %}{{ widget.name }}{% endblock %}</h2>
-	</div>
-
-	<div class="row">
-    <div class="span4">
-      <form id="widget-builder" class="form-horizontal" action="." method="get">
-			  <fieldset>
-
-				  <legend>Configurazione</legend>
-          {{ widget.get_form|bootstrap }}
-			    <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Genera</button>
-          </div>
-
-			  </fieldset>
-			</form>
-		</div>
-		<div class="span8">
-
-			<form>
-				<fieldset>
-
-					<legend id="preview">Anteprima</legend>
-          <div class="well text-center" id="embed_code_preview">{{ widget.get_embed_code }}</div>
-          {% if widget.is_valid %}
-          <textarea name="embed_code" id="id_embed_code" rows="4" class="input-block-level">{{ widget.get_embed_code|force_escape }}</textarea>
-          <div class="muted">Copia e incolla il codice nell'HTML del tuo sito.</div>
-          {% endif %}
-
-				</fieldset>
-			</form>
-		</div>
-	</div>
-
-	{% else %}
-
-	<div class="page-header">
-		<h3>Seleziona un widget</h3>
-	</div>
-	<div class="row">
-		<div class="span12">
-			{% for code, title in available_widgets %}
-			<a class="btn" href="{% url 'widgets-build' widget=code %}">{{ title }}</a>
-			{% endfor %}
-		</div>
-	</div>
-	{% endif %}
-</div>
-{% endblock %}
-
-
-{% block js_content %}
-{{ block.super }}
-{% addtoblock "js_script" %}
+{% addtoblock "js" %}
 	<script type="text/javascript" src="{{ STATIC_URL }}js/underscore-min.js"></script>
-{% endaddtoblock %}
 <script type="text/javascript">
 
 
@@ -203,4 +145,58 @@
 	});
 
 </script>
-{% endblock js_content %}
+{% endaddtoblock %}
+
+
+<div class="container">
+	{% if widget %}
+	<div class="page-header">
+		<h2><a href="{% url 'widgets-select' %}" class="muted">Widgets</a> &raquo; {% block widget_title %}{{ widget.name }}{% endblock %}</h2>
+	</div>
+
+	<div class="row">
+    <div class="span4">
+      <form id="widget-builder" class="form-horizontal" action="." method="get">
+			  <fieldset>
+
+				  <legend>Configurazione</legend>
+          {{ widget.get_form|bootstrap }}
+			    <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Genera</button>
+          </div>
+
+			  </fieldset>
+			</form>
+		</div>
+		<div class="span8">
+
+			<form>
+				<fieldset>
+
+					<legend id="preview">Anteprima</legend>
+          <div class="well text-center" id="embed_code_preview">{{ widget.get_embed_code }}</div>
+          {% if widget.is_valid %}
+          <textarea name="embed_code" id="id_embed_code" rows="4" class="input-block-level">{{ widget.get_embed_code|force_escape }}</textarea>
+          <div class="muted">Copia e incolla il codice nell'HTML del tuo sito.</div>
+          {% endif %}
+
+				</fieldset>
+			</form>
+		</div>
+	</div>
+
+	{% else %}
+
+	<div class="page-header">
+		<h3>Seleziona un widget</h3>
+	</div>
+	<div class="row">
+		<div class="span12">
+			{% for code, title in available_widgets %}
+			<a class="btn" href="{% url 'widgets-build' widget=code %}">{{ title }}</a>
+			{% endfor %}
+		</div>
+	</div>
+	{% endif %}
+</div>
+{% endblock %}

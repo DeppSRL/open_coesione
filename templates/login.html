@@ -1,9 +1,7 @@
-{% extends "base_one_column.html" %}
-{% block js_content %}{%  endblock %}
+{% extends 'base_one_column.html' %}
 
 {% block content %}
-
-     <div id="login-box" style="width: 25%; margin: 6em auto;">
+     <div id="login-box" style="width: 25%; margin: 6em auto">
          {% if form.errors %}
              <p>Nome utente e password errati</p>
          {% endif %}
@@ -21,9 +19,8 @@
                  </tr>
              </table>
 
-             <input type="submit" value="login" style="float: right; margin-right: 2em"/>
+             <input type="submit" value="login" style="float: right; margin-right: 2em" />
              <input type="hidden" name="next" value="{{ next }}" />
          </form>
      </div>
-
 {% endblock %}

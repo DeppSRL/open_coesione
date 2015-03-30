@@ -1,30 +1,24 @@
 <html>
 <head>
-  <script type="text/javascript" src="/static/js/jquery-1.7.2.min.js"></script>
-  <script type="text/javascript" src="/static/js/highcharts.js"></script>
-  <script type="text/javascript" src="/static/js/charts.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/static/js/highcharts.js"></script>
+    <script type="text/javascript" src="/static/js/oc-charts.js"></script>
 </head>
 <body>
+    <h1>Indicatori per il tema {{ tema.descrizione }} [{{ tema.codice }}] in {{ territorio }} [{{ territorio.cod_reg }}]</h1>
 
-  <h1>Indicatori per il tema {{ tema.descrizione }} [{{ tema.codice }}] in {{ territorio }} [{{ territorio.cod_reg }}]</h1>
+    <div id="topic_chart" data-topic="{{ tema.codice }}" data-location="{{ territorio.cod_reg }}"></div>
+    <select id="region-selector">
+        <option value="">-- Confronta con una regione --</option>
+    </select>
+    <a id="region-reset" href="#">reset</a>
+    <br/>
+    <select id="indicator-selector"></select>
 
-  <div id="topic_chart" data-topic="{{ tema.codice }}" data-location="{{ territorio.cod_reg }}"></div>
-  <select id="region-selector">
-    <option value="">-- Confronta con una regione --</option>
-  </select>
-  <a id="region-reset" href="#">reset</a>
-  <br/>
-  <select id="indicator-selector"></select>
-
-  <script type="text/javascript">
-
-
-
-    $(document).ready(function() {
-
-      print_line_chart('#topic_chart');
-
-    });
-  </script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            print_line_chart('#topic_chart');
+        });
+    </script>
 </body>
 </html>

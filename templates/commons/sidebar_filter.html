@@ -1,10 +1,9 @@
 {% if date_choices or tag_choices %}
     <div class="flat_content">
         <h4><a href="{% url base_url %}">{{ all_text }}</a></h4>
+
         {% if date_choices %}
-            <h4>
-                Filtra per data di pubblicazione
-            </h4>
+            <h4>Filtra per data di pubblicazione</h4>
             <ul>
                 {% for date_choice in date_choices %}
                     <li>
@@ -17,10 +16,9 @@
                 {% endfor %}
             </ul>
         {% endif %}
+
         {% if tag_choices %}
-            <h4>
-                Filtra per tag
-            </h4>
+            <h4>Filtra per tag</h4>
             <ul>
                 {% for tag_choice in tag_choices %}
                     <li>

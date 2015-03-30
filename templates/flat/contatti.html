@@ -3,71 +3,60 @@
 {% block page_title %}Contatti{% endblock %}
 
 {% block content %}
-  <div class="flat_content">
+    <div class="flat_content">
+        <h1>Contatti</h1>
 
-    <h1>Contatti</h1>
+        <p>
+            Il sito è amministrato dal <a href="http://www.dps.gov.it/it/index.html" target="">Dipartimento per lo sviluppo e la coesione economica</a>
+        </p>
+        <ul class="spaced" style="margin-left: 20px">
+            <li><strong>Sede:</strong> Via Sicilia, 162/C - 00187 Roma</li>
+            <li>Per contattare il <a href="/team">team</a>, scrivi a <a href="mailto:opencoesione@dps.gov.it ">opencoesione@dps.gov.it </a></li>
+            <li>Per seguirci e contattarci su twitter: <a href="https://twitter.com/OpenCoesione">@OpenCoesione</a></li>
+        </ul>
+        <p>
+            Indicazioni, domande e suggerimenti costituiscono contributi fondamentali e apprezzati per migliorare il progetto OpenCoesione.<br/>
+            Per richiedere informazioni, fornire suggerimenti, indicare una modalità di ri-utilizzo dei dati tramite
+            nuove visualizzazioni o applicazioni o segnalare una discordanza sui dati, utilizza il modulo sottostante.
+        </p>
 
-    <p>
-      Il sito è amministrato dal <a href="http://www.dps.gov.it/it/index.html" target="">Dipartimento per lo sviluppo e la coesione economica</a>
-    </p>
-    <ul class="spaced" style="margin-left:20px;">
-      <li><strong>Sede:</strong> Via Sicilia, 162/C - 00187 Roma</li>
-      <li>Per contattare il <a href="/team">team</a>, scrivi a <a href="mailto:opencoesione@dps.gov.it ">opencoesione@dps.gov.it </a></li>
-      <li>Per seguirci e contattarci su twitter: <a href="https://twitter.com/OpenCoesione">@OpenCoesione</a></li>
-    </ul>
-    <p>
+        <hr/>
 
-      Indicazioni, domande e suggerimenti costituiscono contributi fondamentali e apprezzati per migliorare il progetto OpenCoesione.
-
-      <br>
-      Per richiedere informazioni, fornire suggerimenti, indicare una modalità di ri-utilizzo dei dati tramite
-      nuove visualizzazioni o applicazioni o segnalare una discordanza sui dati, utilizza il modulo sottostante.
-
-    </p>
-
-    <hr>
-
-    {% if contact_form_submitted %}
-      <p class="well">Grazie per averci contattato, la nostra redazione leggerà il tuo messaggio il prima possibile</p>
-    {% else %}
-
-    <form action="{% url 'oc-contatti' %}" id="" method="post" class="form-horizontal">
-      {% csrf_token %}
-      <div class="row-fluid clearfix">
-        <fieldset class="span6">
-      {% for field in contact_form %}
-        {% if not forloop.last %}
-          <div class="control-group {% if field.errors %}error{% endif %}">
-            <label for="{{ field.html_name }}" class="control-label">{{ field.label }}:</label>
-            <div class="controls">
-              {{ field }}
-              {% if field.errors %}<div class="help-block">{{ field.errors }}</div>{% endif %}
-            </div>
-          </div>
+        {% if contact_form_submitted %}
+            <p class="well">Grazie per averci contattato, la nostra redazione leggerà il tuo messaggio il prima possibile</p>
         {% else %}
-        </fieldset>
-        <fieldset class="span6">
-          <div class="control-group {% if field.errors %}error{% endif %}" style="margin-left: 20px;">
-            <label for="{{ field.html_name }}" class="">{{ field.label }}:</label>
-            <div class="">
-              <textarea name="{{ field.html_name }}" id="{{ field.html_name }}" class="input-xlarge" cols="30" rows="10">{{ field.value|default_if_none:'' }}</textarea>
-              {% if field.errors %}<div class="help-block">{{ field.errors }}</div>{% endif %}
-            </div>
-          </div>
-        </fieldset>
+            <form action="{% url 'oc-contatti' %}" id="" method="post" class="form-horizontal">
+                {% csrf_token %}
+                <div class="row-fluid clearfix">
+                    <fieldset class="span6">
+                        {% for field in contact_form %}
+                            {% if not forloop.last %}
+                                <div class="control-group {% if field.errors %}error{% endif %}">
+                                    <label for="{{ field.html_name }}" class="control-label">{{ field.label }}:</label>
+                                    <div class="controls">
+                                        {{ field }}
+                                        {% if field.errors %}<div class="help-block">{{ field.errors }}</div>{% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                </fieldset>
+                                <fieldset class="span6">
+                                    <div class="control-group {% if field.errors %}error{% endif %}" style="margin-left: 20px">
+                                        <label for="{{ field.html_name }}" class="">{{ field.label }}:</label>
+                                        <div class="">
+                                            <textarea name="{{ field.html_name }}" id="{{ field.html_name }}" class="input-xlarge" cols="30" rows="10">{{ field.value|default_if_none:'' }}</textarea>
+                                            {% if field.errors %}<div class="help-block">{{ field.errors }}</div>{% endif %}
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            {% endif %}
+                        {% endfor %}
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-info" type="submit">Invia</button>
+                    <button class="btn" type="reset">Annulla</button>
+                </div>
+            </form>
         {% endif %}
-      {% endfor %}
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-info" type="submit">Invia</button>
-        <button class="btn" type="reset">Annulla</button>
-      </div>
-    </form>
-
-  {% endif %}
-
-  </div>
-
+    </div>
 {% endblock %}
-
-{% block sidebar %}{% endblock %}

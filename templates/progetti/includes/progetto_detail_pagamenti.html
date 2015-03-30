@@ -1,0 +1,86 @@
+{% load sekizai_tags %}
+
+{% add_data 'js-data' 'js/bootstrap-modal.js' %}
+{% add_data 'js-data' 'js/highcharts.js' %}
+
+{% addtoblock 'js' strip %}
+    <script>
+        $(document).ready(function() {
+            var serie = {
+                'data': [],
+                'key_to_value': {}
+            };
+            var line_options = {
+                chart: {
+                    renderTo: 'payments_chart',
+                    type: 'spline',
+                    backgroundColor: null
+                },
+                title: {
+                    text: ''
+                },
+                xAxis: {
+                    categories: [],
+                    labels: {rotation: -90, y: 40}
+                },
+                yAxis: {
+                    title: { text: '% pagamenti' },
+                    min: 0, max: 100
+                },
+                series: [{
+                    name: 'Pagamenti',
+                    data: []
+                }],
+                credits: {
+                    enabled: false
+                },
+                legend: {
+                    enabled: false
+                },
+                tooltip: {
+                    valueDecimals: 2,
+                    formatter: function() {
+                        return '' + this.x + ': ' + Highcharts.numberFormat(this.y, 2, ',', '.') + '% <br/>Pagamento: ' + Highcharts.numberFormat(serie['key_to_value'][this.x], 2, ',', '.') + ' euro';
+                    }
+                }
+            };
+
+            $('#payments_chart_table').find('tr').map(function() {
+                var values = $('th, td, td', this).map(function() { return $(this).text() });
+                if (line_options['xAxis']['categories'].indexOf(values[0]) == -1) {
+                    line_options['xAxis']['categories'].push(values[0]);
+                }
+                serie['key_to_value'][values[0]] = parseFloat(values[1].replace(/\./g, '').replace(',', '.'));
+                serie['data'].push(parseFloat(values[2].replace(/\./g, '').replace(',', '.')));
+            });
+            line_options['series'][0]['data'] = serie['data'];
+
+            var payment_chart = false;
+
+            var $navigator = $('#navigator');
+            $navigator.modal('hide');
+            $('#payments_chart_link').on('click', function() {
+                if (!payment_chart) {
+                    payment_chart = new Highcharts.Chart($.extend(true, {}, line_options, {}));
+                }
+                $navigator.modal('show');
+            });
+        });
+    </script>
+{% endaddtoblock %}
+
+<table id="payments_chart_table" class="hide">
+    {% for pagamento in progetto.pagamenti %}
+        <tr><th>{{ pagamento.data|date:'N Y' }}</th><td>{{ pagamento.ammontare|floatformat:'2' }}</td><td>{{ pagamento.percentuale|floatformat:'2' }}</td></tr>
+    {% endfor %}
+</table>
+
+<div class="modal hide" id="navigator">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        <h3>Andamento dei pagamenti</h3>
+    </div>
+    <div class="modal-body">
+        <div id="payments_chart" style="width: 500px; height: 200px"></div>
+    </div>
+</div>

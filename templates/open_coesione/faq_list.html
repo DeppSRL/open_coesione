@@ -1,6 +1,6 @@
 {% extends 'base_two_columns.html' %}
 
-{% load staticfiles sekizai_tags %}
+{% load sekizai_tags %}
 
 {% block page_title %}{{ title }}{% endblock %}
 
@@ -8,7 +8,7 @@
     <div class="flat_content" id="faq_list">
         <h1>{{ title }}</h1>
 
-        <hr>
+        <hr/>
 
         {% for object in object_list %}
             <div id="{{ object.slug }}" class="faq">
@@ -18,7 +18,5 @@
         {% endfor %}
     </div>
 
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/oc-faq.js' %}"></script>
-    {% endaddtoblock %}
+    {% add_data 'js-data' 'js/oc-faq.js' %}
 {% endblock %}

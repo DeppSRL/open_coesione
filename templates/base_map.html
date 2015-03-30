@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% load staticfiles sekizai_tags humanize search_url_filters template_functions %}
+{% load staticfiles sekizai_tags humanize search_url_filters %}
 
 {% block container %}
     <div class="container" id="content-header">
@@ -108,6 +108,16 @@
 
                     <p>Dati espressi in <strong>{% if tematizzazione == 'totale_progetti' %}numero di progetti{% else %}euro{% endif %}</strong></p>
 
+                    {% add_data 'js-data' 'js/highcharts.js' %}
+                    {% add_data 'js-data' 'js/oc-charts-pie.js' %}
+                    {% addtoblock 'js' strip %}
+                        <script type="text/javascript">
+                            $(document).ready(function() {
+                                $('#main_topics').length && print_pie_chart('#main_topics', 'main_topics_chart');
+                                $('#main_types').length && print_pie_chart('#main_types', 'main_types_chart');
+                            });
+                        </script>
+                    {% endaddtoblock %}
                 </div>
 
                 <div class="span6" id="map_container">
@@ -136,7 +146,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <div id="map"{% if territorio.is_comune %} style="height: 400px"{% endif %}></div>
+                        <div id="map" data-mapselector="{{ map_selector }}"{% if territorio.is_comune %} style="height: 400px"{% endif %}></div>
                         <div id="map-search">
                             <form class="form-search content">
                                 <div class="input-append">
@@ -145,6 +155,24 @@
                                 </div>
                             </form>
                         </div>
+
+                        {% add_data 'js-data' 'leaflet-dist/leaflet.js' %}
+                        {% add_data 'js-data' 'js/jquery-loader.js' %}
+                        {% add_data 'js-data' 'js/oc-maps.js' %}
+                        {% add_data 'js-data' 'js/oc-territori-autocomplete.js' %}
+
+                        {% addtoblock 'css' strip %}
+                            <link rel="stylesheet" href="{% static 'leaflet-dist/leaflet.css' %}" />
+                            <!--[if lte IE 8]>
+                                <link rel="stylesheet" href="{% static 'leaflet-dist/leaflet.ie.css' %}" />
+                            <![endif]-->
+                            <link rel="stylesheet" href="{% static 'css/map-styles.css' %}" />
+                            <style type="text/css">
+                                {% for class, color in map_legend_colors.items %}
+                                    .{{ class }} i { color: {{ color }}; }
+                                {% endfor %}
+                            </style>
+                        {% endaddtoblock %}
                     {% endblock %}
                 </div>
             </div>
@@ -219,96 +247,4 @@
             {% endblock %}
         </div>
     </div>
-
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/highcharts.js' %}"></script>
-        <script src="{% static 'js/charts.js' %}"></script>
-    {% endaddtoblock %}
-
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'leaflet-dist/leaflet.js' %}"></script>
-        <script src="{% static 'js/jquery-loader.js' %}"></script>
-        <script src="{% static 'js/oc-maps.js' %}"></script>
-    {% endaddtoblock %}
-
-    {% addtoblock 'js_script' strip %}
-        <script>
-            $(document).ready(function() {
-                $('#main_topics').length && print_pie_chart('#main_topics', 'main_topics_chart');
-                $('#main_types').length && print_pie_chart('#main_types', 'main_types_chart');
-            });
-        </script>
-    {% endaddtoblock %}
-
-    {% addtoblock 'js_script' strip %}
-        <script>
-            var MAPPA, MAPPA_LAYER, MAPPA_MONDO, MAPPA_ONCLICK, MAPPA_POPUP, MAPPA_CACHE = {}, IS_LOADING = false;
-
-            $(document).ready(function() {
-                // costo or pagamento or numero
-                if (!$('#map').length) {
-                    return;
-                }
-
-                var selectors1 = $('#selectors');
-                var selectors2 = $('#procapite_selectors');
-
-                var layer_name = selectors1.find('.btn.active').prop('id');
-                var dataset_name = $('#map-layer-selector').find('.block-chart.block-active').data('dataset');
-
-                var data_url = function() {
-                    return '/territori/leaflet/{{ map_selector }}' + selectors1.find('.btn.active').data('path') + '.json?tematizzazione=' + dataset_name + selectors2.find('.btn.active').data('path');
-                }
-
-                build_map('map', data_url(), function(data) {
-                    if (data.layer_name == 'world') {
-                        // marker added if necessary
-                        var marker = selectors1.find('.btn.active').data('coords');
-                        if (marker) {
-                            marker = marker.split(',');
-                            MAPPA.addLayer(new L.Circle(new L.LatLng(marker[1], marker[0]), 30 * 1000, {
-                                color: '#343434'
-                            }));
-                        }
-                    }
-                });
-
-                $([selectors1, selectors2]).each(function() {
-                    $(this).find('.btn').on('click', function() {
-                        var self = $(this);
-
-                        if (!IS_LOADING && !self.hasClass('active')) {
-                            IS_LOADING = true;
-
-                            self.attr('disabled', true).addClass('active').siblings().removeClass('active');
-
-                            // close popup if opened
-                            MAPPA_POPUP && MAPPA.closePopup(MAPPA_POPUP);
-
-                            build_map('map', data_url(), function() {
-                                self.attr('disabled', false);
-                                IS_LOADING = false;
-                            });
-                        }
-                    });
-                });
-            });
-        </script>
-    {% endaddtoblock %}
-
-    {% addtoblock 'css_link' strip %}
-        <link rel="stylesheet" href="{% static 'css/map-styles.css' %}" />
-        <link rel="stylesheet" href="{% static 'leaflet-dist/leaflet.css' %}" />
-        <!--[if lte IE 8]>
-            <link rel="stylesheet" href="{% static 'leaflet-dist/leaflet.ie.css' %}" />
-        <![endif]-->
-    {% endaddtoblock %}
-
-    {% addtoblock 'css_link' strip %}
-        <style type="text/css">
-            {% for class, color in map_legend_colors.items %}
-                .{{ class }} i { color:{{ color }}; }
-            {% endfor %}
-        </style>
-    {% endaddtoblock %}
 {% endblock %}
