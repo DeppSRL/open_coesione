@@ -129,27 +129,29 @@ Type 'yes' to continue, or 'no' to cancel: """.format("\n".join(REQUIRED_PATHS))
 
         FORCE_UPDATE = options.get('forceupdate')
 
-        latest_istat_archive_file_path = sorted(glob.glob(
-            os.path.join(OPEN_DATA_PATH, "Indicatori_regionali_*.zip")
-        ))[-1]
+        latest_istat_archive_file_path = 'http://www.istat.it/storage/politiche-sviluppo/Archivio_unico_indicatori_regionali.zip'
 
-        current_istat_archive_file_path = ""
-        if os.path.isfile(CURRENT):
-            with open(CURRENT, 'r') as current:
-                # read content of .current file
-                current_istat_archive_file_path = current.read()
-
-        archive_processed = (current_istat_archive_file_path == latest_istat_archive_file_path)
-        if archive_processed and not FORCE_UPDATE:
-            self.logger.info("Archive '{0}' has been already processed. \n"
-                              "No updates availables. Use --force-update to re-process\n".format(latest_istat_archive_file_path))
-            return
+        # latest_istat_archive_file_path = sorted(glob.glob(
+        #     os.path.join(OPEN_DATA_PATH, "Indicatori_regionali_*.zip")
+        # ))[-1]
+        #
+        # current_istat_archive_file_path = ""
+        # if os.path.isfile(CURRENT):
+        #     with open(CURRENT, 'r') as current:
+        #         # read content of .current file
+        #         current_istat_archive_file_path = current.read()
+        #
+        # archive_processed = (current_istat_archive_file_path == latest_istat_archive_file_path)
+        # if archive_processed and not FORCE_UPDATE:
+        #     self.logger.info("Archive '{0}' has been already processed. \n"
+        #                       "No updates availables. Use --force-update to re-process\n".format(latest_istat_archive_file_path))
+        #     return
 
         self.process_archive(latest_istat_archive_file_path)
 
-        with open(CURRENT, 'w') as current:
-            # update .current file
-            current.write(latest_istat_archive_file_path)
+        # with open(CURRENT, 'w') as current:
+        #     # update .current file
+        #     current.write(latest_istat_archive_file_path)
 
         if options.get('collectstatic'):
             # if everything ok collect-static
@@ -157,14 +159,18 @@ Type 'yes' to continue, or 'no' to cancel: """.format("\n".join(REQUIRED_PATHS))
             management.call_command('collectstatic', interactive=False, verbosity=verbosity)
 
     def process_archive(self, archive_path, encoding=DPS_ENCODING):
-        """Directly uncompress the content of the zipped archive
-           and process it, splitting the information, and writing CSV files
         """
+        Directly uncompress the content of the zipped archive
+        and process it, splitting the information, and writing CSV files
+        """
+        import urllib, cStringIO
+
         self.logger.info("Process archive: {0}\n".format(archive_path))
 
-        zfile = zipfile.ZipFile(archive_path)
-        # archive contains only one file
-        csv_stream = zfile.read(zfile.namelist().pop(0)).decode(encoding).encode('utf8')
+        zipwebfile = urllib.urlopen(archive_path)
+        buffer = cStringIO.StringIO(zipwebfile.read())
+        zfile = zipfile.ZipFile(buffer)
+        csv_stream = zfile.read('Archivio_unico_indicatori_regionali.csv').decode(encoding).encode('utf8')
         self.split_csv(csv_stream)
         zfile.close()
 

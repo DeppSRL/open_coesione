@@ -404,19 +404,19 @@ class OpendataView(TemplateView):
         ])
 
         context['oc_metadata_file'] = self.get_complete_localfile('Metadati_OC.xls')
-        context['oc_utility_metadata_file'] = self.get_complete_localfile('Utility Metadati OC.xlsx')
+        context['oc_utility_metadata_file'] = self.get_complete_localfile('Utility Metadati OC.xls')
 
         context['metadata_file'] = self.get_complete_localfile('Metadati_attuazione.xls')
-        context['utility_metadata_file'] = self.get_complete_localfile('Utility Metadati Attuazione.xlsx')
+        context['utility_metadata_file'] = self.get_complete_localfile('Utility Metadati Attuazione.xls')
 
         context['spesa_dotazione_file'] = self.get_complete_localfile('Dotazioni_Certificazioni.xls')
         context['spesa_target_file'] = self.get_complete_localfile('Target_Risultati.xls')
 
         # context['istat_data_file'] = self.get_complete_localfile('Indicatori_regionali.zip')
-        context['istat_metadata_file'] = self.get_complete_localfile('Metainformazione.xls')
+        # context['istat_metadata_file'] = self.get_complete_localfile('Metainformazione.xls')
         istat_path = 'http://www.istat.it/storage/politiche-sviluppo/{0}'
         context['istat_data_file'] = self.get_complete_remotefile(istat_path.format('Archivio_unico_indicatori_regionali.zip'))
-        # context['istat_metadata_file'] = self.get_complete_remotefile(istat_path.format('Metainformazione.xlsx'))
+        context['istat_metadata_file'] = self.get_complete_remotefile(istat_path.format('Metainformazione.xls'))
 
         context['indagine_data_file'] = self.get_complete_localfile('indagine_data.zip')
         context['indagine_metadata_file'] = self.get_complete_localfile('indagine_metadata.xls')
