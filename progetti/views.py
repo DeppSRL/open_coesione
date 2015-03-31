@@ -50,8 +50,8 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailVie
         context['total_economie'] = float(self.object.economie_totali_pubbliche or 0)
 
         # calcolo della percentuale del finanziamento erogato
-        total_net_cost = float(self.object.fin_totale_pubblico_netto or self.object.fin_totale_pubblico or 0)
-        context['cost_payments_ratio'] = '{0:.0%}'.format(context['total_cost_paid'] / total_net_cost if total_net_cost > 0.0 else 0.0)
+        fin_totale_pubblico_netto = float(self.object.fin_totale_pubblico_netto or self.object.fin_totale_pubblico or 0)
+        context['cost_payments_ratio'] = '{0:.0%}'.format(context['total_cost_paid'] / fin_totale_pubblico_netto if fin_totale_pubblico_netto > 0.0 else 0.0)
 
         context['segnalazioni_pubblicate'] = self.object.segnalazioni
 
@@ -601,7 +601,7 @@ class CSVSearchResultsWriterMixin(object):
             'COD_LOCALE_PROGETTO', 'CUP',
             'OC_TITOLO_PROGETTO',
             'OC_TEMA_SINTETICO', 'CUP_DESCR_NATURA',
-            'TIPO_PROGETTO',
+            'OC_TIPO_PROGETTO',
             'FINANZ_UE',
             'FINANZ_STATO_FONDO_ROTAZIONE', 'FINANZ_STATO_FSC', 'FINANZ_STATO_PAC', 'FINANZ_STATO_ALTRI_PROVVEDIMENTI',
             'FINANZ_REGIONE', 'FINANZ_PROVINCIA', 'FINANZ_COMUNE',

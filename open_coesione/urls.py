@@ -4,7 +4,7 @@ from django.conf import settings
 from django.views.generic.base import TemplateView
 from open_coesione.views import HomeView, FondiView, RisorsaView, ContactView, SpesaCertificataGraficiView, \
     OpendataView, OpendataRedirectView, PillolaListView, PillolaDetailView, PillolaRedirectView, DocumentsRedirectView,\
-    FAQListView, PressReviewListView
+    FAQListView, PressReviewListView, DatiISTATView
 from rubrica.views import NLContactView
 from filebrowser.sites import site
 
@@ -63,7 +63,7 @@ urlpatterns = patterns('',
     url(r'^info-disponibili/', TemplateView.as_view(template_name='flat/info_disponibili.html')),
     url(r'^api-faq/', TemplateView.as_view(template_name='flat/api.html'), name='api-faq'),
 
-    url(r'^dati-istat-di-contesto/$', TemplateView.as_view(template_name='open_coesione/dati_istat.html'), name='dati-istat'),
+    url(r'^dati-istat-di-contesto/$', DatiISTATView.as_view(template_name='open_coesione/dati_istat.html'), name='dati-istat'),
 
     url(r'^pac/', RisorsaView.as_view(template_name='open_coesione/pac.html'), name='pac'),
     url(r'^spesa-certificata/', RisorsaView.as_view(template_name='open_coesione/spesa_certificata.html'), name='spesa-certificata'),
