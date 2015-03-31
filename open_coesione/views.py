@@ -299,8 +299,17 @@ class ContactView(TemplateView):
         return self.get(request, *args, **kwargs)
 
 
+class DatiISTATView(TemplateView):
+    def get_context_data(self, **kwargs):
+        context = super(DatiISTATView, self).get_context_data(**kwargs)
+
+        istat_path = 'http://www.istat.it/storage/politiche-sviluppo/{0}'
+        context['istat_metadata_file'] = OpendataView.get_complete_remotefile(istat_path.format('Metainformazione.xls'))
+
+        return context
+
+
 class OpendataView(TemplateView):
-    @cached_context
     def get_context_data(self, **kwargs):
         context = super(OpendataView, self).get_context_data(**kwargs)
 
