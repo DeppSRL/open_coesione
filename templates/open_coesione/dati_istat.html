@@ -22,7 +22,7 @@
                     <p>
                         Alla pagina <a href="{% url 'opendata' %}">Open data</a> puoi scaricare il file completo degli Indicatori
                         (con disaggregazioni per territorio, priorità, asse e tema sintetico) e di seguito puoi visualizzare
-                        i grafici relativi ad una selezione di circa 50 indicatori, raggruppati per
+                        i grafici relativi ad una <a href="{{ istat_metadata_file.file_name }}">selezione di circa 50 indicatori</a> (xls, {{ istat_metadata_file.file_size|filesizeformat }}), raggruppati per
                         <a href="{% url 'faq-it' %}#come-vengono-classificati-i-progetti-nei-13-temi-sintetici">tema sintetico</a>.
                     </p>
                 </div>
