@@ -6,7 +6,7 @@
     <div class="page-header">
         <h1 class="title black"><span>Natura: {{ tipologia.short_label }}</span></h1>
         <p style="padding: 0 25px">
-            <span class="icon-align-justify"> <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}">Vai a tutti i progetti</a></span>
+            <span class="icon-align-justify"> <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice|slugify|default:'ND' }}">Vai a tutti i progetti</a></span>
         </p>
     </div>
 {% endblock %}
