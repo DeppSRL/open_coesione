@@ -418,6 +418,8 @@ class OpendataView(TemplateView):
         context['metadata_file'] = self.get_complete_localfile('Metadati_attuazione.xls')
         context['utility_metadata_file'] = self.get_complete_localfile('Utility Metadati Attuazione.xls')
 
+        context['cipe_metadata_file'] = self.get_complete_localfile('Metadati_Assegnazioni_CIPE.xls')
+
         context['spesa_dotazione_file'] = self.get_complete_localfile('Dotazioni_Certificazioni.xls')
         context['spesa_target_file'] = self.get_complete_localfile('Target_Risultati.xls')
 

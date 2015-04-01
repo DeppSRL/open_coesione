@@ -44,10 +44,9 @@ var line_chart_options = {
     xAxis: {
         showLastLabel: true,
         type: 'datetime',
-        dateTimeLabelFormats: {
-            month: '%Y',
-            year: '%Y'
-        }
+        units: [
+            ['year', null]
+        ]
     },
     yAxis: {
         title: {
