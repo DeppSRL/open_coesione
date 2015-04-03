@@ -51,10 +51,10 @@
             <p>
                 I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che gestiscono i fondi, aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_)
                 che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
-                Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
+                Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> ({{ raccordo_temi_sintetici_file.file_ext }}, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
             </p>
             <p>
-                Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. Qui trovi il <a href="{{ oc_utility_metadata_file.file_name }}">file utility</a> (xls, {{ oc_utility_metadata_file.file_size|filesizeformat }}) per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
+                Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. Qui trovi il <a href="{{ oc_utility_metadata_file.file_name }}">file utility</a> ({{ oc_utility_metadata_file.file_ext }}, {{ oc_utility_metadata_file.file_size|filesizeformat }}) per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
             </p>
 
             {% for section_code, section in oc_sections.items %}
@@ -62,7 +62,7 @@
                     <thead>
                         <tr>
                             <td class="label">{{ section.name|capfirst }}</td>
-                            <td><a href="{{ section.complete_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
+                            <td><a href="{{ section.complete_file.file_name }}">> [<i class="icon-download-alt"></i> {{ section.complete_file.file_ext }} {{ section.complete_file.file_size|filesizeformat }}]</a></td>
                             <td class="switcher" data-target="oc-{{ section.name }}-reg"><a href="#">Regioni [<i></i>]</a></td>
                         </tr>
                     </thead>
@@ -70,7 +70,7 @@
                     <tbody id="oc-{{ section.name }}-reg">
                         {% for regional_file in section.regional_files %}
                             <tr>
-                                <td colspan="3"><a href="{{ regional_file.file_name }}">> {{ regional_file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ regional_file.file_size|filesizeformat }}]</a></td>
+                                <td colspan="3"><a href="{{ regional_file.file_name }}">> {{ regional_file.region_name }} [<i class="icon-download-alt"></i> {{ regional_file.file_ext }} {{ regional_file.file_size|filesizeformat }}]</a></td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -80,7 +80,7 @@
             <table class="table">
                 <tr>
                     <td class="label">Metadati</td>
-                    <td><a href="{{ oc_metadata_file.file_name }}">>[<i class="icon-download-alt"></i> xls {{ oc_metadata_file.file_size|filesizeformat }}]</a></td>
+                    <td><a href="{{ oc_metadata_file.file_name }}">>[<i class="icon-download-alt"></i> {{ oc_metadata_file.file_ext }} {{ oc_metadata_file.file_size|filesizeformat }}]</a></td>
                     <td></td>
                 </tr>
             </table>
@@ -107,10 +107,10 @@
                 <p>
                     I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che gestiscono i fondi, aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_)
                     che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
-                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
+                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> ({{ raccordo_temi_sintetici_file.file_ext }}, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
                 </p>
                 <p>
-                    Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. Qui trovi il <a href="{{ utility_metadata_file.file_name }}">file utility</a> (xls, {{ utility_metadata_file.file_size|filesizeformat }}) per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
+                    Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. Qui trovi il <a href="{{ utility_metadata_file.file_name }}">file utility</a> ({{ utility_metadata_file.file_ext }}, {{ utility_metadata_file.file_size|filesizeformat }}) per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
                 </p>
 
                 {% for section_code, section in fs_sections.items %}
@@ -118,7 +118,7 @@
                         <thead>
                             <tr>
                                 <td class="label">{{ section.name|capfirst }}</td>
-                                <td><a href="{{ section.complete_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
+                                <td><a href="{{ section.complete_file.file_name }}">> [<i class="icon-download-alt"></i> {{ section.complete_file.file_ext }} {{ section.complete_file.file_size|filesizeformat }}]</a></td>
                                 <td class="switcher" data-target="fs-{{ section.name }}-reg"><a href="#">Regioni [<i></i>]</a></td>
                             </tr>
                         </thead>
@@ -126,7 +126,7 @@
                         <tbody id="fs-{{ section.name }}-reg">
                             {% for regional_file in section.regional_files %}
                                 <tr>
-                                    <td colspan="3"><a href="{{ regional_file.file_name }}">> {{ regional_file.region_name }} [<i class="icon-download-alt"></i> zip/csv {{ regional_file.file_size|filesizeformat }}]</a></td>
+                                    <td colspan="3"><a href="{{ regional_file.file_name }}">> {{ regional_file.region_name }} [<i class="icon-download-alt"></i> {{ regional_file.file_ext }} {{ regional_file.file_size|filesizeformat }}]</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -136,7 +136,7 @@
                 <table class="table">
                     <tr>
                         <td class="label">Metadati</td>
-                        <td><a href="{{ metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ metadata_file.file_ext }} {{ metadata_file.file_size|filesizeformat }}]</a></td>
                         <td></td>
                     </tr>
                 </table>
@@ -164,24 +164,22 @@
                 <p>
                     I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi, aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_)
                     che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
-                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
+                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> ({{ raccordo_temi_sintetici_file.file_ext }}, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
                 </p>
                 <p>
-                    Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. Qui trovi il <a href="{{ utility_metadata_file.file_name }}">file utility</a> (xls, {{ utility_metadata_file.file_size|filesizeformat }}) per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
+                    Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. Qui trovi il <a href="{{ utility_metadata_file.file_name }}">file utility</a> ({{ utility_metadata_file.file_ext }}, {{ utility_metadata_file.file_size|filesizeformat }}) per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
                 </p>
 
                 <table class="table">
-                    <thead>
-                        {% for section_code, section in fsc_sections.items %}
-                            <tr>
-                                <td class="label">{{ section.name|capfirst }}</td>
-                                <td><a href="{{ section.complete_file.file_name }}">>[<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
-                            </tr>
-                        {% endfor %}
-                    </thead>
+                    {% for section_code, section in fsc_sections.items %}
+                        <tr>
+                            <td class="label">{{ section.name|capfirst }}</td>
+                            <td><a href="{{ section.complete_file.file_name }}">>[<i class="icon-download-alt"></i> {{ section.complete_file.file_ext }} {{ section.complete_file.file_size|filesizeformat }}]</a></td>
+                        </tr>
+                    {% endfor %}
                     <tr>
                         <td class="label">Metadati</td>
-                        <td><a href="{{ metadata_file.file_name }}">>[<i class="icon-download-alt"></i> xls {{ metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ metadata_file.file_name }}">>[<i class="icon-download-alt"></i> {{ metadata_file.file_ext }} {{ metadata_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                 </table>
 
@@ -211,24 +209,22 @@
                 <p>
                     I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi, aggiungendo alcune variabili (identificabili nei dataset con il prefisso DPS_)
                     che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
-                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
+                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> ({{ raccordo_temi_sintetici_file.file_ext }}, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
                 </p>
                 <p>
-                    Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. Qui trovi il <a href="{{ utility_metadata_file.file_name }}">file utility</a> (xls, {{ utility_metadata_file.file_size|filesizeformat }}) per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
+                    Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. Qui trovi il <a href="{{ utility_metadata_file.file_name }}">file utility</a> ({{ utility_metadata_file.file_ext }}, {{ utility_metadata_file.file_size|filesizeformat }}) per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
                 </p>
 
                 <table class="table">
-                    <thead>
-                        {% for section_code, section in pac_sections.items %}
-                            <tr>
-                                <td class="label">{{ section.name|capfirst }}</td>
-                                <td><a href="{{ section.complete_file.file_name }}"> [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
-                            </tr>
-                        {% endfor %}
-                    </thead>
+                    {% for section_code, section in pac_sections.items %}
+                        <tr>
+                            <td class="label">{{ section.name|capfirst }}</td>
+                            <td><a href="{{ section.complete_file.file_name }}"> [<i class="icon-download-alt"></i> {{ section.complete_file.file_ext }} {{ section.complete_file.file_size|filesizeformat }}]</a></td>
+                        </tr>
+                    {% endfor %}
                     <tr>
                         <td class="label">Metadati</td>
-                        <td><a href="{{ metadata_file.file_name }}"> [<i class="icon-download-alt"></i> xls {{ metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ metadata_file.file_name }}"> [<i class="icon-download-alt"></i> {{ metadata_file.file_ext }} {{ metadata_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                 </table>
 
@@ -242,29 +238,54 @@
             <div id="cipe0713-content">
                 <p>
                     La fonte delle assegnazioni del <a href="{% url 'fonti-finanziamento' %}#fondi-nazionali">Fondo nazionale per lo Sviluppo e la Coesione (FSC)</a>
-                    a destinazione nazionale e regionale sono le <a href="http://www.cipecomitato.it/it">Delibere CIPE</a>,
+                    a destinazione nazionale e regionale sono le <a href="http://www.programmazioneeconomica.gov.it/">Delibere CIPE</a>,
                     che riguardano le informazioni disponibili al momento in cui è stata assunta la decisione di finanziamento e non hanno caratteristica di monitoraggio.
-                    I dati sono scaricabili anche dal <a href="http://www.cipecomitato.it/it/opendata.html">sito del CIPE</a>,
+                    I dati sono scaricabili anche dal <a href="http://www.programmazioneeconomica.gov.it/2014/09/14/open-data/">sito del CIPE</a>,
                     senza l’attribuzione del tema sintetico con cui sono visualizzati su OpenCoesione.
-                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> (xls, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
+                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> ({{ raccordo_temi_sintetici_file.file_ext }}, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
+                </p>
+                <p>
+                    Dal 31 dicembre 2014 sono state aggiunte e/o hanno cambiato denominazione alcune variabili. Qui trovi il <a href="{{ cipe_utility_metadata_file.file_name }}">file utility</a> ({{ cipe_utility_metadata_file.file_ext }}, {{ cipe_utility_metadata_file.file_size|filesizeformat }}) per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset modificati (Progetti, Soggetti e Localizzazioni).
                 </p>
 
                 <table class="table">
-                    <thead>
-                        {% for section_code, section in cipe_sections.items %}
-                            <tr>
-                                <td class="label">{{ section.name|capfirst }}</td>
-                                <td><a href="{{ section.complete_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ section.complete_file.file_size|filesizeformat }}]</a></td>
-                            </tr>
-                        {% endfor %}
+                    {% for section_code, section in cipe_sections.items %}
                         <tr>
-                            <td class="label">Metadati</td>
-                            <td><a href="{{ cipe_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ cipe_metadata_file.file_size|filesizeformat }}]</a></td>
+                            <td class="label">{{ section.name|capfirst }}</td>
+                            <td><a href="{{ section.complete_file.file_name }}">> [<i class="icon-download-alt"></i> {{ section.complete_file.file_ext }} {{ section.complete_file.file_size|filesizeformat }}]</a></td>
                         </tr>
-                    </thead>
+                    {% endfor %}
+                    <tr>
+                        <td class="label">Metadati</td>
+                        <td><a href="{{ cipe_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ cipe_metadata_file.file_ext }} {{ cipe_metadata_file.file_size|filesizeformat }}]</a></td>
+                    </tr>
                 </table>
 
-                <p>Ultimo aggiornamento: marzo 2014 su dati al 31/12/2013</p>
+                <p>
+                    Alcuni dei progetti pubblicati originariamente come destinatari di Assegnazioni CIPE si sono trasformati nel tempo in progetti in attuazione nell’ambito dei Programmi delle politiche di coesione 2007-2013.
+                </p>
+                <p>
+                    Qualora l’Assegnazione sia in attuazione nei Programmi, i relativi dati sono quindi confluiti nel Sistema di monitoraggio unitario e i dataset della sezione <a href="#oc0713-title">Tutti i Progetti di OpenCoesione</a> tengono conto dell'evoluzione attuativa facendo confluire l’Assegnazione originaria nei progetti che l’hanno attuata.
+                </p>
+                <p>
+                    Nel seguente file è invece riportato l’elenco completo delle corrispondenze.
+                </p>
+                <p>
+                    Per ogni progetto è disponibile il codice identificativo dell’Assegnazione CIPE (COD_DIPE) e il codice identificativo del progetto con cui essa viene attuata (COD_LOCALE_PROGETTO) più una variabile che descrive la relazione tra progetto in attuazione e Assegnazione.
+                </p>
+
+                <table class="table">
+                    <tr>
+                        <td class="label">Corrispondenze assegnazioni progetti</td>
+                        <td><a href="{{ cipe_corrispondenze_file.file_name }}">> [<i class="icon-download-alt"></i> {{ cipe_corrispondenze_file.file_ext }} {{ cipe_corrispondenze_file.file_size|filesizeformat }}]</a></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Metadati</td>
+                        <td><a href="{{ cipe_corrispondenze_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ cipe_corrispondenze_metadata_file.file_ext }} {{ cipe_corrispondenze_metadata_file.file_size|filesizeformat }}]</a></td>
+                    </tr>
+                </table>
+
+                <p>Ultimo aggiornamento: aprile 2015 su dati al 31/12/2013</p>
             </div>
         </div>
 
@@ -283,16 +304,14 @@
             </p>
 
             <table class="table">
-                <thead>
-                    <tr>
-                        <td class="label" style="width: 50%">Dati e metadati su dotazione finanziaria complessiva e spesa certificata alla UE *</td>
-                        <td><a href="{{ spesa_dotazione_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ spesa_dotazione_file.file_size|filesizeformat }}]</a></td>
-                    </tr>
-                    <tr>
-                        <td class="label" style="width: 50%">Dati e metadati su target di spesa certificata *</td>
-                        <td><a href="{{ spesa_target_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ spesa_target_file.file_size|filesizeformat }}]</a></td>
-                    </tr>
-                </thead>
+                <tr>
+                    <td class="label" style="width: 50%">Dati e metadati su dotazione finanziaria complessiva e spesa certificata alla UE *</td>
+                    <td><a href="{{ spesa_dotazione_file.file_name }}">> [<i class="icon-download-alt"></i> {{ spesa_dotazione_file.file_ext }} {{ spesa_dotazione_file.file_size|filesizeformat }}]</a></td>
+                </tr>
+                <tr>
+                    <td class="label" style="width: 50%">Dati e metadati su target di spesa certificata *</td>
+                    <td><a href="{{ spesa_target_file.file_name }}">> [<i class="icon-download-alt"></i> {{ spesa_target_file.file_ext }} {{ spesa_target_file.file_size|filesizeformat }}]</a></td>
+                </tr>
             </table>
 
             <p>Ultimo aggiornamento: dati al {{ spesa_date|date:'SHORT_DATE_FORMAT' }}.<br>* Dati non navigabili sul portale OpenCoesione.</p>
@@ -311,16 +330,14 @@
             </p>
 
             <table class="table">
-                <thead>
-                    <tr>
-                        <td class="label" style="width: 50%">Indicatori territoriali di contesto</td>
-                        <td><a href="{{ istat_data_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ istat_data_file.file_size|filesizeformat }}]</a></td>
-                    </tr>
-                    <tr>
-                        <td class="label">Metadati</td>
-                        <td><a href="{{ istat_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ istat_metadata_file.file_size|filesizeformat }}]</a></td>
-                    </tr>
-                </thead>
+                <tr>
+                    <td class="label" style="width: 50%">Indicatori territoriali di contesto</td>
+                    <td><a href="{{ istat_data_file.file_name }}">> [<i class="icon-download-alt"></i> {{ istat_data_file.file_ext }} {{ istat_data_file.file_size|filesizeformat }}]</a></td>
+                </tr>
+                <tr>
+                    <td class="label">Metadati</td>
+                    <td><a href="{{ istat_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ istat_metadata_file.file_ext }} {{ istat_metadata_file.file_size|filesizeformat }}]</a></td>
+                </tr>
             </table>
 
             <p>Ultimo aggiornamento: marzo 2015</p>
@@ -339,23 +356,21 @@
             </p>
 
             <table class="table">
-                <thead>
-                    <tr>
-                        <td class="label" style="width: 20%">Pubblica Amministrazione *</td>
-                        <td>Entrate <a href="{{ cpt_pa_in_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ cpt_pa_in_file.file_size|filesizeformat }}]</a></td>
-                        <td>Uscite <a href="{{ cpt_pa_out_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ cpt_pa_out_file.file_size|filesizeformat }}]</a></td>
-                    </tr>
-                    <tr>
-                        <td class="label" style="width: 20%">Settore Pubblico Allargato *</td>
-                        <td>Entrate <a href="{{ cpt_spa_in_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ cpt_spa_in_file.file_size|filesizeformat }}]</a></td>
-                        <td>Uscite <a href="{{ cpt_spa_out_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ cpt_spa_out_file.file_size|filesizeformat }}]</a></td>
-                    </tr>
-                    <tr>
-                        <td class="label">Metadati</td>
-                        <td></td>
-                        <td><a href="{{ cpt_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ cpt_metadata_file.file_size|filesizeformat }}]</a></td>
-                    </tr>
-                </thead>
+                <tr>
+                    <td class="label" style="width: 20%">Pubblica Amministrazione *</td>
+                    <td>Entrate <a href="{{ cpt_pa_in_file.file_name }}">> [<i class="icon-download-alt"></i> {{ cpt_pa_in_file.file_ext }} {{ cpt_pa_in_file.file_size|filesizeformat }}]</a></td>
+                    <td>Uscite <a href="{{ cpt_pa_out_file.file_name }}">> [<i class="icon-download-alt"></i> {{ cpt_pa_out_file.file_ext }} {{ cpt_pa_out_file.file_size|filesizeformat }}]</a></td>
+                </tr>
+                <tr>
+                    <td class="label" style="width: 20%">Settore Pubblico Allargato *</td>
+                    <td>Entrate <a href="{{ cpt_spa_in_file.file_name }}">> [<i class="icon-download-alt"></i> {{ cpt_spa_in_file.file_ext }} {{ cpt_spa_in_file.file_size|filesizeformat }}]</a></td>
+                    <td>Uscite <a href="{{ cpt_spa_out_file.file_name }}">> [<i class="icon-download-alt"></i> {{ cpt_spa_out_file.file_ext }} {{ cpt_spa_out_file.file_size|filesizeformat }}]</a></td>
+                </tr>
+                <tr>
+                    <td class="label">Metadati</td>
+                    <td></td>
+                    <td><a href="{{ cpt_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ cpt_metadata_file.file_ext }} {{ cpt_metadata_file.file_size|filesizeformat }}]</a></td>
+                </tr>
             </table>
 
             <p>Ultimo aggiornamento: aprile 2014 su dati al 31/12/2012.<br>* Dati non navigabili sul portale OpenCoesione.</p>
@@ -373,16 +388,14 @@
             </p>
 
             <table class="table">
-                <thead>
-                    <tr>
-                        <td class="label" style="width: 50%">Rilevazioni dal 2010 al 2013 *</td>
-                        <td><a href="{{ indagine_data_file.file_name }}">> [<i class="icon-download-alt"></i> zip/csv {{ indagine_data_file.file_size|filesizeformat }}]</a></td>
-                    </tr>
-                    <tr>
-                        <td class="label" style="width: 50%">Metadati</td>
-                        <td><a href="{{ indagine_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> xls {{ indagine_metadata_file.file_size|filesizeformat }}]</a></td>
-                    </tr>
-                </thead>
+                <tr>
+                    <td class="label" style="width: 50%">Rilevazioni dal 2010 al 2013 *</td>
+                    <td><a href="{{ indagine_data_file.file_name }}">> [<i class="icon-download-alt"></i> {{ indagine_data_file.file_ext }} {{ indagine_data_file.file_size|filesizeformat }}]</a></td>
+                </tr>
+                <tr>
+                    <td class="label" style="width: 50%">Metadati</td>
+                    <td><a href="{{ indagine_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ indagine_metadata_file.file_ext }} {{ indagine_metadata_file.file_size|filesizeformat }}]</a></td>
+                </tr>
             </table>
 
             <p>Ultimo aggiornamento dati al 31/12/2013.<br>* Dati non navigabili sul portale OpenCoesione.</p>

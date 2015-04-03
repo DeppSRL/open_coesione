@@ -1,28 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-Questo comando legge il file dei dati di contesto ISTAT dalla location interna:
-
-    http://www.opencoesione.gov.it/opendata/Indicatori_regionali_YYYYMMDD.zip
-
-Procedura di aggiornamento::
-
-1. viene inoltrata una richiesta alla URL del file
-2. il risultato viene letto per verificare la data di aggiornamento degli Indicatori territoriali di contesto
-3. controllo se la data è diversa da quella dell'ultimo aggiornamento fatto
-4. viene scaricato l'archivio e opportunamente suddiviso nella cartella dei dati
-
-3.a il file risulta già importato
-    1. Esco dalla procedura
-
-"""
 import logging
 import os
 import re
 import pandas as pd
 import csvkit
 import zipfile
+import urllib2
 from optparse import make_option
-from StringIO import StringIO
+from cStringIO import StringIO
 
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
@@ -32,13 +17,10 @@ from progetti.models import Tema
 # ISTAT resource as URL
 ISTAT_ARCHIVE_FILE_PATH = 'http://www.istat.it/storage/politiche-sviluppo/Archivio_unico_indicatori_regionali.zip'
 ISTAT_FILE_NAME = 'Archivio_unico_indicatori_regionali.csv'
+# ISTAT_FILE_ENCODING = 'ISO-8859-1'
+ISTAT_FILE_ENCODING = 'utf-8-sig'
 
 # paths
-OPEN_DATA_PATH = os.path.join(settings.MEDIA_ROOT, 'open_data')
-CURRENT = os.path.join(OPEN_DATA_PATH, '.current_istat_zip')  # keeps info on the lates istat archive processed
-
-DPS_ENCODING = 'ISO-8859-1'
-
 STATIC_PATH = os.path.join(settings.PROJECT_ROOT, 'static', 'csv')
 static = lambda *x: os.path.join(STATIC_PATH, *x)
 REGIONS_CSV_FILE = 'regioni.csv'
@@ -50,7 +32,7 @@ static_topic = lambda t: os.path.join(INDEXES_PATH, '{0}.csv'.format(t))
 TOPIC_INDEXES_PATH = static('temaind')
 static_topic_index = lambda t, i: os.path.join(TOPIC_INDEXES_PATH, '{0}_{1}.csv'.format(t, i))
 
-REQUIRED_PATHS = [OPEN_DATA_PATH, STATIC_PATH, INDEXES_PATH, TOPIC_INDEXES_PATH]
+REQUIRED_PATHS = [STATIC_PATH, INDEXES_PATH, TOPIC_INDEXES_PATH]
 
 # csv fields
 CSV_CODE = 'COD_INDICATORE'
@@ -61,14 +43,16 @@ CSV_YEAR = 'ANNO_RIFERIMENTO'
 CSV_VALUE = 'VALORE'
 CSV_TITLE = 'TITOLO'
 CSV_SUBTITLE = 'SOTTOTITOLO'
-CSV_REQUIRED_COLUMNS = (CSV_CODE, CSV_TITLE, CSV_SUBTITLE, CSV_LOCATION,
-                        CSV_LOCATION_DESCRIPTION, CSV_YEAR, CSV_VALUE, CSV_TOPIC)
+
+CSV_REQUIRED_COLUMNS = (CSV_CODE, CSV_TITLE, CSV_SUBTITLE, CSV_LOCATION, CSV_LOCATION_DESCRIPTION, CSV_YEAR, CSV_VALUE, CSV_TOPIC)
 
 # elaboration helpers
 VALID_INDEXES = settings.INDICATORI_VALIDI
 VALID_REGIONS = range(1, 21) + [23]
 # VALID_TOPIC_IDS_BY_NAME = settings.TEMI_DB_MAPPING
 VALID_TOPIC_IDS_BY_NAME = {tema.descrizione: int(tema.codice) for tema in Tema.objects.principali()}
+
+CURRENT = os.path.join(STATIC_PATH, '.current_istat_zip')  # keeps info on the lates istat archive processed
 
 
 def convert_topic(topic):
@@ -122,59 +106,46 @@ class Command(BaseCommand):
 
         # check if paths exists
         if not all(map(os.path.exists, REQUIRED_PATHS)):
-            confirm = raw_input(u"Directory structure is not already created:\n{0}\nTry to create now? Type 'y' to continue, or 'n' to cancel: ".format('\n'.join(REQUIRED_PATHS)))
+            confirm = raw_input(u"\nDirectory structure is not already created:\n{0}\nTry to create now?\n\nType 'yes' to continue, or 'no' to cancel: ".format('\n'.join(REQUIRED_PATHS)))
 
-            if confirm != 'y':
-                raise CommandError(u'Create static paths:\n{0}'.format('\n'.join(REQUIRED_PATHS)))
+            if confirm == 'yes':
+                for path in REQUIRED_PATHS:
+                    if not os.path.isdir(path):
+                        os.makedirs(path)
+            else:
+                exit(1)
 
-            for path in REQUIRED_PATHS:
-                if not os.path.isdir(path):
-                    os.makedirs(path)
+        try:
+            request = urllib2.Request(ISTAT_ARCHIVE_FILE_PATH)
 
-        force_update = options.get('forceupdate')
+            if not options.get('forceupdate'):
+                request.add_header('If-None-Match', self.stored_etag)
 
-        latest_istat_archive_file_path = ISTAT_ARCHIVE_FILE_PATH
+            archivefile = urllib2.urlopen(request)
+        except (urllib2.HTTPError, Exception) as e:
+            if isinstance(e, urllib2.HTTPError) and e.code == 304:
+                self.logger.info('Archive has been already processed. No updates availables. Use --force-update to re-process')
+            else:
+                self.logger.error(e)
+        else:
+            try:
+                self.process_archive(archivefile)
+            except Exception as e:
+                self.logger.error(e)
+            else:
+                self.stored_etag = archivefile.headers['etag']
 
-        # latest_istat_archive_file_path = sorted(glob.glob(
-        #     os.path.join(OPEN_DATA_PATH, 'Indicatori_regionali_*.zip')
-        # ))[-1]
-        #
-        # current_istat_archive_file_path = ''
-        # if os.path.isfile(CURRENT):
-        #     with open(CURRENT, 'r') as current:
-        #         # read content of .current file
-        #         current_istat_archive_file_path = current.read()
-        #
-        # archive_processed = (current_istat_archive_file_path == latest_istat_archive_file_path)
-        # if archive_processed and not force_update:
-        #     self.logger.info("Archive '{0}' has been already processed. \n"
-        #                       'No updates availables. Use --force-update to re-process\n'.format(latest_istat_archive_file_path))
-        #     return
-        #
-        # self.process_archive(latest_istat_archive_file_path)
-        #
-        # with open(CURRENT, 'w') as current:
-        #     # update .current file
-        #     current.write(latest_istat_archive_file_path)
+                if options.get('collectstatic'):
+                    from django.core import management
+                    management.call_command('collectstatic', interactive=False, verbosity=verbosity)
 
-        self.process_archive(latest_istat_archive_file_path)
-
-        if options.get('collectstatic'):
-            # if everything ok collect-static
-            from django.core import management
-            management.call_command('collectstatic', interactive=False, verbosity=verbosity)
-
-    def process_archive(self, archive_path):
+    def process_archive(self, archivefile):
         """Directly uncompress the content of the zipped archive
         and process it, splitting the information, and writing CSV files
         """
-        import urllib
-        import cStringIO
+        self.logger.info(u'Process archive: {0}'.format(archivefile.url))
 
-        self.logger.info(u'Process archive: {0}'.format(archive_path))
-
-        zipwebfile = urllib.urlopen(archive_path)
-        buffer = cStringIO.StringIO(zipwebfile.read())
+        buffer = StringIO(archivefile.read())
         zfile = zipfile.ZipFile(buffer)
         csv_stream = zfile.read(ISTAT_FILE_NAME)
         self.split_csv(csv_stream)
@@ -190,7 +161,7 @@ class Command(BaseCommand):
             header=0,
             low_memory=True,
             dtype=object,
-            encoding=DPS_ENCODING,
+            encoding=ISTAT_FILE_ENCODING,
             keep_default_na=False,
             converters={
                 CSV_CODE: lambda x: x.strip().zfill(3),
@@ -204,7 +175,7 @@ class Command(BaseCommand):
         # check if is valid headers
         headers_diff = set(CSV_REQUIRED_COLUMNS).difference(set(df))
         if headers_diff:
-            raise CommandError(u'Invalid columns format. The differences are: {0}'.format(headers_diff))
+            raise CommandError(u'Invalid columns format. Missing columns are: {0}'.format(list(headers_diff)))
 
         for i, row in df.iterrows():
             # skip not allowed index
@@ -311,23 +282,21 @@ class Command(BaseCommand):
         index_columns = [u'ID', u'Titolo', u'Sottotitolo']
         topic_index_columns = [u'Regione'] + [unicode(year) for year in self.db.years]
 
-        self.logger.info(u'Writing {0} regions:'.format(len(self.db.regions)))
+        self.logger.info(u'Writing {0} regions: {1}'.format(len(self.db.regions), self.db.regions.values()))
         with open(REGIONS_CSV, 'wb') as csv_file:
             writer = csvkit.CSVKitDictWriter(csv_file, regions_columns)
             writer.writeheader()
 
             for location_id in sorted(self.db.regions):
                 writer.writer.writerow([unicode(location_id), self.db.regions.get(location_id)])
-            self.logger.info(u'{0}'.format(u', '.join(self.db.regions.values())))
 
-        self.logger.info(u'Writing {0} topics:'.format(len(self.db.topics)))
+        self.logger.info(u'Writing {0} topics: {1}'.format(len(self.db.topics), self.db.topics.values()))
         with open(TOPICS_CSV, 'wb') as csv_file:
             writer = csvkit.CSVKitDictWriter(csv_file, topic_columns)
             writer.writeheader()
 
             for topic_id in sorted(self.db.topics):
                 writer.writer.writerow([unicode(topic_id), self.db.topics.get(topic_id)])
-            self.logger.info(u'{0}'.format(u', '.join(self.db.topics.values())))
 
         for topic_id in sorted(self.db.indexes_by_topic):
             self.logger.info(u'[{0}] {1}'.format(topic_id, self.db.topics.get(topic_id)))
@@ -348,3 +317,18 @@ class Command(BaseCommand):
                         for location_id in sorted(self.db.values.get(index_id)):
                             values = [self.db.regions.get(location_id)] + [self.db.values.get(index_id).get(location_id).get(year, '') for year in self.db.years]
                             index_writer.writer.writerow(values)
+
+    @property
+    def stored_etag(self):
+        try:
+            with open(CURRENT, 'r') as current:
+                value = current.read()
+        except EnvironmentError:
+            value = ''
+
+        return value
+
+    @stored_etag.setter
+    def stored_etag(self, value):
+        with open(CURRENT, 'w') as current:
+            current.write(value)

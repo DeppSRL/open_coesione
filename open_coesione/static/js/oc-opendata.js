@@ -31,4 +31,8 @@ $(document).ready(function() {
     if (hash) {
         $('body').find('.h3-switcher#' + hash + ' a').trigger('click');
     }
+
+    $('#open-data-download').find('a[href^="#"]').not('a[href="#"]').on('click', function() {
+        $('body').find('.h3-switcher' + $(this).attr('href') + ' a').trigger('click');
+    });
 });

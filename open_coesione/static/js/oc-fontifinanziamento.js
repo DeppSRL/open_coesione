@@ -7,7 +7,7 @@ $(document).ready(function() {
         active_tab && active_tab.tab('show');
     }
 
-    $('#chart_table').find('a[href^="#"]').click(function() {
+    $('#chart_table').find('a[href^="#"]').on('click', function() {
         $('.nav-tabs [href=' + $(this).attr('href') + ']').tab('show');
     });
 });

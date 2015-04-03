@@ -406,6 +406,10 @@ class OpendataView(TemplateView):
                 'name': 'progetti',
                 'complete_file': self.get_complete_localfile('assegnazioni_CIPE.zip'),
             }),
+            ('sog', {
+                'name': 'soggetti',
+                'complete_file': self.get_complete_localfile('soggetti_CIPE.zip'),
+            }),
             ('loc', {
                 'name': 'localizzazioni',
                 'complete_file': self.get_complete_localfile('localizzazioni_CIPE.zip'),
@@ -419,6 +423,10 @@ class OpendataView(TemplateView):
         context['utility_metadata_file'] = self.get_complete_localfile('Utility Metadati Attuazione.xls')
 
         context['cipe_metadata_file'] = self.get_complete_localfile('Metadati_Assegnazioni_CIPE.xls')
+        context['cipe_utility_metadata_file'] = self.get_complete_localfile('Utility Metadati Assegnazioni CIPE.xls')
+
+        context['cipe_corrispondenze_file'] = self.get_complete_localfile('corrispondenze_assegnazioni_progetti.csv')
+        context['cipe_corrispondenze_metadata_file'] = self.get_complete_localfile('Metadati_corrispondenze_Assegnazioni_Attuazione.xls')
 
         context['spesa_dotazione_file'] = self.get_complete_localfile('Dotazioni_Certificazioni.xls')
         context['spesa_target_file'] = self.get_complete_localfile('Target_Risultati.xls')
@@ -444,8 +452,31 @@ class OpendataView(TemplateView):
 
         return context
 
-    @staticmethod
-    def get_complete_remotefile(file_name):
+    @classmethod
+    def get_complete_localfile(cls, file_name):
+        try:
+            file_path = cls.get_latest_localfile(file_name)
+            file_size = os.stat(file_path).st_size
+        except:
+            file_path = file_size = None
+
+        file_date = False
+        if file_path:
+            import datetime
+            import re
+            match = re.search('\_((201\d)(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01]))\.', file_path)
+            if match:
+                file_date = datetime.datetime.strptime(match.group(1), '%Y%m%d')
+
+        return {
+            'file_name': reverse('opendata_clean', kwargs={'path': file_name}),
+            'file_size': file_size,
+            'file_date': file_date,
+            'file_ext': cls.get_file_ext(file_name),
+        }
+
+    @classmethod
+    def get_complete_remotefile(cls, file_name):
         try:
             f = urllib2.urlopen(file_name)
             file_size = f.headers['Content-Length']
@@ -454,7 +485,8 @@ class OpendataView(TemplateView):
 
         return {
             'file_name': file_name,
-            'file_size': file_size
+            'file_size': file_size,
+            'file_ext': cls.get_file_ext(file_name),
         }
 
     @staticmethod
@@ -479,18 +511,14 @@ class OpendataView(TemplateView):
 
         return file_path
 
-    @classmethod
-    def get_complete_localfile(cls, file_name):
-        try:
-            file_path = cls.get_latest_localfile(file_name)
-            file_size = os.stat(file_path).st_size
-        except:
-            file_size = None
+    @staticmethod
+    def get_file_ext(file_name):
+        _, file_ext = os.path.splitext(file_name)
+        file_ext = file_ext[1:]
+        if file_ext == 'zip':
+            file_ext += '/csv'
 
-        return {
-            'file_name': reverse('opendata_clean', kwargs={'path': file_name}),
-            'file_size': file_size
-        }
+        return file_ext
 
     @classmethod
     def get_regional_files(cls, section_code, prefix):
