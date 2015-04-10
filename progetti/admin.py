@@ -1,5 +1,6 @@
 from django.contrib import admin
 from tinymce.widgets import TinyMCE
+from open_coesione.utils import export_select_fields_csv_action
 from progetti.models import *
 from open_coesione.admin import FileInline, LinkInline, TinyMCEEnabledForm, common_mce_attrs
 
@@ -173,6 +174,28 @@ class SegnalazioneAdmin(admin.ModelAdmin):
     readonly_fields = ['come_lo_conosci', 'come_lo_conosci_altro', 'cup', 'is_cipe', 'organizzazione', 'utente', 'email',
                        'descrizione', 'come_migliorare', 'risultati_conseguiti', 'effetti_sul_territorio',
                        'cosa_piace', 'cosa_non_piace', 'quanto_utile']
+    actions = [
+        export_select_fields_csv_action("Esporta i selezionati in formato CSV",
+             fields=[
+                 ('cup', 'Codice CUP del progetto'),
+                 ('is_cipe', 'Se CIPE'),
+                 ('modified', 'Ultima modifica'),
+                 ('pubblicato', 'Pubblicato'),
+                 ('come_lo_conosci', 'Come lo conosci'),
+                 ('come_lo_conosci_altro', 'Note su come hai conosciuto il progetto'),
+                 ('organizzazione', 'Organizzazione'),
+                 ('utente', 'Nome e cognome'),
+                 ('descrizione', 'Descrizione'),
+                 ('come_migliorare', 'Come migliorare'),
+                 ('risultati_conseguiti', 'Risultati conseguiti'),
+                 ('effetti_sul_territorio', 'Effetti sul territorio'),
+                 ('cosa_piace', 'Cosa piace'),
+                 ('cosa_non_piace', 'Cosa non piace'),
+                 ('quanto_utile', 'Quanto utile'),
+             ],
+             header=True
+        ),
+    ]
 
 
 admin.site.register(Progetto, ProgettoAdmin)
