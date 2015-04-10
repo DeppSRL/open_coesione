@@ -1,3 +1,4 @@
+# coding=utf-8
 from django.contrib import admin
 from django.contrib.flatpages.models import FlatPage
 from models import ContactMessage, PressReview, Pillola, File, Link, FAQ
@@ -5,6 +6,7 @@ from django.forms import ModelForm
 from django.contrib.contenttypes import generic
 
 from tinymce.widgets import TinyMCE
+from open_coesione.utils import export_select_fields_csv_action
 
 from tagging.admin import TagInline
 
@@ -71,6 +73,20 @@ class FAQAdminForm(TinyMCEEnabledForm):
 class MessagesAdmin(admin.ModelAdmin):
     date_hierarchy = 'sent_at'
     list_display = ('sender', 'email', 'organization', 'sent_at')
+    actions = [
+        export_select_fields_csv_action("Esporta i selezionati in formato CSV",
+             fields=[
+                 ('sender', 'Nome'),
+                 ('email', 'e-mail'),
+                 ('organization', 'Organizzazione'),
+                 ('location', u'Località'),
+                 ('reason', 'Motivo'),
+                 ('body', 'Messaggio'),
+                 ('sent_at', 'Qualifica'),
+             ],
+             header=True
+        ),
+    ]
 
 
 class PressReviewAdmin(admin.ModelAdmin):
