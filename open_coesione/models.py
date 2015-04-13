@@ -17,15 +17,15 @@ FlatPage.add_to_class('extra_content', models.TextField('Contenuto sidebar', bla
 
 class ContactMessage(models.Model):
     REASON_CHOICES = (
-        (1, u'domanda sui dati'),
-        (2, u'domanda sul sito'),
-        (9, u'richiesta accesso API'),
-        (3, u'esempio di riuso: applicazioni'),
-        (4, u'esempio di riuso: visualizzazioni'),
-        (5, u'esempio di riuso: analisi'),
-        (6, u'segnalazione errore nei dati'),
-        (7, u'segnalazione relativa a un progetto'),
-        (8, u'suggerimenti e consigli'),
+        (u'1', u'domanda sui dati'),
+        (u'2', u'domanda sul sito'),
+        (u'3', u'richiesta accesso API'),
+        (u'4', u'esempio di riuso: applicazioni'),
+        (u'5', u'esempio di riuso: visualizzazioni'),
+        (u'6', u'esempio di riuso: analisi'),
+        (u'7', u'segnalazione errore nei dati'),
+        (u'8', u'segnalazione relativa a un progetto'),
+        (u'9', u'suggerimenti e consigli'),
     )
 
     sender = models.CharField(max_length=50, verbose_name='Autore')
