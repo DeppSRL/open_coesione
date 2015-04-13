@@ -404,15 +404,15 @@ class OpendataView(TemplateView):
         context['cipe_sections'] = SortedDict([
             ('prog', {
                 'name': 'progetti',
-                'complete_file': self.get_complete_localfile('assegnazioni_CIPE.zip'),
+                'complete_file': self.get_complete_localfile('progetti_assegnazioni_CIPE.zip'),
             }),
             ('sog', {
                 'name': 'soggetti',
-                'complete_file': self.get_complete_localfile('soggetti_CIPE.zip'),
+                'complete_file': self.get_complete_localfile('soggetti_assegnazioni_CIPE.zip'),
             }),
             ('loc', {
                 'name': 'localizzazioni',
-                'complete_file': self.get_complete_localfile('localizzazioni_CIPE.zip'),
+                'complete_file': self.get_complete_localfile('localizzazioni_assegnazioni_CIPE.zip'),
             }),
         ])
 

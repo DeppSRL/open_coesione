@@ -105,7 +105,7 @@ class File(BaseResource):
 
     # type = models.CharField(max_length=32, choices=TYPE)
     # date = models.DateField(blank=True, null=True)
-    file = models.FileField(upload_to=lambda instance, filename: 'files/{0}/{1}'.format(slugify('{0} {1}'.format(instance.content_type, instance.object_id)), filename))
+    file = models.FileField(max_length=255, upload_to=lambda instance, filename: 'files/{0}/{1}'.format(slugify('{0} {1}'.format(instance.content_type, instance.object_id)), filename))
 
 
 class Link(BaseResource):
