@@ -59,7 +59,7 @@
             <h4>Potresti essere interessato a queste pillole</h4>
             <ul>
                 {% for related_pillola in related_pillole %}
-                    <li><a href="{% url 'pillola_item' related_pillola.slug %}">{{ related_pillola.title }}</a></li>
+                    <li><a href="{% url 'pillola' related_pillola.slug %}">{{ related_pillola.title }}</a></li>
                 {% endfor %}
             </ul>
         </div>
