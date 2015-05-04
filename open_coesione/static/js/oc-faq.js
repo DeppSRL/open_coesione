@@ -13,7 +13,7 @@ $(document).ready(function() {
 
     $('#faq_list').find(location.hash + '.faq:first .faq-domanda').trigger('click');
 
-    $('#faq_list').find('a[href^="#"]').not('.faq-domanda>a').on('click', function() {
-        $('#faq_list').find($(this).attr('href') + '.faq .faq-domanda').trigger('click');
+    $('.faq-risposta').find('a[href^="#"],a[href*="faq/#"]').on('click', function() {
+        $('#faq_list').find(this.hash + '.faq .faq-domanda').trigger('click');
     });
 });
