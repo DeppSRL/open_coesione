@@ -82,7 +82,6 @@ var print_pie_chart = function( source, destination )
         series.data[ix][1] = series.data[ix][1] / total;
     });
     main_topics_options.series.push(series);
-    console.log(series);
 
     return new Highcharts.Chart(main_topics_options);
 };
