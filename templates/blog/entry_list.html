@@ -21,7 +21,7 @@
                 var blog = $('#blog');
                 var loaded = [];
 
-                blog.on('click', 'article header a', function() {
+                blog.on('click', 'article header a', function(e) {
                     var article = $(this).closest('article');
                     var slug = article.attr('id');
 
@@ -34,18 +34,23 @@
                                 article.replaceWith(data);
                                 addthis.toolbox('#addthis-' + slug);
                                 loaded.push(slug);
-                                location.href = '#' + slug;
+                                location.hash = '#' + slug;
                             }
                         });
                     } else {
                         article.find('header').siblings().toggle();
                         if (article.find('header').next().is(':visible')) {
-                            location.href = '#' + slug;
+                            location.hash = '#' + slug;
                         }
                     }
+                    e.preventDefault();
                 });
 
                 blog.find('article' + location.hash + ':first header a').trigger('click');
+
+                $('#aw-modal').on('click', 'a[href^="#"],a[href^="{% url 'blog_home' %}#"]', function() {
+                    blog.find('article' + this.hash + ' header a').trigger('click');
+                });
             });
         </script>
     {% endaddtoblock %}
