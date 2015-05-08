@@ -46,7 +46,7 @@ class Command(BaseCommand):
              '20120531', '20121031', '20121231',
              '20130531', '20131031', '20131231',
              '20140531', '20141031', '20141231',
-             '20151231']
+             '20150531', '20151031', '20151231']
 
     # main data structure:
     #  contains data read from the input csv file,
