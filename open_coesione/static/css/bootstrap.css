@@ -2329,7 +2329,6 @@ ul.icons li .icon-large:before {
   left: 100%;
   margin-top: -25px !important;
   position: absolute;
-  z-index: 100000;
 }
 .submenu-hide {
   display: none !important;
