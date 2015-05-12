@@ -2329,6 +2329,7 @@ ul.icons li .icon-large:before {
   left: 100%;
   margin-top: -25px !important;
   position: absolute;
+  z-index: 100000;
 }
 .submenu-hide {
   display: none !important;
@@ -5892,9 +5893,6 @@ hr.big.dark {
 #faq_list h3.faq-domanda {
   margin-top: 1em;
   text-transform: none;
-}
-.navbar .nav {
-  z-index: 20000;
 }
 .dropdown-menu .divider {
   height: 1px;

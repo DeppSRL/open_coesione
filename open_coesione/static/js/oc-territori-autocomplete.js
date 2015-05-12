@@ -31,5 +31,5 @@ $(document).ready(function() {
         close: function() {
             $(this).removeClass('ui-corner-top').addClass('ui-corner-all');
         }
-    }).css('z-index', 100000);
+    }).css('z-index', 99999);
 });
