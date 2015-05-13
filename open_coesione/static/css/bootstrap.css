@@ -5584,6 +5584,9 @@ hr.big.dark {
 #map_container .leaflet-container a {
   color: #005652;
 }
+.ajax_overlay {
+    z-index: 999 !important;
+}
 .ajax_loader {
   background: url("../img/spinner_squares_circle.gif") no-repeat center center transparent;
   width: 100%;
@@ -5892,6 +5895,9 @@ hr.big.dark {
 #faq_list h3.faq-domanda {
   margin-top: 1em;
   text-transform: none;
+}
+.navbar .nav {
+  z-index: 20000;
 }
 .dropdown-menu .divider {
   height: 1px;

@@ -581,8 +581,14 @@ hr.big {
   }
 }
 
-.ajax_overlay {}
-.ajax_loader {background: url("../img/spinner_squares_circle.gif") no-repeat center center transparent;width:100%;height:100%;}
+.ajax_overlay {
+    z-index: 999 !important;
+}
+.ajax_loader {
+    background: url('../img/spinner_squares_circle.gif') no-repeat center center transparent;
+    width:100%;
+    height:100%;
+}
 
 #content {
   padding-top: 25px;
