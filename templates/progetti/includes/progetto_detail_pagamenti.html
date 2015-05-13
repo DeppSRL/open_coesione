@@ -58,7 +58,7 @@
             var payment_chart = false;
 
             var $navigator = $('#navigator');
-            $navigator.modal('hide');
+            $navigator.modal('hide').appendTo($('body'));
             $('#payments_chart_link').on('click', function() {
                 if (!payment_chart) {
                     payment_chart = new Highcharts.Chart($.extend(true, {}, line_options, {}));
