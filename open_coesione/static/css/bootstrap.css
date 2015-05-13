@@ -5896,9 +5896,6 @@ hr.big.dark {
   margin-top: 1em;
   text-transform: none;
 }
-.navbar .nav {
-  z-index: 20000;
-}
 .dropdown-menu .divider {
   height: 1px;
   margin: 3px 1px;
