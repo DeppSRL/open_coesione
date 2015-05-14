@@ -1114,7 +1114,6 @@ class Command(BaseCommand):
     def _import_progetticipe(self, df, append):
         """
         Procedura per importare dati di progetto, e soggetti, a partire dal tracciato del CIPE
-        Non viene importata la natura, che arriva su un tracciato differente
         """
 
         # df.rename(columns={u'PROGRAMMAZIONE': u'OC_CODICE_PROGRAMMA'}, inplace=True)
@@ -1277,41 +1276,41 @@ class Command(BaseCommand):
                 self.logger.info(u'{0} -----------------> Committing.' .format(n))
                 transaction.commit()
 
-        # soggetti e ruoli
-
-        for col, role in {'SOGGETTO_RESPONSABILE': Ruolo.RUOLO.programmatore, 'SOGGETTO_ATTUATORE': Ruolo.RUOLO.attuatore}.iteritems():
-            df1 = df[df[col].str.strip() != ''][[col, 'COD_DIPE']].drop_duplicates().groupby(col, as_index=False)['COD_DIPE'].aggregate(lambda x: x.tolist())
-
-            df_count = len(df1)
-
-            n = 0
-            for index, row in df1.iterrows():
-                n += 1
-
-                denominazione = row[col].strip()
-
-                soggetto, created = Soggetto.fullobjects.get_or_create(
-                    denominazione__iexact=denominazione,
-                    codice_fiscale='',
-                    defaults={'denominazione': denominazione}
-                )
-                self._log(created, u'{0}/{1} - Creato soggetto: {2}'.format(n, df_count, soggetto))
-
-                role_count = len(row['COD_DIPE'])
-
-                nn = 0
-                for codice_locale in row['COD_DIPE']:
-                    nn += 1
-
-                    ruolo = Ruolo.objects.create(
-                        progetto_id=codice_locale,
-                        soggetto=soggetto,
-                        ruolo=role,
-                    )
-                    self.logger.info(u'{0}/{1} ({2}/{3}) - Creato ruolo: {4}'.format(n, df_count, nn, role_count, ruolo))
-
-            self.logger.info(u'{0} -----------------> Committing.' .format(col))
-            transaction.commit()
+        # # soggetti e ruoli
+        #
+        # for col, role in {'SOGGETTO_RESPONSABILE': Ruolo.RUOLO.programmatore, 'SOGGETTO_ATTUATORE': Ruolo.RUOLO.attuatore}.iteritems():
+        #     df1 = df[df[col].str.strip() != ''][[col, 'COD_DIPE']].drop_duplicates().groupby(col, as_index=False)['COD_DIPE'].aggregate(lambda x: x.tolist())
+        #
+        #     df_count = len(df1)
+        #
+        #     n = 0
+        #     for index, row in df1.iterrows():
+        #         n += 1
+        #
+        #         denominazione = row[col].strip()
+        #
+        #         soggetto, created = Soggetto.fullobjects.get_or_create(
+        #             denominazione__iexact=denominazione,
+        #             codice_fiscale='',
+        #             defaults={'denominazione': denominazione}
+        #         )
+        #         self._log(created, u'{0}/{1} - Creato soggetto: {2}'.format(n, df_count, soggetto))
+        #
+        #         role_count = len(row['COD_DIPE'])
+        #
+        #         nn = 0
+        #         for codice_locale in row['COD_DIPE']:
+        #             nn += 1
+        #
+        #             ruolo = Ruolo.objects.create(
+        #                 progetto_id=codice_locale,
+        #                 soggetto=soggetto,
+        #                 ruolo=role,
+        #             )
+        #             self.logger.info(u'{0}/{1} ({2}/{3}) - Creato ruolo: {4}'.format(n, df_count, nn, role_count, ruolo))
+        #
+        #     self.logger.info(u'{0} -----------------> Committing.' .format(col))
+        #     transaction.commit()
 
     def _update_privacy_progetti(self, df, append):
         if not append:
