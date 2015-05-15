@@ -68,7 +68,7 @@ class ProgettoIndex(SearchIndex):
     perc_pagamento = FacetFloatField()
 
     # search result format is pre-rendered during index phase
-    rendered = L10NCharField(use_template=True, indexed=False)
+    # rendered = L10NCharField(use_template=True, indexed=False)
 
     def prepare_natura(self, obj):
         if obj.classificazione_azione:

@@ -55,7 +55,10 @@
                 <tbody>
                     {% for result in page_obj.object_list %}
                         <tr>
-                            <td>{{ result.rendered|safe }}</td>
+                            {% comment %}<td>{{ result.rendered|safe }}</td>{% endcomment %}
+                            <td>
+                                {% include 'search/indexes/progetti/progetto_rendered.txt' with object=result.object only %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

@@ -1124,7 +1124,6 @@ class Command(BaseCommand):
         df[u'PO_COD_OBIETTIVO_OPERATIVO'] = '00'
         df[u'PO_OBIETTIVO_OPERATIVO'] = ''
 
-        # TODO: implementare lettura da colonna CSV
         # df[u'CUP_COD_NATURA'] = convert_progetto_cup_cod_natura('3')
         # df[u'CUP_DESCR_NATURA'] = u'REALIZZAZIONE DI LAVORI PUBBLICI (OPERE ED IMPIANTISTICA)'
         df[u'CUP_COD_TIPOLOGIA'] = convert_progetto_cup_cod_tipologia('0')

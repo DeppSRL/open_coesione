@@ -30,7 +30,8 @@
                                 {% endfor %}
                             </td>
                             <td class="span5">
-                                {{ result.rendered|safe }}
+                                {% comment %}{{ result.rendered|safe }}{% endcomment %}
+                                {% include 'search/indexes/soggetti/soggetto_rendered.txt' with object=result only %}
                             </td>
                             <td class="amount span1">
                                 <strong>{{ result.costo|default:'0.0'|floatformat:'2' }}</strong>

@@ -23,7 +23,7 @@ class SoggettoIndex(SearchIndex):
     n_progetti = FacetIntegerField()
 
     # search result format is pre-rendered during index phase
-    rendered = CharField(use_template=True, indexed=False)
+    # rendered = CharField(use_template=True, indexed=False)
 
     def prepare_ruolo(self, obj):
         """

@@ -100,6 +100,11 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
     #
     #     super(ProgettoSearchView, self).__init__(*args, **kwargs)
 
+    @staticmethod
+    def _get_objects_by_pk(pks):
+        related = ['territorio_set', 'tema__tema_superiore', 'classificazione_azione__classificazione_superiore']
+        return Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks)
+
     def build_form(self, form_kwargs=None):
         # the is_active:1 facet is selected by default
         # and is substituted by is_active:0 when explicitly requested
