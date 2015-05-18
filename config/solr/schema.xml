@@ -106,17 +106,15 @@
 
     <field name="n_progetti" type="slong" indexed="true" stored="true" multiValued="false" />
 
-    <field name="rendered" type="string" indexed="false" stored="true" multiValued="false" />
+    <field name="territorio" type="string" indexed="false" stored="true" multiValued="true" />
 
     <field name="fondo" type="text" indexed="true" stored="true" multiValued="false" />
 
     <field name="ruolo_descr" type="string" indexed="false" stored="true" multiValued="true" />
 
-    <field name="fin_altro_pubblico" type="sfloat" indexed="true" stored="true" multiValued="false" />
+    <field name="text" type="text" indexed="true" stored="true" multiValued="false" />
 
     <field name="codice_fiscale" type="string" indexed="false" stored="true" multiValued="false" />
-
-    <field name="territorio" type="string" indexed="false" stored="true" multiValued="true" />
 
     <field name="fin_stato_altri_provvedimenti" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
@@ -128,7 +126,7 @@
 
     <field name="fin_stato_fsc" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
-    <field name="classificazione_cup" type="string" indexed="true" stored="true" multiValued="false" />
+    <field name="classificazione_cup" type="text" indexed="true" stored="true" multiValued="false" />
 
     <field name="soggetti_attuatori" type="text" indexed="true" stored="true" multiValued="true" />
 
@@ -136,15 +134,13 @@
 
     <field name="territori" type="text" indexed="true" stored="true" multiValued="true" />
 
-    <field name="ambiti_territoriali" type="text" indexed="true" stored="true" multiValued="true" />
-
     <field name="data_fine_prevista" type="date" indexed="true" stored="true" multiValued="false" />
 
-    <field name="denominazione" type="string" indexed="false" stored="true" multiValued="false" />
+    <field name="ambiti_territoriali" type="text" indexed="true" stored="true" multiValued="true" />
 
     <field name="fin_stato_fondo_rotazione" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
-    <field name="text" type="text" indexed="true" stored="true" multiValued="false" />
+    <field name="fin_altro_pubblico" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
     <field name="territorio_tipo" type="text" indexed="true" stored="true" multiValued="true" />
 
@@ -154,6 +150,8 @@
 
     <field name="fonte" type="string" indexed="true" stored="true" multiValued="true" />
 
+    <field name="tema_descr" type="text" indexed="true" stored="true" multiValued="false" />
+
     <field name="natura" type="string" indexed="true" stored="true" multiValued="false" />
 
     <field name="territorio_com" type="text" indexed="true" stored="true" multiValued="true" />
@@ -162,7 +160,7 @@
 
     <field name="fin_stato_estero" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
-    <field name="tema_descr" type="text" indexed="true" stored="true" multiValued="false" />
+    <field name="denominazione" type="string" indexed="false" stored="true" multiValued="false" />
 
     <field name="tipo_progetto" type="string" indexed="true" stored="true" multiValued="false" />
 
@@ -190,9 +188,9 @@
 
     <field name="fin_da_reperire" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
-    <field name="tema_slug" type="string" indexed="false" stored="true" multiValued="true" />
-
     <field name="fin_privato" type="sfloat" indexed="true" stored="true" multiValued="false" />
+
+    <field name="tema_slug" type="string" indexed="false" stored="true" multiValued="true" />
 
     <field name="fin_comune" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
