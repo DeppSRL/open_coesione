@@ -138,6 +138,7 @@ class Command(BaseCommand):
             'import_method': '_import_progetticipe',
             'converters': {
                 # 'OC_TEMA_SINTETICO': convert_progettocipe_oc_tema_sintetico,
+                'CUP_COD_NATURA': convert_progetto_cup_cod_natura,
                 'CUP_COD_SETTORE': convert_progetto_cup_cod_settore,
                 'CUP_COD_SOTTOSETTORE': convert_progetto_cup_cod_sottosettore,
                 'CUP': convert_progettocipe_cup,
