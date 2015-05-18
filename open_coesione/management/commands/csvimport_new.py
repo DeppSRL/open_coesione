@@ -1027,7 +1027,7 @@ class Command(BaseCommand):
                 #     else:
                 #         tipo_territorio = Territorio.TERRITORIO.C
 
-                if tipo_territorio not in (Territorio.TERRITORIO.E, Territorio.TERRITORIO.N):
+                if not tipo_territorio in (Territorio.TERRITORIO.E, Territorio.TERRITORIO.N):
                     if row['COD_PROVINCIA'] in ('000', '900'):
                         tipo_territorio = Territorio.TERRITORIO.R
                     elif row['COD_COMUNE'] in ('000', '900'):
