@@ -477,15 +477,21 @@ class OpendataView(TemplateView):
 
     @classmethod
     def get_complete_remotefile(cls, file_name):
+        import datetime
+        import email.utils as eut
+
         try:
-            f = urllib2.urlopen(file_name)
+            f = urllib2.urlopen(file_name, timeout=2)
             file_size = f.headers['Content-Length']
-        except urllib2.HTTPError:
+            file_date = datetime.datetime(*eut.parsedate(f.headers['Last-Modified'])[:6])
+        except Exception:
             file_size = None
+            file_date = None
 
         return {
             'file_name': file_name,
             'file_size': file_size,
+            'file_date': file_date,
             'file_ext': cls.get_file_ext(file_name),
         }
 
