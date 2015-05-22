@@ -138,6 +138,7 @@ class Command(BaseCommand):
             'import_method': '_import_progetticipe',
             'converters': {
                 # 'OC_TEMA_SINTETICO': convert_progettocipe_oc_tema_sintetico,
+                'CUP_COD_NATURA': convert_progetto_cup_cod_natura,
                 'CUP_COD_SETTORE': convert_progetto_cup_cod_settore,
                 'CUP_COD_SOTTOSETTORE': convert_progetto_cup_cod_sottosettore,
                 'CUP': convert_progettocipe_cup,
@@ -1016,8 +1017,8 @@ class Command(BaseCommand):
             else:
                 territorio = None
 
-                # tipo_territorio = self._get_value(row, 'OC_TERRITORIO_PROG')
-                #
+                tipo_territorio = self._get_value(row, 'OC_TERRITORIO_PROG')
+
                 # # per i progetti CIPE non c'è il campo OC_TERRITORIO_PROG
                 # if not tipo_territorio:
                 #     if row['COD_PROVINCIA'] in ('000', '900'):
@@ -1027,12 +1028,11 @@ class Command(BaseCommand):
                 #     else:
                 #         tipo_territorio = Territorio.TERRITORIO.C
 
-                if row['COD_PROVINCIA'] in ('000', '900'):
-                    tipo_territorio = Territorio.TERRITORIO.R
-                elif row['COD_COMUNE'] in ('000', '900'):
-                    tipo_territorio = Territorio.TERRITORIO.P
-                else:
-                    tipo_territorio = self._get_value(row, 'OC_TERRITORIO_PROG')
+                if not tipo_territorio in (Territorio.TERRITORIO.E, Territorio.TERRITORIO.N):
+                    if row['COD_PROVINCIA'] in ('000', '900'):
+                        tipo_territorio = Territorio.TERRITORIO.R
+                    elif row['COD_COMUNE'] in ('000', '900'):
+                        tipo_territorio = Territorio.TERRITORIO.P
 
                 if not tipo_territorio in dict(Territorio.TERRITORIO):
                     self.logger.warning(u'{0}/{1} - Tipo di territorio sconosciuto o errato: {2}. Skipping.'.format(n, df_count, tipo_territorio))
