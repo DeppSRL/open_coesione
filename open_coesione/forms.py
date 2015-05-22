@@ -14,7 +14,7 @@ class ContactForm(forms.Form):
     email = forms.EmailField()
     organization = forms.CharField(max_length= 100, label='Istituzione/Società/Ente')
     location = forms.CharField(max_length=300, label='Luogo')
-    reason = forms.TypedChoiceField(choices=REASON_CHOICES, label='Motivo del contatto', coerce=int, empty_value= '-----')
+    reason = forms.TypedChoiceField(choices=REASON_CHOICES, label='Motivo del contatto', empty_value= '-----')
 
     captcha = ReCaptchaField(label='Controllo anti-spam')
     body = forms.CharField(widget=forms.Textarea, label='Messaggio')
