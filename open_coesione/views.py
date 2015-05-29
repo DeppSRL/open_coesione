@@ -620,9 +620,9 @@ class PillolaDetailView(DetailView):
     model = Pillola
 
 
-class PillolaRedirectView(RedirectView):
-    def get_redirect_url(self, **kwargs):
-        return u'/media/pillole/{0}'.format(kwargs['path'])
+# class PillolaRedirectView(RedirectView):
+#     def get_redirect_url(self, **kwargs):
+#         return u'/media/pillole/{0}'.format(kwargs['path'])
 
 
 class PressReviewListView(ListView):

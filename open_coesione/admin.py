@@ -47,13 +47,6 @@ class OCFlatpageForm(TinyMCEEnabledForm, FlatpageForm):
         }
 
 
-class OCFlatPageAdmin(FlatPageAdmin):
-    form = OCFlatpageForm
-    fieldsets = (
-        (None, {'fields': ('url', 'title', 'content', 'extra_content', 'sites')}),
-    )
-
-
 class PillolaAdminForm(TinyMCEEnabledForm):
     class Meta:
         widgets = {
@@ -68,6 +61,27 @@ class FAQAdminForm(TinyMCEEnabledForm):
             'risposta_it': TinyMCE(mce_attrs=common_mce_attrs),
             'risposta_en': TinyMCE(mce_attrs=common_mce_attrs)
         }
+
+
+class FileInline(generic.GenericTabularInline):
+    model = File
+    verbose_name = 'Documento'
+    verbose_name_plural = 'Documenti'
+    extra = 0
+
+
+class LinkInline(generic.GenericTabularInline):
+    model = Link
+    verbose_name = 'Collegamento'
+    verbose_name_plural = 'Collegamenti'
+    extra = 0
+
+
+class OCFlatPageAdmin(FlatPageAdmin):
+    form = OCFlatpageForm
+    fieldsets = (
+        (None, {'fields': ('url', 'title', 'content', 'extra_content', 'sites')}),
+    )
 
 
 class MessagesAdmin(admin.ModelAdmin):
@@ -96,10 +110,10 @@ class PressReviewAdmin(admin.ModelAdmin):
 
 class PillolaAdmin(admin.ModelAdmin):
     date_hierarchy = 'published_at'
-    list_display = ('title', 'file', 'published_at')
+    list_display = ('title', 'published_at')
     ordering = ('-published_at',)
     prepopulated_fields = {'slug': ('title',)}
-    inlines = [TagInline]
+    inlines = [FileInline, TagInline]
     form = PillolaAdminForm
 
 
@@ -108,20 +122,6 @@ class FAQAdmin(admin.ModelAdmin):
     list_editable = ('priorita',)
     prepopulated_fields = {'slug_it': ('domanda_it',), 'slug_en': ('domanda_en',)}
     form = FAQAdminForm
-
-
-class FileInline(generic.GenericTabularInline):
-    model = File
-    verbose_name = 'Documento'
-    verbose_name_plural = 'Documenti'
-    extra = 0
-
-
-class LinkInline(generic.GenericTabularInline):
-    model = Link
-    verbose_name = 'Collegamento'
-    verbose_name_plural = 'Collegamenti'
-    extra = 0
 
 
 admin.site.register(ContactMessage, MessagesAdmin)

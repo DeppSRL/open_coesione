@@ -15,6 +15,38 @@ from django.contrib.flatpages.models import FlatPage
 FlatPage.add_to_class('extra_content', models.TextField('Contenuto sidebar', blank=True))
 
 
+class BaseResource(models.Model):
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.CharField(max_length=255)
+    content_object = generic.GenericForeignKey()
+
+    description = models.CharField(max_length=255, verbose_name='Descrizione')
+    large_description = models.CharField(max_length=512, verbose_name='Descrizione estesa', blank=True, null=True)
+    priority = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
+
+    def __unicode__(self):
+        return u'{0}'.format(self.description)
+
+    class Meta:
+        abstract = True
+        ordering = ['priority', 'description']
+
+
+class File(BaseResource):
+    # TYPE = Choices(
+    #     ('documento_programma', u'Documento di programma'),
+    #     ('rapporto_annuale', u'Rapporto annuale di pubblicazione'),
+    # )
+
+    # type = models.CharField(max_length=32, choices=TYPE)
+    # date = models.DateField(blank=True, null=True)
+    file = models.FileField(max_length=255, upload_to=lambda instance, filename: 'files/{0}/{1}'.format(slugify('{0} {1}'.format(instance.content_type, instance.object_id)), filename))
+
+
+class Link(BaseResource):
+    url = models.URLField(max_length=255, verbose_name='URL')
+
+
 class ContactMessage(models.Model):
     REASON_CHOICES = (
         (u'1', u'domanda sui dati'),
@@ -68,6 +100,7 @@ class Pillola(tagging_models.TagMixin, models.Model):
     image = FileBrowseField(max_length=200, directory='immagini/', format='image', verbose_name='Immagine', blank=True, null=True)
     file = models.FileField(upload_to='pillole', blank=True, null=True)
     published_at = models.DateField(verbose_name='Data di pubblicazione')
+    documents = generic.GenericRelation(File, verbose_name='Documenti')
 
     def get_absolute_url(self):
         return reverse('pillola', kwargs={'slug': self.slug})
@@ -78,38 +111,6 @@ class Pillola(tagging_models.TagMixin, models.Model):
     class Meta:
         verbose_name = 'Pillola'
         verbose_name_plural = 'Pillole'
-
-
-class BaseResource(models.Model):
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.CharField(max_length=255)
-    content_object = generic.GenericForeignKey()
-
-    description = models.CharField(max_length=255, verbose_name='Descrizione')
-    large_description = models.CharField(max_length=512, verbose_name='Descrizione estesa', blank=True, null=True)
-    priority = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
-
-    def __unicode__(self):
-        return u'{0}'.format(self.description)
-
-    class Meta:
-        abstract = True
-        ordering = ['priority', 'description']
-
-
-class File(BaseResource):
-    # TYPE = Choices(
-    #     ('documento_programma', u'Documento di programma'),
-    #     ('rapporto_annuale', u'Rapporto annuale di pubblicazione'),
-    # )
-
-    # type = models.CharField(max_length=32, choices=TYPE)
-    # date = models.DateField(blank=True, null=True)
-    file = models.FileField(max_length=255, upload_to=lambda instance, filename: 'files/{0}/{1}'.format(slugify('{0} {1}'.format(instance.content_type, instance.object_id)), filename))
-
-
-class Link(BaseResource):
-    url = models.URLField(max_length=255, verbose_name='URL')
 
 
 class FAQ(models.Model):
