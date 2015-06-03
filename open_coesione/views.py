@@ -273,7 +273,7 @@ class SpesaCertificataGraficiView(RisorsaView):
 
         context['chart_tables'] = []
         for tipo in ['competitivita_fesr', 'competitivita_fse', 'convergenza_fesr', 'convergenza_fse']:
-            context['chart_tables'].append((tipo, csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/spesa_certificata/{0}.csv'.format(tipo))))))
+            context['chart_tables'].append((tipo, csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/spesa_certificata/{}.csv'.format(tipo))))))
 
         return context
 
@@ -294,7 +294,7 @@ class ContactView(TemplateView):
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
 
-            return HttpResponseRedirect('{0}?completed=true'.format(reverse('oc-contatti')))  # Redirect after POST
+            return HttpResponseRedirect('{}?completed=true'.format(reverse('oc-contatti')))  # Redirect after POST
 
         return self.get(request, *args, **kwargs)
 
@@ -303,7 +303,7 @@ class DatiISTATView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(DatiISTATView, self).get_context_data(**kwargs)
 
-        istat_path = 'http://www.istat.it/storage/politiche-sviluppo/{0}'
+        istat_path = 'http://www.istat.it/storage/politiche-sviluppo/{}'
         context['istat_metadata_file'] = OpendataView.get_complete_remotefile(istat_path.format('Metainformazione.xls'))
 
         return context
@@ -433,27 +433,33 @@ class OpendataView(TemplateView):
 
         # context['istat_data_file'] = self.get_complete_localfile('Indicatori_regionali.zip')
         # context['istat_metadata_file'] = self.get_complete_localfile('Metainformazione.xls')
-        istat_path = 'http://www.istat.it/storage/politiche-sviluppo/{0}'
+        istat_path = 'http://www.istat.it/storage/politiche-sviluppo/{}'
         context['istat_data_file'] = self.get_complete_remotefile(istat_path.format('Archivio_unico_indicatori_regionali.zip'))
         context['istat_metadata_file'] = self.get_complete_remotefile(istat_path.format('Metainformazione.xls'))
 
+        # cpt_path = 'http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/{}/{}'
+        # cpt_subpath = 'BD_CPT/2014_CSV/CSV'
+        # context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'PA_ENTRATE_1996-2012.zip'))
+        # context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'PA_SPESE_1996-2012.zip'))
+        # context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_ENTRATE_1996-2012.zip'))
+        # context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_SPESE_1996-2012.zip'))
+        # context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('METADATA', 'CPT_Metadati_perCSV_def.xls'))
+        cpt_path = 'http://www.dps.gov.it/it/cpt/I_dati_del_Sistema_CPT/DatiCPT_CatalogoCPT/datasets/{}'
+        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format('PA_E.zip'), file_ext='zip/xls')
+        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format('PA_S.zip'), file_ext='zip/xls')
+        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format('SPA_E.zip'), file_ext='zip/xls')
+        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format('SPA_S.zip'), file_ext='zip/xls')
+        context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('CPT_Metadati_albero_2015.xls'))
+
         context['indagine_data_file'] = self.get_complete_localfile('indagine_data.zip')
         context['indagine_metadata_file'] = self.get_complete_localfile('indagine_metadata.xls')
-
-        cpt_path = 'http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/{0}/{1}'
-        cpt_subpath = 'BD_CPT/2014_CSV/CSV'
-        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'PA_ENTRATE_1996-2012.zip'))
-        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'PA_SPESE_1996-2012.zip'))
-        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_ENTRATE_1996-2012.zip'))
-        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_SPESE_1996-2012.zip'))
-        context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('METADATA', 'CPT_Metadati_perCSV_def.xls'))
 
         context['raccordo_temi_sintetici_file'] = self.get_complete_localfile('raccordo_temi_sintetici.xls')
 
         return context
 
     @classmethod
-    def get_complete_localfile(cls, file_name):
+    def get_complete_localfile(cls, file_name, file_ext=None):
         try:
             file_path = cls.get_latest_localfile(file_name)
             file_size = os.stat(file_path).st_size
@@ -472,21 +478,27 @@ class OpendataView(TemplateView):
             'file_name': reverse('opendata_clean', kwargs={'path': file_name}),
             'file_size': file_size,
             'file_date': file_date,
-            'file_ext': cls.get_file_ext(file_name),
+            'file_ext': file_ext or cls.get_file_ext(file_name),
         }
 
     @classmethod
-    def get_complete_remotefile(cls, file_name):
+    def get_complete_remotefile(cls, file_name, file_ext=None):
+        import datetime
+        import email.utils as eut
+
         try:
             f = urllib2.urlopen(file_name)
             file_size = f.headers['Content-Length']
+            file_date = datetime.datetime(*eut.parsedate(f.headers['Last-Modified'])[:6])
         except urllib2.HTTPError:
             file_size = None
+            file_date = None
 
         return {
             'file_name': file_name,
             'file_size': file_size,
-            'file_ext': cls.get_file_ext(file_name),
+            'file_date': file_date,
+            'file_ext': file_ext or cls.get_file_ext(file_name),
         }
 
     @staticmethod
@@ -550,7 +562,7 @@ class OpendataView(TemplateView):
 
         files = []
         for region_code, region_name in regions.items():
-            file = cls.get_complete_localfile('{0}/{1}_{2}_{3}.zip'.format('regione', section_code, prefix, region_code))
+            file = cls.get_complete_localfile('{}/{}_{}_{}.zip'.format('regione', section_code, prefix, region_code))
             file['region_name'] = region_name
             files.append(file)
 
@@ -576,7 +588,7 @@ class OpendataView(TemplateView):
     #
     #     files = []
     #     for theme_code, theme_name in themes.items():
-    #         file = cls.get_complete_localfile('{0}/{1}_{2}.zip'.format(section_name, section_code, theme_code))
+    #         file = cls.get_complete_localfile('{}/{}_{}.zip'.format(section_name, section_code, theme_code))
     #         file['theme_name'] = theme_name
     #         files.append(file)
     #
@@ -586,7 +598,7 @@ class OpendataView(TemplateView):
 class OpendataRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
         try:
-            return u'/media/open_data/{0}'.format(OpendataView.get_latest_localfile(kwargs['path'], as_urlpath=True))
+            return u'/media/open_data/{}'.format(OpendataView.get_latest_localfile(kwargs['path'], as_urlpath=True))
         except:
             raise Http404('File not found.')
 
@@ -640,4 +652,4 @@ class FAQListView(ListView):
 
 class DocumentsRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
-        return u'/media/uploads/documenti/{0}'.format(kwargs['path'])
+        return u'/media/uploads/documenti/{}'.format(kwargs['path'])
