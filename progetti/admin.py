@@ -21,13 +21,13 @@ class ProgrammaAdminForm(TinyMCEEnabledForm):
 
 class LocalizzazioneInline(admin.TabularInline):
     model = Localizzazione
-    raw_id_fields = ('progetto', 'territorio', )
+    raw_id_fields = ('progetto', 'territorio',)
     extra = 0
 
 
 class DeliberaCIPEInline(admin.TabularInline):
     model = ProgettoDeliberaCIPE
-    raw_id_fields = ('delibera', )
+    raw_id_fields = ('delibera',)
     extra = 0
 
 
@@ -122,7 +122,7 @@ class ProgettoAdmin(admin.ModelAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
 
         if not request.user.is_superuser:
-            self.fields = ('codice_locale', 'cup', 'titolo_progetto', 'descrizione', )
+            self.fields = ('codice_locale', 'cup', 'titolo_progetto', 'descrizione',)
             self.readonly_fields = ('codice_locale', 'cup', 'titolo_progetto')
 
         return super(ProgettoAdmin, self).change_view(request, object_id, form_url, extra_context)
@@ -155,7 +155,7 @@ class ClassificazioneAzioneAdmin(ClassificazioneAdmin):
 
 class SegnalazioneAdmin(admin.ModelAdmin):
     list_display = ('email', 'cup', 'is_cipe', 'modified')
-    list_filter = ('is_cipe', )
+    list_filter = ('is_cipe',)
     search_fields = ('email', 'cup')
     fieldsets = (
         (None, {
@@ -163,12 +163,12 @@ class SegnalazioneAdmin(admin.ModelAdmin):
         }),
         ('Persona', {
             'fields': ('organizzazione', 'utente', 'email'),
-            'classes': ('collapse', )
+            'classes': ('collapse',)
         }),
         ('Descrizione', {
             'fields': ('descrizione', 'come_migliorare', 'risultati_conseguiti', 'effetti_sul_territorio',
                        'cosa_piace', 'cosa_non_piace', 'quanto_utile'),
-            'classes': ('collapse', )
+            'classes': ('collapse',)
         })
     )
     readonly_fields = ['come_lo_conosci', 'come_lo_conosci_altro', 'cup', 'is_cipe', 'organizzazione', 'utente', 'email',

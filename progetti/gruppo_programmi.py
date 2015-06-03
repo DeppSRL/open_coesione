@@ -56,11 +56,12 @@ class Config(object):
             programmi_pac_fesr = ProgrammaAsseObiettivo.objects.filter(
                 tipo_classificazione=ProgrammaAsseObiettivo.TIPO.programma
             ).filter(
-                Q(descrizione__contains="POIN CONV FESR ATTRATTORI CULTURALI") |
-                Q(descrizione__contains="CONV FESR") & (
-                    Q(descrizione__contains="CAMPANIA") |
-                    Q(descrizione__contains="CALABRIA") |
-                    Q(descrizione__contains="SICILIA")
+                Q(descrizione__contains='POIN CONV FESR ATTRATTORI CULTURALI') |
+                Q(descrizione__contains='PON CONV FESR RETI E MOBILITÀ') |
+                Q(descrizione__contains='CONV FESR') & (
+                    Q(descrizione__contains='CAMPANIA') |
+                    Q(descrizione__contains='CALABRIA') |
+                    Q(descrizione__contains='SICILIA')
                 )
             )
             cache.set('programmi_pac_fesr', programmi_pac_fesr)

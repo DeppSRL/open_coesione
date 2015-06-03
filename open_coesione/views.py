@@ -487,10 +487,10 @@ class OpendataView(TemplateView):
         import email.utils as eut
 
         try:
-            f = urllib2.urlopen(file_name)
+            f = urllib2.urlopen(file_name, timeout=2)
             file_size = f.headers['Content-Length']
             file_date = datetime.datetime(*eut.parsedate(f.headers['Last-Modified'])[:6])
-        except urllib2.HTTPError:
+        except Exception:
             file_size = None
             file_date = None
 
@@ -626,9 +626,9 @@ class PillolaDetailView(DetailView):
     model = Pillola
 
 
-class PillolaRedirectView(RedirectView):
-    def get_redirect_url(self, **kwargs):
-        return u'/media/pillole/{0}'.format(kwargs['path'])
+# class PillolaRedirectView(RedirectView):
+#     def get_redirect_url(self, **kwargs):
+#         return u'/media/pillole/{}'.format(kwargs['path'])
 
 
 class PressReviewListView(ListView):

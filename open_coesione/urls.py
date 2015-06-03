@@ -2,9 +2,9 @@ from django.conf.urls import patterns, include, url
 from django.contrib.gis import admin
 from django.conf import settings
 from django.views.generic.base import TemplateView
-from open_coesione.views import HomeView, FondiView, RisorsaView, ContactView, SpesaCertificataGraficiView, \
-    OpendataView, OpendataRedirectView, PillolaListView, PillolaDetailView, PillolaRedirectView, DocumentsRedirectView,\
-    FAQListView, PressReviewListView, DatiISTATView
+from open_coesione.views import HomeView, FondiView, RisorsaView, ContactView, SpesaCertificataGraficiView,\
+    OpendataView, OpendataRedirectView, PillolaListView, PillolaDetailView, DocumentsRedirectView, FAQListView,\
+    PressReviewListView, DatiISTATView
 from rubrica.views import NLContactView
 from filebrowser.sites import site
 
@@ -37,7 +37,7 @@ urlpatterns = patterns('',
     url(r'^news/', include('blog.urls')),
 
     # pillole
-    url(r'^pillole/(?P<path>.+)$', PillolaRedirectView.as_view(), name='pillole_clean'),
+    # url(r'^pillole/(?P<path>.+)$', PillolaRedirectView.as_view(), name='pillole_clean'),
     url(r'^pillole/$', PillolaListView.as_view(), name='pillole'),
     url(r'^pillola/(?P<slug>[\w-]+)/$', PillolaDetailView.as_view(), name='pillola'),
 

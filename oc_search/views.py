@@ -19,6 +19,22 @@ class ExtendedFacetedSearchView(SearchView):
 
         super(ExtendedFacetedSearchView, self).__init__(*args, **kwargs)
 
+    @staticmethod
+    def _get_objects_by_pk(pks):
+        return {}
+
+    def build_page(self):
+        (paginator, page) = super(ExtendedFacetedSearchView, self).build_page()
+
+        objects_by_pk = self._get_objects_by_pk([object.pk for object in page.object_list])
+        for object in page.object_list:
+            try:
+                object.object = objects_by_pk[object.pk]
+            except KeyError:
+                pass
+
+        return (paginator, page)
+
     def build_form(self, form_kwargs=None):
         if form_kwargs is None:
             form_kwargs = {}

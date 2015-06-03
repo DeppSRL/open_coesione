@@ -11,13 +11,26 @@
 {% endblock %}
 
 {% block sidebar %}
-    {% if object.file %}
+    {% comment %}{% if object.file %}
         <h2 class='title'><span>Download</span></h2>
 
         <div style="margin: 16px 0">
             <a href="/{{ object.file.name }}" class="btn icon-download-alt" style="background-image: none; border: 2px solid #005652; text-transform: uppercase; margin-right: 10px; padding-top: 0; padding-bottom: 0"> <span style="color: #000000">{{ object.file.name|slice:'-3:'|lower }}</span></a>
             {{ object.file.size|filesizeformat }}
         </div>
+
+        {% add_data 'js-data' 'js/oc-ga-downloads.js' %}
+    {% endif %}{% endcomment %}
+
+    {% if object.documents.all %}
+        <h2 class='title'><span>Download</span></h2>
+
+        {% for document in object.documents.all %}
+            <div style="margin: 16px 0">
+                <a href="{{ document.file.url }}" class="btn icon-download-alt" style="background-image: none; border: 2px solid #005652; text-transform: uppercase; margin-right: 10px; padding-top: 0; padding-bottom: 0"> <span style="color: #000000">{{ document.file.name|slice:'-3:'|lower }}</span></a>
+                {{ document.file.size|filesizeformat }}
+            </div>
+        {% endfor %}
 
         {% add_data 'js-data' 'js/oc-ga-downloads.js' %}
     {% endif %}

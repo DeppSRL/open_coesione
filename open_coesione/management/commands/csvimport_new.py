@@ -84,7 +84,7 @@ def convert_soggetto_oc_denominazione_sogg(val):
 
 def convert_progettocipe_cup(val):
     val = re.sub('[\s\n\r]+', '', val)
-    return tuple(val.split(';')) if val else ()
+    return tuple(val.split(':::')) if val else ()
 
 
 def convert_progettocipe_oc_tema_sintetico(val):
@@ -134,30 +134,31 @@ class Command(BaseCommand):
             },
         },
         'progetti-cipe': {
-            'files': ['assegnazioni_CIPE_{0}.csv'],
+            'files': ['assegnazioni_CIPE.csv'],
             'import_method': '_import_progetticipe',
             'converters': {
-                'OC_TEMA_SINTETICO': convert_progettocipe_oc_tema_sintetico,
+                # 'OC_TEMA_SINTETICO': convert_progettocipe_oc_tema_sintetico,
+                'CUP_COD_NATURA': convert_progetto_cup_cod_natura,
                 'CUP_COD_SETTORE': convert_progetto_cup_cod_settore,
                 'CUP_COD_SOTTOSETTORE': convert_progetto_cup_cod_sottosettore,
                 'CUP': convert_progettocipe_cup,
             },
         },
         'soggetti': {
-            'files': ['soggetti_FSC0713_{0}.csv', 'soggetti_FS0713_{0}.csv', 'soggetti_PAC_{0}.csv'],
+            'files': ['soggetti_FSC0713_{0}.csv', 'soggetti_FS0713_{0}.csv', 'soggetti_PAC_{0}.csv', 'soggetti_CIPE.csv'],
             'import_method': '_import_soggetti',
             'converters': {
                 'OC_DENOMINAZIONE_SOGG': convert_soggetto_oc_denominazione_sogg,
             },
         },
+        'localizzazioni': {
+            'files': ['localizzazioni_FSC0713_{0}.csv', 'localizzazioni_FS0713_{0}.csv', 'localizzazioni_PAC_{0}.csv', 'localizzazioni_CIPE.csv', 'loc_inattivi_{0}.csv'],
+            'import_method': '_import_localizzazioni',
+            'converters': None,
+        },
         'pagamenti': {
             'files': ['pagamenti_FSC0713_{0}.csv', 'pagamenti_FS0713_{0}.csv', 'pagamenti_PAC_{0}.csv', 'pag_inattivi_{0}.csv'],
             'import_method': '_import_pagamenti',
-            'converters': None,
-        },
-        'localizzazioni': {
-            'files': ['localizzazioni_FSC0713_{0}.csv', 'localizzazioni_FS0713_{0}.csv', 'localizzazioni_PAC_{0}.csv', 'localizzazioni_CIPE_{0}.csv', 'loc_inattivi_{0}.csv'],
-            'import_method': '_import_localizzazioni',
             'converters': None,
         },
         'update-privacy-progetti': {
@@ -762,6 +763,8 @@ class Command(BaseCommand):
             transaction.commit()
             self.logger.info(u'Fatto.')
 
+        df['COD_LOCALE_PROGETTO'] = df.apply(lambda row: row['COD_LOCALE_PROGETTO'] or row['COD_DIPE'], axis=1)
+
         # self._import_soggetti_formagiuridica(df)
         # self._import_soggetti_codiceateco(df)
 
@@ -1016,14 +1019,20 @@ class Command(BaseCommand):
 
                 tipo_territorio = self._get_value(row, 'OC_TERRITORIO_PROG')
 
-                # per i progetti CIPE non c'è il campo OC_TERRITORIO_PROG
-                if not tipo_territorio:
+                # # per i progetti CIPE non c'è il campo OC_TERRITORIO_PROG
+                # if not tipo_territorio:
+                #     if row['COD_PROVINCIA'] in ('000', '900'):
+                #         tipo_territorio = Territorio.TERRITORIO.R
+                #     elif row['COD_COMUNE'] in ('000', '900'):
+                #         tipo_territorio = Territorio.TERRITORIO.P
+                #     else:
+                #         tipo_territorio = Territorio.TERRITORIO.C
+
+                if not tipo_territorio in (Territorio.TERRITORIO.E, Territorio.TERRITORIO.N):
                     if row['COD_PROVINCIA'] in ('000', '900'):
                         tipo_territorio = Territorio.TERRITORIO.R
                     elif row['COD_COMUNE'] in ('000', '900'):
                         tipo_territorio = Territorio.TERRITORIO.P
-                    else:
-                        tipo_territorio = Territorio.TERRITORIO.C
 
                 if not tipo_territorio in dict(Territorio.TERRITORIO):
                     self.logger.warning(u'{0}/{1} - Tipo di territorio sconosciuto o errato: {2}. Skipping.'.format(n, df_count, tipo_territorio))
@@ -1105,25 +1114,24 @@ class Command(BaseCommand):
     def _import_progetticipe(self, df, append):
         """
         Procedura per importare dati di progetto, e soggetti, a partire dal tracciato del CIPE
-        Non viene importata la natura, che arriva su un tracciato differente
         """
 
-        df.rename(columns={u'PROGRAMMAZIONE': u'OC_CODICE_PROGRAMMA'}, inplace=True)
+        # df.rename(columns={u'PROGRAMMAZIONE': u'OC_CODICE_PROGRAMMA'}, inplace=True)
+        df.rename(columns={u'OC_TIPO_PROGRAMMAZIONE': u'OC_CODICE_PROGRAMMA'}, inplace=True)
         df[u'OC_DESCRIZIONE_PROGRAMMA'] = df[u'OC_CODICE_PROGRAMMA']
         df[u'PO_CODICE_ASSE'] = '00'
         df[u'PO_DENOMINAZIONE_ASSE'] = ''
         df[u'PO_COD_OBIETTIVO_OPERATIVO'] = '00'
         df[u'PO_OBIETTIVO_OPERATIVO'] = ''
 
-        # TODO: implementare lettura da colonna CSV
-        df[u'CUP_COD_NATURA'] = convert_progetto_cup_cod_natura('3')
-        df[u'CUP_DESCR_NATURA'] = u'REALIZZAZIONE DI LAVORI PUBBLICI (OPERE ED IMPIANTISTICA)'
+        # df[u'CUP_COD_NATURA'] = convert_progetto_cup_cod_natura('3')
+        # df[u'CUP_DESCR_NATURA'] = u'REALIZZAZIONE DI LAVORI PUBBLICI (OPERE ED IMPIANTISTICA)'
         df[u'CUP_COD_TIPOLOGIA'] = convert_progetto_cup_cod_tipologia('0')
         df[u'CUP_DESCR_TIPOLOGIA'] = ''
 
         row_selection = df['COD_DIPE'].isin(['IPS_00099', 'IPS_00100', 'IPS_00109', 'UPS_00014', 'UPS_00024', 'UPS_00026', 'UPS_00027', 'UPS_00028', 'UPS_00047', 'UPS_00069'])
-        df.loc[row_selection, 'CUP_COD_NATURA'] = convert_progetto_cup_cod_natura('1')
-        df.loc[row_selection, 'CUP_DESCR_NATURA'] = u'ACQUISTO DI BENI E SERVIZI'
+        # df.loc[row_selection, 'CUP_COD_NATURA'] = convert_progetto_cup_cod_natura('1')
+        # df.loc[row_selection, 'CUP_DESCR_NATURA'] = u'ACQUISTO DI BENI E SERVIZI'
         df.loc[row_selection, 'CUP_COD_TIPOLOGIA'] = convert_progetto_cup_cod_tipologia('99')
         df.loc[row_selection, 'CUP_DESCR_TIPOLOGIA'] = u'ALTRO'
 
@@ -1133,8 +1141,8 @@ class Command(BaseCommand):
         df[u'QSN_COD_TEMA_PRIORITARIO_UE'] = convert_progetto_qsn_cod_tema_prioritario_ue('0')
         df[u'QSN_DESCR_TEMA_PRIORITARIO_UE'] = ''
 
-        df.rename(columns={u'FONDO': u'OC_DESCR_FONTE'}, inplace=True)
-        df[u'OC_COD_FONTE'] = df.apply(lambda row: 'FSC0006' if row['OC_DESCR_FONTE'][-2:] == '06' else ('FSC0713' if row['OC_DESCR_FONTE'][-2:] == '13' else ''), axis=1)
+        # df.rename(columns={u'FONDO': u'OC_DESCR_FONTE'}, inplace=True)
+        # df[u'OC_COD_FONTE'] = df.apply(lambda row: 'FSC0006' if row['OC_DESCR_FONTE'][-2:] == '06' else ('FSC0713' if row['OC_DESCR_FONTE'][-2:] == '13' else ''), axis=1)
 
         # check whether to remove records
         if not append:
@@ -1186,7 +1194,7 @@ class Command(BaseCommand):
 
                 values['codice_locale'] = codice_locale
 
-                values['titolo_progetto'] = row['TITOLO_PROGETTO']
+                values['titolo_progetto'] = row['OC_TITOLO_PROGETTO']
 
                 #values['active_flag'] = row['FLAG_ATTIVO']
                 values['cipe_flag'] = True
@@ -1267,41 +1275,41 @@ class Command(BaseCommand):
                 self.logger.info(u'{0} -----------------> Committing.' .format(n))
                 transaction.commit()
 
-        # soggetti e ruoli
-
-        for col, role in {'SOGGETTO_RESPONSABILE': Ruolo.RUOLO.programmatore, 'SOGGETTO_ATTUATORE': Ruolo.RUOLO.attuatore}.iteritems():
-            df1 = df[df[col].str.strip() != ''][[col, 'COD_DIPE']].drop_duplicates().groupby(col, as_index=False)['COD_DIPE'].aggregate(lambda x: x.tolist())
-
-            df_count = len(df1)
-
-            n = 0
-            for index, row in df1.iterrows():
-                n += 1
-
-                denominazione = row[col].strip()
-
-                soggetto, created = Soggetto.fullobjects.get_or_create(
-                    denominazione__iexact=denominazione,
-                    codice_fiscale='',
-                    defaults={'denominazione': denominazione}
-                )
-                self._log(created, u'{0}/{1} - Creato soggetto: {2}'.format(n, df_count, soggetto))
-
-                role_count = len(row['COD_DIPE'])
-
-                nn = 0
-                for codice_locale in row['COD_DIPE']:
-                    nn += 1
-
-                    ruolo = Ruolo.objects.create(
-                        progetto_id=codice_locale,
-                        soggetto=soggetto,
-                        ruolo=role,
-                    )
-                    self.logger.info(u'{0}/{1} ({2}/{3}) - Creato ruolo: {4}'.format(n, df_count, nn, role_count, ruolo))
-
-            self.logger.info(u'{0} -----------------> Committing.' .format(col))
-            transaction.commit()
+        # # soggetti e ruoli
+        #
+        # for col, role in {'SOGGETTO_RESPONSABILE': Ruolo.RUOLO.programmatore, 'SOGGETTO_ATTUATORE': Ruolo.RUOLO.attuatore}.iteritems():
+        #     df1 = df[df[col].str.strip() != ''][[col, 'COD_DIPE']].drop_duplicates().groupby(col, as_index=False)['COD_DIPE'].aggregate(lambda x: x.tolist())
+        #
+        #     df_count = len(df1)
+        #
+        #     n = 0
+        #     for index, row in df1.iterrows():
+        #         n += 1
+        #
+        #         denominazione = row[col].strip()
+        #
+        #         soggetto, created = Soggetto.fullobjects.get_or_create(
+        #             denominazione__iexact=denominazione,
+        #             codice_fiscale='',
+        #             defaults={'denominazione': denominazione}
+        #         )
+        #         self._log(created, u'{0}/{1} - Creato soggetto: {2}'.format(n, df_count, soggetto))
+        #
+        #         role_count = len(row['COD_DIPE'])
+        #
+        #         nn = 0
+        #         for codice_locale in row['COD_DIPE']:
+        #             nn += 1
+        #
+        #             ruolo = Ruolo.objects.create(
+        #                 progetto_id=codice_locale,
+        #                 soggetto=soggetto,
+        #                 ruolo=role,
+        #             )
+        #             self.logger.info(u'{0}/{1} ({2}/{3}) - Creato ruolo: {4}'.format(n, df_count, nn, role_count, ruolo))
+        #
+        #     self.logger.info(u'{0} -----------------> Committing.' .format(col))
+        #     transaction.commit()
 
     def _update_privacy_progetti(self, df, append):
         if not append:
