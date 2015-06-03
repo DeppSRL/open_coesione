@@ -98,7 +98,7 @@ class Pillola(tagging_models.TagMixin, models.Model):
     abstract = models.TextField(max_length=1024, verbose_name='Descrizione breve', blank=True, null=True)
     description = models.TextField(max_length=1024, verbose_name='Descrizione', blank=True, null=True)
     image = FileBrowseField(max_length=200, directory='immagini/', format='image', verbose_name='Immagine', blank=True, null=True)
-    file = models.FileField(upload_to='pillole', blank=True, null=True)
+    # file = models.FileField(upload_to='pillole', blank=True, null=True)
     published_at = models.DateField(verbose_name='Data di pubblicazione')
     documents = generic.GenericRelation(File, verbose_name='Documenti')
 
@@ -139,8 +139,8 @@ class FAQ(models.Model):
         ordering = ['-priorita', 'id']
 
 
+# @receiver(models.signals.post_delete, sender=Pillola)
 @receiver(models.signals.post_delete, sender=File)
-@receiver(models.signals.post_delete, sender=Pillola)
 @receiver(models.signals.post_delete, sender=PressReview)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
     """
@@ -151,8 +151,8 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
             os.remove(instance.file.path)
 
 
+# @receiver(models.signals.pre_save, sender=Pillola)
 @receiver(models.signals.pre_save, sender=File)
-@receiver(models.signals.pre_save, sender=Pillola)
 @receiver(models.signals.pre_save, sender=PressReview)
 def auto_delete_file_on_change(sender, instance, **kwargs):
     """
