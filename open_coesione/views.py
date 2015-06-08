@@ -445,10 +445,10 @@ class OpendataView(TemplateView):
         # context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_SPESE_1996-2012.zip'))
         # context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('METADATA', 'CPT_Metadati_perCSV_def.xls'))
         cpt_path = 'http://www.dps.gov.it/it/cpt/I_dati_del_Sistema_CPT/DatiCPT_CatalogoCPT/datasets/{}'
-        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format('PA_E.zip'), file_ext='zip/xls')
-        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format('PA_S.zip'), file_ext='zip/xls')
-        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format('SPA_E.zip'), file_ext='zip/xls')
-        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format('SPA_S.zip'), file_ext='zip/xls')
+        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format('PA_ENTRATE_2000-2013.zip'))
+        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format('PA_SPESE_2000-2013.zip'))
+        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format('SPA_ENTRATE_2000-2013.zip'))
+        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format('SPA_SPESE_2000-2013.zip'))
         context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('CPT_Metadati_albero_2015.xls'))
 
         context['indagine_data_file'] = self.get_complete_localfile('indagine_data.zip')
@@ -459,7 +459,7 @@ class OpendataView(TemplateView):
         return context
 
     @classmethod
-    def get_complete_localfile(cls, file_name, file_ext=None):
+    def get_complete_localfile(cls, file_name):
         try:
             file_path = cls.get_latest_localfile(file_name)
             file_size = os.stat(file_path).st_size
@@ -478,11 +478,11 @@ class OpendataView(TemplateView):
             'file_name': reverse('opendata_clean', kwargs={'path': file_name}),
             'file_size': file_size,
             'file_date': file_date,
-            'file_ext': file_ext or cls.get_file_ext(file_name),
+            'file_ext': cls.get_file_ext(file_name),
         }
 
     @classmethod
-    def get_complete_remotefile(cls, file_name, file_ext=None):
+    def get_complete_remotefile(cls, file_name):
         import datetime
         import email.utils as eut
 
@@ -498,7 +498,7 @@ class OpendataView(TemplateView):
             'file_name': file_name,
             'file_size': file_size,
             'file_date': file_date,
-            'file_ext': file_ext or cls.get_file_ext(file_name),
+            'file_ext': cls.get_file_ext(file_name),
         }
 
     @staticmethod
