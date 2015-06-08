@@ -61,8 +61,5 @@ class SoggettoIndex(SearchIndex):
         if obj.territorio:
             return obj.territorio.cod_com
 
-    def __unicode__(self):
-        return u'{0}'.format(self.denominazione)
-
 
 site.register(Soggetto, SoggettoIndex)
