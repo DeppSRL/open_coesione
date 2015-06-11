@@ -31,7 +31,7 @@
                             </td>
                             <td class="span5">
                                 {% comment %}{{ result.rendered|safe }}{% endcomment %}
-                                {% include 'search/indexes/soggetti/soggetto_rendered.txt' with object=result only %}
+                                {% include 'search/indexes/soggetti/soggetto_rendered.txt' with object=result.object only %}
                             </td>
                             <td class="amount span1">
                                 <strong>{{ result.costo|default:'0.0'|floatformat:'2' }}</strong>
