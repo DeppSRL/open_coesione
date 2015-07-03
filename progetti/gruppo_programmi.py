@@ -72,21 +72,23 @@ class Config(object):
                 Q(descrizione__contains='DIRETTRICI FERROVIARIE') |
                 Q(descrizione__contains='GIUSTIZIA CIVILE') |
                 Q(descrizione__contains='(PRA) FSC CAMPANIA') |
-                Q(descrizione__contains='(PRA) FSC SARDEGNA')
+                Q(descrizione__contains='(PRA) FSC SARDEGNA') |
+                Q(descrizione__contains='(PNA) FSC DA EXPO AI TERRITORI')
             )
             cache.set('programmi_pac_fsc', programmi_pac_fsc)
 
         # some fsc lists must be built by hand
         lista_programmi_fsc_pa = SortedDict([
+            (u'PROGRAMMA ATTUATIVO SPECIALE FSC COMUNE DI PALERMO', u'2007SI002FAPA1'),
             (u'PROGRAMMA ATTUATIVO SPECIALE FSC DIRETTRICI FERROVIARIE', u'2007IT001FA005'),
             (u'PROGRAMMA ATTUATIVO SPECIALE FSC GIUSTIZIA CIVILE CELERE PER LA CRESCITA', u'2007IT005FAMG1'),
-            (u'PROGRAMMA ATTUATIVO SPECIALE COMUNE DI PALERMO', u'2007SI002FAPA1'),
-            (u'PROGRAMMA ATTUATIVO SPECIALE RI.MED', u'2007IT002FA030'),
+            (u'PROGRAMMA ATTUATIVO SPECIALE FSC RI.MED', u'2007IT002FA030'),
             (u'PROGRAMMA STRATEGICO FSC COMPENSAZIONI AMBIENTALI REGIONE CAMPANIA', u'2007IT005FAMAC'),
         ])
         lista_programmi_fsc_pna = SortedDict([
-            (u'PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) RISANAMENTO AMBIENTALE', u'2007IT004FAMA1'),
+            (u'PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) FSC DA EXPO AI TERRITORI', u'2007IT001FA003'),
             (u"PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) FSC NUOVA IMPRENDITORIALITA' AGRICOLA", u'2007IT006FISMA'),
+            (u'PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) FSC RISANAMENTO AMBIENTALE', u'2007IT004FAMA1'),
         ])
 
         lista_programmi = {
