@@ -71,9 +71,8 @@ class Config(object):
             programmi_pac_fsc = programmi_linea.filter(
                 Q(descrizione__contains='DIRETTRICI FERROVIARIE') |
                 Q(descrizione__contains='GIUSTIZIA CIVILE') |
-                Q(descrizione__contains='(PRA) FSC CAMPANIA') |
-                Q(descrizione__contains='(PRA) FSC SARDEGNA') |
-                Q(descrizione__contains='(PNA) FSC DA EXPO AI TERRITORI')
+                Q(descrizione__contains='(PNA) FSC DA EXPO AI TERRITORI') |
+                Q(descrizione__contains='(PRA) FSC SARDEGNA')
             )
             cache.set('programmi_pac_fsc', programmi_pac_fsc)
 
