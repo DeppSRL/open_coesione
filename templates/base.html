@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="{% static 'css/custom-styles.css' %}" />
     <link rel="stylesheet" href="{% static 'css/ui-lightness/jquery-ui-1.8.21.custom.css' %}" media="all" />
     <link rel="stylesheet" href="{% static 'css/popover.css' %}" />
-    {% comment %}<link rel="stylesheet" href="{% static 'css/jquery.cookiebar.css' %}" />{% endcomment %}
+    <link rel="stylesheet" href="{% static 'css/jquery.cookiebar.css' %}" />
     <!--[if IE 7]>
         <link rel="stylesheet" href="{% static 'css/font-awesome-ie7.css' %}" />
     <![endif]-->
@@ -45,15 +45,16 @@
     {% add_data 'js-data' 'js/bootstrap-tooltip.js' %}
     {% add_data 'js-data' 'js/bootstrap-popover.js' %}
     {% add_data 'js-data' 'js/bootstrapx-clickover.js' %}
-    {% comment %}{% add_data 'js-data' 'js/jquery.cookiebar.js' %}{% endcomment %}
+    {% add_data 'js-data' 'js/jquery.cookiebar.js' %}
 
-    {% comment %}{% addtoblock 'js' strip %}
+    {% addtoblock 'js' strip %}
         <script>
             $(document).ready(function(){
 				$.cookieBar({
                     message: 'Il portale OpenCoesione utilizza cookie tecnici e, con il consenso degli utenti, cookie analytics e di terze parti per rendere migliore la navigazione e per fornire alcune funzionalità aggiuntive. Per maggiori informazioni sui cookie utilizzati, su come disabilitarli o per negare il consenso all’istallazione, <a href="{policy_url}">leggi l’informativa</a>. La prosecuzione nella navigazione, cliccando in un altro punto dello schermo o effettuando un’azione di scroll, equivale a prestazione del consenso.',
                     acceptButton: false,
                     acceptOnContinue: true,
+                    acceptOnScroll: 200,
         			policyURL: '/note-legali/',
                     fixed: true,
                     bottom: true,
@@ -61,7 +62,7 @@
                 });
 			});
         </script>
-    {% endaddtoblock %}{% endcomment %}
+    {% endaddtoblock %}
 
     {% addtoblock 'js' strip %}
         <script>
