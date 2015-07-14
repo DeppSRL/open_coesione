@@ -167,7 +167,7 @@ class Command(BaseCommand):
             'converters': None,
         },
         'update-privacy-soggetti': {
-            'files': ['sog_privacy_{0}.csv', 'sog_inattivi_privacy_{0}.csv'],
+            'files': ['sogg_privacy_{0}.csv', 'sogg_inattivi_privacy_{0}.csv'],
             'import_method': '_update_privacy_soggetti',
             'converters': None,
         },
