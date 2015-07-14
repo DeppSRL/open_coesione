@@ -59,7 +59,7 @@ class RangeFacetedSearchForm(SearchForm):
         # aggiunge filtro gruppo_programmi, se presente
         if self.is_valid() and self.cleaned_data.get('gruppo_programmi'):
             try:
-                sqs = sqs.filter_and(fonte_fin__in=[p.codice for p in GruppoProgrammi(codice=self.cleaned_data.get('gruppo_programmi')).programmi()])
+                sqs = sqs.filter_and(fonte_fin__in=[p.codice for p in GruppoProgrammi(codice=self.cleaned_data.get('gruppo_programmi')).programmi])
             except:
                 pass
 
