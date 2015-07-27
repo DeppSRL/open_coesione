@@ -341,7 +341,7 @@ class ProgrammiView(BaseProgrammaView):
 
                 dotazioni_totali_per_anno = {pagamento['data'].year: 0 for pagamento in pagamenti_per_anno}
                 for row in dotazioni_totali:
-                    if row['DPS_CODICE_PROGRAMMA'].strip() in programmi_codici:
+                    if row['OC_CODICE_PROGRAMMA'].strip() in programmi_codici:
                         for anno in dotazioni_totali_per_anno:
                             data = '{0}1231'.format(max(anno, 2009))  # i dati delle dotazioni totali partono dal 2009; per gli anni precedenti valgono i dati del 2009
                             try:
@@ -360,7 +360,7 @@ class ProgrammiView(BaseProgrammaView):
 
                 dotazioni_totali_per_programma = {}
                 for row in dotazioni_totali:
-                    programma = row['DPS_CODICE_PROGRAMMA'].strip()
+                    programma = row['OC_CODICE_PROGRAMMA'].strip()
                     if programma in programmi_codici:
                         data = data_pagamenti_per_programma.strftime('%Y%m%d')
                         try:
