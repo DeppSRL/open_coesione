@@ -125,7 +125,7 @@ class Command(BaseCommand):
 
     import_types = {
         'progetti': {
-            'files': ['progetti_FSC0713_{0}.zip', 'progetti_FS0713_{0}.zip', 'progetti_PAC_{0}.zip', 'prog_inattivi_{0}.zip'],
+            'files': ['progetti_FSC0713_{0}.csv', 'progetti_FS0713_{0}.csv', 'progetti_PAC_{0}.csv', 'prog_inattivi_{0}.csv'],
             'import_method': '_import_progetti',
             'converters': {
                 'CUP_COD_NATURA': convert_progetto_cup_cod_natura,
@@ -137,7 +137,7 @@ class Command(BaseCommand):
             },
         },
         'progetti-cipe': {
-            'files': ['assegnazioni_CIPE.zip'],
+            'files': ['assegnazioni_CIPE.csv'],
             'import_method': '_import_progetticipe',
             'converters': {
                 # 'OC_TEMA_SINTETICO': convert_progettocipe_oc_tema_sintetico,
@@ -148,19 +148,19 @@ class Command(BaseCommand):
             },
         },
         'soggetti': {
-            'files': ['soggetti_FSC0713_{0}.zip', 'soggetti_FS0713_{0}.zip', 'soggetti_PAC_{0}.zip', 'soggetti_CIPE.zip'],
+            'files': ['soggetti_FSC0713_{0}.csv', 'soggetti_FS0713_{0}.csv', 'soggetti_PAC_{0}.csv', 'soggetti_CIPE.csv'],
             'import_method': '_import_soggetti',
             'converters': {
                 'OC_DENOMINAZIONE_SOGG': convert_soggetto_oc_denominazione_sogg,
             },
         },
         'localizzazioni': {
-            'files': ['localizzazioni_FSC0713_{0}.zip', 'localizzazioni_FS0713_{0}.zip', 'localizzazioni_PAC_{0}.zip', 'localizzazioni_CIPE.zip', 'loc_inattivi_{0}.zip'],
+            'files': ['localizzazioni_FSC0713_{0}.csv', 'localizzazioni_FS0713_{0}.csv', 'localizzazioni_PAC_{0}.csv', 'localizzazioni_CIPE.csv', 'loc_inattivi_{0}.csv'],
             'import_method': '_import_localizzazioni',
             'converters': None,
         },
         'pagamenti': {
-            'files': ['pagamenti_FSC0713_{0}.zip', 'pagamenti_FS0713_{0}.zip', 'pagamenti_PAC_{0}.zip', 'pag_inattivi_{0}.zip'],
+            'files': ['pagamenti_FSC0713_{0}.csv', 'pagamenti_FS0713_{0}.csv', 'pagamenti_PAC_{0}.csv', 'pag_inattivi_{0}.csv'],
             'import_method': '_import_pagamenti',
             'converters': None,
         },
