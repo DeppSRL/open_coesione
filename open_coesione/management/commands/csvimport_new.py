@@ -15,6 +15,9 @@ from progetti.models import *
 from soggetti.models import *
 from territori.models import Territorio
 
+import os
+import zipfile
+from cStringIO import StringIO
 
 def convert_progetto_cup_cod_natura(val):
     if val.strip():
@@ -122,7 +125,7 @@ class Command(BaseCommand):
 
     import_types = {
         'progetti': {
-            'files': ['progetti_FSC0713_{0}.csv', 'progetti_FS0713_{0}.csv', 'progetti_PAC_{0}.csv', 'prog_inattivi_{0}.csv'],
+            'files': ['progetti_FSC0713_{0}.zip', 'progetti_FS0713_{0}.zip', 'progetti_PAC_{0}.zip', 'prog_inattivi_{0}.zip'],
             'import_method': '_import_progetti',
             'converters': {
                 'CUP_COD_NATURA': convert_progetto_cup_cod_natura,
@@ -134,7 +137,7 @@ class Command(BaseCommand):
             },
         },
         'progetti-cipe': {
-            'files': ['assegnazioni_CIPE.csv'],
+            'files': ['assegnazioni_CIPE.zip'],
             'import_method': '_import_progetticipe',
             'converters': {
                 # 'OC_TEMA_SINTETICO': convert_progettocipe_oc_tema_sintetico,
@@ -145,19 +148,19 @@ class Command(BaseCommand):
             },
         },
         'soggetti': {
-            'files': ['soggetti_FSC0713_{0}.csv', 'soggetti_FS0713_{0}.csv', 'soggetti_PAC_{0}.csv', 'soggetti_CIPE.csv'],
+            'files': ['soggetti_FSC0713_{0}.zip', 'soggetti_FS0713_{0}.zip', 'soggetti_PAC_{0}.zip', 'soggetti_CIPE.zip'],
             'import_method': '_import_soggetti',
             'converters': {
                 'OC_DENOMINAZIONE_SOGG': convert_soggetto_oc_denominazione_sogg,
             },
         },
         'localizzazioni': {
-            'files': ['localizzazioni_FSC0713_{0}.csv', 'localizzazioni_FS0713_{0}.csv', 'localizzazioni_PAC_{0}.csv', 'localizzazioni_CIPE.csv', 'loc_inattivi_{0}.csv'],
+            'files': ['localizzazioni_FSC0713_{0}.zip', 'localizzazioni_FS0713_{0}.zip', 'localizzazioni_PAC_{0}.zip', 'localizzazioni_CIPE.zip', 'loc_inattivi_{0}.zip'],
             'import_method': '_import_localizzazioni',
             'converters': None,
         },
         'pagamenti': {
-            'files': ['pagamenti_FSC0713_{0}.csv', 'pagamenti_FS0713_{0}.csv', 'pagamenti_PAC_{0}.csv', 'pag_inattivi_{0}.csv'],
+            'files': ['pagamenti_FSC0713_{0}.zip', 'pagamenti_FS0713_{0}.zip', 'pagamenti_PAC_{0}.zip', 'pag_inattivi_{0}.zip'],
             'import_method': '_import_pagamenti',
             'converters': None,
         },
@@ -192,7 +195,7 @@ class Command(BaseCommand):
                     help='If not set, delete records before importing new.'),
         make_option('--encoding',
                     dest='encoding',
-                    default='utf-8',
+                    default='utf-8-sig',
                     help='Set character encoding of input file.'),
     )
 
@@ -224,6 +227,11 @@ class Command(BaseCommand):
             csvfile = csvpath.rstrip('/') + '/' + file.format(csvdate)
 
             self.logger.info(u'Reading file {0} ....'.format(csvfile))
+
+            _, ext = os.path.splitext(csvfile)
+            if ext == '.zip':
+                with zipfile.ZipFile(csvfile) as zfile:
+                    csvfile = StringIO(zfile.read(zfile.namelist().pop(0)))
 
             try:
                 df_tmp = pd.read_csv(
