@@ -37,18 +37,6 @@ class Command(BaseCommand):
     logger = logging.getLogger('csvimport')
 
     def handle(self, *args, **options):
-        csv_file = options['csvfile']
-
-        # read csv file
-        try:
-            unicode_reader = csvkit.unicsv.UnicodeCSVDictReader(open(csv_file, 'r'), delimiter=';', encoding='utf-8-sig')
-        except IOError:
-            self.logger.error(u'It was impossible to open file {}'.format(csv_file))
-            exit(1)
-        except Exception as e:
-            self.logger.error(u'CSV error while reading {}: {}'.format(csv_file, e.message))
-            exit(1)
-
         verbosity = options['verbosity']
         if verbosity == '0':
             self.logger.setLevel(logging.ERROR)
@@ -61,36 +49,46 @@ class Command(BaseCommand):
 
         dryrun = options['dryrun']
 
-        self.logger.info(u'Inizio import da {}'.format(csv_file))
-        self.logger.info(u'Limit: {}'.format(options['limit']))
-        self.logger.info(u'Offset: {}'.format(options['offset']))
+        csv_file = options['csvfile']
 
-        for r in unicode_reader:
-            c = unicode_reader.reader.line_num - 1
+        # read csv file
+        try:
+            unicode_reader = csvkit.unicsv.UnicodeCSVDictReader(open(csv_file, 'r'), delimiter=';', encoding='utf-8-sig')
+        except IOError:
+            self.logger.error(u'It was impossible to open file {}'.format(csv_file))
+        except Exception as e:
+            self.logger.error(u'CSV error while reading {}: {}'.format(csv_file, e.message))
+        else:
+            self.logger.info(u'Inizio import da {}'.format(csv_file))
+            self.logger.info(u'Limit: {}'.format(options['limit']))
+            self.logger.info(u'Offset: {}'.format(options['offset']))
 
-            if c < int(options['offset']):
-                continue
+            for r in unicode_reader:
+                c = unicode_reader.reader.line_num - 1
 
-            if int(options['limit']) and (c - int(options['offset']) > int(options['limit'])):
-                break
+                if c < int(options['offset']):
+                    continue
 
-            # codice locale progetto (ID del record)
-            try:
-                p = Progetto.fullobjects.get(pk=r['COD_LOCALE_PROGETTO'])
-            except ObjectDoesNotExist:
-                self.logger.warning(u'{} - Progetto non trovato: {}, skipping'.format(c, r['COD_LOCALE_PROGETTO']))
-                continue
+                if int(options['limit']) and (c - int(options['offset']) > int(options['limit'])):
+                    break
 
-            try:
-                p_cipe = Progetto.fullobjects.get(pk=r['COD_DIPE'])
-            except ObjectDoesNotExist:
-                self.logger.warning(u'{} - Assegnazione CIPE non trovata: {}, skipping'.format(c, r['COD_DIPE']))
-                continue
+                # codice locale progetto (ID del record)
+                try:
+                    p = Progetto.fullobjects.get(pk=r['COD_LOCALE_PROGETTO'])
+                except ObjectDoesNotExist:
+                    self.logger.warning(u'{} - Progetto non trovato: {}, skipping'.format(c, r['COD_LOCALE_PROGETTO']))
+                    continue
 
-            self.logger.info(u'{}, Assegnazione: {}, Progetto: {}'.format(c, p_cipe, p))
-            if not dryrun:
-                p.overlapping_projects.add(p_cipe)
-                p_cipe.active_flag = False
-                p_cipe.save()
+                try:
+                    p_cipe = Progetto.fullobjects.get(pk=r['COD_DIPE'])
+                except ObjectDoesNotExist:
+                    self.logger.warning(u'{} - Assegnazione CIPE non trovata: {}, skipping'.format(c, r['COD_DIPE']))
+                    continue
 
-        self.logger.info(u'Fine')
+                self.logger.info(u'{}, Assegnazione: {}, Progetto: {}'.format(c, p_cipe, p))
+                if not dryrun:
+                    p.overlapping_projects.add(p_cipe)
+                    p_cipe.active_flag = False
+                    p_cipe.save()
+
+            self.logger.info(u'Fine')

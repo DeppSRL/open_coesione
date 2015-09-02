@@ -211,8 +211,6 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        df = pd.DataFrame()
-
         csvpath = options['csv_path']
         csvdate = options['csv_date']
         importtype = options['import_type']
@@ -221,6 +219,8 @@ class Command(BaseCommand):
         if not importtype in self.import_types:
             self.logger.error(u'Wrong type "{}". Select among {}.'.format(importtype, ', '.join(['"' + t + '"' for t in self.import_types])))
             exit(1)
+
+        df = pd.DataFrame()
 
         # read csv files
         for file in self.import_types[importtype]['files']:
