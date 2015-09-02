@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
+import logging
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from optparse import make_option
-import csv
-import logging
-from open_coesione import utils
+import csvkit
 from progetti.models import *
 
 
 class Command(BaseCommand):
     """
-    CIPE assignments that enters DPS monitoring as full-fledged projects,
-    are marked as non-active overlapping projects
+    CIPE assignments that enters DPS monitoring as full-fledged projects, are marked as non-active overlapping projects
     """
-    help = "Read the CSV mapping of overlapping CIPE assignments and mark them as non active"
+    help = 'Read the CSV mapping of overlapping CIPE assignments and mark them as non active'
 
     option_list = BaseCommand.option_list + (
         make_option('--csv-file',
@@ -36,21 +34,20 @@ class Command(BaseCommand):
                     help='Set the dry-run command mode: no actual modification is made'),
         )
 
-    csv_file = ''
     logger = logging.getLogger('csvimport')
-    unicode_reader = None
 
     def handle(self, *args, **options):
-        self.csv_file = options['csvfile']
+        csv_file = options['csvfile']
 
-        # read first csv file
+        # read csv file
         try:
-            self.unicode_reader = utils.UnicodeDictReader(open(self.csv_file, 'r'), delimiter=';', encoding='utf8')
+            unicode_reader = csvkit.unicsv.UnicodeCSVDictReader(open(csv_file, 'r'), delimiter=';', encoding='utf-8-sig')
         except IOError:
-            self.logger.error("It was impossible to open file %s" % self.csv_file)
+            self.logger.error(u'It was impossible to open file {}'.format(csv_file))
             exit(1)
-        except csv.Error, e:
-            self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
+        except Exception as e:
+            self.logger.error(u'CSV error while reading {}: {}'.format(csv_file, e.message))
+            exit(1)
 
         verbosity = options['verbosity']
         if verbosity == '0':
@@ -64,44 +61,36 @@ class Command(BaseCommand):
 
         dryrun = options['dryrun']
 
-        self.logger.info("Inizio import da %s" % self.csv_file)
-        self.logger.info("Limit: %s" % options['limit'])
-        self.logger.info("Offset: %s" % options['offset'])
+        self.logger.info(u'Inizio import da {}'.format(csv_file))
+        self.logger.info(u'Limit: {}'.format(options['limit']))
+        self.logger.info(u'Offset: {}'.format(options['offset']))
 
-        n = 0
-        for r in self.unicode_reader:
-            c = self.unicode_reader.reader.line_num - 1
+        for r in unicode_reader:
+            c = unicode_reader.reader.line_num - 1
+
             if c < int(options['offset']):
                 continue
 
-            if int(options['limit']) and\
-               (c - int(options['offset']) > int(options['limit'])):
+            if int(options['limit']) and (c - int(options['offset']) > int(options['limit'])):
                 break
 
             # codice locale progetto (ID del record)
             try:
                 p = Progetto.fullobjects.get(pk=r['COD_LOCALE_PROGETTO'])
             except ObjectDoesNotExist:
-                self.logger.warning("%s - Progetto non trovato: %s, skipping" % (c, r['COD_LOCALE_PROGETTO']))
+                self.logger.warning(u'{} - Progetto non trovato: {}, skipping'.format(c, r['COD_LOCALE_PROGETTO']))
                 continue
 
             try:
                 p_cipe = Progetto.fullobjects.get(pk=r['COD_DIPE'])
             except ObjectDoesNotExist:
-                self.logger.warning("%s - Assegnazione CIPE non trovata: %s, skipping" % (c, r['COD_DIPE']))
+                self.logger.warning(u'{} - Assegnazione CIPE non trovata: {}, skipping'.format(c, r['COD_DIPE']))
                 continue
 
-            self.logger.info(u"%s, Assegnazione: %s, Progetto: %s" % (c, p_cipe, p))
+            self.logger.info(u'{}, Assegnazione: {}, Progetto: {}'.format(c, p_cipe, p))
             if not dryrun:
                 p.overlapping_projects.add(p_cipe)
                 p_cipe.active_flag = False
                 p_cipe.save()
 
-
-        self.logger.info("Fine")
-
-
-
-
-
-
+        self.logger.info(u'Fine')
