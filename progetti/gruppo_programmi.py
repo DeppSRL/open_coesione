@@ -77,7 +77,7 @@ class Config(object):
             cache.set('programmi_pac_fsc', programmi_pac_fsc)
 
         # some fsc lists must be built by hand
-        lista_programmi_fsc_pa = SortedDict([
+        lista_programmi_fsc_pas = SortedDict([
             (u'PROGRAMMA ATTUATIVO SPECIALE FSC COMUNE DI PALERMO', u'2007SI002FAPA1'),
             (u'PROGRAMMA ATTUATIVO SPECIALE FSC DIRETTRICI FERROVIARIE', u'2007IT001FA005'),
             (u'PROGRAMMA ATTUATIVO SPECIALE FSC GIUSTIZIA CIVILE CELERE PER LA CRESCITA', u'2007IT005FAMG1'),
@@ -94,12 +94,13 @@ class Config(object):
             'fse': [p for p in programmi if ' FSE ' in p.descrizione.upper()],
             'fesr': [p for p in programmi if ' FESR ' in p.descrizione.upper()],
             'fsc_par': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PAR' == p.descrizione.upper()[:3]]))),
-            'fsc_pa': lista_programmi_fsc_pa,
+            'fsc_pas': lista_programmi_fsc_pas,
             'fsc_pra': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if '(PRA)' in p.descrizione.upper()]))),
             'fsc_pna': lista_programmi_fsc_pna,
             'fsc_pstg': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PIANO STRAORDINARIO TUTELA E GESTIONE RISORSA IDRICA' in p.descrizione.upper()]))),
-            'pac_pac_m': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if ' PAC ' in p.descrizione.upper() and (' MINISTERO ' in p.descrizione.upper() or ' PCM ' in p.descrizione.upper())]))),
-            'pac_pac_r': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if ' PAC ' in p.descrizione.upper() and not (' MINISTERO ' in p.descrizione.upper() or ' PCM ' in p.descrizione.upper())]))),
+            'fsc_pos': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if 'PROGRAMMA OBIETTIVI DI SERVIZIO' in p.descrizione.upper()]))),
+            'pac_pac_m': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if ' PAC ' in p.descrizione.upper() and (' MINISTERO ' in p.descrizione.upper() or ' PCM ' in p.descrizione.upper() or ' GOVERNANCE ' in p.descrizione.upper())]))),
+            'pac_pac_r': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea if ' PAC ' in p.descrizione.upper() and not (' MINISTERO ' in p.descrizione.upper() or ' PCM ' in p.descrizione.upper() or ' GOVERNANCE ' in p.descrizione.upper())]))),
             'pac_fse': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fse]))),
             'pac_fesr': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fesr]))),
             'pac_fsc': SortedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_pac_fsc]))),
