@@ -137,9 +137,9 @@ class GruppoProgrammi(object):
             programmi = lista_programmi[self.codice.replace('ue-', '')]
         elif self.codice == 'fsc' or self.codice == 'pac':
             if self.codice == 'fsc':
-                ids = lista_programmi['fsc_par'].values() + lista_programmi['fsc_pa'].values() + \
+                ids = lista_programmi['fsc_par'].values() + lista_programmi['fsc_pas'].values() + \
                       lista_programmi['fsc_pra'].values() + lista_programmi['fsc_pna'].values() + \
-                      lista_programmi['fsc_pstg'].values()
+                      lista_programmi['fsc_pstg'].values() + lista_programmi['fsc_pos'].values()
             else:
                 ids = lista_programmi['pac_pac_m'].values() + lista_programmi['pac_pac_r'].values()
 
