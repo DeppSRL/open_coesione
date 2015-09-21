@@ -52,7 +52,7 @@ VALID_REGIONS = range(1, 21) + [23]
 # VALID_TOPIC_IDS_BY_NAME = settings.TEMI_DB_MAPPING
 VALID_TOPIC_IDS_BY_NAME = {tema.descrizione: int(tema.codice) for tema in Tema.objects.principali()}
 
-CURRENT = os.path.join(STATIC_PATH, '.current_istat_zip')  # keeps info on the lates istat archive processed
+CURRENT = os.path.join(STATIC_PATH, '.current_istat_zip')  # keeps info on the latest istat archive processed
 
 
 def convert_topic(topic):

@@ -10,6 +10,8 @@ from optparse import make_option
 import re
 import pandas as pd
 import datetime
+import zipfile
+from cStringIO import StringIO
 
 from progetti.models import *
 from soggetti.models import *
@@ -22,7 +24,7 @@ def convert_progetto_cup_cod_natura(val):
             val = int(val)
             if val == 2:
                 val = 1
-            val = '{0:02d}'.format(val)
+            val = '{:02d}'.format(val)
         except ValueError:
             pass
     else:
@@ -33,7 +35,7 @@ def convert_progetto_cup_cod_natura(val):
 def convert_progetto_cup_cod_tipologia(val):
     if val.strip():
         try:
-            val = '{0:02d}'.format(int(val))
+            val = '{:02d}'.format(int(val))
         except ValueError:
             pass
     else:
@@ -44,7 +46,7 @@ def convert_progetto_cup_cod_tipologia(val):
 def convert_progetto_cup_cod_settore(val):
     if val.strip():
         try:
-            val = '{0:02d}'.format(int(val))
+            val = '{:02d}'.format(int(val))
         except ValueError:
             pass
     return val
@@ -53,7 +55,7 @@ def convert_progetto_cup_cod_settore(val):
 def convert_progetto_cup_cod_sottosettore(val):
     if val.strip():
         try:
-            val = '{0:02d}'.format(int(val))
+            val = '{:02d}'.format(int(val))
         except ValueError:
             pass
     return val
@@ -62,7 +64,7 @@ def convert_progetto_cup_cod_sottosettore(val):
 def convert_progetto_cup_cod_categoria(val):
     if val.strip():
         try:
-            val = '{0:03d}'.format(int(val))
+            val = '{:03d}'.format(int(val))
         except ValueError:
             pass
     return val
@@ -71,15 +73,15 @@ def convert_progetto_cup_cod_categoria(val):
 def convert_progetto_qsn_cod_tema_prioritario_ue(val):
     if val.strip():
         try:
-            val = '{0:02d}'.format(int(val))
+            val = '{:02d}'.format(int(val))
         except ValueError:
             pass
     return val
 
 
 def convert_soggetto_oc_denominazione_sogg(val):
-    # return re.sub('\s{2,}', u' ', val).strip()
-    return val.encode('ascii', 'ignore').strip()
+    return re.sub('\s{2,}', u' ', val).strip()
+    # return val.encode('ascii', 'ignore').strip()
 
 
 def convert_progettocipe_cup(val):
@@ -122,7 +124,7 @@ class Command(BaseCommand):
 
     import_types = {
         'progetti': {
-            'files': ['progetti_FSC0713_{0}.csv', 'progetti_FS0713_{0}.csv', 'progetti_PAC_{0}.csv', 'prog_inattivi_{0}.csv'],
+            'files': ['totale/progetti_FSC0713_{}.zip', 'totale/progetti_FS0713_{}.zip', 'totale/progetti_PAC_{}.zip', 'prog_inattivi_{}.zip'],
             'import_method': '_import_progetti',
             'converters': {
                 'CUP_COD_NATURA': convert_progetto_cup_cod_natura,
@@ -134,7 +136,7 @@ class Command(BaseCommand):
             },
         },
         'progetti-cipe': {
-            'files': ['assegnazioni_CIPE.csv'],
+            'files': ['totale/assegnazioni_CIPE.zip'],
             'import_method': '_import_progetticipe',
             'converters': {
                 # 'OC_TEMA_SINTETICO': convert_progettocipe_oc_tema_sintetico,
@@ -145,29 +147,29 @@ class Command(BaseCommand):
             },
         },
         'soggetti': {
-            'files': ['soggetti_FSC0713_{0}.csv', 'soggetti_FS0713_{0}.csv', 'soggetti_PAC_{0}.csv', 'soggetti_CIPE.csv'],
+            'files': ['totale/soggetti_FSC0713_{}.zip', 'totale/soggetti_FS0713_{}.zip', 'totale/soggetti_PAC_{}.zip', 'totale/soggetti_CIPE.zip'],
             'import_method': '_import_soggetti',
             'converters': {
                 'OC_DENOMINAZIONE_SOGG': convert_soggetto_oc_denominazione_sogg,
             },
         },
         'localizzazioni': {
-            'files': ['localizzazioni_FSC0713_{0}.csv', 'localizzazioni_FS0713_{0}.csv', 'localizzazioni_PAC_{0}.csv', 'localizzazioni_CIPE.csv', 'loc_inattivi_{0}.csv'],
+            'files': ['totale/localizzazioni_FSC0713_{}.zip', 'totale/localizzazioni_FS0713_{}.zip', 'totale/localizzazioni_PAC_{}.zip', 'totale/localizzazioni_CIPE.zip', 'loc_inattivi_{}.zip'],
             'import_method': '_import_localizzazioni',
             'converters': None,
         },
         'pagamenti': {
-            'files': ['pagamenti_FSC0713_{0}.csv', 'pagamenti_FS0713_{0}.csv', 'pagamenti_PAC_{0}.csv', 'pag_inattivi_{0}.csv'],
+            'files': ['totale/pagamenti_FSC0713_{}.zip', 'totale/pagamenti_FS0713_{}.zip', 'totale/pagamenti_PAC_{}.zip', 'pag_inattivi_{}.zip'],
             'import_method': '_import_pagamenti',
             'converters': None,
         },
         'update-privacy-progetti': {
-            'files': ['prog_privacy_{0}.csv', 'prog_inattivi_privacy_{0}.csv'],
+            'files': ['prog_privacy_{}.csv', 'prog_inattivi_privacy_{}.csv'],
             'import_method': '_update_privacy_progetti',
             'converters': None,
         },
         'update-privacy-soggetti': {
-            'files': ['sog_privacy_{0}.csv', 'sog_inattivi_privacy_{0}.csv'],
+            'files': ['sogg_privacy_{}.csv', 'sogg_inattivi_privacy_{}.csv'],
             'import_method': '_update_privacy_soggetti',
             'converters': None,
         },
@@ -185,14 +187,14 @@ class Command(BaseCommand):
         make_option('--import-type',
                     dest='import_type',
                     default=None,
-                    help='Type of import; select among {0}.'.format(', '.join(['"' + t + '"' for t in import_types]))),
+                    help='Type of import; select among {}.'.format(', '.join(['"' + t + '"' for t in import_types]))),
         make_option('--append',
                     dest='append',
                     action='store_true',
                     help='If not set, delete records before importing new.'),
         make_option('--encoding',
                     dest='encoding',
-                    default='utf-8',
+                    default='utf-8-sig',
                     help='Set character encoding of input file.'),
     )
 
@@ -209,35 +211,43 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        df = pd.DataFrame()
-
         csvpath = options['csv_path']
         csvdate = options['csv_date']
         importtype = options['import_type']
+        encoding = options['encoding']
 
         if not importtype in self.import_types:
-            self.logger.error(u'Wrong type "{0}". Select among {1}.'.format(importtype, ', '.join(['"' + t + '"' for t in self.import_types])))
+            self.logger.error(u'Wrong type "{}". Select among {}.'.format(importtype, ', '.join(['"' + t + '"' for t in self.import_types])))
             exit(1)
+
+        df = pd.DataFrame()
 
         # read csv files
         for file in self.import_types[importtype]['files']:
             csvfile = csvpath.rstrip('/') + '/' + file.format(csvdate)
 
-            self.logger.info(u'Reading file {0} ....'.format(csvfile))
+            self.logger.info(u'Reading file {} ....'.format(csvfile))
 
             try:
+                if csvfile.endswith('.zip'):
+                    with zipfile.ZipFile(csvfile) as zfile:
+                        csv = zfile.read(zfile.namelist().pop(0))
+                else:
+                    with open(csvfile, 'rb') as cfile:
+                        csv = cfile.read()
+
                 df_tmp = pd.read_csv(
-                    csvfile,
+                    StringIO(csv.decode(encoding).encode('utf-8')),
                     sep=';',
                     header=0,
                     low_memory=True,
                     dtype=object,
-                    encoding=options['encoding'],
+                    encoding='utf-8',
                     keep_default_na=False,
                     converters=self.import_types[importtype]['converters'],
                 )
             except IOError:
-                self.logger.error(u'It was impossible to open file {0}'.format(csvfile))
+                self.logger.error(u'It was impossible to open file {}'.format(csvfile))
                 continue
             else:
                 df_tmp[u'FLAG_ATTIVO'] = not ('inattivi' in file)
@@ -255,7 +265,7 @@ class Command(BaseCommand):
         df.fillna('', inplace=True)
         df.drop_duplicates(inplace=True)
 
-        self.logger.info(u'Inizio import "{0}" ({1}).'.format(importtype, csvdate))
+        self.logger.info(u'Inizio import "{}" ({}).'.format(importtype, csvdate))
 
         start_time = datetime.datetime.now()
 
@@ -265,7 +275,7 @@ class Command(BaseCommand):
         duration = datetime.datetime.now() - start_time
         seconds = round(duration.total_seconds())
 
-        self.logger.info(u'Fine. Tempo di esecuzione: {0:02d}:{1:02d}:{2:02d}.'.format(int(seconds // 3600), int((seconds % 3600) // 60), int(seconds % 60)))
+        self.logger.info(u'Fine. Tempo di esecuzione: {:02d}:{:02d}:{:02d}.'.format(int(seconds // 3600), int((seconds % 3600) // 60), int(seconds % 60)))
 
     @transaction.commit_on_success
     def _import_progetti_programmaasseobiettivo(self, df):
@@ -287,31 +297,31 @@ class Command(BaseCommand):
                         'tipo_classificazione': ProgrammaAsseObiettivo.TIPO.programma,
                     }
                 )
-                self._log(created, u'Creato programma (asse-obiettivo): {0}'.format(programma))
+                self._log(created, u'Creato programma (asse-obiettivo): {}'.format(programma))
 
             df1 = df_filtered[['OC_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_DENOMINAZIONE_ASSE']].drop_duplicates()
             for index, row in df1.iterrows():
                 programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
-                    codice='{0}/{1}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE']),
+                    codice='{}/{}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE']),
                     defaults={
                         'descrizione': row['PO_DENOMINAZIONE_ASSE'],
                         'tipo_classificazione': ProgrammaAsseObiettivo.TIPO.asse,
                         'classificazione_superiore_id': row['OC_CODICE_PROGRAMMA'],
                     }
                 )
-                self._log(created, u'Creato asse: {0}'.format(programma))
+                self._log(created, u'Creato asse: {}'.format(programma))
 
             df1 = df_filtered[['OC_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_COD_OBIETTIVO_OPERATIVO', 'PO_OBIETTIVO_OPERATIVO']].drop_duplicates()
             for index, row in df1.iterrows():
                 programma, created = ProgrammaAsseObiettivo.objects.get_or_create(
-                    codice='{0}/{1}/{2}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO']),
+                    codice='{}/{}/{}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO']),
                     defaults={
                         'descrizione': row['PO_OBIETTIVO_OPERATIVO'],
                         'tipo_classificazione': ProgrammaAsseObiettivo.TIPO.obiettivo,
-                        'classificazione_superiore_id': '{0}/{1}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE']),
+                        'classificazione_superiore_id': '{}/{}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE']),
                     }
                 )
-                self._log(created, u'Creato obiettivo: {0}'.format(programma))
+                self._log(created, u'Creato obiettivo: {}'.format(programma))
 
             # # elimino i programmi senza figli
             # ProgrammaAsseObiettivo.objects.exclude(tipo_classificazione=ProgrammaAsseObiettivo.TIPO.obiettivo).filter(classificazione_set__isnull=True).delete()
@@ -338,31 +348,31 @@ class Command(BaseCommand):
                         'tipo_classificazione': ProgrammaLineaAzione.TIPO.programma,
                     }
                 )
-                self._log(created, u'Creato programma (linea-azione): {0}'.format(programma))
+                self._log(created, u'Creato programma (linea-azione): {}'.format(programma))
 
             df1 = df_filtered[['OC_CODICE_PROGRAMMA', 'COD_LINEA', 'DESCR_LINEA']].drop_duplicates()
             for index, row in df1.iterrows():
                 programma, created = ProgrammaLineaAzione.objects.get_or_create(
-                    codice='{0}/{1}'.format(row['OC_CODICE_PROGRAMMA'], row['COD_LINEA']),
+                    codice='{}/{}'.format(row['OC_CODICE_PROGRAMMA'], row['COD_LINEA']),
                     defaults={
                         'descrizione': row['DESCR_LINEA'],
                         'tipo_classificazione': ProgrammaLineaAzione.TIPO.linea,
                         'classificazione_superiore_id': row['OC_CODICE_PROGRAMMA'],
                     }
                 )
-                self._log(created, u'Creata linea: {0}'.format(programma))
+                self._log(created, u'Creata linea: {}'.format(programma))
 
             df1 = df_filtered[['OC_CODICE_PROGRAMMA', 'COD_LINEA', 'COD_AZIONE', 'DESCR_AZIONE']].drop_duplicates()
             for index, row in df1.iterrows():
                 programma, created = ProgrammaLineaAzione.objects.get_or_create(
-                    codice='{0}/{1}/{2}'.format(row['OC_CODICE_PROGRAMMA'], row['COD_LINEA'], row['COD_AZIONE']),
+                    codice='{}/{}/{}'.format(row['OC_CODICE_PROGRAMMA'], row['COD_LINEA'], row['COD_AZIONE']),
                     defaults={
                         'descrizione': row['DESCR_AZIONE'],
                         'tipo_classificazione': ProgrammaLineaAzione.TIPO.azione,
-                        'classificazione_superiore_id': '{0}/{1}'.format(row['OC_CODICE_PROGRAMMA'], row['COD_LINEA']),
+                        'classificazione_superiore_id': '{}/{}'.format(row['OC_CODICE_PROGRAMMA'], row['COD_LINEA']),
                     }
                 )
-                self._log(created, u'Creata azione: {0}'.format(programma))
+                self._log(created, u'Creata azione: {}'.format(programma))
 
             # # elimino i programmi senza figli
             # ProgrammaLineaAzione.objects.exclude(tipo_classificazione=ProgrammaLineaAzione.TIPO.azione).filter(classificazione_set__isnull=True).delete()
@@ -389,7 +399,7 @@ class Command(BaseCommand):
                         'tipo_classificazione': ClassificazioneQSN.TIPO.priorita,
                     }
                 )
-                self._log(created, u'Creata priorità QSN: {0}'.format(classificazione))
+                self._log(created, u'Creata priorità QSN: {}'.format(classificazione))
 
             df1 = df_filtered[['QSN_COD_PRIORITA', 'QSN_COD_OBIETTIVO_GENERALE', 'QSN_DESCR_OBIETTIVO_GENERALE']].drop_duplicates()
             for index, row in df1.iterrows():
@@ -401,7 +411,7 @@ class Command(BaseCommand):
                         'classificazione_superiore_id': row['QSN_COD_PRIORITA'],
                     }
                 )
-                self._log(created, u'Creato obiettivo generale QSN: {0}'.format(classificazione))
+                self._log(created, u'Creato obiettivo generale QSN: {}'.format(classificazione))
 
             df1 = df_filtered[['QSN_COD_PRIORITA', 'QSN_COD_OBIETTIVO_GENERALE', 'QSN_CODICE_OBIETTIVO_SPECIFICO', 'QSN_DESCR_OBIETTIVO_SPECIFICO']].drop_duplicates()
             for index, row in df1.iterrows():
@@ -413,7 +423,7 @@ class Command(BaseCommand):
                         'classificazione_superiore_id': row['QSN_COD_OBIETTIVO_GENERALE'],
                     }
                 )
-                self._log(created, u'Creato obiettivo specifico QSN: {0}'.format(classificazione))
+                self._log(created, u'Creato obiettivo specifico QSN: {}'.format(classificazione))
 
             # transaction.commit()
 
@@ -438,19 +448,19 @@ class Command(BaseCommand):
                         'tipo_classificazione': ClassificazioneAzione.TIPO.natura,
                     }
                 )
-                self._log(created, u'Creata classificazione azione natura: {0}'.format(classificazione))
+                self._log(created, u'Creata classificazione azione natura: {}'.format(classificazione))
 
             df1 = df_filtered[['CUP_COD_NATURA', 'CUP_COD_TIPOLOGIA', 'CUP_DESCR_TIPOLOGIA']].drop_duplicates()
             for index, row in df1.iterrows():
                 classificazione, created = ClassificazioneAzione.objects.get_or_create(
-                    codice='{0}.{1}'.format(row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA']),
+                    codice='{}.{}'.format(row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA']),
                     defaults={
                         'descrizione': row['CUP_DESCR_TIPOLOGIA'],
                         'tipo_classificazione': ClassificazioneAzione.TIPO.tipologia,
                         'classificazione_superiore_id': row['CUP_COD_NATURA'],
                     }
                 )
-                self._log(created, u'Creata classificazione azione natura_tipologia: {0}'.format(classificazione))
+                self._log(created, u'Creata classificazione azione natura_tipologia: {}'.format(classificazione))
 
         # transaction.commit()
 
@@ -474,31 +484,31 @@ class Command(BaseCommand):
                         'tipo_classificazione': ClassificazioneOggetto.TIPO.settore,
                     }
                 )
-                self._log(created, u'Creata classificazione oggetto settore: {0}'.format(classificazione))
+                self._log(created, u'Creata classificazione oggetto settore: {}'.format(classificazione))
 
             df1 = df_filtered[['CUP_COD_SETTORE', 'CUP_COD_SOTTOSETTORE', 'CUP_DESCR_SOTTOSETTORE']].drop_duplicates()
             for index, row in df1.iterrows():
                 classificazione, created = ClassificazioneOggetto.objects.get_or_create(
-                    codice='{0}.{1}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE']),
+                    codice='{}.{}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE']),
                     defaults={
                         'descrizione': row['CUP_DESCR_SOTTOSETTORE'],
                         'tipo_classificazione': ClassificazioneOggetto.TIPO.sottosettore,
                         'classificazione_superiore_id': row['CUP_COD_SETTORE'],
                     }
                 )
-                self._log(created, u'Creata classificazione oggetto settore_sottosettore: {0}'.format(classificazione))
+                self._log(created, u'Creata classificazione oggetto settore_sottosettore: {}'.format(classificazione))
 
             df1 = df_filtered[['CUP_COD_SETTORE', 'CUP_COD_SOTTOSETTORE', 'CUP_COD_CATEGORIA', 'CUP_DESCR_CATEGORIA']].drop_duplicates()
             for index, row in df1.iterrows():
                 classificazione, created = ClassificazioneOggetto.objects.get_or_create(
-                    codice='{0}.{1}.{2}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA']),
+                    codice='{}.{}.{}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA']),
                     defaults={
                         'descrizione': row['CUP_DESCR_CATEGORIA'],
                         'tipo_classificazione': ClassificazioneOggetto.TIPO.categoria,
-                        'classificazione_superiore_id': '{0}.{1}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE']),
+                        'classificazione_superiore_id': '{}.{}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE']),
                     }
                 )
-                self._log(created, u'Creata classificazione oggetto settore_sottosettore_categoria: {0}'.format(classificazione))
+                self._log(created, u'Creata classificazione oggetto settore_sottosettore_categoria: {}'.format(classificazione))
 
         # transaction.commit()
 
@@ -520,7 +530,7 @@ class Command(BaseCommand):
                     'codice': codice,
                 }
             )
-            self._log(created, u'Creato tema sintetico: {0}'.format(tema))
+            self._log(created, u'Creato tema sintetico: {}'.format(tema))
 
             if created:
                 codice += 1
@@ -530,14 +540,14 @@ class Command(BaseCommand):
         df1 = df[['OC_TEMA_SINTETICO', 'QSN_COD_TEMA_PRIORITARIO_UE', 'QSN_DESCR_TEMA_PRIORITARIO_UE']].drop_duplicates()
         for index, row in df1.iterrows():
             tema, created = Tema.objects.get_or_create(
-                codice='{0}.{1}'.format(temisintetici_desc2cod[row['OC_TEMA_SINTETICO']], row['QSN_COD_TEMA_PRIORITARIO_UE']),
+                codice='{}.{}'.format(temisintetici_desc2cod[row['OC_TEMA_SINTETICO']], row['QSN_COD_TEMA_PRIORITARIO_UE']),
                 defaults={
                     'descrizione': row['QSN_DESCR_TEMA_PRIORITARIO_UE'],
                     'tipo_tema': Tema.TIPO.prioritario,
                     'tema_superiore_id': temisintetici_desc2cod[row['OC_TEMA_SINTETICO']],
                 }
             )
-            self._log(created, u'Creato tema: {0}'.format(tema))
+            self._log(created, u'Creato tema: {}'.format(tema))
 
         # transaction.commit()
 
@@ -561,7 +571,7 @@ class Command(BaseCommand):
                     'tipo_fonte': tipo_fonte,
                 }
             )
-            self._log(created, u'Creata fonte: {0}'.format(fonte))
+            self._log(created, u'Creata fonte: {}'.format(fonte))
 
         # transaction.commit()
 
@@ -605,9 +615,9 @@ class Command(BaseCommand):
                 if field:
                     try:
                         obiettivo_sviluppo = [k for k, v in dict(Progetto.OBIETTIVO_SVILUPPO).iteritems() if v.encode('ascii', 'ignore') == field][0]
-                        self.logger.debug(u'Trovato obiettivo sviluppo: {0}'.format(obiettivo_sviluppo))
+                        self.logger.debug(u'Trovato obiettivo sviluppo: {}'.format(obiettivo_sviluppo))
                     except IndexError:
-                        self.logger.error(u'Could not find obiettivo sviluppo {0} in {1}.'.format(field, codice_locale))
+                        self.logger.error(u'Could not find obiettivo sviluppo {} in {}.'.format(field, codice_locale))
                         continue
 
             # fondo comunitario
@@ -615,9 +625,9 @@ class Command(BaseCommand):
             if 'QSN_FONDO_COMUNITARIO' in row and row['QSN_FONDO_COMUNITARIO'].strip():
                 try:
                     fondo_comunitario = [k for k, v in dict(Progetto.FONDO_COMUNITARIO).iteritems() if v == row['QSN_FONDO_COMUNITARIO']][0]
-                    self.logger.debug(u'Trovato fondo comunitario: {0}'.format(fondo_comunitario))
+                    self.logger.debug(u'Trovato fondo comunitario: {}'.format(fondo_comunitario))
                 except IndexError as e:
-                    self.logger.error(u'While reading fondo comunitario {0} in {1}. {2}'.format(row['QSN_FONDO_COMUNITARIO'], codice_locale, e))
+                    self.logger.error(u'While reading fondo comunitario {} in {}. {}'.format(row['QSN_FONDO_COMUNITARIO'], codice_locale, e))
                     continue
 
             try:
@@ -634,19 +644,19 @@ class Command(BaseCommand):
                 values['fondo_comunitario'] = fondo_comunitario
 
                 if all(k in row and row[k].strip() for k in ['OC_CODICE_PROGRAMMA', 'PO_CODICE_ASSE', 'PO_COD_OBIETTIVO_OPERATIVO']):
-                    values['programma_asse_obiettivo_id'] = '{0}/{1}/{2}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO'])
+                    values['programma_asse_obiettivo_id'] = '{}/{}/{}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO'])
 
                 if all(k in row and row[k].strip() for k in ['OC_CODICE_PROGRAMMA', 'COD_LINEA', 'COD_AZIONE']):
-                    values['programma_linea_azione_id'] = '{0}/{1}/{2}'.format(row['OC_CODICE_PROGRAMMA'], row['COD_LINEA'], row['COD_AZIONE'])
+                    values['programma_linea_azione_id'] = '{}/{}/{}'.format(row['OC_CODICE_PROGRAMMA'], row['COD_LINEA'], row['COD_AZIONE'])
 
                 values['classificazione_qsn_id'] = row['QSN_CODICE_OBIETTIVO_SPECIFICO']
 
-                values['classificazione_azione_id'] = '{0}.{1}'.format(row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA'])
+                values['classificazione_azione_id'] = '{}.{}'.format(row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA'])
 
                 if all(k in row and row[k].strip() for k in ['CUP_COD_SETTORE', 'CUP_COD_SOTTOSETTORE', 'CUP_COD_CATEGORIA']):
-                    values['classificazione_oggetto_id'] = '{0}.{1}.{2}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA'])
+                    values['classificazione_oggetto_id'] = '{}.{}.{}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA'])
 
-                values['tema_id'] = '{0}.{1}'.format(temisintetici_desc2cod[row['OC_TEMA_SINTETICO']], row['QSN_COD_TEMA_PRIORITARIO_UE'])
+                values['tema_id'] = '{}.{}'.format(temisintetici_desc2cod[row['OC_TEMA_SINTETICO']], row['QSN_COD_TEMA_PRIORITARIO_UE'])
 
                 values['cup'] = row['CUP'].strip()
 
@@ -695,7 +705,7 @@ class Command(BaseCommand):
                 values['dps_flag_pac'] = row['OC_FLAG_PAC']
 
             except ValueError as e:
-                self.logger.error(u'{0}/{1} - {2}: {3}. Skipping'.format(n, df_count, codice_locale, e))
+                self.logger.error(u'{}/{} - {}: {}. Skipping'.format(n, df_count, codice_locale, e))
 
             else:
                 try:
@@ -706,7 +716,7 @@ class Command(BaseCommand):
 
                     transaction.savepoint_commit(sid)
 
-                    self.logger.info(u'{0}/{1} - Creato progetto: {2}'.format(n, df_count, codice_locale))
+                    self.logger.info(u'{}/{} - Creato progetto: {}'.format(n, df_count, codice_locale))
 
                 except IntegrityError:
                     transaction.savepoint_rollback(sid)
@@ -715,15 +725,15 @@ class Command(BaseCommand):
 
                     Progetto.fullobjects.get(pk=codice_locale).update(**values)
 
-                    self.logger.warning(u'{0}/{1} - Trovato e aggiornato progetto: {2}'.format(n, df_count, codice_locale))
+                    self.logger.warning(u'{}/{} - Trovato e aggiornato progetto: {}'.format(n, df_count, codice_locale))
 
                 except DatabaseError as e:
                     transaction.savepoint_rollback(sid)
 
-                    self.logger.error(u'{0}/{1} - ERRORE progetto {2}: {3}. Skipping.'.format(n, df_count, codice_locale, e))
+                    self.logger.error(u'{}/{} - ERRORE progetto {}: {}. Skipping.'.format(n, df_count, codice_locale, e))
 
             if (n % 5000 == 0) or (n == df_count):
-                self.logger.info(u'{0} -----------------> Committing.' .format(n))
+                self.logger.info(u'{} -----------------> Committing.' .format(n))
                 transaction.commit()
 
     @transaction.commit_on_success
@@ -736,7 +746,7 @@ class Command(BaseCommand):
                     'denominazione': self._get_value(row, 'DESCR_FORMA_GIURIDICA_SOGG'),
                 }
             )
-            self._log(created, u'Creata forma giuridica: {0} ({1})'.format(forma_giuridica.denominazione, forma_giuridica.codice))
+            self._log(created, u'Creata forma giuridica: {} ({})'.format(forma_giuridica.denominazione, forma_giuridica.codice))
 
         # transaction.commit()
 
@@ -750,7 +760,7 @@ class Command(BaseCommand):
                     'descrizione': self._get_value(row, 'DESCRIZIONE_ATECO_SOGG'),
                 }
             )
-            self._log(created, u'Creato codice ateco: {0} ({1})'.format(codice_ateco.descrizione, codice_ateco.codice))
+            self._log(created, u'Creato codice ateco: {} ({})'.format(codice_ateco.descrizione, codice_ateco.codice))
 
         # transaction.commit()
 
@@ -803,15 +813,15 @@ class Command(BaseCommand):
 
                 transaction.savepoint_commit(sid)
 
-                self.logger.info(u'{0}/{1} - Creato soggetto: {2} ({3})'.format(n, df_count, denominazione, codice_fiscale))
+                self.logger.info(u'{}/{} - Creato soggetto: {} ({})'.format(n, df_count, denominazione, codice_fiscale))
 
             except DatabaseError as e:
                 transaction.savepoint_rollback(sid)
 
-                self.logger.error(u'{0}/{1} - ERRORE soggetto {2} ({3}): {4}. Skipping.'.format(n, df_count, denominazione, codice_fiscale, e))
+                self.logger.error(u'{}/{} - ERRORE soggetto {} ({}): {}. Skipping.'.format(n, df_count, denominazione, codice_fiscale, e))
 
             if (n % 5000 == 0) or (n == df_count):
-                self.logger.info(u'{0} -----------------> Committing.'.format(n))
+                self.logger.info(u'{} -----------------> Committing.'.format(n))
                 transaction.commit()
 
         # creazione ruoli
@@ -827,10 +837,10 @@ class Command(BaseCommand):
 
             try:
                 progetto = Progetto.fullobjects.get(pk=row['COD_LOCALE_PROGETTO'])
-                self.logger.debug(u'{0}/{1} - Progetto: {2}'.format(n, df_count, progetto))
+                self.logger.debug(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
 
             except ObjectDoesNotExist:
-                self.logger.warning(u'{0}/{1} - Progetto non trovato: {2}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
+                self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
 
             else:
                 denominazione = row['OC_DENOMINAZIONE_SOGG'].strip()
@@ -838,10 +848,10 @@ class Command(BaseCommand):
 
                 try:
                     soggetto = Soggetto.fullobjects.get(denominazione=denominazione, codice_fiscale=codice_fiscale)
-                    self.logger.debug(u'{0}/{1} - Soggetto: {2} ({3})'.format(n, df_count, soggetto.denominazione, soggetto.codice_fiscale))
+                    self.logger.debug(u'{}/{} - Soggetto: {} ({})'.format(n, df_count, soggetto.denominazione, soggetto.codice_fiscale))
 
                 except ObjectDoesNotExist:
-                    self.logger.warning(u'{0}/{1} - Soggetto non trovato: {2} ({3}). Skipping.'.format(n, df_count, denominazione, codice_fiscale))
+                    self.logger.warning(u'{}/{} - Soggetto non trovato: {} ({}). Skipping.'.format(n, df_count, denominazione, codice_fiscale))
 
                 else:
                     ruolo = Ruolo(
@@ -856,18 +866,18 @@ class Command(BaseCommand):
                         ruolo.save()
                         transaction.savepoint_commit(sid)
 
-                        self.logger.info(u'{0}/{1} - Creato ruolo: {2}'.format(n, df_count, ruolo))
+                        self.logger.info(u'{}/{} - Creato ruolo: {}'.format(n, df_count, ruolo))
                     except DatabaseError as e:
                         transaction.savepoint_rollback(sid)
 
-                        self.logger.error(u'{0}/{1} - ERRORE ruolo {2}: {3}. Skipping.'.format(n, df_count, ruolo, e))
+                        self.logger.error(u'{}/{} - ERRORE ruolo {}: {}. Skipping.'.format(n, df_count, ruolo, e))
 
                     del progetto
                     del soggetto
                     del ruolo
 
             if (n % 5000 == 0) or (n == df_count):
-                self.logger.info(u'{0} -----------------> Committing.'.format(n))
+                self.logger.info(u'{} -----------------> Committing.'.format(n))
                 transaction.commit()
 
     @transaction.commit_manually
@@ -900,19 +910,19 @@ class Command(BaseCommand):
                 pagamento.save()
                 transaction.savepoint_commit(sid)
 
-                self.logger.info(u'{0}/{1} - Creato pagamento: {2}'.format(n, df_count, pagamento))
+                self.logger.info(u'{}/{} - Creato pagamento: {}'.format(n, df_count, pagamento))
                 created += 1
 
             except DatabaseError as e:
                 transaction.savepoint_rollback(sid)
 
-                self.logger.error(u'{0}/{1} - ERRORE pagamento {2}: {3}. Skipping.'.format(n, df_count, pagamento, e))
+                self.logger.error(u'{}/{} - ERRORE pagamento {}: {}. Skipping.'.format(n, df_count, pagamento, e))
 
             if (n % 5000 == 0) or (n == df_count):
-                self.logger.info(u'{0} -----------------> Committing.'.format(n))
+                self.logger.info(u'{} -----------------> Committing.'.format(n))
                 transaction.commit()
 
-        self.logger.info(u'Sono stati creati {0} pagamenti su {1}.'.format(created, df_count))
+        self.logger.info(u'Sono stati creati {} pagamenti su {}.'.format(created, df_count))
 
     def _import_pagamenti(self, df, append):
         # check whether to remove records
@@ -936,10 +946,10 @@ class Command(BaseCommand):
             try:
                 progetto = Progetto.fullobjects.get(pk=row['COD_LOCALE_PROGETTO'])
 
-                self.logger.debug(u'{0}/{1} - Progetto: {2}'.format(n, df_count, progetto))
+                self.logger.debug(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
 
             except ObjectDoesNotExist:
-                self.logger.warning(u'{0}/{1} - Progetto non trovato: {2}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
+                self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
 
             else:
                 insert_list.append(
@@ -952,18 +962,18 @@ class Command(BaseCommand):
                         ammontare_rendicontabile_ue=self._get_value(row, 'OC_TOT_PAGAMENTI_RENDICONTAB_UE', 'decimal'),
                     )
                 )
-                self.logger.info(u'{0}/{1} - Creato pagamento: {2}'.format(n, df_count, insert_list[-1]))
+                self.logger.info(u'{}/{} - Creato pagamento: {}'.format(n, df_count, insert_list[-1]))
 
                 del progetto
 
                 created += 1
 
             if (n % 5000 == 0) or (n == df_count):
-                self.logger.info(u'{0}/{1} -----------------> Salvataggio in corso.'.format(n, df_count))
+                self.logger.info(u'{}/{} -----------------> Salvataggio in corso.'.format(n, df_count))
                 PagamentoProgetto.objects.bulk_create(insert_list)
                 insert_list = []
 
-        self.logger.info(u'Sono stati creati {0} pagamenti su {1}.'.format(created, df_count))
+        self.logger.info(u'Sono stati creati {} pagamenti su {}.'.format(created, df_count))
 
     @transaction.commit_on_success
     def _import_localizzazioni_territori(self, df):
@@ -982,7 +992,7 @@ class Command(BaseCommand):
                         'denominazione': row['DEN_REGIONE']
                     }
                 )
-                self._log(created, u'Creato territorio: {0} ({1})'.format(territorio, territorio.territorio))
+                self._log(created, u'Creato territorio: {} ({})'.format(territorio, territorio.territorio))
 
         # transaction.commit()
 
@@ -1009,10 +1019,10 @@ class Command(BaseCommand):
             try:
                 progetto = Progetto.fullobjects.get(pk=progetto_pk)
 
-                self.logger.debug(u'{0}/{1} - Progetto: {2}'.format(n, df_count, progetto))
+                self.logger.debug(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
 
             except ObjectDoesNotExist:
-                self.logger.warning(u'{0}/{1} - Progetto non trovato: {2}. Skipping.'.format(n, df_count, progetto_pk))
+                self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping.'.format(n, df_count, progetto_pk))
 
             else:
                 territorio = None
@@ -1035,7 +1045,7 @@ class Command(BaseCommand):
                         tipo_territorio = Territorio.TERRITORIO.P
 
                 if not tipo_territorio in dict(Territorio.TERRITORIO):
-                    self.logger.warning(u'{0}/{1} - Tipo di territorio sconosciuto o errato: {2}. Skipping.'.format(n, df_count, tipo_territorio))
+                    self.logger.warning(u'{}/{} - Tipo di territorio sconosciuto o errato: {}. Skipping.'.format(n, df_count, tipo_territorio))
 
                 else:
                     lookup = {}
@@ -1048,7 +1058,7 @@ class Command(BaseCommand):
                         lookup['cod_prov'] = int(row['COD_PROVINCIA'])
                     elif tipo_territorio == Territorio.TERRITORIO.C:
                         lookup['cod_prov'] = int(row['COD_PROVINCIA'])
-                        lookup['cod_com'] = '{0}{1}'.format(int(row['COD_PROVINCIA']), row['COD_COMUNE'])
+                        lookup['cod_com'] = '{}{}'.format(int(row['COD_PROVINCIA']), row['COD_COMUNE'])
                     else:
                         lookup['cod_prov'] = 0
                         lookup['cod_com'] = 0
@@ -1056,7 +1066,7 @@ class Command(BaseCommand):
                     try:
                         territorio = Territorio.objects.get(**lookup)
 
-                        self.logger.debug(u'{0}/{1} - Territorio: {2}'.format(n, df_count, territorio))
+                        self.logger.debug(u'{}/{} - Territorio: {}'.format(n, df_count, territorio))
 
                     except ObjectDoesNotExist:
                         if tipo_territorio == Territorio.TERRITORIO.C:
@@ -1067,12 +1077,12 @@ class Command(BaseCommand):
 
                             try:
                                 territorio = Territorio.objects.get(**lookup)
-                                self.logger.debug(u'{0}/{1} - Territorio di tipo "Comune" individuato attraverso la denominazione: {2}.'.format(n, df_count, territorio))
+                                self.logger.debug(u'{}/{} - Territorio di tipo "Comune" individuato attraverso la denominazione: {}.'.format(n, df_count, territorio))
                             except ObjectDoesNotExist:
                                 pass
 
                     if not territorio:
-                        self.logger.warning(u'{0}/{1} - Territorio non trovato: {2} [{3}]/{4} [{5}]/{6} [{7}] ({8}). Skipping.'.format(n, df_count, row['DEN_COMUNE'], row['COD_COMUNE'], row['DEN_PROVINCIA'], row['COD_PROVINCIA'], row['DEN_REGIONE'], row['COD_REGIONE'], tipo_territorio))
+                        self.logger.warning(u'{}/{} - Territorio non trovato: {} [{}]/{} [{}]/{} [{}] ({}). Skipping.'.format(n, df_count, row['DEN_COMUNE'], row['COD_COMUNE'], row['DEN_PROVINCIA'], row['COD_PROVINCIA'], row['DEN_REGIONE'], row['COD_REGIONE'], tipo_territorio))
 
                 if territorio:
                     insert_list.append(
@@ -1084,13 +1094,13 @@ class Command(BaseCommand):
                             dps_flag_cap=int(self._get_value(row, 'OC_FLAG_CAP_PROG') or 0),
                         )
                     )
-                    self.logger.info(u'{0}/{1} - Creata localizzazione progetto: {2}'.format(n, df_count, insert_list[-1]))
+                    self.logger.info(u'{}/{} - Creata localizzazione progetto: {}'.format(n, df_count, insert_list[-1]))
 
                     del progetto
                     del territorio
 
             if (n % 5000 == 0) or (n == df_count):
-                self.logger.info(u'{0}/{1} -----------------> Salvataggio in corso.'.format(n, df_count))
+                self.logger.info(u'{}/{} -----------------> Salvataggio in corso.'.format(n, df_count))
                 Localizzazione.objects.bulk_create(insert_list)
                 insert_list = []
 
@@ -1106,7 +1116,7 @@ class Command(BaseCommand):
                     'data_pubblicazione': self._get_value(row, 'DATA_PUBBLICAZIONE', 'date'),
                 }
             )
-            self._log(created, u'Creata delibera: {0}'.format(delibera))
+            self._log(created, u'Creata delibera: {}'.format(delibera))
 
         # transaction.commit()
 
@@ -1199,15 +1209,15 @@ class Command(BaseCommand):
                 #values['active_flag'] = row['FLAG_ATTIVO']
                 values['cipe_flag'] = True
 
-                values['programma_asse_obiettivo_id'] = '{0}/{1}/{2}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO'])
+                values['programma_asse_obiettivo_id'] = '{}/{}/{}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO'])
 
-                values['classificazione_azione_id'] = '{0}.{1}'.format(row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA'])
+                values['classificazione_azione_id'] = '{}.{}'.format(row['CUP_COD_NATURA'], row['CUP_COD_TIPOLOGIA'])
 
-                values['classificazione_oggetto_id'] = '{0}.{1}.{2}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA'])
+                values['classificazione_oggetto_id'] = '{}.{}.{}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA'])
 
-                values['tema_id'] = '{0}.{1}'.format(temisintetici_desc2cod[row['OC_TEMA_SINTETICO']], row['QSN_COD_TEMA_PRIORITARIO_UE'])
+                values['tema_id'] = '{}.{}'.format(temisintetici_desc2cod[row['OC_TEMA_SINTETICO']], row['QSN_COD_TEMA_PRIORITARIO_UE'])
 
-                # values['fonte_id'] = '{0}'.format(row['OC_COD_FONTE'])
+                # values['fonte_id'] = '{}'.format(row['OC_COD_FONTE'])
 
                 values['cup'] = row['CUP'][0] if row['CUP'] else ''
 
@@ -1224,7 +1234,7 @@ class Command(BaseCommand):
                 values['dps_flag_cup'] = 1
 
             except ValueError as e:
-                self.logger.error(u'{0}/{1} - {2}: {3}. Skipping'.format(n, df_count, codice_locale, e))
+                self.logger.error(u'{}/{} - {}: {}. Skipping'.format(n, df_count, codice_locale, e))
 
             else:
                 try:
@@ -1241,15 +1251,15 @@ class Command(BaseCommand):
 
                     del progetto
 
-                    self.logger.info(u'{0}/{1} - Creato progetto: {2}'.format(n, df_count, codice_locale))
+                    self.logger.info(u'{}/{} - Creato progetto: {}'.format(n, df_count, codice_locale))
 
                 except DatabaseError as e:
                     transaction.savepoint_rollback(sid)
 
-                    self.logger.error(u'{0}/{1} - ERRORE progetto {2}: {3}. Skipping.'.format(n, df_count, codice_locale, e))
+                    self.logger.error(u'{}/{} - ERRORE progetto {}: {}. Skipping.'.format(n, df_count, codice_locale, e))
 
             if (n % 5000 == 0) or (n == df_count):
-                self.logger.info(u'{0} -----------------> Committing.' .format(n))
+                self.logger.info(u'{} -----------------> Committing.' .format(n))
                 transaction.commit()
 
         # associazione di delibere a progetti
@@ -1269,10 +1279,10 @@ class Command(BaseCommand):
                 note=self._get_value(row, 'NOTE') or '',
             )
 
-            self.logger.info(u'{0}/{1} - Delibera {2} associata a progetto: {3}'.format(n, df_count, delibera, row['COD_DIPE']))
+            self.logger.info(u'{}/{} - Delibera {} associata a progetto: {}'.format(n, df_count, delibera, row['COD_DIPE']))
 
             if (n % 5000 == 0) or (n == df_count):
-                self.logger.info(u'{0} -----------------> Committing.' .format(n))
+                self.logger.info(u'{} -----------------> Committing.' .format(n))
                 transaction.commit()
 
         # # soggetti e ruoli
@@ -1293,7 +1303,7 @@ class Command(BaseCommand):
         #             codice_fiscale='',
         #             defaults={'denominazione': denominazione}
         #         )
-        #         self._log(created, u'{0}/{1} - Creato soggetto: {2}'.format(n, df_count, soggetto))
+        #         self._log(created, u'{}/{} - Creato soggetto: {}'.format(n, df_count, soggetto))
         #
         #         role_count = len(row['COD_DIPE'])
         #
@@ -1306,9 +1316,9 @@ class Command(BaseCommand):
         #                 soggetto=soggetto,
         #                 ruolo=role,
         #             )
-        #             self.logger.info(u'{0}/{1} ({2}/{3}) - Creato ruolo: {4}'.format(n, df_count, nn, role_count, ruolo))
+        #             self.logger.info(u'{}/{} ({}/{}) - Creato ruolo: {}'.format(n, df_count, nn, role_count, ruolo))
         #
-        #     self.logger.info(u'{0} -----------------> Committing.' .format(col))
+        #     self.logger.info(u'{} -----------------> Committing.' .format(col))
         #     transaction.commit()
 
     def _update_privacy_progetti(self, df, append):
@@ -1329,14 +1339,14 @@ class Command(BaseCommand):
             ids.append(row['COD_LOCALE_PROGETTO'])
 
             if (n % 5000 == 0) or (n == df_count):
-                self.logger.info(u'{0}/{1} - Aggiornamento del flag privacy in corso ....' .format(n, df_count))
+                self.logger.info(u'{}/{} - Aggiornamento del flag privacy in corso ....' .format(n, df_count))
                 updated = Progetto.fullobjects.filter(pk__in=ids).update(privacy_flag=True)
-                self.logger.info(u'{0}/{1} - Fatto. Record aggiornati: {2}.'.format(n, df_count, updated))
+                self.logger.info(u'{}/{} - Fatto. Record aggiornati: {}.'.format(n, df_count, updated))
 
                 ids = []
                 tot_updated += updated
 
-        self.logger.info(u'Totale record aggiornati: {0}.'.format(tot_updated))
+        self.logger.info(u'Totale record aggiornati: {}.'.format(tot_updated))
 
     @transaction.commit_on_success
     def _update_privacy_soggetti(self, df, append):
@@ -1355,17 +1365,17 @@ class Command(BaseCommand):
 
             try:
                 soggetto = Soggetto.fullobjects.get(ruolo__progetto=row['COD_LOCALE_PROGETTO'], ruolo__ruolo=row['SOGG_COD_RUOLO'], ruolo__progressivo_ruolo=row['SOGG_PROGR_RUOLO'])
-                self.logger.debug(u'{0}/{1} - Soggetto: {2}'.format(n, df_count, soggetto))
+                self.logger.debug(u'{}/{} - Soggetto: {}'.format(n, df_count, soggetto))
             except ObjectDoesNotExist:
-                self.logger.warning(u'{0}/{1} - Soggetto non trovato: {2}/{3}/{4}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO'], row['SOGG_COD_RUOLO'], row['SOGG_PROGR_RUOLO']))
+                self.logger.warning(u'{}/{} - Soggetto non trovato: {}/{}/{}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO'], row['SOGG_COD_RUOLO'], row['SOGG_PROGR_RUOLO']))
             except MultipleObjectsReturned:
-                self.logger.warning(u'{0}/{1} - Più di un soggetto trovato: {2}/{3}/{4}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO'], row['SOGG_COD_RUOLO'], row['SOGG_PROGR_RUOLO']))
+                self.logger.warning(u'{}/{} - Più di un soggetto trovato: {}/{}/{}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO'], row['SOGG_COD_RUOLO'], row['SOGG_PROGR_RUOLO']))
             else:
                 soggetto.privacy_flag = True
                 soggetto.save()
                 tot_updated += 1
 
-        self.logger.info(u'Totale record aggiornati: {0}.'.format(tot_updated))
+        self.logger.info(u'Totale record aggiornati: {}.'.format(tot_updated))
 
     def _log(self, created, msg):
         if created:

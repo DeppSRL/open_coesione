@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
@@ -612,11 +613,22 @@ class AmbitoEsteroView(AccessControlView, AggregatoMixin, ListView):
         # per ogni progetto multi-localizzato nel db
         logger.debug('blob multiloc start')
 
+        # for progetto in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).select_related('territori'):
+        #     # se ha nei suoi territori un territorio estero..
+        #     if any([x in territori for x in progetto.territori]):
+        #         progetti_multi_territorio.append(progetto.pk)
+        #         key = ', '.join(sorted([t.denominazione for t in progetto.territori]))
+        #         if key not in multi_territori:
+        #             multi_territori[key] = []
+        #         multi_territori[key].append(progetto.pk)
+
         for progetto in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).select_related('territori'):
-            # se ha nei suoi territori un territorio estero..
-            if any([x in territori for x in progetto.territori]):
+            progetto_territori_esteri = [x for x in progetto.territori if x in territori]
+
+            # se ha nei suoi territori più di un territorio estero...
+            if len(progetto_territori_esteri) > 1:
                 progetti_multi_territorio.append(progetto.pk)
-                key = ', '.join(sorted([t.denominazione for t in progetto.territori]))
+                key = ', '.join(sorted([t.denominazione for t in progetto_territori_esteri]))
                 if key not in multi_territori:
                     multi_territori[key] = []
                 multi_territori[key].append(progetto.pk)
