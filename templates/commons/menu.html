@@ -126,29 +126,13 @@
                                         <li class="clearfix">
                                             <ul>
                                                 <li><a href="{% url 'progetti_programmi' 'fsc' %}">Tutti</a></li>
-                                                <li class="divider"></li>
-                                                {% for pdesc, pcode in lista_programmi.fsc_par.items %}
-                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                                                {% endfor %}
-                                                <li class="divider"></li>
-                                                {% for pdesc, pcode in lista_programmi.fsc_pas.items %}
-                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                                                {% endfor %}
-                                                <li class="divider"></li>
-                                                {% for pdesc, pcode in lista_programmi.fsc_pra.items %}
-                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                                                {% endfor %}
-                                                <li class="divider"></li>
-                                                {% for pdesc, pcode in lista_programmi.fsc_pna.items %}
-                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                                                {% endfor %}
-                                                <li class="divider"></li>
-                                                {% for pdesc, pcode in lista_programmi.fsc_pstg.items %}
-                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                                                {% endfor %}
-                                                <li class="divider"></li>
-                                                {% for pdesc, pcode in lista_programmi.fsc_pos.items %}
-                                                    <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                                                {% for programmi in lista_programmi.fsc %}
+                                                    {% if programmi %}
+                                                        <li class="divider"></li>
+                                                        {% for pdesc, pcode in programmi.items %}
+                                                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                                                        {% endfor %}
+                                                    {% endif %}
                                                 {% endfor %}
                                             </ul>
                                         </li>
