@@ -79,11 +79,11 @@
                     <div class="baloons-block" style="padding-top: 2px">
                         <p style="margin-left: 0">
                             <strong>Sintesi del progetto</strong>
-                            {% if progetto.fonte_descrizione %}
-                                {% if progetto.fonte_url %}
-                                    (FONTE: <a href="{{ progetto.fonte_url }}" class="no-pull-right">{{ progetto.fonte_descrizione }}</a>)
+                            {% if progetto.descrizione_fonte_nome %}
+                                {% if progetto.descrizione_fonte_url %}
+                                    (FONTE: <a href="{{ progetto.descrizione_fonte_url }}" class="no-pull-right">{{ progetto.descrizione_fonte_nome }}</a>)
                                 {% else %}
-                                    (<span class="no-pull-right">{{ progetto.fonte_descrizione }}</span>)
+                                    (<span class="no-pull-right">{{ progetto.descrizione_fonte_nome }}</span>)
                                 {% endif %}
                             {% endif %}
                         </p>

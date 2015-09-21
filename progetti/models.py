@@ -435,8 +435,12 @@ class Progetto(TimeStampedModel):
     overlapping_projects = models.ManyToManyField('self')
 
     titolo_progetto = models.TextField()
-    descrizione = models.TextField(blank=True, null=True)
     slug = models.SlugField(max_length=128, blank=True, null=True, unique=True, db_index=True)
+
+    descrizione = models.TextField(blank=True, null=True)
+
+    descrizione_fonte_nome = models.TextField(blank=True, null=True)
+    descrizione_fonte_url = models.URLField(blank=True, null=True)
 
     classificazione_qsn = models.ForeignKey('ClassificazioneQSN', related_name='progetto_set', db_column='classificazione_qsn', null=True, blank=True)
     programma_asse_obiettivo = models.ForeignKey('ProgrammaAsseObiettivo', related_name='progetto_set', db_column='programma_asse_progetto', null=True, blank=True)
@@ -452,9 +456,6 @@ class Progetto(TimeStampedModel):
     #                           blank=True, null=True,
     #                           db_column='fonte')
     fonte_set = models.ManyToManyField('Fonte', related_name='progetto_set', db_table='progetti_progetto_has_fonte')
-
-    # fonte_descrizione = models.TextField(blank=True, null=True)
-    # fonte_url = models.URLField(blank=True, null=True)
 
     classificazione_azione = models.ForeignKey('ClassificazioneAzione', related_name='progetto_set', db_column='classificazione_azione', null=True, blank=True)
     classificazione_oggetto = models.ForeignKey('ClassificazioneOggetto', related_name='progetto_set', db_column='classificazione_oggetto', null=True, blank=True)

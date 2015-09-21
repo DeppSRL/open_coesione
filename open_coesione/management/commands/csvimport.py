@@ -342,8 +342,8 @@ class Command(BaseCommand):
             if sintesi:
                 self.logger.info(u"Aggiornamento descrizione per il progetto %s" % progetto)
                 progetto.descrizione = sintesi
-                progetto.fonte_descrizione = 'Open Data PON REC'
-                progetto.fonte_url = 'http://www.ponrec.it/open-data'
+                progetto.descrizione_fonte_nome = 'Open Data PON REC'
+                progetto.descrizione_fonte_url = 'http://www.ponrec.it/open-data'
                 progetto.save()
                 updates += 1
             else:
@@ -414,9 +414,9 @@ class Command(BaseCommand):
             if sintesi:
                 self.logger.info(u"Aggiornamento descrizione per il progetto %s" % progetto)
                 progetto.descrizione = sintesi
-                progetto.fonte_descrizione = 'Open Data PON GAT'
-                progetto.fonte_url = "http://www.dps.gov.it/it/pongat/comunicazione/elenco_beneficiari/index.html"
-                # progetto.fonte_url = 'http://www.dps.tesoro.it/QSN/Pon_governance/qsn_pongovernance_elencobeneficiari.asp'
+                progetto.descrizione_fonte_nome = 'Open Data PON GAT'
+                progetto.descrizione_fonte_url = "http://www.dps.gov.it/it/pongat/comunicazione/elenco_beneficiari/index.html"
+                # progetto.descrizione_fonte_url = 'http://www.dps.tesoro.it/QSN/Pon_governance/qsn_pongovernance_elencobeneficiari.asp'
                 progetto.save()
                 updates += 1
             else:
