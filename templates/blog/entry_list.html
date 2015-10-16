@@ -51,8 +51,8 @@
                  * map exceptions due to news change in title and slugs
                  **/
                 location_hash = location.hash
-                if (location_hash == 'selezione-scuole-asoc-2015-2016-185-candidature-pervenute') {
-                    location_hash = 'selezione-scuole-asoc-2015-2016-174-candidature-pervenute';
+                if (location_hash == '#selezione-scuole-asoc-2015-2016-185-candidature-pervenute/') {
+                    location_hash = '#selezione-scuole-asoc-2015-2016-174-candidature-pervenute/';
                 }
                 blog.find('article' + location_hash + ':first header a').trigger('click');
 
