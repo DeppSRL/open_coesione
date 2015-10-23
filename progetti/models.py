@@ -671,9 +671,9 @@ class Progetto(TimeStampedModel):
         return max(self.data_aggiornamento, *[p.data for p in pagamenti])
 
     def percentuale_pagamenti(self):
-        if not self.fin_totale_pubblico or not self.pagamento:
+        if not self.fin_totale_pubblico_netto or not self.pagamento:
             return 0.0
-        return (float(self.pagamento) or 0.0) / (float(self.fin_totale_pubblico) or 0.0) * 100.0
+        return (float(self.pagamento) or 0.0) / (float(self.fin_totale_pubblico_netto) or 0.0) * 100.0
 
     def delibere_cipe(self):
         return self.deliberacipe_set.all()
