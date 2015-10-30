@@ -23,6 +23,7 @@
                     <p>{{ totale_progetti|intcomma }}</p>
                     {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
                 </a>
+                {% block anagrafica_sogg_miur %}{% endblock %}
             </div>
 
             {% block top_content %}{% endblock %}
