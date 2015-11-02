@@ -426,6 +426,13 @@ class Progetto(TimeStampedModel):
         ('1', u'Il progetto appartiene al PAC ed è finanziato con risorse dedicate, al di fuori dei Programmi Operativi'),
         ('2', u"Il progetto appartiene al PAC ed è finanziato nell'ambito dei Programmi Operativi"),
     )
+    STATO = Choices(
+        ('0', 'non_applicabile', u'n/a'),
+        ('1', 'non_avviato', u'non avviato'),
+        ('2', 'in_corso', u'in corso'),
+        ('3', 'completato', u'completato'),
+        ('4', 'concluso', u'concluso'),
+    )
 
     codice_locale = models.CharField(max_length=100, primary_key=True, db_column='cod_locale_progetto')
 
@@ -511,6 +518,9 @@ class Progetto(TimeStampedModel):
     dps_flag_pac = models.CharField(max_length=1, choices=DPS_FLAG_PAC, default='0')
 
     privacy_flag = models.BooleanField(default=False)
+
+    stato_progetto = models.CharField(max_length=1, choices=STATO, null=True, blank=True, db_index=True)
+    stato_finanziario = models.CharField(max_length=1, choices=STATO, null=True, blank=True)
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
