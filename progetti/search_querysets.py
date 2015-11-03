@@ -10,6 +10,7 @@ sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
     facet('tema').\
     facet('tipo_progetto').\
     facet('fonte').\
+    facet('stato_progetto').\
     facet('is_active').\
     query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2013']['qrange']).\
     query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2012']['qrange']).\
@@ -23,7 +24,8 @@ sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
     query_facet('costo', ProgettoSearchView.COST_RANGES['0-0TO1K']['qrange']).\
     query_facet('costo', ProgettoSearchView.COST_RANGES['1-1KTO10K']['qrange']).\
     query_facet('costo', ProgettoSearchView.COST_RANGES['2-10KTO100K']['qrange']).\
-    query_facet('costo', ProgettoSearchView.COST_RANGES['3-100KTOINF']['qrange']).\
+    query_facet('costo', ProgettoSearchView.COST_RANGES['3-100KTO10M']['qrange']).\
+    query_facet('costo', ProgettoSearchView.COST_RANGES['4-10MTOINF']['qrange']).\
     query_facet('perc_pagamento', ProgettoSearchView.PERC_PAY_RANGES['0-0TO25']['qrange']).\
     query_facet('perc_pagamento', ProgettoSearchView.PERC_PAY_RANGES['1-25TO50']['qrange']).\
     query_facet('perc_pagamento', ProgettoSearchView.PERC_PAY_RANGES['2-50TO75']['qrange']).\
