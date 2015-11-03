@@ -1,10 +1,10 @@
 BeautifulSoup
-Django==1.5.7
+Django<1.6.0
 Jinja2
 pillow
 PyYAML
 Pygments
-South>=0.8.3
+South
 Sphinx
 django-debug-toolbar==0.9.4
 django-cache-panel
@@ -40,11 +40,12 @@ django-disqus
 django-grappelli==2.4.10
 django-filebrowser==3.5.6
 
-djangorestframework
+djangorestframework<3.0
 markdown
 numpy
 scipy
-pysal
+
+# pysal
 
 werkzeug
 

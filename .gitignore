@@ -5,7 +5,6 @@ log/logfile*
 *.pot
 *.pyc
 */settings_*.py*
-media/medialibrary
 build
 GIS/tiles
 *.sql
@@ -21,7 +20,7 @@ cache_generation.log
 media
 apitest.py
 /log/*
-
+/deployment/.vagrant/
 /open_coesione/static/csv
 
 rubrica/iscrizioni.csv

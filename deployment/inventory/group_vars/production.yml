@@ -1,0 +1,88 @@
+---
+# these three lines you'd use to describe
+# your connection to the server
+# override per host in the host_vars (ideal)
+# or in your inventory as inline key=value pairs
+ansible_ssh_user: administrator
+ansible_ssh_port: 4321
+ansible_ssh_key: ~/.ssh/id_rsa
+
+
+project:
+  name: projectname
+  user: project_username
+  group: www-data
+  mode: live
+  root: /opt/${project.name}/
+  virtualenv: ${project.root}environ/
+  # list of absolute paths to requirement files you
+  # want pip to process
+  # ${project.root}/code/ is the root of the git checkout
+  requirements:
+    - ${project.root}code/requirements/base.list
+    - ${project.root}code/requirements/cache.list
+    - ${project.root}code/requirements/celery.list
+    - ${project.root}code/requirements/live.list
+
+
+repo:
+  # TODO: support selecting SCM
+  # right now, only git is supported
+  branch: develop
+  url: "ssh://host:port/path"
+
+
+nginx:
+  # Upstreams
+  # Your upstreams are going to be any nodes defined
+  # in the [appservers] inventory group
+  # SSL private and public key
+  ssl:
+    private: files+'ssl/production'
+    public: files+'ssl/production.pub'
+
+  # list of hostnames you want nginx to
+  # make the vhost respond to
+  servernames:
+    - "*.example.com"
+    - "example.com"
+
+
+django:
+  settings: base.settings.live
+  wsgi: base.wsgi
+  # absolute path to the root of your django project
+  # in my case this is where the manage.py lives
+  # It's also where the SCM module dumps your project
+  root: ${project.root}code/application/
+  # list of fixtures you want to install
+  # if they aren't in an applications fixture directory
+  # then use absolute paths
+  fixtures:
+    - live
+    - pages
+
+
+database:
+  # TODO: support selecting engine
+  #  right now, only postgres is supported
+  name: databasename
+  host: localhost
+  port: 5432
+  user: databaseuser
+  # protip: https://gist.github.com/airtonix/7209175
+  password: databasepassword
+
+# if this group is present, then
+# celery and redis is setup as a message queue
+# to faciliate this, your django project is
+# also checked out onto this node
+message_queue:
+  redis_port: 6379
+  redis_id: 3
+
+# if this dictionary is present, then
+# redis is setup as a cache server
+cache:
+  redis_port: 6379
+  redis_id: 2

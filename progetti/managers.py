@@ -1,12 +1,11 @@
 from datetime import datetime
 from django.db import models
-from django.db.models import F
 
 class ProgettiQuerySet(models.query.QuerySet):
 
     def conclusi(self, date=None):
         date = date or datetime.now()
-        return self.filter(data_fine_effettiva__lte=date, pagamento__gt=0.95*F('fin_totale_pubblico_netto')).order_by('-data_fine_effettiva')
+        return self.filter(data_fine_effettiva__lte=date, stato_progetto=self.model.STATO.concluso).order_by('-data_fine_effettiva')
 
     def avviati(self, date=None):
         date = date or datetime.now()
@@ -42,18 +41,18 @@ class ProgettiQuerySet(models.query.QuerySet):
         return query_set.distinct()
 
     def nel_territorio(self, territorio):
-        if territorio.territorio == territorio.TERRITORIO.R:
+        if territorio.is_regione:
             return self.filter(territorio_set__cod_reg=territorio.cod_reg)
-        elif territorio.territorio == territorio.TERRITORIO.P:
+        elif territorio.is_provincia:
             return self.filter(territorio_set__cod_prov=territorio.cod_prov)
-        elif territorio.territorio == territorio.TERRITORIO.C:
+        elif territorio.is_comune:
             return self.filter(territorio_set__cod_com=territorio.cod_com)
-        elif territorio.territorio == territorio.TERRITORIO.N:
+        elif territorio.is_nazionale:
             return self.filter(territorio_set__territorio=territorio.TERRITORIO.N)
-        elif territorio.territorio == territorio.TERRITORIO.E:
+        elif territorio.is_estero:
             return self.filter(territorio_set__pk=territorio.pk)
         else:
-            raise Exception('Territorio non valido {0}'.format(territorio))
+            raise Exception('Territorio non valido {}'.format(territorio))
 
     def nei_territori(self, territori):
         conditions = False  # zero

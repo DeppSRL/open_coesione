@@ -1,0 +1,26 @@
+---
+- name: Configure database servers
+  hosts: db
+  sudo: yes
+  roles:
+    - { role: azavea.postgis }
+
+- name: Configure redis server
+  hosts: redis
+  sudo: yes
+  roles:
+    - { role: redis }
+
+- name: Configure solr server
+  hosts: solr
+  sudo: yes
+  roles:
+    - { role: geerlingguy.java }
+    - { role: geerlingguy.solr }
+
+- name: Configure web dev framework
+  hosts: web
+  sudo: yes
+  roles:
+    - { role: djangodev }
+
