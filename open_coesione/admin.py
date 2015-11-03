@@ -88,17 +88,18 @@ class MessagesAdmin(admin.ModelAdmin):
     date_hierarchy = 'sent_at'
     list_display = ('sender', 'email', 'organization', 'sent_at')
     actions = [
-        export_select_fields_csv_action("Esporta i selezionati in formato CSV",
-             fields=[
-                 ('sender', 'Nome'),
-                 ('email', 'e-mail'),
-                 ('organization', 'Organizzazione'),
-                 ('location', u'Località'),
-                 ('reason', 'Motivo'),
-                 ('body', 'Messaggio'),
-                 ('sent_at', 'Qualifica'),
-             ],
-             header=True
+        export_select_fields_csv_action(
+            'Esporta i selezionati in formato CSV',
+            fields=[
+                ('sender', 'Nome'),
+                ('email', 'E-mail'),
+                ('organization', 'Organizzazione'),
+                ('location', u'Località'),
+                ('reason', 'Motivo'),
+                ('body', 'Messaggio'),
+                ('sent_at', 'Qualifica'),
+            ],
+            header=True
         ),
     ]
 

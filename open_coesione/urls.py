@@ -4,7 +4,7 @@ from django.conf import settings
 from django.views.generic.base import TemplateView
 from open_coesione.views import HomeView, FondiView, RisorsaView, ContactView, SpesaCertificataGraficiView,\
     OpendataView, OpendataRedirectView, PillolaListView, PillolaDetailView, DocumentsRedirectView, FAQListView,\
-    PressReviewListView, DatiISTATView
+    PressReviewListView, DatiISTATView, SpesaCertificataView
 from rubrica.views import NLContactView
 from filebrowser.sites import site
 
@@ -65,13 +65,12 @@ urlpatterns = patterns('',
 
     url(r'^dati-istat-di-contesto/$', DatiISTATView.as_view(template_name='open_coesione/dati_istat.html'), name='dati-istat'),
 
-    url(r'^pac/', RisorsaView.as_view(template_name='open_coesione/pac.html'), name='pac'),
-    url(r'^spesa-certificata/', RisorsaView.as_view(template_name='open_coesione/spesa_certificata.html'), name='spesa-certificata'),
-
     url(r'^segui/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
 
     url(r'^rassegna-stampa/', PressReviewListView.as_view()),
 
+    url(r'^pac/', RisorsaView.as_view(template_name='open_coesione/pac.html'), name='pac'),
+    url(r'^spesa-certificata/', SpesaCertificataView.as_view(template_name='open_coesione/spesa_certificata.html'), name='spesa-certificata'),
     url(r'^spesa-certificata-grafici/', SpesaCertificataGraficiView.as_view(template_name='open_coesione/spesa_certificata_grafici.html'), name='spesa-certificata-grafici'),
     url(r'^fonti-di-finanziamento/', FondiView.as_view(template_name='open_coesione/fonti_finanziamento.html'), name='fonti-finanziamento'),
 

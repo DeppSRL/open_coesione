@@ -426,6 +426,13 @@ class Progetto(TimeStampedModel):
         ('1', u'Il progetto appartiene al PAC ed è finanziato con risorse dedicate, al di fuori dei Programmi Operativi'),
         ('2', u"Il progetto appartiene al PAC ed è finanziato nell'ambito dei Programmi Operativi"),
     )
+    STATO = Choices(
+        ('0', 'non_applicabile', u'n/a'),
+        ('1', 'non_avviato', u'non avviato'),
+        ('2', 'in_corso', u'in corso'),
+        ('3', 'completato', u'completato'),
+        ('4', 'concluso', u'concluso'),
+    )
 
     codice_locale = models.CharField(max_length=100, primary_key=True, db_column='cod_locale_progetto')
 
@@ -435,8 +442,12 @@ class Progetto(TimeStampedModel):
     overlapping_projects = models.ManyToManyField('self')
 
     titolo_progetto = models.TextField()
-    descrizione = models.TextField(blank=True, null=True)
     slug = models.SlugField(max_length=128, blank=True, null=True, unique=True, db_index=True)
+
+    descrizione = models.TextField(blank=True, null=True)
+
+    descrizione_fonte_nome = models.TextField(blank=True, null=True)
+    descrizione_fonte_url = models.URLField(blank=True, null=True)
 
     classificazione_qsn = models.ForeignKey('ClassificazioneQSN', related_name='progetto_set', db_column='classificazione_qsn', null=True, blank=True)
     programma_asse_obiettivo = models.ForeignKey('ProgrammaAsseObiettivo', related_name='progetto_set', db_column='programma_asse_progetto', null=True, blank=True)
@@ -452,9 +463,6 @@ class Progetto(TimeStampedModel):
     #                           blank=True, null=True,
     #                           db_column='fonte')
     fonte_set = models.ManyToManyField('Fonte', related_name='progetto_set', db_table='progetti_progetto_has_fonte')
-
-    # fonte_descrizione = models.TextField(blank=True, null=True)
-    # fonte_url = models.URLField(blank=True, null=True)
 
     classificazione_azione = models.ForeignKey('ClassificazioneAzione', related_name='progetto_set', db_column='classificazione_azione', null=True, blank=True)
     classificazione_oggetto = models.ForeignKey('ClassificazioneOggetto', related_name='progetto_set', db_column='classificazione_oggetto', null=True, blank=True)
@@ -510,6 +518,9 @@ class Progetto(TimeStampedModel):
     dps_flag_pac = models.CharField(max_length=1, choices=DPS_FLAG_PAC, default='0')
 
     privacy_flag = models.BooleanField(default=False)
+
+    stato_progetto = models.CharField(max_length=1, choices=STATO, null=True, blank=True, db_index=True)
+    stato_finanziario = models.CharField(max_length=1, choices=STATO, null=True, blank=True)
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
@@ -670,9 +681,9 @@ class Progetto(TimeStampedModel):
         return max(self.data_aggiornamento, *[p.data for p in pagamenti])
 
     def percentuale_pagamenti(self):
-        if not self.fin_totale_pubblico or not self.pagamento:
+        if not self.fin_totale_pubblico_netto or not self.pagamento:
             return 0.0
-        return (float(self.pagamento) or 0.0) / (float(self.fin_totale_pubblico) or 0.0) * 100.0
+        return (float(self.pagamento) or 0.0) / (float(self.fin_totale_pubblico_netto) or 0.0) * 100.0
 
     def delibere_cipe(self):
         return self.deliberacipe_set.all()

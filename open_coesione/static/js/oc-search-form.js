@@ -36,7 +36,7 @@ $(document).ready(function() {
         close: function() {
             $(this).removeClass('ui-corner-top').addClass('ui-corner-all');
         }
-    }).css('z-index', 10000);
+    }).css('z-index', 999);
 
     function handle_keydown(event) {
         // track enter key

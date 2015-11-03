@@ -265,6 +265,16 @@ class FondiView(RisorsaView):
         return context
 
 
+class SpesaCertificataView(RisorsaView):
+    def get_context_data(self, **kwargs):
+        context = super(SpesaCertificataView, self).get_context_data(**kwargs)
+
+        context['spesa_dotazione_file'] = OpendataView.get_complete_localfile('Dotazioni_Certificazioni.xls')
+        context['spesa_target_file'] = OpendataView.get_complete_localfile('Target_Risultati.xls')
+
+        return context
+
+
 class SpesaCertificataGraficiView(RisorsaView):
     def get_context_data(self, **kwargs):
         import csv

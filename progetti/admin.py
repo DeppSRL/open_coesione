@@ -175,25 +175,27 @@ class SegnalazioneAdmin(admin.ModelAdmin):
                        'descrizione', 'come_migliorare', 'risultati_conseguiti', 'effetti_sul_territorio',
                        'cosa_piace', 'cosa_non_piace', 'quanto_utile']
     actions = [
-        export_select_fields_csv_action("Esporta i selezionati in formato CSV",
-             fields=[
-                 ('cup', 'Codice CUP del progetto'),
-                 ('is_cipe', 'Se CIPE'),
-                 ('modified', 'Ultima modifica'),
-                 ('pubblicato', 'Pubblicato'),
-                 ('come_lo_conosci', 'Come lo conosci'),
-                 ('come_lo_conosci_altro', 'Note su come hai conosciuto il progetto'),
-                 ('organizzazione', 'Organizzazione'),
-                 ('utente', 'Nome e cognome'),
-                 ('descrizione', 'Descrizione'),
-                 ('come_migliorare', 'Come migliorare'),
-                 ('risultati_conseguiti', 'Risultati conseguiti'),
-                 ('effetti_sul_territorio', 'Effetti sul territorio'),
-                 ('cosa_piace', 'Cosa piace'),
-                 ('cosa_non_piace', 'Cosa non piace'),
-                 ('quanto_utile', 'Quanto utile'),
-             ],
-             header=True
+        export_select_fields_csv_action(
+            'Esporta i selezionati in formato CSV',
+            fields=[
+                ('cup', 'Codice CUP del progetto'),
+                ('is_cipe', 'Se CIPE'),
+                ('modified', 'Ultima modifica'),
+                ('pubblicato', 'Pubblicato'),
+                ('come_lo_conosci', 'Come lo conosci'),
+                ('come_lo_conosci_altro', 'Note su come hai conosciuto il progetto'),
+                ('organizzazione', 'Organizzazione'),
+                ('utente', 'Nome e cognome'),
+                ('email', 'E-mail'),
+                ('descrizione', 'Descrizione'),
+                ('come_migliorare', 'Come migliorare'),
+                ('risultati_conseguiti', 'Risultati conseguiti'),
+                ('effetti_sul_territorio', 'Effetti sul territorio'),
+                ('cosa_piace', 'Cosa piace'),
+                ('cosa_non_piace', 'Cosa non piace'),
+                ('quanto_utile', 'Quanto utile'),
+            ],
+            header=True
         ),
     ]
 
