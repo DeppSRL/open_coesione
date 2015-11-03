@@ -8,7 +8,7 @@ class ProgettiQuerySet(models.query.QuerySet):
     def conclusi(self, date=None):
         date = date or datetime.now()
         # return self.filter(data_fine_effettiva__lte=date, pagamento__gt=0.95*F('fin_totale_pubblico_netto')).order_by('-data_fine_effettiva')
-        return self.filter(data_fine_effettiva__lte=date, stato_progetto=self.model.STATO.concluso).order_by('-data_fine_effettiva')
+        return self.filter(data_fine_effettiva__lte=date, stato_progetto=self.model.STATO.concluso).order_by('-data_fine_effettiva', '-fin_totale_pubblico')
 
     def avviati(self, date=None):
         date = date or datetime.now()
