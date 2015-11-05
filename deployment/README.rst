@@ -96,4 +96,31 @@ which is shared with the project path.
     python manage.py runserver 0.0.0.0:80
 
 
-Now, open http://localhost:8000 in your browser!
+Now, open http://192.168.111.101:8000 in your browser!
+
+
+VM Operations
+=============
+
+This describes how to have the prepared environment start and begin work.
+
+.. code::
+
+    cd deployment
+    vagrant up
+    vagrant ssh oc -c "source django_venv/bin/activate; cd /vagrant; python manage.py runserver 0.0.0.0:8000"
+    vagrant ssh ts -c "source tilestache_venv/bin/activate; python application.py"
+
+
+Now, open http://192.168.111.101:8000 in your browser,
+start modifying code and see the changes in the browser.
+
+(Debugging in pycharm has yet to be configured correctly)
+
+Libraries and packages updates can be checked (optionally) with:
+
+.. code::
+
+     ansible-playbook -i inventory/vagrant playbook/vagrant_ts.yml
+     ansible-playbook -i inventory/vagrant playbook/vagrant_oc.yml
+
