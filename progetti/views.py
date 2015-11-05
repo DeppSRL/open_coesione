@@ -75,11 +75,11 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
     }
 
     COST_RANGES = {
-        '0-0TO1K':     {'qrange': '[* TO 1000.49]', 'r_label': 'da 0 a 1.000&euro;'},
-        '1-1KTO10K':   {'qrange': '[1000.50 TO 10000.49]', 'r_label': 'da 1.000 a 10.000&euro;'},
-        '2-10KTO100K': {'qrange': '[10000.50 TO 100000.49]', 'r_label': 'da 10.000 a 100.000&euro;'},
-        '3-100KTO10M': {'qrange': '[100000.50 TO 10000000.49]', 'r_label': 'da 100.000 a 10.000.000&euro;'},
-        '4-10MTOINF':  {'qrange': '[10000000.50 TO *]', 'r_label': 'oltre 10.000.000&euro;'},
+        '0-0TO1K':     {'qrange': '[* TO 1000.50]', 'r_label': 'da 0 a 1.000&euro;'},
+        '1-1KTO10K':   {'qrange': '[1000.51 TO 10000.50]', 'r_label': 'da 1.000 a 10.000&euro;'},
+        '2-10KTO100K': {'qrange': '[10000.51 TO 100000.50]', 'r_label': 'da 10.000 a 100.000&euro;'},
+        '3-100KTO10M': {'qrange': '[100000.51 TO 10000000.50]', 'r_label': 'da 100.000 a 10.000.000&euro;'},
+        '4-10MTOINF':  {'qrange': '[10000000.51 TO *]', 'r_label': 'oltre 10.000.000&euro;'},
     }
 
     DATE_INTERVALS_RANGES = {
