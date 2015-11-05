@@ -427,7 +427,7 @@ class Progetto(TimeStampedModel):
         ('2', u"Il progetto appartiene al PAC ed è finanziato nell'ambito dei Programmi Operativi"),
     )
     STATO = Choices(
-        ('0', 'non_applicabile', u'n/a'),
+        ('0', 'non_applicabile', u'non applicabile'),
         ('1', 'non_avviato', u'non avviato'),
         ('2', 'in_corso', u'in corso'),
         ('3', 'completato', u'completato'),
