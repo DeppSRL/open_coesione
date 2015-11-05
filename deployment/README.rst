@@ -10,15 +10,12 @@ depp-ansible roles.
 
 .. code::
 
-    # ansible installation
-    sudo pip install ansible
-
     # clone depp-ansible repository from gitlab
     pushd ~/Workspace
     git clone ssh://git@gitlab.equi.openpolis.it:9822/eraclitux/ansible.git depp-ansible
 
     # configure ansible, to use depp-ansible repository
-    car > ~/.ansible.cfg < EOF
+    cat > ~/.ansible.cfg < EOF
     [defaults]
     roles_path = ~/Workspace/depp-ansible/playbooks/roles
     nocows = 1
@@ -31,15 +28,16 @@ depp-ansible roles.
 VM Installation
 ===============
 
-A vagrant machine is launched and provisioned with all OS packages and
+A set of vagrant machines is launched and provisioned with all OS packages and
 python packages needed to properly run the django app and all needed services
-in the virtual machine, leaving the source code in the host.
+in the virtual machines, leaving the app source code in the host.
 
 .. code::
 
-    cd ~/Workspace/open-coesione
+    cd ~/workspace/open-coesione/deployment
     vagrant up
-    ansible-playbook -i inventory/vagrant playbook/vagrant.yml
+    ansible-playbook -i inventory/vagrant playbook/vagrant_ts.yml
+    ansible-playbook -i inventory/vagrant playbook/vagrant_oc.yml
 
 
 

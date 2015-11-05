@@ -20,7 +20,6 @@
 
 - name: Configure web dev framework
   hosts: web
-  sudo: yes
   roles:
-    - { role: djangodev }
+    - { role: django-dev }
 
