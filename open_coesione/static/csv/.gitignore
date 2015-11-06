@@ -1,0 +1,7 @@
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!spesatot_data.csv
+!spesacertificata_data.csv
