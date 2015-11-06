@@ -291,7 +291,7 @@ class BaseProgrammaView(AccessControlView, AggregatoMixin, TemplateView):
         context['numero_soggetti'] = Soggetto.objects.count()
 
         logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.con_programmi(programmi).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().con_programmi(programmi).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
 
         logger.debug('territori_piu_finanziati_pro_capite start')
 
@@ -316,7 +316,7 @@ class BaseProgrammaView(AccessControlView, AggregatoMixin, TemplateView):
 
         context.update(self.get_cached_context_data(programmi=programmi))
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().con_programmi(programmi)[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().con_programmi(programmi).conclusi()[:5]
 
         return context
 
@@ -454,7 +454,7 @@ class ClassificazioneAzioneView(AccessControlView, AggregatoMixin, DetailView):
         context['map_selector'] = 'nature/{0}/'.format(self.kwargs['slug'])
 
         logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.con_natura(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().con_natura(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
 
         logger.debug('territori_piu_finanziati_pro_capite start')
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
@@ -470,7 +470,7 @@ class ClassificazioneAzioneView(AccessControlView, AggregatoMixin, DetailView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().con_natura(self.object)[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().con_natura(self.object).conclusi()[:5]
 
         return context
 
@@ -491,7 +491,7 @@ class TemaView(AccessControlView, AggregatoMixin, DetailView):
         context['map_selector'] = 'temi/{0}/'.format(self.kwargs['slug'])
 
         logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.con_tema(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().con_tema(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
 
         logger.debug('territori_piu_finanziati_pro_capite start')
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
@@ -507,7 +507,7 @@ class TemaView(AccessControlView, AggregatoMixin, DetailView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().con_tema(self.object)[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().con_tema(self.object).conclusi()[:5]
 
         context['lista_indici_tema'] = []
         with open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))) as csvfile:
