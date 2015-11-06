@@ -15,7 +15,7 @@
     <h3><a href="{{ object.get_absolute_url }}">{{ object.titolo_progetto }}</a></h3>
 
     <ul class="unstyled">
-        <li>Finanziamento pubblico: <strong>{% firstof object.fin_totale_pubblico_netto object.fin_totale_pubblico '0' %}</strong> euro</li>
+        <li>Finanziamento pubblico: <strong>{% firstof object.fin_totale_pubblico_netto|safe object.fin_totale_pubblico|safe '0' %}</strong> euro</li>
         {% if not object.cipe_flag %}
             <li>Pagamenti effettuati: <strong>{{ object.pagamento|default:'0' }}</strong> euro</li>
         {% endif %}
