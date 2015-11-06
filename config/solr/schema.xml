@@ -214,6 +214,8 @@
 
     <field name="data_inizio_prevista" type="date" indexed="true" stored="true" multiValued="false" />
 
+    <field name="stato_progetto" type="string" indexed="true" stored="true" multiValued="false" />
+
     <field name="fin_stato_pac" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
     <field name="fin_totale_pubblico" type="sfloat" indexed="true" stored="true" multiValued="false" />
