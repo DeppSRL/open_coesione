@@ -78,7 +78,8 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         '0-0TO1K':     {'qrange': '[* TO 1000]', 'r_label': 'da 0 a 1.000&euro;'},
         '1-1KTO10K':   {'qrange': '[1000.01 TO 10000]', 'r_label': 'da 1.000 a 10.000&euro;'},
         '2-10KTO100K': {'qrange': '[10000.01 TO 100000]', 'r_label': 'da 10.000 a 100.000&euro;'},
-        '3-100KTOINF': {'qrange': '[100000.01 TO *]', 'r_label': 'oltre 100.000&euro;'},
+        '3-100KTO10M': {'qrange': '[100000.01 TO 10000000]', 'r_label': 'da 100.000 a 10.000.000&euro;'},
+        '4-10MTOINF':  {'qrange': '[10000001 TO *]', 'r_label': 'oltre 10.000.000&euro;'},
     }
 
     DATE_INTERVALS_RANGES = {
@@ -232,8 +233,6 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
             extra['tipo_progetto']['descrizione'][codice] = descrizione
             extra['tipo_progetto']['short_label'][codice] = descrizione
 
-        extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
-
         # definizione struttura dati per visualizzazione faccette fonte
         extra['fonte'] = {
             'descrizione': {},
@@ -242,6 +241,19 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         for c in Fonte.objects.all():
             extra['fonte']['descrizione'][c.codice] = c.descrizione
             extra['fonte']['short_label'][c.codice] = c.short_label
+
+        # definizione struttura dati per visualizzazione faccette stato progetto
+        extra['stato_progetto'] = {
+            'descrizione': {},
+            'short_label': {}
+        }
+        for c in Progetto.STATO:
+            codice, descrizione = c
+
+            extra['stato_progetto']['descrizione'][codice] = descrizione
+            extra['stato_progetto']['short_label'][codice] = descrizione
+
+        extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
 
         paginator = Paginator(self.results, 10)
         page = self.request.GET.get('page')

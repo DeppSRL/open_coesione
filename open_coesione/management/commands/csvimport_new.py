@@ -1174,6 +1174,7 @@ class Command(BaseCommand):
 
         temisintetici_desc2cod = {tema.descrizione: tema.codice for tema in Tema.objects.principali()}
         fonti_cod2obj = {fonte.codice: fonte for fonte in Fonte.objects.all()}
+        stato_desc2cod = {x[1]: x[0] for x in Progetto.STATO}
         delibere_num2obj = {delibera.num: delibera for delibera in DeliberaCIPE.objects.all()}
 
         # creazione progetti
@@ -1231,6 +1232,9 @@ class Command(BaseCommand):
 
                 # data ultimo aggiornamento progetto
                 values['data_aggiornamento'] = self._get_value(row, 'DATA_PUBBLICAZIONE_AGG', 'date')
+
+                values['stato_progetto'] = stato_desc2cod.get(row['OC_STATO_PROGETTO'])
+                values['stato_finanziario'] = stato_desc2cod.get(row['OC_STATO_FINANZIARIO'])
 
                 values['dps_flag_cup'] = 1
 
