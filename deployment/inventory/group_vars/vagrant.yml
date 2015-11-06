@@ -8,17 +8,19 @@ project:
   fqdn: opencoesione.dev.depp.it
 
 django:
-  settings: open_coesione.settings.development
-  port: 8001
-  wsgi: open_coesione.wsgi
-  root: "/vagrant"
-  base: "/vagrant/open_coesione"
   requirements: "/vagrant/requirements.txt"
+  virtualenv: "/home/vagrant/django_venv"
 
 java_packages:
   - openjdk-7-jre-headless
 
 solr_version: "3.6.2"
 
+tilestache:
+  bind_port: 8009
+  config_file_or_url: "http://192.168.111.101:8000/territori/tiles.cfg"
+  bind_address: "0.0.0.0."
+  virtualenv: "/home/vagrant/tilestache_venv"
+  app_root: "/home/vagrant/"
 
 

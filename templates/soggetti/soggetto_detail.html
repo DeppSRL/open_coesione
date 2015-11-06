@@ -11,7 +11,39 @@
     </div>
 {% endblock %}
 
+
+{% block anagrafica_sogg_miur %}
+                       <a href="#" class="block-chart" style="width:24%" id="button_anagrafica_indicatori">
+                            <strong class="title">Anagrafica e Altri Dettagli</strong>
+                            <i class="icon-undo"></i>
+                        </a>
+{% endblock %}
+
 {% block page_header %}
+           <script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3&sensor=false"></script>
+
+            <div id="api_result">
+            </div>
+ 
+           <script type="text/javascript">
+            $( document ).ready(function() {
+              var id = '854927';
+          
+              $.getJSON( "http://oc2.staging.deppsviluppo.org:8000/api/indicatori_soggetti?id="+id, function( data ) {
+                var items = [];
+                console.log(data.result);
+                $("#api_result").html(data.result.html);
+                eval(data.result.js);  
+                
+                if($("#codice_meccanografico").length){
+                  $("#button_anagrafica_indicatori").css('display','block');
+                }else{
+                  $("#button_anagrafica_indicatori").css('display','none');
+                }
+              });
+            });
+            </script>
+
     <div class="span12">
         <h1 class="title violet"><span>{{ soggetto }}</span></h1>
         <p style="padding: 0 25px">

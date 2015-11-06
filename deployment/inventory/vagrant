@@ -1,14 +1,25 @@
 [vagrant]
-vagrant ansible_ssh_host=127.0.0.1 ansible_ssh_port=2222
+vagrant_1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2201
+vagrant_2 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2202
 
 [web]
-vagrant
+vagrant_1
 
 [db]
-vagrant
+vagrant_1
 
 [solr]
-vagrant
+vagrant_1
 
 [redis]
-vagrant
+vagrant_1
+
+[tilestache]
+vagrant_2
+
+[vagrant:children]
+web
+db
+solr
+redis
+tilestache

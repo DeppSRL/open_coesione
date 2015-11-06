@@ -188,14 +188,64 @@
             </div>
 
             <aside id="sidebar" class="span6">
-                <section class="clearfix">
-                    <div class="row">
-                        <div class="span6">
-                            <h1 class="title" style="margin-left: 25px"><span>Risorse pubbliche</span></h1>
-                        </div>
+                     <div class="row">
+                        {% add_data 'js-data' 'js/amcharts/amcharts.js' %}
+                        {% add_data 'js-data' 'js/amcharts/serial.js' %}
+                        {% add_data 'js-data' 'js/amcharts/pie.js' %}
+                        {% add_data 'js-data' 'js/amcharts/pie.js' %}
+
+                        {% addtoblock 'css' %}
+                        <style type="text/css">
+                          .api_chart {
+                            width   : 100%;
+                            height    : 500px;
+                            font-size : 11px;
+                          }
+
+                          .amcharts-export-menu-top-right {
+                            top: 10px;
+                            right: 0;
+                          }
+                        </style>
+                        {% endaddtoblock %}
+
+          <div class="tabbable boxed">
+              <!-- Only required for left/right tabs -->
+              <ul class="nav nav-tabs">
+                  <li class="active"><a href="#finanziamenti" data-toggle="tab">Risorse pubbliche</a>
+                  </li>
+                  <li id="tab_indicatori"><a href="#indicatori" data-toggle="tab">Vuoi saperne di più?</a>
+                  </li>
+              </ul>
+         </div>
+ 
+
+          <script type="text/javascript">
+          $( document ).ready(function() {
+            var id = '{{ progetto.pk }}';
+          
+            $.getJSON( "http://oc2.staging.deppsviluppo.org:8000/api/indicatori_progetti?id="+id, function( data ) {
+              var items = [];
+              console.log(data.result);
+              if(data.result.case=='NESSUNO'){
+                $("#tab_indicatori").css('display','none');
+              }else{
+                $("#api_result").html(data.result.html);
+                eval(data.result.js);
+              } 
+              
+            });
+          });
+          </script>
+
+ 
                     </div>
 
-                    <div class="row">
+                 <div class="tab-content">
+                    <div class="tab-pane active area" id="finanziamenti">
+                    
+                      <section class="clearfix">
+                       <div class="row">
                         <div class="span3 text-center">
                             {% if progetto.cipe_flag %}
                                 <h2 style="color: #4b6dbc">Assegnazione CIPE</h2>
@@ -211,9 +261,9 @@
                                 <strong>{{ total_cost_paid|floatformat:'2'|intcomma }}</strong> euro
                             </div>
                         {% endif %}
-                    </div>
+                     </div>
 
-                    <div class="row" style="height: 150px">
+                     <div class="row" style="height: 150px">
                         {% include 'progetti/includes/progetto_detail_finanziamento.html' %}
 
                         <div class="span3">
@@ -240,10 +290,9 @@
                                 {% endif %}
                             {% endif %}
                         </div>
-                    </div>
-                </section>
-
-                <section>
+                     </div>
+                     </section>
+                 <section>
                     <dl class="data">
                         {% if progetto.costo %}
                             <dt>Costo</dt>
@@ -359,7 +408,14 @@
                         </div>
                     </section>
                 {% endif %}
-            </aside>
+                    </div>
+                    <div class="tab-pane area" id="indicatori">
+                      <div id="api_result">
+                      </div>
+                    </div>
+                 </div>
+
+           </aside>
         </article>
 
         {% block comments %}
