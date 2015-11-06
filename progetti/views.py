@@ -345,9 +345,9 @@ class ProgrammiView(BaseProgrammaView):
             dotazioni_totali = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Dotazioni_Certificazioni.xls'), 'rb')).splitlines()))
 
             for trend in ('conv', 'cro'):
-                programmi_codici = [programma.codice for programma in programmi if ' {0} '.format(trend) in programma.descrizione.lower()]
+                programmi_codici = [programma.codice for programma in programmi if ' {} '.format(trend) in programma.descrizione.lower()]
 
-                logger.debug('pagamenti_per_anno_{0} start'.format(trend))
+                logger.debug('pagamenti_per_anno_{} start'.format(trend))
 
                 pagamenti_per_anno = PagamentoProgetto.objects.filter(data__day=31, data__month=12, progetto__active_flag=True, progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
 
@@ -355,18 +355,18 @@ class ProgrammiView(BaseProgrammaView):
                 for row in dotazioni_totali:
                     if row['OC_CODICE_PROGRAMMA'].strip() in programmi_codici:
                         for anno in dotazioni_totali_per_anno:
-                            data = '{0}1231'.format(max(anno, 2009))  # i dati delle dotazioni totali partono dal 2009; per gli anni precedenti valgono i dati del 2009
+                            data = '{}1231'.format(max(anno, 2009))  # i dati delle dotazioni totali partono dal 2009; per gli anni precedenti valgono i dati del 2009
                             try:
-                                valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {0}'.format(data)]
+                                valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {}'.format(data)]
                             except KeyError:
-                                valore = row['DOTAZIONE TOTALE PROGRAMMA {0}'.format(data)]
+                                valore = row['DOTAZIONE TOTALE PROGRAMMA {}'.format(data)]
 
                             # dotazioni_totali_per_anno[anno] += float(valore.strip().replace('.', '').replace(',', '.'))
                             dotazioni_totali_per_anno[anno] += float(valore)
 
-                context['pagamenti_per_anno_{0}'.format(trend)] = [{'year': pagamento['data'].year, 'total_amount': dotazioni_totali_per_anno[pagamento['data'].year], 'paid_amount': pagamento['ammontare'] or 0} for pagamento in pagamenti_per_anno]
+                context['pagamenti_per_anno_{}'.format(trend)] = [{'year': pagamento['data'].year, 'total_amount': dotazioni_totali_per_anno[pagamento['data'].year], 'paid_amount': pagamento['ammontare'] or 0} for pagamento in pagamenti_per_anno]
 
-                logger.debug('pagamenti_per_programma_{0} start'.format(trend))
+                logger.debug('pagamenti_per_programma_{} start'.format(trend))
 
                 programmi_con_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__data=data_pagamenti_per_programma, classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_codici).values('descrizione', 'codice').annotate(ammontare=Sum('classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__ammontare_rendicontabile_ue')).order_by('descrizione')
 
@@ -376,13 +376,13 @@ class ProgrammiView(BaseProgrammaView):
                     if programma in programmi_codici:
                         data = data_pagamenti_per_programma.strftime('%Y%m%d')
                         try:
-                            valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {0}'.format(data)]
+                            valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {}'.format(data)]
                         except KeyError:
-                            valore = row['DOTAZIONE TOTALE PROGRAMMA {0}'.format(data)]
+                            valore = row['DOTAZIONE TOTALE PROGRAMMA {}'.format(data)]
 
                         dotazioni_totali_per_programma[programma] = float(valore)
 
-                context['pagamenti_per_programma_{0}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': dotazioni_totali_per_programma[programma['codice']], 'paid_amount': programma['ammontare']} for programma in programmi_con_pagamenti]
+                context['pagamenti_per_programma_{}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': dotazioni_totali_per_programma[programma['codice']], 'paid_amount': programma['ammontare']} for programma in programmi_con_pagamenti]
 
             pagamenti_per_anno_tutti = {}
             for item in context['pagamenti_per_anno_conv'] + context['pagamenti_per_anno_cro']:
@@ -406,7 +406,7 @@ class ProgrammiView(BaseProgrammaView):
 
         context = super(ProgrammiView, self).get_context_data(programmi=gruppo_programmi.programmi, **kwargs)
 
-        context['map_selector'] = 'gruppo-programmi/{0}/'.format(self.kwargs['slug'])
+        context['map_selector'] = 'gruppo-programmi/{}/'.format(self.kwargs['slug'])
 
         context['gruppo_programmi'] = gruppo_programmi
 
@@ -430,7 +430,7 @@ class ProgrammaView(BaseProgrammaView):
 
         context = super(ProgrammaView, self).get_context_data(programmi=[programma], **kwargs)
 
-        context['map_selector'] = 'programmi/{0}/'.format(self.kwargs['codice'])
+        context['map_selector'] = 'programmi/{}/'.format(self.kwargs['codice'])
 
         context['programma'] = programma
 
@@ -451,7 +451,7 @@ class ClassificazioneAzioneView(AccessControlView, AggregatoMixin, DetailView):
         context = self.get_aggregate_data(context, classificazione=self.object)
 
         context['numero_soggetti'] = Soggetto.objects.count()
-        context['map_selector'] = 'nature/{0}/'.format(self.kwargs['slug'])
+        context['map_selector'] = 'nature/{}/'.format(self.kwargs['slug'])
 
         logger.debug('top_progetti_per_costo start')
         context['top_progetti_per_costo'] = Progetto.objects.no_privacy().con_natura(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
@@ -488,7 +488,7 @@ class TemaView(AccessControlView, AggregatoMixin, DetailView):
         context = self.get_aggregate_data(context, tema=self.object)
 
         context['numero_soggetti'] = Soggetto.objects.count()
-        context['map_selector'] = 'temi/{0}/'.format(self.kwargs['slug'])
+        context['map_selector'] = 'temi/{}/'.format(self.kwargs['slug'])
 
         logger.debug('top_progetti_per_costo start')
         context['top_progetti_per_costo'] = Progetto.objects.no_privacy().con_tema(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
@@ -510,12 +510,53 @@ class TemaView(AccessControlView, AggregatoMixin, DetailView):
         context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().con_tema(self.object).conclusi()[:5]
 
         context['lista_indici_tema'] = []
-        with open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{0}.csv'.format(self.object.codice))) as csvfile:
+        with open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{}.csv'.format(self.object.codice))) as csvfile:
             reader = csv.DictReader(csvfile)
             for line in reader:
                 context['lista_indici_tema'].append(line)
 
         return context
+
+
+class ProgettoPagamentiCSVView(DetailView):
+    model = Progetto
+    queryset = Progetto.fullobjects.get_query_set()
+
+    @staticmethod
+    def get_first_row():
+        return ['COD_LOCALE_PROGETTO', 'DATA_AGGIORNAMENTO', 'TOT_PAGAMENTI', 'OC_TOT_PAGAMENTI_RENDICONTAB_UE', 'OC_TOT_PAGAMENTI_FSC', 'OC_TOT_PAGAMENTI_PAC']
+
+    def get_csv_filename(self):
+        return 'pagamenti_{}'.format(self.kwargs.get('slug'))
+
+    def write_csv(self, response):
+        import locale
+
+        locale.setlocale(locale.LC_ALL, 'it_IT.UTF-8')
+
+        writer = utils.UnicodeWriter(response, dialect=csv.excel)
+        writer.writerow(self.get_first_row())
+
+        for pagamento in self.object.pagamenti:
+            writer.writerow([
+                self.object.codice_locale,
+                pagamento.data.strftime('%x'),
+                locale.format('%.2f', pagamento.ammontare or 0, grouping=True),
+                locale.format('%.2f', pagamento.ammontare_rendicontabile_ue or 0, grouping=True),
+                locale.format('%.2f', pagamento.ammontare_fsc or 0, grouping=True),
+                locale.format('%.2f', pagamento.ammontare_pac or 0, grouping=True),
+            ])
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        # Create the HttpResponse object with the appropriate CSV header.
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(self.get_csv_filename())
+
+        self.write_csv(response)
+
+        return response
 
 
 class BaseCSVView(AggregatoMixin, DetailView):
@@ -526,7 +567,7 @@ class BaseCSVView(AggregatoMixin, DetailView):
         return ['Comune', 'Provincia', 'Finanziamento pro capite']
 
     def get_csv_filename(self):
-        return '{0}_pro_capite'.format(self.kwargs.get('slug', 'all'))
+        return '{}_pro_capite'.format(self.kwargs.get('slug', 'all'))
 
     def write_csv(self, response):
         writer = utils.UnicodeWriter(response, dialect=csv.excel)
@@ -555,7 +596,7 @@ class BaseCSVView(AggregatoMixin, DetailView):
 
         # Create the HttpResponse object with the appropriate CSV header.
         response = HttpResponse(mimetype='text/csv')
-        response['Content-Disposition'] = 'attachment; filename={0}.csv'.format(self.get_csv_filename())
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(self.get_csv_filename())
 
         self.write_csv(response)
 
