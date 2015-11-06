@@ -529,7 +529,7 @@ class BaseCSVView(AggregatoMixin, DetailView):
         return '{0}_pro_capite'.format(self.kwargs.get('slug', 'all'))
 
     def write_csv(self, response):
-        writer = utils.UnicodeWriter(response, dialect=utils.excel_semicolon)
+        writer = utils.UnicodeWriter(response, dialect=csv.excel)
         writer.writerow(self.get_first_row())
         comuni = list(Territorio.objects.comuni().defer('geom'))
         provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().values('cod_prov', 'denominazione')])
