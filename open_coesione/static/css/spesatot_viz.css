@@ -31,12 +31,9 @@ div.topSection {
 }
 div.topSectionHighlight,
 div.topSection:hover {
-	background-color:orange;
+	background-color: #c6e6c4;
 }
 
-.wrapper {
-	width:100%;
-}
 .button  {
 	width:1em;
 	height:1em;
