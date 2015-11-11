@@ -594,7 +594,7 @@ class Command(BaseCommand):
 
         temisintetici_desc2cod = {tema.descrizione: tema.codice for tema in Tema.objects.principali()}
         fonti_cod2obj = {fonte.codice: fonte for fonte in Fonte.objects.all()}
-        stato_desc2cod = {x[1]: x[0] for x in Progetto.STATO}
+        stato_desc2cod = {x[1].lower(): x[0] for x in Progetto.STATO}
 
         # df1 = df.groupby('COD_LOCALE_PROGETTO', as_index=False).first()
         df1 = df
@@ -1174,7 +1174,7 @@ class Command(BaseCommand):
 
         temisintetici_desc2cod = {tema.descrizione: tema.codice for tema in Tema.objects.principali()}
         fonti_cod2obj = {fonte.codice: fonte for fonte in Fonte.objects.all()}
-        stato_desc2cod = {x[1]: x[0] for x in Progetto.STATO}
+        stato_desc2cod = {x[1].lower(): x[0] for x in Progetto.STATO}
         delibere_num2obj = {delibera.num: delibera for delibera in DeliberaCIPE.objects.all()}
 
         # creazione progetti
