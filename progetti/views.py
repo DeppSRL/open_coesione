@@ -205,6 +205,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
                 codice = c.codice
             else:
                 codice = 'ND'
+
             extra['natura']['descrizione'][codice] = c.descrizione
             extra['natura']['short_label'][codice] = c.short_label
 
@@ -275,6 +276,9 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         extra['n_max_downloadable'] = settings.N_MAX_DOWNLOADABLE_RESULTS
 
         extra['perc_pay_facets_enabled'] = getattr(settings, 'PERC_PAY_FACETS_ENABLED', False)
+
+        extra['facets']['fields']['stato_progetto']['counts'] = sorted(extra['facets']['fields']['stato_progetto']['counts'], key=lambda x: x[0], reverse=True)
+
         return extra
 
 
