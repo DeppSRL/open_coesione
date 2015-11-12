@@ -430,7 +430,7 @@ class Progetto(TimeStampedModel):
         ('0', 'non_applicabile', u'Non applicabile'),
         ('1', 'non_avviato', u'Non avviato'),
         ('2', 'in_corso', u'In corso'),
-        ('3', 'completato', u'Liquidato'),
+        ('3', 'liquidato', u'Liquidato'),
         ('4', 'concluso', u'Concluso'),
     )
 
