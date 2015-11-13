@@ -1,0 +1,15 @@
+{
+  "name": "grouped_categories",
+  "homepage": "https://github.com/blacklabel/grouped_categories",
+  "version": "1.0.9",
+  "_release": "1.0.9",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.0.9",
+    "commit": "a882e8de8627160cd5bcdbd1e10e94b40cf9ce30"
+  },
+  "_source": "git://github.com/blacklabel/grouped_categories.git",
+  "_target": "~1.0.9",
+  "_originalSource": "blacklabel/grouped_categories",
+  "_direct": true
+}

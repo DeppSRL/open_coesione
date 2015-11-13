@@ -1,9 +1,17 @@
 {% extends 'base.html' %}
 
+{% block main_class %}{% spaceless %}
+    {{ block.super }} two_columns
+{% endspaceless %}{% endblock %}
+
 {% block container %}
-    <article class="row-fluid">
-        <div class="span12" id="content">
-            {% block content %}{% endblock %}
+    <article class="container {% block article_added_class %}{% endblock article_added_class %}">
+        <div class="row">
+            <div class="span12" id="content">
+                {% block content %}{% endblock %}
+            </div>
         </div>
     </article>
+
+    {% block subcontainer %}{% endblock %}
 {% endblock  %}

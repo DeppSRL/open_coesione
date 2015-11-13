@@ -21,6 +21,4 @@ media
 apitest.py
 /log/*
 /deployment/.vagrant/
-/open_coesione/static/csv
-
 rubrica/iscrizioni.csv

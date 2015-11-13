@@ -1,0 +1,54 @@
+rect {
+  fill-opacity: 0;
+  stroke: #fff;
+}
+
+rect.label {
+	stroke:none;
+}
+rect.label, .D3 rect, .leaf rect{
+  fill-opacity: 1;
+}
+
+text {
+	font: 16px sans-serif;
+	font-weight: bold;
+}
+
+.leaf text {
+	font: 12px sans-serif;
+	font-weight: bold;
+}
+
+.rectHighlight rect,
+.D1 rect:hover {
+	fill-opacity: 0.20;
+}
+
+div.topSection {
+	width:75%;
+	margin:0.1em 0;
+}
+div.topSectionHighlight,
+div.topSection:hover {
+	background-color: #c6e6c4;
+}
+
+.button  {
+	width:1em;
+	height:1em;
+	border-radius:0.4em;
+	float:left;
+	margin:0.1em 0.6em 0.1em 0.3em;
+}
+span.total {
+	font-size:140%;
+}
+
+span.value {
+	float:right;
+}
+
+div.topSection:last-child {
+	border-top: 1px solid grey;
+}

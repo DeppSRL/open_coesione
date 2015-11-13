@@ -4,240 +4,6 @@
 
 {% block page_title %}Fonti di finanziamento{% endblock %}
 
-{% comment %}
-    {% addtoblock 'js_script' strip %}
-        <script src="{% static 'js/highcharts.js' %}"></script>
-        <script src="{% static 'js/humanize.js' %}"></script>
-        <script src="{% static 'js/charts.js' %}"></script>
-    {% endaddtoblock %}
-
-            var line_options = {
-                chart: {
-                    renderTo: 'chart_competitivita',
-                    type: 'spline',
-                    backgroundColor: null
-                },
-                title: {
-                    text: ''
-                },
-                subtitle: {
-                    //text: 'Il grafico mostra'
-                },
-                xAxis: {
-                    showLastLabel: false,
-                    type: 'datetime',
-                    dateTimeLabelFormats: {
-                        year: '%Y'
-                    },
-                    min: Date.UTC(2006, 1, 1),
-                    max: Date.UTC(new Date().getFullYear(), 1, 1)
-                },
-                yAxis: {
-                    title: {
-                        text: '% pagamenti'
-                    },
-                    min: 0
-                },
-                series: [],
-                credits: {
-                    href: 'http://www.dps.tesoro.it/',
-                    text: 'Fonte: DPS'
-                },
-                tooltip: {
-                    valueDecimals: 2,
-                    valueSuffix: '%',
-                    xDateFormat: '%Y'
-                }
-            };
-
-            function print_spline_chart(container, source) {
-                var categories = [];
-                var years = [];
-                var base_name = '';
-                var series = [];
-
-                $('tr', source).each(function(i, row) {
-                    var values = $(row).children().map(function(j, cell) {
-                        return $(cell).text();
-                    });
-                    values = $.makeArray(values);
-
-                    if (i == 0) {
-                        // remember base name
-                        base_name = values.shift();
-                        // remove other headers
-                        values.shift(); values.shift();
-                        // add years
-                        years = values;
-                    } else {
-                        var fondo = base_name + ' ' + values.shift();
-                        // collect total (index is shifted by 1 to exclude head line)
-                        var totale = values.shift();
-                        // remove other value
-                        values.shift();
-                        // collect values
-                        var current_value = 0;
-                        var data = [];
-                        $.each(values, function(j,value) {
-                            current_value += parseInt(value);
-                            data.push([Date.UTC(years[j],1,1), (current_value / totale) * 100]);
-                        });
-
-                        series.push({
-                            name: fondo,
-                            data: data
-                        });
-                    }
-                });
-
-                return new Highcharts.Chart($.extend(true, {}, line_options, {
-                    chart: {
-                        renderTo: container,
-                        type: 'spline'
-                    },
-                    title: {
-                        text: $('caption', source).text()
-                    },
-                    series: series
-                }));
-            }
-
-            print_spline_chart('chart_convergenza', '#chart_fesr_fse_table_conv');
-            print_spline_chart('chart_competitivita', '#chart_fesr_fse_table_comp');
-
-            var column_chart_options = {
-                chart: {
-                    renderTo: 'chart_fse_competitivita',
-                    type : 'column',
-                    backgroundColor: null
-                },
-                title: {
-                    text: 'Stacked column chart'
-                },
-                xAxis: {
-                    categories: [],
-                    labels: {
-                        rotation: -45,
-                        align: 'right',
-                        style: {
-                            font: 'normal 13px Verdana, sans-serif'
-                        }
-                    }
-                },
-                yAxis: {
-                    min: 0,
-                    title: {
-                        text: 'Milioni di €'
-                    },
-                    labels:{
-                        formatter: function() {
-                            return this.value / 1000;
-                        }
-                    },
-                    stackLabels: {
-                        enabled: false,
-                        style: {
-                            fontWeight: 'bold',
-                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
-                        }
-                    }
-                },
-                plotOptions: {
-                    column: {
-                        borderWidth: 0,
-                        stacking: 'normal',
-                        dataLabels: {
-                            enabled: false,
-                            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
-                        }
-                    }
-                },
-                tooltip: {
-                    formatter: function() {
-                        return '<b>' + this.x + '</b><br/>' + this.series.name + ': ' + number_format(this.y/1000, 0, ',', '.') + '<br/>' + 'Costo pubblico: ' + number_format(this.point.stackTotal/1000, 0, ',', '.');
-                    }
-                },
-                series: [
-                    {
-                        name: 'Da spendere',
-                        data: [],
-                        stack: 'cc'
-                    },
-                    {
-                        name: 'Spesi',
-                        data: [],
-                        stack: 'cc'
-                    }
-                ],
-                credits: {
-                    href: 'http://www.dps.tesoro.it/',
-                    text: 'Fonte: DPS'
-                },
-                colors: ['#b5b299', '#707005']
-            };
-
-            function print_column_chart(container, source) {
-                var categories = [];
-                var series_da_spendere = [];
-                var series_spesi = [];
-
-                $('tr', source).each(function(i, row) {
-                    var values = $(i == 0 ? 'th' : 'td', row).map(function(j, cell) {
-                        return $(cell).text();
-                    });
-                    values = $.makeArray(values);
-
-                    if (i == 0) {
-                        return;
-                    } else {
-                        var nome = values.shift();
-                        if (nome == 'Totale') {
-                            return;
-                        }
-                        var costo_pubblico = parseInt(values.shift());
-                        var contributo_comunitario = parseInt(values.shift());
-                        var somma = 0;
-                        $.each(values, function(j, parziale) {
-                            somma += parseInt(parziale);
-                        });
-
-                        categories.push(nome);
-                        series_da_spendere.push(costo_pubblico - somma);
-                        series_spesi.push(somma);
-                    }
-                });
-
-                return new Highcharts.Chart($.extend(true, {}, column_chart_options, {
-                    chart: {
-                        renderTo: container,
-                        type : 'column'
-                    },
-                    title: {
-                        text: $('caption', source).text()
-                    },
-                    xAxis: {
-                        categories: categories
-                    },
-                    series: [
-                        {
-                            data: series_da_spendere
-                        },
-                        {
-                            data: series_spesi
-                        }
-                    ]
-                }));
-            }
-
-            print_column_chart('chart_fesr_competitivita', '#chart_fesr_table');
-            print_column_chart('chart_fse_competitivita', '#chart_fse_table');
-
-            print_column_chart('chart_convergenza_fse_regioni', '#chart_fse_table_conv_regioni');
-            print_column_chart('chart_convergenza_fse_temi', '#chart_fse_table_conv_temi');
-            print_column_chart('chart_convergenza_fesr_regioni', '#chart_fesr_table_conv_regioni');
-            print_column_chart('chart_convergenza_fesr_temi', '#chart_fesr_table_conv_temi');
-{% endcomment %}
-
 {% block content %}
     <div class="flat_content">
         <h1>Fonti di finanziamento</h1>
@@ -253,7 +19,22 @@
             Complessivamente, le risorse finanziarie attualmente disponibili per il ciclo di programmazione 2007-2013 ammontano a circa 100 miliardi di euro, composte da diversi fondi, come indicato nella tabella.
         </p>
 
-        <h3>Risorse finanziarie disponibili 2007-2013 ( dato di luglio 2012 )</h3>
+        <h3>Risorse finanziarie disponibili 2007-2013 ( dato di luglio 2012, in milioni di € )</h3>
+
+        {% comment %}
+        {% addtoblock 'js' strip %}
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/1.5.3/numeral.min.js"></script>
+        {% endaddtoblock %}
+        {% addtoblock 'css' strip %}
+            <link rel="stylesheet" type="text/css" href="/static/css/spesatot_viz.css">
+        {% endaddtoblock %}
+        {% add_data 'js-data' 'js/spesatot_viz.js' %}
+        <div id="spesatot_viz" class="wrapper">
+            <div id="legend"></div>
+            <div id="graph"></div>
+    	</div>
+        {% endcomment %}
 
         <table id="chart_table" class="table">
             <tbody>
