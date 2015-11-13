@@ -171,7 +171,9 @@ var OPCOGraph;
                 title: {
                     text: null
                 },
-
+                chart: {
+                  defaultSeriesType: 'line'
+                },
                 tooltip: {
                     shared: true,
                     useHTML: true,
@@ -223,7 +225,10 @@ var OPCOGraph;
                 xAxis: {
                     plotLines: plotLinesX,
                     labels: {
-                        rotation: 0
+                        rotation: 0,
+                        style: {
+                            fontSize: '8px'
+                        }
                     },
                     categories: groupedCategories
                 },
@@ -236,9 +241,8 @@ var OPCOGraph;
                         data: _data_spesa,
                         marker: {
                             enabled: null, // auto
-                            radius: 5,
-                            lineWidth: 1,
-                            lineColor: '#FFFFFF'
+                            radius: 3,
+                            lineWidth: 0
                         },
                         lineWidth: 3,
                         tooltip: {
@@ -252,7 +256,7 @@ var OPCOGraph;
                         data: _data_obiettivo_IT,
                         marker: {
                             enabled: null, // auto
-                            radius: 5
+                            radius: 3
 
                         },
                         lineWidth: 0,
@@ -267,7 +271,7 @@ var OPCOGraph;
                         data: _data_obiettivo_EU,
                         marker: {
                             enabled: null, // auto
-                            radius: 5
+                            radius: 3
                         },
                         lineWidth: 0,
                         tooltip: {
@@ -277,7 +281,7 @@ var OPCOGraph;
                 ]
             });
 
-        }
+        };
 
         /**
          * init
