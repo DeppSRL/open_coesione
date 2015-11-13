@@ -540,7 +540,7 @@ class ProgettoPagamentiCSVView(DetailView):
 
         locale.setlocale(locale.LC_ALL, 'it_IT.UTF-8')
 
-        writer = utils.UnicodeWriter(response, dialect=csv.excel)
+        writer = utils.UnicodeWriter(response, dialect=utils.excel_semicolon)
         writer.writerow(self.get_first_row())
 
         for pagamento in self.object.pagamenti:
@@ -576,7 +576,7 @@ class BaseCSVView(AggregatoMixin, DetailView):
         return '{}_pro_capite'.format(self.kwargs.get('slug', 'all'))
 
     def write_csv(self, response):
-        writer = utils.UnicodeWriter(response, dialect=csv.excel)
+        writer = utils.UnicodeWriter(response, dialect=utils.excel_semicolon)
         writer.writerow(self.get_first_row())
         comuni = list(Territorio.objects.comuni().defer('geom'))
         provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().values('cod_prov', 'denominazione')])
@@ -586,7 +586,7 @@ class BaseCSVView(AggregatoMixin, DetailView):
             writer.writerow([
                 unicode(city.denominazione),
                 unicode(provincie[city.cod_prov]),
-                '{0:.2f}'.format(city.totale / city.popolazione_totale if city.popolazione_totale else .0).replace('.', ',')
+                '{:.2f}'.format(city.totale / city.popolazione_totale if city.popolazione_totale else .0).replace('.', ',')
             ])
             comuni.remove(city)
 
@@ -735,15 +735,15 @@ class CSVSearchResultsWriterMixin(object):
 class ProgettoLocCSVPreviewSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
     def create_response(self):
         """
-        Generates a CSV text preview (limited to 50000 items) for search results
+        Generates a CSV text preview (limited to 5000 items) for search results
         """
         results = self.get_results()[0:5000]
 
         # send CSV output as plain text, to view it in the browser
         response = HttpResponse(mimetype='text/plain')
 
-        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
-        writer = csv.writer(response, dialect='opencoesione')
+        # csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+        writer = csv.writer(response, dialect=utils.excel_semicolon)
         self.write_projects_localisations_search_results(results, writer)
         return response
 
@@ -751,15 +751,15 @@ class ProgettoLocCSVPreviewSearchView(ProgettoSearchView, CSVSearchResultsWriter
 class ProgettoCSVPreviewSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
     def create_response(self):
         """
-        Generates a CSV text preview (limited to 50000 items) for search results
+        Generates a CSV text preview (limited to 5000 items) for search results
         """
         results = self.get_results()[0:5000]
 
         # send CSV output as plain text, to view it in the browser
         response = HttpResponse(mimetype='text/plain')
 
-        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
-        writer = csv.writer(response, dialect='opencoesione')
+        # csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+        writer = csv.writer(response, dialect=utils.excel_semicolon)
         self.write_projects_search_results(results, writer)
         return response
 
@@ -771,13 +771,13 @@ class ProgettoCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
         """
         results = self.get_results()
 
-        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+        # csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
 
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename=progetti.csv'
 
         # add progetti csv to zip stream
-        writer = csv.writer(response, dialect='opencoesione')
+        writer = csv.writer(response, dialect=utils.excel_semicolon)
         self.write_projects_search_results(results, writer)
 
         # send response
@@ -791,13 +791,13 @@ class ProgettoLocCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin):
         """
         results = self.get_results()
 
-        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+        # csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
 
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename=codici_localita.csv'
 
         # add progetti csv to zip stream
-        writer = csv.writer(response, dialect='opencoesione')
+        writer = csv.writer(response, dialect=utils.excel_semicolon)
         self.write_projects_localisations_search_results(results, writer)
 
         # send response
@@ -811,7 +811,7 @@ class ProgettoFullCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin)
         """
         results = self.get_results()
 
-        csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
+        # csv.register_dialect('opencoesione', delimiter=';', quoting=csv.QUOTE_ALL)
 
         response = HttpResponse(mimetype='application/zip')
         response['Content-Disposition'] = 'attachment; filename=opencoesione_risultati.csv.zip'
@@ -821,13 +821,13 @@ class ProgettoFullCSVSearchView(ProgettoSearchView, CSVSearchResultsWriterMixin)
 
         # add progetti csv to zip stream
         output = StringIO.StringIO()
-        writer = csv.writer(output, dialect='opencoesione')
+        writer = csv.writer(output, dialect=utils.excel_semicolon)
         self.write_projects_search_results(results, writer)
         z.writestr('progetti.csv', output.getvalue())  # write csv file to zip
 
         # add localizzazioni csv to zip stream
         output = StringIO.StringIO()
-        writer = csv.writer(output, dialect='opencoesione')
+        writer = csv.writer(output, dialect=utils.excel_semicolon)
         self.write_projects_localisations_search_results(results, writer)
         z.writestr('localizzazioni.csv', output.getvalue())  # write csv file to zip
 
