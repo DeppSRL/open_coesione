@@ -248,7 +248,8 @@ var OPCOGraph;
                         tooltip: {
                             valueDecimals: 2
                         }
-                    },
+                    }
+                    /*
                     {
                         name: 'Obiettivo nazionale',
                         //allowPointSelect: true,
@@ -278,6 +279,7 @@ var OPCOGraph;
                             valueDecimals: 2
                         }
                     }
+                    */
                 ]
             });
 
