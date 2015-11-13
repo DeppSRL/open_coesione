@@ -184,7 +184,7 @@ class HomeView(AccessControlView, AggregatoMixin, TemplateView):
 
         context['numero_soggetti'] = Soggetto.objects.count()
 
-        context['top_progetti'] = Progetto.objects.filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico', '-data_fine_effettiva')[:3]
+        context['top_progetti'] = Progetto.objects.no_privacy().filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico', '-data_fine_effettiva')[:3]
 
         return context
 
@@ -193,43 +193,11 @@ class HomeView(AccessControlView, AggregatoMixin, TemplateView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().conclusi()[:3]
 
         context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
 
         return context
-
-
-# class HomeView(AccessControlView, AggregatoMixin, TemplateView):
-#     def get_context_data(self, **kwargs):
-#         """
-#         low-level caching, to allow adding latest_pillole out of the cached context (fast-refresh)
-#         """
-#         key = 'context' + self.request.get_full_path()
-#         context = cache.get(key)
-#
-#         if context is None:
-#             context = super(HomeView, self).get_context_data(**kwargs)
-#             context = self.get_aggregate_data(context)
-#
-#             context['top_progetti'] = Progetto.objects.filter(
-#                 fin_totale_pubblico__isnull=False,
-#             ).order_by('-fin_totale_pubblico')[:3]
-#
-#             context['numero_soggetti'] = Soggetto.objects.count()
-#
-#             serializable_context = context.copy()
-#             serializable_context.pop('view', None)
-#             cache.set(key, serializable_context)
-#
-#         context['ultimi_progetti_conclusi'] = Progetto.objects.filter(
-#             data_fine_effettiva__lte=datetime.now(),
-#             privacy_flag=False,
-#         ).order_by('-data_fine_effettiva', '-fin_totale_pubblico')[:3]
-#
-#         context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
-#
-#         return context
 
 
 class RisorsaView(AccessControlView, TemplateView):
