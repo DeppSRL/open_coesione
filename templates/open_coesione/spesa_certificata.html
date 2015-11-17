@@ -8,23 +8,133 @@
     <div class="flat_content">
         <h1>La spesa certificata all’UE per i programmi cofinanziati dai Fondi Strutturali</h1>
         <p>
-            La spesa complessiva certificata all'UE al 31 maggio 2015 è pari a 34,3 miliardi di euro, 
-            con un incremento di 1,3 miliardi rispetto alla data del 31 dicembre 2014. 
-
-            Si tratta in questo caso di una scadenza intermedia, fissata a livello nazionale per monitorare 
-            l'avanzamento della spesa certificata, cui seguirà una successiva scadenza intermedia nazionale 
-            prevista al 31 ottobre, prima della conclusione dell'attuazione dei Programmi a fine 2015. 
-
-            La quota di spesa certificata all’Unione Europea è pari al 73,6%, un valore inferiore al target nazionale 
-            fissato al 76,6% per il 31 maggio 2015. L'ammontare della spesa certificata dei 
-            52 Programmi Operativi ha superato il livello di target in 23 casi, 
-            è rimasto entro la soglia di tolleranza del 5 per cento in 7 casi, non ha raggiunto il livello minimo in 22 casi.
+            La spesa complessiva certificata all'UE al 31 ottobre 2015 è pari a 35,8 miliardi di euro,
+            con un incremento di circa 1,5 miliardi rispetto alla precedente scadenza del 31 maggio 2015.
+            La quota di spesa certificata all’Unione Europea è pari al 77,7%, valore inferiore al target nazionale originariamente fissato per questa data.
+            A questo stadio dell’attuazione della programmazione 2007-2013, tuttavia, la dimensione della spesa certificata non ha un peso significativo
+            per comprendere l’effettivo avanzamento delle politiche di coesione sostenute dalle risorse comunitarie
+            dal momento che per l’anno 2015 non trova applicazione la regola del disimpegno automatico in relazione alla spesa certificata.
+            La data del 31 dicembre 2015 è quella finale in cui le amministrazioni possono effettuare pagamenti rendicontabili e rimborsabili
+            sul bilancio europeo del settennio 2007-2013 (in base alle regole di esecuzione del bilancio vigenti) che potranno poi successivamente
+            trasformare in certificazioni e richieste di rimborso secondo le regole previste per la chiusura dei programmi 2007-2013.
+        </p>
+        <p>
+            Il fatto che le Amministrazioni titolari di programmi operativi siano oggi maggiormente concentrate sull’esecuzione di pagamenti
+            piuttosto che sulle certificazioni è confermato anche dagli ultimi dati di monitoraggio pubblicati su OpenCoesione (aggiornati ad agosto 2015)
+            che segnalano un significativo incremento dei pagamenti rendicontabili, il cui ammontare,
+            già due mesi prima di questa scadenza di certificazione di ottobre 2015, risulta superiore al dato oggi certificato (37,9 miliardi di euro rispetto a 35,8 miliardi di euro).
         </p>
 
         <h3>Avanzamento della spesa certificata all’UE per i Programmi cofinanziati dai Fondi Strutturali - Totale Italia</h3>
-        <p>(% della spesa certificata all’UE rispetto alla dotazione finanziaria disponibile - aggiornamento al 31 maggio 2015)</p>
+        <p>(% della spesa certificata all’UE rispetto alla dotazione finanziaria disponibile - aggiornamento al 31 ottobre 2015)</p>
         <p>
         {% addtoblock 'js' strip %}
+            <script type="text/javascript">
+// Production steps of ECMA-262, Edition 5, 15.4.4.14
+// Reference: http://es5.github.io/#x15.4.4.14
+if (!Array.prototype.indexOf) {
+  Array.prototype.indexOf = function(searchElement, fromIndex) {
+
+    var k;
+
+    // 1. Let O be the result of calling ToObject passing
+    //    the this value as the argument.
+    if (this == null) {
+      throw new TypeError('"this" is null or not defined');
+    }
+
+    var O = Object(this);
+
+    // 2. Let lenValue be the result of calling the Get
+    //    internal method of O with the argument "length".
+    // 3. Let len be ToUint32(lenValue).
+    var len = O.length >>> 0;
+
+    // 4. If len is 0, return -1.
+    if (len === 0) {
+      return -1;
+    }
+
+    // 5. If argument fromIndex was passed let n be
+    //    ToInteger(fromIndex); else let n be 0.
+    var n = +fromIndex || 0;
+
+    if (Math.abs(n) === Infinity) {
+      n = 0;
+    }
+
+    // 6. If n >= len, return -1.
+    if (n >= len) {
+      return -1;
+    }
+
+    // 7. If n >= 0, then Let k be n.
+    // 8. Else, n<0, Let k be len - abs(n).
+    //    If k is less than 0, then let k be 0.
+    k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+
+    // 9. Repeat, while k < len
+    while (k < len) {
+      // a. Let Pk be ToString(k).
+      //   This is implicit for LHS operands of the in operator
+      // b. Let kPresent be the result of calling the
+      //    HasProperty internal method of O with argument Pk.
+      //   This step can be combined with c
+      // c. If kPresent is true, then
+      //    i.  Let elementK be the result of calling the Get
+      //        internal method of O with the argument ToString(k).
+      //   ii.  Let same be the result of applying the
+      //        Strict Equality Comparison Algorithm to
+      //        searchElement and elementK.
+      //  iii.  If same is true, return k.
+      if (k in O && O[k] === searchElement) {
+        return k;
+      }
+      k++;
+    }
+    return -1;
+  };
+}
+
+// Production steps of ECMA-262, Edition 5, 15.4.4.15
+// Reference: http://es5.github.io/#x15.4.4.15
+if (!Array.prototype.lastIndexOf) {
+  Array.prototype.lastIndexOf = function(searchElement /*, fromIndex*/) {
+    'use strict';
+
+    if (this === void 0 || this === null) {
+      throw new TypeError();
+    }
+
+    var n, k,
+      t = Object(this),
+      len = t.length >>> 0;
+    if (len === 0) {
+      return -1;
+    }
+
+    n = len - 1;
+    if (arguments.length > 1) {
+      n = Number(arguments[1]);
+      if (n != n) {
+        n = 0;
+      }
+      else if (n != 0 && n != (1 / 0) && n != -(1 / 0)) {
+        n = (n > 0 || -1) * Math.floor(Math.abs(n));
+      }
+    }
+
+    for (k = n >= 0 ? Math.min(n, len - 1) : len - Math.abs(n); k >= 0; k--) {
+      if (k in t && t[k] === searchElement) {
+        return k;
+      }
+    }
+    return -1;
+  };
+}
+
+</script>
+
             <script type="text/javascript">
                 $(document).ready(function () {
                     /*
@@ -114,22 +224,26 @@
         </p>
 
         <h3>Cosa succede il 31 dicembre 2015?</h3>
-        <p>La data del 31 dicembre 2015 è il termine ultimo di ammissibilità della spesa rendicontabile 
-           alla Commissione per il ciclo 2007-2013 (con minime deroghe, ad esempio, per gli strumenti di ingegneria finanziaria). 
-           L'eventuale disimpegno delle risorse avviene solo a chiusura, cioè dopo l'istruttoria della Commissione Europea 
-           sui documenti presentati entro il 31 marzo 2017, data entro la quale è necessario inviare domanda 
-           di pagamento alla Commissione. Il target del 100% indicato per il 31 dicembre 2015 non rappresenta quindi 
-           il valore della spesa da certificare, ma deve intendersi come valore di riferimento per misurare 
-           la performance in termini di importi richiesti alla Commissione da quella data fino alla chiusura, 
-           considerando che certificazioni intermedie di spesa sono possibili oltre tale data.
+        <p>
+            La data del 31 dicembre 2015 è il termine ultimo di ammissibilità della spesa rendicontabile alla Commissione
+            per il ciclo 2007-2013 (con minime deroghe, ad esempio, per gli strumenti di ingegneria finanziaria).
+            <a href="{% url 'faq-it' %}#quali-sono-le-regole-di-chiusura-del-ciclo-di-programmazione-2007-2013-i-fondi-strutturali">Qui</a>
+            è possibile trovare informazioni dettagliate sulle regole di chiusura del ciclo 2007-2013.
+            Rispetto all’eventuale disimpegno delle risorse dal bilancio europeo, questo può avvenire solo
+            dopo l'istruttoria della Commissione Europea sui documenti presentati entro il 31 marzo 2017,
+            data entro la quale è necessario inviare domanda di pagamento alla Commissione.
+            Il target del 100% originariamente indicato per la spesa certificata al 31 dicembre 2015
+            non rappresenta quindi il valore della spesa effettivamente da certificare a tale data,
+            ma deve intendersi come valore di riferimento per misurare la performance in termini di importi per pagamenti rendicontabili eseguiti
+            e da richiedere alla Commissione da quella data fino alla chiusura formale dei programmi,
+            considerando che certificazioni intermedie di spesa sono possibili oltre tale data.
         </p>
         <p>
-           Va considerato, infatti, che, come già avvenuto nei precedenti cicli di programmazione, nell'ultimo anno 
-           di ammissibilità della spesa la presentazione delle certificazioni subisce un “fisiologico” rallentamento, 
-           sia a causa delle regole di esecuzione del bilancio comunitario (vedi, ad esempio, 
-           <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2006:210:0025:0078:IT:PDF">art. 79 
-           del Regolamento CE 1083/2006</a>, sia per le operazioni legate alla fase di chiusura 
-           (termine ammissibilità, controlli finali, spostamento risorse, predisposizione documenti, ecc.).
+            Va considerato, infatti, che, come già avvenuto nei precedenti cicli di programmazione,
+            nell'ultimo anno di ammissibilità della spesa la presentazione delle certificazioni subisce un “fisiologico” rallentamento,
+            sia a causa delle regole di esecuzione del bilancio comunitario (vedi, ad esempio,
+            <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2006:210:0025:0078:IT:PDF">art. 79 del Regolamento CE 1083/2006</a>),
+            sia per le operazioni legate alla fase di chiusura (termine ammissibilità, controlli finali, spostamento risorse, predisposizione documenti, ecc.).
         </p>
 
         {%  comment %}
