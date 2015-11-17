@@ -81,12 +81,16 @@ var OPCOGraph;
          * @private
          */
         _initDataLoad = function (url) {
-            Papa.parse(url, {
-                download: true,
-                header: false,
-                error: _dataLoadError,
-                complete: _dataLoadSuccess
-            })
+            $.ajax({
+                type: "GET",
+                url: url,
+                dataType: "text",
+                success: function(csvdata) {
+                    var results = _parseCSVdata(csvdata);
+                    if(results) _dataLoadSuccess(results);
+                },
+                error: function() { _dataLoadError(); }
+            });
         },
 
         /**
@@ -97,6 +101,31 @@ var OPCOGraph;
          */
         _dataLoadError = function () {
             console.log('data load error');
+        },
+
+        /**
+         * Handle data loading success event
+         *
+         * @method _dataLoadSuccess
+         * @private
+         */
+         _parseCSVdata = function (csvdata) {
+            var lines = csvdata.split(/\r\n|\n/);
+            var headerLength = lines[0].split(';').length;
+            var results = { data: [] };
+
+            for (var i=0, l=lines.length; i<l; i++) {
+                var data = lines[i].split(';');
+
+                if (data.length == headerLength) {
+                    results.data.push(data);
+                } else {
+                    console.log('error: CSV data in row '+i+' differs from header length');
+                    return false;
+                }
+            }
+            return results;
+            // alert(lines);
         },
 
         /**
@@ -167,7 +196,9 @@ var OPCOGraph;
              * Draw
              */
             _chart_instance = _element.highcharts({
-
+                credits: {
+                    enabled: false
+                },
                 title: {
                     text: null
                 },
@@ -239,16 +270,18 @@ var OPCOGraph;
                         //allowPointSelect: true,
                         color: '#C45355',
                         data: _data_spesa,
+                        connectNulls: true,
                         marker: {
                             enabled: null, // auto
                             radius: 3,
                             lineWidth: 0
                         },
-                        lineWidth: 3,
+                        lineWidth: 2,
                         tooltip: {
                             valueDecimals: 2
                         }
-                    },
+                    }
+                    /*
                     {
                         name: 'Obiettivo nazionale',
                         //allowPointSelect: true,
@@ -278,6 +311,7 @@ var OPCOGraph;
                             valueDecimals: 2
                         }
                     }
+                    */
                 ]
             });
 
