@@ -29,7 +29,7 @@
             $( document ).ready(function() {
               var id = '854927';
           
-              $.getJSON( "http://oc2.staging.deppsviluppo.org:8000/api/indicatori_soggetti?id="+id, function( data ) {
+              $.getJSON( "{{ MIUR_EXT_API_URL }}/indicatori_soggetti?id="+id, function( data ) {
                 var items = [];
                 console.log(data.result);
                 $("#api_result").html(data.result.html);
