@@ -46,7 +46,7 @@ $(function () {
                 min: 0,
                 max: 100,
                 title: {
-                    text: 'Spesa Certificata'
+                    text: 'Valori %'
                 }
             },
             legend: {
