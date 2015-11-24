@@ -33,8 +33,9 @@ var print_spline_chart = function(container, data, title) {
             xDateFormat: '%Y'
         },
         credits: {
-            href: 'http://www.dps.tesoro.it/',
-            text: 'Fonte: DPS'
+//            text: 'Fonte: DPS',
+//            href: 'http://www.dps.tesoro.it/',
+            enabled: false
         }
     });
 }

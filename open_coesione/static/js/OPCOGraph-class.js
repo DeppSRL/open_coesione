@@ -17,6 +17,12 @@ var OPCOGraph;
         var _data_spesa = null,
 
         /**
+         * @param _data_pagamenti
+         * @private
+         */
+        _data_pagamenti = null,
+
+        /**
          * @param _data_obiettivo_IT
          * @private
          */
@@ -27,12 +33,6 @@ var OPCOGraph;
          * @private
          */
         _data_obiettivo_EU = null,
-
-        /**
-         * @param _data_pagamenti_ammessi
-         * @private
-         */
-        _data_pagamenti_ammessi = null,
 
         /**
          * @param _chart_instance
@@ -146,16 +146,16 @@ var OPCOGraph;
                 year,
                 month,
                 spesa,
+                pagamenti,
                 obiettivo_IT,
-                obiettivo_EU,
-                pagamenti_ammessi;
+                obiettivo_EU;
 
             results.data.shift(); // get rid of the header
 
             _data_spesa = [];
+            _data_pagamenti = [];
             _data_obiettivo_IT = [];
             _data_obiettivo_EU = [];
-            _data_pagamenti_ammessi = [];
 
             $.each(results.data, function (idx, item) {
 
@@ -168,9 +168,9 @@ var OPCOGraph;
 
                 // retrive and filter current item values
                 spesa = item[3].replace(/,/g, '.');
+                pagamenti = 100 * item[7].replace(/,/g, '.') / item[8].replace(/,/g, '.');
                 obiettivo_IT = item[5].replace(/,/g, '.');
                 obiettivo_EU = item[6].replace(/,/g, '.');
-                pagamenti_ammessi = 100 * item[7].replace(/,/g, '.') / item[8].replace(/,/g, '.');
 
                 // create a new yearGroup if the current year has not been processed yet
                 if (yearGroup != year) {
@@ -184,9 +184,9 @@ var OPCOGraph;
                 // Data values are not available for every X axis interval
                 // a null value is pushed for any missing value
                 _data_spesa.push($.isNumeric(spesa) ? Number(spesa) : null);
+                _data_pagamenti.push($.isNumeric(pagamenti) ? Number(pagamenti) : null);
                 _data_obiettivo_IT.push($.isNumeric(obiettivo_IT) ? Number(obiettivo_IT) : null);
                 _data_obiettivo_EU.push($.isNumeric(obiettivo_EU) ? Number(obiettivo_EU) : null);
-                _data_pagamenti_ammessi.push($.isNumeric(pagamenti_ammessi) ? Number(pagamenti_ammessi) : null);
             });
 
             /*
@@ -281,10 +281,10 @@ var OPCOGraph;
                         lineWidth: 2
                     },
                     {
-                        name: 'Pagamenti ammessi',
+                        name: 'Pagamenti su dotazione',
                         //allowPointSelect: true,
                         color: '#228822',
-                        data: _data_pagamenti_ammessi,
+                        data: _data_pagamenti,
                         connectNulls: true,
                         marker: {
                             enabled: null, // auto
