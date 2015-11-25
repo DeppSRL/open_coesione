@@ -34,18 +34,16 @@
                                     {% endfor %}
                                 </tr>
                             </thead>
+                            <tbody>
                         {% else %}
-                            {% ifequal forloop.counter 2 %}
-                                <tbody>
-                            {% endifequal %}
                             <tr>
                                 {% for value in row %}
                                     <td>{{ value }}</td>
                                 {% endfor %}
                             </tr>
-                            {% if forloop.last %}
-                                </tbody>
-                            {% endif %}
+                        {% endif %}
+                        {% if forloop.last %}
+                            </tbody>
                         {% endif %}
                     {% endfor %}
                 </table>
@@ -56,6 +54,5 @@
     </div>
 
     {% add_data 'js-data' 'js/highcharts.js' %}
-    {% add_data 'js-data' 'js/oc-charts.js' %}
     {% add_data 'js-data' 'js/oc-spesacertificata-grafici.js' %}
 {% endblock %}
