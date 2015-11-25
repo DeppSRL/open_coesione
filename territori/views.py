@@ -483,7 +483,7 @@ class TerritorioView(AccessControlView, AggregatoMixin, DetailView):
         context = self.get_aggregate_data(context, territorio=self.object)
 
         logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.nel_territorio(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
+        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().nel_territorio(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
 
         logger.debug('territori_piu_finanziati_pro_capite start')
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
@@ -497,7 +497,7 @@ class TerritorioView(AccessControlView, AggregatoMixin, DetailView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().nel_territorio(self.object)[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().nel_territorio(self.object).conclusi()[:5]
 
         return context
 
@@ -604,7 +604,7 @@ class AmbitoEsteroView(AccessControlView, AggregatoMixin, ListView):
                 context[name].append(object)
 
         logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.nei_territori(territori).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico').distinct()[:5]
+        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().nei_territori(territori).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico').distinct()[:5]
 
         # context['nazioni_piu_finanziate'] = self.queryset.annotate(totale=models.Sum('progetto__fin_totale_pubblico')).filter( totale__isnull=False ).order_by('-totale')
 
@@ -658,7 +658,7 @@ class AmbitoEsteroView(AccessControlView, AggregatoMixin, ListView):
 
         context.update(self.get_cached_context_data(territori=territori))
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.filter(privacy_flag=False).conclusi().nei_territori(territori)[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().nei_territori(territori).conclusi()[:5]
 
         return context
 

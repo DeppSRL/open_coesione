@@ -228,6 +228,7 @@
                                 <table class="table" id="pagamenti_riassunto_chart_table" style="margin-left: 15px; width: 91%">
                                     {% if progetto.pagamenti %}
                                         <tr><td colspan="2"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></td></tr>
+                                        <tr><td colspan="2"><a href="{% url 'progetto_pagamenti' slug=progetto.slug %}">Scarica l'andamento dei pagamenti</a></td></tr>
                                     {% endif %}
                                     {% if total_economie %}
                                         <tr><th>Economie</th><td class="amount"><strong>{{ total_economie|intcomma }}</strong> euro</td></tr>

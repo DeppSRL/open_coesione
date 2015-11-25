@@ -592,9 +592,9 @@ class Command(BaseCommand):
         self._import_progetti_tema(df)
         self._import_progetti_fonte(df)
 
-        temisintetici_desc2cod = dict((tema.descrizione, tema.codice) for tema in Tema.objects.principali())
-
-        fonti_cod2obj = dict((fonte.codice, fonte) for fonte in Fonte.objects.all())
+        temisintetici_desc2cod = {tema.descrizione: tema.codice for tema in Tema.objects.principali()}
+        fonti_cod2obj = {fonte.codice: fonte for fonte in Fonte.objects.all()}
+        stato_desc2cod = {x[1]: x[0] for x in Progetto.STATO}
 
         # df1 = df.groupby('COD_LOCALE_PROGETTO', as_index=False).first()
         df1 = df
@@ -704,6 +704,9 @@ class Command(BaseCommand):
                 values['dps_flag_cup'] = row['OC_FLAG_CUP']
                 values['dps_flag_pac'] = row['OC_FLAG_PAC']
 
+                values['stato_progetto'] = stato_desc2cod.get(row['OC_STATO_PROGETTO'])
+                values['stato_finanziario'] = stato_desc2cod.get(row['OC_STATO_FINANZIARIO'])
+
             except ValueError as e:
                 self.logger.error(u'{}/{} - {}: {}. Skipping'.format(n, df_count, codice_locale, e))
 
@@ -721,7 +724,7 @@ class Command(BaseCommand):
                 except IntegrityError:
                     transaction.savepoint_rollback(sid)
 
-                    values = dict((k, values[k]) for k in values if k in ['programma_asse_obiettivo_id', 'programma_linea_azione_id'])
+                    values = {k: values[k] for k in values if k in ['programma_asse_obiettivo_id', 'programma_linea_azione_id']}
 
                     Progetto.fullobjects.get(pk=codice_locale).update(**values)
 
@@ -1169,11 +1172,10 @@ class Command(BaseCommand):
         self._import_progetti_tema(df)
         self._import_progetti_fonte(df)
 
-        temisintetici_desc2cod = dict((tema.descrizione, tema.codice) for tema in Tema.objects.principali())
-
-        fonti_cod2obj = dict((fonte.codice, fonte) for fonte in Fonte.objects.all())
-
-        delibere_num2obj = dict((delibera.num, delibera) for delibera in DeliberaCIPE.objects.all())
+        temisintetici_desc2cod = {tema.descrizione: tema.codice for tema in Tema.objects.principali()}
+        fonti_cod2obj = {fonte.codice: fonte for fonte in Fonte.objects.all()}
+        stato_desc2cod = {x[1]: x[0] for x in Progetto.STATO}
+        delibere_num2obj = {delibera.num: delibera for delibera in DeliberaCIPE.objects.all()}
 
         # creazione progetti
 
@@ -1230,6 +1232,9 @@ class Command(BaseCommand):
 
                 # data ultimo aggiornamento progetto
                 values['data_aggiornamento'] = self._get_value(row, 'DATA_PUBBLICAZIONE_AGG', 'date')
+
+                values['stato_progetto'] = stato_desc2cod.get(row['OC_STATO_PROGETTO'])
+                values['stato_finanziario'] = stato_desc2cod.get(row['OC_STATO_FINANZIARIO'])
 
                 values['dps_flag_cup'] = 1
 

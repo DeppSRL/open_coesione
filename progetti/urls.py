@@ -6,7 +6,7 @@ from progetti.search_querysets import sqs
 from progetti.views import ProgettoSearchView, ProgettoView, ClassificazioneAzioneView, ClassificazioneAzioneCSVView,\
     TemaCSVView, TemaView, SegnalaDescrizioneView, SegnalazioneDetailView, ProgettoCSVSearchView,\
     ProgettoCSVPreviewSearchView, ProgettoLocCSVPreviewSearchView, ProgettoLocCSVSearchView, ProgettoFullCSVSearchView,\
-    ProgrammaView, ProgrammiView
+    ProgrammaView, ProgrammiView, ProgettoPagamentiCSVView
 
 
 urlpatterns = patterns('',
@@ -25,6 +25,7 @@ urlpatterns = patterns('',
 
     # dettaglio di progetto
     url(r'^(?P<slug>[\w-]+)/$', ProgettoView.as_view(), name='progetti_progetto'),
+    url(r'^pagamenti_(?P<slug>[\w-]+).csv$', ProgettoPagamentiCSVView.as_view(), name='progetto_pagamenti'),
 
     # tipologie
     url(r'^tipologie/(?P<slug>[\w-]+)/$', ClassificazioneAzioneView.as_view(), name='progetti_tipologia'),

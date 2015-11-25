@@ -117,6 +117,13 @@
                             {{ fonte.short_label|key:facet.r_label|safe }}
                         </dd>
                     {% endif %}
+                    {% if facet.field == 'stato_progetto' and facets.fields.stato_progetto.is_field_selected %}
+                        <dt>Stato progetto</dt>
+                        <dd>
+                            <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
+                            {{ stato_progetto.short_label|key:facet.r_label|safe }}
+                        </dd>
+                    {% endif %}
                     {% if facet.field == 'data_inizio' and facet_queries_date.is_selected %}
                         <dt>Data inizio</dt>
                         <dd>
@@ -205,6 +212,21 @@
                                 <dd>
                                     {% if not t.2 %}
                                         <a href="{{ base_url }}&selected_facets=fonte:{{ t.0|urlencode }}" title="{{ fonte.descrizione|key:t.0 }}">{{ fonte.short_label|key:t.0 }}</a>
+                                        ({{ t.1 }})
+                                    {% endif %}
+                                </dd>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </dl>
+                <dl>
+                    {% if facets.fields.stato_progetto and not facets.fields.stato_progetto.is_field_selected %}
+                        <dt>Stato progetto</dt>
+                        {% for t in facets.fields.stato_progetto.counts %}
+                            {% if t.1 %}
+                                <dd>
+                                    {% if not t.2 %}
+                                        <a href="{{ base_url }}&selected_facets=stato_progetto:{{ t.0|urlencode }}" title="{{ stato_progetto.descrizione|key:t.0 }}">{{ stato_progetto.short_label|key:t.0 }}</a>
                                         ({{ t.1 }})
                                     {% endif %}
                                 </dd>
