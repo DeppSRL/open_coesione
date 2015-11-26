@@ -16,7 +16,6 @@ from django.views.generic.detail import DetailView
 
 from open_coesione.forms import ContactForm
 from open_coesione.models import PressReview, Pillola, FAQ
-from open_coesione.settings import PROJECT_ROOT
 from progetti.models import Progetto, Tema, ClassificazioneAzione, DeliberaCIPE
 from soggetti.models import Soggetto
 from territori.models import Territorio
@@ -203,6 +202,7 @@ class HomeView(AccessControlView, AggregatoMixin, TemplateView):
 class RisorsaView(AccessControlView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(RisorsaView, self).get_context_data(**kwargs)
+
         context['risorsa'] = True
 
         return context
@@ -210,22 +210,7 @@ class RisorsaView(AccessControlView, TemplateView):
 
 class FondiView(RisorsaView):
     def get_context_data(self, **kwargs):
-        # import csv
-
         context = super(FondiView, self).get_context_data(**kwargs)
-
-        # context['competitivita_fesr_fse'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fesr_fse.csv')))
-
-        # context['fesr_data_comp'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fesr.csv')))
-        # context['fse_data_comp'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/competitivita_fse.csv')))
-
-        # context['convergenza_fesr_fse'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_fse.csv')))
-
-        # context['fesr_data_conv_regioni'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_regioni.csv')))
-        # context['fesr_data_conv_temi'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fesr_temi.csv')))
-
-        # context['fse_data_conv_regioni'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse_regioni.csv')))
-        # context['fse_data_conv_temi'] = csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/fondi_europei/convergenza_fse_temi.csv')))
 
         context['delibere'] = DeliberaCIPE.objects.all()
         context['totale_fondi_assegnati'] = DeliberaCIPE.objects.aggregate(s=Sum('fondi_assegnati'))['s']
@@ -253,7 +238,7 @@ class SpesaCertificataGraficiView(RisorsaView):
 
         def format_number(value):
             if value:
-                return str(round(float(value.strip()), 2)).replace('.', ',')
+                return round(float(value.strip()), 2)
             else:
                 return ''
 
@@ -278,58 +263,49 @@ class SpesaCertificataGraficiView(RisorsaView):
                 value = value.replace("D'", "d'")
             return value
 
-        context = super(SpesaCertificataGraficiView, self).get_context_data(**kwargs)
-
         dates = ['{}{:02d}31'.format(y, m) for y in range(2010, datetime.now().year + 1) for m in [5, 10, 12]]
 
-        data = {}
+        csv2data_key_map = (
+            ('TARGET {}', 'target'),
+            ('TARGET NAZIONALE {}', 'target'),
+            ('TARGET UE {}', 'target'),
+            ('STIMA TARGET {}', 'target'),
+            ('quota spesa certificata {}', 'risultato_spesa'),
+            ('quota pagamenti ammessi {}', 'risultato_pagamenti'),
+        )
 
-        rows = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Target_Certificato_Pagamenti.xls'), 'rb'), sheet='Target spesa cert ammessi va').splitlines()))
-        for row in rows:
+        reader = csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Target_Certificato_Pagamenti.xls'), 'rb'), sheet='Target spesa cert ammessi va').splitlines())
+
+        data = {}
+        for row in reader:
             if row['DPS_CODICE_PROGRAMMA']:
-                base_data = [
-                    ('Obiettivo', {'CONV': u'Convergenza', 'CRO': u'Competitività'}[row['QSN_AREA_OBIETTIVO_UE']]),
-                    ('Programma operativo', format_name(row['DPS_DESCRIZIONE_PROGRAMMA'])),
-                    ('Fondo', row['QSN_FONDO_COMUNITARIO ']),
-                ]
+                program_name = format_name(row['DPS_DESCRIZIONE_PROGRAMMA'])
+                group_key = '{}_{}'.format(row['QSN_AREA_OBIETTIVO_UE'], row['QSN_FONDO_COMUNITARIO ']).lower()
+
+                if not group_key in data:
+                    data[group_key] = []
 
                 dates_data = []
                 for date in dates:
                     date_data = {}
 
-                    target_keys = ('TARGET {}'.format(date),
-                                   'TARGET NAZIONALE {}'.format(date),
-                                   'TARGET UE {}'.format(date),
-                                   'STIMA TARGET {}'.format(date))
-                    for target_key in target_keys:
-                        if target_key in row:
-                            date_data['target'] = row[target_key]
-
-                    risultatospesa_keys = ('quota spesa certificata {}'.format(date),)
-                    for risultatospesa_key in risultatospesa_keys:
-                        if risultatospesa_key in row:
-                            date_data['risultato_spesa'] = row[risultatospesa_key]
-
-                    risultatopagamenti_keys = ('quota pagamenti ammessi {}'.format(date),)
-                    for risultatopagamenti_key in risultatopagamenti_keys:
-                        if risultatopagamenti_key in row:
-                            date_data['risultato_pagamenti'] = row[risultatopagamenti_key]
+                    for csv_key, data_key in csv2data_key_map:
+                        csv_key = csv_key.format(date)
+                        if csv_key in row:
+                            date_data[data_key] = row[csv_key]
 
                     if date_data:
                         dates_data.append((datetime.strptime(date, '%Y%m%d').strftime('%d/%m/%Y'), date_data))
 
-                key = '{}_{}'.format(row['QSN_AREA_OBIETTIVO_UE'], row['QSN_FONDO_COMUNITARIO ']).lower()
+                for type_name, type_key in [('Target', 'target'), ('Risultato (spesa certificata)', 'risultato_spesa'), ('Risultato (pagamenti)', 'risultato_pagamenti')]:
+                    data[group_key].append(OrderedDict([('Programma operativo', program_name), ('Tipo dato', type_name)] + [(date, format_number(date_data.get(type_key))) for date, date_data in dates_data]))
 
-                if not key in data:
-                    data[key] = []
-                data[key].append(OrderedDict(base_data + [('Tipo dato', 'Target')] + [(date, format_number(date_data.get('target'))) for date, date_data in dates_data]))
-                data[key].append(OrderedDict(base_data + [('Tipo dato', 'Risultato (spesa certificata)')] + [(date, format_number(date_data.get('risultato_spesa'))) for date, date_data in dates_data]))
-                data[key].append(OrderedDict(base_data + [('Tipo dato', 'Risultato (pagamenti)')] + [(date, format_number(date_data.get('risultato_pagamenti'))) for date, date_data in dates_data]))
+        context = super(SpesaCertificataGraficiView, self).get_context_data(**kwargs)
 
-        context['chart_tables'] = []
-        for tipo in ['cro_fesr', 'cro_fse', 'conv_fesr', 'conv_fse']:
-            # context['chart_tables'].append((tipo, csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/spesa_certificata/{}.csv'.format(tipo))))))
-            context['chart_tables'].append((tipo, [data[tipo][0].keys()] + [row_data.values() for row_data in data[tipo]]))
+        context['grouped_data'] = []
+        for group_key in ['cro_fesr', 'cro_fse', 'conv_fesr', 'conv_fse']:
+            type, fund = group_key.upper().split('_')
+            context['grouped_data'].append(({'CRO': u'Competitività', 'CONV': u'Convergenza'}[type], fund, data[group_key]))
 
         return context
 
@@ -397,25 +373,21 @@ class OpendataView(TemplateView):
                 'name': 'progetti',
                 'complete_file': self.get_complete_localfile('progetti_FS0713.zip'),
                 'regional_files': self.get_regional_files('prog', 'FS0713'),
-                # 'theme_files': self.get_theme_files('prog', 'progetti')
             }),
             ('sog', {
                 'name': 'soggetti',
                 'complete_file': self.get_complete_localfile('soggetti_FS0713.zip'),
                 'regional_files': self.get_regional_files('sog', 'FS0713'),
-                # 'theme_files': self.get_theme_files('sog', 'soggetti')
             }),
             ('loc', {
                 'name': 'localizzazioni',
                 'complete_file': self.get_complete_localfile('localizzazioni_FS0713.zip'),
                 'regional_files': self.get_regional_files('loc', 'FS0713'),
-                # 'theme_files': self.get_theme_files('loc', 'localizzazioni')
             }),
             ('pag', {
                 'name': 'pagamenti',
                 'complete_file': self.get_complete_localfile('pagamenti_FS0713.zip'),
                 'regional_files': self.get_regional_files('pag', 'FS0713'),
-                # 'theme_files': self.get_theme_files('pag', 'pagamenti')
             }),
         ])
 
@@ -487,19 +459,10 @@ class OpendataView(TemplateView):
         context['spesa_dotazione_file'] = self.get_complete_localfile('Dotazioni_Certificazioni.xls')
         context['spesa_target_file'] = self.get_complete_localfile('Target_Risultati.xls')
 
-        # context['istat_data_file'] = self.get_complete_localfile('Indicatori_regionali.zip')
-        # context['istat_metadata_file'] = self.get_complete_localfile('Metainformazione.xls')
         istat_path = 'http://www.istat.it/storage/politiche-sviluppo/{}'
         context['istat_data_file'] = self.get_complete_remotefile(istat_path.format('Archivio_unico_indicatori_regionali.zip'))
         context['istat_metadata_file'] = self.get_complete_remotefile(istat_path.format('Metainformazione.xls'))
 
-        # cpt_path = 'http://www.dps.gov.it/opencms/export/sites/dps/it/documentazione/politiche_e_attivita/CPT/{}/{}'
-        # cpt_subpath = 'BD_CPT/2014_CSV/CSV'
-        # context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'PA_ENTRATE_1996-2012.zip'))
-        # context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'PA_SPESE_1996-2012.zip'))
-        # context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_ENTRATE_1996-2012.zip'))
-        # context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format(cpt_subpath, 'SPA_SPESE_1996-2012.zip'))
-        # context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('METADATA', 'CPT_Metadati_perCSV_def.xls'))
         cpt_path = 'http://www.dps.gov.it/it/cpt/I_dati_del_Sistema_CPT/DatiCPT_CatalogoCPT/datasets/{}'
         context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format('PA_ENTRATE_2000-2013.zip'))
         context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format('PA_SPESE_2000-2013.zip'))
@@ -613,7 +576,6 @@ class OpendataView(TemplateView):
             ('SAR', 'Sardegna'),
             ('NAZ', 'Italia'),
             ('EST', 'Estero'),
-            # ('MULTI', 'Multi-regionali'),
         ])
 
         files = []
@@ -623,32 +585,6 @@ class OpendataView(TemplateView):
             files.append(file)
 
         return files
-
-    # @classmethod
-    # def get_theme_files(cls, section_code, section_name):
-    #     themes = SortedDict([
-    #         ('AGENDA_DIGITALE', 'Agenda digitale'),
-    #         ('AMBIENTE', 'Ambiente'),
-    #         ('CULTURA_TURISMO', 'Cultura e turismo'),
-    #         ('COMPETITIVITA_IMPRESE', u'Competitività imprese'),
-    #         ('ENERGIA', 'Energia'),
-    #         ('INCLUSIONE_SOCIALE', 'Inclusione sociale'),
-    #         ('ISTRUZIONE', 'Istruzione'),
-    #         ('OCCUPAZIONE', 'Occupazione'),
-    #         ('RAFFORZAMENTO_PA', 'Rafforzamento PA'),
-    #         ('RICERCA_INNOVAZIONE', 'Ricerca e innovazione'),
-    #         ('CITTA_RURALE', 'Città e aree rurali'),
-    #         ('INFANZIA_ANZIANI', 'Infanzia e anziani'),
-    #         ('TRASPORTI', 'Trasporti'),
-    #     ])
-    #
-    #     files = []
-    #     for theme_code, theme_name in themes.items():
-    #         file = cls.get_complete_localfile('{}/{}_{}.zip'.format(section_name, section_code, theme_code))
-    #         file['theme_name'] = theme_name
-    #         files.append(file)
-    #
-    #     return files
 
 
 class OpendataRedirectView(RedirectView):
@@ -672,6 +608,7 @@ class PillolaListView(ListView, TagFilterMixin, DateFilterMixin):
 
     def get_context_data(self, **kwargs):
         context = super(PillolaListView, self).get_context_data(**kwargs)
+
         context['date_choices'] = self._get_date_choices()
         context['tag_choices'] = self._get_tag_choices()
 
@@ -680,11 +617,6 @@ class PillolaListView(ListView, TagFilterMixin, DateFilterMixin):
 
 class PillolaDetailView(DetailView):
     model = Pillola
-
-
-# class PillolaRedirectView(RedirectView):
-#     def get_redirect_url(self, **kwargs):
-#         return u'/media/pillole/{}'.format(kwargs['path'])
 
 
 class PressReviewListView(ListView):
@@ -701,6 +633,7 @@ class FAQListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(FAQListView, self).get_context_data(**kwargs)
+
         context['title'] = 'Frequently Asked Questions' if self.lang == 'en' else 'Domande frequenti'
 
         return context

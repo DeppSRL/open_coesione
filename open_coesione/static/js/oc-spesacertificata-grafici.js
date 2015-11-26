@@ -1,41 +1,21 @@
 $(function () {
-    var charts = {};
-    var chart_series = {};
-
-    function trimtext(el) {
-        return $.trim($(el).text());
+    function trimtext(elem) {
+        return $.trim($(elem).text());
     }
 
-    function readTextValues(list) {
-        return $(list).map(function() { return trimtext(this) });
-    }
-
-    function readFloatValues(list) {
-        return $(list).map(function() { var value = parseFloat(trimtext(this).replace(',', '.')); return isNaN(value) ? 0.0 : value });
-    }
-
-    function filterValues(list) {
-        return $.grep(list, function(el, i) { return i >= 4  });
-    }
-
-    function buildChart(container, table) {
-        var first_row = table.find('tbody tr:first-child td');
-        var title = trimtext(first_row[0]);
-        var fondo = trimtext(first_row[2]);
-        var date_list = readTextValues(filterValues(table.find('thead th')));
-
+    function buildChart(container, title, categories) {
         return new Highcharts.Chart({
             chart: {
-                renderTo: container[0],
+                renderTo: container,
                 type: 'column',
                 marginTop: 60,
                 backgroundColor: null
             },
             title: {
-                text: title + ' : ' + fondo
+                text: title
             },
             xAxis: {
-                categories: date_list,
+                categories: categories,
                 labels: {
                     rotation: -45,
                     align: 'right'
@@ -78,54 +58,53 @@ $(function () {
     }
 
     $(document).ready(function() {
-        $('div.chart_container').each(function(ix, el) {
-            var $el = $(el);
-            var chart_name = $el.attr('id').replace(/^chart_/, '');
-            var container = $el.find('.chart_canvas');
-            var table = $el.find('table.chart_table');
-            var selector = $el.find('select.chart_selector');
+        $('div.chart_container').each(function() {
+            var self = $(this);
 
-            charts[chart_name] = buildChart(container, table);
+            var container = self.find('div.chart_canvas')[0];
+            var table = self.find('table.chart_table');
+            var selector = self.find('select.chart_selector');
 
-            chart_series[chart_name] = {};
-            var programma_op, primo_programma_op;
-            table.find('tbody tr, tfoot tr').each(function() {
+            var title = trimtext(table.find('caption'));
+            var dates = table.find('thead th').slice(2).map(function() { return trimtext(this) });
+
+            var chart = buildChart(container, title, dates);
+
+            var chart_series = {};
+
+            table.find('tbody tr').each(function() {
                 var row = $(this).find('td');
-                var tipo = trimtext(row[3]);
-                programma_op = trimtext(row[1]);
-                if (!primo_programma_op) {
-                    primo_programma_op = programma_op;
+                var program = trimtext(row[0]);
+                var data_type = trimtext(row[1]);
+
+                if (!(program in chart_series)) {
+                    chart_series[program] = {}
                 }
-                if (!(programma_op in chart_series[chart_name])) {
-                    chart_series[chart_name][programma_op] = {}
-                }
-                chart_series[chart_name][programma_op][tipo] = readFloatValues(filterValues(row));
+                chart_series[program][data_type] = row.slice(2).map(function() { var value = parseFloat(trimtext(this).replace(',', '.')); return isNaN(value) ? 0.0 : value });
             });
 
-            $.each(chart_series[chart_name],function(key, v) {
+            $.each(chart_series, function(key, val) {
                 selector.append($('<option>', { value : key }).text(key));
             });
 
-            selector.change(function() {
-                var programma_op = $('option:selected', this).val();
+            selector.on('change', function() {
+                var program = $(this).find('option:selected').val();
 
-                if (charts[chart_name].series.length) {
-                    $.each(charts[chart_name].series, function(key, value) {
-                        charts[chart_name].series[key].setData(chart_series[chart_name][programma_op][charts[chart_name].series[key].name], false);
+                if (chart.series.length) {
+                    $.each(chart.series, function(key, value) {
+                        chart.series[key].setData(chart_series[program][chart.series[key].name], false);
                     });
-                    charts[chart_name].redraw();
+                    chart.redraw();
                 } else {
-                    $.each(chart_series[chart_name][programma_op], function(key, value) {
-                        charts[chart_name].addSeries({
+                    $.each(chart_series[program], function(key, value) {
+                        chart.addSeries({
                             name: key,
                             data: value
                         })
                     });
                 }
-                charts[chart_name].setTitle({}, { text: programma_op });
-            });
-
-            selector.val(primo_programma_op).change();
+                chart.setTitle({}, { text: program });
+            }).trigger('change');
         });
     });
 });
