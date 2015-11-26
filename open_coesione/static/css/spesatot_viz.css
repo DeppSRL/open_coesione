@@ -1,5 +1,5 @@
 rect {
-  fill-opacity: 0;
+  fill: 1;
   stroke: #fff;
 }
 
@@ -20,14 +20,29 @@ text {
 	font-weight: bold;
 }
 
+.D1 rect {
+	fill-opacity: 1;
+	cursor: pointer;
+}
+
+.D1 text {
+	fill: white;
+	font-size:150%;
+}
+
+.D1:hover text {
+	fill: none;
+	font-size:150%;
+}
+
 .rectHighlight rect,
 .D1 rect:hover {
-	fill-opacity: 0.20;
+	fill-opacity: 0;
 }
 
 div.topSection {
 	width:75%;
-	margin:0.1em 0;
+	margin:0.1em 0em;
 }
 div.topSectionHighlight,
 div.topSection:hover {
