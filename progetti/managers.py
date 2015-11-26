@@ -3,6 +3,9 @@ from django.db import models
 
 class ProgettiQuerySet(models.query.QuerySet):
 
+    def no_privacy(self):
+        return self.filter(privacy_flag=False)
+
     def conclusi(self, date=None):
         date = date or datetime.now()
         return self.filter(data_fine_effettiva__lte=date, stato_progetto=self.model.STATO.concluso).order_by('-data_fine_effettiva', '-fin_totale_pubblico')
@@ -111,6 +114,9 @@ class ProgettiManager(models.Manager):
 
     def get_query_set(self):
         return ProgettiQuerySet(self.model, using=self._db).filter(active_flag=True)  # note the `using` parameter, new in 1.2
+
+    def no_privacy(self):
+        return self.get_query_set().no_privacy()
 
     def conclusi(self, date=None):
         return self.get_query_set().conclusi(date)

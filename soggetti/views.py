@@ -67,11 +67,7 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
         # calcolo dei progetti con piu' fondi
         # logger.debug('top_progetti start')
         #context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
-        context['top_progetti'] = [
-            Progetto.objects.get(pk=p['codice_locale'])
-            for p in self.object.progetti.values(
-                'codice_locale', 'fin_totale_pubblico'
-            ).distinct().order_by('-fin_totale_pubblico')[:5]]
+        context['top_progetti'] = [Progetto.objects.get(pk=p['codice_locale']) for p in self.object.progetti.values('codice_locale', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]]
         # logger.debug('top_progetti end')
 
         # calcolo dei comuni un cui questo soggetto ha operato di piu'
@@ -120,7 +116,7 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
             # logger.debug('::::regione {0}'.format(regione))
 
             # progetti del soggetto localizzati in territori della regione
-            psr = Progetto.objects.nel_territorio(regione).del_soggetto(self.object)
+            psr = Progetto.objects.del_soggetto(self.object).nel_territorio(regione)
 
             # logger.debug('::::::filter start')
             # elimina dai progetti multiloc del soggetto quelli localizzati esclusivamente nella regione
@@ -147,7 +143,7 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
         # logger.debug('::fetch dati_nazioni start')
         for nazione in Territorio.objects.filter(territorio__in=['N', 'E']).defer('geom').order_by('-territorio'):
 
-            queryset = Progetto.objects.nel_territorio(nazione).del_soggetto(self.object).exclude(
+            queryset = Progetto.objects.del_soggetto(self.object).nel_territorio(nazione).exclude(
                 # tutti i progetti in una nazione realizzati dal soggetto NON multi localizzati nella nazione
                 # (e neanche nelle regioni, che sono già stati eliminati prima)
                 pk__in=ps_multiloc

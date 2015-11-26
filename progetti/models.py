@@ -427,11 +427,11 @@ class Progetto(TimeStampedModel):
         ('2', u"Il progetto appartiene al PAC ed è finanziato nell'ambito dei Programmi Operativi"),
     )
     STATO = Choices(
-        ('0', 'non_applicabile', u'non applicabile'),
-        ('1', 'non_avviato', u'non avviato'),
-        ('2', 'in_corso', u'in corso'),
-        ('3', 'completato', u'completato'),
-        ('4', 'concluso', u'concluso'),
+        ('0', 'non_applicabile', u'Non applicabile'),
+        ('1', 'non_avviato', u'Non avviato'),
+        ('2', 'in_corso', u'In corso'),
+        ('3', 'liquidato', u'Liquidato'),
+        ('4', 'concluso', u'Concluso'),
     )
 
     codice_locale = models.CharField(max_length=100, primary_key=True, db_column='cod_locale_progetto')
