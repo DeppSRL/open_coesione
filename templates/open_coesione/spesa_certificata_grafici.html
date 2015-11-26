@@ -6,15 +6,14 @@
 
 {% block content %}
     <div class="flat_content">
-        <h1>Spesa certificata UE - Risultati e obiettivi per i singoli Programmi Operativi</h1>
+        <h1>Pagamenti ammessi e Spesa certificata all’UE - Risultati e obiettivi per i singoli Programmi Operativi</h1>
 
         <p>
-            Qui di seguito si riportano i grafici dei singoli Programmi Operativi, in sezioni distinte per Area Obiettivo (Competitività, Convergenza) e Fondo (FESR, FSE).
+            In sezioni distinte per Area Obiettivo (Competitività, Convergenza) e Fondo (FESR, FSE) i seguenti grafici riportano i valori dei target, della spesa certificata all’UE e dei pagamenti ammessi per ciascun Programma Operativo.
             Per selezionare il grafico di interesse, scegliere dal menu a tendina nella sezione di riferimento.
         </p>
         <p>
-            I target riportati nei grafici sono quelli nazionali, generalmente più ambiziosi di quelli comunitari e fissati,
-            oltre che al 31 dicembre di ciascun anno, anche al 31 maggio e al 31 ottobre, a partire da ottobre 2011.
+            I target riportati nei grafici sono quelli nazionali, generalmente più ambiziosi di quelli comunitari e fissati, oltre che al 31 dicembre di ciascun anno, anche al 31 maggio e al 31 ottobre, a partire da ottobre 2011.
         </p>
 
         {% for tipo_di_spesa, csv_file in chart_tables %}
@@ -35,18 +34,16 @@
                                     {% endfor %}
                                 </tr>
                             </thead>
+                            <tbody>
                         {% else %}
-                            {% ifequal forloop.counter 2 %}
-                                <tbody>
-                            {% endifequal %}
                             <tr>
                                 {% for value in row %}
                                     <td>{{ value }}</td>
                                 {% endfor %}
                             </tr>
-                            {% if forloop.last %}
-                                </tbody>
-                            {% endif %}
+                        {% endif %}
+                        {% if forloop.last %}
+                            </tbody>
                         {% endif %}
                     {% endfor %}
                 </table>
@@ -57,6 +54,5 @@
     </div>
 
     {% add_data 'js-data' 'js/highcharts.js' %}
-    {% add_data 'js-data' 'js/oc-charts.js' %}
     {% add_data 'js-data' 'js/oc-spesacertificata-grafici.js' %}
 {% endblock %}

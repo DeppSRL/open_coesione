@@ -3,7 +3,7 @@ $(function () {
     var chart_series = {};
 
     function trimtext(el) {
-        return $(el).text().trim();
+        return $.trim($(el).text());
     }
 
     function readTextValues(list) {
@@ -11,7 +11,7 @@ $(function () {
     }
 
     function readFloatValues(list) {
-        return $(filterValues(list)).map(function() { var value = parseFloat(trimtext(this).replace(',', '.')); return isNaN(value) ? 0.0 : value });
+        return $(list).map(function() { var value = parseFloat(trimtext(this).replace(',', '.')); return isNaN(value) ? 0.0 : value });
     }
 
     function filterValues(list) {
@@ -20,10 +20,9 @@ $(function () {
 
     function buildChart(container, table) {
         var first_row = table.find('tbody tr:first-child td');
-        var title = $(first_row[0]).text().trim();
-        var fondo = $(first_row[2]).text().trim();
-        var headers = readTextValues(table.find('thead th'));
-        var date_list = filterValues(headers);
+        var title = trimtext(first_row[0]);
+        var fondo = trimtext(first_row[2]);
+        var date_list = readTextValues(filterValues(table.find('thead th')));
 
         return new Highcharts.Chart({
             chart: {
@@ -46,7 +45,7 @@ $(function () {
                 min: 0,
                 max: 100,
                 title: {
-                    text: 'Spesa Certificata'
+                    text: 'Valori %'
                 }
             },
             legend: {
@@ -71,6 +70,7 @@ $(function () {
                 }
             },
             series: [],
+            colors: ['#751ED8', '#C45355', '#228822'],
             credits: {
                 enabled: false
             }
@@ -99,7 +99,7 @@ $(function () {
                 if (!(programma_op in chart_series[chart_name])) {
                     chart_series[chart_name][programma_op] = {}
                 }
-                chart_series[chart_name][programma_op][tipo] = readFloatValues(row);
+                chart_series[chart_name][programma_op][tipo] = readFloatValues(filterValues(row));
             });
 
             $.each(chart_series[chart_name],function(key, v) {
@@ -109,9 +109,11 @@ $(function () {
             selector.change(function() {
                 var programma_op = $('option:selected', this).val();
 
-                if (charts[chart_name].series.length == 2) {
-                    charts[chart_name].series[0].setData(chart_series[chart_name][programma_op][charts[chart_name].series[0].name], false);
-                    charts[chart_name].series[1].setData(chart_series[chart_name][programma_op][charts[chart_name].series[1].name]);
+                if (charts[chart_name].series.length) {
+                    $.each(charts[chart_name].series, function(key, value) {
+                        charts[chart_name].series[key].setData(chart_series[chart_name][programma_op][charts[chart_name].series[key].name], false);
+                    });
+                    charts[chart_name].redraw();
                 } else {
                     $.each(chart_series[chart_name][programma_op], function(key, value) {
                         charts[chart_name].addSeries({
