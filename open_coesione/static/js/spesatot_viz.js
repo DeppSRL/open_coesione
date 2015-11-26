@@ -234,7 +234,7 @@ $(document).ready(function(){
                 return this.previousSibling.getBBox().x;
             })
             .attr("y", function (d) {
-                return this.nextSibling.getBBox().y-4;
+                return this.nextSibling.getBBox().y-5;
             })
             .attr("width", function (d) {
                 return this.previousSibling.getBBox().width;

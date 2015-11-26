@@ -11,7 +11,7 @@ rect.label, .D3 rect, .leaf rect{
 }
 
 text {
-	font: 16px sans-serif;
+	font: 14px sans-serif;
 	font-weight: bold;
 }
 
@@ -26,8 +26,9 @@ text {
 }
 
 .D1 text {
-	fill: black;
-	font-size:150%;
+	fill: white;
+	font-size:120%;
+	text-shadow: 0 0 15px #3e725c;
 }
 
 .D1:hover text {
