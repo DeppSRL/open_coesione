@@ -16,7 +16,7 @@ from django.views.generic.detail import DetailView
 
 from open_coesione.forms import ContactForm
 from open_coesione.models import PressReview, Pillola, FAQ
-from open_coesione.settings import PROJECT_ROOT
+# from open_coesione.settings import PROJECT_ROOT
 from progetti.models import Progetto, Tema, ClassificazioneAzione, DeliberaCIPE
 from soggetti.models import Soggetto
 from territori.models import Territorio
@@ -253,7 +253,7 @@ class SpesaCertificataGraficiView(RisorsaView):
 
         def format_number(value):
             if value:
-                return str(round(float(value.strip()), 2)).replace('.', ',')
+                return round(float(value.strip()), 2)
             else:
                 return ''
 
@@ -282,54 +282,46 @@ class SpesaCertificataGraficiView(RisorsaView):
 
         dates = ['{}{:02d}31'.format(y, m) for y in range(2010, datetime.now().year + 1) for m in [5, 10, 12]]
 
-        data = {}
+        csv2data_key_map = (
+            ('TARGET {}', 'target'),
+            ('TARGET NAZIONALE {}', 'target'),
+            ('TARGET UE {}', 'target'),
+            ('STIMA TARGET {}', 'target'),
+            ('quota spesa certificata {}', 'risultato_spesa'),
+            ('quota pagamenti ammessi {}', 'risultato_pagamenti'),
+        )
 
         rows = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Target_Certificato_Pagamenti.xls'), 'rb'), sheet='Target spesa cert ammessi va').splitlines()))
+
+        data = {}
         for row in rows:
             if row['DPS_CODICE_PROGRAMMA']:
-                base_data = [
-                    ('Obiettivo', {'CONV': u'Convergenza', 'CRO': u'Competitività'}[row['QSN_AREA_OBIETTIVO_UE']]),
-                    ('Programma operativo', format_name(row['DPS_DESCRIZIONE_PROGRAMMA'])),
-                    ('Fondo', row['QSN_FONDO_COMUNITARIO ']),
-                ]
+                program_name = format_name(row['DPS_DESCRIZIONE_PROGRAMMA'])
+                group_key = '{}_{}'.format(row['QSN_AREA_OBIETTIVO_UE'], row['QSN_FONDO_COMUNITARIO ']).lower()
+
+                if not group_key in data:
+                    data[group_key] = []
 
                 dates_data = []
                 for date in dates:
                     date_data = {}
 
-                    target_keys = ('TARGET {}'.format(date),
-                                   'TARGET NAZIONALE {}'.format(date),
-                                   'TARGET UE {}'.format(date),
-                                   'STIMA TARGET {}'.format(date))
-                    for target_key in target_keys:
-                        if target_key in row:
-                            date_data['target'] = row[target_key]
-
-                    risultatospesa_keys = ('quota spesa certificata {}'.format(date),)
-                    for risultatospesa_key in risultatospesa_keys:
-                        if risultatospesa_key in row:
-                            date_data['risultato_spesa'] = row[risultatospesa_key]
-
-                    risultatopagamenti_keys = ('quota pagamenti ammessi {}'.format(date),)
-                    for risultatopagamenti_key in risultatopagamenti_keys:
-                        if risultatopagamenti_key in row:
-                            date_data['risultato_pagamenti'] = row[risultatopagamenti_key]
+                    for csv_key, data_key in csv2data_key_map:
+                        csv_key = csv_key.format(date)
+                        if csv_key in row:
+                            date_data[data_key] = row[csv_key]
 
                     if date_data:
                         dates_data.append((datetime.strptime(date, '%Y%m%d').strftime('%d/%m/%Y'), date_data))
 
-                key = '{}_{}'.format(row['QSN_AREA_OBIETTIVO_UE'], row['QSN_FONDO_COMUNITARIO ']).lower()
+                for type_name, type_key in [('Target', 'target'), ('Risultato (spesa certificata)', 'risultato_spesa'), ('Risultato (pagamenti)', 'risultato_pagamenti')]:
+                    data[group_key].append(OrderedDict([('Programma operativo', program_name), ('Tipo dato', type_name)] + [(date, format_number(date_data.get(type_key))) for date, date_data in dates_data]))
 
-                if not key in data:
-                    data[key] = []
-                data[key].append(OrderedDict(base_data + [('Tipo dato', 'Target')] + [(date, format_number(date_data.get('target'))) for date, date_data in dates_data]))
-                data[key].append(OrderedDict(base_data + [('Tipo dato', 'Risultato (spesa certificata)')] + [(date, format_number(date_data.get('risultato_spesa'))) for date, date_data in dates_data]))
-                data[key].append(OrderedDict(base_data + [('Tipo dato', 'Risultato (pagamenti)')] + [(date, format_number(date_data.get('risultato_pagamenti'))) for date, date_data in dates_data]))
-
-        context['chart_tables'] = []
-        for tipo in ['cro_fesr', 'cro_fse', 'conv_fesr', 'conv_fse']:
-            # context['chart_tables'].append((tipo, csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/spesa_certificata/{}.csv'.format(tipo))))))
-            context['chart_tables'].append((tipo, [data[tipo][0].keys()] + [row_data.values() for row_data in data[tipo]]))
+        context['grouped_data'] = []
+        for group_key in ['cro_fesr', 'cro_fse', 'conv_fesr', 'conv_fse']:
+            type, fund = group_key.upper().split('_')
+            context['grouped_data'].append(({'CRO': u'Competitività', 'CONV': u'Convergenza'}[type], fund, data[group_key]))
+            # context['grouped_data'].append((group_key, csv.reader(open(os.path.join(PROJECT_ROOT, 'static/csv/spesa_certificata/{}.csv'.format(group_key))))))
 
         return context
 
