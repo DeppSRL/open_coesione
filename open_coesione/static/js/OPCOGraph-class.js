@@ -274,7 +274,6 @@ var OPCOGraph;
                         connectNulls: true,
                         marker: {
                             symbol: 'circle',
-                            enabled: null, // auto
                             radius: 3,
                             lineWidth: 0
                         },
@@ -287,7 +286,7 @@ var OPCOGraph;
                         data: _data_pagamenti,
                         connectNulls: true,
                         marker: {
-                            enabled: null, // auto
+                            symbol: 'square',
                             radius: 3,
                             lineWidth: 0
                         },
@@ -299,9 +298,11 @@ var OPCOGraph;
                         color: '#751ED8',
                         data: _data_obiettivo_IT,
                         marker: {
-                            enabled: null, // auto
-                            radius: 3
-
+                            symbol: 'diamond',
+                            radius: 3,
+                            lineWidth: 2,
+                            fillColor: '#FFFFFF',
+                            lineColor: null
                         },
                         lineWidth: 0
                     },
@@ -311,8 +312,11 @@ var OPCOGraph;
                         color: '#003399',
                         data: _data_obiettivo_EU,
                         marker: {
-                            enabled: null, // auto
-                            radius: 3
+                            symbol: 'triangle',
+                            radius: 3,
+                            lineWidth: 2,
+                            fillColor: '#FFFFFF',
+                            lineColor: null
                         },
                         lineWidth: 0
                     }
