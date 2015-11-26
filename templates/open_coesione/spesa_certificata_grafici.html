@@ -16,8 +16,8 @@
             I target riportati nei grafici sono quelli nazionali, generalmente più ambiziosi di quelli comunitari e fissati, oltre che al 31 dicembre di ciascun anno, anche al 31 maggio e al 31 ottobre, a partire da ottobre 2011.
         </p>
 
-        {% for tipo_di_spesa, csv_file in chart_tables %}
-            <div id="chart_{{ tipo_di_spesa }}" class="chart_container">
+        {% for type, fund, data in grouped_data %}
+            <div class="chart_container">
                 <div class="chart_canvas"></div>
                 <form action="#">
                     <div class="text-center">
@@ -25,27 +25,23 @@
                     </div>
                 </form>
                 <table class="chart_table hide">
-                    {% for row in csv_file %}
-                        {% if forloop.first %}
-                            <thead>
-                                <tr>
-                                    {% for value in row %}
-                                        <th>{{ value }}</th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                        {% else %}
+                    <caption>{{ type }} : {{ fund }}</caption>
+                    <thead>
+                        <tr>
+                            {% for value in data.0.keys %}
+                                <th>{{ value }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
                             <tr>
-                                {% for value in row %}
+                                {% for value in row.values %}
                                     <td>{{ value }}</td>
                                 {% endfor %}
                             </tr>
-                        {% endif %}
-                        {% if forloop.last %}
-                            </tbody>
-                        {% endif %}
-                    {% endfor %}
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
 
