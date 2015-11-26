@@ -20,21 +20,29 @@ $(document).ready(function(){
         height = width,
         minSqPixToShow = 5000;
 
+    /* This one is used to map colors and URL from L1 values in the .csv so modify it in case of top level domain */
+    var domainL1 = ["Fondi Europei", "Fondi Nazionali", "FAS", "Piano di Azione per la coesione"];
+
     var color = d3.scale.ordinal()
-        .domain(["Fondi Europei", "Fondi Nazionali", "FAS", "Piano di Azione per la coesione"])
+        .domain(domainL1)
         .range(["#3e725c", "#9aac9e", "#92c7a8", "#d8e9dd"]);
+
+    /* set the URLs to be linked with L1 values from .csv, WARNING: match the order of the above domainL1 definition */
+    var urlL1 = d3.scale.ordinal()
+        .domain(domainL1)
+        .range(["/fonti-di-finanziamento/fesr/", "/fonti-di-finanziamento/fsc/", "/fonti-di-finanziamento/fas/", "/fonti-di-finanziamento/pac/"]);
 
     var treemap = d3.layout.treemap()
         .mode("squarify")
         .sort(comparator)
-        .padding(5)
+        .padding(2)
         .size([width, height]);
 
     var svg = d3.select("#graph").append("svg")
         .attr("width", width)
         .attr("height",height)
         .append("g")
-        .attr("transform", "translate(-.5,-.5)")
+        .attr("transform", "translate(-.5,-.5)");
 
     function comparator(a, b) {
         return a.value - b.value;
@@ -63,7 +71,7 @@ $(document).ready(function(){
 
     function leafWrap(d) {
         var text = d3.select(this),
-        words = (d.name+":").split(/\s+|\-/).reverse(),
+        words = d.name.split(/\s+|\-/).reverse(),
         word,
         line = [],
         lineHeight = 1.1,
@@ -133,21 +141,6 @@ $(document).ready(function(){
         /* compute once the array of node (see d3 doc, set x,y,width and height for all nodes) */
         treeMapNodesArray = treemap.nodes(json);
 
-        /* First compute the legends, filter on depth==1 to get first level only */
-        var legend = d3.select("#legend").selectAll("div")
-            .data(treeMapNodesArray.filter(function (d) {return d.depth<=1}))
-            .enter()
-            .append("div")
-            .attr("class", "topSection")
-            .attr("id", function(d) {return "div"+d.name.replace(/\W/g, '')})
-            /* On mouseover the legend div, highlight the matching level 1 element */
-            .on("mouseover", function(d) { $("#rec"+d.name.replace(/\W/g, '')).attr("class", "D1 rectHighlight"); })
-            .on("mouseout", function(d) { $("#rec"+d.name.replace(/\W/g, '')).attr("class", "D1"); })
-            .html(function(d){
-                if (d.depth==0) return " <span class='value total'>"+numeral(parseFloat(d.value)).format('0,0[.]0')+"</span>";
-                return "<div class='button' style='background-color:"+color(d.name)+"'> </div>"+d.name+" <span class='value'>"+numeral(parseFloat(d.value)).format('0,0.0')+"</span>"})
-            .sort(function(a,b){return b.depth-a.depth;}); /* sort to get the level 1 first and level 0 at the end of the list */
-
         drawTreemap();
 
         /* on windows resize, we shall redraw the treemap*/
@@ -175,9 +168,6 @@ $(document).ready(function(){
                 return d.children ? "D" + d.depth : "leaf";
                 /* set a class, leaf for last level, D<level> for the others */
             })
-            .attr("id", function (d) {
-                return d.depth == 1 ? "rec" + d.name.replace(/\W/g, '') : null
-            })
             .attr("transform", function (d) {
                 return "translate(" + d.x + "," + d.y + ")";
             })
@@ -186,7 +176,11 @@ $(document).ready(function(){
             });
         /* sort to get the deepest level first so we will have the level 1 on top and be able to get onmouseover event on it */
 
-        cell.append("rect")
+	/* append rect and manage fills to all the non top-level cells */
+        cell.filter(function (d){
+                return d.depth>1;
+            })
+	    .append("rect")
             .attr("width", function (d) {
                 return d.dx - 2;
             })
@@ -194,20 +188,10 @@ $(document).ready(function(){
                 return d.dy - 2;
             })
             .style("fill", function (d) {
-                if (d.depth == 3) return color(d.parent.parent.name);
-                /* only level 3 element got a color picked from level 1 parent name */
-                return "green";
-            }) /* others are orange filled but transparent by default, just used to highlight them on mouseover */
-            .style("stroke", function (d) {
-                if (d.depth == 1) return color(d.name);
-                if (d.depth == 2) return color(d.parent.name);
-                return "#fff"
+                if (d.depth==3) return color(d.parent.parent.name); /* level 3 element got a color picked from level 1 parent name */
+                return "none"; /* others are transparents */
             })
-            .style("stroke-width", function (d) {
-                if (d.depth == 1) return 2;
-                if (d.depth == 2) return 2;
-                return 1;
-            });
+            .style("stroke-width", 0);
 
         /* Set the text in leaf: name and value */
         d3.selectAll(".leaf")
@@ -226,7 +210,7 @@ $(document).ready(function(){
             .each(leafWrap);
         /* this will wrap name and value into the available rectangle */
 
-        /* Set the text in second level rectangle: name only */
+        /* Set the text in second level rectangle: name only, color is picked from parent name */
         d3.selectAll(".D2").append("text")
             .filter(function (d) {
                 return d.dx * d.dy > minSqPixToShow;
@@ -235,40 +219,61 @@ $(document).ready(function(){
                 return d.dx / 2;
             })
             .attr("y", 3)
-            .attr("dy", ".35em")
+            .attr("dy", 0)
             .attr("text-anchor", "middle")
-            .attr("fill", "white")
-            .each(wrap);
-
-        /* Add a rectangle behind level2 text to hide lower level border properly */
-        d3.selectAll(".D2").insert("rect", "text")
-            .style("fill", function (d) {
+            .attr("fill", function (d) {
                 return color(d.parent.name);
             })
+            .each(wrap);
+
+        /* Add a white rectangle behind level2 text to make it looks like it's out of the box */
+        d3.selectAll(".D2").insert("rect", "text")
+            .style("fill", "white")
             .attr("class", "label")
             .attr("x", function (d) {
-                return this.nextSibling.getBBox().x;
+                return this.previousSibling.getBBox().x;
             })
             .attr("y", function (d) {
-                return this.nextSibling.getBBox().y;
+                return this.nextSibling.getBBox().y-5;
             })
             .attr("width", function (d) {
-                return this.nextSibling.getBBox().width;
+                return this.previousSibling.getBBox().width;
             })
             .attr("height", function (d) {
-                return this.nextSibling.getBBox().height;
+                return this.nextSibling.getBBox().height+6;
             });
 
 
-        /* manage onmouseover event on level 1 elements, highlight the matching legend div */
-        d3.selectAll(".D1")
-            .on("mouseover", function (d) {
-                $("#div" + d.name.replace(/\W/g, '')).toggleClass("topSectionHighlight");
+	/* Append a link to the top level elements */
+        var d1Cells = d3.selectAll(".D1")
+	    .append("a")
+	    .attr("xlink:href", function (d) {
+		    return urlL1(d.name);
+	    });
+
+
+	/* Append a rect and a text in the the top level elements link */
+	d1Cells.append("rect")
+            .attr("width", function (d) {
+                return d.dx - 2;
             })
-            .on("mouseout", function (d) {
-                $("#div" + d.name.replace(/\W/g, '')).toggleClass("topSectionHighlight");
-            });
+            .attr("height", function (d) {
+                return d.dy - 2;
+            })
+            .style("fill", function (d) {
+                return color(d.name); /* level 1 element got a color picked from their name */
+            })
+            .style("stroke-width", 4);
 
+        d1Cells.append("text")
+            .attr("x", function (d) {
+                return d.dx / 2;
+            })
+            .attr("y", function (d) {
+                return d.dy / 2;
+            })
+            .attr("text-anchor", "middle")
+            .each(leafWrap);
     }
 
 });
