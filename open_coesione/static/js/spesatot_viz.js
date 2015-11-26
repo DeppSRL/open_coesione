@@ -30,7 +30,7 @@ $(document).ready(function(){
     /* set the URLs to be linked with L1 values from .csv, WARNING: match the order of the above domainL1 definition */
     var urlL1 = d3.scale.ordinal()
         .domain(domainL1)
-        .range(["/fonti-di-finanziamento/fesr/", "/fonti-di-finanziamento/fsc/", "/lfonti-di-finanziamento/fas/", "/fonti-di-finanziamento/pac/"]);
+        .range(["/fonti-di-finanziamento/fesr/", "/fonti-di-finanziamento/fsc/", "/fonti-di-finanziamento/fas/", "/fonti-di-finanziamento/pac/"]);
 
     var treemap = d3.layout.treemap()
         .mode("squarify")
