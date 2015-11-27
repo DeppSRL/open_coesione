@@ -1,3 +1,19 @@
+/*
+ * OPCOGraph
+ * Usage: var graphInstanceName = new OPCOGraph( containerID, url )
+ *
+ * NOTE on the CSV data source
+ *
+ * 1) Due to the bogus date model used in the "Mese" column of the CSV data source,
+ * the human readable tooltip month label is calculated with a formula including "rowindex%12".
+ * For appropriate results OPCOGraph requires the data series to start from January,
+ * and no missing months for the following rows.
+ *
+ * 2) A comma decimal separator is used in the columns "% Spesa su dotazione", "Obiettivo nazionale"
+ * and "Obiettivo comunitario", that's replaced with a dot at runtime
+ *
+ */
+
 var OPCOGraph;
 
 (function ($) {

@@ -29,40 +29,10 @@
         <h3>AVANZAMENTO DEI PAGAMENTI AMMESSI E DELLA SPESA CERTIFICATA ALL’UE PER I PROGRAMMI COFINANZIATI DAI FONDI STRUTTURALI - TOTALE ITALIA</h3>
         <p>(% dei pagamenti ammessi e della spesa certificata all’UE rispetto alla dotazione finanziaria disponibile - aggiornamento al 31 ottobre 2015)</p>
         <p>
-        {% addtoblock 'js' strip %}
-            <script type="text/javascript">
-                $(document).ready(function () {
-                    /*
-                     * OPCOGraph
-                     * Usage: var graphInstanceName = new OPCOGraph( containerID, url )
-                     *
-                     * NOTE on the CSV data source
-                     *
-                     * 1) Due to the bogus date model used in the "Mese" column of the CSV data source,
-                     * the human readable tooltip month label is calculated with a formula including "rowindex%12".
-                     * For appropriate results OPCOGraph requires the data series to start from January,
-                     * and no missing months for the following rows.
-                     *
-                     * 2) A comma decimal separator is used in the columns "% Spesa su dotazione", "Obiettivo nazionale"
-                     * and "Obiettivo comunitario", that's replaced with a dot at runtime
-                     *
-                     */
-
-                    // local host test
-                    var G = new OPCOGraph('#sc_container',"{% static 'csv/spesacertificata_data.csv' %}");
-
-                });
-            </script>
-        {% endaddtoblock %}
-        {% add_data 'js-data' 'js/vendor/highcharts/highcharts.js' %}
-        {% add_data 'js-data' 'js/vendor/grouped_categories/grouped-categories.js' %}
-        {% add_data 'js-data' 'js/OPCOGraph-class.js' %}
-        <!-- dynamic graph div containers -->
             <figure style="-webkit-margin-start: 0;">
                 <div id="sc_container" style="height: 500px; max-width: 960px"></div>
                 <figcaption>
-                    Nota: Gli obiettivi nazionali sono stati definiti dal Comitato QSN
-                    del 9 aprile 2013, gli obiettivi comunitari sono quelli definiti dalla regola &ldquo;n+2&rdquo;
+                    Nota: Gli obiettivi nazionali sono stati definiti dal Comitato QSN del 9 aprile 2013, gli obiettivi comunitari sono quelli definiti dalla regola &ldquo;n+2&rdquo;
                 </figcaption>
             </figure>
         </p>
@@ -183,4 +153,15 @@
             corrispondere al valore più recente di certificazione ufficiale delle spese alla Commissione Europea.
         </p>
     </div>
+
+    {% add_data 'js-data' 'js/vendor/highcharts/highcharts.js' %}
+    {% add_data 'js-data' 'js/vendor/grouped_categories/grouped-categories.js' %}
+    {% add_data 'js-data' 'js/oc-spesacertificata.js' %}
+    {% addtoblock 'js' strip %}
+        <script type="text/javascript">
+            $(document).ready(function () {
+                var G = new OPCOGraph('#sc_container', '{% static 'csv/spesacertificata_data.csv' %}');
+            });
+        </script>
+    {% endaddtoblock %}
 {% endblock %}
