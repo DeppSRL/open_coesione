@@ -227,7 +227,9 @@ var OPCOGraph;
                     text: null
                 },
                 chart: {
-                  defaultSeriesType: 'line'
+                    defaultSeriesType: 'line',
+                    spacingLeft: 0,
+                    spacingRight: 0
                 },
                 tooltip: {
                     shared: true,
@@ -267,7 +269,8 @@ var OPCOGraph;
                     ceiling: 100,
                     tickInterval: 10,
                     title: {
-                        text: 'Valori %',
+                        text: null,
+//                        text: 'Valori %',
                         margin: 0
                     }
                 },
@@ -330,11 +333,9 @@ var OPCOGraph;
                         marker: {
                             symbol: 'triangle',
                             radius: 3,
-                            lineWidth: 2,
-                            fillColor: '#FFFFFF',
-                            lineColor: null
+                            lineWidth: 0
                         },
-                        lineWidth: 0
+                        lineWidth: 2
                     }
                 ]
             });

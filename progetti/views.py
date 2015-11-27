@@ -355,13 +355,15 @@ class ProgrammiView(BaseProgrammaView):
 
                 dotazioni_totali_per_anno = {pagamento['data'].year: 0 for pagamento in pagamenti_per_anno}
                 for row in dotazioni_totali:
-                    # if row['OC_CODICE_PROGRAMMA'] in programmi_codici:
-                    if row['DPS_CODICE_PROGRAMMA'] in programmi_codici:  ############
+                    # programma_codice = row['OC_CODICE_PROGRAMMA']
+                    programma_codice = row['DPS_CODICE_PROGRAMMA']  ###########
+                    if programma_codice in programmi_codici:
                         pagamenti_2015 += float(row['pagamenti ammessi 20151031'])  ########
                         dotazioni_totali_2015 += float(row['DOTAZIONE TOTALE PROGRAMMA POST PAC 20151031'])  ########
 
                         for anno in dotazioni_totali_per_anno:
-                            data = '{}1231'.format(max(anno, 2009))  # i dati delle dotazioni totali partono dal 2009; per gli anni precedenti valgono i dati del 2009
+                            # data = '{}1231'.format(max(anno, 2009))  # i dati delle dotazioni totali partono dal 2009; per gli anni precedenti valgono i dati del 2009
+                            data = '{}1231'.format(max(anno, 2010))  ##############
                             try:
                                 valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {}'.format(data)]
                             except KeyError:
@@ -376,22 +378,23 @@ class ProgrammiView(BaseProgrammaView):
                 logger.debug('pagamenti_per_programma_{} start'.format(trend))
 
                 # programmi_con_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__data=data_pagamenti_per_programma, classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_codici).values('descrizione', 'codice').annotate(ammontare=Sum('classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__ammontare_rendicontabile_ue')).order_by('descrizione')
-                programmi_senza_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_codici).values('descrizione', 'codice').order_by('descrizione')  ##############
+                programmi_senza_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_codici).distinct().values('descrizione', 'codice').order_by('descrizione')  ##############
 
                 dotazioni_totali_per_programma = {}
                 pagamenti_per_programma = {}  ##########
                 for row in dotazioni_totali:
-                    # programma = row['OC_CODICE_PROGRAMMA']
-                    programma = row['DPS_CODICE_PROGRAMMA']  ###########
-                    if programma in programmi_codici:
+                    # programma_codice = row['OC_CODICE_PROGRAMMA']
+                    programma_codice = row['DPS_CODICE_PROGRAMMA']  ###########
+                    if programma_codice in programmi_codici:
                         data = data_pagamenti_per_programma.strftime('%Y%m%d')
                         try:
                             valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {}'.format(data)]
                         except KeyError:
                             valore = row['DOTAZIONE TOTALE PROGRAMMA {}'.format(data)]
 
-                        dotazioni_totali_per_programma[programma] = float(valore)
-                        pagamenti_per_programma[programma] = float(row['pagamenti ammessi {}'.format(data)])  ##############
+                        dotazioni_totali_per_programma[programma_codice] = float(valore)
+
+                        pagamenti_per_programma[programma_codice] = float(row['pagamenti ammessi {}'.format(data)])  ##############
 
                 # context['pagamenti_per_programma_{}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': dotazioni_totali_per_programma[programma['codice']], 'paid_amount': programma['ammontare']} for programma in programmi_con_pagamenti]
                 context['pagamenti_per_programma_{}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': dotazioni_totali_per_programma[programma['codice']], 'paid_amount': pagamenti_per_programma[programma['codice']]} for programma in programmi_senza_pagamenti]  ###############
