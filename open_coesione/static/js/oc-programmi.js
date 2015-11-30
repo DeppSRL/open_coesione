@@ -18,7 +18,17 @@ var print_spline_chart = function(container, data, title) {
             type: 'datetime',
             units: [
                 ['year', null]
-            ]
+            ],
+            labels: {
+                formatter: function() {
+                    if (Highcharts.dateFormat('%Y', this.value) == '2015')
+                        return Highcharts.dateFormat('31/10/%Y', this.value);
+                    else
+                        return Highcharts.dateFormat('31/12/%Y', this.value);
+                }
+            },
+            minPadding: 0.025,
+            maxPadding: 0.025
         },
         yAxis: {
             min: 0,
@@ -30,7 +40,14 @@ var print_spline_chart = function(container, data, title) {
         tooltip: {
             valueDecimals: 2,
             valueSuffix: '%',
-            xDateFormat: '%Y'
+            formatter: function() {
+                var x = '';
+                if (Highcharts.dateFormat('%Y', this.x) == '2015')
+                    x = Highcharts.dateFormat('31/10/%Y', this.x);
+                else
+                    x = Highcharts.dateFormat('31/12/%Y', this.x);
+                return x + '<br/><span style="color:' + this.series.color + '">' + this.series.name + '</span>: <b>' + Highcharts.numberFormat(this.y, 2) + '%</b><br/>';
+            }
         },
         credits: {
 //            text: 'Fonte: DPS',
