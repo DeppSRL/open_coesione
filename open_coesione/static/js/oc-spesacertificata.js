@@ -286,7 +286,7 @@ var OPCOGraph;
                 },
                 series: [
                     {
-                        name: 'Spesa su dotazione',
+                        name: 'Spesa certificata su dotazione',
                         //allowPointSelect: true,
                         color: '#C45355',
                         data: _data_spesa,
@@ -312,7 +312,7 @@ var OPCOGraph;
                         lineWidth: 2
                     },
                     {
-                        name: 'Obiettivo nazionale',
+                        name: 'Obiettivo nazionale di spesa certificata',
                         //allowPointSelect: true,
                         color: '#751ED8',
                         data: _data_obiettivo_IT,
@@ -326,7 +326,7 @@ var OPCOGraph;
                         lineWidth: 0
                     },
                     {
-                        name: 'Obiettivo comunitario',
+                        name: 'Obiettivo comunitario di spesa certificata',
                         //allowPointSelect: true,
                         color: '#003399',
                         data: _data_obiettivo_EU,
@@ -335,7 +335,7 @@ var OPCOGraph;
                             radius: 3,
                             lineWidth: 0
                         },
-                        lineWidth: 2
+                        lineWidth: 0
                     }
                 ]
             });
