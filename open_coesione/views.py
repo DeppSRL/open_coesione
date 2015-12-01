@@ -297,7 +297,9 @@ class SpesaCertificataGraficiView(RisorsaView):
                     if date_data:
                         dates_data.append((datetime.strptime(date, '%Y%m%d').strftime('%d/%m/%Y'), date_data))
 
-                for type_name, type_key in [('Target', 'target'), ('Risultato (spesa certificata)', 'risultato_spesa'), ('Risultato (pagamenti)', 'risultato_pagamenti')]:
+                dates_data[-1][1]['target'] = 0.0  # richiesta di Chiara Ricci del 01/12/2015
+
+                for type_name, type_key in [('Obiettivo nazionale di spesa certificata', 'target'), ('Spesa certificata su dotazione', 'risultato_spesa'), ('Pagamenti su dotazione', 'risultato_pagamenti')]:
                     data[group_key].append(OrderedDict([('Programma operativo', program_name), ('Tipo dato', type_name)] + [(date, format_number(date_data.get(type_key))) for date, date_data in dates_data]))
 
         context = super(SpesaCertificataGraficiView, self).get_context_data(**kwargs)
