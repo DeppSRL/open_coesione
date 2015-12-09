@@ -38,7 +38,7 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
 
         logger = logging.getLogger('console')
 
-        tematizzazione = self.request.GET['tematizzazione']
+        tematizzazione = self.request.GET.get('tematizzazione', 'totale_costi')
 
 
         # calcolo dei collaboratori con cui si spartiscono piu' soldi
