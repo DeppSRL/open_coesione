@@ -5,7 +5,8 @@
 {% block container %}
     <div class="container" id="content-header">
         <div class="row">
-            <div id="map-layer-selector" class="span6 block-container">
+            {% block layer-selector %}
+            <div id="map-layer-selector" class="{% block selector-span %}span6{% endblock %} block-container">
                 <a href="{{ request.path }}?tematizzazione=totale_costi" class="block-chart{% if tematizzazione == 'totale_costi' %} block-active{% endif %}" data-dataset="totale_costi">
                     <strong class="title">Finanziamenti monitorati</strong>
                     <p>{{ totale_costi|intword }} <span>di euro</span></p>
@@ -23,8 +24,8 @@
                     <p>{{ totale_progetti|intcomma }}</p>
                     {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
                 </a>
-                {% block anagrafica_sogg_miur %}{% endblock %}
             </div>
+            {% endblock %}
 
             {% block top_content %}{% endblock %}
         </div>

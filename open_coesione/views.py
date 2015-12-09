@@ -60,6 +60,14 @@ class XRobotsTagTemplateResponseMixin(TemplateResponseMixin):
 
 
 class AggregatoMixin(object):
+    def get_blocks_totals(self, tematizzazione, **filter):
+        return dict(
+            totale_costi=Progetto.objects.totale_costi(**filter),
+            totale_pagamenti=Progetto.objects.totale_pagamenti(**filter),
+            totale_progetti=Progetto.objects.totale_progetti(**filter),
+            tematizzazione=tematizzazione
+        )
+
     def get_aggregate_data(self, context, **filter):
         if len(filter) > 1:
             raise Exception('Only one filter kwargs is accepted')
@@ -69,13 +77,8 @@ class AggregatoMixin(object):
 
         # read tematizzazione GET param
         tematizzazione = self.request.GET.get('tematizzazione', 'totale_costi')
-
-        context = dict(
-            totale_costi=Progetto.objects.totale_costi(**filter),
-            totale_pagamenti=Progetto.objects.totale_pagamenti(**filter),
-            totale_progetti=Progetto.objects.totale_progetti(**filter),
-            tematizzazione=tematizzazione,
-            **context
+        context.update(
+            self.get_blocks_totals(tematizzazione, **filter)
         )
         context['percentuale_costi_pagamenti'] = '{0:.0%}'.format(
             context['totale_pagamenti'] /
