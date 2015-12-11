@@ -23,7 +23,6 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
         return 'noindex' if self.object.privacy_flag else False
 
     def get_context_data(self, **kwargs):
-
         # look for context in cache,
         # only for soggetti with a high number of progetti
         cache_key = None
@@ -37,9 +36,6 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
         context = super(SoggettoView, self).get_context_data(**kwargs)
 
         logger = logging.getLogger('console')
-
-        tematizzazione = self.request.GET.get('tematizzazione', 'totale_costi')
-
 
         # calcolo dei collaboratori con cui si spartiscono piu' soldi
         logger.debug('top_collaboratori start')
@@ -71,21 +67,22 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
         context['top_progetti'] = [Progetto.objects.get(pk=p['codice_locale']) for p in self.object.progetti.values('codice_locale', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]]
         # logger.debug('top_progetti end')
 
+        # calcolo dei comuni un cui questo soggetto ha operato di piu'
+        # logger.debug('territori_piu_finanziati_pro_capite start')
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
+            filters={'progetto__soggetto_set__pk': self.object.pk}
+        )
 
-
-        if tematizzazione == 'anagrafica':
+        if self.request.GET.get('tematizzazione', 'totale_costi') == 'anagrafica':
+            context['tematizzazione'] = 'anagrafica'
             context.update(
-                self.get_blocks_totals(tematizzazione, soggetto=self.object)
+                self.get_totals(soggetto=self.object)
             )
+
+            self.template_name = 'soggetti/soggetto_detail_anagrafica.html'
         else:
             logger.debug('get_aggregate_data start')
             context = self.get_aggregate_data(context, soggetto=self.object)
-
-            # calcolo dei comuni un cui questo soggetto ha operato di piu'
-            # logger.debug('territori_piu_finanziati_pro_capite start')
-            context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
-                filters={'progetto__soggetto_set__pk': self.object.pk}
-            )
 
             # calcolo dei totali di finanziamenti per regione (e nazioni)
             context['lista_finanziamenti_per_regione'] = []
@@ -123,7 +120,6 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
             # costruzione lista per le regioni
             # logger.debug('::fetch dati_regioni start')
             for regione in Territorio.objects.regioni().defer('geom'):
-
                 # logger.debug('::::regione {0}'.format(regione))
 
                 # progetti del soggetto localizzati in territori della regione
@@ -153,7 +149,6 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
 
             # logger.debug('::fetch dati_nazioni start')
             for nazione in Territorio.objects.filter(territorio__in=['N', 'E']).defer('geom').order_by('-territorio'):
-
                 queryset = Progetto.objects.del_soggetto(self.object).nel_territorio(nazione).exclude(
                     # tutti i progetti in una nazione realizzati dal soggetto NON multi localizzati nella nazione
                     # (e neanche nelle regioni, che sono già stati eliminati prima)
@@ -188,9 +183,7 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
 
             # TODO quando avremo realizzatori e destinatari posso prendere tutti i ruoli
             for tipo_ruolo, nome_ruolo in Ruolo.RUOLO[:2]:
-
                 for progetto_id, tot in Ruolo.objects.filter(soggetto=self.object, ruolo=tipo_ruolo).annotate(tot=aggregazione_ruolo).values_list('progetto_id', 'tot'):
-
                     if progetto_id not in progetto_to_ruoli:
                         progetto_to_ruoli[progetto_id] = {}
                     progetto_to_ruoli[progetto_id][nome_ruolo] = float(tot if tot else 0)
@@ -198,7 +191,6 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
             dict_finanziamenti_per_ruolo = {}
 
             for progetto_id in progetto_to_ruoli:
-
                 is_multiple = len(progetto_to_ruoli[progetto_id]) > 1
 
                 if is_multiple:

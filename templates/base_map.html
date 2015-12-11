@@ -6,25 +6,25 @@
     <div class="container" id="content-header">
         <div class="row">
             {% block layer-selector %}
-            <div id="map-layer-selector" class="{% block selector-span %}span6{% endblock %} block-container">
-                <a href="{{ request.path }}?tematizzazione=totale_costi" class="block-chart{% if tematizzazione == 'totale_costi' %} block-active{% endif %}" data-dataset="totale_costi">
-                    <strong class="title">Finanziamenti monitorati</strong>
-                    <p>{{ totale_costi|intword }} <span>di euro</span></p>
-                    {% if tematizzazione == 'totale_costi' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-                </a>
+                <div id="map-layer-selector" class="{% block selector-span %}span6{% endblock %} block-container">
+                    <a href="{{ request.path }}?tematizzazione=totale_costi" class="block-chart{% if tematizzazione == 'totale_costi' %} block-active{% endif %}" data-dataset="totale_costi">
+                        <strong class="title">Finanziamenti monitorati</strong>
+                        <p>{{ totale_costi|intword }} <span>di euro</span></p>
+                        {% if tematizzazione == 'totale_costi' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+                    </a>
 
-                <a href="{{ request.path }}?tematizzazione=totale_pagamenti" class="block-chart{% if tematizzazione == 'totale_pagamenti' %} block-active{% endif %}" title="{{ percentuale_costi_pagamenti }} del totale" data-dataset="totale_pagamenti">
-                    <strong class="title">Pagamenti monitorati</strong>
-                    <p>{{ totale_pagamenti|intword }} <span>di euro</span></p>
-                    {% if tematizzazione == 'totale_pagamenti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-                </a>
+                    <a href="{{ request.path }}?tematizzazione=totale_pagamenti" class="block-chart{% if tematizzazione == 'totale_pagamenti' %} block-active{% endif %}" title="{{ percentuale_costi_pagamenti }} del totale" data-dataset="totale_pagamenti">
+                        <strong class="title">Pagamenti monitorati</strong>
+                        <p>{{ totale_pagamenti|intword }} <span>di euro</span></p>
+                        {% if tematizzazione == 'totale_pagamenti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+                    </a>
 
-                <a href="{{ request.path }}?tematizzazione=totale_progetti" class="block-chart{% if tematizzazione == 'totale_progetti' %} block-active{% endif %}" data-dataset="totale_progetti">
-                    <strong class="title">Progetti monitorati</strong>
-                    <p>{{ totale_progetti|intcomma }}</p>
-                    {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-                </a>
-            </div>
+                    <a href="{{ request.path }}?tematizzazione=totale_progetti" class="block-chart{% if tematizzazione == 'totale_progetti' %} block-active{% endif %}" data-dataset="totale_progetti">
+                        <strong class="title">Progetti monitorati</strong>
+                        <p>{{ totale_progetti|intcomma }}</p>
+                        {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+                    </a>
+                </div>
             {% endblock %}
 
             {% block top_content %}{% endblock %}

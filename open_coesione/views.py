@@ -60,12 +60,11 @@ class XRobotsTagTemplateResponseMixin(TemplateResponseMixin):
 
 
 class AggregatoMixin(object):
-    def get_blocks_totals(self, tematizzazione, **filter):
+    def get_totals(self, **filter):
         return dict(
             totale_costi=Progetto.objects.totale_costi(**filter),
             totale_pagamenti=Progetto.objects.totale_pagamenti(**filter),
             totale_progetti=Progetto.objects.totale_progetti(**filter),
-            tematizzazione=tematizzazione
         )
 
     def get_aggregate_data(self, context, **filter):
@@ -76,10 +75,12 @@ class AggregatoMixin(object):
             raise Exception('Filter "programma" is deprecated')
 
         # read tematizzazione GET param
-        tematizzazione = self.request.GET.get('tematizzazione', 'totale_costi')
+        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
+
         context.update(
-            self.get_blocks_totals(tematizzazione, **filter)
+            self.get_totals(**filter)
         )
+
         context['percentuale_costi_pagamenti'] = '{0:.0%}'.format(
             context['totale_pagamenti'] /
             context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0

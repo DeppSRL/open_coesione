@@ -6,29 +6,30 @@
 {% block page_description %}Informazioni sui progetti in cui partecipa {{ soggetto }}{% endblock %}
 
 {% block layer-selector %}
-<div id="map-layer-selector" class="span8 block-container">
-    <a href="{{ request.path }}?tematizzazione=totale_costi" class="block-chart block-chart-soggetto{% if tematizzazione == 'totale_costi' %} block-active{% endif %}" data-dataset="totale_costi">
-        <strong class="title">Finanziamenti monitorati</strong>
-        <p>{{ totale_costi|intword }} <span>di euro</span></p>
-        {% if tematizzazione == 'totale_costi' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-    </a>
+    <div id="map-layer-selector" class="{% block selector-span %}span8{% endblock %} block-container">
+        <a href="{{ request.path }}?tematizzazione=totale_costi" class="block-chart block-chart-soggetto{% if tematizzazione == 'totale_costi' %} block-active{% endif %}" data-dataset="totale_costi">
+            <strong class="title">Finanziamenti monitorati</strong>
+            <p>{{ totale_costi|intword }} <span>di euro</span></p>
+            {% if tematizzazione == 'totale_costi' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+        </a>
 
-    <a href="{{ request.path }}?tematizzazione=totale_pagamenti" class="block-chart block-chart-soggetto{% if tematizzazione == 'totale_pagamenti' %} block-active{% endif %}" title="{{ percentuale_costi_pagamenti }} del totale" data-dataset="totale_pagamenti">
-        <strong class="title">Pagamenti monitorati</strong>
-        <p>{{ totale_pagamenti|intword }} <span>di euro</span></p>
-        {% if tematizzazione == 'totale_pagamenti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-    </a>
+        <a href="{{ request.path }}?tematizzazione=totale_pagamenti" class="block-chart block-chart-soggetto{% if tematizzazione == 'totale_pagamenti' %} block-active{% endif %}" title="{{ percentuale_costi_pagamenti }} del totale" data-dataset="totale_pagamenti">
+            <strong class="title">Pagamenti monitorati</strong>
+            <p>{{ totale_pagamenti|intword }} <span>di euro</span></p>
+            {% if tematizzazione == 'totale_pagamenti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+        </a>
 
-    <a href="{{ request.path }}?tematizzazione=totale_progetti" class="block-chart block-chart-soggetto{% if tematizzazione == 'totale_progetti' %} block-active{% endif %}" data-dataset="totale_progetti">
-        <strong class="title">Progetti monitorati</strong>
-        <p>{{ totale_progetti|intcomma }}</p>
-        {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-    </a>
-   <a href="{{ request.path }}?tematizzazione=anagrafica" class="block-chart" style="width:24%" id="button_anagrafica_indicatori">
-        <strong class="title">Anagrafica e Altri Dettagli</strong>
-        <i class="icon-undo"></i>
-    </a>
-</div>
+        <a href="{{ request.path }}?tematizzazione=totale_progetti" class="block-chart block-chart-soggetto{% if tematizzazione == 'totale_progetti' %} block-active{% endif %}" data-dataset="totale_progetti">
+            <strong class="title">Progetti monitorati</strong>
+            <p>{{ totale_progetti|intcomma }}</p>
+            {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+        </a>
+
+       <a href="{{ request.path }}?tematizzazione=anagrafica" class="block-chart block-chart-soggetto{% if tematizzazione == 'anagrafica' %} block-active{% endif %}" style="width:24%" id="button_anagrafica_indicatori">
+            <strong class="title">Anagrafica e Altri Dettagli</strong>
+            {% if tematizzazione == 'anagrafica' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+        </a>
+    </div>
 {% endblock %}
 
 {% block top_content %}
@@ -37,133 +38,27 @@
     </div>
 {% endblock %}
 
+{% block page_header %}
+    <div class="span12">
+        <h1 class="title violet"><span>{{ soggetto }}</span></h1>
+        <p style="padding: 0 25px">
+            <span class="icon-align-justify"> <a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}">Tutti i progetti</a></span>
+        </p>
+
+        <ul class="unstyled">
+            {% if soggetto.forma_giuridica %}<li>{{ soggetto.forma_giuridica }}</li>{% endif %}
+            {% if soggetto.indirizzo %}<li>{{ soggetto.indirizzo }}</li>{% endif %}
+            {% if soggetto.territorio %}<li>{% if soggetto.cap %}{{ soggetto.cap }}{% endif %} {{ soggetto.territorio }}</li>{% endif %}
+            {% if soggetto.rappresentante_legale %}<li>Rappresentante legale: {{ soggetto.rappresentante_legale }}</li>{% endif %}
+            {% if soggetto.codice_fiscale.strip %}<li>CF.: {{ soggetto.codice_fiscale }}</li>{% endif %}
+        </ul>
+    </div>
+{% endblock %}
 
 {% block container %}
-    {% if tematizzazione == 'anagrafica' %}
+    {{ block.super }}
 
-        <div class="container" id="content-header">
-            <div class="row">
-                <div id="map-layer-selector" class="{% block selector-span %}span8{% endblock %} block-container">
-                <a href="{{ request.path }}?tematizzazione=totale_costi" class="block-chart block-chart-soggetto{% if tematizzazione == 'totale_costi' %} block-active{% endif %}" data-dataset="totale_costi"8
-                    <strong class="title">Finanziamenti monitorati</strong>
-                    <p>{{ totale_costi|intword }} <span>di euro</span></p>
-                    {% if tematizzazione == 'totale_costi' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-                </a>
-
-                <a href="{{ request.path }}?tematizzazione=totale_pagamenti" class="block-chart block-chart-soggetto{% if tematizzazione == 'totale_pagamenti' %} block-active{% endif %}" title="{{ percentuale_costi_pagamenti }} del totale" data-dataset="totale_pagamenti">
-                    <strong class="title">Pagamenti monitorati</strong>
-                    <p>{{ totale_pagamenti|intword }} <span>di euro</span></p>
-                    {% if tematizzazione == 'totale_pagamenti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-                </a>
-
-                <a href="{{ request.path }}?tematizzazione=totale_progetti" class="block-chart block-chart-soggetto{% if tematizzazione == 'totale_progetti' %} block-active{% endif %}" data-dataset="totale_progetti">
-                    <strong class="title">Progetti monitorati</strong>
-                    <p>{{ totale_progetti|intcomma }}</p>
-                    {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-                </a>
-                   <a href="{{ request.path }}?tematizzazione=anagrafica" class="block-chart block-active" style="width:24%" id="button_anagrafica_indicatori">
-                        <strong class="title">Anagrafica e Altri Dettagli</strong>
-                        <i class="icon-undo"></i>
-                       <div class="caret"></div>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="area">
-            <div class="container">
-                <div class="row" id="statistics">
-                    {% add_data 'js-data' 'js/amcharts/amcharts.js' %}
-                    {% add_data 'js-data' 'js/amcharts/serial.js' %}
-                    {% add_data 'js-data' 'js/amcharts/pie.js' %}
-                    <script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3&sensor=false"></script>
-
-                    <script type="text/javascript">
-                    $( document ).ready(function() {
-                      var id = '{{ soggetto.pk|safe }}';
-
-                      $.getJSON( "{{ MIUR_EXT_API_URL }}indicatori_soggetti?id="+id, function( data ) {
-                        var items = [];
-                        $("#api_result").html(data.result.html);
-                        eval(data.result.js);
-
-                        if($("#codice_meccanografico").length){
-                          $("#button_anagrafica_indicatori").css('display','block');
-                        }else{
-                          $("#button_anagrafica_indicatori").css('display','none');
-                        }
-                      });
-                    });
-                    </script>
-
-                    <div class="span12">
-                        <h1 class="title violet"><span>{{ soggetto }}</span></h1>
-                        <p style="padding: 0 25px">
-                            <span class="icon-align-justify"> <a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}">Tutti i progetti</a></span>
-                        </p>
-
-                        <ul class="unstyled">
-                            {% if soggetto.forma_giuridica %}<li>{{ soggetto.forma_giuridica }}</li>{% endif %}
-                            {% if soggetto.indirizzo %}<li>{{ soggetto.indirizzo }}</li>{% endif %}
-                            {% if soggetto.territorio %}<li>{% if soggetto.cap %}{{ soggetto.cap }}{% endif %} {{ soggetto.territorio }}</li>{% endif %}
-                            {% if soggetto.rappresentante_legale %}<li>Rappresentante legale: {{ soggetto.rappresentante_legale }}</li>{% endif %}
-                            {% if soggetto.codice_fiscale.strip %}<li>CF.: {{ soggetto.codice_fiscale }}</li>{% endif %}
-                        </ul>
-                    </div>
-
-                    <!-- evodevo api call -->
-                    <div id="api_result">
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% else %}
-        {{ block.super }}
-    {% endif %}
-
-
-
-
-    <div class="container">
-        <div class="row">
-            <section class="span6">
-                <h2 class="title"><span>Progetti con maggiori finanziamenti</span></h2>
-                <table class="table">
-                    {% for progetto in top_progetti %}
-                        <tr>
-                            <th><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></th>
-                            <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </section>
-            <section class="span6">
-                <h2 class="title"><span>I soggetti con cui lavora di più</span></h2>
-                <table class="table">
-                    {% for partner in top_collaboratori %}
-                        <tr>
-                            <th><a href="{{ partner.soggetto.get_absolute_url }}">{{ partner.soggetto }}</a></th>
-                            <td class="amount"><strong>{{ partner.numero }}</strong> progetti</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </section>
-        </div>
-
-        <section class="row">
-            <div class="span4">
-                <h2 class="title"><span>I comuni con più progetti</span></h2>
-                <table class="table">
-                    {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
-                        <tr>
-                            <th><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></th>
-                            <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
-        </section>
-    </div>
+    {% include 'soggetti/includes/soggetto_detail_bottomboxes.html' %}
 {% endblock %}
 
 {% block map %}
