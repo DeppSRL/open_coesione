@@ -4,6 +4,19 @@
 
 {% block page_title %}Homepage{% endblock %}
 
+{% block banner %}
+    <div id="banner-container">
+        <div id="banner">
+            <a href="/programmazione_2014_2020/">Verso la programmazione 2014-2020</a>
+            <ul>
+                <li><a id="risorse" href="/risorse_2014_2020/">Risorse</a></li>
+                <li><a id="programmi" href="/programmi_2014_2020/">Programmi</a></li>
+                <li><a id="bandi" href="/bandi_progetti_2014_2020/">Bandi e Progetti</a></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
 {% block top_content %}
     <div id="claim-container">
         <a class="block-chart block-gray pull-right" href="{% url 'fonti-finanziamento' %}">
