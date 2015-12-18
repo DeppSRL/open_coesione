@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url, include
-from territori.views import RegioneView, ComuneView, ProvinciaView, AmbitoNazionaleView, InfoView, TilesConfigView, AutocompleteView, RegioneCSVView, ProvinciaCSVView, AmbitoEsteroView, ChartView
+from territori.views import RegioneView, ComuneView, ProvinciaView, AmbitoNazionaleView, InfoView, TilesConfigView, AutocompleteView, RegioneCSVView, ProvinciaCSVView, AmbitoEsteroView
 
 urlpatterns = patterns('',
     url(r'^regioni/(?P<slug>[-\w]+)/$', RegioneView.as_view(), name='territori_regione'),
@@ -28,5 +28,4 @@ urlpatterns = patterns('',
     url(r'^tiles.cfg$', TilesConfigView.as_view(), name='territori_tiles_cfg'),
     url(r'^mapnik/', include('territori.urls.mapnik')),
     url(r'^leaflet/', include('territori.urls.leaflet')),
-    url(r'^charts.html$', ChartView.as_view(), name='territori_charts'),
 )

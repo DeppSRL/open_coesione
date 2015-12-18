@@ -715,18 +715,3 @@ class ProvinciaCSVView(BaseCSVView):
                 unicode(self.object.denominazione),
                 '{0:.2f}'.format(.0).replace('.', ',')
             ])
-
-
-class ChartView(TemplateView):
-    template_name = 'territori/index_chart.html'
-
-    def get_context_data(self, **kwargs):
-        from progetti.models import Tema
-        from territori.models import Territorio
-        return {
-            'params': kwargs,
-            'temi_principali': Tema.objects.principali(),
-            'tema': Tema.objects.get(codice=self.request.GET.get('tema', '1')),
-            'regioni': Territorio.objects.regioni(),
-            'territorio': Territorio.objects.get(cod_reg=self.request.GET.get('regione', '1'), territorio=Territorio.TERRITORIO.R),
-        }

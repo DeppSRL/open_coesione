@@ -1,6 +1,6 @@
 {% extends 'base_map.html' %}
 
-{% load staticfiles sekizai_tags %}
+{% load sekizai_tags %}
 
 {% block page_title %}Tema: {{ tema.short_label }}{% endblock %}
 
@@ -24,25 +24,25 @@
                 <h1>Indicatori sul tema: {{ tema.short_label }}</h1>
 
                 <div class="accordion" id="index_charts">
-                    {% for indice in lista_indici_tema %}
+                    {% for indicatore in tema.indicatori.with_value %}
                         <div class="accordion-group">
                             <div class="accordion-heading">
-                                <h2 class="accordion-toggle" data-toggle="collapse" data-target="#index_{{ indice.ID }}">
-                                    {{ indice.Titolo }}
+                                <h2 class="accordion-toggle" data-toggle="collapse" data-target="#index_{{ indicatore.codice }}">
+                                    {{ indicatore.titolo }}
                                     <i class="icon-circle-arrow-down pull-right"></i>
                                 </h2>
                             </div>
-                            <div id="index_{{ indice.ID }}" data-topic="{{ tema.codice }}" data-index="{{ indice.ID }}" class="accordion-body collapse">
+                            <div id="index_{{ indicatore.codice }}" data-topic="{{ tema.codice }}" data-indicator="{{ indicatore.codice }}" class="accordion-body collapse">
                                 <div class="accordion-inner">
                                     {% if forloop.first %}
                                         <div id="topic_chart" style="height: 270px"></div>
                                         <form action="#">
                                             <div class="input-append text-center">
                                                 {% spaceless %}
-                                                    <select id="region-selector" class="span3">
+                                                    <select id="location-selector" class="span3">
                                                         <option value=""> -- Confronta le regioni -- </option>
                                                     </select>
-                                                    <a id="region-reset" class="btn add-on" href="#">reset</a>
+                                                    <a id="location-reset" class="btn add-on" href="#">reset</a>
                                                 {% endspaceless %}
                                             </div>
                                         </form>
@@ -58,12 +58,11 @@
 
     {% add_data 'js-data' 'js/bootstrap-collapse.js' %}
     {% add_data 'js-data' 'js/highcharts.js' %}
-    {% add_data 'js-data' 'js/oc-charts.js' %}
     {% add_data 'js-data' 'js/oc-indicatori.js' %}
     {% addtoblock 'js' strip %}
         <script>
             $(document).ready(function() {
-                init_charts('#index_charts', '{% static '' %}', 1 ,{{ lista_regioni|length|add:1 }});
+                var G = new IndicatorsGraph('#index_charts', 1, {{ lista_regioni|length|add:1 }});
             });
         </script>
     {% endaddtoblock %}

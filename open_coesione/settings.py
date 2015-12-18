@@ -174,6 +174,7 @@ INSTALLED_APPS = (
     'blog',
     'idioticon',
     'tagging',
+    'open_coesione.charts',
 )
 
 DEBUG_TOOLBAR_PANELS = (

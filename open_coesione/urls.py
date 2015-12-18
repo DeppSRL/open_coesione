@@ -36,6 +36,9 @@ urlpatterns = patterns('',
     # blog
     url(r'^news/', include('blog.urls')),
 
+    # charts
+    url(r'^charts/', include('open_coesione.charts.urls')),
+
     # pillole
     # url(r'^pillole/(?P<path>.+)$', PillolaRedirectView.as_view(), name='pillole_clean'),
     url(r'^pillole/$', PillolaListView.as_view(), name='pillole'),

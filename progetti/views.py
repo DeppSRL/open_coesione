@@ -524,12 +524,6 @@ class TemaView(AccessControlView, AggregatoMixin, DetailView):
 
         context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().con_tema(self.object).conclusi()[:5]
 
-        context['lista_indici_tema'] = []
-        with open(os.path.join(settings.STATIC_ROOT, 'csv/indicatori/{}.csv'.format(self.object.codice))) as csvfile:
-            reader = csv.DictReader(csvfile)
-            for line in reader:
-                context['lista_indici_tema'].append(line)
-
         return context
 
 
