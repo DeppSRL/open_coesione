@@ -77,6 +77,9 @@ urlpatterns = patterns('',
     url(r'^spesa-certificata-grafici/', SpesaCertificataGraficiView.as_view(template_name='open_coesione/spesa_certificata_grafici.html'), name='spesa-certificata-grafici'),
     url(r'^fonti-di-finanziamento/$', FondiView.as_view(template_name='open_coesione/fonti_finanziamento.html'), name='fonti-finanziamento'),
 
+    url(r'^fonti-di-finanziamento-1420/$', FondiView.as_view(template_name='open_coesione/fonti_finanziamento_1420.html'), name='fonti-finanziamento'),
+
+
     url(r'^opendata/(?P<path>.+)$', OpendataRedirectView.as_view(), name='opendata_clean'),
     url(r'^opendata/$', OpendataView.as_view(template_name='open_coesione/opendata.html'), name='opendata'),
 

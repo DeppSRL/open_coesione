@@ -1,0 +1,95 @@
+{% extends 'base_two_columns.html' %}
+
+{% load sekizai_tags humanize %}
+
+{% block page_title %}Fonti di finanziamento 2014-2020{% endblock %}
+
+{% block content %}
+    <div class="flat_content">
+        <h1>Fonti di finanziamento 2014-2020</h1>
+
+        <p>
+            In Italia le politiche regionali di coesione sono finanziate sia da fondi europei, ai quali è associato un co-finanziamento nazionale, sia da fondi nazionali.
+            Sono attuate da amministrazioni centrali di settore e da amministrazioni regionali con il coordinamento centrale.
+        </p>
+        <p>
+            Le politiche regionali di coesione agiscono, pur con differenza d’intensità, in tutto il Paese.
+        </p>
+        <p>
+            Complessivamente, le risorse finanziarie attualmente disponibili per il ciclo di programmazione 2014-2020
+            ammontano a circa >>XXXXX<< miliardi di euro,
+            e sono composte da diversi fondi, come indicato nella tabella.
+        </p>
+
+        <h3>Risorse finanziarie disponibili 2014-2020 ( dato di dicembre 2015, in milioni di € )</h3>
+
+        {% addtoblock 'js' strip %}
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/1.5.3/numeral.min.js"></script>
+        {% endaddtoblock %}
+        {% addtoblock 'css' strip %}
+            <link rel="stylesheet" type="text/css" href="/static/css/spesatot_viz.css">
+        {% endaddtoblock %}
+        {% add_data 'js-data' 'js/oc-spesatot-viz-1420.js' %}
+        <div id="spesatot_viz" class="wrapper">
+            <div id="legend"></div>
+            <div id="graph"></div>
+    	</div>
+
+    </div>
+
+{% endblock %}
+
+{% block sidebar %}
+    <div class="flat_content">
+        <p id="claim">
+            “Per promuovere lo sviluppo economico, la coesione e la solidarietà sociale, per rimuovere gli squilibri economici e sociali,
+            per favorire l'effettivo esercizio dei diritti della persona, o per provvedere a scopi diversi dal normale esercizio delle loro funzioni,
+            lo Stato destina risorse aggiuntive ed effettua interventi speciali in favore di determinati Comuni, Province, Città metropolitane e Regioni.”<br/>
+            <i>Dall’art. 119 della <a href="http://www.governo.it/governo/costituzione/principi.html">Costituzione</a> della Repubblica Italiana</i>
+        </p>
+
+        <h3>Glossario</h3>
+
+        <br/>
+
+        <h4>Cosa sono i programmi operativi</h4>
+        <p>I fondi europei (insieme al co-finanziamento nazionale) assegnati ai territori vengono impegnati attraverso programmi operativi. Nell’attuale ciclo di programmazione 2007-2013 i programmi operativi che impiegano FESR e FSE sono 66.</p>
+
+        <h4>Che cosa sono i PON</h4>
+        <p>Programmi operativi nazionali, hanno come Autorità di gestione (cioè l’amministrazione incaricata di gestire i fondi assegnati al programma) un’amministrazione centrale nazionale, per esempio un Ministero.</p>
+
+        <h4>Che cosa sono i POR</h4>
+        <p>Programmi operativi regionali, hanno come Autorità di gestione una Regione.</p>
+
+        <h4>Che cosa sono i POIN</h4>
+        <p>Programmi operativi inter-regionali. Si sceglie il livello inter-regionale, piuttosto che quello regionale, quando lo scopo è quello di agire su economie di scala o di scopo. La gestione dei POIN è congiunta: viene affidata alle Regioni con la partecipazione di centri di competenza nazionale o di amministrazioni centrali.</p>
+
+        <h4>Che cos’è il FESR</h4>
+        <p>Fondo europeo per lo sviluppo regionale. Viene utilizzato per finanziare i programmi operativi nazionali e regionali in tutti i territori. Sostiene programmi in materia di sviluppo regionale, di potenziamento della competitività, di investimenti nella ricerca e nello sviluppo sostenibile.</p>
+
+        <h4>Che cos’è il FSE</h4>
+        <p>Fondo sociale europeo. Destinato a sostenere l’occupazione negli Stati membri e per promuovere la coesione economica e sociale. È modellato sulla strategia europea per l’occupazione e si concentra sull’inclusione sociale e su un accesso al mercato del lavoro privo di discriminazioni di genere.</p>
+
+        <h4>Che cosa è la Cooperazione territoriale europea:</h4>
+        <p>Sono programmi intesi a rafforzare la cooperazione transfrontaliera, transnazionale ed interregionale, promuovendo la ricerca di soluzioni congiunte a problemi comuni tra le autorità confinanti. L'azione è finanziata dal Fondo europeo di sviluppo regionale.</p>
+
+        <h4>Che cosa è il Fondo Sviluppo e Coesione (FSC)?</h4>
+        <p>
+            Fondo per lo sviluppo e la coesione è la nuova denominazione del Fondo per le aree sottoutilizzate,
+            di cui all’articolo 61 della legge 289/2002. Rappresenta lo strumento strategico e operativo
+            privilegiato per dare unità programmatica e finanziaria agli interventi aggiuntivi, volti al riequilibrio
+            economico e sociale tra le diverse aree del Paese. In particolare, il Fondo finanzia gli interventi speciali
+            dello Stato e l’erogazione di contributi speciali:
+        </p>
+        <ul>
+            <li>sia di carattere infrastrutturale, sia di carattere immateriale</li>
+            <li>di rilievo nazionale, interregionale e regionale</li>
+            <li>
+                aventi natura di grandi progetti o di investimenti articolati in singoli interventi tra loro funzionalmente connessi,
+                in relazione a obiettivi e risultati quantificabili e misurabili, anche per quanto attiene al profilo temporale.
+                La programmazione è deliberata dal <a href="http://www.cipecomitato.it/it/">CIPE</a>
+            </li>
+        </ul>
+    </div>
+{% endblock %}
