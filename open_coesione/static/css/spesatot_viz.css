@@ -28,7 +28,7 @@ text {
 .D1 text {
 	fill: white;
 	font-size:120%;
-	text-shadow: 0 0 15px #3e725c;
+	text-shadow: 0 0 8px #000000;
 }
 
 .D1:hover text {

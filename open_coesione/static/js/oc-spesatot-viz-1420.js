@@ -16,12 +16,14 @@ $(document).ready(function(){
         }
     });
 
+    numeral.language('it');
+
     var width = $('#spesatot_viz').innerWidth(),
         height = width,
         minSqPixToShow = 5000;
 
     /* This one is used to map colors and URL from L1 values in the .csv so modify it in case of top level domain */
-    var domainL1 = ["Fondi SIE", "Programmi CTE", "Programmi FEAD", "Programmi Complementari e PAC", "Fondo FSC"];
+    var domainL1 = ["Fondi SIE", "CTE", "FEAD", "Programmi Complementari e PAC", "Fondo FSC"];
 
     var color = d3.scale.ordinal()
         .domain(domainL1)
@@ -88,7 +90,7 @@ $(document).ready(function(){
                 tspan = text.append("tspan").attr("dy", lineHeight + "em").attr("x", d.dx/2).text(word);
             }
         }
-        text.append("tspan").attr("dy", lineHeight + "em").attr("x", d.dx/2).text(numeral(+d.value).format('0,0[.]00'));
+        text.append("tspan").attr("dy", lineHeight + "em").attr("x", d.dx/2).text(numeral(+d.value).format('0,0.00'));
     }
 
     var json = { name:"", children:[]};
