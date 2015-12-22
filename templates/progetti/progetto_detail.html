@@ -189,56 +189,9 @@
 
             <aside id="sidebar" class="span6">
                      <div class="row">
-                        {% add_data 'js-data' 'js/amcharts/amcharts.js' %}
-                        {% add_data 'js-data' 'js/amcharts/serial.js' %}
-                        {% add_data 'js-data' 'js/amcharts/pie.js' %}
-                        {% add_data 'js-data' 'js/amcharts/pie.js' %}
-
-                        {% addtoblock 'css' %}
-                        <style type="text/css">
-                          .api_chart {
-                            width   : 100%;
-                            height    : 500px;
-                            font-size : 11px;
-                          }
-
-                          .amcharts-export-menu-top-right {
-                            top: 10px;
-                            right: 0;
-                          }
-                        </style>
-                        {% endaddtoblock %}
-
-          <div class="tabbable boxed">
-              <!-- Only required for left/right tabs -->
-              <ul class="nav nav-tabs">
-                  <li class="active"><a href="#finanziamenti" data-toggle="tab">Risorse pubbliche</a>
-                  </li>
-                  <li id="tab_indicatori"><a href="#indicatori" data-toggle="tab">Vuoi saperne di più?</a>
-                  </li>
-              </ul>
-         </div>
- 
-
-          <script type="text/javascript">
-          $( document ).ready(function() {
-            var id = '{{ progetto.pk }}';
-          
-            $.getJSON( "http://oc2.staging.deppsviluppo.org:8000/api/indicatori_progetti?id="+id, function( data ) {
-              var items = [];
-              console.log(data.result);
-              if(data.result.case=='NESSUNO'){
-                $("#tab_indicatori").css('display','none');
-              }else{
-                $("#api_result").html(data.result.html);
-                eval(data.result.js);
-              } 
-              
-            });
-          });
-          </script>
-
- 
+                         <div class="span6">
+                             <h1 class="title" style="margin-left: 25px"><span>Risorse pubbliche</span></h1>
+                         </div>
                     </div>
 
                  <div class="tab-content">
