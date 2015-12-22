@@ -22,7 +22,7 @@ text {
 
 .D1 rect {
 	fill-opacity: 1;
-	cursor: pointer;
+/*	cursor: pointer; */
 }
 
 .D1 text {
@@ -36,14 +36,29 @@ text {
 	font-size:150%;
 }
 
+
 .rectHighlight rect,
 .D1 rect:hover {
 	fill-opacity: 0;
 }
+.rectHighlight rect,
+
+/* Exception to keep values in little box (2014-2020 viz) */
+.D1.exception:hover text {
+	fill: white;
+	font-size:120%;
+	text-shadow: 0 0 8px #000000;
+}
+.D1.exception rect:hover {
+	fill-opacity: 1;
+}
+.D1.exception a:hover {
+	text-decoration: none;
+}
 
 div.topSection {
 	width:75%;
-	margin:0.1em 0em;
+	margin:0.1em 0;
 }
 div.topSectionHighlight,
 div.topSection:hover {
