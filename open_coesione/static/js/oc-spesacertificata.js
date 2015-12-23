@@ -311,6 +311,7 @@ var OPCOGraph;
                         },
                         lineWidth: 2
                     },
+/*
                     {
                         name: 'Obiettivo nazionale di spesa certificata',
                         //allowPointSelect: true,
@@ -325,6 +326,7 @@ var OPCOGraph;
                         },
                         lineWidth: 0
                     },
+*/
                     {
                         name: 'Obiettivo comunitario di spesa certificata',
                         //allowPointSelect: true,
