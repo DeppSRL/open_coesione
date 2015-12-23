@@ -111,7 +111,8 @@ class Command(BaseCommand):
 
         buffer = StringIO(archivefile.read())
         zfile = zipfile.ZipFile(buffer)
-        csv_stream = zfile.read(ISTAT_FILE_NAME)
+        # csv_stream = zfile.read(ISTAT_FILE_NAME)
+        csv_stream = zfile.read([filename for filename in zfile.namelist() if filename.endswith('.csv')][0])
         self.split_csv(csv_stream)
         zfile.close()
 
