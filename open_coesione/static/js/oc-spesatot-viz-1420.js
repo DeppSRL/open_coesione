@@ -16,12 +16,14 @@ $(document).ready(function(){
         }
     });
 
+    numeral.language('it');
+
     var width = $('#spesatot_viz').innerWidth(),
         height = width,
         minSqPixToShow = 5000;
 
     /* This one is used to map colors and URL from L1 values in the .csv so modify it in case of top level domain */
-    var domainL1 = ["Fondi SIE", "Programmi CTE", "Programmi FEAD", "Programmi Complementari e PAC", "Fondo FSC"];
+    var domainL1 = ["Fondi SIE", "CTE", "FEAD", "Programmi Complementari e PAC", "Fondo FSC"];
 
     var color = d3.scale.ordinal()
         .domain(domainL1)
@@ -88,7 +90,7 @@ $(document).ready(function(){
                 tspan = text.append("tspan").attr("dy", lineHeight + "em").attr("x", d.dx/2).text(word);
             }
         }
-        text.append("tspan").attr("dy", lineHeight + "em").attr("x", d.dx/2).text(numeral(+d.value).format('0,0[.]00'));
+        text.append("tspan").attr("dy", lineHeight + "em").attr("x", d.dx/2).text(numeral(+d.value).format('0,0.00'));
     }
 
     var json = { name:"", children:[]};
@@ -165,7 +167,15 @@ $(document).ready(function(){
             }))
             .enter().append("g")
             .attr("class", function (d) {
-                return d.children ? "D" + d.depth : "leaf";
+                if (d.children) {
+                    if (d.name == "CTE" || d.name == "FEAD") {
+                        return "D1 exception"
+                    } else {
+                        return "D" + d.depth
+                    }
+                } else {
+                    return "leaf";
+                }
                 /* set a class, leaf for last level, D<level> for the others */
             })
             .attr("transform", function (d) {
@@ -176,7 +186,7 @@ $(document).ready(function(){
             });
         /* sort to get the deepest level first so we will have the level 1 on top and be able to get onmouseover event on it */
 
-	/* append rect and manage fills to all the non top-level cells */
+	    /* append rect and manage fills to all the non top-level cells */
         cell.filter(function (d){
                 return d.depth>1;
             })
@@ -246,11 +256,10 @@ $(document).ready(function(){
 
 	/* Append a link to the top level elements */
         var d1Cells = d3.selectAll(".D1")
-	    .append("a")
-	    .attr("xlink:href", function (d) {
-		    return urlL1(d.name);
-	    });
-
+	    .append("a");
+	    // .attr("xlink:href", function (d) {
+		//    return urlL1(d.name);
+	    // });
 
 	/* Append a rect and a text in the the top level elements link */
 	d1Cells.append("rect")

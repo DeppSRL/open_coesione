@@ -214,7 +214,7 @@ class FondiView(RisorsaView):
 
         context['delibere'] = DeliberaCIPE.objects.all()
         context['totale_fondi_assegnati'] = DeliberaCIPE.objects.aggregate(s=Sum('fondi_assegnati'))['s']
-
+        context['tabella_risorse_1420'] = OpendataView.get_complete_localfile('risorse_coesione_2014_2020.xlsx')
         return context
 
 

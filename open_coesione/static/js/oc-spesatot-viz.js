@@ -16,6 +16,8 @@ $(document).ready(function(){
         }
     });
 
+    numeral.language('it');
+
     var width = $('#spesatot_viz').innerWidth(),
         height = width,
         minSqPixToShow = 5000;
