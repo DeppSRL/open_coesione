@@ -9,20 +9,17 @@
         <h1>Fonti di finanziamento 2014-2020</h1>
 
         <p>
-            Le politiche per la coesione relative al ciclo di programmazione 2014-2020 sono finanziate sia da fondi europei,
-            ai quali è associato un co-finanziamento nazionale, sia da fondi nazionali.
+            Le politiche per la coesione relative al ciclo di programmazione 2014-2020 sono finanziate sia da fondi europei, ai quali è associato un co-finanziamento nazionale, sia da fondi nazionali.
             La principale fonte di risorse comunitarie è rappresentata dai Fondi Strutturali e di Investimento Europeo (SIE) che,
             rispetto al ciclo 2007-2013, includono anche le risorse per lo sviluppo rurale e per la politica marittima e della pesca.
-
         </p>
         <p>
-            Complessivamente, le risorse finanziarie disponibili riferite al settennio 2014-2020 ammontano a
-            circa 123 miliardi di euro per il settennio e costituiscono un universo in parte ancora in fase di programmazione.
-            La visualizzazione dinamica consente di esplorare le principali dimensioni in termini di contenitori programmatici,
-            risorse nazionali ed europee e aree territoriali di riferimento. Ulteriori dettagli sono contenuti nella tavola scaricabile in formato elaborabile.
+            Complessivamente, le risorse finanziarie disponibili riferite al 2014-2020 ammontano a circa 123 miliardi di euro per il settennio e costituiscono un universo in parte ancora in fase di programmazione.
+            La visualizzazione dinamica consente di esplorare le principali dimensioni in termini di contenitori programmatici, risorse nazionali ed europee e aree territoriali di riferimento.
+            Ulteriori dettagli sono contenuti nella tavola scaricabile in formato elaborabile.
         </p>
 
-        <h3>Risorse finanziarie disponibili 2014-2020 ( dato di dicembre 2015, in milioni di € )</h3>
+        <h3>Risorse finanziarie disponibili 2014-2020 (dato di dicembre 2015, in milioni di €)</h3>
 
         {% addtoblock 'js' strip %}
             <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
@@ -32,23 +29,18 @@
             <link rel="stylesheet" type="text/css" href="/static/css/spesatot_viz.css">
         {% endaddtoblock %}
         {% add_data 'js-data' 'js/oc-spesatot-viz-1420.js' %}
+
         <div id="spesatot_viz" class="wrapper">
             <div id="legend"></div>
             <div id="graph"></div>
     	</div>
 
-        <p><i>
+        <p style="font-style: italic">
             <a href="{{ tabella_risorse_1420.file_name }}">Scarica la tabella</a>
             con dettagli e note complete sulle Risorse finanziarie delle politiche di coesione
             per il periodo di programmazione 2014-2020
             ({{ tabella_risorse_1420.file_ext }}, {{ tabella_risorse_1420.file_size|filesizeformat }})
             (aggiornamento al {{ tabella_risorse_1420.file_date|date:'SHORT_DATE_FORMAT'|default:'21/12/2015' }})
-        </i></p>
-
-        <p>
-        I fondi SIE includono le risorse UE e di cofinanziamento di tutti i programmi regionali e nazionali;  le
-        risorse dei Programmi Operativi Nazionali (PON) che interessano l'intero territorio nazionale sono
-        attribuite pro quota alle macro-aree solo per FESR e FSE;
         </p>
 
         <ul>
@@ -61,7 +53,6 @@
                 così come definite dal Regolamento di disposizioni generali sui fondi SIE 2014-2020,
                 mentre la macroarea Centro-Nord considera i territori delle ‘regioni più sviluppate’, ai sensi del medesimo Regolamento.
             </li>
-
             <li>
                 Per il Fondo di Sviluppo e Coesione (FSC), a fronte della dotazione complessiva di 54.810 milioni di euro
                 (Legge di stabilità 2014, n. 147/2013, art. 1, comma 6) l'ammontare delle risorse indicate è calcolato
@@ -70,20 +61,17 @@
                 cd. "Sblocca Italia" - Legge n. 116/2014 - Legge n. 124/2015, articolo 14, comma 5).
                 La norma prevede una ripartizione territoriale pari a 80% al Mezzogiorno e 20% al Centro-Nord.
             </li>
-
             <li>
                 Gli interventi dei Programmi Complementari - Piani Azione e Coesione 2014-2020 utilizzano le risorse nazionali
                 del Fondo di Rotazione, derivanti dall'applicazione nelle ‘regioni meno sviluppate’
                 di un tasso di cofinanziamento a Programmi UE inferiore al 50% per le Regioni (POR) e al 45% per
                 le Amministrazioni centrali (PON), come indicato dalla Delibera Cipe 10/2015.
             </li>
-
             <li>
                Il valore delle risorse dei Programmi della Cooperazione Territoriale Europea (CTE)
                 considera le allocazioni UE e le risorse nazionali di cofinanziamento stabilite
                 dalla Delibera Cipe 10/2015 per i Programmi con Autorità di Gestione italiana.
             </li>
-
             <li>
                 Le attività del Programma Operativo cofinanziato dal Fondo di aiuti europei agli indigenti (FEAD) per la fornitura
                 di prodotti alimentari e/o assistenza materiale di base, sono complementari e aggiuntive rispetto a quelle
@@ -91,9 +79,7 @@
                 della povertà e dell’esclusione sociale.
             </li>
         </ul>
-
     </div>
-
 {% endblock %}
 
 {% block sidebar %}
