@@ -415,7 +415,8 @@ class Command(BaseCommand):
                 self.logger.info(u"Aggiornamento descrizione per il progetto %s" % progetto)
                 progetto.descrizione = sintesi
                 progetto.descrizione_fonte_nome = 'Open Data PON GAT'
-                progetto.descrizione_fonte_url = "http://www.dps.gov.it/it/pongat/comunicazione/elenco_beneficiari/index.html"
+                progetto.descrizione_fonte_url = 'http://www.agenziacoesione.gov.it/it/pongat/comunicazione/elenco_beneficiari/index.html'
+                # progetto.descrizione_fonte_url = 'http://www.dps.gov.it/it/pongat/comunicazione/elenco_beneficiari/index.html'
                 # progetto.descrizione_fonte_url = 'http://www.dps.tesoro.it/QSN/Pon_governance/qsn_pongovernance_elencobeneficiari.asp'
                 progetto.save()
                 updates += 1
