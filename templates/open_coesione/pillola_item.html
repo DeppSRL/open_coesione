@@ -1,3 +1,5 @@
+{% load staticfiles %}
+
 <article id="pillola-{{ object.pk }}">
     <header>
         <h1>
@@ -7,6 +9,9 @@
                 {{ object }}
             {% endif %}
             <small>{{ object.published_at|date:'d/m/Y' }}</small>
+            {% if object.in_english %}
+                <img src="{% static 'img/flag-uk.png' %}" alt="english version" />
+            {% endif %}
         </h1>
     </header>
 

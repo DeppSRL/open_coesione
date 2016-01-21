@@ -94,6 +94,7 @@ class PressReview(models.Model):
 
 class Pillola(tagging_models.TagMixin, models.Model):
     title = models.CharField(max_length=200, verbose_name='Titolo')
+    in_english = models.BooleanField(default=False, verbose_name='In inglese')
     slug = models.SlugField(max_length=255, null=True, blank=True, unique=True)
     abstract = models.TextField(max_length=1024, verbose_name='Descrizione breve', blank=True, null=True)
     description = models.TextField(max_length=1024, verbose_name='Descrizione', blank=True, null=True)
