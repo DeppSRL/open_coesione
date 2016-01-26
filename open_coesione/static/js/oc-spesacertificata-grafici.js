@@ -40,7 +40,7 @@ $(function () {
             },
             tooltip: {
                 formatter: function() {
-                    return this.series.name + ' ' + this.x + ': ' + this.y;
+                    return this.series.name + ' ' + this.x + ': ' + Highcharts.numberFormat(this.y, 0);
                 }
             },
             plotOptions: {
