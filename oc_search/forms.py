@@ -7,6 +7,7 @@ class RangeFacetedSearchForm(SearchForm):
     territorio_com = forms.IntegerField(required=False)
     territorio_prov = forms.IntegerField(required=False)
     territorio_reg = forms.IntegerField(required=False)
+    territorio_tipo = forms.CharField(required=False)
     soggetto = forms.CharField(required=False)
     fonte_fin = forms.CharField(required=False)
     gruppo_programmi = forms.CharField(required=False)
@@ -47,6 +48,8 @@ class RangeFacetedSearchForm(SearchForm):
             sqs = sqs.filter_and(territorio_reg=self.cleaned_data['territorio_reg'])
         elif self.is_valid() and self.cleaned_data.get('territorio_reg') == 0:
             sqs = sqs.filter_and(territorio_reg=self.cleaned_data['territorio_reg'])
+        if self.is_valid() and self.cleaned_data.get('territorio_tipo'):
+            sqs = sqs.filter_and(territorio_tipo=self.cleaned_data['territorio_tipo'])
 
         # aggiunge filtro soggetto, se presente
         if self.is_valid() and self.cleaned_data.get('soggetto'):
