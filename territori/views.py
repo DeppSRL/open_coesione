@@ -538,7 +538,8 @@ class AmbitoNazionaleView(TerritorioView):
 
 
 class AmbitoEsteroView(AccessControlView, AggregatoMixin, ListView):
-    queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.E)
+    tipo_territorio = Territorio.TERRITORIO.E
+    queryset = Territorio.objects.filter(territorio=tipo_territorio)
 
     @cached_context
     def get_cached_context_data(self, territori):
@@ -659,6 +660,8 @@ class AmbitoEsteroView(AccessControlView, AggregatoMixin, ListView):
         context.update(self.get_cached_context_data(territori=territori))
 
         context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().nei_territori(territori).conclusi()[:5]
+
+        context['tipo_territorio'] = self.tipo_territorio
 
         return context
 
