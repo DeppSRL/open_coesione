@@ -65,6 +65,8 @@
                                                     <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&soggetto={{ soggetto.slug }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
                                                 {%  elif programma %}
                                                     <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&fonte_fin={{ programma.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                {%  elif tipo_territorio %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&territorio_tipo={{ tipo_territorio }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
                                                 {%  else %}
                                                     <a href="{{ tipologia.get_absolute_url }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a>
                                                 {% endif %}
@@ -95,6 +97,8 @@
                                                     <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&soggetto={{ soggetto.slug }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
                                                 {%  elif programma %}
                                                     <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&fonte_fin={{ programma.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                {%  elif tipo_territorio %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&territorio_tipo={{ tipo_territorio }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
                                                 {%  else %}
                                                     <a href="{{ tema.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a>
                                                 {% endif %}
