@@ -40,7 +40,12 @@
             </div>
 
             {% if soggetto %}
-                <p>per il soggetto: {{ soggetto }}</p>
+                <p>
+                    per il soggetto: {{ soggetto }}
+                    {% if ruolo %}
+                        ({{ ruolo }})
+                    {% endif %}
+                </p>
             {% endif %}
             {% if fonte_fin %}
                 <p>per questo programma: <a href="{% url 'progetti_programma' fonte_fin.codice %}">{{ fonte_fin }}</a></p>

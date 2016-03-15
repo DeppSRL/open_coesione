@@ -1,4 +1,5 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
+from collections import defaultdict
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.cache import cache
@@ -23,9 +24,7 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
         return 'noindex' if self.object.privacy_flag else False
 
     def get_context_data(self, **kwargs):
-
-        # look for context in cache,
-        # only for soggetti with a high number of progetti
+        # look for context in cache (only for soggetti with a high number of progetti).
         cache_key = None
         if self.object.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
             cache_key = 'context' + self.request.get_full_path()
@@ -37,26 +36,22 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
         context = super(SoggettoView, self).get_context_data(**kwargs)
 
         logger = logging.getLogger('console')
+
         logger.debug('get_aggregate_data start')
         context = self.get_aggregate_data(context, soggetto=self.object)
+        logger.debug('get_aggregate_data stop')
 
-        # calcolo dei collaboratori con cui si spartiscono piu' soldi
+        # CALCOLO DEI COLLABORATORI CON CUI SI SPARTISCONO PIU' SOLDI
+
         logger.debug('top_collaboratori start')
-        collaboratori = {}
-        soggetti_ids = Soggetto.objects.exclude(pk=self.object.pk).filter(progetto__ruolo__soggetto=self.object).values('pk')
-        for s in soggetti_ids:
-            s_id = s['pk']
-            if not s_id in collaboratori:
-                collaboratori[s_id] = 0
-            collaboratori[s_id] += 1
 
-        top_collaboratori = sorted(
-            # create a list of dict with partners
-            [{'soggetto_id': s_id, 'numero': collaboratori[s_id]} for s_id in collaboratori],
-            # sorted by totale
-            key=lambda c: c['numero'],
-            reverse=True,
-        )[:5]
+        collaboratori = defaultdict(int)
+
+        for pk in Soggetto.objects.filter(progetto__ruolo__soggetto=self.object).exclude(pk=self.object.pk).values_list('pk', flat=True):
+            collaboratori[pk] += 1
+
+        # create a list of dict with partners sorted by totale
+        top_collaboratori = sorted([{'soggetto_id': s_id, 'totale': tot} for s_id, tot in collaboratori.items()], key=lambda c: c['totale'], reverse=True)[:5]
 
         # hydrate just the 5 extracted soggetti
         for c in top_collaboratori:
@@ -64,170 +59,127 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
 
         context['top_collaboratori'] = top_collaboratori
 
-        # calcolo dei progetti con piu' fondi
+        logger.debug('top_collaboratori stop')
+
+        # CALCOLO DEI PROGETTI CON PIU' FONDI
+
         # logger.debug('top_progetti start')
+
         #context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
         context['top_progetti'] = [Progetto.objects.get(pk=p['codice_locale']) for p in self.object.progetti.values('codice_locale', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]]
+
         # logger.debug('top_progetti end')
 
-        # calcolo dei comuni un cui questo soggetto ha operato di piu'
+        # CALCOLO DEI COMUNI UN CUI QUESTO SOGGETTO HA OPERATO DI PIU'
+
         # logger.debug('territori_piu_finanziati_pro_capite start')
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
-            filters={'progetto__soggetto_set__pk': self.object.pk}
-        )
 
-        # calcolo dei totali di finanziamenti per regione (e nazioni)
-        context['lista_finanziamenti_per_regione'] = []
-        # logger.debug('lista_finanziamenti_per_regione start')
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__soggetto_set__pk': self.object.pk})
 
-        # insieme dei progetti del soggetto che hanno multilocalizzazioni
-        ps_multiloc = Progetto.objects.del_soggetto(self.object).annotate(
-            tot=Count('territorio_set')
-        ).filter(tot__gt=1)
+        # logger.debug('territori_piu_finanziati_pro_capite stop')
 
-        # definizioni funzioni usate internamente
-        def tot(qs):
-            """
-            Calcolo totale a partire da queryset qs, il metodo è indicato in context['tematizzazione']
-            """
-            return getattr(qs, context['tematizzazione'])()
+        # CALCOLO DEI TOTALI PER REGIONE (E NAZIONI)
 
-        def multi_localizzato_in_regione(p, r):
-            """
-            Torna True se il progetto p
-             ha *tutte* le territorializzazioni in un unica regione
-            Torna False in caso contrario
-            """
-            return all(map(lambda t: t.cod_reg == r.cod_reg, p.territori))
+        # logger.debug('territori start')
 
-        def multi_localizzato_in_nazione(p):
-            """
-            Torna True se il progetto p
-             ha almeno una territorializzazione nazionale e nessuna estera
-            Torna False in caso contrario
-            """
-            return any(map(lambda t: t.territorio == 'N', p.territori)) and \
-                   all(map(lambda t: t.territorio != 'E', p.territori))
+        # i progetti del soggetto localizzati in più territori (vengono considerati a parte per evitare di contarli più volte nelle aggregazioni)
+        progetti_multilocalizzati_pk = [x['pk'] for x in self.object.progetti.values('pk').annotate(num_reg=Count('territorio_set__cod_reg', distinct=True)).filter(num_reg__gt=1)]
 
-        # costruzione lista per le regioni
-        # logger.debug('::fetch dati_regioni start')
-        for regione in Territorio.objects.regioni().defer('geom'):
+        queryset = self.object.progetti.exclude(pk__in=progetti_multilocalizzati_pk).values('codice_locale', 'fin_totale_pubblico', 'pagamento', 'territorio_set__cod_reg').distinct()
 
-            # logger.debug('::::regione {0}'.format(regione))
+        sql, params = queryset.query.sql_with_params()
 
-            # progetti del soggetto localizzati in territori della regione
-            psr = Progetto.objects.del_soggetto(self.object).nel_territorio(regione)
+        from django.db import connection
 
-            # logger.debug('::::::filter start')
-            # elimina dai progetti multiloc del soggetto quelli localizzati esclusivamente nella regione
-            ps_multiloc = filter(lambda p: not multi_localizzato_in_regione(p, regione), ps_multiloc)
+        def dictfetchall(cursor):
+            col_names = [x.name for x in cursor.description]
+            for row in cursor.fetchall():
+                yield dict(zip(col_names, row))
 
-            # logger.debug('::::::queryset start')
-            # predispone la query per estrarre tutti i progetti del soggetto, localizzati nella regione,
-            # tranne quelli multilocalizzati anche in altre regioni oltre questa in considerazione
-            # questo serve a evitare di contare 2 volte progetti multilocalizzati in regioni differenti,
-            # nelle somme dei progetti regionali di un determinato soggetto
-            queryset = psr.exclude(
-                # tutti i progetti in regione del soggetto, NON multi localizzati in altre regioni
-                pk__in=ps_multiloc
-            ).distinct()
+        cursor = connection.cursor()
+        cursor.execute('SELECT t.cod_reg, SUM(t.fin_totale_pubblico) AS "totale_costi", SUM(t.pagamento) AS "totale_pagamenti", COUNT(*) AS "totale_progetti" from ({}) AS t GROUP BY t.cod_reg'.format(sql), params)
 
-            # logger.debug('::::::append tot start')
-            # calcola il totale richiesto dalla vista (totale_costi, totale_procapite, totale_progetti)
-            # e lo appende alla lista fei finanziamenti per regione
-            context['lista_finanziamenti_per_regione'].append((regione, tot(queryset)))
+        totali_non_multilocalizzati = {x['cod_reg']: x[context['tematizzazione']] for x in dictfetchall(cursor)}
 
-        # rimuovo tutti i progetti multilocalizzati nazionali
-        ps_multiloc = filter(lambda p: not multi_localizzato_in_nazione(p), ps_multiloc)
+        # from itertools import groupby
 
-        # logger.debug('::fetch dati_nazioni start')
-        for nazione in Territorio.objects.filter(territorio__in=['N', 'E']).defer('geom').order_by('-territorio'):
+        # aggregate_functions = {
+        #     'totale_costi': lambda g: sum(x['fin_totale_pubblico'] for x in g),
+        #     'totale_pagamenti': lambda g: sum(x['pagamento'] for x in g),
+        #     'totale_progetti': lambda g: sum(1 for x in g),
+        # }
 
-            queryset = Progetto.objects.del_soggetto(self.object).nel_territorio(nazione).exclude(
-                # tutti i progetti in una nazione realizzati dal soggetto NON multi localizzati nella nazione
-                # (e neanche nelle regioni, che sono già stati eliminati prima)
-                pk__in=ps_multiloc
-            )
+        # totali_non_multilocalizzati = {k: aggregate_functions[context['tematizzazione']](g) for k, g in groupby(queryset.order_by('territorio_set__cod_reg').iterator(), key=lambda x: x['territorio_set__cod_reg'])}
 
-            context['lista_finanziamenti_per_regione'].append((nazione, tot(queryset)))
-        # logger.debug('::fetch dati_nazioni end')
+        totale_multilocalizzati_nazionali = 0
+        totale_multilocalizzati_non_nazionali = 0
+        for progetto in Progetto.objects.filter(pk__in=progetti_multilocalizzati_pk).prefetch_related('territorio_set'):
+            if context['tematizzazione'] == 'totale_costi':
+                val = progetto.fin_totale_pubblico
+            elif context['tematizzazione'] == 'totale_pagamenti':
+                val = progetto.pagamento
+            elif context['tematizzazione'] == 'totale_progetti':
+                val = 1
 
-        if len(ps_multiloc):
-            # aggrego in un territorio fittizio i progetti multilocalizzati non inclusi fino ad ora
-            context['lista_finanziamenti_per_regione'].append(
-                (
-                    Territorio(denominazione=u'In più territori', territorio='X'),
-                    tot(Progetto.objects.del_soggetto(self.object).filter(pk__in=ps_multiloc))
-                )
-            )
-        # logger.debug('lista_finanziamenti_per_regione stop')
+            if any([t.is_nazionale for t in progetto.territori]) and not any([t.is_estero for t in progetto.territori]):  # con almeno una localizzazione nazionale e nessuna estera
+                totale_multilocalizzati_nazionali += val
+            else:
+                totale_multilocalizzati_non_nazionali += val
 
-        # calcolo i finanziamenti per ruolo del soggetto
-        # preparo il filtro di aggregazione in base alla tematizzazione richiesta
-        # logger.debug('lista_finanziamenti_per_ruolo start')
+        if totale_multilocalizzati_nazionali:
+            totali_non_multilocalizzati[0] = totali_non_multilocalizzati.get(0, 0) + totale_multilocalizzati_nazionali
+
+        totali_non_multilocalizzati = {k: v for k, v in totali_non_multilocalizzati.items() if v > 0}
+
+        context['territori'] = []
+
+        for territorio in Territorio.objects.regioni(with_nation=True).filter(cod_reg__in=totali_non_multilocalizzati.keys()).order_by('-territorio', 'denominazione').defer('geom'):
+            territorio.totale = totali_non_multilocalizzati[territorio.cod_reg]
+            context['territori'].append(territorio)
+
+        # assegno a un territorio fittizio i progetti multilocalizzati senza localizzazione nazionale
+        if totale_multilocalizzati_non_nazionali:
+            territorio = Territorio(denominazione=u'In più territori', territorio='X')
+            territorio.totale = totale_multilocalizzati_non_nazionali
+            context['territori'].append(territorio)
+
+        # logger.debug('territori stop')
+
+        # CALCOLO DEI TOTALI PER RUOLO DEL SOGGETTO
+
+        # logger.debug('ruoli start')
+
         aggregazione_ruolo = {
             'totale_costi': Sum('progetto__fin_totale_pubblico'),
             'totale_pagamenti': Sum('progetto__pagamento'),
             'totale_progetti': Count('progetto')
-        }[self.request.GET.get('tematizzazione', 'totale_costi')]
+        }[context['tematizzazione']]
 
-        context['lista_finanziamenti_per_ruolo'] = []
+        progetto_to_ruoli = defaultdict(dict)
 
-        progetto_to_ruoli = {}
+        for ruolo in dict(Ruolo.RUOLO).keys():
+            for progetto_id, totale in Ruolo.objects.filter(soggetto=self.object, ruolo=ruolo).annotate(totale=aggregazione_ruolo).values_list('progetto_id', 'totale'):
+                progetto_to_ruoli[progetto_id][ruolo] = float(totale or 0)
 
-        # TODO quando avremo realizzatori e destinatari posso prendere tutti i ruoli
-        for tipo_ruolo, nome_ruolo in Ruolo.RUOLO[:2]:
+        dict_finanziamenti_per_ruolo = defaultdict(float)
 
-            for progetto_id, tot in Ruolo.objects.filter(soggetto=self.object, ruolo=tipo_ruolo).annotate(tot=aggregazione_ruolo).values_list('progetto_id', 'tot'):
+        for ruoli in progetto_to_ruoli.values():
+            codice = ''.join(ruoli.keys())  # in caso di più ruoli per uno stesso progetto si crea un nuovo codice
+            totale = max(ruoli.values())    # prendo il massimo dei totali per ruolo, tanto DEVONO essere tutti uguali
 
-                if progetto_id not in progetto_to_ruoli:
-                    progetto_to_ruoli[progetto_id] = {}
-                progetto_to_ruoli[progetto_id][nome_ruolo] = float(tot if tot else 0)
+            dict_finanziamenti_per_ruolo[codice] += totale
 
-        dict_finanziamenti_per_ruolo = {}
-
-        for progetto_id in progetto_to_ruoli:
-
-            is_multiple = len(progetto_to_ruoli[progetto_id]) > 1
-
-            if is_multiple:
-                # il soggetto partecipa con piu' ruoli
-                # concateno i nomi dei ruoli per creare un nuovo nome
-                name = '/'.join(sorted(progetto_to_ruoli[progetto_id].keys()))
-                tot = 0
-                for key in progetto_to_ruoli[progetto_id]:
-                    # prendo il massimo totale, tanto DEVONO essere tutti uguali
-                    tot = max(tot, progetto_to_ruoli[progetto_id][key])
-                    # aggiungo il ruolo anche se vuoto
-                    if key not in dict_finanziamenti_per_ruolo:
-                        dict_finanziamenti_per_ruolo[key] = 0.0
-                if name not in dict_finanziamenti_per_ruolo:
-                    dict_finanziamenti_per_ruolo[name] = 0.0
-                dict_finanziamenti_per_ruolo[name] += tot
-            else:
-                # il soggetto ha un solo ruolo in questo progetto
-                name = progetto_to_ruoli[progetto_id].keys()[0]
-                tot = progetto_to_ruoli[progetto_id][name]
-                if name not in dict_finanziamenti_per_ruolo:
-                    dict_finanziamenti_per_ruolo[name] = 0.0
-                dict_finanziamenti_per_ruolo[name] += tot
-
-        del progetto_to_ruoli
-
-        # ordino il dict_finanziamenti_per_ruolo per i suoi valore (il totale)
-        context['lista_finanziamenti_per_ruolo'] = sorted(dict_finanziamenti_per_ruolo.items(), key=lambda x: x[1], reverse=True)
-        # logger.debug('lista_finanziamenti_per_ruolo stop')
+        context['ruoli'] = sorted([{'nome': '/'.join(sorted([dict(Ruolo.RUOLO)[r] for r in x[0]])), 'codice': x[0], 'totale': x[1]} for x in dict_finanziamenti_per_ruolo.items()], key=lambda x: x['totale'], reverse=True)
 
         del dict_finanziamenti_per_ruolo
 
-        # store context in cache,
-        # only for soggetti with a high number of progetti
+        # logger.debug('ruoli stop')
+
+        # store context in cache (only for soggetti with a high number of progetti).
         if self.object.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
             serializable_context = context.copy()
-            logger.debug('writing {0} in the cache'.format(cache_key))
+            logger.debug('writing {} in the cache'.format(cache_key))
             serializable_context.pop('view', None)
-#            from pprint import pprint
-#            pprint(serializable_context)
             cache.set(cache_key, serializable_context)
 
         return context

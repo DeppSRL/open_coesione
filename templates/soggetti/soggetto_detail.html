@@ -13,10 +13,9 @@
 
 
 {% block page_header %}
-           <script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3&sensor=false"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3&sensor=false"></script>
 
-            <div id="api_result">
-            </div>
+    <div id="api_result"></div>
 
     <div class="span12">
         <h1 class="title violet"><span>{{ soggetto }}</span></h1>
@@ -53,10 +52,10 @@
             <section class="span6">
                 <h2 class="title"><span>I soggetti con cui lavora di più</span></h2>
                 <table class="table">
-                    {% for partner in top_collaboratori %}
+                    {% for collaboratore in top_collaboratori %}
                         <tr>
-                            <th><a href="{{ partner.soggetto.get_absolute_url }}">{{ partner.soggetto }}</a></th>
-                            <td class="amount"><strong>{{ partner.numero }}</strong> progetti</td>
+                            <th><a href="{{ collaboratore.soggetto.get_absolute_url }}">{{ collaboratore.soggetto }}</a></th>
+                            <td class="amount"><strong>{{ collaboratore.totale }}</strong> progetti</td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -67,10 +66,10 @@
             <div class="span4">
                 <h2 class="title"><span>I comuni con più progetti</span></h2>
                 <table class="table">
-                    {% for territorio_finanziato in territori_piu_finanziati_pro_capite %}
+                    {% for territorio in territori_piu_finanziati_pro_capite %}
                         <tr>
-                            <th><a href="{{ territorio_finanziato.get_absolute_url }}">{{ territorio_finanziato }}</a></th>
-                            <td class="amount"><strong>{{ territorio_finanziato.totale|intcomma }}</strong> euro</td>
+                            <th><a href="{{ territorio.get_absolute_url }}">{{ territorio }}</a></th>
+                            <td class="amount"><strong>{{ territorio.totale|intcomma }}</strong> euro</td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -86,16 +85,14 @@
 
             <p>In quali luoghi si interviene?</p>
 
-            <div id="regions_chart" style="width: 100%; height: 250px"></div>
+            <div id="territories_chart" style="width: 100%; height: 250px"></div>
 
-            <table id="regions_chart_table" class="table">
-                {% for regione, totale in lista_finanziamenti_per_regione %}
-                    {% if totale > 0  %}
-                        <tr>
-                            <th>{% if regione.cod_reg %}<a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}&territorio_reg={{ regione.cod_reg }}">{{ regione }}</a>{% else %}{{ regione }}{% endif %}</th>
-                            <td class="amount"><strong>{{ totale|default:'0'|floatformat:'0' }}</strong></td>
-                        </tr>
-                    {% endif %}
+            <table id="territories_chart_table" class="table">
+                {% for territorio in territori %}
+                    <tr>
+                        <th>{% ifnotequal territorio.territorio 'X' %}<a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}&territorio_reg={{ territorio.cod_reg }}">{{ territorio }}</a>{% else %}{{ territorio }}{% endifnotequal %}</th>
+                        <td class="amount"><strong>{{ territorio.totale|default:'0'|floatformat:'0' }}</strong></td>
+                    </tr>
                 {% endfor %}
             </table>
         </div>
@@ -108,10 +105,10 @@
             <div id="roles_chart" style="width: 100%; height: 250px"></div>
 
             <table id="roles_chart_table" class="table">
-                {% for ruolo, finanziamento in lista_finanziamenti_per_ruolo %}
+                {% for ruolo in ruoli %}
                     <tr>
-                        <th>{{ ruolo }}</th>
-                        <td class="amount"><strong>{{ finanziamento|default:'0'|floatformat:'0' }}</strong></td>
+                        <th><a href="{% url 'progetti_search' %}?q=&soggetto={{ soggetto.slug }}&ruolo={{ ruolo.codice }}">{{ ruolo.nome }}</a></th>
+                        <td class="amount"><strong>{{ ruolo.totale|default:'0'|floatformat:'0' }}</strong></td>
                     </tr>
                 {% endfor %}
             </table>
@@ -123,7 +120,7 @@
     {% addtoblock 'js' strip %}
         <script>
             $(document).ready(function() {
-                print_pie_chart('#regions_chart_table', 'regions_chart');
+                print_pie_chart('#territories_chart_table', 'territories_chart');
                 print_pie_chart('#roles_chart_table', 'roles_chart');
             });
         </script>

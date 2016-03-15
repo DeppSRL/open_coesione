@@ -64,19 +64,17 @@ class AggregatoMixin(object):
         if len(filter) > 1:
             raise Exception('Only one filter kwargs is accepted')
 
-        if 'programma' in filter:
-            raise Exception('Filter "programma" is deprecated')
+        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
 
-        # read tematizzazione GET param
-        tematizzazione = self.request.GET.get('tematizzazione', 'totale_costi')
+        context.update(Progetto.objects.dict_totali(**filter))
 
-        context = dict(
-            totale_costi=Progetto.objects.totale_costi(**filter),
-            totale_pagamenti=Progetto.objects.totale_pagamenti(**filter),
-            totale_progetti=Progetto.objects.totale_progetti(**filter),
-            tematizzazione=tematizzazione,
-            **context
-        )
+        # context = dict(
+        #     totale_costi=Progetto.objects.totale_costi(**filter),
+        #     totale_pagamenti=Progetto.objects.totale_pagamenti(**filter),
+        #     totale_progetti=Progetto.objects.totale_progetti(**filter),
+        #     **context
+        # )
+
         context['percentuale_costi_pagamenti'] = '{0:.0%}'.format(
             context['totale_pagamenti'] /
             context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0
@@ -102,8 +100,6 @@ class AggregatoMixin(object):
             query_filters = dict(territorio=filter['territorio'])
         elif 'soggetto' in filter:
             query_filters = dict(soggetto=filter['soggetto'])
-        elif 'programma' in filter:
-            query_filters = dict(programma=filter['programma'])
         elif 'programmi' in filter:
             query_filters = dict(programmi=filter['programmi'])
         elif 'tema' in filter:
@@ -137,6 +133,10 @@ class AggregatoMixin(object):
         return context
 
     def top_comuni_pro_capite(self, filters, qnt=5):
+        def pro_capite_order(territorio):
+            territorio['totale_pro_capite'] = territorio['totale'] / territorio['popolazione_totale'] if territorio['popolazione_totale'] else 0.0
+            return territorio['totale_pro_capite']
+
         if isinstance(filters, dict):
             args = []
             kwargs = filters
@@ -145,23 +145,22 @@ class AggregatoMixin(object):
             kwargs = {}
 
         # add filters on active projects, to avoid computation errors
-        kwargs.update({
-            'progetto__active_flag': True,
-        })
+        kwargs.update({'progetto__active_flag': True})
 
-        queryset = Territorio.objects.comuni().filter(*args, **kwargs).defer('geom')\
-            .annotate(totale=models.Sum('progetto__fin_totale_pubblico'))\
-            .filter(totale__isnull=False)
+        queryset = Territorio.objects.comuni().filter(*args, **kwargs).values('pk', 'popolazione_totale').annotate(totale=models.Sum('progetto__fin_totale_pubblico')).filter(totale__isnull=False).order_by()
 
-        def pro_capite_order(territorio):
-            territorio.totale_pro_capite = territorio.totale / territorio.popolazione_totale if territorio.popolazione_totale else 0.0
-            return territorio.totale_pro_capite
+        territori = sorted(queryset, key=pro_capite_order, reverse=True)[:qnt]
 
-        return sorted(
-            queryset,
-            key=pro_capite_order,
-            reverse=True,
-        )[:qnt]
+        territori_by_pk = Territorio.objects.in_bulk([x['pk'] for x in territori])
+
+        top_comuni = []
+        for territorio in territori:
+            t = territori_by_pk[territorio['pk']]
+            t.totale = territorio['totale']
+            t.totale_pro_capite = territorio['totale_pro_capite']
+            top_comuni.append(t)
+
+        return top_comuni
 
 
 class AccessControlView(object):

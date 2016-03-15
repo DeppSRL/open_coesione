@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 from haystack.indexes import *
 from haystack import site
-from progetti.models import Ruolo, Tema, Progetto
+from progetti.models import Progetto, Ruolo, Tema
 from soggetti.models import Soggetto
 
 
