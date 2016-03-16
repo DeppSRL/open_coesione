@@ -1241,6 +1241,8 @@ class Command(BaseCommand):
 
                 values['dps_flag_cup'] = 1
 
+                values['csv_data'] = json.dumps(dict(row), ensure_ascii=False, sort_keys=True)
+
             except ValueError as e:
                 self.logger.error(u'{}/{} - {}: {}. Skipping'.format(n, df_count, codice_locale, e))
 
