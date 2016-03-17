@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 import os
 import urllib2
 import glob
@@ -10,7 +10,6 @@ from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse, Http
 from django.utils.datastructures import SortedDict
 from django.views.generic import ListView
 from django.conf import settings
-from django.db import models
 from django.core.cache import cache
 from django.views.generic.detail import DetailView
 
@@ -68,17 +67,7 @@ class AggregatoMixin(object):
 
         context.update(Progetto.objects.dict_totali(**filter))
 
-        # context = dict(
-        #     totale_costi=Progetto.objects.totale_costi(**filter),
-        #     totale_pagamenti=Progetto.objects.totale_pagamenti(**filter),
-        #     totale_progetti=Progetto.objects.totale_progetti(**filter),
-        #     **context
-        # )
-
-        context['percentuale_costi_pagamenti'] = '{0:.0%}'.format(
-            context['totale_pagamenti'] /
-            context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0
-        )
+        context['percentuale_costi_pagamenti'] = '{0:.0%}'.format(context['totale_pagamenti'] / context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0)
 
         query_models = {
             'temi_principali': {
@@ -147,20 +136,20 @@ class AggregatoMixin(object):
         # add filters on active projects, to avoid computation errors
         kwargs.update({'progetto__active_flag': True})
 
-        queryset = Territorio.objects.comuni().filter(*args, **kwargs).values('pk', 'popolazione_totale').annotate(totale=models.Sum('progetto__fin_totale_pubblico')).filter(totale__isnull=False).order_by()
+        territori = Territorio.objects.comuni().filter(*args, **kwargs).values('pk', 'popolazione_totale').annotate(totale=Sum('progetto__fin_totale_pubblico')).filter(totale__isnull=False).order_by()
 
-        territori = sorted(queryset, key=pro_capite_order, reverse=True)[:qnt]
+        territori = sorted(territori, key=pro_capite_order, reverse=True)[:qnt]
 
-        territori_by_pk = Territorio.objects.in_bulk([x['pk'] for x in territori])
+        territori_by_pk = Territorio.objects.in_bulk(x['pk'] for x in territori)
 
-        top_comuni = []
-        for territorio in territori:
-            t = territori_by_pk[territorio['pk']]
-            t.totale = territorio['totale']
-            t.totale_pro_capite = territorio['totale_pro_capite']
-            top_comuni.append(t)
+        top_comuni_pro_capite = []
+        for t in territori:
+            territorio = territori_by_pk[t['pk']]
+            territorio.totale = t['totale']
+            territorio.totale_pro_capite = t['totale_pro_capite']
+            top_comuni_pro_capite.append(territorio)
 
-        return top_comuni
+        return top_comuni_pro_capite
 
 
 class AccessControlView(object):

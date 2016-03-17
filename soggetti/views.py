@@ -13,8 +13,6 @@ from progetti.models import Progetto, Tema, Ruolo
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
-import logging
-
 
 class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
     model = Soggetto
@@ -32,55 +30,35 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
             if context is not None:
                 return context
 
-        # Call the base implementation first to get a context
         context = super(SoggettoView, self).get_context_data(**kwargs)
 
-        logger = logging.getLogger('console')
-
-        logger.debug('get_aggregate_data start')
         context = self.get_aggregate_data(context, soggetto=self.object)
-        logger.debug('get_aggregate_data stop')
 
-        # CALCOLO DEI COLLABORATORI CON CUI SI SPARTISCONO PIU' SOLDI
+        # CALCOLO DEI COLLABORATORI CON CUI SI SPARTISCONO PIÙ SOLDI
 
-        logger.debug('top_collaboratori start')
+        top_collaboratori = Soggetto.objects.filter(progetto__ruolo__soggetto=self.object).exclude(pk=self.object.pk).values('pk').annotate(totale=Count('pk')).order_by('-totale')[:5]
 
-        collaboratori = defaultdict(int)
+        soggetto_by_pk = Soggetto.objects.in_bulk(x['pk'] for x in top_collaboratori)
 
-        for pk in Soggetto.objects.filter(progetto__ruolo__soggetto=self.object).exclude(pk=self.object.pk).values_list('pk', flat=True):
-            collaboratori[pk] += 1
-
-        # create a list of dict with partners sorted by totale
-        top_collaboratori = sorted([{'soggetto_id': s_id, 'totale': tot} for s_id, tot in collaboratori.items()], key=lambda c: c['totale'], reverse=True)[:5]
-
-        # hydrate just the 5 extracted soggetti
+        context['top_collaboratori'] = []
         for c in top_collaboratori:
-            c['soggetto'] = Soggetto.objects.get(pk=c['soggetto_id'])
+            soggetto = soggetto_by_pk[c['pk']]
+            soggetto.totale = c['totale']
+            context['top_collaboratori'].append(soggetto)
 
-        context['top_collaboratori'] = top_collaboratori
+        # CALCOLO DEI PROGETTI CON PIÙ FONDI
 
-        logger.debug('top_collaboratori stop')
-
-        # CALCOLO DEI PROGETTI CON PIU' FONDI
-
-        # logger.debug('top_progetti start')
-
-        #context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
-        context['top_progetti'] = [Progetto.objects.get(pk=p['codice_locale']) for p in self.object.progetti.values('codice_locale', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]]
-
-        # logger.debug('top_progetti end')
+        # top_progetti = self.object.progetti.values('pk', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]
+        # progetto_by_pk = Progetto.objects.in_bulk(x['pk'] for x in top_progetti)
+        # context['top_progetti'] = [progetto_by_pk[x['pk']] for x in top_progetti]
+        context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
+        # context['top_progetti'] = [Progetto.objects.get(pk=p['codice_locale']) for p in self.object.progetti.values('codice_locale', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]]
 
         # CALCOLO DEI COMUNI UN CUI QUESTO SOGGETTO HA OPERATO DI PIU'
 
-        # logger.debug('territori_piu_finanziati_pro_capite start')
-
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__soggetto_set__pk': self.object.pk})
 
-        # logger.debug('territori_piu_finanziati_pro_capite stop')
-
-        # CALCOLO DEI TOTALI PER REGIONE (E NAZIONI)
-
-        # logger.debug('territori start')
+        # CALCOLO DEI TOTALI PER REGIONI (E NAZIONI)
 
         # i progetti del soggetto localizzati in più territori (vengono considerati a parte per evitare di contarli più volte nelle aggregazioni)
         progetti_multilocalizzati_pk = [x['pk'] for x in self.object.progetti.values('pk').annotate(num_reg=Count('territorio_set__cod_reg', distinct=True)).filter(num_reg__gt=1)]
@@ -143,11 +121,7 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
             territorio.totale = totale_multilocalizzati_non_nazionali
             context['territori'].append(territorio)
 
-        # logger.debug('territori stop')
-
         # CALCOLO DEI TOTALI PER RUOLO DEL SOGGETTO
-
-        # logger.debug('ruoli start')
 
         aggregazione_ruolo = {
             'totale_costi': Sum('progetto__fin_totale_pubblico'),
@@ -171,14 +145,9 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
 
         context['ruoli'] = sorted([{'nome': '/'.join(sorted([dict(Ruolo.RUOLO)[r] for r in x[0]])), 'codice': x[0], 'totale': x[1]} for x in dict_finanziamenti_per_ruolo.items()], key=lambda x: x['totale'], reverse=True)
 
-        del dict_finanziamenti_per_ruolo
-
-        # logger.debug('ruoli stop')
-
         # store context in cache (only for soggetti with a high number of progetti).
         if self.object.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
             serializable_context = context.copy()
-            logger.debug('writing {} in the cache'.format(cache_key))
             serializable_context.pop('view', None)
             cache.set(cache_key, serializable_context)
 

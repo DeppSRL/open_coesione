@@ -52,10 +52,10 @@
             <section class="span6">
                 <h2 class="title"><span>I soggetti con cui lavora di più</span></h2>
                 <table class="table">
-                    {% for collaboratore in top_collaboratori %}
+                    {% for soggetto in top_collaboratori %}
                         <tr>
-                            <th><a href="{{ collaboratore.soggetto.get_absolute_url }}">{{ collaboratore.soggetto }}</a></th>
-                            <td class="amount"><strong>{{ collaboratore.totale }}</strong> progetti</td>
+                            <th><a href="{{ soggetto.get_absolute_url }}">{{ soggetto }}</a></th>
+                            <td class="amount"><strong>{{ soggetto.totale }}</strong> progetti</td>
                         </tr>
                     {% endfor %}
                 </table>
