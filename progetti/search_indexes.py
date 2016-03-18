@@ -162,10 +162,10 @@ class ProgettoIndex(SearchIndex):
     #     return [s['soggetto__denominazione'] for s in obj.ruolo_set.filter(ruolo=Ruolo.RUOLO.attuatore).values('soggetto__denominazione')]
 
     # def prepare_territori(self, obj):
-    #     return set([t.nome_con_provincia for t in obj.territori])
+    #     return set(t.nome_con_provincia for t in obj.territori)
 
     # def prepare_ambiti_territoriali(self, obj):
-    #     return set([t.ambito_territoriale for t in obj.territori])
+    #     return set(t.ambito_territoriale for t in obj.territori)
 
     def index_queryset(self):
         """
