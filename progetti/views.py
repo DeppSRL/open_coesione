@@ -811,6 +811,15 @@ class ProgettoCSVSearchView(ProgettoSearchView):
 
 
 class ProgettoLocCSVSearchView(ProgettoSearchView):
+    def __init__(self, *args, **kwargs):
+        super(ProgettoLocCSVSearchView, self).__init__(*args, **kwargs)
+        self.searchqueryset = self.searchqueryset.values_list('pk', flat=True)
+
+    @staticmethod
+    def _get_objects_by_pk(pks):
+        related = ['territorio_set']
+        return Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks)
+
     def create_response(self):
         """
         Generates a zipped, downloadale CSV file, from search results
@@ -821,18 +830,28 @@ class ProgettoLocCSVSearchView(ProgettoSearchView):
         response['Content-Disposition'] = 'attachment; filename=codici_localita.csv'
 
         writer = utils.UnicodeWriter(response, dialect=utils.excel_semicolon)
+
         writer.writerow(['COD_LOCALE_PROGETTO', 'OC_TERRITORIO_PROG', 'COD_COMUNE', 'COD_PROVINCIA', 'COD_REGIONE'])
-        for r in results:
-            if r.territorio_com is not None:
-                territori_codici = zip(r.territorio_tipo, r.territorio_com, r.territorio_prov, r.territorio_reg)
-                for t in territori_codici:
-                    writer.writerow([
-                        r.clp,
-                        t[0],
-                        '%06d' % int(t[1]),
-                        '%03d' % int(t[2]),
-                        t[3]
-                    ])
+
+        chunk_size = 10000
+        for i in xrange(0, len(results), chunk_size):
+            chunked_results = results[i:i + chunk_size]
+
+            objects_by_pk = self._get_objects_by_pk(chunked_results)
+            for result in chunked_results:
+                try:
+                    object = objects_by_pk[result]
+                except KeyError:
+                    pass
+                else:
+                    for territorio in object.territori:
+                        writer.writerow([
+                            object.codice_locale,
+                            territorio.territorio,
+                            '{:06d}'.format(int(territorio.cod_com)),
+                            '{:03d}'.format(int(territorio.cod_prov)),
+                            '{:03d}'.format(int(territorio.cod_reg)),
+                        ])
 
         return response
 
