@@ -51,7 +51,6 @@ class SoggettoIndex(SearchIndex):
     def prepare_n_progetti(self, obj):
         return self._totali(obj)['totale_progetti']
 
-    @cached_property
     def _totali(self, obj):
         return Progetto.objects.dict_totali(soggetto=obj)
 
