@@ -333,7 +333,7 @@ class ProgrammiView(BaseProgrammaView):
             from csvkit import convert
             from open_coesione.views import OpendataView
 
-            data_pagamenti_per_programma = date(2015, 10, 31)
+            data_pagamenti_per_programma = date(2015, 12, 31)
 
             logger = logging.getLogger('console')
 
@@ -357,8 +357,8 @@ class ProgrammiView(BaseProgrammaView):
                     # programma_codice = row['OC_CODICE_PROGRAMMA']
                     programma_codice = row['DPS_CODICE_PROGRAMMA']  ###########
                     if programma_codice in programmi_codici:
-                        pagamenti_2015 += float(row['pagamenti ammessi 20151031'])  ########
-                        dotazioni_totali_2015 += float(row['DOTAZIONE TOTALE PROGRAMMA POST PAC 20151031'])  ########
+                        pagamenti_2015 += float(row['pagamenti ammessi 20151231'])  ########
+                        dotazioni_totali_2015 += float(row['DOTAZIONE TOTALE PROGRAMMA POST PAC 20151231'])  ########
 
                         for anno in dotazioni_totali_per_anno:
                             # data = '{}1231'.format(max(anno, 2009))  # i dati delle dotazioni totali partono dal 2009; per gli anni precedenti valgono i dati del 2009

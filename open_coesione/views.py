@@ -286,7 +286,7 @@ class SpesaCertificataGraficiView(RisorsaView):
                         dates_data.append((datetime.strptime(date, '%Y%m%d').strftime('%d/%m/%Y'), date_data))
 
                 # dates_data[-1][1]['target'] = 0.0   # richiesta di Chiara Ricci del 01/12/2015
-                dates_data.append(('31/12/2015', {}))  # richiesta di Chiara Ricci del 11/12/2015
+                # dates_data.append(('31/12/2015', {}))  # richiesta di Chiara Ricci del 11/12/2015
                 dates_data.append(('30/06/2016', {}))  # richiesta di Chiara Ricci del 11/12/2015
                 dates_data.append(('31/12/2016', {}))  # richiesta di Chiara Ricci del 11/12/2015
                 dates_data.append(('31/03/2017', {'target': '100'}))  # richiesta di Chiara Ricci del 11/12/2015
