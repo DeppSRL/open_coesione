@@ -349,16 +349,16 @@ class ProgrammiView(BaseProgrammaView):
                 pagamenti_per_anno = PagamentoProgetto.objects.filter(data__day=31, data__month=12, progetto__in=progetti).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
                 # pagamenti_per_anno = PagamentoProgetto.objects.filter(data__day=31, data__month=12, progetto__active_flag=True, progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
 
-                pagamenti_2015 = 0  ##########
-                dotazioni_totali_2015 = 0  #######
+                # pagamenti_2015 = 0  ##########
+                # dotazioni_totali_2015 = 0  #######
 
                 dotazioni_totali_per_anno = {pagamento['data'].year: 0 for pagamento in pagamenti_per_anno}
                 for row in dotazioni_totali:
                     # programma_codice = row['OC_CODICE_PROGRAMMA']
                     programma_codice = row['DPS_CODICE_PROGRAMMA']  ###########
                     if programma_codice in programmi_codici:
-                        pagamenti_2015 += float(row['pagamenti ammessi 20151231'])  ########
-                        dotazioni_totali_2015 += float(row['DOTAZIONE TOTALE PROGRAMMA POST PAC 20151231'])  ########
+                        # pagamenti_2015 += float(row['pagamenti ammessi 20151231'])  ########
+                        # dotazioni_totali_2015 += float(row['DOTAZIONE TOTALE PROGRAMMA POST PAC 20151231'])  ########
 
                         for anno in dotazioni_totali_per_anno:
                             # data = '{}1231'.format(max(anno, 2009))  # i dati delle dotazioni totali partono dal 2009; per gli anni precedenti valgono i dati del 2009
@@ -372,7 +372,7 @@ class ProgrammiView(BaseProgrammaView):
 
                 context['pagamenti_per_anno_{}'.format(trend)] = [{'year': pagamento['data'].year, 'total_amount': dotazioni_totali_per_anno[pagamento['data'].year], 'paid_amount': pagamento['ammontare'] or 0} for pagamento in pagamenti_per_anno]
                 context['pagamenti_per_anno_{}'.format(trend)] = [x for x in context['pagamenti_per_anno_{}'.format(trend)] if x['year'] != 2006]  ###########
-                context['pagamenti_per_anno_{}'.format(trend)].append({'year': 2015, 'total_amount': dotazioni_totali_2015, 'paid_amount': pagamenti_2015})  ##########
+                # context['pagamenti_per_anno_{}'.format(trend)].append({'year': 2015, 'total_amount': dotazioni_totali_2015, 'paid_amount': pagamenti_2015})  ##########
 
                 logger.debug('pagamenti_per_programma_{} start'.format(trend))
 
