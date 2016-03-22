@@ -1,2 +1,2 @@
-{{ object.denominazione }}
-{{ object.codice_fiscale }}
+{{ object.denominazione|default_if_none:'' }}
+{{ object.codice_fiscale|default_if_none:'' }}

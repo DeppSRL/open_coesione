@@ -1,7 +1,7 @@
+# -*- coding: utf-8 -*-
 from haystack.query import SearchQuerySet
 from api.querysets import PatchedSearchResult
 from soggetti.views import SoggettoSearchView
-__author__ = 'guglielmo'
 
 
 ## SearchQuerySet with multiple facets and highlight

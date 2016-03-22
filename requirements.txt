@@ -3,6 +3,7 @@ Django<1.6.0
 Jinja2
 pillow
 PyYAML
+PySAL
 Pygments
 South
 Sphinx

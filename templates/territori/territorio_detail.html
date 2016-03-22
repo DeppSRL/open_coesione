@@ -1,6 +1,6 @@
 {% extends 'base_map.html' %}
 
-{% load staticfiles sekizai_tags humanize search_url_filters template_functions %}
+{% load sekizai_tags humanize search_url_filters template_functions %}
 
 {% block page_title %}{{ territorio.nome_completo }}{% endblock %}
 
@@ -58,10 +58,10 @@
                                             <form action="#">
                                                 <div class="input-append text-center">
                                                     {% spaceless %}
-                                                        <select id="region-selector" class="span3">
+                                                        <select id="location-selector" class="span3">
                                                             <option value=""> -- Confronta con una regione -- </option>
                                                         </select>
-                                                        <a id="region-reset" class="btn add-on" href="#">reset</a>
+                                                        <a id="location-reset" class="btn add-on" href="#">reset</a>
                                                     {% endspaceless %}
 
                                                     <select id="indicator-selector" class="span5"></select>
@@ -79,12 +79,11 @@
 
         {% add_data 'js-data' 'js/bootstrap-collapse.js' %}
         {% add_data 'js-data' 'js/highcharts.js' %}
-        {% add_data 'js-data' 'js/oc-charts.js' %}
         {% add_data 'js-data' 'js/oc-indicatori.js' %}
         {% addtoblock 'js' strip %}
             <script>
                 $(document).ready(function() {
-                    init_charts('#index_charts', '{% static '' %}', 2 ,3);
+                    var G = new IndicatorsGraph('#index_charts', 2 ,3);
                 });
             </script>
         {% endaddtoblock %}

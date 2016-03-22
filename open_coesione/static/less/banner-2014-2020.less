@@ -1,0 +1,66 @@
+#banner-container {
+    margin: 50px 0 10px 0;
+    border-top: 1px solid @greenDark;
+    text-align: center;
+
+    #banner {
+        display: inline-block;
+        overflow: hidden;
+        margin: -25px auto 0 auto;
+
+        text-transform: uppercase;
+        color: @greenDark;
+
+        .box-shadow(1px 1px 3px @grayDark);
+        #gradient > .vertical(@white, @green);
+
+        a {
+            display: block;
+        }
+
+        > a {
+            float: left;
+            margin-left: 20px;
+            font-size: 22px;
+            line-height: 46px;
+            font-weight: bold;
+            text-shadow: 0 1px 0 @white;
+        }
+
+        ul {
+            list-style: none;
+            float: right;
+            margin: 0 0 0 50px;
+
+            li {
+                float: left;
+
+                a {
+                    border: 1px solid @gray;
+                    line-height: 28px;
+                    margin: 8px 10px 8px 0;
+                    padding: 0 10px 0 30px;
+                    background-color: @white;
+                    background-position: 6px 50%;
+                    background-repeat: no-repeat;
+                    font-size: 16px;
+
+                    &#risorse {
+                        background-image: url('../img/banner1420/risorse_ico.png');
+                    }
+                    &#programmi {
+                        background-image: url('../img/banner1420/programmi_ico.png');
+                    }
+                    &#bandi {
+                        background-image: url('../img/banner1420/bandi_ico.png');
+                    }
+
+                    &:hover {
+                        text-decoration: none;
+                        background-color: @grayLighter;
+                    }
+                }
+            }
+        }
+    }
+}

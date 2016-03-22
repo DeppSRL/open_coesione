@@ -36,6 +36,9 @@ urlpatterns = patterns('',
     # blog
     url(r'^news/', include('blog.urls')),
 
+    # charts
+    url(r'^charts/', include('open_coesione.charts.urls')),
+
     # pillole
     # url(r'^pillole/(?P<path>.+)$', PillolaRedirectView.as_view(), name='pillole_clean'),
     url(r'^pillole/$', PillolaListView.as_view(), name='pillole'),
@@ -56,7 +59,7 @@ urlpatterns = patterns('',
     url(r'^project/$', TemplateView.as_view(template_name='flat/project.html'), name='oc-progetto-en'),
     url(r'^a-scuola-di-opencoesione/', TemplateView.as_view(template_name='flat/a_scuola_di_opencoesione.html')),
     url(r'^cerca-un-progetto/', TemplateView.as_view(template_name='flat/cerca_progetto.html')),
-    url(r'^privacy/$', TemplateView.as_view(template_name='flat/privacy.html'), name='oc-privacy'),
+    # url(r'^privacy/$', TemplateView.as_view(template_name='flat/privacy.html'), name='oc-privacy'),
     url(r'^contatti/$', ContactView.as_view(template_name='flat/contatti.html'), name='oc-contatti'),
     url(r'^cerca-un-soggetto/', TemplateView.as_view(template_name='flat/cerca_soggetto.html')),
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
@@ -73,6 +76,8 @@ urlpatterns = patterns('',
     url(r'^spesa-certificata/', SpesaCertificataView.as_view(template_name='open_coesione/spesa_certificata.html'), name='spesa-certificata'),
     url(r'^spesa-certificata-grafici/', SpesaCertificataGraficiView.as_view(template_name='open_coesione/spesa_certificata_grafici.html'), name='spesa-certificata-grafici'),
     url(r'^fonti-di-finanziamento/$', FondiView.as_view(template_name='open_coesione/fonti_finanziamento.html'), name='fonti-finanziamento'),
+    url(r'^risorse_2014_2020/$', FondiView.as_view(template_name='open_coesione/fonti_finanziamento_1420.html'), name='fonti-finanziamento-1420'),
+
 
     url(r'^opendata/(?P<path>.+)$', OpendataRedirectView.as_view(), name='opendata_clean'),
     url(r'^opendata/$', OpendataView.as_view(template_name='open_coesione/opendata.html'), name='opendata'),

@@ -522,6 +522,8 @@ class Progetto(TimeStampedModel):
     stato_progetto = models.CharField(max_length=1, choices=STATO, null=True, blank=True, db_index=True)
     stato_finanziario = models.CharField(max_length=1, choices=STATO, null=True, blank=True)
 
+    csv_data = models.TextField()
+
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
 
@@ -680,6 +682,7 @@ class Progetto(TimeStampedModel):
             return self.data_aggiornamento
         return max(self.data_aggiornamento, *[p.data for p in pagamenti])
 
+    @property
     def percentuale_pagamenti(self):
         if not self.fin_totale_pubblico_netto or not self.pagamento:
             return 0.0
@@ -720,6 +723,30 @@ class Progetto(TimeStampedModel):
             fonti_fin.append(self.programma_linea_azione.programma)
 
         return fonti_fin
+
+    def get_tipo_progetto_display(self):
+        # per csv
+        return dict(self.TIPI_PROGETTO)[self.tipo_progetto]
+
+    @property
+    def nomi_programmatori(self):
+        # per csv
+        return [r.soggetto.denominazione for r in self.ruolo_set.all() if r.ruolo == Ruolo.RUOLO.programmatore]
+
+    @property
+    def nomi_attuatori(self):
+        # per csv
+        return [r.soggetto.denominazione for r in self.ruolo_set.all() if r.ruolo == Ruolo.RUOLO.attuatore]
+
+    @property
+    def nomi_territori(self):
+        # per csv
+        return set([t.nome_con_provincia for t in self.territori])
+
+    @property
+    def ambiti_territoriali(self):
+        # per csv
+        return set([t.ambito_territoriale for t in self.territori])
 
     def get_absolute_url(self):
         return reverse('progetti_progetto', kwargs={'slug': self.slug})
@@ -844,8 +871,8 @@ class Ruolo(TimeStampedModel):
     RUOLO = Choices(
         ('1', 'programmatore', 'Programmatore'),
         ('2', 'attuatore', 'Attuatore'),
-        ('3', 'destinatario', 'Destinatario'),
-        ('4', 'realizzatore', 'Realizzatore')
+        # ('3', 'destinatario', 'Destinatario'),
+        # ('4', 'realizzatore', 'Realizzatore'),
     )
 
     soggetto = models.ForeignKey(Soggetto)
@@ -859,7 +886,8 @@ class Ruolo(TimeStampedModel):
     @classmethod
     def inv_ruoli_dict(cls):
         # build an inverse dictionary for the ruoli, code => descr
-        return dict((cls.RUOLO._choice_dict[k], k) for k in cls.RUOLO._choice_dict)
+        # return dict((cls.RUOLO._choice_dict[k], k) for k in cls.RUOLO._choice_dict)
+        return {v: k for k, v in cls.RUOLO._choice_dict.iteritems()}
 
     @property
     def soggetti(self):

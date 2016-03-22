@@ -87,7 +87,6 @@ class Command(BaseCommand):
                     default=False,
                     action='store_true',
                     help='Collect static at the end of process'),
-
     )
     logger = logging.getLogger('csvimport')
 
