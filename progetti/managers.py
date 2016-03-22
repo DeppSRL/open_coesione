@@ -101,11 +101,11 @@ class ProgettiQuerySet(models.query.QuerySet):
         return queryset
 
     def totale_costi(self, **kwargs):
-        return round(float(self.dict_totali(**kwargs)['totale_costi'] or 0.0))
+        return self.dict_totali(**kwargs)['totale_costi']
         # return round(float(sum([l['fin_totale_pubblico'] for l in self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programmi).filter(fin_totale_pubblico__isnull=False).values('codice_locale', 'fin_totale_pubblico')]) or 0.0))
 
     def totale_pagamenti(self, **kwargs):
-        return round(float(self.dict_totali(**kwargs)['totale_pagamenti'] or 0.0))
+        return self.dict_totali(**kwargs)['totale_pagamenti']
         # return round(float(sum([l['pagamento'] for l in self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programmi).filter(pagamento__isnull=False).values('codice_locale', 'pagamento')]) or 0.0))
 
     def totale_progetti(self, **kwargs):
@@ -122,7 +122,12 @@ class ProgettiQuerySet(models.query.QuerySet):
         cursor = connection.cursor()
         cursor.execute('SELECT SUM(t.fin_totale_pubblico) AS "totale_costi", SUM(t.pagamento) AS "totale_pagamenti", COUNT(*) AS "totale_progetti" from ({}) AS t'.format(sql), params)
 
-        return dict(zip((x.name for x in cursor.description), cursor.fetchone()))
+        dict_totali = dict(zip((x.name for x in cursor.description), cursor.fetchone()))
+
+        dict_totali['totale_costi'] = round(float(dict_totali['totale_costi'] or 0.0))
+        dict_totali['totale_pagamenti'] = round(float(dict_totali['totale_pagamenti'] or 0.0))
+
+        return dict_totali
 
 
 class ProgettiManager(models.Manager):
