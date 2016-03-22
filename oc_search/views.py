@@ -85,10 +85,10 @@ class ExtendedFacetedSearchView(SearchView):
         extended_selected_facets = []
         for f in selected_facets:
             ## start building unselection url
-            url = '?q={0}'.format(self.query)
+            url = u'?q={}'.format(self.query)
             for cf in selected_facets:
                 if cf != f:
-                    url += '&amp;selected_facets={0}'.format(cf)
+                    url += '&amp;selected_facets={}'.format(cf)
             field, x, label = f.partition(':')
 
             r_label = label
