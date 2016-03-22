@@ -382,7 +382,7 @@ WIDGETS = [
     'soggetti.widgets.SoggettoWidget',
 ]
 
-BIG_SOGGETTI_THRESHOLD = 250
+BIG_SOGGETTI_THRESHOLD = 2000
 BIG_PROGRAMMI_THRESHOLD = 500
 
 GRAPPELLI_ADMIN_TITLE = "Amministrazione di OpenCoesione"
