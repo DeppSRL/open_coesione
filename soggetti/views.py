@@ -9,7 +9,7 @@ from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin
 from progetti.models import Progetto, Tema, Ruolo
 from models import Soggetto
 from territori.models import Territorio
-
+import logging
 
 class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
     model = Soggetto
