@@ -106,119 +106,39 @@
 
     <field name="n_progetti" type="slong" indexed="true" stored="true" multiValued="false" />
 
-    <field name="territorio" type="string" indexed="false" stored="true" multiValued="true" />
+    <field name="natura" type="string" indexed="true" stored="false" multiValued="false" />
 
-    <field name="fondo" type="text" indexed="true" stored="true" multiValued="false" />
+    <field name="soggetto" type="text" indexed="true" stored="false" multiValued="true" />
 
-    <field name="ruolo_descr" type="string" indexed="false" stored="true" multiValued="true" />
-
-    <field name="text" type="text" indexed="true" stored="true" multiValued="false" />
-
-    <field name="codice_fiscale" type="string" indexed="false" stored="true" multiValued="false" />
-
-    <field name="fin_stato_altri_provvedimenti" type="sfloat" indexed="true" stored="true" multiValued="false" />
-
-    <field name="fin_ue" type="sfloat" indexed="true" stored="true" multiValued="false" />
-
-    <field name="data_aggiornamento" type="date" indexed="true" stored="true" multiValued="false" />
-
-    <field name="data_fine_effettiva" type="date" indexed="true" stored="true" multiValued="false" />
-
-    <field name="fin_stato_fsc" type="sfloat" indexed="true" stored="true" multiValued="false" />
-
-    <field name="classificazione_cup" type="text" indexed="true" stored="true" multiValued="false" />
-
-    <field name="soggetti_attuatori" type="text" indexed="true" stored="true" multiValued="true" />
-
-    <field name="cup" type="text" indexed="true" stored="true" multiValued="false" />
-
-    <field name="territori" type="text" indexed="true" stored="true" multiValued="true" />
-
-    <field name="data_fine_prevista" type="date" indexed="true" stored="true" multiValued="false" />
-
-    <field name="ambiti_territoriali" type="text" indexed="true" stored="true" multiValued="true" />
-
-    <field name="fin_stato_fondo_rotazione" type="sfloat" indexed="true" stored="true" multiValued="false" />
-
-    <field name="fin_altro_pubblico" type="sfloat" indexed="true" stored="true" multiValued="false" />
-
-    <field name="territorio_tipo" type="text" indexed="true" stored="true" multiValued="true" />
-
-    <field name="perc_pagamento" type="sfloat" indexed="true" stored="true" multiValued="false" />
-
-    <field name="clp" type="text" indexed="true" stored="true" multiValued="false" />
-
-    <field name="fonte" type="string" indexed="true" stored="true" multiValued="true" />
-
-    <field name="tema_descr" type="text" indexed="true" stored="true" multiValued="false" />
-
-    <field name="natura" type="string" indexed="true" stored="true" multiValued="false" />
-
-    <field name="territorio_com" type="text" indexed="true" stored="true" multiValued="true" />
-
-    <field name="is_active" type="boolean" indexed="true" stored="true" multiValued="false" />
-
-    <field name="fin_stato_estero" type="sfloat" indexed="true" stored="true" multiValued="false" />
-
-    <field name="denominazione" type="string" indexed="false" stored="true" multiValued="false" />
-
-    <field name="tipo_progetto" type="string" indexed="true" stored="true" multiValued="false" />
-
-    <field name="pagamento" type="sfloat" indexed="true" stored="true" multiValued="false" />
-
-    <field name="territorio_prov" type="text" indexed="true" stored="true" multiValued="true" />
-
-    <field name="ruolo" type="string" indexed="true" stored="true" multiValued="true" />
-
-    <field name="fin_provincia" type="sfloat" indexed="true" stored="true" multiValued="false" />
-
-    <field name="data_inizio_effettiva" type="date" indexed="true" stored="true" multiValued="false" />
-
-    <field name="soggetti_programmatori" type="text" indexed="true" stored="true" multiValued="true" />
-
-    <field name="data_inizio" type="date" indexed="true" stored="true" multiValued="false" />
-
-    <field name="titolo" type="text" indexed="true" stored="true" multiValued="false" />
-
-    <field name="slug" type="string" indexed="false" stored="true" multiValued="false" />
-
-    <field name="natura_descr" type="text" indexed="true" stored="true" multiValued="false" />
-
-    <field name="natura_slug" type="string" indexed="false" stored="true" multiValued="true" />
-
-    <field name="fin_da_reperire" type="sfloat" indexed="true" stored="true" multiValued="false" />
-
-    <field name="fin_privato" type="sfloat" indexed="true" stored="true" multiValued="false" />
-
-    <field name="tema_slug" type="string" indexed="false" stored="true" multiValued="true" />
-
-    <field name="fin_comune" type="sfloat" indexed="true" stored="true" multiValued="false" />
+    <field name="territorio_com" type="text" indexed="true" stored="false" multiValued="true" />
 
     <field name="fonte_fin" type="string" indexed="true" stored="false" multiValued="true" />
 
-    <field name="privacy_flag" type="text" indexed="true" stored="false" multiValued="false" />
+    <field name="text" type="text" indexed="true" stored="false" multiValued="false" />
 
-    <field name="fin_regione" type="sfloat" indexed="true" stored="true" multiValued="false" />
+    <field name="tipo_progetto" type="string" indexed="true" stored="false" multiValued="false" />
 
-    <field name="descrizione" type="text" indexed="true" stored="true" multiValued="false" />
+    <field name="territorio_prov" type="text" indexed="true" stored="false" multiValued="true" />
 
     <field name="costo" type="sfloat" indexed="true" stored="true" multiValued="false" />
 
-    <field name="soggetto" type="text" indexed="true" stored="true" multiValued="true" />
+    <field name="ruolo" type="string" indexed="true" stored="true" multiValued="true" />
 
-    <field name="territorio_reg" type="text" indexed="true" stored="true" multiValued="true" />
+    <field name="territorio_reg" type="text" indexed="true" stored="false" multiValued="true" />
 
-    <field name="fin_risorse_liberate" type="sfloat" indexed="true" stored="true" multiValued="false" />
+    <field name="tema" type="string" indexed="true" stored="false" multiValued="true" />
 
-    <field name="tema" type="string" indexed="true" stored="true" multiValued="true" />
+    <field name="data_inizio" type="date" indexed="true" stored="false" multiValued="false" />
 
-    <field name="data_inizio_prevista" type="date" indexed="true" stored="true" multiValued="false" />
+    <field name="territorio_tipo" type="text" indexed="true" stored="false" multiValued="true" />
 
-    <field name="stato_progetto" type="string" indexed="true" stored="true" multiValued="false" />
+    <field name="stato_progetto" type="string" indexed="true" stored="false" multiValued="false" />
 
-    <field name="fin_stato_pac" type="sfloat" indexed="true" stored="true" multiValued="false" />
+    <field name="perc_pagamento" type="sfloat" indexed="true" stored="false" multiValued="false" />
 
-    <field name="fin_totale_pubblico" type="sfloat" indexed="true" stored="true" multiValued="false" />
+    <field name="is_active" type="boolean" indexed="true" stored="false" multiValued="false" />
+
+    <field name="fonte" type="string" indexed="true" stored="false" multiValued="true" />
 
   </fields>
 
@@ -231,5 +151,4 @@
   <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
   <solrQueryParser defaultOperator="AND" />
 </schema>
-
 

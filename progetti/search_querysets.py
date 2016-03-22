@@ -1,15 +1,15 @@
+# -*- coding: utf-8 -*-
 from haystack.query import SearchQuerySet
 from api.querysets import PatchedSearchResult
 from progetti.views import ProgettoSearchView
-__author__ = 'guglielmo'
 
 
 ## SearchQuerySet with multiple facets and highlight
 sqs = SearchQuerySet().filter(django_ct='progetti.progetto').\
     facet('natura').\
     facet('tema').\
-    facet('tipo_progetto').\
     facet('fonte').\
+    facet('tipo_progetto').\
     facet('stato_progetto').\
     facet('is_active').\
     query_facet('data_inizio', ProgettoSearchView.DATE_INTERVALS_RANGES['2015']['qrange']).\

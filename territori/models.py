@@ -26,6 +26,14 @@ class TerritoriManager(models.GeoManager):
     def comuni(self):
         return self.get_query_set().filter(territorio=self.model.TERRITORIO.C)
 
+    @cached_property
+    def regioni_by_cod(self):
+        return {o.cod_reg: o for o in self.regioni()}
+
+    @cached_property
+    def provincie_by_cod(self):
+        return {o.cod_prov: o for o in self.provincie()}
+
     def get_from_istat_code(self, istat_code):
         """
         get single record from Territorio, starting from ISTAT code
@@ -72,29 +80,29 @@ class Territorio(models.Model):
     @property
     def nome(self):
         if self.denominazione_ted:
-            return u'{0} - {1}'.format(self.denominazione, self.denominazione_ted)
+            return u'{} - {}'.format(self.denominazione, self.denominazione_ted)
         else:
-            return u'{0}'.format(self.denominazione)
+            return u'{}'.format(self.denominazione)
 
     @property
     def nome_completo(self):
         if self.is_comune or self.is_provincia:
-            return u'{0} di {1}'.format(self.get_territorio_display(), self.nome)
+            return u'{} di {}'.format(self.get_territorio_display(), self.nome)
         elif self.is_regione:
-            return u'{0} {1}'.format(self.get_territorio_display(), self.nome)
+            return u'{} {}'.format(self.get_territorio_display(), self.nome)
         else:
-            return u'{0}'.format(self.nome)
+            return u'{}'.format(self.nome)
 
     @property
     def nome_con_provincia(self):
         if self.is_provincia:
-            return u'{0} (Provincia)'.format(self.nome)
+            return u'{} (Provincia)'.format(self.nome)
         else:
-            return u'{0}'.format(self.nome)
+            return u'{}'.format(self.nome)
 
     @property
     def nome_per_slug(self):
-        return u'{0} {1}'.format(self.denominazione, self.get_territorio_display())
+        return u'{} {}'.format(self.denominazione, self.get_territorio_display())
 
     @property
     def ambito_territoriale(self):
@@ -111,14 +119,19 @@ class Territorio(models.Model):
     @cached_property
     def regione(self):
         if self.is_comune or self.is_provincia:
-            return self.__class__.objects.regioni().get(cod_reg=self.cod_reg)
+            return self.__class__.objects.regioni_by_cod[self.cod_reg]
+            # if not hasattr(self.__class__, 'regioni_by_cod'):
+            #     self.__class__.regioni_by_cod = {o.cod_reg: o for o in self.__class__.objects.regioni()}
+            # return self.__class__.regioni_by_cod[self.cod_reg]
+            # return self.__class__.objects.regioni().get(cod_reg=self.cod_reg)
         else:
             return None
 
     @cached_property
     def provincia(self):
         if self.is_comune:
-            return self.__class__.objects.provincie().get(cod_prov=self.cod_prov)
+            return self.__class__.objects.provincie_by_cod[self.cod_prov]
+            # return self.__class__.objects.provincie().get(cod_prov=self.cod_prov)
         else:
             return None
 
@@ -171,17 +184,17 @@ class Territorio(models.Model):
         return a dict with {prefix}cod_{type} key initialized with correct value
         """
         if self.is_comune:
-            return {'{0}cod_com'.format(prefix): self.cod_com}
+            return {'{}cod_com'.format(prefix): self.cod_com}
         elif self.is_provincia:
-            return {'{0}cod_prov'.format(prefix): self.cod_prov}
+            return {'{}cod_prov'.format(prefix): self.cod_prov}
         elif self.is_regione:
-            return {'{0}cod_reg'.format(prefix): self.cod_reg}
+            return {'{}cod_reg'.format(prefix): self.cod_reg}
         elif self.is_nazionale:
-            return {'{0}cod_reg'.format(prefix): 0}
+            return {'{}cod_reg'.format(prefix): 0}
         elif self.is_estero:
-            return {'{0}pk'.format(prefix): self.pk}
+            return {'{}pk'.format(prefix): self.pk}
 
-        raise Exception('Territorio non interrogabile {0}'.format(self))
+        raise Exception('Territorio non interrogabile {}'.format(self))
 
     def get_hierarchy(self):
         """
@@ -209,29 +222,29 @@ class Territorio(models.Model):
 
         if 'tema' in kwargs:
             tema = kwargs['tema']
-            search_url += '&selected_facets=tema:{0}'.format(tema.codice)
+            search_url += '&selected_facets=tema:{}'.format(tema.codice)
 
         if 'natura' in kwargs:
             natura = kwargs['natura']
-            search_url += '&selected_facets=natura:{0}'.format(natura.codice)
+            search_url += '&selected_facets=natura:{}'.format(natura.codice)
 
         if 'programma' in kwargs:
             programma = kwargs['programma']
-            search_url += '&fonte_fin={0}'.format(programma.codice)
+            search_url += '&fonte_fin={}'.format(programma.codice)
 
         if 'gruppo_programmi' in kwargs:
             gruppo_programmi = kwargs['gruppo_programmi']
-            search_url += '&gruppo_programmi={0}'.format(gruppo_programmi.codice)
+            search_url += '&gruppo_programmi={}'.format(gruppo_programmi.codice)
 
         for t in self.get_hierarchy():
             d = t.get_cod_dict()
             key = d.keys()[0]
-            search_url += '&territorio{0}={1}'.format(key[3:], d[key])
+            search_url += '&territorio{}={}'.format(key[3:], d[key])
 
         return search_url
 
     def get_absolute_url(self):
-        url_name = 'territori_{0}'.format(self.get_territorio_display().lower())
+        url_name = 'territori_{}'.format(self.get_territorio_display().lower())
 
         if self.is_nazionale or self.is_estero:
             return reverse(url_name)
@@ -259,14 +272,14 @@ class Territorio(models.Model):
     #     return self.territorio == self.__class__.TERRITORIO.E
 
     def __getattr__(self, item):
-        match = re.search('^is_({0})$'.format('|'.join(dict(self.__class__.TERRITORIO).values()).lower()), item)
+        match = re.search('^is_({})$'.format('|'.join(dict(self.__class__.TERRITORIO).values()).lower()), item)
         if match:
             return self.get_territorio_display().lower() == match.group(1)
         else:
             raise AttributeError('{0!r} object has no attribute {1!r}'.format(self.__class__.__name__, item))
 
     def __unicode__(self):
-        return u'{0}'.format(self.nome)
+        return u'{}'.format(self.nome)
 
     class Meta:
         verbose_name = u'Località'

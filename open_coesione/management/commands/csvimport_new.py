@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import logging
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import transaction
@@ -601,10 +602,7 @@ class Command(BaseCommand):
 
         df_count = len(df1)
 
-        n = 0
-        for index, row in df1.iterrows():
-            n += 1
-
+        for n, (index, row) in enumerate(df1.iterrows(), 1):
             # codice locale (ID del record)
             codice_locale = row['COD_LOCALE_PROGETTO']
 
@@ -707,6 +705,8 @@ class Command(BaseCommand):
                 values['stato_progetto'] = stato_desc2cod.get(row['OC_STATO_PROGETTO'])
                 values['stato_finanziario'] = stato_desc2cod.get(row['OC_STATO_FINANZIARIO'])
 
+                values['csv_data'] = json.dumps(dict(row), ensure_ascii=False, sort_keys=True)
+
             except ValueError as e:
                 self.logger.error(u'{}/{} - {}: {}. Skipping'.format(n, df_count, codice_locale, e))
 
@@ -789,10 +789,7 @@ class Command(BaseCommand):
 
         df_count = len(df1)
 
-        n = 0
-        for index, row in df1.iterrows():
-            n += 1
-
+        for n, (index, row) in enumerate(df1.iterrows(), 1):
             denominazione = row['OC_DENOMINAZIONE_SOGG'].strip()
             codice_fiscale = row['OC_CODICE_FISCALE_SOGG'].strip()
 
@@ -834,10 +831,7 @@ class Command(BaseCommand):
 
         df_count = len(df1)
 
-        n = 0
-        for index, row in df1.iterrows():
-            n += 1
-
+        for n, (index, row) in enumerate(df1.iterrows(), 1):
             try:
                 progetto = Progetto.fullobjects.get(pk=row['COD_LOCALE_PROGETTO'])
                 self.logger.debug(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
@@ -898,10 +892,7 @@ class Command(BaseCommand):
 
         created = 0
 
-        n = 0
-        for index, row in df.iterrows():
-            n += 1
-
+        for n, (index, row) in enumerate(df.iterrows(), 1):
             pagamento = PagamentoProgetto.objects.create(
                 progetto_id=row['COD_LOCALE_PROGETTO'],
                 data=self._get_value(row, 'DATA_AGGIORNAMENTO', 'date'),
@@ -942,10 +933,7 @@ class Command(BaseCommand):
 
         created = 0
 
-        n = 0
-        for index, row in df.iterrows():
-            n += 1
-
+        for n, (index, row) in enumerate(df.iterrows(), 1):
             try:
                 progetto = Progetto.fullobjects.get(pk=row['COD_LOCALE_PROGETTO'])
 
@@ -1013,11 +1001,8 @@ class Command(BaseCommand):
 
         insert_list = []
 
-        n = 0
-        for index, row in df.iterrows():
-            n += 1
-
-            progetto_pk = self._get_value(row, 'COD_LOCALE_PROGETTO') or self._get_value(row, 'COD_DIPE')
+        for n, (index, row) in enumerate(df.iterrows(), 1):
+            progetto_pk = row['COD_LOCALE_PROGETTO'] or row['COD_DIPE']
 
             try:
                 progetto = Progetto.fullobjects.get(pk=progetto_pk)
@@ -1194,10 +1179,7 @@ class Command(BaseCommand):
 
         df_count = len(df1)
 
-        n = 0
-        for index, row in df1.iterrows():
-            n += 1
-
+        for n, (index, row) in enumerate(df1.iterrows(), 1):
             # codice locale (ID del record)
             codice_locale = row['COD_DIPE']
 
@@ -1238,6 +1220,8 @@ class Command(BaseCommand):
 
                 values['dps_flag_cup'] = 1
 
+                values['csv_data'] = json.dumps(dict(row), ensure_ascii=False, sort_keys=True)
+
             except ValueError as e:
                 self.logger.error(u'{}/{} - {}: {}. Skipping'.format(n, df_count, codice_locale, e))
 
@@ -1271,10 +1255,7 @@ class Command(BaseCommand):
 
         df_count = len(df)
 
-        n = 0
-        for index, row in df.iterrows():
-            n += 1
-
+        for n, (index, row) in enumerate(df.iterrows(), 1):
             delibera = delibere_num2obj[int(row['NUM_DELIBERA'])]
 
             ProgettoDeliberaCIPE.objects.create(
@@ -1297,10 +1278,7 @@ class Command(BaseCommand):
         #
         #     df_count = len(df1)
         #
-        #     n = 0
-        #     for index, row in df1.iterrows():
-        #         n += 1
-        #
+        #     for n, (index, row) in enumerate(df1.iterrows(), 1):
         #         denominazione = row[col].strip()
         #
         #         soggetto, created = Soggetto.fullobjects.get_or_create(
@@ -1312,10 +1290,7 @@ class Command(BaseCommand):
         #
         #         role_count = len(row['COD_DIPE'])
         #
-        #         nn = 0
-        #         for codice_locale in row['COD_DIPE']:
-        #             nn += 1
-        #
+        #         for nn, codice_locale in enumerate(row['COD_DIPE'], 1):
         #             ruolo = Ruolo.objects.create(
         #                 progetto_id=codice_locale,
         #                 soggetto=soggetto,
@@ -1337,10 +1312,7 @@ class Command(BaseCommand):
         ids = []
         tot_updated = 0
 
-        n = 0
-        for index, row in df.iterrows():
-            n += 1
-
+        for n, (index, row) in enumerate(df.iterrows(), 1):
             ids.append(row['COD_LOCALE_PROGETTO'])
 
             if (n % 5000 == 0) or (n == df_count):
@@ -1364,10 +1336,7 @@ class Command(BaseCommand):
 
         tot_updated = 0
 
-        n = 0
-        for index, row in df.iterrows():
-            n += 1
-
+        for n, (index, row) in enumerate(df.iterrows(), 1):
             try:
                 soggetto = Soggetto.fullobjects.get(ruolo__progetto=row['COD_LOCALE_PROGETTO'], ruolo__ruolo=row['SOGG_COD_RUOLO'], ruolo__progressivo_ruolo=row['SOGG_PROGR_RUOLO'])
                 self.logger.debug(u'{}/{} - Soggetto: {}'.format(n, df_count, soggetto))
