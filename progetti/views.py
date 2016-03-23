@@ -51,7 +51,7 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailVie
 
         # calcolo della percentuale del finanziamento erogato
         fin_totale_pubblico_netto = float(self.object.fin_totale_pubblico_netto or self.object.fin_totale_pubblico or 0)
-        context['cost_payments_ratio'] = '{0:.0%}'.format(context['total_cost_paid'] / fin_totale_pubblico_netto if fin_totale_pubblico_netto > 0.0 else 0.0)
+        context['cost_payments_ratio'] = '{:.0%}'.format(context['total_cost_paid'] / fin_totale_pubblico_netto if fin_totale_pubblico_netto > 0.0 else 0.0)
 
         context['segnalazioni_pubblicate'] = self.object.segnalazioni
 
@@ -558,14 +558,23 @@ class ProgettoPagamentiCSVView(DetailView):
 
 
 class BaseCSVView(AggregatoMixin, DetailView):
-    filter_field = None
+    def comuni_filter(self):
+        return {}
+
+    def comuni_con_pro_capite_filter(self):
+        return {}
 
     def get(self, request, *args, **kwargs):
+        import locale
+
+        locale.setlocale(locale.LC_ALL, 'it_IT.UTF-8')
+
         self.object = self.get_object()
 
-        comuni = list(Territorio.objects.comuni().defer('geom'))
-        comuni_con_pro_capite = self.top_comuni_pro_capite(filters={self.filter_field: self.object}, qnt=None)
-        provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().values('cod_prov', 'denominazione')])
+        comuni_con_pro_capite = self.top_comuni_pro_capite(filters=self.comuni_con_pro_capite_filter(), qnt=None)
+        altri_comuni = list(Territorio.objects.comuni().filter(**self.comuni_filter()).exclude(pk__in=(x.pk for x in comuni_con_pro_capite)).defer('geom'))
+
+        comuni = comuni_con_pro_capite + altri_comuni
 
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}_pro_capite.csv'.format(self.kwargs.get('slug', 'all'))
@@ -574,19 +583,11 @@ class BaseCSVView(AggregatoMixin, DetailView):
 
         writer.writerow(['Comune', 'Provincia', 'Finanziamento pro capite'])
 
-        for city in comuni_con_pro_capite:
+        for comune in comuni:
             writer.writerow([
-                city.denominazione,
-                provincie[city.cod_prov],
-                '{:.2f}'.format(city.totale / city.popolazione_totale if city.popolazione_totale else .0).replace('.', ',')
-            ])
-            comuni.remove(city)
-
-        for city in comuni:
-            writer.writerow([
-                city.denominazione,
-                provincie[city.cod_prov],
-                '{0:.2f}'.format(.0).replace('.', ',')
+                comune.denominazione,
+                comune.provincia.denominazione,
+                locale.format('%.2f', getattr(comune, 'totale_pro_capite', 0)),
             ])
 
         return response
@@ -594,12 +595,16 @@ class BaseCSVView(AggregatoMixin, DetailView):
 
 class ClassificazioneAzioneCSVView(BaseCSVView):
     model = ClassificazioneAzione
-    filter_field = 'progetto__classificazione_azione__classificazione_superiore'
+
+    def comuni_con_pro_capite_filter(self):
+        return {'progetto__classificazione_azione__classificazione_superiore': self.object}
 
 
 class TemaCSVView(BaseCSVView):
     model = Tema
-    filter_field = 'progetto__tema__tema_superiore'
+
+    def comuni_con_pro_capite_filter(self):
+        return {'progetto__tema__tema_superiore': self.object}
 
 
 class ProgettoCSVSearchView(ProgettoSearchView):

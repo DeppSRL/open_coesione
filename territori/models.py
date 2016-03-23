@@ -4,7 +4,6 @@ import struct
 from django.utils.functional import cached_property
 from django_extensions.db.fields import AutoSlugField
 from model_utils import Choices
-from progetti.models import Progetto
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 
@@ -151,29 +150,31 @@ class Territorio(models.Model):
     def n_progetti(self):
         return self.progetto_set.count()
 
-    @property
-    def progetti_deep(self):
-        """
-        returns all projects related to this or underlying locations
-        (for regions and provinces)
-        """
-        if self.is_provincia:
-            return Progetto.objects.filter(localizzazione__territorio__cod_prov=self.cod_prov)
-        elif self.is_regione:
-            return Progetto.objects.filter(localizzazione__territorio__cod_reg=self.cod_reg)
-        else:
-            return Progetto.objects.filter(localizzazione__territorio__cod_com=self.cod_com)
+    # @property
+    # def progetti_deep(self):
+    #     """
+    #     returns all projects related to this or underlying locations
+    #     (for regions and provinces)
+    #     """
+    #     from progetti.models import Progetto
+    #
+    #     if self.is_provincia:
+    #         return Progetto.objects.filter(localizzazione__territorio__cod_prov=self.cod_prov)
+    #     elif self.is_regione:
+    #         return Progetto.objects.filter(localizzazione__territorio__cod_reg=self.cod_reg)
+    #     else:
+    #         return Progetto.objects.filter(localizzazione__territorio__cod_com=self.cod_com)
 
-    @property
-    def n_progetti_deep(self):
-        """
-        returns number of project related to this or underlying locations
-        (for regions and provinces)
-        """
-        if self.is_provincia or self.is_regione:
-            return self.progetti_deep.count()
-        else:
-            return self.n_progetti
+    # @property
+    # def n_progetti_deep(self):
+    #     """
+    #     returns number of project related to this or underlying locations
+    #     (for regions and provinces)
+    #     """
+    #     if self.is_provincia or self.is_regione:
+    #         return self.progetti_deep.count()
+    #     else:
+    #         return self.n_progetti
 
     @property
     def code(self):
