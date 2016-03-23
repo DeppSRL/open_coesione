@@ -140,7 +140,7 @@ class AggregatoMixin(object):
 
         territori = sorted(territori, key=pro_capite_order, reverse=True)[:qnt]
 
-        territori_by_pk = Territorio.objects.in_bulk(x['pk'] for x in territori)
+        territori_by_pk = Territorio.objects.defer('geom').in_bulk(x['pk'] for x in territori)
 
         top_comuni_pro_capite = []
         for t in territori:

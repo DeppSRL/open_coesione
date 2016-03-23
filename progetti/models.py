@@ -10,8 +10,9 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaManager, FullProgettiManager
 from django.core.cache import cache
-from soggetti.models import Soggetto
 from open_coesione.models import File, Link
+from soggetti.models import Soggetto
+from territori.models import Territorio
 
 
 class ClassificazioneQSN(models.Model):
@@ -851,7 +852,7 @@ class Localizzazione(TimeStampedModel):
         ('2', 'CAP mancante o territorio nazionale o estero'),
     )
 
-    territorio = models.ForeignKey('territori.Territorio', verbose_name='Territorio')
+    territorio = models.ForeignKey(Territorio)
     progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
     indirizzo = models.CharField(max_length=550, blank=True, null=True)
     cap = models.CharField(max_length=5, blank=True, null=True)
