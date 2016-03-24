@@ -103,7 +103,7 @@ class InfoView(JSONResponseMixin, TemplateView):
             except:
                 raise Http404
 
-            programmi = gruppo_programmi.programmi()
+            programmi = gruppo_programmi.programmi
 
             territori = [(t.denominazione, t.get_progetti_search_url(gruppo_programmi=gruppo_programmi)) for t in territorio_hierarchy]
 
