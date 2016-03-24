@@ -286,19 +286,6 @@ var OPCOGraph;
                 },
                 series: [
                     {
-                        name: 'Spesa certificata su dotazione',
-                        //allowPointSelect: true,
-                        color: '#C45355',
-                        data: _data_spesa,
-                        connectNulls: true,
-                        marker: {
-                            symbol: 'circle',
-                            radius: 3,
-                            lineWidth: 0
-                        },
-                        lineWidth: 2
-                    },
-                    {
                         name: 'Pagamenti su dotazione',
                         //allowPointSelect: true,
                         color: '#228822',
@@ -306,6 +293,19 @@ var OPCOGraph;
                         connectNulls: true,
                         marker: {
                             symbol: 'square',
+                            radius: 3,
+                            lineWidth: 0
+                        },
+                        lineWidth: 2
+                    },
+                    {
+                        name: 'Spesa certificata su dotazione',
+                        //allowPointSelect: true,
+                        color: '#C45355',
+                        data: _data_spesa,
+                        connectNulls: true,
+                        marker: {
+                            symbol: 'circle',
                             radius: 3,
                             lineWidth: 0
                         },
