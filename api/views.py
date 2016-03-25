@@ -790,14 +790,15 @@ class SoggettoDetail(AggregatoView, generics.RetrieveAPIView):
     def update_territori(self, tipo_territorio, format, context, thematization):
         for territorio in context['territori']:
             slug = territorio.slug
-            if not tipo_territorio in self.territori:
-                self.territori[tipo_territorio] = SortedDict()
-            if not slug in self.territori[tipo_territorio]:
-                self.territori[tipo_territorio][slug] = {
-                    'link': reverse('api-aggregati-territorio-detail', request=self.request, format=format, kwargs={'slug': slug}),
-                    'totali': {}
-                }
-            self.territori[tipo_territorio][slug]['totali'][thematization] = territorio.totale
+            if slug:  # slug non è definito per "In più territori" DA RIVEDERE
+                if not tipo_territorio in self.territori:
+                    self.territori[tipo_territorio] = SortedDict()
+                if not slug in self.territori[tipo_territorio]:
+                    self.territori[tipo_territorio][slug] = {
+                        'link': reverse('api-aggregati-territorio-detail', request=self.request, format=format, kwargs={'slug': slug}),
+                        'totali': {}
+                    }
+                self.territori[tipo_territorio][slug]['totali'][thematization] = territorio.totale
 
     def get(self, request, format=None, *args, **kwargs):
         """
