@@ -78,7 +78,7 @@ class ProgettoIndex(SearchIndex):
 
     def prepare_soggetto(self, obj):
         return ['{}|{}'.format(r['soggetto__slug'], r['ruolo']) for r in obj.ruolo_set.values('soggetto__slug', 'ruolo')]
-        # return obj.soggetto_set.distinct().values_list('slug', flat=True)
+        # return obj.soggetto_set.values_list('slug', flat=True).distinct()
 
     def prepare_territorio_tipo(self, obj):
         return [t.territorio for t in obj.territori]
@@ -147,7 +147,7 @@ class ProgettoIndex(SearchIndex):
     #         return 'ND'
 
     # def prepare_territorio(self, obj):
-    #     return obj.territorio_set.distinct().values_list('slug', flat=True)
+    #     return obj.territorio_set.values_list('slug', flat=True).distinct()
 
     # def prepare_soggetto_programmatore(self, obj):
     #     return obj.ruolo_set.filter(ruolo=Ruolo.RUOLO.programmatore).values_list('soggetto__slug', flat=True)
@@ -171,7 +171,7 @@ class ProgettoIndex(SearchIndex):
         """
         Use the FullProgettiManager, that does not hide inactive projects
         """
-        related = ['ruolo_set__soggetto', 'territorio_set', 'programma_asse_obiettivo__classificazione_superiore__classificazione_superiore', 'programma_linea_azione__classificazione_superiore__classificazione_superiore', 'classificazione_azione', 'tema', 'fonte_set']
+        related = ['territorio_set', 'programma_asse_obiettivo__classificazione_superiore__classificazione_superiore', 'programma_linea_azione__classificazione_superiore__classificazione_superiore', 'classificazione_azione', 'tema', 'fonte_set']
         return self.model.fullobjects.select_related(*related).prefetch_related(*related)
 
 
