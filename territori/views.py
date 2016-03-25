@@ -508,7 +508,8 @@ class TerritorioView(AccessControlView, AggregatoMixin, DetailView):
             else:
                 return Territorio.objects.get(territorio=self.tipo_territorio)
         except ObjectDoesNotExist:
-            return None
+            # return None
+            raise Http404()
 
 
 class RegioneView(TerritorioView):
