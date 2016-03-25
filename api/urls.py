@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
 from rest_framework.urlpatterns import format_suffix_patterns
 from api.views import *
 from django.conf.urls import patterns, url, include
 
 __author__ = 'guglielmo'
+
 
 urlpatterns = patterns('api.views',
     url(r'^$', 'api_root', name='api-root'),
