@@ -12,11 +12,13 @@ class DataClassifier:
         self.colors_map = colors_map
         self.data = data
 
-        if len(self.data) == 0:
+        nu = len(np.unique(self.data))
+
+        if nu == 0:
             self.dc = None
         else:
-            if len(data) < self.classifier_args['k']:
-                self.classifier_args['k'] = len(data)
+            if nu < self.classifier_args['k']:
+                self.classifier_args['k'] = nu
 
             self.dc = self.classifier_class(np.array(self.data), **self.classifier_args)
 

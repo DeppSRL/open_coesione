@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from haystack.backends import SQ
 from haystack.forms import SearchForm
 
 
@@ -45,12 +44,10 @@ class RangeFacetedSearchForm(SearchForm):
             # aggiunge filtro soggetto, se presente
             soggetto = self.cleaned_data.get('soggetto')
             if soggetto:
-                import operator
                 from progetti.models import Ruolo
 
                 codici_ruolo = dict(Ruolo.RUOLO).keys()
 
-                # sqs = sqs.filter_and(reduce(operator.or_, (SQ(soggetto='{}|{}'.format(soggetto, r)) for r in codici_ruolo)))
                 sqs = sqs.filter_and(soggetto__in=['{}|{}'.format(soggetto, r) for r in codici_ruolo])
 
                 ruolo = self.cleaned_data.get('ruolo')
