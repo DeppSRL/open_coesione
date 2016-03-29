@@ -115,7 +115,7 @@
                         <p>
                             I protagonisti raccontano:
                             {% for segnalazione in segnalazioni_pubblicate %}
-                                <a href="{% url 'progetto_segnalazione_pubblicata segnalazione.pk' %}">{{ segnalazione.utente }}</a>{% if forloop.last %}.{% else %},{% endif %}
+                                <a href="{% url 'progetto_segnalazione_pubblicata' segnalazione.pk %}">{{ segnalazione.utente }}</a>{% if forloop.last %}.{% else %},{% endif %}
                             {% endfor %}
                         </p>
                     </div>
@@ -123,7 +123,7 @@
                     {% addtoblock 'js' %}
                         <script>
                             $(document).ready(function() {
-                                $('#segnalazioni_progetto').on('click', 'a', function() {
+                                $('#segnalazioni_progetto').on('click', 'a', function(e) {
                                     var width = 550,
                                         height = 450,
                                         sheight = screen.height, swidth = screen.width,
@@ -134,6 +134,7 @@
                                         top = Math.round((sheight / 2) - (height / 2));
                                     }
                                     window.open($(this).prop('href'), '', 'left=' + left + ',top=' + top + ',width=' + width + ',height=' + height + ',personalbar=0,toolbar=0,scrollbars=1,resizable=1');
+                                    e.preventDefault();
                                 });
                             });
                         </script>
