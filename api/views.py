@@ -550,12 +550,12 @@ class AggregatoView(APIView):
     def get_extra_context(self):
         return None
 
-    def get_navigation_links(self, request, format=None):
-        return OrderedDict([
-            ('ambito-estero', reverse('api-aggregati-territorio-detail', request=request, format=format, kwargs={'slug': 'ambito-estero'})),
-            ('ambito-nazionale', reverse('api-aggregati-territorio-detail', request=request, format=format, kwargs={'slug': 'ambito-nazionale'})),
-            ('regioni', get_regioni_list(request, format)),
-        ])
+    # def get_navigation_links(self, request, format=None):
+    #     return OrderedDict([
+    #         ('ambito-estero', reverse('api-aggregati-territorio-detail', request=request, format=format, kwargs={'slug': 'ambito-estero'})),
+    #         ('ambito-nazionale', reverse('api-aggregati-territorio-detail', request=request, format=format, kwargs={'slug': 'ambito-nazionale'})),
+    #         ('regioni', get_regioni_list(request, format)),
+    #     ])
 
     def update_totali(self, context, thematization):
         self.totali[thematization] = context['totale_{}'.format(thematization)]
@@ -623,12 +623,12 @@ class AggregatoView(APIView):
             if with_territori:
                 for (mapnik_view_name, mapnik_url_name, tipo_territori, mapnik_kwargs) in self.get_mapnik_names():
                     map_view = setup_view(
-                         mapnik_view_name(),
-                         RequestFactory().get('{}?tematizzazione=totale_{}'.format(reverse(mapnik_url_name, *args, kwargs=mapnik_kwargs), thematization)),
-                         *args, **kwargs
+                        mapnik_view_name(),
+                        RequestFactory().get('{}?tematizzazione=totale_{}'.format(reverse(mapnik_url_name, *args, kwargs=mapnik_kwargs), thematization)),
+                        *args, **kwargs
                     )
                     map_context = map_view.get_context_data(*args, **mapnik_kwargs)
-                    self.update_territori(tipo_territori, format,  map_context, thematization)
+                    self.update_territori(tipo_territori, format, map_context, thematization)
 
         aggregated_data = OrderedDict([
             ('totali', self.totali),
@@ -684,7 +684,8 @@ class AggregatoTerritorioDetailView(AggregatoView):
         """
         return self.get_slug().split('-')[-1:][0]
 
-    def pluralize_tipo(self, tipo):
+    @staticmethod
+    def pluralize_tipo(tipo):
         if tipo == u'regione':
             return u'regioni'
         elif tipo == u'provincia':
@@ -821,10 +822,7 @@ class SoggettoDetail(AggregatoView, generics.RetrieveAPIView):
                 'territorio': t.denominazione,
                 'slug': t.slug,
                 'pro_capite': t.totale,
-            }
-            # per ogni territorio
-            for t in context['territori_piu_finanziati_pro_capite']
-        # ordinati per il totale pro capite
+            } for t in context['territori_piu_finanziati_pro_capite']
         ], key=lambda x: x['pro_capite'], reverse=True)
 
         # preparo la classifica dei collaboratori
@@ -834,9 +832,7 @@ class SoggettoDetail(AggregatoView, generics.RetrieveAPIView):
                 'soggetto': s.denominazione,
                 'slug': s.slug,
                 'numero_progetti': s.totale,
-            }
-            for s in context['top_collaboratori']
-        # ordinati per il numero di progetti
+            } for s in context['top_collaboratori']
         ], key=lambda x: x['numero_progetti'], reverse=True)
 
         # preparo la classifica dei progetti
@@ -846,8 +842,7 @@ class SoggettoDetail(AggregatoView, generics.RetrieveAPIView):
                 'titolo_progetto': p.titolo_progetto,
                 'slug': p.slug,
                 'fin_totale_pubblico': p.fin_totale_pubblico,
-            }
-            for p in context['top_progetti']
+            } for p in context['top_progetti']
         ], key=lambda x: x['fin_totale_pubblico'], reverse=True)
 
         return response
