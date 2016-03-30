@@ -591,7 +591,7 @@ class AggregatoView(APIView):
         """
         view = self.get_aggregate_page_view_class()(kwargs=kwargs)
 
-        if 'slug' in self.kwargs and self.kwargs['slug'] == 'ambito-nazionale':
+        if kwargs.get('slug') == 'ambito-nazionale':
             del kwargs['slug']
 
         with_territori = self.request.QUERY_PARAMS.get('with_territori')
@@ -599,9 +599,6 @@ class AggregatoView(APIView):
             with_territori = True
         else:
             with_territori = False
-
-        if 'slug' in self.kwargs and self.kwargs['slug'] == 'ambito-nazionale':
-            del kwargs['slug']
 
         for thematization in ('costi', 'pagamenti', 'progetti'):
             page_view = setup_view(
@@ -773,9 +770,9 @@ class SoggettoDetail(AggregatoView, generics.RetrieveAPIView):
 
     def update_territori(self, tipo_territorio, format, context, thematization):
         for territorio in context['territori']:
-            slug = territorio.slug
+            slug = 'ambito-nazionale' if territorio.is_nazionale else territorio.slug
             self.territori.setdefault(tipo_territorio, OrderedDict()).setdefault(slug or slugify(territorio.denominazione), {
-                'link': reverse('api-aggregati-territorio-detail', request=self.request, format=format, kwargs={'slug': slug}) if slug else '',
+                'link': reverse('api-aggregati-territorio-detail', request=self.request, format=format, kwargs={'slug': slug}) if slug and not territorio.is_estero else '',
                 'totali': {}
             })['totali'][thematization] = territorio.totale
 
