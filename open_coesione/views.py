@@ -2,25 +2,22 @@
 import os
 import urllib2
 import glob
-
-from django.views.generic.base import TemplateView, RedirectView, TemplateResponseMixin
 from django.db.models import Sum
+from django.conf import settings
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse, Http404
 from django.utils.datastructures import SortedDict
-from django.views.generic import ListView
-from django.conf import settings
-from django.core.cache import cache
+from django.views.generic.base import TemplateView, RedirectView, TemplateResponseMixin
 from django.views.generic.detail import DetailView
-
-from open_coesione.forms import ContactForm
-from open_coesione.models import PressReview, Pillola, FAQ
+from django.views.generic.list import ListView
+from forms import ContactForm
+from mixins import DateFilterMixin
+from models import PressReview, Pillola, FAQ, ShortURL
 from progetti.models import Progetto, Tema, ClassificazioneAzione, DeliberaCIPE
 from soggetti.models import Soggetto
-from territori.models import Territorio
-
 from tagging.views import TagFilterMixin
-from open_coesione.mixins import DateFilterMixin
+from territori.models import Territorio
 
 
 def cached_context(get_context_data):
@@ -636,3 +633,16 @@ class FAQListView(ListView):
 class DocumentsRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
         return u'/media/uploads/documenti/{}'.format(kwargs['path'])
+
+
+class ShortURLRedirectView(RedirectView):
+    def get_redirect_url(self, **kwargs):
+        try:
+            shorturl = ShortURL.objects.get(pk=ShortURL.reverse_code(kwargs['code']))
+        except:
+            raise Http404
+        else:
+            shorturl.visit_count += 1
+            shorturl.save()
+
+            return shorturl.url

@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
+from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib.gis import admin
-from django.conf import settings
 from django.views.generic.base import TemplateView
 from open_coesione.views import HomeView, FondiView, RisorsaView, ContactView, SpesaCertificataGraficiView,\
     OpendataView, OpendataRedirectView, PillolaListView, PillolaDetailView, DocumentsRedirectView, FAQListView,\
-    PressReviewListView, DatiISTATView, SpesaCertificataView
+    PressReviewListView, DatiISTATView, SpesaCertificataView, ShortURLRedirectView
 from rubrica.views import NLContactView
 from filebrowser.sites import site
 
@@ -83,6 +84,8 @@ urlpatterns = patterns('',
     url(r'^opendata/$', OpendataView.as_view(template_name='open_coesione/opendata.html'), name='opendata'),
 
     url(r'^documenti/(?P<path>.+)$', DocumentsRedirectView.as_view(), name='documents_clean'),
+
+    url(r'^su/(?P<code>\w+)$', ShortURLRedirectView.as_view(), name='shorturl'),
 
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login'),
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),

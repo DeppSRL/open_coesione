@@ -10,7 +10,6 @@ from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.conf import settings
 from django.core.cache import cache
-from open_coesione import utils
 from open_coesione.data_classification import DataClassifier
 from open_coesione.views import AccessControlView, AggregatoMixin, cached_context
 from progetti.gruppo_programmi import GruppoProgrammi
