@@ -739,33 +739,29 @@ class Command(BaseCommand):
                 self.logger.info(u'{} -----------------> Committing.' .format(n))
                 transaction.commit()
 
-    @transaction.commit_on_success
-    def _import_soggetti_formagiuridica(self, df):
-        df1 = df[['COD_FORMA_GIURIDICA_SOGG', 'DESCR_FORMA_GIURIDICA_SOGG']].drop_duplicates()
-        for index, row in df1.iterrows():
-            forma_giuridica, created = FormaGiuridica.objects.get_or_create(
-                codice=self._get_value(row, 'COD_FORMA_GIURIDICA_SOGG'),
-                defaults={
-                    'denominazione': self._get_value(row, 'DESCR_FORMA_GIURIDICA_SOGG'),
-                }
-            )
-            self._log(created, u'Creata forma giuridica: {} ({})'.format(forma_giuridica.denominazione, forma_giuridica.codice))
+    # @transaction.commit_on_success
+    # def _import_soggetti_formagiuridica(self, df):
+    #     df1 = df[['COD_FORMA_GIURIDICA_SOGG', 'DESCR_FORMA_GIURIDICA_SOGG']].drop_duplicates()
+    #     for index, row in df1.iterrows():
+    #         forma_giuridica, created = FormaGiuridica.objects.get_or_create(
+    #             codice=self._get_value(row, 'COD_FORMA_GIURIDICA_SOGG'),
+    #             defaults={
+    #                 'denominazione': self._get_value(row, 'DESCR_FORMA_GIURIDICA_SOGG'),
+    #             }
+    #         )
+    #         self._log(created, u'Creata forma giuridica: {} ({})'.format(forma_giuridica.denominazione, forma_giuridica.codice))
 
-        # transaction.commit()
-
-    @transaction.commit_on_success
-    def _import_soggetti_codiceateco(self, df):
-        df1 = df[['COD_ATECO_SOGG', 'DESCRIZIONE_ATECO_SOGG']].drop_duplicates()
-        for index, row in df1.iterrows():
-            codice_ateco, created = CodiceAteco.objects.get_or_create(
-                codice=self._get_value(row, 'COD_ATECO_SOGG'),
-                defaults={
-                    'descrizione': self._get_value(row, 'DESCRIZIONE_ATECO_SOGG'),
-                }
-            )
-            self._log(created, u'Creato codice ateco: {} ({})'.format(codice_ateco.descrizione, codice_ateco.codice))
-
-        # transaction.commit()
+    # @transaction.commit_on_success
+    # def _import_soggetti_codiceateco(self, df):
+    #     df1 = df[['COD_ATECO_SOGG', 'DESCRIZIONE_ATECO_SOGG']].drop_duplicates()
+    #     for index, row in df1.iterrows():
+    #         codice_ateco, created = CodiceAteco.objects.get_or_create(
+    #             codice=self._get_value(row, 'COD_ATECO_SOGG'),
+    #             defaults={
+    #                 'descrizione': self._get_value(row, 'DESCRIZIONE_ATECO_SOGG'),
+    #             }
+    #         )
+    #         self._log(created, u'Creato codice ateco: {} ({})'.format(codice_ateco.descrizione, codice_ateco.codice))
 
     @transaction.commit_manually
     def _import_soggetti(self, df, append):
@@ -1168,7 +1164,7 @@ class Command(BaseCommand):
         df1 = pd.merge(
             gb.first(),
             gb.aggregate({
-                'DATA_PUBBLICAZIONE':  'max',
+                'DATA_PUBBLICAZIONE': 'max',
                 'ASSEGNAZIONE_CIPE': lambda x: x.str.replace(',', '.').astype(float).sum(),
                 'NOTE': lambda x: '\n'.join(x.tolist()),
             }),
