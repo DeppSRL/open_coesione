@@ -24,10 +24,10 @@
         </p>
 
         <ul class="unstyled">
-            {% if soggetto.forma_giuridica %}<li>{{ soggetto.forma_giuridica }}</li>{% endif %}
+            {% comment %}{% if soggetto.forma_giuridica %}<li>{{ soggetto.forma_giuridica }}</li>{% endif %}{% endcomment %}
             {% if soggetto.indirizzo %}<li>{{ soggetto.indirizzo }}</li>{% endif %}
             {% if soggetto.territorio %}<li>{% if soggetto.cap %}{{ soggetto.cap }}{% endif %} {{ soggetto.territorio }}</li>{% endif %}
-            {% if soggetto.rappresentante_legale %}<li>Rappresentante legale: {{ soggetto.rappresentante_legale }}</li>{% endif %}
+            {% comment %}{% if soggetto.rappresentante_legale %}<li>Rappresentante legale: {{ soggetto.rappresentante_legale }}</li>{% endif %}{% endcomment %}
             {% if soggetto.codice_fiscale.strip %}<li>CF.: {{ soggetto.codice_fiscale }}</li>{% endif %}
         </ul>
     </div>
