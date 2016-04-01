@@ -13,7 +13,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from forms import ContactForm
 from mixins import DateFilterMixin
-from models import PressReview, Pillola, FAQ, ShortURL
+from models import PressReview, Pillola, FAQ
 from progetti.models import Progetto, Tema, ClassificazioneAzione, DeliberaCIPE
 from soggetti.models import Soggetto
 from tagging.views import TagFilterMixin
@@ -633,16 +633,3 @@ class FAQListView(ListView):
 class DocumentsRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
         return u'/media/uploads/documenti/{}'.format(kwargs['path'])
-
-
-class ShortURLRedirectView(RedirectView):
-    def get_redirect_url(self, **kwargs):
-        try:
-            shorturl = ShortURL.objects.get(pk=ShortURL.reverse_code(kwargs['code']))
-        except:
-            raise Http404
-        else:
-            shorturl.visit_count += 1
-            shorturl.save()
-
-            return shorturl.url

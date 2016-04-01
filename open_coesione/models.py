@@ -131,27 +131,6 @@ class FAQ(models.Model):
         ordering = ['-priorita', 'id']
 
 
-class ShortURL(models.Model):
-    url = models.URLField(max_length=255, verbose_name='URL')
-    visit_count = models.PositiveIntegerField(default=0, verbose_name='Numero di visite')
-
-    @property
-    def code(self):
-        from base_62_converter import dehydrate
-        return dehydrate(self.pk)
-
-    @classmethod
-    def reverse_code(self, code):
-        from base_62_converter import saturate
-        return saturate(code)
-
-    def get_absolute_url(self):
-        return reverse('shorturl', kwargs={'code': self.code})
-
-    def __unicode__(self):
-        return u'{}'.format(self.url)
-
-
 @receiver(models.signals.post_delete, sender=File)
 @receiver(models.signals.post_delete, sender=PressReview)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
