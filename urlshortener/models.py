@@ -5,11 +5,8 @@ from django.db import models
 
 
 class URLManager(models.Manager):
-    def get(self, *args, **kwargs):
-        if 'code' in kwargs:
-            kwargs['pk'] = saturate(kwargs.pop('code'))
-
-        return self.get_query_set().get(*args, **kwargs)
+    def get_by_code(self, code):
+        return self.get(pk=saturate(code))
 
 
 class URL(models.Model):
