@@ -7,7 +7,7 @@ from models import URL
 class ShortURLRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
         try:
-            url = URL.objects.get(code=kwargs['code'])
+            url = URL.objects.get_by_code(kwargs['code'])
         except:
             raise Http404
         else:
