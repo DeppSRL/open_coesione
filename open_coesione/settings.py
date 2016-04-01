@@ -158,22 +158,26 @@ INSTALLED_APPS = (
     # TinyMCE
     'tinymce',
     'captcha',
+
     # debug toolbar 3rd party panels
     'cache_panel',
+
     'disqus',
+
     # API applications
     'rest_framework',
     'api',
     'widgets',
 
-    'progetti',
-    'territori',
-    'soggetti',
-    'rubrica',
     'open_coesione',
+    'progetti',
+    'soggetti',
+    'territori',
+    'rubrica',
     'blog',
     'idioticon',
     'tagging',
+    'urlshortener',
     'open_coesione.charts',
 )
 
@@ -404,5 +408,6 @@ FILEBROWSER_SELECT_FORMATS = {
     'image': ['Image'],
     'document': ['Document'],
     'media': ['Video','Audio'],
-
 }
+
+URLSHORTENER_DOMAIN = 'opencoesione.gov.it'

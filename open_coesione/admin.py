@@ -4,7 +4,7 @@ from django.contrib.contenttypes import generic
 from django.contrib.flatpages.admin import FlatPageAdmin, FlatpageForm
 from django.contrib.flatpages.models import FlatPage
 from django.forms import ModelForm
-from models import ContactMessage, PressReview, Pillola, File, Link, FAQ, ShortURL
+from models import ContactMessage, PressReview, Pillola, File, Link, FAQ
 from utils import export_select_fields_csv_action
 from tagging.admin import TagInline
 from tinymce.widgets import TinyMCE
@@ -120,21 +120,9 @@ class FAQAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug_it': ('domanda_it',), 'slug_en': ('domanda_en',)}
     form = FAQAdminForm
 
-
-class ShortURLAdmin(admin.ModelAdmin):
-    list_display = ('url', 'short_url', 'visit_count')
-    fields = ('url',)
-
-    def short_url(self, obj):
-        from django.conf import settings
-        from django.utils.html import format_html
-        return format_html('<a href="{0}" target="_blank">{0}</a>','http://{}{}'.format(settings.SHORT_URL_DOMAIN, obj.get_absolute_url()))
-    short_url.short_description = 'URL breve'
-
 admin.site.register(ContactMessage, MessagesAdmin)
 admin.site.register(PressReview, PressReviewAdmin)
 admin.site.register(Pillola, PillolaAdmin)
 admin.site.register(FAQ, FAQAdmin)
 admin.site.unregister(FlatPage)
 admin.site.register(FlatPage, OCFlatPageAdmin)
-admin.site.register(ShortURL, ShortURLAdmin)

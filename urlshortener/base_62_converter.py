@@ -20,6 +20,7 @@ UPPERCASE_OFFSET = 55
 LOWERCASE_OFFSET = 61
 DIGIT_OFFSET = 48
 
+
 def true_ord(char):
     """
     Turns a digit [char] in character representation
@@ -34,6 +35,7 @@ def true_ord(char):
         return ord(char) - LOWERCASE_OFFSET
     else:
         raise ValueError("%s is not a valid character" % char)
+
 
 def true_chr(integer):
     """
@@ -101,4 +103,3 @@ if __name__ == '__main__':
                 print "I don't understand option %s" % sys.argv[1]
         except ValueError as e:
             print e
-       
