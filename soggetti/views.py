@@ -8,9 +8,9 @@ from django.core.urlresolvers import reverse
 from django.views.generic.detail import DetailView
 from oc_search.mixins import FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin
 from oc_search.views import ExtendedFacetedSearchView
-from open_coesione.views import AccessControlView, AggregatoMixin, XRobotsTagTemplateResponseMixin
+from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin
 from progetti.models import Progetto, Tema, Ruolo
-from soggetti.models import Soggetto
+from models import Soggetto
 from territori.models import Territorio
 
 
@@ -154,7 +154,7 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
         return context
 
 
-class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin):
+class SoggettoSearchView(ExtendedFacetedSearchView, FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin):
     """
     This view allows faceted search and navigation of a soggetto.
     It extends an extended version of the basic FacetedSearchView,

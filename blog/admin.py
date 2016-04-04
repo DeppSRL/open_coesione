@@ -1,9 +1,8 @@
+# -*- coding: utf-8 -*-
 from django.contrib.gis import admin
 from models import Entry
 from django.forms import ModelForm, CharField
-
 from tinymce.widgets import TinyMCE
-
 from tagging.admin import TagInline
 
 

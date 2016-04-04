@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from api.serializers import *
+from serializers import *
 from open_coesione.utils import setup_view
 from open_coesione.views import HomeView
 from progetti.urls import sqs as progetti_sqs

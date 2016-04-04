@@ -19,15 +19,15 @@ from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin,
 from oc_search.views import ExtendedFacetedSearchView
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione, PagamentoProgetto, Ruolo
 from open_coesione import utils
-from open_coesione.views import AccessControlView, AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
-from progetti.forms import DescrizioneProgettoForm
-from progetti.gruppo_programmi import GruppoProgrammi, split_by_type
-from progetti.models import Tema, Fonte, SegnalazioneProgetto
+from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
+from forms import DescrizioneProgettoForm
+from gruppo_programmi import GruppoProgrammi, split_by_type
+from models import Tema, Fonte, SegnalazioneProgetto
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
 
-class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailView):
+class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
     model = Progetto
     queryset = Progetto.fullobjects.get_query_set()
 
@@ -60,7 +60,7 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailVie
         return context
 
 
-class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangePercPayMixin, FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin):
+class ProgettoSearchView(ExtendedFacetedSearchView, FacetRangePercPayMixin, FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin):
     """
     This view allows faceted search and navigation of a progetto.
     It extends an extended version of the basic FacetedSearchView,
@@ -276,7 +276,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         return extra
 
 
-class BaseProgrammaView(AccessControlView, AggregatoMixin, TemplateView):
+class BaseProgrammaView(AggregatoMixin, TemplateView):
     @cached_context
     def get_cached_context_data(self, programmi):
         logger = logging.getLogger('console')
@@ -451,7 +451,7 @@ class ProgrammaView(BaseProgrammaView):
         return context
 
 
-class ClassificazioneAzioneView(AccessControlView, AggregatoMixin, DetailView):
+class ClassificazioneAzioneView(AggregatoMixin, DetailView):
     context_object_name = 'tipologia'
     model = ClassificazioneAzione
 
@@ -489,7 +489,7 @@ class ClassificazioneAzioneView(AccessControlView, AggregatoMixin, DetailView):
         return context
 
 
-class TemaView(AccessControlView, AggregatoMixin, DetailView):
+class TemaView(AggregatoMixin, DetailView):
     model = Tema
 
     @cached_context
