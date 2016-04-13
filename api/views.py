@@ -8,6 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from api.querysets import PatchedSearchResult
 from serializers import *
 from open_coesione.utils import setup_view
 from open_coesione.views import HomeView
@@ -195,6 +196,8 @@ class ProgettoList(BaseSearchView):
             ret_sqs.query.order_by = []
             ret_sqs = ret_sqs.order_by(sort_field)
 
+        ret_sqs = ret_sqs.result_class(PatchedSearchResult)
+
         return ret_sqs
 
 
@@ -269,6 +272,8 @@ class SoggettoList(generics.ListAPIView):
             # reset default order_by parameter set in soggetti.search_querysets.sqs definition
             ret_sqs.query.order_by = []
             ret_sqs = ret_sqs.order_by(sort_field)
+
+        ret_sqs = ret_sqs.result_class(PatchedSearchResult)
 
         return ret_sqs
 

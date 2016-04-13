@@ -1,6 +1,6 @@
 {% extends 'base_two_columns.html' %}
 
-{% load staticfiles sekizai_tags digg_paginator utils popover_info %}
+{% load staticfiles sekizai_tags digg_paginator popover_info %}
 
 {% block page_title %}Elenco progetti {% endblock page_title %}
 {% block page_description %}Elenco dei progetti, navigabile a faccette, con possibilità di ricerca testuale.{% endblock page_description %}
@@ -8,22 +8,24 @@
 {% block article_added_class %}{% if search_within_non_active %}non_active{% endif %}{% endblock article_added_class%}
 
 {% block content %}
-    {% if n_results %}
-        <section style="clear: both">
+    <section>
+        {% if page.paginator.count %}
             <div class="row">
-                <h3 class="span4">Trovati {{ n_results }} progetti</h3>
+                <h3 class="span4">Trovat{{ page.paginator.count|pluralize:'o,i' }} {{ page.paginator.count }} progett{{ page.paginator.count|pluralize:'o,i' }}</h3>
 
                 <p class="span4">
-                    {% if n_results < n_max_downloadable %}
-                        scarica i risultati della ricerca {% popover_info 'download-risultati-ricerca' width="400px" %}<br/>
+                    {% if page.paginator.count > n_max_downloadable %}
+                        La tua ricerca supera i {{ n_max_downloadable }} progetti.<br />Puoi scaricare tutti gli open data <a href="{% url 'opendata' %}#oc0713-title">qui</a>
+                    {% else %}
+                        Scarica i risultati della ricerca {% popover_info 'download-risultati-ricerca' width='400px' %}<br/>
                         {% spaceless %}
-                            <a href="{% url 'progetti_search_csv' %}?{{ request.META.QUERY_STRING }}" title="scarica il file dei progetti, con i nomi delle località" data-ga-track="csv" style="font-weight: normal">csv progetti</a>
-                            <a href="{% url 'progetti_search_csv' %}?{{ request.META.QUERY_STRING }}" title="scarica il file dei progetti, con i nomi delle località" data-ga-track="csv"><img src="{% static 'img/download.png' %}" /></a>
+                            <a href="{% url 'progetti_search_csv' %}?{{ params }}" title="scarica il file dei progetti, con i nomi delle località" data-ga-track="csv" style="font-weight: normal">csv progetti</a>
+                            <a href="{% url 'progetti_search_csv' %}?{{ params }}" title="scarica il file dei progetti, con i nomi delle località" data-ga-track="csv"><img src="{% static 'img/download.png' %}" /></a>
                         {% endspaceless %}
                         |
                         {% spaceless %}
-                            <a href="{% url 'progetti_search_csv_loc' %}?{{ request.META.QUERY_STRING }}" title="scarica il file dei codici delle località" data-ga-track="csv" style="font-weight: normal">csv località</a>
-                            <a href="{% url 'progetti_search_csv_loc' %}?{{ request.META.QUERY_STRING }}" title="scarica il file dei codici delle località" data-ga-track="csv"><img src="{% static 'img/download.png' %}" /></a>
+                            <a href="{% url 'progetti_search_csv_loc' %}?{{ params }}" title="scarica il file dei codici delle località" data-ga-track="csv" style="font-weight: normal">csv località</a>
+                            <a href="{% url 'progetti_search_csv_loc' %}?{{ params }}" title="scarica il file dei codici delle località" data-ga-track="csv"><img src="{% static 'img/download.png' %}" /></a>
                         {% endspaceless %}
                         |
                         {% spaceless %}
@@ -32,23 +34,15 @@
                         {% endspaceless %}
 
                         {% add_data 'js-data' 'js/oc-ga-downloads.js' %}
-                    {% else %}
-                        La tua ricerca supera i {{ n_max_downloadable }} progetti.<br/>
-                        Puoi scaricare tutti gli open data <a href="{% url 'opendata' %}#oc0713-title">qui</a>
                     {% endif %}
                 </p>
             </div>
 
             {% if soggetto %}
-                <p>
-                    per il soggetto: {{ soggetto }}
-                    {% if ruolo %}
-                        ({{ ruolo }})
-                    {% endif %}
-                </p>
+                <p>per il soggetto: <a href="{{ soggetto.get_absolute_url }}">{{ soggetto }}</a>{% if ruolo %} ({{ ruolo }}){% endif %}</p>
             {% endif %}
             {% if fonte_fin %}
-                <p>per questo programma: <a href="{% url 'progetti_programma' fonte_fin.codice %}">{{ fonte_fin }}</a></p>
+                <p>per il programma: <a href="{% url 'progetti_programma' fonte_fin.codice %}">{{ fonte_fin }}</a></p>
             {% endif %}
             {% if gruppo_programmi %}
                 <p>per i <a href="{% url 'progetti_programmi' gruppo_programmi.codice %}">{{ gruppo_programmi.descrizione }}</a></p>
@@ -58,233 +52,75 @@
 
             <table class="search-results table">
                 <tbody>
-                    {% for result in page_obj.object_list %}
-                        <tr>
-                            {% comment %}<td>{{ result.rendered|safe }}</td>{% endcomment %}
-                            <td>
-                                {% include 'search/indexes/progetti/progetto_rendered.txt' with object=result.object only %}
-                            </td>
-                        </tr>
+                    {% for result in page.object_list %}
+                        {% with object=result.object %}
+                            <tr>
+                                <td>
+                                    {% if object.cipe_flag %}
+                                        <div class="cipe block-chart block">
+                                            <div><strong>Assegnazione CIPE</strong></div>
+                                        </div>
+                                    {% else %}
+                                        {% with percentuale_pagamenti=object.percentuale_pagamenti|default:'0'|floatformat:'0' %}
+                                            <div class="block-chart block" title="{{ percentuale_pagamenti }}% del totale">
+                                                <strong>Pagamenti effettuati</strong>
+                                                <div class="bar-vertical"><span style="height:{{ percentuale_pagamenti }}%"></span></div>
+                                                <p>{{ percentuale_pagamenti }}%</p>
+                                            </div>
+                                        {% endwith %}
+                                    {% endif %}
+
+                                    <div class="block-description">
+                                        <h3><a href="{{ object.get_absolute_url }}">{{ object.titolo_progetto }}</a></h3>
+
+                                        <ul class="unstyled">
+                                            <li>Finanziamento pubblico: <strong>{{ object.fin_totale_pubblico_netto|default:object.fin_totale_pubblico|default:'0' }}</strong> euro</li>
+                                            {% if not object.cipe_flag %}
+                                                <li>Pagamenti effettuati: <strong>{{ object.pagamento|default:'0' }}</strong> euro</li>
+                                            {% endif %}
+                                        </ul>
+                                        <p>
+                                            {% with territorio=object.territori.0 tema=object.tema.tema_superiore natura=object.classificazione_azione.classificazione_superiore %}
+                                                Territorio: <a href="{{ territorio.get_absolute_url }}">{{ territorio }}{% if territorio.provincia %} ({{ territorio.provincia }}){% endif %}</a>{% if object.territori|length > 1 %} e altri{% endif %}
+                                                -
+                                                Tema: <a href="{{ tema.get_absolute_url }}">{{ tema.short_label }}</a>
+                                                -
+                                                Natura: <a href="{{ natura.get_absolute_url }}">{{ natura.short_label }}</a>
+                                            {% endwith %}
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endwith %}
                     {% endfor %}
                 </tbody>
             </table>
-        </section>
 
-        {% addtoblock 'css' strip %}
-            <link rel="stylesheet" href="{% static 'css/digg_paginator.css' %}" />
-        {% endaddtoblock %}
+            {% addtoblock 'css' strip %}
+                <link rel="stylesheet" href="{% static 'css/digg_paginator.css' %}" />
+            {% endaddtoblock %}
 
-        {% digg_paginator %}
-    {% else %}
-        <p>Nessun risultato trovato.</p>
-    {% endif %}
+            {% digg_paginator %}
+        {% else %}
+            <div class="row">
+                <h3 class="span4">Nessun risultato trovato</h3>
+            </div>
+        {% endif %}
+    </section>
 {% endblock %}
 
 {% block sidebar %}
     <div class="flat_content">
-        <h4>Cerca tra i progetti {% if search_within_non_active %}non attivi{% endif %}</h4>
+        <h4>Cerca tra i progetti{% if search_within_non_active %} non attivi{% endif %}</h4>
 
-        <form method="get" action="{% url 'progetti_search' %}" class="form-search form-condensed">
-            {% include 'commons/search_form.html' %}
-        </form>
+        {% include 'commons/search_form.html' %}
 
-        <br/>
+        <h4>Filtra</h4>
+        <p>
+            Puoi trovare il progetto scorrendo la lista, qui al lato. Puoi perfezionare la ricerca usando i filtri qui sotto,
+            oppure puoi usare il form di ricerca con una parola che pensi sia contenuta nel progetto, in cima a questa colonna.
+        </p>
 
-        {% if n_results %}
-            {% if selected_facets %}
-                <h4>Modifica i filtri</h4>
-                {% for facet in selected_facets %}
-                    {% if facet.field == 'natura' and facets.fields.natura.is_field_selected %}
-                        <dt>Natura operazione</dt>
-                        <dd>
-                            <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
-                            {{ natura.short_label|key:facet.r_label|safe }}
-                        </dd>
-                    {% endif %}
-                    {% if facet.field == 'tema' and facets.fields.tema.is_field_selected %}
-                        <dt>Tema</dt>
-                        <dd>
-                            <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
-                            {{ tema.short_label|key:facet.r_label|safe }}
-                        </dd>
-                    {% endif %}
-                    {% if facet.field == 'tipo_progetto' and facets.fields.tipo_progetto.is_field_selected %}
-                        <dt>Tipo progetto</dt>
-                        <dd>
-                            <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
-                            {{ tipo_progetto.short_label|key:facet.r_label|safe }}
-                        </dd>
-                    {% endif %}
-                    {% if facet.field == 'fonte' and facets.fields.fonte.is_field_selected %}
-                        <dt>Fonte</dt>
-                        <dd>
-                            <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
-                            {{ fonte.short_label|key:facet.r_label|safe }}
-                        </dd>
-                    {% endif %}
-                    {% if facet.field == 'stato_progetto' and facets.fields.stato_progetto.is_field_selected %}
-                        <dt>Stato progetto</dt>
-                        <dd>
-                            <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
-                            {{ stato_progetto.short_label|key:facet.r_label|safe }}
-                        </dd>
-                    {% endif %}
-                    {% if facet.field == 'data_inizio' and facet_queries_date.is_selected %}
-                        <dt>Data inizio</dt>
-                        <dd>
-                            <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
-                            {{ facet.r_label|safe }}
-                        </dd>
-                    {% endif %}
-                    {% if facet.field == 'costo' and facet_queries_costo.is_selected %}
-                        <dt>Finanziamenti</dt>
-                        <dd>
-                            <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
-                            {{ facet.r_label|safe }}
-                        </dd>
-                    {% endif %}
-                    {% if perc_pay_facets_enabled %}
-                        {% if facet.field == 'perc_pagamento' and facet_queries_perc_pay.is_selected %}
-                            <dt>Percentuale Pagamento</dt>
-                            <dd>
-                                <a href="{{ facet.url }}"><i class="icon-remove" title="rimuovi questo filtro"></i></a>
-                                {{ facet.r_label|safe }}
-                            </dd>
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
-            {% else %}
-                <h4>Filtra</h4>
-                <p>
-                    Puoi trovare il progetto scorrendo la lista, qui al lato. Puoi perfezionare la ricerca usando i filtri qui sotto,
-                    oppure puoi usare il form di ricerca con una parola che pensi sia contenuta nel progetto, in cima a questa colonna.
-                </p>
-            {% endif %}
-
-            <div>
-                <dl>
-                    {% if facets.fields.natura and not facets.fields.natura.is_field_selected %}
-                        <dt>Natura dell'investimento</dt>
-                        {% for t in facets.fields.natura.counts %}
-                            {% if t.1 %}
-                                <dd>
-                                    {% if not t.2 %}
-                                        <a href="{{ base_url }}&selected_facets=natura:{{ t.0|urlencode }}" title="{{ natura.descrizione|key:t.0 }}">{{ natura.short_label|key:t.0 }}</a>
-                                        ({{ t.1 }})
-                                    {% endif %}
-                                </dd>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
-                </dl>
-                <dl>
-                    {% if facets.fields.tema and not facets.fields.tema.is_field_selected %}
-                        <dt>Tema</dt>
-                        {% for t in facets.fields.tema.counts %}
-                            {% if t.1 %}
-                                <dd>
-                                    {% if not t.2 %}
-                                        <a href="{{ base_url }}&selected_facets=tema:{{ t.0|urlencode }}" title="{{ tema.descrizione|key:t.0 }}">{{ tema.short_label|key:t.0 }}</a>
-                                        ({{ t.1 }})
-                                    {% endif %}
-                                </dd>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
-                </dl>
-                {% comment %}
-                    <dl>
-                        {% if facets.fields.tipo_progetto and not facets.fields.tipo_progetto.is_field_selected %}
-                            <dt>Tipo progetto</dt>
-                            {% for t in facets.fields.tipo_progetto.counts %}
-                                {% if t.1 %}
-                                    <dd>
-                                        {% if not t.2 %}
-                                            <a href="{{ base_url }}&selected_facets=tipo_progetto:{{ t.0|urlencode }}" title="{{ tipo_progetto.descrizione|key:t.0 }}">{{ tipo_progetto.short_label|key:t.0 }}</a>
-                                            ({{ t.1 }})
-                                        {% endif %}
-                                    </dd>
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                    </dl>
-                {% endcomment %}
-                <dl>
-                    {% if facets.fields.fonte and not facets.fields.fonte.is_field_selected %}
-                        <dt>Fonte</dt>
-                        {% for t in facets.fields.fonte.counts %}
-                            {% if t.1 %}
-                                <dd>
-                                    {% if not t.2 %}
-                                        <a href="{{ base_url }}&selected_facets=fonte:{{ t.0|urlencode }}" title="{{ fonte.descrizione|key:t.0 }}">{{ fonte.short_label|key:t.0 }}</a>
-                                        ({{ t.1 }})
-                                    {% endif %}
-                                </dd>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
-                </dl>
-                <dl>
-                    {% if facets.fields.stato_progetto and not facets.fields.stato_progetto.is_field_selected %}
-                        <dt>Stato progetto</dt>
-                        {% for t in facets.fields.stato_progetto.counts %}
-                            {% if t.1 %}
-                                <dd>
-                                    {% if not t.2 %}
-                                        <a href="{{ base_url }}&selected_facets=stato_progetto:{{ t.0|urlencode }}" title="{{ stato_progetto.descrizione|key:t.0 }}">{{ stato_progetto.short_label|key:t.0 }}</a>
-                                        ({{ t.1 }})
-                                    {% endif %}
-                                </dd>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
-                </dl>
-                <dl>
-                    {% if not facet_queries_date.is_selected %}
-                        <dt>Anno di inizio</dt>
-                        {% for range in facet_queries_date.ranges|dictsortreversed:'key' %}
-                            <dd>
-                                <a href="{{ base_url }}&selected_facets={{ range.key }}">{{ range.label|safe }}</a>
-                                ({{ range.count }})
-                            </dd>
-                        {% endfor %}
-                    {% endif %}
-                </dl>
-                <dl>
-                    {% if not facet_queries_costo.is_selected %}
-                        <dt>Finanziamenti</dt>
-                        {% for range in facet_queries_costo.ranges %}
-                            <dd>
-                                <a href="{{ base_url }}&selected_facets={{ range.key }}">{{ range.label|safe }}</a>
-                                ({{ range.count }})
-                            </dd>
-                        {% endfor %}
-                    {% endif %}
-                </dl>
-                {% if perc_pay_facets_enabled %}
-                    <dl>
-                        {% if not facet_queries_perc_pay.is_selected %}
-                            <dt>Percentuali pagamento</dt>
-                            {% for range in facet_queries_perc_pay.ranges %}
-                                <dd>
-                                    <a href="{{ base_url }}&selected_facets={{ range.key }}">{{ range.label|safe }}</a>
-                                    ({{ range.count }})
-                                </dd>
-                            {% endfor %}
-                        {% endif %}
-                    </dl>
-                {% endif %}
-            </div>
-
-            {% comment %}
-                <div style="margin-top: 200px">
-                    {% if search_within_non_active %}
-                        <dl><dt><a href="{% url 'progetti_search' %}">Visualizza tutti i progetti attivi</a></dt></dl>
-                    {% else %}
-                        <dl><dt><a href="{% url 'progetti_search' %}?selected_facets=is_active:0">Visualizza tutti i progetti non attivi</a></dt></dl>
-                    {% endif %}
-                </div>
-            {% endcomment %}
-        {% endif %}
+        {% include 'commons/search_facets.html' with facets=my_facets only %}
     </div>
 {% endblock %}

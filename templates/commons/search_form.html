@@ -1,22 +1,24 @@
 {% load sekizai_tags %}
 
+<form method="get" action="" class="form-search form-condensed">
+    <div class="control-group input-append">
+        {% spaceless %}
+            <input id="query" type="text" class="input-medium search-query" name="{{ form.q.html_name }}" value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
+            <span id="clear-query" class="btn add-on"><i class="icon-remove"></i></span>
+        {% endspaceless %}
+    </div>
+    <div class="control-group input-append">
+        {% spaceless %}
+            <input id="location" type="text" class="input-large search-query" value="{% if territorio %}{{ territorio }}{% endif %}" placeholder="Inserisci il territorio" />
+            <span id="clear-location" class="btn add-on"><i class="icon-remove"></i></span>
+        {% endspaceless %}
+
+        <input id="territorio-com" name="{{ form.territorio_com.html_name }}" value="{% if form.territorio_com.value %}{{ form.territorio_com.value }}{% endif %}" type="hidden" />
+        <input id="territorio-prov" name="{{ form.territorio_prov.html_name }}" value="{% if form.territorio_prov.value %}{{ form.territorio_prov.value }}{% endif %}" type="hidden" />
+        <input id="territorio-reg" name="{{ form.territorio_reg.html_name }}" value="{% if form.territorio_reg.value %}{{ form.territorio_reg.value }}{% endif %}" type="hidden" />
+    </div>
+
+    <button id="search-button" type="submit" class="btn"><i class="icon-search"></i> Cerca</button>
+</form>
+
 {% add_data 'js-data' 'js/oc-search-form.js' %}
-
-<div class="control-group input-append">
-    {% spaceless %}
-        <input id="query" type="text" class="input-medium search-query" name="{{ form.q.html_name }}" value="{% if form.q.value %}{{ form.q.value }}{% endif %}" placeholder="Testo della ricerca" />
-        <span id="clear-query" class="btn add-on"><i class="icon-remove"></i></span>
-    {% endspaceless %}
-</div>
-<div class="control-group input-append">
-    {% spaceless %}
-        <input id="location" type="text" class="input-large search-query" value="{% if territorio %}{{ territorio }}{% endif %}" placeholder="Inserisci il territorio" />
-        <span id="clear-location" class="btn add-on"><i class="icon-remove"></i></span>
-    {% endspaceless %}
-
-    <input id="territorio-com" name="{{ form.territorio_com.html_name }}" value="{% if form.territorio_com.value %}{{ form.territorio_com.value }}{% endif %}" type="hidden" />
-    <input id="territorio-prov" name="{{ form.territorio_prov.html_name }}" value="{% if form.territorio_prov.value %}{{ form.territorio_prov.value }}{% endif %}" type="hidden" />
-    <input id="territorio-reg" name="{{ form.territorio_reg.html_name }}" value="{% if form.territorio_reg.value %}{{ form.territorio_reg.value }}{% endif %}" type="hidden" />
-</div>
-
-<button id="search-button" type="submit" class="btn"><i class="icon-search"></i> Cerca</button>

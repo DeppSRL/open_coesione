@@ -27,7 +27,7 @@ def digg_paginator(context):
     '''
 
     paginator = context['paginator']
-    page_obj = context['page_obj']
+    page_obj = context['page']
     pages = paginator.num_pages
     page = page_obj.number
     in_leading_range = in_trailing_range = False
@@ -54,7 +54,7 @@ def digg_paginator(context):
     params = request.GET.copy()        
     if 'page' in params:
         del(params['page'])
-    get_params = params.urlencode()
+    get_params = params.urlencode(safe=':')
 
     try:
         prev_page = page_obj.previous_page_number()
