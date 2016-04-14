@@ -104,8 +104,7 @@ class ProgettoList(BaseSearchView):
     * ``/api/progetti?natura=incentivi-alle-imprese``
     * ``/api/progetti?tema=istruzione``
     * ``/api/progetti?natura=incentivi-alle-imprese&tema=istruzione``
-    * ``/api/progetti?natura=incentivi-alle-imprese&tema=istruzione``
-    * ``/api/progetti?territorio=palermo-comune``
+    * ``/api/progetti?territorio=roma-comune``
     * ``/api/progetti?natura=incentivi-alle-imprese&tema=istruzione&territorio=roma-comune``
     * ``/api/progetti?soggetto=miur``
     * ``/api/progetti?classificazione-cup=11.71.003`` - all projects having this exact cup classification code
@@ -121,10 +120,8 @@ class ProgettoList(BaseSearchView):
     These are the possible values:
 
     * ``-costo`` (default), ``costo``
-    * ``-pagamento``, ``pagamento``
     * ``-perc_pagamento``, ``perc_pagamento``
-    * ``-data_inizio_effettiva``, ``data_inizio_effettiva``
-    * ``-data_fine_effettiva``, ``data_fine_effettiva``
+    * ``-data_inizio``, ``data_inizio``
 
     a minus (-) in front of the field name indicates a *descending* order criterion.
 
@@ -154,22 +151,25 @@ class ProgettoList(BaseSearchView):
         natura_slug = self.request.QUERY_PARAMS.get('natura')
         if natura_slug:
             natura = ClassificazioneAzione.objects.get(slug=natura_slug)
-            ret_sqs = ret_sqs.filter(natura=natura)
+            ret_sqs = ret_sqs.filter(natura=natura.codice)
 
         tema_slug = self.request.QUERY_PARAMS.get('tema')
         if tema_slug:
             tema = Tema.objects.get(slug=tema_slug)
-            ret_sqs = ret_sqs.filter(tema=tema)
+            ret_sqs = ret_sqs.filter(tema=tema.codice)
 
         territorio_slug = self.request.QUERY_PARAMS.get('territorio')
         if territorio_slug:
+            if territorio_slug == 'ambito-nazionale':
+                territorio_slug = 'ambito-nazionale-nazionale'
+
             territorio = Territorio.objects.get(slug=territorio_slug)
-            if territorio.is_regione:
-                ret_sqs = ret_sqs.filter(territorio_reg=territorio.cod_reg)
+            if territorio.is_comune:
+                ret_sqs = ret_sqs.filter(territorio_com=territorio.cod_com)
             elif territorio.is_provincia:
                 ret_sqs = ret_sqs.filter(territorio_prov=territorio.cod_prov)
-            elif territorio.is_comune:
-                ret_sqs = ret_sqs.filter(territorio_com=territorio.cod_com)
+            else:
+                ret_sqs = ret_sqs.filter(territorio_reg=territorio.cod_reg)
 
         programma = self.request.QUERY_PARAMS.get('programma')
         if programma:
@@ -177,7 +177,7 @@ class ProgettoList(BaseSearchView):
 
         soggetto = self.request.QUERY_PARAMS.get('soggetto')
         if soggetto:
-            ret_sqs = ret_sqs.filter(soggetto=soggetto)
+            ret_sqs = ret_sqs.filter(soggetto__in=['{}|{}'.format(soggetto, r) for r in dict(Ruolo.RUOLO).keys()])
 
         classificazione_cup = self.request.QUERY_PARAMS.get('classificazione-cup')
         if classificazione_cup:
@@ -185,12 +185,17 @@ class ProgettoList(BaseSearchView):
 
         sort_field = self.request.QUERY_PARAMS.get('order_by')
         sortable_fields = (
-            'costo',
-            '-pagamento', 'pagamento',
+            '-costo', 'costo',
             '-perc_pagamento', 'perc_pagamento',
-            '-data_fine_effettiva', 'data_fine_effettiva',
-            '-data_inizio_effettiva', 'data_inizio_effettiva'
+            '-data_inizio', 'data_inizio'
         )
+        # sortable_fields = (
+        #     'costo',
+        #     '-pagamento', 'pagamento',
+        #     '-perc_pagamento', 'perc_pagamento',
+        #     '-data_fine_effettiva', 'data_fine_effettiva',
+        #     '-data_inizio_effettiva', 'data_inizio_effettiva'
+        # )
         if sort_field and sort_field in sortable_fields:
             # reset default order_by parameter set in progetti.search_querysets.sqs definition
             ret_sqs.query.order_by = []
@@ -231,7 +236,7 @@ class SoggettoList(generics.ListAPIView):
     You can change the sorting order, using the ``order_by`` GET parameter.
     These are the possible values:
 
-    * ``-costo`` (default)
+    * ``-costo`` (default), ``costo``
     * ``-n_progetti``, ``n_progetti``
 
     a minus (-) in front of the field name indicates a *descending* order criterion.
@@ -256,16 +261,16 @@ class SoggettoList(generics.ListAPIView):
         tema_slug = self.request.QUERY_PARAMS.get('tema')
         if tema_slug:
             tema = Tema.objects.get(slug=tema_slug)
-            ret_sqs = ret_sqs.filter(tema=tema)
+            ret_sqs = ret_sqs.filter(tema=tema.codice)
 
         ruolo = self.request.QUERY_PARAMS.get('ruolo')
         if ruolo:
-            ruolo_code = Ruolo.inv_ruoli_dict[ruolo]
+            ruolo_code = getattr(Ruolo.RUOLO, ruolo)
             ret_sqs = ret_sqs.filter(ruolo=ruolo_code)
 
         sort_field = self.request.QUERY_PARAMS.get('order_by')
         sortable_fields = (
-            'costo',
+            '-costo', 'costo',
             '-n_progetti', 'n_progetti',
         )
         if sort_field and sort_field in sortable_fields:

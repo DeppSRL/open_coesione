@@ -15,7 +15,8 @@ class ProgettoIndex(SearchIndex):
     territorio_prov = MultiValueField(stored=False)
     territorio_reg = MultiValueField(stored=False)
 
-    fonte_fin = FacetMultiValueField(stored=False)
+    fonte_fin = MultiValueField(stored=False)
+    classificazione_cup = CharField(stored=False)
 
     is_active = FacetBooleanField(model_attr='active_flag', stored=False)
     natura = FacetCharField(stored=False)
@@ -41,6 +42,12 @@ class ProgettoIndex(SearchIndex):
 
     def prepare_territorio_reg(self, obj):
         return [t.cod_reg for t in obj.territori]
+
+    def prepare_classificazione_cup(self, obj):
+        if obj.classificazione_oggetto:
+            return obj.classificazione_oggetto.codice
+        else:
+            return 'ND'
 
     def prepare_fonte_fin(self, obj):
         return [f.pk for f in obj.fonti_fin]
@@ -74,7 +81,7 @@ class ProgettoIndex(SearchIndex):
         return obj.percentuale_pagamenti
 
     def index_queryset(self):
-        related = ['territorio_set', 'programma_asse_obiettivo__classificazione_superiore__classificazione_superiore', 'programma_linea_azione__classificazione_superiore__classificazione_superiore', 'classificazione_azione', 'tema', 'fonte_set']
+        related = ['territorio_set', 'programma_asse_obiettivo__classificazione_superiore__classificazione_superiore', 'programma_linea_azione__classificazione_superiore__classificazione_superiore', 'classificazione_azione', 'classificazione_oggetto', 'tema', 'fonte_set']
         return self.model.fullobjects.select_related(*related).prefetch_related(*related)
 
 
