@@ -4,13 +4,13 @@
             <dt>{{ facet_info.label }}</dt>
             {% for v in facet_info.values %}
                 <dd>
+                    {% if v.urls.remove_filter %}
+                        <a href="?{{ v.urls.remove_filter }}" title="rimuovi questo filtro"><i class="icon-remove"></i></a>
+                    {% endif %}
                     {% if v.urls.add_filter %}
                         <a href="?{{ v.urls.add_filter }}" title="{{ v.label }}">{{ v.short_label }}</a>
                     {% else %}
-                        {% if v.urls.remove_filter %}
-                            <a href="?{{ v.urls.remove_filter }}" title="rimuovi questo filtro"><i class="icon-remove"></i></a>
-                        {% endif %}
-                        {{ v.short_label }}
+                        <span title="{{ v.label }}">{{ v.short_label }}</span>
                     {% endif %}
                     ({{ v.count }})
                 </dd>
