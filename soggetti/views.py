@@ -9,7 +9,7 @@ from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin
 from progetti.models import Progetto, Tema, Ruolo
 from models import Soggetto
 from territori.models import Territorio
-
+import logging
 
 class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
     model = Soggetto
@@ -29,6 +29,17 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
 
         context = super(SoggettoView, self).get_context_data(**kwargs)
 
+        if self.request.GET.get('tematizzazione', 'totale_costi') == 'anagrafica':
+            context['tematizzazione'] = 'anagrafica'
+            context.update(
+                self.get_totals(soggetto=self.object)
+            )
+
+            self.template_name = 'soggetti/soggetto_detail_anagrafica.html'
+            return context
+
+
+        logger = logging.getLogger('console')
         context = self.get_aggregate_data(context, soggetto=self.object)
 
         # CALCOLO DEI COLLABORATORI CON CUI SI SPARTISCONO PIÙ SOLDI
