@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from django.conf import settings
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.cache import cache
 from django.db.models import Count, Sum
-from django.core.urlresolvers import reverse
 from django.views.generic.detail import DetailView
-from oc_search.mixins import FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin
-from oc_search.views import ExtendedFacetedSearchView
-from open_coesione.views import AccessControlView, AggregatoMixin, XRobotsTagTemplateResponseMixin
+from oc_search.views import OCFacetedSearchView
+from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin
 from progetti.models import Progetto, Tema, Ruolo
-from soggetti.models import Soggetto
+from models import Soggetto
 from territori.models import Territorio
 
 
@@ -31,6 +28,15 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
                 return context
 
         context = super(SoggettoView, self).get_context_data(**kwargs)
+
+        # if self.request.GET.get('tematizzazione', 'totale_costi') == 'anagrafica':
+        #     context['tematizzazione'] = 'anagrafica'
+        #     context.update(
+        #         self.get_totals(soggetto=self.object)
+        #     )
+        #
+        #     self.template_name = 'soggetti/soggetto_detail_anagrafica.html'
+        #     return context
 
         context = self.get_aggregate_data(context, soggetto=self.object)
 
@@ -154,111 +160,54 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
         return context
 
 
-class SoggettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangeCostoMixin, FacetRangeNProgettiMixin, TerritorioMixin):
-    """
-    This view allows faceted search and navigation of a soggetto.
-    It extends an extended version of the basic FacetedSearchView,
-    """
-    __name__ = 'SoggettoSearchView'
-
-    COST_RANGES = {
-        '0-0TO100K':   {'qrange': '[* TO 100000]',             'r_label': 'fino a 100.000 &euro;'},
-        '1-100KTO1M':  {'qrange': '[100000.1 TO 1000000]',     'r_label': 'da 100.000 a 1 mil. di &euro;'},
-        '2-1MTO10M':   {'qrange': '[1000001 TO 10000000]',     'r_label': 'da 1 mil. a 10 mil. di &euro;'},
-        '3-10MTO100M': {'qrange': '[10000001 TO 100000000]',   'r_label': 'da 10 mil. a 100 mil. di &euro;'},
-        '4-100MTO1G':  {'qrange': '[100000010 TO 1000000000]', 'r_label': 'da 100 mil. a 1 mld. di &euro;'},
-        '5-1GTOINF':   {'qrange': '[1000000001 TO *]',         'r_label': 'oltre 1 mld. di &euro;'},
+class SoggettoSearchView(OCFacetedSearchView):
+    RANGES = {
+        'costo': {
+            '0-0TO100K':   {'qrange': '[* TO 100000]',             'label': 'fino a 100.000 €'},
+            '1-100KTO1M':  {'qrange': '[100000.1 TO 1000000]',     'label': 'da 100.000 a 1 mil. di €'},
+            '2-1MTO10M':   {'qrange': '[1000001 TO 10000000]',     'label': 'da 1 mil. a 10 mil. di €'},
+            '3-10MTO100M': {'qrange': '[10000001 TO 100000000]',   'label': 'da 10 mil. a 100 mil. di €'},
+            '4-100MTO1G':  {'qrange': '[100000010 TO 1000000000]', 'label': 'da 100 mil. a 1 mld. di €'},
+            '5-1GTOINF':   {'qrange': '[1000000001 TO *]',         'label': 'oltre 1 mld. di €'},
+        },
+        'n_progetti': {
+            '0-0TO10':    {'qrange': '[* TO 10]',       'label': 'fino a 10'},
+            '1-10TO100':  {'qrange': '[11 TO 100]',     'label': 'da 10 a 100'},
+            '2-100TO1K':  {'qrange': '[101 TO 1000]',   'label': 'da 100 a 1.000'},
+            '3-1KTO10K':  {'qrange': '[1001 TO 10000]', 'label': 'da 1.000 a 10.000'},
+            '4-10KTOINF': {'qrange': '[10001 TO *]',    'label': 'oltre 10.000'},
+        },
     }
 
-    N_PROGETTI_RANGES = {
-        '0-0TO10':     {'qrange': '[* TO 10]',       'r_label': 'fino a 10'},
-        '1-10TO100':   {'qrange': '[11 TO 100]',     'r_label': 'da 10 a 100'},
-        '2-100TO1K':   {'qrange': '[101 TO 1000]',   'r_label': 'da 100 a 1.000'},
-        '3-1KTO10K':   {'qrange': '[1001 TO 10000]', 'r_label': 'da 1.000 a 10.000'},
-        '4-10KTOINF':  {'qrange': '[10001 TO *]',    'r_label': 'oltre 10.000'},
-    }
+    @staticmethod
+    def _get_objects_by_pk(pks):
+        return {str(key): value for key, value in Soggetto.objects.in_bulk(pks).items()}
 
-    # def __init__(self, *args, **kwargs):
-    #     # Needed to switch out the default form class.
-    #     if kwargs.get('form_class') is None:
-    #         kwargs['form_class'] = RangeFacetedSearchForm
-    #
-    #     super(SoggettoSearchView, self).__init__(*args, **kwargs)
+    def build_page(self):
+        (paginator, page) = super(SoggettoSearchView, self).build_page()
 
-    # def build_form(self, form_kwargs=None):
-    #     if form_kwargs is None:
-    #         form_kwargs = {}
-    #
-    #     return super(SoggettoSearchView, self).build_form(form_kwargs)
+        ruolo_cod2descr = dict(Ruolo.RUOLO)
 
-    def _get_extended_selected_facets(self):
-        """
-        modifies the extended_selected_facets, adding correct labels for this view
-        works directly on the extended_selected_facets dictionary
-        """
-        extended_selected_facets = super(SoggettoSearchView, self)._get_extended_selected_facets()
+        for object in page.object_list:
+            object.ruolo = [ruolo_cod2descr[r] for r in object.ruolo]
 
-        # these comes from the Mixins
-        extended_selected_facets = self.add_costo_extended_selected_facets(extended_selected_facets)
-        extended_selected_facets = self.add_n_progetti_extended_selected_facets(extended_selected_facets)
-        extended_selected_facets = self.add_territorio_extended_selected_facets(extended_selected_facets)
-
-        return extended_selected_facets
+        return paginator, page
 
     def extra_context(self):
-        """
-        Add extra content here, when needed
-        """
         extra = super(SoggettoSearchView, self).extra_context()
 
-        territorio_com = self.request.GET.get('territorio_com', 0)
-        territorio_prov = self.request.GET.get('territorio_prov', 0)
-        territorio_reg = self.request.GET.get('territorio_reg', 0)
-        if territorio_com and territorio_com != '0':
-            extra['territorio'] = Territorio.objects.get(
-                territorio=Territorio.TERRITORIO.C,
-                cod_com=territorio_com
-            ).nome
-        elif territorio_prov and territorio_prov != '0':
-            extra['territorio'] = Territorio.objects.get(
-                territorio=Territorio.TERRITORIO.P,
-                cod_prov=territorio_prov
-            ).nome_con_provincia
-        elif territorio_reg and territorio_reg != '0':
-            extra['territorio'] = Territorio.objects.get(
-                territorio=Territorio.TERRITORIO.R,
-                cod_reg=territorio_reg
-            ).nome
-
-        # get data about custom costo and n_progetti range facets
-        extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()
-        extra['facet_queries_n_progetti'] = self.get_custom_facet_queries_n_progetti()
-
-        # definizione struttura dati per visualizzazione faccette ruoli
-        extra['ruolo'] = {
-            'denominazione': dict(Ruolo.RUOLO)
-        }
-
-        # definizione struttura dati per visualizzazione faccette tema
-        extra['tema'] = {
-            'descrizione': dict((c.codice, c.descrizione) for c in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)),
-            'short_label': dict((c.codice, c.short_label) for c in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)),
-        }
-        extra['base_url'] = reverse('soggetti_search') + '?' + extra['params'].urlencode()
         extra['soggetto'] = True
 
-        paginator = Paginator(self.results, 25)
-        page = self.request.GET.get('page')
-        try:
-            page_obj = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            page_obj = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            page_obj = paginator.page(paginator.num_pages)
+        # definizione struttura dati per visualizzazione faccette
 
-        extra['paginator'] = paginator
-        extra['page_obj'] = page_obj
+        facets = OrderedDict()
+
+        facets['ruolo'] = self._build_facet_field_info('ruolo', 'Ruolo', {k: (v, v) for k, v in dict(Ruolo.RUOLO).items()})
+        facets['tema'] = self._build_facet_field_info('tema', 'Tema', {o.codice: (o.descrizione, o.short_label) for o in Tema.objects.principali()})
+
+        facets['costo'] = self._build_range_facet_queries_info('costo', 'Finanziamenti')
+        facets['n_progetti'] = self._build_range_facet_queries_info('n_progetti', 'Numero di progetti')
+
+        extra['my_facets'] = facets
 
         return extra

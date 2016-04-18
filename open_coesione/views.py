@@ -149,17 +149,7 @@ class AggregatoMixin(object):
         return top_comuni_pro_capite
 
 
-class AccessControlView(object):
-    """
-    Define access control for the view
-    """
-    # @method_decorator(login_required)
-    # def dispatch(self, *args, **kwargs):
-    #     return super(AccessControlView, self).dispatch(*args, **kwargs)
-    pass
-
-
-class HomeView(AccessControlView, AggregatoMixin, TemplateView):
+class HomeView(AggregatoMixin, TemplateView):
     @cached_context
     def get_cached_context_data(self):
         context = {}
@@ -184,7 +174,7 @@ class HomeView(AccessControlView, AggregatoMixin, TemplateView):
         return context
 
 
-class RisorsaView(AccessControlView, TemplateView):
+class RisorsaView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(RisorsaView, self).get_context_data(**kwargs)
 

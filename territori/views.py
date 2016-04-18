@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import json
+import logging
+import re
+import urllib
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
@@ -10,20 +14,13 @@ from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.conf import settings
 from django.core.cache import cache
+from lxml import etree
 from open_coesione.data_classification import DataClassifier
-from open_coesione.views import AccessControlView, AggregatoMixin, cached_context
+from open_coesione.views import AggregatoMixin, cached_context
 from progetti.gruppo_programmi import GruppoProgrammi
 from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from progetti.views import BaseCSVView
-from territori.models import Territorio
-
-import json
-from lxml import etree
-import re
-import urllib
-import logging
-
-logger = logging.getLogger('oc')
+from models import Territorio
 
 
 class JSONResponseMixin(object):
@@ -468,7 +465,7 @@ class MapnikComuniView(MapnikView):
             raise Exception('a region or a province must be specified for this view')
 
 
-class TerritorioView(AccessControlView, AggregatoMixin, DetailView):
+class TerritorioView(AggregatoMixin, DetailView):
     model = Territorio
     tipo_territorio = None
 
@@ -537,7 +534,7 @@ class AmbitoNazionaleView(TerritorioView):
     tipo_territorio = Territorio.TERRITORIO.N
 
 
-class AmbitoEsteroView(AccessControlView, AggregatoMixin, ListView):
+class AmbitoEsteroView(AggregatoMixin, ListView):
     tipo_territorio = Territorio.TERRITORIO.E
     queryset = Territorio.objects.filter(territorio=tipo_territorio)
 

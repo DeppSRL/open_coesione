@@ -1,3 +1,0 @@
-<div class="block-description">
-    <h3><a href="{{ object.get_absolute_url }}">{{ object.denominazione }}</a></h3>
-</div>

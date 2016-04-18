@@ -51,6 +51,7 @@ $(document).ready(function() {
     }
 
     $('#query').bind('keydown', handle_keydown);
+
     $('#clear-query').on('click', function() {
         $('#query').val('');
         document.getElementById('search-button').click();
