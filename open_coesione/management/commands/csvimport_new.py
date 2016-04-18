@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
+from collections import OrderedDict
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import transaction
 from django.db.utils import DatabaseError, IntegrityError
@@ -705,7 +706,7 @@ class Command(BaseCommand):
                 values['stato_progetto'] = stato_desc2cod.get(row['OC_STATO_PROGETTO'])
                 values['stato_finanziario'] = stato_desc2cod.get(row['OC_STATO_FINANZIARIO'])
 
-                values['csv_data'] = json.dumps(dict(row), ensure_ascii=False, sort_keys=True)
+                values['csv_data'] = json.dumps(OrderedDict(row), ensure_ascii=False, sort_keys=True)
 
             except ValueError as e:
                 self.logger.error(u'{}/{} - {}: {}. Skipping'.format(n, df_count, codice_locale, e))
@@ -1216,7 +1217,7 @@ class Command(BaseCommand):
 
                 values['dps_flag_cup'] = 1
 
-                values['csv_data'] = json.dumps(dict(row), ensure_ascii=False, sort_keys=True)
+                values['csv_data'] = json.dumps(OrderedDict(row), ensure_ascii=False, sort_keys=True)
 
             except ValueError as e:
                 self.logger.error(u'{}/{} - {}: {}. Skipping'.format(n, df_count, codice_locale, e))

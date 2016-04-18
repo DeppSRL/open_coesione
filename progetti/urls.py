@@ -11,7 +11,7 @@ from progetti.views import ProgettoSearchView, ProgettoView, ClassificazioneAzio
 
 urlpatterns = patterns('',
     # faceted navigation
-    url(r'^$', ProgettoSearchView(template='progetti/progetto_search.html', searchqueryset=sqs), name='progetti_search'),
+    url(r'^$', ProgettoSearchView(template='progetti/progetto_search.html', searchqueryset=sqs, results_per_page=10), name='progetti_search'),
     url(r'^csv_prog/$', ProgettoCSVSearchView(searchqueryset=sqs), name='progetti_search_csv'),
     url(r'^csv_loc/$', ProgettoLocCSVSearchView(searchqueryset=sqs), name='progetti_search_csv_loc'),
 
@@ -19,7 +19,7 @@ urlpatterns = patterns('',
     url(r'^segnalazione/completa/$', TemplateView.as_view(template_name='segnalazione/completata.html'), name='progetti_segnalazione_completa'),
     url(r'^segnalazione/(?P<pk>\d+)/$', SegnalazioneDetailView.as_view(), name='progetto_segnalazione_pubblicata'),
 
-    # dettaglio di progetto
+    # dettaglio progetto
     url(r'^(?P<slug>[\w-]+)/$', ProgettoView.as_view(), name='progetti_progetto'),
     url(r'^pagamenti_(?P<slug>[\w-]+).csv$', ProgettoPagamentiCSVView.as_view(), name='progetto_pagamenti'),
 

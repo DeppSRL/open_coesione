@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from tinymce.models import HTMLField
+
 
 class Term(models.Model):
     """
@@ -11,17 +13,16 @@ class Term(models.Model):
 
     It is called idioticon, because it's a much more interesting name.
     """
-    term = models.CharField(_("Term"), max_length=128,
-                            help_text=_("The term"))
+    term = models.CharField(_('Term'), max_length=128,
+                            help_text=_('The term'))
     slug = models.SlugField(max_length=128, unique=True, help_text=_("A single word or slug, to use as key in popovers' inclusion tags"))
-    popover_title = models.CharField(_("Title"), max_length=255, blank=True, null=True,
-                                     help_text=_("The title in the popover box"))
-    definition = HTMLField(_("Definition"), help_text=_("The definition of the term"))
+    popover_title = models.CharField(_('Title'), max_length=255, blank=True, null=True,
+                                     help_text=_('The title in the popover box'))
+    definition = HTMLField(_('Definition'), help_text=_('The definition of the term'))
 
     class Meta:
-        verbose_name = _("Term")
-        verbose_name_plural = _("Terms")
+        verbose_name = _('Term')
+        verbose_name_plural = _('Terms')
 
     def __unicode__(self):
         return self.term
-

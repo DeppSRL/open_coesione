@@ -1,8 +1,7 @@
+# -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.contrib.admin.filters import RelatedFieldListFilter, AllValuesFieldListFilter
-from django.http import HttpResponse
-from .models import Fonte, Contatto, Iscrizione
-import csv
+from django.contrib.admin.filters import AllValuesFieldListFilter
+from models import Fonte, Contatto, Iscrizione
 from open_coesione.utils import export_select_fields_csv_action
 
 
@@ -13,6 +12,7 @@ class FonteListFilter(AllValuesFieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
         super(FonteListFilter, self).__init__(field, request, params, model, model_admin, field_path)
         self.title = 'fonte'
+
 
 class SourceAdmin(admin.ModelAdmin):
     pass
@@ -33,18 +33,19 @@ class SubscriptionAdmin(admin.ModelAdmin):
     search_fields = ('contact__email', 'contact__first_name', 'contact__last_name', 'role', 'title')
     list_display = ('email', 'user_type', 'role', 'title', 'created_at', 'source')
     actions = [
-        export_select_fields_csv_action("Esporta i selezionati in formato CSV",
-             fields=[
-                 ('contact__first_name', 'Nome'),
-                 ('contact__last_name', 'Cognome'),
-                 ('contact__email', 'Email'),
-                 ('title', 'Qualifica'),
-                 ('role', 'Ruolo'),
-                 ('user_type', 'Tipo utente'),
-                 ('notes', 'Note'),
-                 ('source__name', 'Fonte')
-             ],
-             header=True
+        export_select_fields_csv_action(
+            'Esporta i selezionati in formato CSV',
+            fields=[
+                ('contact__first_name', 'Nome'),
+                ('contact__last_name', 'Cognome'),
+                ('contact__email', 'Email'),
+                ('title', 'Qualifica'),
+                ('role', 'Ruolo'),
+                ('user_type', 'Tipo utente'),
+                ('notes', 'Note'),
+                ('source__name', 'Fonte')
+            ],
+            header=True
         ),
     ]
 

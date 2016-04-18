@@ -10,24 +10,22 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum
 from django.http import HttpResponse, Http404
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
-from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin, FacetRangePercPayMixin
-from oc_search.views import ExtendedFacetedSearchView
+from oc_search.views import OCFacetedSearchView
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione, PagamentoProgetto, Ruolo
 from open_coesione import utils
-from open_coesione.views import AccessControlView, AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
-from progetti.forms import DescrizioneProgettoForm
-from progetti.gruppo_programmi import GruppoProgrammi, split_by_type
-from progetti.models import Tema, Fonte, SegnalazioneProgetto
+from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
+from forms import DescrizioneProgettoForm
+from gruppo_programmi import GruppoProgrammi, split_by_type
+from models import Tema, Fonte, SegnalazioneProgetto
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
 
-class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailView):
+class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
     model = Progetto
     queryset = Progetto.fullobjects.get_query_set()
 
@@ -60,40 +58,34 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailVie
         return context
 
 
-class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangePercPayMixin, FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin):
-    """
-    This view allows faceted search and navigation of a progetto.
-    It extends an extended version of the basic FacetedSearchView,
-    """
-    __name__ = 'ProgettoSearchView'
-
-    PERC_PAY_RANGES = {
-        '0-0TO25':   {'qrange': '[* TO 25.0]', 'r_label': 'da 0 al 25%'},
-        '1-25TO50':  {'qrange': '[25.001 TO 50.0]', 'r_label': 'dal 25% al 50%'},
-        '2-50TO75':  {'qrange': '[50.001 TO 75.0]', 'r_label': 'dal 50% al 75%'},
-        '3-75TO100': {'qrange': '[75.00 TO *]', 'r_label': 'oltre il 75%'},
-    }
-
-    COST_RANGES = {
-        '0-0TO1K':     {'qrange': '[* TO 1000]', 'r_label': 'da 0 a 1.000&euro;'},
-        '1-1KTO10K':   {'qrange': '[1000.01 TO 10000]', 'r_label': 'da 1.000 a 10.000&euro;'},
-        '2-10KTO100K': {'qrange': '[10000.01 TO 100000]', 'r_label': 'da 10.000 a 100.000&euro;'},
-        '3-100KTO10M': {'qrange': '[100000.01 TO 10000000]', 'r_label': 'da 100.000 a 10.000.000&euro;'},
-        '4-10MTOINF':  {'qrange': '[10000001 TO *]', 'r_label': 'oltre 10.000.000&euro;'},
-    }
-
-    DATE_INTERVALS_RANGES = {
-        '2015':  {'qrange': '[2015-01-01T00:00:00Z TO *]', 'r_label': '2015'},
-        '2014':  {'qrange': '[2014-01-01T00:00:00Z TO 2014-12-31T23:59:59Z]', 'r_label': '2014'},
-        '2013':  {'qrange': '[2013-01-01T00:00:00Z TO 2013-12-31T23:59:59Z]', 'r_label': '2013'},
-        '2012':  {'qrange': '[2012-01-01T00:00:00Z TO 2012-12-31T23:59:59Z]', 'r_label': '2012'},
-        '2011':  {'qrange': '[2011-01-01T00:00:00Z TO 2011-12-31T23:59:59Z]', 'r_label': '2011'},
-        '2010':  {'qrange': '[2010-01-01T00:00:00Z TO 2010-12-31T23:59:59Z]', 'r_label': '2010'},
-        '2009':  {'qrange': '[2009-01-01T00:00:00Z TO 2009-12-31T23:59:59Z]', 'r_label': '2009'},
-        '2008':  {'qrange': '[2008-01-01T00:00:00Z TO 2008-12-31T23:59:59Z]', 'r_label': '2008'},
-        '2007':  {'qrange': '[2007-01-01T00:00:00Z TO 2007-12-31T23:59:59Z]', 'r_label': '2007'},
-        'early': {'qrange': '[1970-01-02T00:00:00Z TO 2006-12-31T23:59:59Z]', 'r_label': 'prima del 2007'},
-        'nd':    {'qrange': '[* TO 1970-01-01T00:00:00Z]', 'r_label': 'non disponibile'}
+class ProgettoSearchView(OCFacetedSearchView):
+    RANGES = {
+        'costo': {
+            '0-0TO1K':     {'qrange': '[* TO 1000]',             'label': 'da 0 a 1.000 €'},
+            '1-1KTO10K':   {'qrange': '[1000.01 TO 10000]',      'label': 'da 1.000 a 10.000 €'},
+            '2-10KTO100K': {'qrange': '[10000.01 TO 100000]',    'label': 'da 10.000 a 100.000 €'},
+            '3-100KTO10M': {'qrange': '[100000.01 TO 10000000]', 'label': 'da 100.000 a 10.000.000 €'},
+            '4-10MTOINF':  {'qrange': '[10000001 TO *]',         'label': 'oltre 10.000.000 €'},
+        },
+        'data_inizio': {
+            '00-2015':  {'qrange': '[2015-01-01T00:00:00Z TO *]',                    'label': '2015'},
+            '01-2014':  {'qrange': '[2014-01-01T00:00:00Z TO 2014-12-31T23:59:59Z]', 'label': '2014'},
+            '02-2013':  {'qrange': '[2013-01-01T00:00:00Z TO 2013-12-31T23:59:59Z]', 'label': '2013'},
+            '03-2012':  {'qrange': '[2012-01-01T00:00:00Z TO 2012-12-31T23:59:59Z]', 'label': '2012'},
+            '04-2011':  {'qrange': '[2011-01-01T00:00:00Z TO 2011-12-31T23:59:59Z]', 'label': '2011'},
+            '05-2010':  {'qrange': '[2010-01-01T00:00:00Z TO 2010-12-31T23:59:59Z]', 'label': '2010'},
+            '06-2009':  {'qrange': '[2009-01-01T00:00:00Z TO 2009-12-31T23:59:59Z]', 'label': '2009'},
+            '07-2008':  {'qrange': '[2008-01-01T00:00:00Z TO 2008-12-31T23:59:59Z]', 'label': '2008'},
+            '08-2007':  {'qrange': '[2007-01-01T00:00:00Z TO 2007-12-31T23:59:59Z]', 'label': '2007'},
+            '09-early': {'qrange': '[1970-01-02T00:00:00Z TO 2006-12-31T23:59:59Z]', 'label': 'prima del 2007'},
+            '10-nd':    {'qrange': '[* TO 1970-01-01T00:00:00Z]',                    'label': 'non disponibile'}
+        },
+        'perc_pagamento': {
+            '0-0TO25':   {'qrange': '[* TO 25.0]',      'label': 'da 0 al 25%'},
+            '1-25TO50':  {'qrange': '[25.001 TO 50.0]', 'label': 'dal 25% al 50%'},
+            '2-50TO75':  {'qrange': '[50.001 TO 75.0]', 'label': 'dal 50% al 75%'},
+            '3-75TO100': {'qrange': '[75.00 TO *]',     'label': 'oltre il 75%'},
+        },
     }
 
     @staticmethod
@@ -102,8 +94,7 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         return Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks)
 
     def build_form(self, form_kwargs=None):
-        # the is_active:1 facet is selected by default
-        # and is substituted by is_active:0 when explicitly requested
+        # The is_active:1 facet is selected by default and is substituted by is_active:0 when explicitly requested
         # by clicking on the 'See archive' link in the progetti page
         if 'is_active:0' in self.request.GET.getlist('selected_facets'):
             form_kwargs = {'selected_facets': ['is_active:0']}
@@ -112,45 +103,8 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         return super(ProgettoSearchView, self).build_form(form_kwargs)
 
-    def _get_extended_selected_facets(self):
-        """
-        modifies the extended_selected_facets, adding correct labels for this view
-        works directly on the extended_selected_facets dictionary
-        """
-        extended_selected_facets = super(ProgettoSearchView, self)._get_extended_selected_facets()
-
-        # this comes from the Mixins
-        extended_selected_facets = self.add_perc_pay_extended_selected_facets(extended_selected_facets)
-        extended_selected_facets = self.add_costo_extended_selected_facets(extended_selected_facets)
-        extended_selected_facets = self.add_territorio_extended_selected_facets(extended_selected_facets)
-        extended_selected_facets = self.add_date_interval_extended_selected_facets(extended_selected_facets)
-
-        return extended_selected_facets
-
     def extra_context(self):
-        """
-        Add extra content here, when needed
-        """
         extra = super(ProgettoSearchView, self).extra_context()
-
-        # territorio_com = self.request.GET.get('territorio_com')
-        # territorio_prov = self.request.GET.get('territorio_prov')
-        # territorio_reg = self.request.GET.get('territorio_reg')
-        # if territorio_com and territorio_com != '0':
-        #     extra['territorio'] = Territorio.objects.get(
-        #         territorio=Territorio.TERRITORIO.C,
-        #         cod_com=territorio_com
-        #     ).nome
-        # elif territorio_prov and territorio_prov != '0':
-        #     extra['territorio'] = Territorio.objects.get(
-        #         territorio=Territorio.TERRITORIO.P,
-        #         cod_prov=territorio_prov
-        #     ).nome_con_provincia
-        # elif territorio_reg:
-        #     extra['territorio'] = Territorio.objects.get(
-        #         territorio__in=(Territorio.TERRITORIO.E, Territorio.TERRITORIO.N, Territorio.TERRITORIO.R),
-        #         cod_reg=territorio_reg
-        #     ).nome
 
         fonte_fin = self.request.GET.get('fonte_fin')
         if fonte_fin:
@@ -180,103 +134,35 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
                 if soggetto_ruolo:
                     extra['ruolo'] = '/'.join(sorted(set(dict(Ruolo.RUOLO).get(r, '') for r in soggetto_ruolo))).strip('/')
 
-        # get data about perc pay and n_progetti range facets
-        extra['facet_queries_perc_pay'] = self.get_custom_facet_queries_perc_pay()
-
-        # get data about custom costo and n_progetti range facets
-        extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()
-
-        # get data about custom date range facets
-        extra['facet_queries_date'] = self.get_custom_facet_queries_date()
-
-        # definizione struttura dati per visualizzazione faccette natura
-        extra['natura'] = {
-            'descrizione': {},
-            'short_label': {}
-        }
-        for c in ClassificazioneAzione.objects.filter(tipo_classificazione='natura'):
-            if c.codice != ' ':
-                codice = c.codice
-            else:
-                codice = 'ND'
-
-            extra['natura']['descrizione'][codice] = c.descrizione
-            extra['natura']['short_label'][codice] = c.short_label
-
-        # definizione struttura dati per visualizzazione faccette tema
-        extra['tema'] = {
-            'descrizione': {},
-            'short_label': {}
-        }
-        for c in Tema.objects.principali():
-            if c.codice != ' ':
-                codice = c.codice
-            else:
-                codice = 'ND'
-
-            extra['tema']['descrizione'][codice] = c.descrizione
-            extra['tema']['short_label'][codice] = c.short_label
-
-        # definizione struttura dati per visualizzazione faccette tipo progetto
-        extra['tipo_progetto'] = {
-            'descrizione': {},
-            'short_label': {}
-        }
-        for c in Progetto.TIPI_PROGETTO:
-            codice, descrizione = c
-
-            extra['tipo_progetto']['descrizione'][codice] = descrizione
-            extra['tipo_progetto']['short_label'][codice] = descrizione
-
-        # definizione struttura dati per visualizzazione faccette fonte
-        extra['fonte'] = {
-            'descrizione': {},
-            'short_label': {}
-        }
-        for c in Fonte.objects.all():
-            extra['fonte']['descrizione'][c.codice] = c.descrizione
-            extra['fonte']['short_label'][c.codice] = c.short_label
-
-        # definizione struttura dati per visualizzazione faccette stato progetto
-        extra['stato_progetto'] = {
-            'descrizione': {},
-            'short_label': {}
-        }
-        for c in Progetto.STATO:
-            codice, descrizione = c
-
-            extra['stato_progetto']['descrizione'][codice] = descrizione
-            extra['stato_progetto']['short_label'][codice] = descrizione
-
-        extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
-
-        paginator = Paginator(self.results, 10)
-        page = self.request.GET.get('page')
-        try:
-            page_obj = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            page_obj = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            page_obj = paginator.page(paginator.num_pages)
-
-        selected_facets = self.request.GET.getlist('selected_facets')
-        extra['search_within_non_active'] = 'is_active:0' in selected_facets
-
-        extra['paginator'] = paginator
-        extra['page_obj'] = page_obj
+        extra['params'] = self.params.urlencode(safe=':')
 
         extra['n_max_downloadable'] = settings.N_MAX_DOWNLOADABLE_RESULTS
 
-        extra['perc_pay_facets_enabled'] = getattr(settings, 'PERC_PAY_FACETS_ENABLED', False)
+        extra['search_within_non_active'] = 'is_active:0' in self.request.GET.getlist('selected_facets')
 
-        extra['facets']['fields']['stato_progetto']['counts'] = sorted(extra['facets']['fields']['stato_progetto']['counts'], key=lambda x: x[0], reverse=True)
+        # definizione struttura dati per visualizzazione faccette
+
+        facets = OrderedDict()
+
+        facets['natura'] = self._build_facet_field_info('natura', "Natura dell'investimento", {o.codice.strip() or 'ND': (o.descrizione, o.short_label) for o in ClassificazioneAzione.objects.nature()})
+        facets['tema'] = self._build_facet_field_info('tema', 'Tema', {o.codice: (o.descrizione, o.short_label) for o in Tema.objects.principali()})
+        facets['fonte'] = self._build_facet_field_info('fonte', 'Fonte', {o.codice: (o.descrizione, o.short_label) for o in Fonte.objects.all()})
+        facets['stato_progetto'] = self._build_facet_field_info('stato_progetto', 'Stato progetto', {k: (v, v) for k, v in dict(Progetto.STATO).items()})
+
+        facets['data_inizio'] = self._build_range_facet_queries_info('data_inizio', 'Anno di inizio')
+        facets['costo'] = self._build_range_facet_queries_info('costo', 'Finanziamenti')
+
+        if getattr(settings, 'PERC_PAY_FACETS_ENABLED', False):
+            facets['perc_pagamento'] = self._build_range_facet_queries_info('perc_pagamento', 'Percentuali pagamento')
+
+        facets['stato_progetto']['values'] = sorted(facets['stato_progetto']['values'], key=lambda x: x['key'], reverse=True)
+
+        extra['my_facets'] = facets
 
         return extra
 
 
-class BaseProgrammaView(AccessControlView, AggregatoMixin, TemplateView):
+class BaseProgrammaView(AggregatoMixin, TemplateView):
     @cached_context
     def get_cached_context_data(self, programmi):
         logger = logging.getLogger('console')
@@ -293,7 +179,7 @@ class BaseProgrammaView(AccessControlView, AggregatoMixin, TemplateView):
 
         logger.debug('territori_piu_finanziati_pro_capite start')
 
-        #discriminate between ProgrammaAsseObiettivo and ProgrammaLineaAzione
+        # discriminate between ProgrammaAsseObiettivo and ProgrammaLineaAzione
         programmi_splitted = split_by_type(programmi)
 
         from django.db.models import Q
@@ -451,7 +337,7 @@ class ProgrammaView(BaseProgrammaView):
         return context
 
 
-class ClassificazioneAzioneView(AccessControlView, AggregatoMixin, DetailView):
+class ClassificazioneAzioneView(AggregatoMixin, DetailView):
     context_object_name = 'tipologia'
     model = ClassificazioneAzione
 
@@ -489,7 +375,7 @@ class ClassificazioneAzioneView(AccessControlView, AggregatoMixin, DetailView):
         return context
 
 
-class TemaView(AccessControlView, AggregatoMixin, DetailView):
+class TemaView(AggregatoMixin, DetailView):
     model = Tema
 
     @cached_context

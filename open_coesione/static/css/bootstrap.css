@@ -1508,8 +1508,8 @@ table .span24 {
     */
 @font-face {
   font-family: 'FontAwesome';
-  src: url('../font/fontawesome/fontawesome-webfont.eot');
-  src: url('../font/fontawesome/fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('../font/fontawesome/fontawesome-webfont.woff') format('woff'), url('../font/fontawesome/fontawesome-webfont.ttf') format('truetype'), url('../font/fontawesome/fontawesome-webfont.svg#FontAwesome') format('svg');
+  src: url('http://localhost:8000/static/less/bootstrap/../../font/fontawesome/fontawesome-webfont.eot');
+  src: url('http://localhost:8000/static/less/bootstrap/../../font/fontawesome/fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('http://localhost:8000/static/less/bootstrap/../../font/fontawesome/fontawesome-webfont.woff') format('woff'), url('http://localhost:8000/static/less/bootstrap/../../font/fontawesome/fontawesome-webfont.ttf') format('truetype'), url('http://localhost:8000/static/less/bootstrap/../../font/fontawesome/fontawesome-webfont.svg#FontAwesome') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -5049,13 +5049,16 @@ a.block-chart {
   font-size: 16px;
 }
 #banner-container #banner ul li a#risorse {
-  background-image: url('../img/banner1420/risorse_ico.png');
+  background-image: url('http://localhost:8000/static/less/../img/banner1420/risorse_ico.png');
 }
 #banner-container #banner ul li a#programmi {
-  background-image: url('../img/banner1420/programmi_ico.png');
+  background-image: url('http://localhost:8000/static/less/../img/banner1420/programmi_ico.png');
 }
 #banner-container #banner ul li a#bandi {
-  background-image: url('../img/banner1420/bandi_ico.png');
+  background-image: url('http://localhost:8000/static/less/../img/banner1420/bandi_ico.png');
+}
+#banner-container #banner ul li a#progetti {
+  background-image: url('http://localhost:8000/static/less/../img/banner1420/progetti_ico.png');
 }
 #banner-container #banner ul li a:hover {
   text-decoration: none;
@@ -5200,7 +5203,7 @@ section h2.title span {
 }
 #wrapper > header {
   padding-top: 1em;
-  background-image: url('../img/site-bg.png');
+  background-image: url('http://localhost:8000/static/less/../img/site-bg.png');
   background-repeat: repeat;
 }
 #wrapper > header .row {
@@ -5245,7 +5248,7 @@ section h2.title span {
 #wrapper > header a.flag.flag-dps {
   width: 252px;
   height: 70px;
-  background: url('../img/header/dps.png') no-repeat right;
+  background: url('http://localhost:8000/static/less/../img/header/dps.png') no-repeat right;
 }
 #wrapper > header a.flag.flag-dps:hover {
   background-position: 0 0;
@@ -5253,7 +5256,7 @@ section h2.title span {
 #wrapper > header a.flag.flag-oga {
   width: 76px;
   height: 70px;
-  background: url('../img/header/oga.jpg') no-repeat right;
+  background: url('http://localhost:8000/static/less/../img/header/oga.jpg') no-repeat right;
   background-size: contain;
   float: none;
   margin: 0 auto;
@@ -5296,20 +5299,20 @@ section h2.title span {
   background-color: #afe0d8;
 }
 #wrapper > header  > div > .container #social_links li a.mail {
-  background-image: url('../img/header/social-mail.png');
+  background-image: url('http://localhost:8000/static/less/../img/header/social-mail.png');
 }
 #wrapper > header  > div > .container #social_links li a.twitter {
-  background-image: url('../img/header/social-twitter.png');
+  background-image: url('http://localhost:8000/static/less/../img/header/social-twitter.png');
 }
 #wrapper > header  > div > .container #social_links li a.vimeo {
-  background-image: url('../img/header/social-vimeo.png');
+  background-image: url('http://localhost:8000/static/less/../img/header/social-vimeo.png');
 }
 #wrapper > header  > div > .container #social_links li a.slideshare {
-  background-image: url('../img/header/social-slideshare.png');
+  background-image: url('http://localhost:8000/static/less/../img/header/social-slideshare.png');
   margin-left: 2px;
 }
 #wrapper > header  > div > .container #social_links li a.oga {
-  background-image: url('../img/header/social-award.png');
+  background-image: url('http://localhost:8000/static/less/../img/header/social-award.png');
   background-color: #5B5955;
 }
 #wrapper > header  > div > .container #social_links li:first-child a {
@@ -5342,22 +5345,22 @@ section h2.title span {
 #sidebar ul#social_links li a.vimeo.twitter,
 #sidebar ul#social_links li a.twitter.twitter,
 #sidebar ul#social_links li a.slideshare.twitter {
-  background-image: url('../img/header/social-twitter.png');
+  background-image: url('http://localhost:8000/static/less/../img/header/social-twitter.png');
 }
 #sidebar ul#social_links li a.vimeo.vimeo,
 #sidebar ul#social_links li a.twitter.vimeo,
 #sidebar ul#social_links li a.slideshare.vimeo {
-  background-image: url('../img/header/social-vimeo.png');
+  background-image: url('http://localhost:8000/static/less/../img/header/social-vimeo.png');
 }
 #sidebar ul#social_links li a.vimeo.slideshare,
 #sidebar ul#social_links li a.twitter.slideshare,
 #sidebar ul#social_links li a.slideshare.slideshare {
-  background-image: url('../img/header/social-slideshare.png');
+  background-image: url('http://localhost:8000/static/less/../img/header/social-slideshare.png');
 }
 #sidebar ul#social_links li a.vimeo.oga,
 #sidebar ul#social_links li a.twitter.oga,
 #sidebar ul#social_links li a.slideshare.oga {
-  background-image: url('../img/header/social-award.png');
+  background-image: url('http://localhost:8000/static/less/../img/header/social-award.png');
 }
 #wrapper > section#main {
   min-height: 300px;
@@ -5382,36 +5385,10 @@ section h2.title span {
 #wrapper > footer {
   background-color: #5b5955;
   color: #ffffff;
-  padding-top: 20px;
+  padding: 20px 0;
 }
 #wrapper > footer h1 {
   font-size: 24px;
-}
-#wrapper > footer #ue-pon-logos .logo-container {
-  width: 200px;
-  height: 75px;
-}
-#wrapper > footer #ue-pon-logos .logo-container.float-right {
-  float: right;
-}
-#wrapper > footer #ue-pon-logos .logo-container.float-left {
-  float: left;
-}
-#wrapper > footer #pon-disclaimer {
-  color: #ffffff;
-  font-size: 11px;
-  margin: 1em 0;
-}
-#wrapper > footer .data-disclaimer {
-  font-size: 11px;
-  margin-top: 1em;
-  text-align: center;
-  clear: both;
-}
-#wrapper > footer div.data-disclaimer {
-  width: 200px;
-  float: right;
-  margin-left: 15px;
 }
 #wrapper > footer a {
   color: #ffffff;
@@ -5419,47 +5396,60 @@ section h2.title span {
 #wrapper > footer a:hover {
   text-decoration: underline;
 }
-#wrapper > footer a.flag {
+#wrapper > footer .data-disclaimer {
+  font-size: 11px;
+  text-align: center;
+  padding-bottom: 4px;
+  margin: 0 12px 12px 12px;
+  border-bottom: 1px solid #ffffff;
+}
+#wrapper > footer .flag {
   display: block;
   text-indent: -99999px;
-  float: right;
-  margin-left: 15px;
-  width: 201px;
+  float: left;
+  width: 185px;
   height: 60px;
+  margin-bottom: 20px;
+  background-repeat: no-repeat;
+  background-position: -200px 0;
 }
-#wrapper > footer a.flag.flag-ue {
+#wrapper > footer .flag:hover {
+  background-position: 0 0 !important;
+}
+#wrapper > footer .flag.flag-dpc {
+  float: none;
+  width: 176px;
+  height: 78px;
+  margin-top: 18px;
+  margin-left: auto;
+  margin-right: auto;
+  background-position: -176px 0;
+  background-image: url('http://localhost:8000/static/less/../img/footer/dpc.png');
+}
+#wrapper > footer .flag.flag-act {
+  width: 165px;
+  margin-left: 10px;
+  margin-right: 10px;
+  background-position: -165px 0;
+  background-image: url('http://localhost:8000/static/less/../img/footer/act.png');
+}
+#wrapper > footer .flag.flag-rgs {
+  width: 160px;
+  margin-left: 10px;
+  background-image: url('http://localhost:8000/static/less/../img/footer/rgs.png');
+}
+#wrapper > footer .flag.flag-cipe {
   width: 200px;
-  height: 75px;
-  background: url('../img/footer/eu.png') no-repeat right;
+  background-position: -200px 0;
+  background-image: url('http://localhost:8000/static/less/../img/footer/cipe.png');
 }
-#wrapper > footer a.flag.flag-ue:hover {
-  background-position: 0 0;
+#wrapper > footer .flag.flag-ue {
+  height: 70px;
+  background-image: url('http://localhost:8000/static/less/../img/footer/ue.png');
 }
-#wrapper > footer a.flag.pon-gat {
-  width: 200px;
-  height: 75px;
-  background: url('../img/footer/pon.png') no-repeat right;
-}
-#wrapper > footer a.flag.pon-gat:hover {
-  background-position: 0 0;
-}
-#wrapper > footer a.flag.flag-dps {
-  background: url('../img/footer/dps.png') no-repeat right;
-}
-#wrapper > footer a.flag.flag-dps:hover {
-  background-position: 0 0;
-}
-#wrapper > footer a.flag.flag-rgs {
-  background: url('../img/footer/rgs.png') no-repeat right;
-}
-#wrapper > footer a.flag.flag-rgs:hover {
-  background-position: 0 0;
-}
-#wrapper > footer a.flag.flag-cipe {
-  background: url('../img/footer/cipe.png') no-repeat right;
-}
-#wrapper > footer a.flag.flag-cipe:hover {
-  background-position: 0 0;
+#wrapper > footer .flag.flag-pongat {
+  height: 70px;
+  background-image: url('http://localhost:8000/static/less/../img/footer/pongat.png');
 }
 .tabbable.boxed .content {
   padding: 10px;
@@ -5654,7 +5644,7 @@ hr.big.dark {
   z-index: 999 !important;
 }
 .ajax_loader {
-  background: url('../img/spinner_squares_circle.gif') no-repeat center center transparent;
+  background: url('http://localhost:8000/static/less/../img/spinner_squares_circle.gif') no-repeat center center transparent;
   width: 100%;
   height: 100%;
 }

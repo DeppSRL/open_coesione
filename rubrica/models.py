@@ -1,10 +1,8 @@
+# -*- coding: utf-8 -*-
 from django.db import models
 from model_utils import Choices
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField
-from django.utils.translation import ugettext_lazy as _
 
-import logging
-logger = logging.getLogger('mail_bin')
 
 class Timestampable(models.Model):
     """
@@ -30,8 +28,8 @@ class Contatto(models.Model):
     def __unicode__(self):
         return self.email
 
-class IscrizioneManager(models.Manager):
 
+class IscrizioneManager(models.Manager):
     @classmethod
     def add_iscrizione_complessa(cls, source_dict, contact_dict, iscrizione_dict):
 
@@ -55,10 +53,8 @@ class IscrizioneManager(models.Manager):
 
         return i
 
+
 class Iscrizione(Timestampable, models.Model):
-
-    objects = IscrizioneManager()
-
     TYPES = Choices(
         ('cittadino', 'Cittadino'),
         ('sviluppatore', 'Sviluppatore'),
@@ -73,6 +69,8 @@ class Iscrizione(Timestampable, models.Model):
     user_type = models.CharField('tipologia utente', max_length=16, choices=TYPES, blank=True, null=True)
     notes = models.TextField('note', blank=True, null=True)
 
+    objects = IscrizioneManager()
+
     @property
     def email(self):
         return self.contact.email
@@ -82,7 +80,7 @@ class Iscrizione(Timestampable, models.Model):
         verbose_name_plural = 'Iscrizioni'
 
     def __unicode__(self):
-        return u"{0} a {1} - {2}".format(self.contact, self.source, self.created_at)
+        return u'{} a {} - {}'.format(self.contact, self.source, self.created_at)
 
 
 class Fonte(models.Model):

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class TagFilterMixin(object):
     model = None
 
