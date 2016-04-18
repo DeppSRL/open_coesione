@@ -238,7 +238,8 @@ class SpesaCertificataGraficiView(RisorsaView):
                 value = value.replace("D'", "d'")
             return value
 
-        dates = ['{}{:02d}31'.format(y, m) for y in range(2010, datetime.now().year + 1) for m in [5, 10, 12]]
+        dates = ['{}{:02d}31'.format(y, m) for y in range(2010, 2016) for m in [5, 10, 12]]
+        dates += ['20160630', '20161231', '20170331']
 
         csv2data_key_map = (
             ('TARGET {}', 'target'),
@@ -274,9 +275,9 @@ class SpesaCertificataGraficiView(RisorsaView):
 
                 # dates_data[-1][1]['target'] = 0.0   # richiesta di Chiara Ricci del 01/12/2015
                 # dates_data.append(('31/12/2015', {}))  # richiesta di Chiara Ricci del 11/12/2015
-                dates_data.append(('30/06/2016', {}))  # richiesta di Chiara Ricci del 11/12/2015
-                dates_data.append(('31/12/2016', {}))  # richiesta di Chiara Ricci del 11/12/2015
-                dates_data.append(('31/03/2017', {'target': '100'}))  # richiesta di Chiara Ricci del 11/12/2015
+                # dates_data.append(('30/06/2016', {}))  # richiesta di Chiara Ricci del 11/12/2015
+                # dates_data.append(('31/12/2016', {}))  # richiesta di Chiara Ricci del 11/12/2015
+                # dates_data.append(('31/03/2017', {'target': '100'}))  # richiesta di Chiara Ricci del 11/12/2015
 
                 for type_name, type_key in [('Obiettivo di spesa certificata', 'target'), ('Spesa certificata su dotazione', 'risultato_spesa'), ('Pagamenti su dotazione', 'risultato_pagamenti')]:
                     data[group_key].append(OrderedDict([('Programma operativo', program_name), ('Tipo dato', type_name)] + [(date, format_number(date_data.get(type_key))) for date, date_data in dates_data]))
