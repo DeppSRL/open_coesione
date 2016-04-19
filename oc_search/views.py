@@ -118,17 +118,22 @@ class ExtendedFacetedSearchView(SearchView):
 
 class OCFacetedSearchView(ExtendedFacetedSearchView):
     def extra_context(self):
-        extra = super(OCFacetedSearchView, self).extra_context()
-
         territorio_com = self.request.GET.get('territorio_com')
         territorio_prov = self.request.GET.get('territorio_prov')
         territorio_reg = self.request.GET.get('territorio_reg')
 
-        if territorio_com and territorio_com != '0':
-            extra['territorio'] = Territorio.objects.comuni().get(cod_com=territorio_com).nome
-        elif territorio_prov and territorio_prov != '0':
-            extra['territorio'] = Territorio.objects.provincie().get(cod_prov=territorio_prov).nome_con_provincia
-        elif territorio_reg:
-            extra['territorio'] = Territorio.objects.regioni(with_nation=True).get(cod_reg=territorio_reg).nome
+        extra = super(OCFacetedSearchView, self).extra_context()
+
+        extra['territorio'] = None
+
+        try:
+            if territorio_com and territorio_com != '0':
+                extra['territorio'] = Territorio.objects.comuni().get(cod_com=territorio_com).nome
+            elif territorio_prov and territorio_prov != '0':
+                extra['territorio'] = Territorio.objects.provincie().get(cod_prov=territorio_prov).nome_con_provincia
+            elif territorio_reg:
+                extra['territorio'] = Territorio.objects.regioni(with_nation=True).get(cod_reg=territorio_reg).nome
+        except Territorio.DoesNotExist:
+            pass
 
         return extra
