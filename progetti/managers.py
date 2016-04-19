@@ -3,17 +3,13 @@ from datetime import datetime
 from django.db import models
 
 
-class ProgettiQuerySet(models.query.QuerySet):
+class ProgettoQuerySet(models.query.QuerySet):
     def no_privacy(self):
         return self.filter(privacy_flag=False)
 
     def conclusi(self, date=None):
         date = date or datetime.now()
         return self.filter(data_fine_effettiva__lte=date, stato_progetto=self.model.STATO.concluso).order_by('-data_fine_effettiva', '-fin_totale_pubblico')
-
-    def avviati(self, date=None):
-        date = date or datetime.now()
-        return self.filter(data_inizio_effettiva__lte=date).order_by('-data_inizio_effettiva')
 
     def del_soggetto(self, soggetto):
         return self.filter(soggetto_set__pk=soggetto.pk).distinct()
@@ -130,18 +126,15 @@ class ProgettiQuerySet(models.query.QuerySet):
         return dict_totali
 
 
-class ProgettiManager(models.Manager):
+class ProgettoManager(models.Manager):
     def get_query_set(self):
-        return ProgettiQuerySet(self.model, using=self._db).filter(active_flag=True)
+        return ProgettoQuerySet(self.model, using=self._db).filter(active_flag=True)
 
     def no_privacy(self):
         return self.get_query_set().no_privacy()
 
     def conclusi(self, date=None):
         return self.get_query_set().conclusi(date)
-
-    def avviati(self, date=None):
-        return self.get_query_set().avviati(date)
 
     def del_soggetto(self, soggetto):
         return self.totali(soggetto=soggetto)
@@ -195,12 +188,12 @@ class ProgettiManager(models.Manager):
         return self.get_query_set().totale_progetti(**kwargs) / territorio.popolazione_totale if territorio.popolazione_totale else 0
 
 
-class FullProgettiManager(ProgettiManager):
+class FullProgettoManager(ProgettoManager):
     def get_query_set(self):
-        return ProgettiQuerySet(self.model, using=self._db)
+        return ProgettoQuerySet(self.model, using=self._db)
 
 
-class TemiManager(models.Manager):
+class TemaManager(models.Manager):
     def principali(self):
         return self.get_query_set().filter(tipo_tema=self.model.TIPO.sintetico).order_by('priorita')
 

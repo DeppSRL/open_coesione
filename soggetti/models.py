@@ -38,7 +38,7 @@ from model_utils.models import TimeStampedModel
 #         verbose_name_plural = 'Forme giuridiche'
 
 
-# class SoggettiManager(models.Manager):
+# class SoggettoManager(models.Manager):
 #     def get_query_set(self):
 #         return models.query.QuerySet(self.model, using=self._db).filter(ruolo__progetto__active_flag=True).distinct()
 
@@ -54,10 +54,6 @@ class Soggetto(TimeStampedModel):
     indirizzo = models.CharField(max_length=300, null=True, blank=True)
     cap = models.CharField(max_length=5, null=True, blank=True)
     privacy_flag = models.BooleanField(default=False)
-
-    objects = models.Manager()
-    # filteredobjects = SoggettiManager()
-    fullobjects = models.Manager()
 
     @property
     def denominazione_univoca(self):

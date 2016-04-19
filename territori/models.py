@@ -8,7 +8,7 @@ from django_extensions.db.fields import AutoSlugField
 from model_utils import Choices
 
 
-class TerritoriManager(models.GeoManager):
+class TerritorioManager(models.GeoManager):
     def nazione(self):
         return self.get_query_set().get(territorio=self.model.TERRITORIO.N)
 
@@ -74,7 +74,7 @@ class Territorio(models.Model):
     popolazione_maschile = models.IntegerField(null=True, blank=True)
     popolazione_femminile = models.IntegerField(null=True, blank=True)
 
-    objects = TerritoriManager()
+    objects = TerritorioManager()
 
     @property
     def nome(self):

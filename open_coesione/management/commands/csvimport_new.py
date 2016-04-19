@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from decimal import Decimal
 import json
 import logging
 from collections import OrderedDict
@@ -15,8 +16,10 @@ import datetime
 import zipfile
 from cStringIO import StringIO
 
-from progetti.models import *
-from soggetti.models import *
+from progetti.models import Progetto, PagamentoProgetto, ProgrammaAsseObiettivo, ProgrammaLineaAzione, DeliberaCIPE, \
+    ClassificazioneQSN, ClassificazioneAzione, ClassificazioneOggetto, Tema, Fonte, Ruolo, Localizzazione, \
+    ProgettoDeliberaCIPE
+from soggetti.models import Soggetto
 from territori.models import Territorio
 
 
@@ -91,33 +94,6 @@ def convert_progettocipe_cup(val):
     return tuple(val.split(':::')) if val else ()
 
 
-def convert_progettocipe_oc_tema_sintetico(val):
-    """
-    Trasforma stringhe maiuscole, con altri termini,
-    nelle stringhe *canoniche*, riconosciute dal nostro sistema.
-    Ci possono essere più chiavi che corrispondono a uno stesso valore.
-    Questa funzione è usata solamente per l'import dei dati.
-    """
-    temi = {
-        u'OCCUPAZIONE E MOBILITÀ DEI LAVORATORI': u'Occupazione e mobilità dei lavoratori',
-        u'INCLUSIONE SOCIALE': u'Inclusione sociale',
-        u'ISTRUZIONE': u'Istruzione',
-        u'COMPETITIVITÀ PER LE IMPRESE': u'Competitività per le imprese',
-        u'RICERCA E INNOVAZIONE': u'Ricerca e innovazione',
-        u'ATTRAZIONE CULTURALE, NATURALE E TURISTICA': u'Attrazione culturale, naturale e turistica',
-        u'SERVIZI DI CURA INFANZIA E ANZIANI': u'Servizi di cura infanzia e anziani',
-        u'ENERGIA E EFFICIENZA ENERGETICA': u'Energia e efficienza energetica',
-        u'AGENDA DIGITALE': u'Agenda digitale',
-        u'AMBIENTE E PREVENZIONE DEI RISCHI': u'Ambiente e prevenzione dei rischi',
-        u'RAFFORZAMENTO DELLE CAPACITÀ DELLA PA': u'Rafforzamento capacità della PA',
-        u'RINNOVAMENTO URBANO E RURALE': u'Rinnovamento urbano e rurale',
-        u'AEREOPORTUALI': u'Trasporti e infrastrutture a rete',
-        u'TRASPORTI E INFRASTRUTTURE A RETE': u'Trasporti e infrastrutture a rete',
-        u'AEROPORTUALI': u'Trasporti e infrastrutture a rete',
-    }
-    return temi[val]
-
-
 class Command(BaseCommand):
     """
     Data are imported from their CSV sources.
@@ -141,7 +117,6 @@ class Command(BaseCommand):
             'files': ['totale/assegnazioni_CIPE.zip'],
             'import_method': '_import_progetticipe',
             'converters': {
-                # 'OC_TEMA_SINTETICO': convert_progettocipe_oc_tema_sintetico,
                 'CUP_COD_NATURA': convert_progetto_cup_cod_natura,
                 'CUP_COD_SETTORE': convert_progetto_cup_cod_settore,
                 'CUP_COD_SOTTOSETTORE': convert_progetto_cup_cod_sottosettore,
@@ -190,10 +165,6 @@ class Command(BaseCommand):
                     dest='import_type',
                     default=None,
                     help='Type of import; select among {}.'.format(', '.join(['"' + t + '"' for t in import_types]))),
-        make_option('--append',
-                    dest='append',
-                    action='store_true',
-                    help='If not set, delete records before importing new.'),
         make_option('--encoding',
                     dest='encoding',
                     default='utf-8-sig',
@@ -272,7 +243,7 @@ class Command(BaseCommand):
         start_time = datetime.datetime.now()
 
         method = getattr(self, str(self.import_types[importtype]['import_method']))
-        method(df, options['append'])
+        method(df)
 
         duration = datetime.datetime.now() - start_time
         seconds = round(duration.total_seconds())
@@ -325,11 +296,6 @@ class Command(BaseCommand):
                 )
                 self._log(created, u'Creato obiettivo: {}'.format(programma))
 
-            # # elimino i programmi senza figli
-            # ProgrammaAsseObiettivo.objects.exclude(tipo_classificazione=ProgrammaAsseObiettivo.TIPO.obiettivo).filter(classificazione_set__isnull=True).delete()
-
-            # transaction.commit()
-
     @transaction.commit_on_success
     def _import_progetti_programmalineaazione(self, df):
         keywords = [
@@ -375,11 +341,6 @@ class Command(BaseCommand):
                     }
                 )
                 self._log(created, u'Creata azione: {}'.format(programma))
-
-            # # elimino i programmi senza figli
-            # ProgrammaLineaAzione.objects.exclude(tipo_classificazione=ProgrammaLineaAzione.TIPO.azione).filter(classificazione_set__isnull=True).delete()
-
-            # transaction.commit()
 
     @transaction.commit_on_success
     def _import_progetti_classificazioneqsn(self, df):
@@ -427,8 +388,6 @@ class Command(BaseCommand):
                 )
                 self._log(created, u'Creato obiettivo specifico QSN: {}'.format(classificazione))
 
-            # transaction.commit()
-
     @transaction.commit_on_success
     def _import_progetti_classificazioneazione(self, df):
         keywords = [
@@ -463,8 +422,6 @@ class Command(BaseCommand):
                     }
                 )
                 self._log(created, u'Creata classificazione azione natura_tipologia: {}'.format(classificazione))
-
-        # transaction.commit()
 
     @transaction.commit_on_success
     def _import_progetti_classificazioneoggetto(self, df):
@@ -512,8 +469,6 @@ class Command(BaseCommand):
                 )
                 self._log(created, u'Creata classificazione oggetto settore_sottosettore_categoria: {}'.format(classificazione))
 
-        # transaction.commit()
-
     @transaction.commit_on_success
     def _import_progetti_tema(self, df):
         temisintetici_desc2cod = {}
@@ -551,8 +506,6 @@ class Command(BaseCommand):
             )
             self._log(created, u'Creato tema: {}'.format(tema))
 
-        # transaction.commit()
-
     @transaction.commit_on_success
     def _import_progetti_fonte(self, df):
         df1 = df[['OC_COD_FONTE', 'OC_DESCR_FONTE']].drop_duplicates()
@@ -575,17 +528,8 @@ class Command(BaseCommand):
             )
             self._log(created, u'Creata fonte: {}'.format(fonte))
 
-        # transaction.commit()
-
     @transaction.commit_manually
-    def _import_progetti(self, df, append):
-        # check whether to remove records
-        if not append:
-            self.logger.info(u'Cancellazione progetti in corso ....')
-            Progetto.fullobjects.filter(cipe_flag=False).delete()
-            transaction.commit()
-            self.logger.info(u'Fatto.')
-
+    def _import_progetti(self, df):
         self._import_progetti_programmaasseobiettivo(df)
         self._import_progetti_programmalineaazione(df)
         self._import_progetti_classificazioneqsn(df)
@@ -727,7 +671,7 @@ class Command(BaseCommand):
 
                     values = {k: values[k] for k in values if k in ['programma_asse_obiettivo_id', 'programma_linea_azione_id']}
 
-                    Progetto.fullobjects.get(pk=codice_locale).update(**values)
+                    Progetto.fullobjects.get(codice_locale=codice_locale).update(**values)
 
                     self.logger.warning(u'{}/{} - Trovato e aggiornato progetto: {}'.format(n, df_count, codice_locale))
 
@@ -765,15 +709,8 @@ class Command(BaseCommand):
     #         self._log(created, u'Creato codice ateco: {} ({})'.format(codice_ateco.descrizione, codice_ateco.codice))
 
     @transaction.commit_manually
-    def _import_soggetti(self, df, append):
-        # check whether to remove records
-        if not append:
-            self.logger.info(u'Cancellazione soggetti in corso ....')
-            Soggetto.fullobjects.all().delete()
-            transaction.commit()
-            self.logger.info(u'Fatto.')
-
-        df['COD_LOCALE_PROGETTO'] = df.apply(lambda row: row['COD_LOCALE_PROGETTO'] or row['COD_DIPE'], axis=1)
+    def _import_soggetti(self, df):
+        df['COD_LOCALE_PROGETTO'] = df.apply(lambda r: r['COD_LOCALE_PROGETTO'] or r['COD_DIPE'], axis=1)
 
         # self._import_soggetti_formagiuridica(df)
         # self._import_soggetti_codiceateco(df)
@@ -798,7 +735,7 @@ class Command(BaseCommand):
             try:
                 sid = transaction.savepoint()
 
-                Soggetto.fullobjects.create(
+                Soggetto.objects.create(
                     denominazione=denominazione,
                     codice_fiscale=codice_fiscale,
                     # forma_giuridica_id=self._get_value(row, 'COD_FORMA_GIURIDICA_SOGG'),
@@ -830,7 +767,7 @@ class Command(BaseCommand):
 
         for n, (index, row) in enumerate(df1.iterrows(), 1):
             try:
-                progetto = Progetto.fullobjects.get(pk=row['COD_LOCALE_PROGETTO'])
+                progetto = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO'])
                 self.logger.debug(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
 
             except ObjectDoesNotExist:
@@ -841,7 +778,7 @@ class Command(BaseCommand):
                 codice_fiscale = row['OC_CODICE_FISCALE_SOGG'].strip()
 
                 try:
-                    soggetto = Soggetto.fullobjects.get(denominazione=denominazione, codice_fiscale=codice_fiscale)
+                    soggetto = Soggetto.objects.get(denominazione=denominazione, codice_fiscale=codice_fiscale)
                     self.logger.debug(u'{}/{} - Soggetto: {} ({})'.format(n, df_count, soggetto.denominazione, soggetto.codice_fiscale))
 
                 except ObjectDoesNotExist:
@@ -874,54 +811,7 @@ class Command(BaseCommand):
                 self.logger.info(u'{} -----------------> Committing.'.format(n))
                 transaction.commit()
 
-    @transaction.commit_manually
-    def _import_pagamenti2(self, df, append):
-        # check whether to remove records
-        if not append:
-            self.logger.info(u'Cancellazione pagamenti in corso ....')
-            PagamentoProgetto.objects.all().delete()
-            transaction.commit()
-            self.logger.info(u'Fatto.')
-
-        df = df[df['TOT_PAGAMENTI'].str.strip() != '']
-
-        df_count = len(df)
-
-        created = 0
-
-        for n, (index, row) in enumerate(df.iterrows(), 1):
-            pagamento = PagamentoProgetto.objects.create(
-                progetto_id=row['COD_LOCALE_PROGETTO'],
-                data=self._get_value(row, 'DATA_AGGIORNAMENTO', 'date'),
-                ammontare=self._get_value(row, 'TOT_PAGAMENTI', 'decimal'),
-            )
-
-            try:
-                sid = transaction.savepoint()
-                pagamento.save()
-                transaction.savepoint_commit(sid)
-
-                self.logger.info(u'{}/{} - Creato pagamento: {}'.format(n, df_count, pagamento))
-                created += 1
-
-            except DatabaseError as e:
-                transaction.savepoint_rollback(sid)
-
-                self.logger.error(u'{}/{} - ERRORE pagamento {}: {}. Skipping.'.format(n, df_count, pagamento, e))
-
-            if (n % 5000 == 0) or (n == df_count):
-                self.logger.info(u'{} -----------------> Committing.'.format(n))
-                transaction.commit()
-
-        self.logger.info(u'Sono stati creati {} pagamenti su {}.'.format(created, df_count))
-
-    def _import_pagamenti(self, df, append):
-        # check whether to remove records
-        if not append:
-            self.logger.info(u'Cancellazione pagamenti in corso ....')
-            PagamentoProgetto.objects.all().delete()
-            self.logger.info(u'Fatto.')
-
+    def _import_pagamenti(self, df):
         df = df[df['TOT_PAGAMENTI'].str.strip() != '']
 
         df_count = len(df)
@@ -932,7 +822,7 @@ class Command(BaseCommand):
 
         for n, (index, row) in enumerate(df.iterrows(), 1):
             try:
-                progetto = Progetto.fullobjects.get(pk=row['COD_LOCALE_PROGETTO'])
+                progetto = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO'])
 
                 self.logger.debug(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
 
@@ -982,15 +872,7 @@ class Command(BaseCommand):
                 )
                 self._log(created, u'Creato territorio: {} ({})'.format(territorio, territorio.territorio))
 
-        # transaction.commit()
-
-    def _import_localizzazioni(self, df, append):
-        # check whether to remove records
-        if not append:
-            self.logger.info(u'Cancellazione localizzazioni in corso ....')
-            Localizzazione.objects.all().delete()
-            self.logger.info(u'Fatto.')
-
+    def _import_localizzazioni(self, df):
         # i territori esteri o nazionali non sono in Territorio di default
         self._import_localizzazioni_territori(df)
 
@@ -999,15 +881,15 @@ class Command(BaseCommand):
         insert_list = []
 
         for n, (index, row) in enumerate(df.iterrows(), 1):
-            progetto_pk = row['COD_LOCALE_PROGETTO'] or row['COD_DIPE']
+            codice_locale_progetto = row['COD_LOCALE_PROGETTO'] or row['COD_DIPE']
 
             try:
-                progetto = Progetto.fullobjects.get(pk=progetto_pk)
+                progetto = Progetto.fullobjects.get(codice_locale=codice_locale_progetto)
 
                 self.logger.debug(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
 
             except ObjectDoesNotExist:
-                self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping.'.format(n, df_count, progetto_pk))
+                self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping.'.format(n, df_count, codice_locale_progetto))
 
             else:
                 territorio = None
@@ -1103,10 +985,8 @@ class Command(BaseCommand):
             )
             self._log(created, u'Creata delibera: {}'.format(delibera))
 
-        # transaction.commit()
-
     @transaction.commit_manually
-    def _import_progetticipe(self, df, append):
+    def _import_progetticipe(self, df):
         """
         Procedura per importare dati di progetto, e soggetti, a partire dal tracciato del CIPE
         """
@@ -1139,14 +1019,6 @@ class Command(BaseCommand):
         # df.rename(columns={u'FONDO': u'OC_DESCR_FONTE'}, inplace=True)
         # df[u'OC_COD_FONTE'] = df.apply(lambda row: 'FSC0006' if row['OC_DESCR_FONTE'][-2:] == '06' else ('FSC0713' if row['OC_DESCR_FONTE'][-2:] == '13' else ''), axis=1)
 
-        # check whether to remove records
-        if not append:
-            self.logger.info(u'Cancellazione progetti CIPE in corso ....')
-            Progetto.fullobjects.filter(cipe_flag=True).delete()
-            # DeliberaCIPE.objects.all().delete()
-            transaction.commit()
-            self.logger.info(u'Fatto.')
-
         self._import_progetticipe_deliberacipe(df)
         self._import_progetti_programmaasseobiettivo(df)
         self._import_progetti_classificazioneazione(df)
@@ -1157,7 +1029,6 @@ class Command(BaseCommand):
         temisintetici_desc2cod = {tema.descrizione: tema.codice for tema in Tema.objects.principali()}
         fonti_cod2obj = {fonte.codice: fonte for fonte in Fonte.objects.all()}
         stato_desc2cod = {x[1]: x[0] for x in Progetto.STATO}
-        delibere_num2obj = {delibera.num: delibera for delibera in DeliberaCIPE.objects.all()}
 
         # creazione progetti
 
@@ -1197,8 +1068,6 @@ class Command(BaseCommand):
                 values['classificazione_oggetto_id'] = '{}.{}.{}'.format(row['CUP_COD_SETTORE'], row['CUP_COD_SOTTOSETTORE'], row['CUP_COD_CATEGORIA'])
 
                 values['tema_id'] = '{}.{}'.format(temisintetici_desc2cod[row['OC_TEMA_SINTETICO']], row['QSN_COD_TEMA_PRIORITARIO_UE'])
-
-                # values['fonte_id'] = '{}'.format(row['OC_COD_FONTE'])
 
                 values['cup'] = row['CUP'][0] if row['CUP'] else ''
 
@@ -1250,19 +1119,23 @@ class Command(BaseCommand):
 
         # associazione di delibere a progetti
 
+        progetticipe_cod2obj = {o.codice_locale: o for o in Progetto.fullobjects.filter(cipe_flag=True)}
+        delibere_num2obj = {o.num: o for o in DeliberaCIPE.objects.all()}
+
         df_count = len(df)
 
         for n, (index, row) in enumerate(df.iterrows(), 1):
+            progetto = progetticipe_cod2obj[row['COD_DIPE']]
             delibera = delibere_num2obj[int(row['NUM_DELIBERA'])]
 
             ProgettoDeliberaCIPE.objects.create(
-                progetto_id=row['COD_DIPE'],
+                progetto=progetto,
                 delibera=delibera,
                 finanziamento=self._get_value(row, 'ASSEGNAZIONE_CIPE', 'decimal'),
                 note=self._get_value(row, 'NOTE') or '',
             )
 
-            self.logger.info(u'{}/{} - Delibera {} associata a progetto: {}'.format(n, df_count, delibera, row['COD_DIPE']))
+            self.logger.info(u'{}/{} - Delibera {} associata a progetto: {}'.format(n, df_count, delibera, progetto))
 
             if (n % 5000 == 0) or (n == df_count):
                 self.logger.info(u'{} -----------------> Committing.' .format(n))
@@ -1278,7 +1151,7 @@ class Command(BaseCommand):
         #     for n, (index, row) in enumerate(df1.iterrows(), 1):
         #         denominazione = row[col].strip()
         #
-        #         soggetto, created = Soggetto.fullobjects.get_or_create(
+        #         soggetto, created = Soggetto.objects.get_or_create(
         #             denominazione__iexact=denominazione,
         #             codice_fiscale='',
         #             defaults={'denominazione': denominazione}
@@ -1298,12 +1171,7 @@ class Command(BaseCommand):
         #     self.logger.info(u'{} -----------------> Committing.' .format(col))
         #     transaction.commit()
 
-    def _update_privacy_progetti(self, df, append):
-        if not append:
-            self.logger.info(u'Reset del flag privacy dei progetti in corso ....')
-            Progetto.fullobjects.update(privacy_flag=False)
-            self.logger.info(u'Fatto.')
-
+    def _update_privacy_progetti(self, df):
         df_count = len(df)
 
         ids = []
@@ -1314,7 +1182,7 @@ class Command(BaseCommand):
 
             if (n % 5000 == 0) or (n == df_count):
                 self.logger.info(u'{}/{} - Aggiornamento del flag privacy in corso ....' .format(n, df_count))
-                updated = Progetto.fullobjects.filter(pk__in=ids).update(privacy_flag=True)
+                updated = Progetto.fullobjects.filter(codice_locale__in=ids).update(privacy_flag=True)
                 self.logger.info(u'{}/{} - Fatto. Record aggiornati: {}.'.format(n, df_count, updated))
 
                 ids = []
@@ -1323,19 +1191,14 @@ class Command(BaseCommand):
         self.logger.info(u'Totale record aggiornati: {}.'.format(tot_updated))
 
     @transaction.commit_on_success
-    def _update_privacy_soggetti(self, df, append):
-        if not append:
-            self.logger.info(u'Reset del flag privacy dei soggetti in corso ....')
-            Soggetto.fullobjects.update(privacy_flag=False)
-            self.logger.info(u'Fatto.')
-
+    def _update_privacy_soggetti(self, df):
         df_count = len(df)
 
         tot_updated = 0
 
         for n, (index, row) in enumerate(df.iterrows(), 1):
             try:
-                soggetto = Soggetto.fullobjects.get(ruolo__progetto=row['COD_LOCALE_PROGETTO'], ruolo__ruolo=row['SOGG_COD_RUOLO'], ruolo__progressivo_ruolo=row['SOGG_PROGR_RUOLO'])
+                soggetto = Soggetto.objects.get(ruolo__progetto__codice_locale=row['COD_LOCALE_PROGETTO'], ruolo__ruolo=row['SOGG_COD_RUOLO'], ruolo__progressivo_ruolo=row['SOGG_PROGR_RUOLO'])
                 self.logger.debug(u'{}/{} - Soggetto: {}'.format(n, df_count, soggetto))
             except ObjectDoesNotExist:
                 self.logger.warning(u'{}/{} - Soggetto non trovato: {}/{}/{}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO'], row['SOGG_COD_RUOLO'], row['SOGG_PROGR_RUOLO']))
@@ -1356,13 +1219,9 @@ class Command(BaseCommand):
 
     @staticmethod
     def _get_value(dict, key, type='string'):
-        """
-        """
         if key in dict:
-            dict[key] = unicode(dict[key])
-            if dict[key].strip():
-                value = dict[key].strip()
-
+            value = unicode(dict[key]).strip()
+            if value:
                 if type == 'decimal':
                     value = Decimal(value.replace(',', '.'))
                 elif type == 'date':

@@ -11,38 +11,9 @@ from django_extensions.db.fields import AutoSlugField
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from open_coesione.models import File, Link
-from progetti.managers import ProgettiManager, TemiManager, ClassificazioneAzioneManager, ProgrammaManager, FullProgettiManager
+from managers import ProgettoManager, FullProgettoManager, TemaManager, ClassificazioneAzioneManager, ProgrammaManager
 from soggetti.models import Soggetto
 from territori.models import Territorio
-
-
-class ClassificazioneQSN(models.Model):
-    TIPO = Choices(
-        ('PRIORITA', 'priorita', u'Priorità'),
-        ('OBIETTIVO_GENERALE', 'generale', u'Obiettivo generale'),
-        ('OBIETTIVO_SPECIFICO', 'specifico', u'Obiettivo specifico')
-    )
-
-    classificazione_superiore = models.ForeignKey('self', default=None, related_name='classificazione_set', db_column='classificazione_superiore', null=True, blank=True)
-    codice = models.CharField(max_length=16, primary_key=True)
-    descrizione = models.TextField()
-    tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
-
-    @property
-    def classificazioni_figlie(self):
-        return self.classificazione_set
-
-    @property
-    def progetti(self):
-        return self.progetto_set
-
-    def __unicode__(self):
-        return u'{}'.format(self.codice)
-
-    class Meta:
-        verbose_name = 'Classificazione QSN'
-        verbose_name_plural = 'Classificazioni QSN'
-        db_table = 'progetti_classificazione_qsn'
 
 
 class ProgrammaBase(models.Model):
@@ -152,7 +123,7 @@ class Tema(models.Model):
     slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True, null=True)
     priorita = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
 
-    objects = TemiManager()
+    objects = TemaManager()
 
     @property
     def temi_figli(self):
@@ -207,22 +178,6 @@ class Tema(models.Model):
     class Meta:
         verbose_name_plural = 'Temi'
         ordering = ['priorita', 'codice']
-
-
-class Intesa(models.Model):
-    codice = models.CharField(max_length=8, primary_key=True)
-    descrizione = models.TextField()
-
-    @property
-    def progetti(self):
-        return self.progetto_set
-
-    def __unicode__(self):
-        return u'{} - {}'.format(self.codice, self.descrizione)
-
-    class Meta:
-        verbose_name = 'Intesa istituzionale'
-        verbose_name_plural = 'Intese istituzionali'
 
 
 class Fonte(models.Model):
@@ -332,7 +287,36 @@ class ClassificazioneOggetto(models.Model):
         ordering = ['codice']
 
 
-class Progetto(TimeStampedModel):
+class ClassificazioneQSN(models.Model):
+    TIPO = Choices(
+        ('PRIORITA', 'priorita', u'Priorità'),
+        ('OBIETTIVO_GENERALE', 'generale', u'Obiettivo generale'),
+        ('OBIETTIVO_SPECIFICO', 'specifico', u'Obiettivo specifico')
+    )
+
+    classificazione_superiore = models.ForeignKey('self', default=None, related_name='classificazione_set', db_column='classificazione_superiore', null=True, blank=True)
+    codice = models.CharField(max_length=16, primary_key=True)
+    descrizione = models.TextField()
+    tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
+
+    @property
+    def classificazioni_figlie(self):
+        return self.classificazione_set
+
+    @property
+    def progetti(self):
+        return self.progetto_set
+
+    def __unicode__(self):
+        return u'{}'.format(self.codice)
+
+    class Meta:
+        verbose_name = 'Classificazione QSN'
+        verbose_name_plural = 'Classificazioni QSN'
+        db_table = 'progetti_classificazione_qsn'
+
+
+class Progetto(models.Model):
     TIPI_PROGETTO = Choices(
         ('PM', 'progetto_monitorato', u'Progetto monitorato'),
         ('CIPE', 'assegnazione_cipe', u'Assegnazione CIPE'),
@@ -387,7 +371,7 @@ class Progetto(TimeStampedModel):
         ('4', 'concluso', u'Concluso'),
     )
 
-    codice_locale = models.CharField(max_length=100, primary_key=True, db_column='cod_locale_progetto')
+    codice_locale = models.CharField(max_length=100, unique=True, db_index=True)
 
     cup = models.CharField(max_length=15, blank=True)
     active_flag = models.BooleanField(default=True, db_index=True)
@@ -402,19 +386,19 @@ class Progetto(TimeStampedModel):
     descrizione_fonte_nome = models.TextField(blank=True, null=True)
     descrizione_fonte_url = models.URLField(blank=True, null=True)
 
-    classificazione_qsn = models.ForeignKey('ClassificazioneQSN', related_name='progetto_set', db_column='classificazione_qsn', null=True, blank=True)
-    programma_asse_obiettivo = models.ForeignKey('ProgrammaAsseObiettivo', related_name='progetto_set', db_column='programma_asse_progetto', null=True, blank=True)
-    programma_linea_azione = models.ForeignKey('ProgrammaLineaAzione', related_name='progetto_set', db_column='programma_linea_azione', null=True, blank=True)
+    classificazione_qsn = models.ForeignKey('ClassificazioneQSN', related_name='progetto_set', null=True, blank=True)
+    programma_asse_obiettivo = models.ForeignKey('ProgrammaAsseObiettivo', related_name='progetto_set', null=True, blank=True)
+    programma_linea_azione = models.ForeignKey('ProgrammaLineaAzione', related_name='progetto_set', null=True, blank=True)
 
     obiettivo_sviluppo = models.CharField(max_length=16, blank=True, null=True, choices=OBIETTIVO_SVILUPPO)
     tipo_operazione = models.IntegerField(blank=True, null=True, choices=TIPO_OPERAZIONE)
     fondo_comunitario = models.CharField(max_length=4, blank=True, null=True, choices=FONDO_COMUNITARIO)
-    tema = models.ForeignKey('Tema', related_name='progetto_set', db_column='tema', null=True, blank=True)
+    tema = models.ForeignKey('Tema', related_name='progetto_set', null=True, blank=True)
 
     fonte_set = models.ManyToManyField('Fonte', related_name='progetto_set', db_table='progetti_progetto_has_fonte')
 
-    classificazione_azione = models.ForeignKey('ClassificazioneAzione', related_name='progetto_set', db_column='classificazione_azione', null=True, blank=True)
-    classificazione_oggetto = models.ForeignKey('ClassificazioneOggetto', related_name='progetto_set', db_column='classificazione_oggetto', null=True, blank=True)
+    classificazione_azione = models.ForeignKey('ClassificazioneAzione', related_name='progetto_set', null=True, blank=True)
+    classificazione_oggetto = models.ForeignKey('ClassificazioneOggetto', related_name='progetto_set', null=True, blank=True)
 
     cipe_flag = models.BooleanField(default=False)
 
@@ -472,8 +456,8 @@ class Progetto(TimeStampedModel):
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
     soggetto_set = models.ManyToManyField('soggetti.Soggetto', null=True, blank=True, through='Ruolo')
 
-    objects = ProgettiManager()
-    fullobjects = FullProgettiManager()
+    objects = ProgettoManager()
+    fullobjects = FullProgettoManager()
 
     @property
     def costo_ammesso(self):
@@ -582,18 +566,6 @@ class Progetto(TimeStampedModel):
     @property
     def attuatori(self):
         return self.soggetto_set.filter(ruolo__ruolo=Ruolo.RUOLO.attuatore)
-
-    @property
-    def full_soggetti(self):
-        return Soggetto.fullobjects.filter(progetto__pk=self).distinct()
-
-    @property
-    def full_programmatori(self):
-        return self.full_soggetti.filter(ruolo__ruolo=Ruolo.RUOLO.programmatore)
-
-    @property
-    def full_attuatori(self):
-        return self.full_soggetti.filter(ruolo__ruolo=Ruolo.RUOLO.attuatore)
 
     @property
     def regioni(self):
@@ -717,7 +689,7 @@ class ProgettoDeliberaCIPE(models.Model):
     """
     Tabella di collegamento tra i progetti e le delibere
     """
-    progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
+    progetto = models.ForeignKey(Progetto)
     delibera = models.ForeignKey('DeliberaCIPE')
     finanziamento = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
@@ -753,7 +725,7 @@ class CUP(models.Model):
     CUP can be multiple (sic!)
     A project may, after being assigned a CUP at the start, be splitted into several sections, each of which will get its own CUP.
     """
-    progetto = models.ForeignKey(Progetto, db_column='codice_progetto', related_name='cups_progetto')
+    progetto = models.ForeignKey(Progetto, related_name='cups_progetto')
     cup = models.CharField(max_length=15)
 
     def __unicode__(self):
@@ -763,15 +735,15 @@ class CUP(models.Model):
         verbose_name_plural = 'CUP'
 
 
-class Localizzazione(TimeStampedModel):
+class Localizzazione(models.Model):
     DPS_FLAG_CAP = Choices(
         ('0', 'CAP non valido o incoerente con territorio'),
         ('1', 'CAP valido e coerente'),
         ('2', 'CAP mancante o territorio nazionale o estero'),
     )
 
+    progetto = models.ForeignKey(Progetto)
     territorio = models.ForeignKey(Territorio)
-    progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
     indirizzo = models.CharField(max_length=550, blank=True, null=True)
     cap = models.CharField(max_length=5, blank=True, null=True)
     dps_flag_cap = models.CharField(max_length=1, choices=DPS_FLAG_CAP, default='0')
@@ -783,7 +755,7 @@ class Localizzazione(TimeStampedModel):
         verbose_name_plural = 'Localizzazioni'
 
 
-class Ruolo(TimeStampedModel):
+class Ruolo(models.Model):
     """
     The role of the recipient in the project.
     """
@@ -792,8 +764,8 @@ class Ruolo(TimeStampedModel):
         ('2', 'attuatore', 'Attuatore'),
     )
 
+    progetto = models.ForeignKey(Progetto)
     soggetto = models.ForeignKey(Soggetto)
-    progetto = models.ForeignKey(Progetto, db_column='codice_progetto')
     ruolo = models.CharField(max_length=1, choices=RUOLO)
     progressivo_ruolo = models.PositiveSmallIntegerField(null=True, blank=True)
 
@@ -824,6 +796,28 @@ class Ruolo(TimeStampedModel):
             ['progetto', 'soggetto', 'ruolo'],
             ['progetto', 'ruolo', 'progressivo_ruolo'],
         ]
+
+
+class PagamentoProgetto(models.Model):
+    progetto = models.ForeignKey(Progetto, related_name='pagamentoprogetto_set')
+    data = models.DateField()
+    ammontare = models.DecimalField(max_digits=14, decimal_places=2)
+    ammontare_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    ammontare_pac = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    ammontare_rendicontabile_ue = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+
+    @property
+    def percentuale(self):
+        fin_totale_pubblico_netto = self.progetto.fin_totale_pubblico_netto or self.progetto.fin_totale_pubblico or 0
+        return (self.ammontare / fin_totale_pubblico_netto) * Decimal(100) if fin_totale_pubblico_netto else 0.0
+
+    def __unicode__(self):
+        return u'Pagamento del progetto {} per {} di {}'.format(self.progetto_id, self.data, self.ammontare)
+
+    class Meta:
+        verbose_name = 'Pagamento progetto'
+        verbose_name_plural = 'Pagamenti progetti'
+        ordering = ['data']
 
 
 class SegnalazioneProgetto(TimeStampedModel):
@@ -870,25 +864,3 @@ class SegnalazioneProgetto(TimeStampedModel):
     class Meta:
         verbose_name = 'Segnalazione'
         verbose_name_plural = 'Segnalazioni'
-
-
-class PagamentoProgetto(TimeStampedModel):
-    progetto = models.ForeignKey(Progetto, related_name='pagamentoprogetto_set')
-    data = models.DateField()
-    ammontare = models.DecimalField(max_digits=14, decimal_places=2)
-    ammontare_fsc = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
-    ammontare_pac = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
-    ammontare_rendicontabile_ue = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
-
-    @property
-    def percentuale(self):
-        fin_totale_pubblico_netto = self.progetto.fin_totale_pubblico_netto or self.progetto.fin_totale_pubblico or 0
-        return (self.ammontare / fin_totale_pubblico_netto) * Decimal(100) if fin_totale_pubblico_netto else 0.0
-
-    def __unicode__(self):
-        return u'Pagamento del progetto {} per {} di {}'.format(self.progetto_id, self.data, self.ammontare)
-
-    class Meta:
-        verbose_name = 'Pagamento progetto'
-        verbose_name_plural = 'Pagamenti progetti'
-        ordering = ['data']
