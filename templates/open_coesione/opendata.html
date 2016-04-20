@@ -186,6 +186,48 @@
                 <p>Ultimo aggiornamento: marzo 2016 su dati al 31/12/2015</p>
             </div>
 
+            <h3 id="fsc0006-title" class="h3-switcher" data-target="fsc0006-content">
+                <a href="#">Fondo per lo Sviluppo e la Coesione (FSC) 2000/2006 <i></i></a>
+            </h3>
+
+            <div id="fsc0006-content">
+                <p>
+                    Sono scaricabili dati riferiti ai singoli progetti finanziati con il
+                    <a href="{% url 'fonti-finanziamento' %}#fondi-nazionali">Fondo nazionale per lo Sviluppo e la Coesione (FSC)</a>,
+                    organizzati in forma relazionale: "Progetti" è il dataset principale e può essere scaricato anche da solo,
+                    mentre "Localizzazioni", "Soggetti" e "Pagamenti" forniscono informazioni complementari collegate al dataset principale
+                    attraverso un campo chiave che identifica lo stesso progetto nelle diverse tabelle.
+                </p>
+                <p>
+                    I dataset sono aggiornati bimestralmente e pubblicati a distanza di circa tre mesi dalla data di riferimento.
+                    Alcuni progetti possono presentare informazioni meno recenti, come riportato nel campo "Data_YYYYMMDD" associato a ciascuno di essi.
+                    L’unità di rilevazione minima è il progetto, pertanto tutte le informazioni sono associate a progetti finanziati.
+                </p>
+                <p>
+                    I dati sono pubblicati nella forma in cui vengono trasmessi dalle Amministrazioni che attuano gli interventi, aggiungendo alcune variabili (identificabili nei dataset con il prefisso OC_)
+                    che facilitano leggibilità e coerenza delle informazioni, tra cui la classificazione secondo 13 temi sintetici.
+                    Consulta il <a href="{{ raccordo_temi_sintetici_file.file_name }}">file di raccordo</a> ({{ raccordo_temi_sintetici_file.file_ext }}, {{ raccordo_temi_sintetici_file.file_size|filesizeformat }}) con i temi prioritari UE e con la classificazione CUP.
+                </p>
+                <p>
+                    Dal 31 dicembre 2014 alcune variabili hanno cambiato denominazione. Qui trovi il <a href="{{ utility_metadata_file.file_name }}">file utility</a> ({{ utility_metadata_file.file_ext }}, {{ utility_metadata_file.file_size|filesizeformat }}) per il raccordo tra le vecchie e le nuove denominazioni per ognuno dei dataset  modificati (Progetti, Soggetti e Localizzazioni).
+                </p>
+
+                <table class="table">
+                    {% for section_code, section in fsc2_sections.items %}
+                        <tr>
+                            <td class="label">{{ section.name|capfirst }}</td>
+                            <td><a href="{{ section.complete_file.file_name }}">>[<i class="icon-download-alt"></i> {{ section.complete_file.file_ext }} {{ section.complete_file.file_size|filesizeformat }}]</a></td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="label">Metadati</td>
+                        <td><a href="{{ metadata_file.file_name }}">>[<i class="icon-download-alt"></i> {{ metadata_file.file_ext }} {{ metadata_file.file_size|filesizeformat }}]</a></td>
+                    </tr>
+                </table>
+
+                <p>Ultimo aggiornamento: marzo 2016 su dati al 31/12/2015</p>
+            </div>
+
             <h3 id="pac-title" class="h3-switcher" data-target="pac-content">
                 <a href="#">Piano d’Azione per la Coesione <i></i></a>
             </h3>
