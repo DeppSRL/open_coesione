@@ -16,14 +16,31 @@ from soggetti.models import Soggetto
 from territori.models import Territorio
 
 
-class ProgrammaBase(models.Model):
+class ClassificazioneBase(models.Model):
     TIPO = Choices()
 
     classificazione_superiore = models.ForeignKey('self', default=None, related_name='classificazione_set', db_column='classificazione_superiore', null=True, blank=True)
     codice = models.CharField(max_length=32, primary_key=True)
     descrizione = models.TextField()
-    descrizione_estesa = models.TextField(null=True, blank=True)
     tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
+
+    @property
+    def classificazioni_figlie(self):
+        return self.classificazione_set
+
+    @property
+    def progetti(self):
+        return self.progetto_set
+
+    def __unicode__(self):
+        return u'{} {}'.format(self.codice, self.descrizione)
+
+    class Meta:
+        abstract = True
+
+
+class ProgrammaBase(ClassificazioneBase):
+    descrizione_estesa = models.TextField(null=True, blank=True)
     dotazione_totale = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     documenti = generic.GenericRelation(File)
     collegamenti = generic.GenericRelation(Link)
@@ -36,10 +53,6 @@ class ProgrammaBase(models.Model):
         while p.classificazione_superiore is not None:
             p = p.classificazione_superiore
         return p
-
-    @property
-    def progetti(self):
-        return self.progetto_set
 
     @property
     def is_root(self):
@@ -59,7 +72,7 @@ class ProgrammaAsseObiettivo(ProgrammaBase):
     TIPO = Choices(
         ('PROGRAMMA_FS', 'programma', u'Programma FS'),
         ('ASSE', 'asse', u'Asse'),
-        ('OBIETTIVO_OPERATIVO', 'obiettivo', u'Obiettivo operativo')
+        ('OBIETTIVO_OPERATIVO', 'obiettivo', u'Obiettivo operativo'),
     )
 
     @property
@@ -87,7 +100,7 @@ class ProgrammaLineaAzione(ProgrammaBase):
     TIPO = Choices(
         ('PROGRAMMA', 'programma', u'Programma'),
         ('LINEA', 'linea', u'Linea'),
-        ('AZIONE', 'azione', u'Azione')
+        ('AZIONE', 'azione', u'Azione'),
     )
 
     @property
@@ -108,30 +121,18 @@ class ProgrammaLineaAzione(ProgrammaBase):
         db_table = 'progetti_programma_linea_azione'
 
 
-class ClassificazioneAzione(models.Model):
+class ClassificazioneAzione(ClassificazioneBase):
     TIPO = Choices(
         ('natura', 'Natura'),
         ('tipologia', 'Tipologia'),
     )
 
-    classificazione_superiore = models.ForeignKey('self', default=None, related_name='classificazione_set', db_column='classificazione_superiore', null=True, blank=True)
-    codice = models.CharField(max_length=8, primary_key=True)
-    descrizione = models.TextField()
     descrizione_estesa = models.TextField(null=True, blank=True)
     short_label = models.CharField(max_length=64, blank=True, null=True)
-    tipo_classificazione = models.CharField(max_length=16, choices=TIPO)
     slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True, null=True)
     priorita = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
 
     objects = ClassificazioneAzioneManager()
-
-    @property
-    def classificazioni_figlie(self):
-        return self.classificazione_set
-
-    @property
-    def progetti(self):
-        return self.progetto_set
 
     @property
     def is_root(self):
@@ -153,66 +154,30 @@ class ClassificazioneAzione(models.Model):
     def get_absolute_url(self):
         return reverse('progetti_tipologia', kwargs={'slug': self.slug})
 
-    def __unicode__(self):
-        return u'{} {}'.format(self.codice, self.descrizione)
-
     class Meta:
         verbose_name_plural = 'Classificazioni azioni'
         db_table = 'progetti_classificazione_azione'
-        ordering = ['short_label', 'codice']
+        ordering = ['priorita', 'short_label', 'codice']
 
 
-class ClassificazioneOggetto(models.Model):
+class ClassificazioneOggetto(ClassificazioneBase):
     TIPO = Choices(
         ('settore', 'Settore'),
         ('sottosettore', 'Sotto settore'),
         ('categoria', 'Categoria'),
     )
 
-    classificazione_superiore = models.ForeignKey('self', default=None, related_name='classificazione_set', db_column='classificazione_superiore', null=True, blank=True)
-    codice = models.CharField(max_length=16, primary_key=True)
-    descrizione = models.TextField()
-    tipo_classificazione = models.CharField(max_length=16, choices=TIPO)
-
-    @property
-    def classificazioni_figlie(self):
-        return self.classificazione_set
-
-    @property
-    def progetti(self):
-        return self.progetto_set
-
-    def __unicode__(self):
-        return u'{} {}'.format(self.codice, self.descrizione)
-
     class Meta:
         verbose_name_plural = 'Classificazioni oggetti'
         db_table = 'progetti_classificazione_oggetto'
-        ordering = ['codice']
 
 
-class ClassificazioneQSN(models.Model):
+class ClassificazioneQSN(ClassificazioneBase):
     TIPO = Choices(
         ('PRIORITA', 'priorita', u'Priorità'),
         ('OBIETTIVO_GENERALE', 'generale', u'Obiettivo generale'),
         ('OBIETTIVO_SPECIFICO', 'specifico', u'Obiettivo specifico')
     )
-
-    classificazione_superiore = models.ForeignKey('self', default=None, related_name='classificazione_set', db_column='classificazione_superiore', null=True, blank=True)
-    codice = models.CharField(max_length=16, primary_key=True)
-    descrizione = models.TextField()
-    tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
-
-    @property
-    def classificazioni_figlie(self):
-        return self.classificazione_set
-
-    @property
-    def progetti(self):
-        return self.progetto_set
-
-    def __unicode__(self):
-        return u'{}'.format(self.codice)
 
     class Meta:
         verbose_name = 'Classificazione QSN'
