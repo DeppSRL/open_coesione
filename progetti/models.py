@@ -108,102 +108,6 @@ class ProgrammaLineaAzione(ProgrammaBase):
         db_table = 'progetti_programma_linea_azione'
 
 
-class Tema(models.Model):
-    TIPO = Choices(
-        ('sintetico', 'Sintetico'),
-        ('prioritario', 'Prioritario'),
-    )
-
-    tema_superiore = models.ForeignKey('self', default=None, related_name='tema_set', db_column='tema_superiore', null=True, blank=True)
-    codice = models.CharField(max_length=16, primary_key=True)
-    descrizione = models.CharField(max_length=255)
-    descrizione_estesa = models.TextField(null=True, blank=True)
-    short_label = models.CharField(max_length=64, blank=True, null=True)
-    tipo_tema = models.CharField(max_length=16, choices=TIPO)
-    slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True, null=True)
-    priorita = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
-
-    objects = TemaManager()
-
-    @property
-    def temi_figli(self):
-        return self.tema_set
-
-    @property
-    def progetti(self):
-        return self.progetto_set
-
-    @property
-    def is_root(self):
-        return self.tipo_tema == self.TIPO.sintetico
-
-    def totale_pro_capite(self, territorio_or_popolazione):
-        if isinstance(territorio_or_popolazione, (int, float)):
-            popolazione = territorio_or_popolazione
-            costo = self.costo_totale()
-        else:
-            popolazione = territorio_or_popolazione.popolazione_totale or 0.0
-            costo = self.costo_totale(territorio_or_popolazione) or 0.0
-        if not popolazione:
-            return 0.0
-        return float(costo) / float(popolazione)
-
-    def costo_totale(self, territorio=None):
-        cache_key = ['costo_totale']
-        if self.is_root:
-            prefix = 'progetto_set__'
-            query_set = self.temi_figli
-        else:
-            prefix = ''
-            query_set = self.progetti
-        cache_key.append(str(self.codice))
-
-        if territorio:
-            query_set = query_set.filter(**territorio.get_cod_dict('{}territorio_set__'.format(prefix)))
-            cache_key.append(str(territorio.pk))
-
-        cache_key = '.'.join(cache_key)
-        result = cache.get(cache_key)
-        if result is None:
-            result = query_set.aggregate(totale=models.Sum('{}fin_totale_pubblico'.format(prefix)))['totale'] or 0.0
-            cache.set(cache_key, result)
-        return result
-
-    def get_absolute_url(self):
-        return reverse('progetti_tema', kwargs={'slug': self.slug})
-
-    def __unicode__(self):
-        return u'{} {}'.format(self.codice, self.descrizione)
-
-    class Meta:
-        verbose_name_plural = 'Temi'
-        ordering = ['priorita', 'codice']
-
-
-class Fonte(models.Model):
-    TIPO = Choices(
-        ('FS', 'fs', 'FS'),
-        ('FSC', 'fsc', 'FSC'),
-        ('PAC', 'pac', 'PAC')
-    )
-
-    tipo_fonte = models.CharField(max_length=4, choices=TIPO, blank=True, null=True)
-    codice = models.CharField(max_length=8, primary_key=True)
-    descrizione = models.TextField()
-    short_label = models.CharField(max_length=64, blank=True, null=True)
-
-    @property
-    def progetti(self):
-        return self.progetto_set
-
-    def __unicode__(self):
-        return u'{} - {}'.format(self.codice, self.descrizione)
-
-    class Meta:
-        verbose_name = 'Fonte'
-        verbose_name_plural = 'Fonti'
-
-
 class ClassificazioneAzione(models.Model):
     TIPO = Choices(
         ('natura', 'Natura'),
@@ -314,6 +218,102 @@ class ClassificazioneQSN(models.Model):
         verbose_name = 'Classificazione QSN'
         verbose_name_plural = 'Classificazioni QSN'
         db_table = 'progetti_classificazione_qsn'
+
+
+class Tema(models.Model):
+    TIPO = Choices(
+        ('sintetico', 'Sintetico'),
+        ('prioritario', 'Prioritario'),
+    )
+
+    tema_superiore = models.ForeignKey('self', default=None, related_name='tema_set', db_column='tema_superiore', null=True, blank=True)
+    codice = models.CharField(max_length=16, primary_key=True)
+    descrizione = models.CharField(max_length=255)
+    descrizione_estesa = models.TextField(null=True, blank=True)
+    short_label = models.CharField(max_length=64, blank=True, null=True)
+    tipo_tema = models.CharField(max_length=16, choices=TIPO)
+    slug = AutoSlugField(populate_from='descrizione', max_length=64, unique=True, db_index=True, null=True)
+    priorita = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
+
+    objects = TemaManager()
+
+    @property
+    def temi_figli(self):
+        return self.tema_set
+
+    @property
+    def progetti(self):
+        return self.progetto_set
+
+    @property
+    def is_root(self):
+        return self.tipo_tema == self.TIPO.sintetico
+
+    def totale_pro_capite(self, territorio_or_popolazione):
+        if isinstance(territorio_or_popolazione, (int, float)):
+            popolazione = territorio_or_popolazione
+            costo = self.costo_totale()
+        else:
+            popolazione = territorio_or_popolazione.popolazione_totale or 0.0
+            costo = self.costo_totale(territorio_or_popolazione) or 0.0
+        if not popolazione:
+            return 0.0
+        return float(costo) / float(popolazione)
+
+    def costo_totale(self, territorio=None):
+        cache_key = ['costo_totale']
+        if self.is_root:
+            prefix = 'progetto_set__'
+            query_set = self.temi_figli
+        else:
+            prefix = ''
+            query_set = self.progetti
+        cache_key.append(str(self.codice))
+
+        if territorio:
+            query_set = query_set.filter(**territorio.get_cod_dict('{}territorio_set__'.format(prefix)))
+            cache_key.append(str(territorio.pk))
+
+        cache_key = '.'.join(cache_key)
+        result = cache.get(cache_key)
+        if result is None:
+            result = query_set.aggregate(totale=models.Sum('{}fin_totale_pubblico'.format(prefix)))['totale'] or 0.0
+            cache.set(cache_key, result)
+        return result
+
+    def get_absolute_url(self):
+        return reverse('progetti_tema', kwargs={'slug': self.slug})
+
+    def __unicode__(self):
+        return u'{} {}'.format(self.codice, self.descrizione)
+
+    class Meta:
+        verbose_name_plural = 'Temi'
+        ordering = ['priorita', 'codice']
+
+
+class Fonte(models.Model):
+    TIPO = Choices(
+        ('FS', 'fs', 'FS'),
+        ('FSC', 'fsc', 'FSC'),
+        ('PAC', 'pac', 'PAC')
+    )
+
+    tipo_fonte = models.CharField(max_length=4, choices=TIPO, blank=True, null=True)
+    codice = models.CharField(max_length=8, primary_key=True)
+    descrizione = models.TextField()
+    short_label = models.CharField(max_length=64, blank=True, null=True)
+
+    @property
+    def progetti(self):
+        return self.progetto_set
+
+    def __unicode__(self):
+        return u'{} - {}'.format(self.codice, self.descrizione)
+
+    class Meta:
+        verbose_name = 'Fonte'
+        verbose_name_plural = 'Fonti'
 
 
 class Progetto(models.Model):
