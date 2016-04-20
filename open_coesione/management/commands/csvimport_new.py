@@ -236,6 +236,12 @@ class Command(BaseCommand):
                 self.logger.error(u'It was impossible to open file {}'.format(csvfile))
                 continue
             else:
+                if 'progetti_FSC0006' in file:
+                    df_tmp[u'COD_LINEA'] = '00'
+                    df_tmp[u'DESCR_LINEA'] = ''
+                    df_tmp[u'COD_AZIONE'] = '00'
+                    df_tmp[u'DESCR_AZIONE'] = ''
+
                 df_tmp[u'FLAG_ATTIVO'] = not ('inattivi' in file)
 
                 df = df.append(df_tmp, ignore_index=True)
