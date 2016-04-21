@@ -1158,11 +1158,14 @@ class Command(BaseCommand):
 
         created = 0
 
+        progetto = Progetto()
+
         for n, (index, row) in enumerate(df.iterrows(), 1):
             try:
-                progetto = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO'])
+                if progetto.codice_locale != row['COD_LOCALE_PROGETTO']:
+                    progetto = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO'])
 
-                self.logger.debug(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
+                    self.logger.debug(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
 
             except ObjectDoesNotExist:
                 self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
@@ -1179,8 +1182,6 @@ class Command(BaseCommand):
                     )
                 )
                 self.logger.info(u'{}/{} - Creato pagamento: {}'.format(n, df_count, insert_list[-1]))
-
-                del progetto
 
                 created += 1
 
