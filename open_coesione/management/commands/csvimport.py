@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
+import csv
 import logging
+from collections import defaultdict
+from decimal import Decimal
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.management.base import BaseCommand
 from open_coesione import utils
 from optparse import make_option
-import csv
-import csvkit
-from progetti.models import *
+from progetti.models import Progetto, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 
 
 class Command(BaseCommand):
     """
     Data are imported from their CSV sources.
     """
-    help = "Import data from csv"
+    help = 'Import data from csv'
 
     option_list = BaseCommand.option_list + (
         make_option('--csv-file',
@@ -24,42 +25,15 @@ class Command(BaseCommand):
                     dest='type',
                     default=None,
                     help='Type of import: prog|ponrec|pongat'),
-        make_option('--limit',
-                    dest='limit',
-                    default=0,
-                    help='Limit of records to import'),
-        make_option('--offset',
-                    dest='offset',
-                    default=0,
-                    help='Offset of records to import'),
-        make_option('--delete',
-                    dest='delete',
-                    action='store_true',
-                    help='Delete records, before importing new'),
         make_option('--encoding',
                     dest='encoding',
                     default='utf8',
-                    help='set character encoding of input file')
+                    help='set character encoding of input file'),
     )
 
-    csv_file = ''
-    encoding = 'iso-8859-1'
     logger = logging.getLogger('csvimport')
-    unicode_reader = None
 
     def handle(self, *args, **options):
-        self.csv_file = options['csvfile']
-        self.encoding = options['encoding']
-
-        # read first csv file
-        try:
-            self.unicode_reader = csvkit.CSVKitDictReader(open(self.csv_file, 'r'), delimiter=';', encoding=self.encoding)
-        except IOError:
-            self.logger.error("It was impossible to open file %s" % self.csv_file)
-            exit(1)
-        except csv.Error, e:
-            self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
-
         verbosity = options['verbosity']
         if verbosity == '0':
             self.logger.setLevel(logging.ERROR)
@@ -70,25 +44,34 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        if options['type'] == 'prog':
-            self.handle_programs(*args, **options)
-        elif options['type'] == 'ponrec':
-            self.handle_desc_ponrec(*args, **options)
-        elif options['type'] == 'pongat':
-            self.handle_desc_pongat(*args, **options)
-        else:
-            self.logger.error("Wrong type %s. Select among prog, ponrec and pongat." % options['type'])
+        importtype = options['type']
+        csv_file = options['csvfile']
+        encoding = options['encoding']
+        delimiter = ',' if importtype == 'ponrec' else ';'
+
+        if not importtype in ('prog', 'ponrec', 'pongat'):
+            self.logger.error(u'Wrong type {}. Select among prog, ponrec and pongat.'.format(importtype))
             exit(1)
 
-    def handle_programs(self, *args, **options):
-        """
-        Parse a csv file and add dotazione_totale info to records into ProgrammaAsseObiettivo or ProgrammaLineaAzione models
-        """
-        self.logger.info("Inizio import da %s" % self.csv_file)
+        try:
+            unicode_reader = utils.UnicodeDictReader(open(csv_file, 'r'), delimiter=delimiter, encoding=encoding)
+        except IOError:
+            self.logger.error(u'It was impossible to open file {}'.format(csv_file))
+        except csv.Error, e:
+            self.logger.error(u'CSV error while reading {}: {}'.format(csv_file, e.message))
+        else:
+            self.logger.info(u'Inizio import da {}'.format(csv_file))
 
+            method = getattr(self, 'handle_{}'.format(importtype))
+            method(unicode_reader)
+
+            self.logger.info(u'Fine')
+
+    def handle_prog(self, unicode_reader):
         ccodice = 'OC_CODICE_PROGRAMMA'
         cvalore = None
-        for row in self.unicode_reader:
+
+        for row in unicode_reader:
             if not cvalore:
                 columns = sorted(row.keys(), reverse=True)
 
@@ -98,20 +81,20 @@ class Command(BaseCommand):
                         break
 
                 if not (cvalore and (ccodice in columns)):
-                    self.logger.error("CSV mancante delle informazioni necessarie.")
+                    self.logger.error(u'CSV mancante delle informazioni necessarie.')
                     exit(1)
 
             codice = row[ccodice].strip()
             if codice:
                 valore = Decimal(row[cvalore].strip().replace('.', ''))
 
-                self.logger.info("%s --> %s" % (codice, valore))
+                self.logger.info(u'{} --> {}'.format(codice, valore))
 
                 found = False
-                for model in [ProgrammaAsseObiettivo, ProgrammaLineaAzione]:
+                for model in (ProgrammaAsseObiettivo, ProgrammaLineaAzione):
                     try:
                         programma = model.objects.get(pk=codice)
-                    except:
+                    except ObjectDoesNotExist:
                         pass
                     else:
                         programma.dotazione_totale = valore
@@ -119,137 +102,68 @@ class Command(BaseCommand):
                         found = True
 
                 if not found:
-                    self.logger.warning("Programma non trovato: %s. Skip." % codice)
+                    self.logger.warning(u'Programma non trovato: {}. Skip.'.format(codice))
 
-        self.logger.info('Fine')
+    def handle_ponrec(self, unicode_reader):
+        report = defaultdict(int)
 
-    def handle_desc_ponrec(self, *args, **options):
-        self.logger.info("Inizio import da %s" % self.csv_file)
-        self.logger.info("Encoding: %s" % self.encoding)
-        self.logger.info("Limit: %s" % options['limit'])
-        self.logger.info("Offset: %s" % options['offset'])
-
-        # read csv file, changing the default field delimiter
-        try:
-            self.unicode_reader = utils.UnicodeDictReader(open(self.csv_file, 'r'), delimiter=',', encoding=self.encoding)
-        except IOError:
-            self.logger.error("It was impossible to open file %s" % self.csv_file)
-            exit(1)
-        except csv.Error, e:
-            self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
-
-        if options['delete']:
-            self.logger.error("Could not revert descriptions updates.")
-            exit(1)
-
-        updates = 0
-        already_ok = 0
-        not_found = 0
-        duplicate = 0
-        c = 0
-        for r in self.unicode_reader:
-            c += 1
-            if c < int(options['offset']):
-                continue
-
-            if int(options['limit']) and (c - int(options['offset']) > int(options['limit'])):
-                break
-
-            # trasformazione per avere il codice_progetto_locale
-            codice_progetto_locale = "1MISE{0}".format(r['CodiceLocaleProgetto'].strip())
+        for n, r in enumerate(unicode_reader, 1):
+            codice = '1MISE{}'.format(r['CodiceLocaleProgetto'].strip())
             try:
-                progetto = Progetto.objects.get(pk=codice_progetto_locale)
-                self.logger.debug("%s - Progetto: %s" % (c, progetto.pk))
+                progetto = Progetto.objects.get(codice_locale=codice)
+                self.logger.debug(u'{} - Progetto: {}'.format(n, progetto))
             except ObjectDoesNotExist:
-                self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, r['CodiceLocaleProgetto']))
-                not_found += 1
+                self.logger.warning(u'{} - Progetto non trovato: {}, skip'.format(n, codice))
+                report['not_found'] += 1
                 continue
             except MultipleObjectsReturned:
-                self.logger.warning(u"%s - Più progetti con Codice: %s, skip" % (c, r['CodiceLocaleProgetto']))
-                duplicate += 1
+                self.logger.warning(u'{} - Più progetti con codice: {}, skip'.format(n, codice))
+                report['duplicate'] += 1
                 continue
 
             sintesi = r['Sintesi'].strip()
 
             if sintesi:
-                self.logger.info(u"Aggiornamento descrizione per il progetto %s" % progetto)
+                self.logger.info(u'Aggiornamento descrizione per il progetto {}'.format(progetto))
                 progetto.descrizione = sintesi
                 progetto.descrizione_fonte_nome = 'Open Data PON REC'
                 progetto.descrizione_fonte_url = 'http://www.ponrec.it/open-data'
                 progetto.save()
-                updates += 1
+                report['update'] += 1
             else:
-                self.logger.info(u"Sintesi vuota per il progetto %s" % progetto)
-                already_ok += 1
+                self.logger.info(u'Sintesi vuota per il progetto {}'.format(progetto))
+                report['empty'] += 1
 
-        self.logger.info(
-            "Fine: %s descrizioni aggiornate, %s sintesi da importare erano vuote, %s progetti non sono stati trovati tramite il codice progetto locale, %s progetti si riferiscono a un CUP non univoco" %
-            (updates, already_ok, not_found, duplicate)
-        )
+        self.logger.info(u'{update} descrizioni aggiornate, {empty} sintesi da importare erano vuote, {not_found} progetti non sono stati trovati, {duplicate} progetti si riferiscono a un codice non univoco'.format(**report))
 
-    def handle_desc_pongat(self, *args, **options):
-        """
-        PONREG descriptions import, from
-        http://www.dps.tesoro.it/documentazione/QSN/docs/PO/Elenco_Beneficiari_PON_GAT_dati_31_AGOSTO_2013.csv
-        """
-        self.logger.info("Inizio import da %s" % self.csv_file)
-        self.logger.info("Encoding: %s" % self.encoding)
-        self.logger.info("Limit: %s" % options['limit'])
-        self.logger.info("Offset: %s" % options['offset'])
+    def handle_pongat(self, unicode_reader):
+        report = defaultdict(int)
 
-        # read csv file, changing the default field delimiter
-        try:
-            self.unicode_reader = utils.UnicodeDictReader(open(self.csv_file, 'r'), delimiter=';', encoding=self.encoding)
-        except IOError:
-            self.logger.error("It was impossible to open file %s" % self.csv_file)
-            exit(1)
-        except csv.Error, e:
-            self.logger.error("CSV error while reading %s: %s" % (self.csv_file, e.message))
-
-        if options['delete']:
-            self.logger.error("Could not revert descriptions updates.")
-            exit(1)
-
-        updates = 0
-        already_ok = 0
-        not_found = 0
-        duplicate = 0
-        c = 0
-        for r in self.unicode_reader:
-            c += 1
-            if c < int(options['offset']):
-                continue
-
-            if int(options['limit']) and (c - int(options['offset']) > int(options['limit'])):
-                break
-
-            cup = r['CUP'].strip()
+        for n, r in enumerate(unicode_reader, 1):
+            codice = r['CUP'].strip()
             try:
-                progetto = Progetto.objects.get(cup=cup)
-                self.logger.debug("%s - Progetto: %s" % (c, progetto.pk))
+                progetto = Progetto.objects.get(cup=codice)
+                self.logger.debug(u'{} - Progetto: {}'.format(n, progetto))
             except ObjectDoesNotExist:
-                self.logger.warning("%s - Progetto non trovato: %s, skip" % (c, cup))
-                not_found += 1
+                self.logger.warning(u'{} - Progetto non trovato: {}, skip'.format(n, codice))
+                report['not_found'] += 1
                 continue
             except MultipleObjectsReturned:
-                self.logger.warning(u"%s - Più progetti con CUP: %s, skip" % (c, cup))
-                duplicate += 1
+                self.logger.warning(u'{} - Più progetti con codice: {}, skip'.format(n, codice))
+                report['duplicate'] += 1
                 continue
 
             sintesi = r['Sintesi intervento'].strip()
 
             if sintesi:
-                self.logger.info(u"Aggiornamento descrizione per il progetto %s" % progetto)
+                self.logger.info(u'Aggiornamento descrizione per il progetto {}'.format(progetto))
                 progetto.descrizione = sintesi
                 progetto.descrizione_fonte_nome = 'Open Data PON GAT'
                 progetto.descrizione_fonte_url = 'http://www.agenziacoesione.gov.it/it/pongat/comunicazione/elenco_beneficiari/index.html'
                 progetto.save()
-                updates += 1
+                report['update'] += 1
             else:
-                self.logger.info(u"Sintesi vuota per il progetto %s" % progetto)
-                already_ok += 1
+                self.logger.info(u'Sintesi vuota per il progetto {}'.format(progetto))
+                report['empty'] += 1
 
-        self.logger.info(
-            "Fine: %s descrizioni aggiornate, %s sintesi da importare erano vuote, %s progetti non sono stati trovati tramite il CUP, %s progetti si riferiscono a un CUP non univoco" %
-            (updates, already_ok, not_found, duplicate)
-        )
+        self.logger.info(u'{update} descrizioni aggiornate, {empty} sintesi da importare erano vuote, {not_found} progetti non sono stati trovati, {duplicate} progetti si riferiscono a un codice non univoco'.format(**report))

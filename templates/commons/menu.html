@@ -29,7 +29,7 @@
                 <li class="dropdown{% if progetto or tipologia or tema or territorio or programma or gruppo_programmi %}{% if not soggetto and not risorsa %} active{% endif %}{% endif %}">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Progetti <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li class="submenu">
+                        <li class="submenu" style="position: relative">
                             <a href="#">Natura</a>
                             <ul class="dropdown-menu">
                                 <li class="clearfix">
@@ -41,7 +41,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="submenu">
+                        <li class="submenu" style="position: relative">
                             <a href="#">Temi</a>
                             <ul class="dropdown-menu">
                                 <li class="clearfix">
@@ -53,7 +53,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="submenu">
+                        <li class="submenu" style="position: relative">
                             <a href="#">Territori</a>
                             <ul class="dropdown-menu">
                                 <li class="clearfix" style="width: 500px">
@@ -126,14 +126,61 @@
                                         <li class="clearfix">
                                             <ul>
                                                 <li><a href="{% url 'progetti_programmi' 'fsc' %}">Tutti</a></li>
-                                                {% for programmi in lista_programmi.fsc %}
-                                                    {% if programmi %}
-                                                        <li class="divider"></li>
-                                                        {% for pdesc, pcode in programmi.items %}
-                                                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
-                                                        {% endfor %}
-                                                    {% endif %}
-                                                {% endfor %}
+                                                <li class="divider"></li>
+                                                <li class="submenu">
+                                                    <a href="#">Programmi Attuativi Regionali</a>
+                                                    <ul class="dropdown-menu">
+                                                        <li class="clearfix">
+                                                            <ul>
+                                                                <li><a href="{% url 'progetti_programmi' 'fsc-1' %}">Tutti</a></li>
+                                                                {% for programmi in lista_programmi.fsc_1 %}
+                                                                    {% if programmi %}
+                                                                        <li class="divider"></li>
+                                                                        {% for pdesc, pcode in programmi.items %}
+                                                                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                                <li class="submenu">
+                                                    <a href="#">Intese Istituzionali di Programma</a>
+                                                    <ul class="dropdown-menu">
+                                                        <li class="clearfix">
+                                                            <ul>
+                                                                <li><a href="{% url 'progetti_programmi' 'fsc-2' %}">Tutti</a></li>
+                                                                {% for programmi in lista_programmi.fsc_2 %}
+                                                                    {% if programmi %}
+                                                                        <li class="divider"></li>
+                                                                        {% for pdesc, pcode in programmi.items %}
+                                                                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                                <li class="submenu">
+                                                    <a href="#">Altri Programmi FSC</a>
+                                                    <ul class="dropdown-menu">
+                                                        <li class="clearfix">
+                                                            <ul>
+                                                                <li><a href="{% url 'progetti_programmi' 'fsc-3' %}">Tutti</a></li>
+                                                                {% for programmi in lista_programmi.fsc_3 %}
+                                                                    {% if programmi %}
+                                                                        <li class="divider"></li>
+                                                                        {% for pdesc, pcode in programmi.items %}
+                                                                            <li><a href="{% url 'progetti_programma' pcode %}">{{ pdesc }}</a></li>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </li>
+                                                    </ul>
+                                                </li>
                                             </ul>
                                         </li>
                                     </ul>

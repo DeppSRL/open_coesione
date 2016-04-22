@@ -295,7 +295,7 @@ class TilesConfigView(TemplateView):
         context['temi'] = Tema.objects.principali()
         context['nature'] = ClassificazioneAzione.objects.nature()
         context['programmi'] = list(ProgrammaAsseObiettivo.objects.programmi()) + list(ProgrammaLineaAzione.objects.programmi())
-        context['gruppi_programmi_codici'] = GruppoProgrammi.CODICI
+        context['gruppi_programmi_codici'] = GruppoProgrammi.GRUPPI_PROGRAMMI.keys()
         context['mapnik_base_url'] = 'http://{0}/territori/mapnik'.format(Site.objects.get_current())
         context['path_to_cache'] = settings.TILESTACHE_CACHE_PATH
 
