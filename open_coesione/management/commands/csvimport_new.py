@@ -163,6 +163,11 @@ class Command(BaseCommand):
             'import_method': '_update_privacy_soggetti',
             'converters': None,
         },
+        'corrispondenze-progetti': {
+            'files': ['corrispondenze_assegnazioni_progetti_{}.csv', 'retrospettivi_{}.csv'],
+            'import_method': '_update_corrispondenze_progetti',
+            'converters': None,
+        },
     }
 
     option_list = BaseCommand.option_list + (
@@ -1231,6 +1236,31 @@ class Command(BaseCommand):
                 tot_updated += 1
 
         self.logger.info(u'Totale record aggiornati: {}.'.format(tot_updated))
+
+    @transaction.commit_on_success
+    def _update_corrispondenze_progetti(self, df):
+        df[u'COD_LOCALE_PROGETTO_ATTUATO'] = df[['COD_DIPE', 'CLP_RETRO']].apply(lambda x: ''.join(x), axis=1)
+
+        df_count = len(df)
+
+        for n, (index, row) in enumerate(df.iterrows(), 1):
+            try:
+                progetto_attuatore = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO'])
+            except ObjectDoesNotExist:
+                self.logger.warning(u'{} - Progetto attuatore non trovato: {}, skipping'.format(n, row['COD_LOCALE_PROGETTO']))
+                continue
+
+            try:
+                progetto_attuato = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO_ATTUATO'])
+            except ObjectDoesNotExist:
+                self.logger.warning(u'{} - Progetto attuato non trovato: {}, skipping'.format(n, row['COD_LOCALE_PROGETTO_ATTUATO']))
+                continue
+
+            progetto_attuatore.progetti_attuati.add(progetto_attuato)
+            progetto_attuato.active_flag = False
+            progetto_attuato.save()
+
+            self.logger.info(u'{}/{} - Creata corrispondenza {} --> {}' .format(n, df_count, progetto_attuato, progetto_attuatore))
 
     def _log(self, created, msg):
         if created:

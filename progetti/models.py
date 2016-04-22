@@ -341,7 +341,7 @@ class Progetto(models.Model):
     cup = models.CharField(max_length=15, blank=True)
     active_flag = models.BooleanField(default=True, db_index=True)
 
-    overlapping_projects = models.ManyToManyField('self')
+    progetti_attuati = models.ManyToManyField('self', symmetrical=False, related_name='progetti_attuatori')
 
     titolo_progetto = models.TextField()
     slug = models.SlugField(max_length=128, blank=True, null=True, unique=True, db_index=True)

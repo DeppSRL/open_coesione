@@ -51,9 +51,8 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
         fin_totale_pubblico_netto = float(self.object.fin_totale_pubblico_netto or self.object.fin_totale_pubblico or 0)
         context['cost_payments_ratio'] = '{:.0%}'.format(context['total_cost_paid'] / fin_totale_pubblico_netto if fin_totale_pubblico_netto > 0.0 else 0.0)
 
-        context['segnalazioni_pubblicate'] = self.object.segnalazioni
-
-        context['overlapping_projects'] = Progetto.fullobjects.filter(overlapping_projects=self.object)
+        context['progetti_attuatori'] = Progetto.fullobjects.filter(progetti_attuati=self.object)
+        context['progetti_attuati'] = Progetto.fullobjects.filter(progetti_attuatori=self.object).order_by('-cipe_flag')
 
         return context
 

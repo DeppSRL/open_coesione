@@ -2,23 +2,27 @@
 
 {% load sekizai_tags humanize %}
 
-{% block page_title %}Progetto: {{ progetto.titolo_progetto }}{% endblock %}
+{% block page_title %}Progetto: {{ progetto.pk }}{% endblock %}
 
 {% block container %}
     <div class="container{% if not progetto.active_flag %} non_active{% endif %}" id="progetto-container">
         {% if not progetto.active_flag %}
             <div class="alert alert-block text-center" style="margin-bottom: 0">
-                {% if overlapping_projects and progetto.cipe_flag %}
-                    <h3>Questa assegnazione CIPE viene conteggiata nel piano finanziario dei progetti in attuazione:</h3>
+                {% if progetti_attuatori %}
+                    {% if progetto.cipe_flag %}
+                        <h3>Questa assegnazione CIPE viene conteggiata nel piano finanziario dei progetti in attuazione:</h3>
+                    {% else %}
+                        <h3>Questo progetto viene conteggiato nel piano finanziario dei progetti in attuazione [TESTO DA DEFINIRE]:</h3>
+                    {% endif %}
                     <ul class="spaced" id="overlapping-projects">
-                        {% for overlapping_project in overlapping_projects|slice:':5' %}
-                            <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
+                        {% for progetto_attuatore in progetti_attuatori|slice:':5' %}
+                            <li><a href="{{ progetto_attuatore.get_absolute_url }}">{{ progetto_attuatore.titolo_progetto }}</a></li>
                         {% endfor %}
                     </ul>
-                    {% if overlapping_projects.count > 5 %}
+                    {% if progetti_attuatori.count > 5 %}
                         <ul class="spaced" id="overlapping-projects-extra" style="padding-top: 2px">
-                            {% for overlapping_project in overlapping_projects|slice:'5:' %}
-                                <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
+                            {% for progetto_attuatore in progetti_attuatori|slice:'5:' %}
+                                <li><a href="{{ progetto_attuatore.get_absolute_url }}">{{ progetto_attuatore.titolo_progetto }}</a></li>
                             {% endfor %}
                         </ul>
 
@@ -49,14 +53,14 @@
                     <h1>{{ progetto.titolo_progetto }}</h1>
                 </header>
 
-                    <p>
-                        {% if progetto.cipe_flag %}
-                            Data di ultimo stanziamento:
-                        {% else %}
-                            Data di aggiornamento:
-                        {% endif %}
-                        <strong>{{ progetto.ultimo_aggiornamento|date:'SHORT_DATE_FORMAT' }}</strong>
-                    </p>
+                <p>
+                    {% if progetto.cipe_flag %}
+                        Data di ultimo stanziamento:
+                    {% else %}
+                        Data di aggiornamento:
+                    {% endif %}
+                    <strong>{{ progetto.ultimo_aggiornamento|date:'SHORT_DATE_FORMAT' }}</strong>
+                </p>
 
                 <ul class="unstyled">
                     <li>
@@ -109,12 +113,12 @@
                     <p>Sei un protagonista di questo progetto? <span>Raccontacelo qui</span>.</p>
                 </a>
 
-                {% if segnalazioni_pubblicate %}
+                {% if progetto.segnalazioni %}
                     <div id="segnalazioni_progetto" class="baloons-block">
-                        <i>{{ segnalazioni_pubblicate|length }}</i>
+                        <i>{{ progetto.segnalazioni.count }}</i>
                         <p>
                             I protagonisti raccontano:
-                            {% for segnalazione in segnalazioni_pubblicate %}
+                            {% for segnalazione in progetto.segnalazioni %}
                                 <a href="{% url 'progetto_segnalazione_pubblicata' segnalazione.pk %}">{{ segnalazione.utente }}</a>{% if forloop.last %}.{% else %},{% endif %}
                             {% endfor %}
                         </p>
@@ -315,17 +319,24 @@
                                 {% endfor %}
                             </table>
                         {% endif %}
-                        {% if progetto.note or overlapping_projects and not progetto.cipe_flag %}
+                        {% if progetto.note or progetti_attuati %}
                             <br/>
                             <dt>Note</dt>
                             <dd>
-                                {% if overlapping_projects and not progetto.cipe_flag %}
-                                    Questo progetto attua le assegnazioni CIPE:<br/>
-                                    <ul>
-                                        {% for overlapping_project in overlapping_projects %}
-                                            <li><a href="{% url 'progetti_progetto' slug=overlapping_project.slug %}">{{ overlapping_project.titolo_progetto }}</a></li>
-                                        {% endfor %}
-                                    </ul>
+                                {% if progetti_attuati %}
+                                    {% regroup progetti_attuati by cipe_flag as grouped_progetti_attuati %}
+                                    {% for progetti_attuati_group in grouped_progetti_attuati %}
+                                        {% if progetti_attuati_group.grouper %}
+                                            Questo progetto attua le assegnazioni CIPE:
+                                        {% else %}
+                                            Questo progetto prosegue l'attuazione iniziata nel precedente ciclo di programmazione che puoi vedere qui:
+                                        {% endif %}
+                                        <ul>
+                                            {% for progetto_attuato in progetti_attuati_group.list %}
+                                                <li><a href="{{ progetto_attuato.get_absolute_url }}">{{ progetto_attuato.titolo_progetto }}</a></li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endfor %}
                                 {% endif %}
                             </dd>
                             {% if progetto.note %}
