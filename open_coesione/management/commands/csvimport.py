@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import csv
 import logging
-from collections import defaultdict
 from decimal import Decimal
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.management.base import BaseCommand
@@ -105,7 +104,7 @@ class Command(BaseCommand):
                     self.logger.warning(u'Programma non trovato: {}. Skip.'.format(codice))
 
     def handle_ponrec(self, unicode_reader):
-        report = defaultdict(int)
+        report = {'update': 0, 'empty': 0, 'not_found': 0, 'duplicate': 0}
 
         for n, r in enumerate(unicode_reader, 1):
             codice = '1MISE{}'.format(r['CodiceLocaleProgetto'].strip())
@@ -137,7 +136,7 @@ class Command(BaseCommand):
         self.logger.info(u'{update} descrizioni aggiornate, {empty} sintesi da importare erano vuote, {not_found} progetti non sono stati trovati, {duplicate} progetti si riferiscono a un codice non univoco'.format(**report))
 
     def handle_pongat(self, unicode_reader):
-        report = defaultdict(int)
+        report = {'update': 0, 'empty': 0, 'not_found': 0, 'duplicate': 0}
 
         for n, r in enumerate(unicode_reader, 1):
             codice = r['CUP'].strip()
