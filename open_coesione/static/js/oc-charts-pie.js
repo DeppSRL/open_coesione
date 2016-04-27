@@ -17,7 +17,7 @@ var pie_chart_options = {
         shadow: false,
         style: {
             width: '150px',
-            'min-height': '20px'
+            minHeight: '20px'
         }
     },
     plotOptions: {
@@ -32,8 +32,8 @@ var pie_chart_options = {
                     return '<b>'+ this.point.name +'</b>: '+ this.percentage.toFixed(2) +'<small>%</small>';
                 }
             },
-            showInLegend: false
-
+            showInLegend: false,
+            shadow: true
         }
     },
     series: [],
