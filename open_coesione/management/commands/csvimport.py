@@ -23,7 +23,7 @@ class Command(BaseCommand):
         make_option('--type',
                     dest='type',
                     default=None,
-                    help='Type of import: prog|ponrec|pongat'),
+                    help='Type of import: prog|pongat'),
         make_option('--encoding',
                     dest='encoding',
                     default='utf8',
@@ -46,14 +46,13 @@ class Command(BaseCommand):
         importtype = options['type']
         csv_file = options['csvfile']
         encoding = options['encoding']
-        delimiter = ',' if importtype == 'ponrec' else ';'
 
-        if not importtype in ('prog', 'ponrec', 'pongat'):
-            self.logger.error(u'Wrong type {}. Select among prog, ponrec and pongat.'.format(importtype))
+        if not importtype in ('prog', 'pongat'):
+            self.logger.error(u'Wrong type {}. Select among prog and pongat.'.format(importtype))
             exit(1)
 
         try:
-            unicode_reader = utils.UnicodeDictReader(open(csv_file, 'r'), delimiter=delimiter, encoding=encoding)
+            unicode_reader = utils.UnicodeDictReader(open(csv_file, 'r'), delimiter= ';', encoding=encoding)
         except IOError:
             self.logger.error(u'It was impossible to open file {}'.format(csv_file))
         except csv.Error, e:
@@ -102,38 +101,6 @@ class Command(BaseCommand):
 
                 if not found:
                     self.logger.warning(u'Programma non trovato: {}. Skip.'.format(codice))
-
-    def handle_ponrec(self, unicode_reader):
-        report = {'update': 0, 'empty': 0, 'not_found': 0, 'duplicate': 0}
-
-        for n, r in enumerate(unicode_reader, 1):
-            codice = '1MISE{}'.format(r['CodiceLocaleProgetto'].strip())
-            try:
-                progetto = Progetto.objects.get(codice_locale=codice)
-                self.logger.debug(u'{} - Progetto: {}'.format(n, progetto))
-            except ObjectDoesNotExist:
-                self.logger.warning(u'{} - Progetto non trovato: {}, skip'.format(n, codice))
-                report['not_found'] += 1
-                continue
-            except MultipleObjectsReturned:
-                self.logger.warning(u'{} - Più progetti con codice: {}, skip'.format(n, codice))
-                report['duplicate'] += 1
-                continue
-
-            sintesi = r['Sintesi'].strip()
-
-            if sintesi:
-                self.logger.info(u'Aggiornamento descrizione per il progetto {}'.format(progetto))
-                progetto.descrizione = sintesi
-                progetto.descrizione_fonte_nome = 'Open Data PON REC'
-                progetto.descrizione_fonte_url = 'http://www.ponrec.it/open-data'
-                progetto.save()
-                report['update'] += 1
-            else:
-                self.logger.info(u'Sintesi vuota per il progetto {}'.format(progetto))
-                report['empty'] += 1
-
-        self.logger.info(u'{update} descrizioni aggiornate, {empty} sintesi da importare erano vuote, {not_found} progetti non sono stati trovati, {duplicate} progetti si riferiscono a un codice non univoco'.format(**report))
 
     def handle_pongat(self, unicode_reader):
         report = {'update': 0, 'empty': 0, 'not_found': 0, 'duplicate': 0}

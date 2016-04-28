@@ -153,19 +153,29 @@ class Command(BaseCommand):
             'import_method': '_import_pagamenti',
             'converters': None,
         },
-        'update-privacy-progetti': {
+        'privacy-progetti': {
             'files': ['prog_privacy_{}.csv', 'prog_inattivi_privacy_{}.csv'],
             'import_method': '_update_privacy_progetti',
             'converters': None,
         },
-        'update-privacy-soggetti': {
+        'privacy-soggetti': {
             'files': ['sogg_privacy_{}.csv', 'sogg_inattivi_privacy_{}.csv'],
             'import_method': '_update_privacy_soggetti',
             'converters': None,
         },
         'corrispondenze-progetti': {
             'files': ['corrispondenze_assegnazioni_progetti_{}.csv', 'retrospettivi_{}.csv'],
-            'import_method': '_update_corrispondenze_progetti',
+            'import_method': '_import_corrispondenze_progetti',
+            'converters': None,
+        },
+        'sovrapposizioni-fonti': {
+            'files': ['sovrapposizioni_{}.csv'],
+            'import_method': '_import_sovrapposizioni_fonti',
+            'converters': None,
+        },
+        'descrizioni-ponrec': {
+            'files': ['ponrec_opendata.csv'],
+            'import_method': '_update_descrizioni_ponrec',
             'converters': None,
         },
     }
@@ -187,6 +197,10 @@ class Command(BaseCommand):
                     dest='encoding',
                     default='utf-8-sig',
                     help='Set character encoding of input file.'),
+        make_option('--separator',
+                    dest='separator',
+                    default=';',
+                    help='Set separator of input file.'),
     )
 
     logger = logging.getLogger('csvimport')
@@ -206,6 +220,7 @@ class Command(BaseCommand):
         csvdate = options['csv_date']
         importtype = options['import_type']
         encoding = options['encoding']
+        separator = options['separator']
 
         if not importtype in self.import_types:
             self.logger.error(u'Wrong type "{}". Select among {}.'.format(importtype, ', '.join(['"' + t + '"' for t in self.import_types])))
@@ -220,7 +235,10 @@ class Command(BaseCommand):
             self.logger.info(u'Reading file {} ....'.format(csvfile))
 
             try:
-                if csvfile.endswith('.zip'):
+                if csvfile.startswith('http'):
+                    import urllib2
+                    csv = urllib2.urlopen(csvfile).read()
+                elif csvfile.endswith('.zip'):
                     with zipfile.ZipFile(csvfile) as zfile:
                         csv = zfile.read(zfile.namelist().pop(0))
                 else:
@@ -229,7 +247,7 @@ class Command(BaseCommand):
 
                 df_tmp = pd.read_csv(
                     StringIO(csv.decode(encoding).encode('utf-8')),
-                    sep=';',
+                    sep=separator,
                     header=0,
                     low_memory=True,
                     dtype=object,
@@ -1225,7 +1243,6 @@ class Command(BaseCommand):
         for n, (index, row) in enumerate(df.iterrows(), 1):
             try:
                 soggetto = Soggetto.objects.get(ruolo__progetto__codice_locale=row['COD_LOCALE_PROGETTO'], ruolo__ruolo=row['SOGG_COD_RUOLO'], ruolo__progressivo_ruolo=row['SOGG_PROGR_RUOLO'])
-                self.logger.debug(u'{}/{} - Soggetto: {}'.format(n, df_count, soggetto))
             except ObjectDoesNotExist:
                 self.logger.warning(u'{}/{} - Soggetto non trovato: {}/{}/{}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO'], row['SOGG_COD_RUOLO'], row['SOGG_PROGR_RUOLO']))
             except MultipleObjectsReturned:
@@ -1233,12 +1250,14 @@ class Command(BaseCommand):
             else:
                 soggetto.privacy_flag = True
                 soggetto.save()
+
+                self.logger.debug(u'{}/{} - Aggiornato flag privacy per il soggetto: {}'.format(n, df_count, soggetto))
                 tot_updated += 1
 
         self.logger.info(u'Totale record aggiornati: {}.'.format(tot_updated))
 
     @transaction.commit_on_success
-    def _update_corrispondenze_progetti(self, df):
+    def _import_corrispondenze_progetti(self, df):
         df[u'COD_LOCALE_PROGETTO_ATTUATO'] = df[['COD_DIPE', 'CLP_RETRO']].apply(lambda x: ''.join(x), axis=1)
 
         df_count = len(df)
@@ -1247,20 +1266,71 @@ class Command(BaseCommand):
             try:
                 progetto_attuatore = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO'])
             except ObjectDoesNotExist:
-                self.logger.warning(u'{} - Progetto attuatore non trovato: {}, skipping'.format(n, row['COD_LOCALE_PROGETTO']))
-                continue
+                self.logger.warning(u'{}/{} - Progetto attuatore non trovato: {}. Skipping'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
+            else:
+                try:
+                    progetto_attuato = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO_ATTUATO'])
+                except ObjectDoesNotExist:
+                    self.logger.warning(u'{}/{} - Progetto attuato non trovato: {}. Skipping'.format(n, df_count, row['COD_LOCALE_PROGETTO_ATTUATO']))
+                else:
+                    progetto_attuatore.progetti_attuati.add(progetto_attuato)
+                    progetto_attuato.active_flag = False
+                    progetto_attuato.save()
+
+                    self.logger.info(u'{}/{} - Creata corrispondenza {} --> {}' .format(n, df_count, progetto_attuato, progetto_attuatore))
+
+    @transaction.commit_on_success
+    def _import_sovrapposizioni_fonti(self, df):
+        fonti_cod2obj = {fonte.codice: fonte for fonte in Fonte.objects.all()}
+
+        df_count = len(df)
+
+        for n, (index, row) in enumerate(df.iterrows(), 1):
+            try:
+                progetto = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO'])
+            except ObjectDoesNotExist:
+                self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
+            else:
+                self.logger.info(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
+
+                # remove old fonti
+                codici_precedenti = progetto.fonte_set.values_list('codice', flat=True)
+                for codice in codici_precedenti:
+                    progetto.fonte_set.remove(fonti_cod2obj[codice])
+                self.logger.debug(u' |-- Rimossi codici precedenti: {}'.format(','.join(codici_precedenti)))
+
+                # add new fonti
+                codici_attuali = [k for k in row.keys() if row[k] == u'1']
+                for codice in codici_attuali:
+                    progetto.fonte_set.add(fonti_cod2obj[codice])
+                self.logger.debug(u' |-- Aggiunti codici attuali: {}'.format(','.join(codici_attuali)))
+
+    @transaction.commit_on_success
+    def _update_descrizioni_ponrec(self, df):
+        df = df[df['Sintesi'].str.strip() != '']
+
+        df_count = len(df)
+
+        report = {'updated': 0, 'not_found': 0}
+
+        for n, (index, row) in enumerate(df.iterrows(), 1):
+            codice = '1MISE{}'.format(row['CodiceLocaleProgetto'].strip())
 
             try:
-                progetto_attuato = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO_ATTUATO'])
+                progetto = Progetto.fullobjects.get(codice_locale=codice)
             except ObjectDoesNotExist:
-                self.logger.warning(u'{} - Progetto attuato non trovato: {}, skipping'.format(n, row['COD_LOCALE_PROGETTO_ATTUATO']))
-                continue
+                self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping'.format(n, df_count, codice))
+                report['not_found'] += 1
+            else:
+                progetto.descrizione = row['Sintesi'].strip()
+                progetto.descrizione_fonte_nome = 'Open Data PON REC'
+                progetto.descrizione_fonte_url = 'http://www.ponrec.it/open-data'
+                progetto.save()
 
-            progetto_attuatore.progetti_attuati.add(progetto_attuato)
-            progetto_attuato.active_flag = False
-            progetto_attuato.save()
+                self.logger.info(u'{}/{} - Aggiornata descrizione per il progetto: {}'.format(n, df_count, progetto))
+                report['updated'] += 1
 
-            self.logger.info(u'{}/{} - Creata corrispondenza {} --> {}' .format(n, df_count, progetto_attuato, progetto_attuatore))
+        self.logger.info(u'{updated} descrizioni aggiornate, {not_found} progetti non sono stati trovati.'.format(**report))
 
     def _log(self, created, msg):
         if created:
