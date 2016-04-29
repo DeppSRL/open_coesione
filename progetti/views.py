@@ -10,7 +10,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum
 from django.http import HttpResponse, Http404
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
@@ -90,7 +90,7 @@ class ProgettoSearchView(OCFacetedSearchView):
     @staticmethod
     def _get_objects_by_pk(pks):
         related = ['territorio_set', 'tema__tema_superiore', 'classificazione_azione__classificazione_superiore']
-        return Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks)
+        return {str(key): value for key, value in Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks).items()}
 
     def build_form(self, form_kwargs=None):
         # The is_active:1 facet is selected by default and is substituted by is_active:0 when explicitly requested
@@ -499,8 +499,9 @@ class ProgettoCSVSearchView(ProgettoSearchView):
 
     @staticmethod
     def _get_objects_by_pk(pks):
-        related = ['territorio_set', 'tema__tema_superiore', 'classificazione_azione__classificazione_superiore', 'ruolo_set__soggetto']
-        return Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks)
+        # related = ['tema__tema_superiore', 'classificazione_azione__classificazione_superiore', 'ruolo_set__soggetto', 'territorio_set']
+        related = ['ruolo_set__soggetto', 'territorio_set']
+        return {str(key): value for key, value in Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks).items()}
 
     def create_response1(self):
         """
@@ -583,6 +584,77 @@ class ProgettoCSVSearchView(ProgettoSearchView):
         """
         Generates a zipped, downloadale CSV file, from search results
         """
+
+        import json
+        # import os
+        # from csvkit import convert
+        # from open_coesione.views import OpendataView
+
+        def myformat(val):
+            if isinstance(val, (list, set)):
+                val = u':::'.join(val)
+            return val
+
+        # reader = csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Metadati_attuazione.xls'), 'rb'), sheet='Progetti').splitlines())
+        # csv_columns = [row['Variabile'].strip() for row in reader if row['Presenza nei dataset da query su www.opencoesione.gov.it'].strip()]
+
+        # reader = csv.DictReader(convert.xls2csv(open(os.path.join(settings.STATIC_ROOT, 'Metadati_risultati_ricerca.xls'), 'rb'), sheet='Progetti').splitlines())
+        # columns = [row['Variabile'].strip() for row in reader]
+        # columns = [{'FINANZ_STATO_FONDO_ROTAZIONE': u'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'FINANZ_STATO_PRIVATO': u'FINANZ_PRIVATO'}.get(c, c) for c in columns]
+
+        columns = ['COD_LOCALE_PROGETTO', 'CUP', 'OC_TITOLO_PROGETTO', 'QSN_FONDO_COMUNITARIO', 'OC_TEMA_SINTETICO', 'OC_DESCR_FONTE', 'OC_CODICE_PROGRAMMA', 'OC_DESCRIZIONE_PROGRAMMA', 'DESCR_STRUMENTO', 'DESCR_TIPO_STRUMENTO', 'DATA_APPROV_STRUMENTO', 'CUP_DESCR_NATURA', 'CUP_DESCR_SETTORE', 'CUP_DESCR_SOTTOSETTORE', 'CUP_DESCR_CATEGORIA', 'COD_ATECO', 'DESCRIZIONE_ATECO', 'OC_TIPO_PROGETTO', 'FINANZ_UE', 'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'FINANZ_STATO_FSC', 'FINANZ_STATO_PAC', 'FINANZ_STATO_ALTRI_PROVVEDIMENTI', 'FINANZ_REGIONE', 'FINANZ_PROVINCIA', 'FINANZ_COMUNE', 'FINANZ_RISORSE_LIBERATE', 'FINANZ_ALTRO_PUBBLICO', 'FINANZ_STATO_ESTERO', 'FINANZ_PRIVATO', 'FINANZ_DA_REPERIRE', 'FINANZ_TOTALE_PUBBLICO', 'COSTO_RENDICONTABILE_UE', 'IMPEGNI', 'TOT_PAGAMENTI', 'OC_TOT_PAGAMENTI_RENDICONTAB_UE', 'OC_DATA_INIZIO_PREVISTA', 'OC_DATA_FINE_PREVISTA', 'OC_DATA_INIZIO_EFFETTIVA', 'OC_DATA_FINE_EFFETTIVA', 'OC_STATO_PROGETTO', 'DESCR_PROCED_ATTIVAZIONE', 'DESCR_TIPO_PROCED_ATTIVAZIONE', 'DATA_PREVISTA_BANDO_PROC_ATTIV', 'DATA_EFFETTIVA_BANDO_PROC_ATTIV', 'DATA_PREVISTA_FINE_PROC_ATTIV', 'DATA_EFFETTIVA_FINE_PROC_ATTIV', 'DATA_AGGIORNAMENTO', 'SOGGETTI_PROGRAMMATORI', 'SOGGETTI_ATTUATORI', 'AMBITI_TERRITORIALI', 'TERRITORI']
+
+        extra_columns = OrderedDict([
+            ('OC_TIPO_PROGETTO', 'get_tipo_progetto_display'),
+            ('SOGGETTI_PROGRAMMATORI', 'nomi_programmatori'),
+            ('SOGGETTI_ATTUATORI', 'nomi_attuatori'),
+            ('AMBITI_TERRITORIALI', 'ambiti_territoriali'),
+            ('TERRITORI', 'nomi_territori'),
+        ])
+
+        results = self.get_results()
+
+        response = HttpResponse(content_type='application/x-zip-compressed')
+        response['Content-Disposition'] = 'attachment; filename=progetti.csv.zip'
+
+        z = zipfile.ZipFile(response, 'w', zipfile.ZIP_DEFLATED)
+
+        output = StringIO.StringIO()
+
+        writer = utils.UnicodeWriter(output, dialect=utils.excel_semicolon)
+
+        # writer.writerow(csv_columns + extra_columns.keys())
+        writer.writerow(columns)
+
+        chunk_size = 10000
+        for i in xrange(0, len(results), chunk_size):
+            chunked_results = results[i:i + chunk_size]
+
+            objects_by_pk = self._get_objects_by_pk(chunked_results)
+            for result in chunked_results:
+                try:
+                    object = objects_by_pk[result]
+                except KeyError:
+                    pass
+                else:
+                    csv_data = json.loads(object.csv_data)
+                    csv_data = {{'COD_DIPE': u'COD_LOCALE_PROGETTO'}.get(k, k): v for k, v in csv_data.items()}
+
+                    # row = [myformat(csv_data.get(x, '')) for x in csv_columns] + [myformat(getattr(object, x) or '') for x in extra_columns.values()]
+                    row = [myformat(getattr(object, extra_columns[c]) or '' if c in extra_columns else csv_data.get(c, '')) for c in columns]
+
+                    writer.writerow(row)
+
+        z.writestr('progetti.csv', output.getvalue())
+
+        z.close()
+
+        return response
+
+    def create_response_old(self):
+        """
+        Generates a zipped, downloadale CSV file, from search results
+        """
         import datetime
         import decimal
         import locale
@@ -603,8 +675,6 @@ class ProgettoCSVSearchView(ProgettoSearchView):
                 except AttributeError:
                     return None
             return attr
-
-        results = self.get_results()
 
         columns = OrderedDict([
             ('COD_LOCALE_PROGETTO', 'codice_locale'),
@@ -630,14 +700,16 @@ class ProgettoCSVSearchView(ProgettoSearchView):
             ('TOT_PAGAMENTI', 'pagamento'),
             ('QSN_FONDO_COMUNITARIO', 'fondo_comunitario'),
             ('OC_DATA_INIZIO_PREVISTA', 'data_inizio_prevista'),
-            ('OC_DATA_FINE_PREVISTA', 'data_inizio_effettiva'),
-            ('OC_DATA_INIZIO_EFFETTIVA', 'data_fine_prevista'),
+            ('OC_DATA_FINE_PREVISTA', 'data_fine_prevista'),
+            ('OC_DATA_INIZIO_EFFETTIVA', 'data_inizio_effettiva'),
             ('OC_DATA_FINE_EFFETTIVA', 'data_fine_effettiva'),
             ('SOGGETTI_PROGRAMMATORI', 'nomi_programmatori'),
             ('SOGGETTI_ATTUATORI', 'nomi_attuatori'),
             ('AMBITI_TERRITORIALI', 'ambiti_territoriali'),
             ('TERRITORI', 'nomi_territori'),
         ])
+
+        results = self.get_results()
 
         response = HttpResponse(content_type='application/x-zip-compressed')
         response['Content-Disposition'] = 'attachment; filename=progetti.csv.zip'
@@ -696,7 +768,6 @@ class ProgettoCSVSearchView(ProgettoSearchView):
 
         z.close()
 
-        # raise Exception
         return response
 
 
@@ -708,7 +779,7 @@ class ProgettoLocCSVSearchView(ProgettoSearchView):
     @staticmethod
     def _get_objects_by_pk(pks):
         related = ['territorio_set']
-        return Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks)
+        return {str(key): value for key, value in Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks).items()}
 
     def create_response(self):
         """

@@ -435,11 +435,6 @@ class Progetto(models.Model):
         return self.pagamento_rendicontabile_ue
 
     @property
-    def csv_extra_data(self):
-        csv_data = json.loads(self.csv_data)
-        return csv_data
-
-    @property
     def tipo_progetto(self):
         if self.cipe_flag:
             return self.TIPI_PROGETTO.assegnazione_cipe
@@ -595,6 +590,7 @@ class Progetto(models.Model):
 
         return fonti_fin
 
+    @property
     def get_tipo_progetto_display(self):
         # per csv
         return dict(self.TIPI_PROGETTO)[self.tipo_progetto]
