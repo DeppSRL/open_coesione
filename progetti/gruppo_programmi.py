@@ -78,7 +78,7 @@ class Config(object):
             'fse': [p for p in programmi_asse_obiettivo if ' FSE ' in p.descrizione.upper()],
             'fesr': [p for p in programmi_asse_obiettivo if ' FESR ' in p.descrizione.upper()],
             'fsc_1': [OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PAR')])))],
-            'fsc_2': [OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('INTESA ISTITUZIONALE DI PROGRAMMA')])))],
+            # 'fsc_2': [OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('INTESA ISTITUZIONALE DI PROGRAMMA')])))],
             'fsc_3': [
                 OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith(('PROGRAMMA ATTUATIVO', 'PROGRAMMA STRATEGICO'))]))),
                 OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PROGRAMMA REGIONALE')]))),
@@ -102,7 +102,7 @@ class GruppoProgrammi(object):
         'ue-fse': u'Programmi UE FSE',
         'fsc': u'Programmi FSC',
         'fsc-1': u'Programmi Attuativi Regionali',
-        'fsc-2': u'Intese Istituzionali di Programma',
+        # 'fsc-2': u'Intese Istituzionali di Programma',
         'fsc-3': u'Altri Programmi FSC',
         'pac': u'Programmi PAC',
     }
@@ -132,7 +132,8 @@ class GruppoProgrammi(object):
             from itertools import chain
 
             if self.codice == 'fsc':
-                ids = list(chain.from_iterable([x.values() for x in lista_programmi['fsc_1'] + lista_programmi['fsc_2'] + lista_programmi['fsc_3']]))
+                # ids = list(chain.from_iterable([x.values() for x in lista_programmi['fsc_1'] + lista_programmi['fsc_2'] + lista_programmi['fsc_3']]))
+                ids = list(chain.from_iterable([x.values() for x in lista_programmi['fsc_1'] + lista_programmi['fsc_3']]))
             elif self.codice.startswith('fsc-'):
                 ids = list(chain.from_iterable([x.values() for x in lista_programmi[self.codice.replace('-', '_')]]))
             else:

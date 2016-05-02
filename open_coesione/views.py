@@ -392,24 +392,24 @@ class OpendataView(TemplateView):
             }),
         ])
 
-        context['fsc2_sections'] = SortedDict([
-            ('prog', {
-                'name': 'progetti',
-                'complete_file': self.get_complete_localfile('progetti_FSC0006.zip'),
-            }),
-            ('sog', {
-                'name': 'soggetti',
-                'complete_file': self.get_complete_localfile('soggetti_FSC0006.zip'),
-            }),
-            ('loc', {
-                'name': 'localizzazioni',
-                'complete_file': self.get_complete_localfile('localizzazioni_FSC0006.zip'),
-            }),
-            ('pag', {
-                'name': 'pagamenti',
-                'complete_file': self.get_complete_localfile('pagamenti_FSC0006.zip'),
-            }),
-        ])
+        # context['fsc2_sections'] = SortedDict([
+        #     ('prog', {
+        #         'name': 'progetti',
+        #         'complete_file': self.get_complete_localfile('progetti_FSC0006.zip'),
+        #     }),
+        #     ('sog', {
+        #         'name': 'soggetti',
+        #         'complete_file': self.get_complete_localfile('soggetti_FSC0006.zip'),
+        #     }),
+        #     ('loc', {
+        #         'name': 'localizzazioni',
+        #         'complete_file': self.get_complete_localfile('localizzazioni_FSC0006.zip'),
+        #     }),
+        #     ('pag', {
+        #         'name': 'pagamenti',
+        #         'complete_file': self.get_complete_localfile('pagamenti_FSC0006.zip'),
+        #     }),
+        # ])
 
         context['pac_sections'] = SortedDict([
             ('prog', {
