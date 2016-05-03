@@ -392,6 +392,25 @@ class OpendataView(TemplateView):
             }),
         ])
 
+        # context['fsc2_sections'] = SortedDict([
+        #     ('prog', {
+        #         'name': 'progetti',
+        #         'complete_file': self.get_complete_localfile('progetti_FSC0006.zip'),
+        #     }),
+        #     ('sog', {
+        #         'name': 'soggetti',
+        #         'complete_file': self.get_complete_localfile('soggetti_FSC0006.zip'),
+        #     }),
+        #     ('loc', {
+        #         'name': 'localizzazioni',
+        #         'complete_file': self.get_complete_localfile('localizzazioni_FSC0006.zip'),
+        #     }),
+        #     ('pag', {
+        #         'name': 'pagamenti',
+        #         'complete_file': self.get_complete_localfile('pagamenti_FSC0006.zip'),
+        #     }),
+        # ])
+
         context['pac_sections'] = SortedDict([
             ('prog', {
                 'name': 'progetti',
@@ -445,12 +464,12 @@ class OpendataView(TemplateView):
         context['istat_data_file'] = self.get_complete_remotefile(istat_path.format('Archivio_unico_indicatori_regionali.zip'))
         context['istat_metadata_file'] = self.get_complete_remotefile(istat_path.format('Metainformazione.xls'))
 
-        cpt_path = 'http://www.agenziacoesione.gov.it/it/cpt/I_dati_del_Sistema_CPT/DatiCPT_CatalogoCPT/datasets/{}'
-        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format('PA_E.zip'))
-        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format('PA_S.zip'))
-        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format('SPA_E.zip'))
-        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format('SPA_S.zip'))
-        context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('CPT_Metadati_albero_2015.xls'))
+        cpt_path = 'http://www.agenziacoesione.gov.it/it/cpt/02_dati/01catalogo_open_cpt/datasets/{}'
+        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format('PA_ENTRATE_2000-2014.zip'))
+        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format('PA_SPESE_2000-2014.zip'))
+        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format('SPA_ENTRATE_2000-2014.zip'))
+        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format('SPA_SPESE_2000-2014.zip'))
+        context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('Metadati_flussi.xls'))
 
         context['indagine_data_file'] = self.get_complete_localfile('indagine_data.zip')
         context['indagine_metadata_file'] = self.get_complete_localfile('indagine_metadata.xls')
