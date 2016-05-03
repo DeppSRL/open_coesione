@@ -127,7 +127,7 @@ class Command(BaseCommand):
                 self.logger.info(u'{}/{} - Aggiornata descrizione per il progetto: {}'.format(n, df_count, progetto))
                 report['updated'] += 1
 
-        self.logger.info(u'{updated} descrizioni aggiornate, {not_found} progetti non sono stati trovati.'.format(**report))
+        self.logger.info(u'Descrizioni aggiornate: {updated}. Progetti non trovati: {not_found}.'.format(**report))
 
     @transaction.commit_on_success
     def _update_descrizioni_pongat(self, df):
@@ -147,7 +147,7 @@ class Command(BaseCommand):
                 report['not_found'] += 1
             except MultipleObjectsReturned:
                 self.logger.warning(u'{}/{} - Più progetti con codice: {}. Skipping'.format(n, df_count, codice))
-                report['duplicate'] += 1
+                report['duplicated'] += 1
             else:
                 progetto.descrizione = row['Sintesi intervento'].strip()
                 progetto.descrizione_fonte_nome = 'Open Data PON GAT'
@@ -157,4 +157,4 @@ class Command(BaseCommand):
                 self.logger.info(u'{}/{} - Aggiornata descrizione per il progetto: {}'.format(n, df_count, progetto))
                 report['updated'] += 1
 
-        self.logger.info(u'{updated} descrizioni aggiornate, {not_found} progetti non sono stati trovati, {duplicated} progetti si riferiscono a un CUP non univoco.'.format(**report))
+        self.logger.info(u'Descrizioni aggiornate: {updated}. Progetti non trovati: {not_found}. CUP non univoci: {duplicated}.'.format(**report))
