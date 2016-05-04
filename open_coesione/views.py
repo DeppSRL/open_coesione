@@ -76,7 +76,7 @@ class AggregatoMixin(object):
             'nature_principali': {
                 'manager': ClassificazioneAzione.objects,
                 'parent_class_field': 'classificazione_superiore',
-                'manager_parent_method': 'tematiche',
+                'manager_parent_method': 'nature',
                 'filter_name': 'classificazione'
             }
         }
@@ -100,7 +100,7 @@ class AggregatoMixin(object):
 
         for name in query_models:
             context[name] = []
-            # takes all root models ( principali or tematiche )
+            # takes all root models (principali or nature)
             for obj in getattr(query_models[name]['manager'], query_models[name]['manager_parent_method'])():
                 q = query_filters.copy()
                 # add %model%_superiore to query filters

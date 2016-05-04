@@ -574,7 +574,7 @@ class AmbitoEsteroView(AggregatoMixin, ListView):
             'nature_principali': {
                 'manager': ClassificazioneAzione.objects,
                 'parent_class_field': 'classificazione_superiore',
-                'manager_parent_method': 'tematiche',
+                'manager_parent_method': 'nature',
                 'filter_name': 'classificazione'
             }
         }
@@ -584,7 +584,7 @@ class AmbitoEsteroView(AggregatoMixin, ListView):
 
         for name in query_models:
             context[name] = []
-            # takes all root models ( principali or tematiche )
+            # takes all root models (principali or nature)
             for object in getattr(query_models[name]['manager'], query_models[name]['manager_parent_method'])():
                 q = query_filters.copy()
                 # add %model%_superiore to query filters

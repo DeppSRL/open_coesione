@@ -12,6 +12,9 @@
     <meta name="description" content="{% block page_description %}{% endblock %}">
     <meta name="author" content="">
     <meta name="format-detection" content="telephone=no">
+    {% if not IS_PRODUCTION %}
+        <meta name="robots" content="noindex,nofollow">
+    {% endif %}
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -66,20 +69,22 @@
         </script>
     {% endaddtoblock %}
 
-    {% addtoblock 'js' strip %}
-        <script>
-            var _gaq = _gaq || [];
-            _gaq.push(['_setAccount', 'UA-980632-20']);
-            _gaq.push(['_setDomainName', 'opencoesione.gov.it']);
-            _gaq.push(['_trackPageview']);
+    {% if IS_PRODUCTION %}
+        {% addtoblock 'js' strip %}
+            <script>
+                var _gaq = _gaq || [];
+                _gaq.push(['_setAccount', 'UA-980632-20']);
+                _gaq.push(['_setDomainName', 'opencoesione.gov.it']);
+                _gaq.push(['_trackPageview']);
 
-            (function() {
-                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-            })();
-        </script>
-    {% endaddtoblock %}
+                (function() {
+                    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+                })();
+            </script>
+        {% endaddtoblock %}
+    {% endif %}
 
     {% addtoblock 'js' strip %}
         <script>
