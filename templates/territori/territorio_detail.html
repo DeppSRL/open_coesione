@@ -41,9 +41,8 @@
                                     <h2 class="accordion-toggle" data-toggle="collapse" data-target="#theme_index_{{ tema.codice }}">
                                         {{ tema.short_label }}
                                         <span style="text-transform: none">
-                                            {% if popolazione_nazionale and territorio.is_regione %}
-                                                (finanziamento pubblico pro-capite {{ tema|args:territorio|call:'totale_pro_capite'|floatformat:2|intcomma }}&euro;
-                                                - media nazionale {{ tema|args:popolazione_nazionale|call:'totale_pro_capite'|floatformat:2|intcomma }}&euro;)
+                                            {% if popolazione_nazionale %}
+                                                (finanziamento pubblico pro-capite {{ tema|args:territorio|call:'totale_pro_capite'|floatformat:2|intcomma }}&euro; - media nazionale {{ tema|args:popolazione_nazionale|call:'totale_pro_capite'|floatformat:2|intcomma }}&euro;)
                                             {% else %}
                                                 (finanziamento pubblico pro-capite media nazionale {{ tema|args:territorio|call:'totale_pro_capite'|floatformat:2|intcomma }}&euro;)
                                             {% endif %}

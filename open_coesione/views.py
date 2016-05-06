@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+import glob
 import os
 import urllib2
-import glob
-from django.db.models import Sum
 from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
+from django.db.models import Sum
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse, Http404
 from django.utils.datastructures import SortedDict
 from django.views.generic.base import TemplateView, RedirectView, TemplateResponseMixin
@@ -56,65 +56,47 @@ class XRobotsTagTemplateResponseMixin(TemplateResponseMixin):
 
 
 class AggregatoMixin(object):
+    @staticmethod
+    def add_totali(objects, totali):
+        totali_by_pk = {x.pop('id'): x for x in totali}
+        objects_with_totali = []
+        for object in objects:
+            object.totali = totali_by_pk.get(object.pk, {})
+            objects_with_totali.append(object)
+        return objects_with_totali
+
     def get_aggregate_data(self, context, **filter):
+        if 'territorio' in filter:
+            raise Exception('"territorio" filter is deprecated. Use "territori" instead.')
+
+        filter = {k: v for k, v in filter.items() if k in ('classificazione', 'programmi', 'soggetto', 'tema', 'territori')}
+
         if len(filter) > 1:
             raise Exception('Only one filter kwargs is accepted')
 
-        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
+        progetti = Progetto.objects.myfilter(**filter)
 
-        context.update(Progetto.objects.dict_totali(**filter))
+        context.update(progetti.totali())
 
-        context['percentuale_costi_pagamenti'] = '{0:.0%}'.format(context['totale_pagamenti'] / context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0)
+        context['percentuale_costi_pagamenti'] = '{:.0%}'.format(context['totale_pagamenti'] / context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0)
 
-        query_models = {
-            'temi_principali': {
-                'manager': Tema.objects,
-                'parent_class_field': 'tema_superiore',
-                'manager_parent_method': 'principali',
-                'filter_name': 'tema',
-            },
-            'nature_principali': {
-                'manager': ClassificazioneAzione.objects,
-                'parent_class_field': 'classificazione_superiore',
-                'manager_parent_method': 'nature',
-                'filter_name': 'classificazione'
-            }
-        }
+        if 'tema' not in filter:
+            context['temi_principali'] = self.add_totali(Tema.objects.principali(), progetti.totali_group_by('tema__tema_superiore'))
 
-        # specialize the filter
-        if 'territorio' in filter:
-            query_filters = dict(territorio=filter['territorio'])
-        elif 'soggetto' in filter:
-            query_filters = dict(soggetto=filter['soggetto'])
-        elif 'programmi' in filter:
-            query_filters = dict(programmi=filter['programmi'])
-        elif 'tema' in filter:
-            query_filters = dict(tema=filter['tema'])
-            del query_models['temi_principali']
-        elif 'classificazione' in filter:
-            query_filters = dict(classificazione=filter['classificazione'])
-            del query_models['nature_principali']
-        else:
-            # homepage takes all
-            query_filters = {}
+        if 'classificazione' not in filter:
+            context['nature_principali'] = self.add_totali(ClassificazioneAzione.objects.nature(), progetti.totali_group_by('classificazione_azione__classificazione_superiore'))
 
-        for name in query_models:
-            context[name] = []
-            # takes all root models (principali or nature)
-            for obj in getattr(query_models[name]['manager'], query_models[name]['manager_parent_method'])():
-                q = query_filters.copy()
-                # add %model%_superiore to query filters
-                q[query_models[name]['filter_name']] = obj
-                # make query and add totale to object
-                # obj.tot = query_models[name]['manager'].filter( **q ).aggregate( tot=aggregate_field )['tot']
-                obj.tot = getattr(Progetto.objects, context['tematizzazione'])(**q)
-                # add object to right context
-                context[name].append(obj)
+        context['top_progetti_per_costo'] = progetti.no_privacy().filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico', '-data_fine_effettiva')[:5]
 
         context['map_legend_colors'] = settings.MAP_COLORS
 
         if self.request.GET.get('pro_capite'):
             context['mappa_pro_capite'] = True
+
+        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
+
+        for obj in context.get('temi_principali', []) + context.get('nature_principali', []):
+            obj.totale = obj.totali.get(context['tematizzazione'], 0)
 
         return context
 
@@ -156,9 +138,9 @@ class HomeView(AggregatoMixin, TemplateView):
 
         context = self.get_aggregate_data(context)
 
-        context['numero_soggetti'] = Soggetto.objects.count()
+        context['top_progetti'] = context.pop('top_progetti_per_costo')[:3]
 
-        context['top_progetti'] = Progetto.objects.no_privacy().filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico', '-data_fine_effettiva')[:3]
+        context['numero_soggetti'] = Soggetto.objects.count()
 
         return context
 

@@ -40,7 +40,11 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
 
         context = self.get_aggregate_data(context, soggetto=self.object)
 
-        # CALCOLO DEI COLLABORATORI CON CUI SI SPARTISCONO PIÙ SOLDI
+        # PROGETTI CON PIÙ FONDI
+
+        context['top_progetti'] = context.pop('top_progetti_per_costo')
+
+        # COLLABORATORI CON CUI SI SPARTISCONO PIÙ SOLDI
 
         top_collaboratori = Soggetto.objects.filter(progetto__ruolo__soggetto=self.object).exclude(pk=self.object.pk).values('pk').annotate(totale=Count('pk')).order_by('-totale')[:5]
 
@@ -52,56 +56,26 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
             soggetto.totale = c['totale']
             context['top_collaboratori'].append(soggetto)
 
-        # CALCOLO DEI PROGETTI CON PIÙ FONDI
-
-        # top_progetti = self.object.progetti.values('pk', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]
-        # progetto_by_pk = Progetto.objects.in_bulk(x['pk'] for x in top_progetti)
-        # context['top_progetti'] = [progetto_by_pk[x['pk']] for x in top_progetti]
-        context['top_progetti'] = self.object.progetti.distinct().order_by('-fin_totale_pubblico')[:5]
-        # context['top_progetti'] = [Progetto.objects.get(pk=p['codice_locale']) for p in self.object.progetti.values('codice_locale', 'fin_totale_pubblico').distinct().order_by('-fin_totale_pubblico')[:5]]
-
-        # CALCOLO DEI COMUNI UN CUI QUESTO SOGGETTO HA OPERATO DI PIU'
+        # COMUNI IN CUI QUESTO SOGGETTO HA OPERATO DI PIU'
 
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__soggetto_set__pk': self.object.pk})
 
-        # CALCOLO DEI TOTALI PER REGIONI (E NAZIONI)
+        # TOTALI PER REGIONI (E NAZIONI)
+
+        progetti = Progetto.objects.myfilter(soggetto=self.object)
 
         # i progetti del soggetto localizzati in più territori (vengono considerati a parte per evitare di contarli più volte nelle aggregazioni)
-        progetti_multilocalizzati_pk = [x['pk'] for x in self.object.progetti.values('pk').annotate(num_reg=Count('territorio_set__cod_reg', distinct=True)).filter(num_reg__gt=1)]
+        progetti_multilocalizzati_pks = [x['pk'] for x in progetti.values('pk').annotate(cnt=Count('territorio_set__cod_reg', distinct=True)).filter(cnt__gt=1)]
 
-        queryset = self.object.progetti.exclude(pk__in=progetti_multilocalizzati_pk).values('codice_locale', 'fin_totale_pubblico', 'pagamento', 'territorio_set__cod_reg').distinct()
-
-        sql, params = queryset.query.sql_with_params()
-
-        from django.db import connection
-
-        def dictfetchall(cursor):
-            col_names = [x.name for x in cursor.description]
-            for row in cursor.fetchall():
-                yield dict(zip(col_names, row))
-
-        cursor = connection.cursor()
-        cursor.execute('SELECT t.cod_reg, SUM(t.fin_totale_pubblico) AS "totale_costi", SUM(t.pagamento) AS "totale_pagamenti", COUNT(*) AS "totale_progetti" from ({}) AS t GROUP BY t.cod_reg'.format(sql), params)
-
-        totali_non_multilocalizzati = {x['cod_reg']: x[context['tematizzazione']] for x in dictfetchall(cursor)}
-
-        # from itertools import groupby
-
-        # aggregate_functions = {
-        #     'totale_costi': lambda g: sum(x['fin_totale_pubblico'] for x in g),
-        #     'totale_pagamenti': lambda g: sum(x['pagamento'] for x in g),
-        #     'totale_progetti': lambda g: sum(1 for x in g),
-        # }
-
-        # totali_non_multilocalizzati = {k: aggregate_functions[context['tematizzazione']](g) for k, g in groupby(queryset.order_by('territorio_set__cod_reg').iterator(), key=lambda x: x['territorio_set__cod_reg'])}
+        totali_non_multilocalizzati = {x['id']: x[context['tematizzazione']] for x in progetti.exclude(pk__in=progetti_multilocalizzati_pks).totali_group_by('territorio_set__cod_reg')}
 
         totale_multilocalizzati_nazionali = 0
         totale_multilocalizzati_non_nazionali = 0
-        for progetto in Progetto.objects.filter(pk__in=progetti_multilocalizzati_pk).prefetch_related('territorio_set'):
+        for progetto in Progetto.objects.filter(pk__in=progetti_multilocalizzati_pks).prefetch_related('territorio_set'):
             if context['tematizzazione'] == 'totale_costi':
-                val = progetto.fin_totale_pubblico
+                val = float(progetto.fin_totale_pubblico)
             elif context['tematizzazione'] == 'totale_pagamenti':
-                val = progetto.pagamento
+                val = float(progetto.pagamento)
             elif context['tematizzazione'] == 'totale_progetti':
                 val = 1
 
@@ -127,7 +101,7 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
             territorio.totale = totale_multilocalizzati_non_nazionali
             context['territori'].append(territorio)
 
-        # CALCOLO DEI TOTALI PER RUOLO DEL SOGGETTO
+        # TOTALI PER RUOLO
 
         aggregazione_ruolo = {
             'totale_costi': Sum('progetto__fin_totale_pubblico'),

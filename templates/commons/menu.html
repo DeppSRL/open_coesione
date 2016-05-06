@@ -26,7 +26,7 @@
             </form>
 
             <ul class="nav">
-                <li class="dropdown{% if progetto or tipologia or tema or territorio or programma or gruppo_programmi %}{% if not soggetto and not risorsa %} active{% endif %}{% endif %}">
+                <li class="dropdown{% if progetto or natura or tema or territorio or programma or gruppo_programmi %}{% if not soggetto and not risorsa %} active{% endif %}{% endif %}">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Progetti <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li class="submenu" style="position: relative">
@@ -34,8 +34,8 @@
                             <ul class="dropdown-menu">
                                 <li class="clearfix">
                                     <ul>
-                                        {% for tipologia in lista_tipologie_principali %}
-                                            <li><a href="{{ tipologia.get_absolute_url }}">{{ tipologia.short_label }}</a></li>
+                                        {% for c in lista_classificazioni_principali %}
+                                            <li><a href="{{ c.get_absolute_url }}">{{ c.short_label }}</a></li>
                                         {% endfor %}
                                     </ul>
                                 </li>
@@ -46,8 +46,8 @@
                             <ul class="dropdown-menu">
                                 <li class="clearfix">
                                     <ul>
-                                        {% for temi in lista_temi_principali %}
-                                            <li><a href="{{ temi.get_absolute_url }}">{{ temi.short_label }}</a></li>
+                                        {% for t in lista_temi_principali %}
+                                            <li><a href="{{ t.get_absolute_url }}">{{ t.short_label }}</a></li>
                                         {% endfor %}
                                     </ul>
                                 </li>

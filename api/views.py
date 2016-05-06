@@ -577,7 +577,7 @@ class AggregatoView(APIView):
                 'codice': t.codice,
                 'link': reverse('api-aggregati-tema-detail', request=self.request, format=format, kwargs={'slug': t.slug}),
                 'totali': {}
-            })['totali'][thematization] = t.tot
+            })['totali'][thematization] = t.totale
 
     def update_nature(self, format, context, thematization):
         for n in context['nature_principali']:
@@ -586,7 +586,7 @@ class AggregatoView(APIView):
                 'codice': n.codice,
                 'link': reverse('api-aggregati-natura-detail', request=self.request, format=format, kwargs={'slug': n.slug}),
                 'totali': {}
-            })['totali'][thematization] = n.tot
+            })['totali'][thematization] = n.totale
 
     def update_territori(self, tipo_territorio, format, context, thematization):
         for (t, v) in context['data'].iteritems():

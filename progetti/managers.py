@@ -14,31 +14,35 @@ class ProgettoQuerySet(models.query.QuerySet):
     def del_soggetto(self, soggetto):
         return self.filter(soggetto_set__pk=soggetto.pk).distinct()
 
-    def nel_territorio(self, territorio):
-        if territorio.is_regione:
-            return self.filter(territorio_set__cod_reg=territorio.cod_reg).distinct()
-        elif territorio.is_provincia:
-            return self.filter(territorio_set__cod_prov=territorio.cod_prov).distinct()
-        elif territorio.is_comune:
-            return self.filter(territorio_set__cod_com=territorio.cod_com).distinct()
-        elif territorio.is_nazionale:
-            return self.filter(territorio_set__territorio=territorio.TERRITORIO.N).distinct()
-        elif territorio.is_estero:
-            return self.filter(territorio_set__pk=territorio.pk).distinct()
-        else:
-            raise Exception('Territorio non valido {}'.format(territorio))
+    # def nei_territori(self, territori):
+    #     conditions = False  # zero
+    #     for territorio in territori:
+    #         if not conditions:
+    #             conditions = models.Q(**territorio.get_cod_dict('territorio_set__'))
+    #         else:
+    #             conditions |= models.Q(**territorio.get_cod_dict('territorio_set__'))
+    #     return self.filter(conditions).distinct()
+
+    # def nei_territori(self, territori):
+    #     grouped_cod_dict = {}
+    #     for territorio in territori:
+    #         for k, v in territorio.get_cod_dict('territorio_set__').items():
+    #             grouped_cod_dict.setdefault(k, []).append(v)
+    #
+    #     conditions = models.Q()
+    #     for k, v in grouped_cod_dict.items():
+    #         conditions.add(models.Q(**{k: v[0]} if len(v) == 1 else {'{}__in'.format(k): v}), models.Q.OR)
+    #     return self.filter(conditions).distinct()
 
     def nei_territori(self, territori):
-        conditions = False  # zero
-        for territorio in territori:
-            if not conditions:
-                conditions = models.Q(**territorio.get_cod_dict('territorio_set__'))
-            else:
-                conditions |= models.Q(**territorio.get_cod_dict('territorio_set__'))
-        return self.filter(conditions).distinct()
+        from itertools import groupby
+        from operator import itemgetter
 
-    def del_tipo(self, tipologia):
-        return self.filter(tipo_operazione=tipologia)
+        conditions = models.Q()
+        for key, group in groupby(sorted([(k, v) for territorio in territori for k, v in territorio.get_cod_dict('territorio_set__').items()], key=itemgetter(0)), key=itemgetter(0)):
+            vals = map(itemgetter(1), group)
+            conditions.add(models.Q(**{key: vals[0]} if len(vals) == 1 else {'{}__in'.format(key): vals}), models.Q.OR)
+        return self.filter(conditions).distinct()
 
     def con_tema(self, tema):
         if tema.is_root:
@@ -57,30 +61,21 @@ class ProgettoQuerySet(models.query.QuerySet):
 
         programmi_splitted = split_by_type(programmi)
 
-        from django.db.models import Q
-
         return self.filter(
-            Q(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__in=programmi_splitted['programmi_asse_obiettivo']) |
-            Q(programma_linea_azione__classificazione_superiore__classificazione_superiore__in=programmi_splitted['programmi_linea_azione'])
+            models.Q(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__in=programmi_splitted['programmi_asse_obiettivo']) |
+            models.Q(programma_linea_azione__classificazione_superiore__classificazione_superiore__in=programmi_splitted['programmi_linea_azione'])
         )
 
-    def totali(self, **kwargs):
+    def myfilter(self, **kwargs):
         queryset = self
 
         soggetto = kwargs.pop('soggetto', None)
         if soggetto:
             queryset = queryset.del_soggetto(soggetto)
 
-        territorio = kwargs.pop('territorio', None)
         territori = kwargs.pop('territori', None)
-        if territorio:
-            queryset = queryset.nel_territorio(territorio)
-        elif territori:
+        if territori:
             queryset = queryset.nei_territori(territori)
-
-        tipo = kwargs.pop('tipo', None)
-        if tipo:
-            queryset = queryset.del_tipo(tipo)
 
         tema = kwargs.pop('tema', None)
         if tema:
@@ -97,33 +92,52 @@ class ProgettoQuerySet(models.query.QuerySet):
         return queryset
 
     def totale_costi(self, **kwargs):
-        return self.dict_totali(**kwargs)['totale_costi']
-        # return round(float(sum([l['fin_totale_pubblico'] for l in self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programmi).filter(fin_totale_pubblico__isnull=False).values('codice_locale', 'fin_totale_pubblico')]) or 0.0))
+        return self.myfilter(**kwargs).totali()['totale_costi']
 
     def totale_pagamenti(self, **kwargs):
-        return self.dict_totali(**kwargs)['totale_pagamenti']
-        # return round(float(sum([l['pagamento'] for l in self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programmi).filter(pagamento__isnull=False).values('codice_locale', 'pagamento')]) or 0.0))
+        return self.myfilter(**kwargs).totali()['totale_pagamenti']
 
     def totale_progetti(self, **kwargs):
-        return self.dict_totali(**kwargs)['totale_progetti']
-        # return self.totali(territorio, tema, tipo, classificazione, soggetto, territori, programmi).count()
+        return self.myfilter(**kwargs).totali()['totale_progetti']
 
-    def dict_totali(self, **kwargs):
+    def totali(self):
+        return self._totali()[0]
+
+    def totali_group_by(self, group_by):
+        return self._totali(group_by)
+
+    def _totali(self, group_by=None):
         from django.db import connection
 
-        queryset = self.totali(**kwargs).values('codice_locale', 'fin_totale_pubblico', 'pagamento')
+        def dictfetchall(cursor):
+            col_names = [x.name for x in cursor.description]
+            for row in cursor.fetchall():
+                yield dict(zip(col_names, row))
+
+        fields = ['codice_locale', 'fin_totale_pubblico', 'pagamento']
+        if group_by:
+            fields.append(group_by)
+
+        queryset = self.values(*fields)
 
         sql, params = queryset.query.sql_with_params()
 
+        sql = 'SUM(sq.fin_totale_pubblico) AS "totale_costi", SUM(sq.pagamento) AS "totale_pagamenti", COUNT(*) AS "totale_progetti" from ({}) AS sq'.format(sql)
+        if group_by:
+            sql = 'SELECT sq.{1} AS "id", {0} GROUP BY sq.{1}'.format(sql, group_by.split('__')[-1])
+        else:
+            sql = 'SELECT {}'.format(sql)
+
         cursor = connection.cursor()
-        cursor.execute('SELECT SUM(t.fin_totale_pubblico) AS "totale_costi", SUM(t.pagamento) AS "totale_pagamenti", COUNT(*) AS "totale_progetti" from ({}) AS t'.format(sql), params)
+        cursor.execute(sql, params)
 
-        dict_totali = dict(zip((x.name for x in cursor.description), cursor.fetchone()))
+        totali = list(dictfetchall(cursor))
 
-        dict_totali['totale_costi'] = round(float(dict_totali['totale_costi'] or 0.0))
-        dict_totali['totale_pagamenti'] = round(float(dict_totali['totale_pagamenti'] or 0.0))
+        for item in totali:
+            item['totale_costi'] = round(float(item['totale_costi'] or 0.0))
+            item['totale_pagamenti'] = round(float(item['totale_pagamenti'] or 0.0))
 
-        return dict_totali
+        return totali
 
 
 class ProgettoManager(models.Manager):
@@ -137,31 +151,28 @@ class ProgettoManager(models.Manager):
         return self.get_query_set().conclusi(date)
 
     def del_soggetto(self, soggetto):
-        return self.totali(soggetto=soggetto)
-
-    def nel_territorio(self, territorio):
-        return self.totali(territorio=territorio)
+        return self.get_query_set().del_soggetto(soggetto)
 
     def nei_territori(self, territori):
         return self.get_query_set().nei_territori(territori)
 
-    def del_tipo(self, tipo):
-        return self.totali(tipo=tipo)
-
     def con_tema(self, tema):
-        return self.totali(tema=tema)
+        return self.get_query_set().con_tema(tema)
 
     def con_natura(self, classificazione):
-        return self.totali(classificazione=classificazione)
+        return self.get_query_set().con_natura(classificazione)
 
     def con_programmi(self, programmi):
-        return self.totali(programmi=programmi)
+        return self.get_query_set().con_programmi(programmi)
 
-    def dict_totali(self, **kwargs):
-        return self.get_query_set().dict_totali(**kwargs)
+    def myfilter(self, **kwargs):
+        return self.get_query_set().myfilter(**kwargs)
 
-    def totali(self, **kwargs):
-        return self.get_query_set().totali(**kwargs)
+    def totali(self):
+        return self.get_query_set().totali()
+
+    def totali_group_by(self, group_by):
+        return self.get_query_set().totali_group_by(group_by)
 
     def totale_costi(self, **kwargs):
         return self.get_query_set().totale_costi(**kwargs)

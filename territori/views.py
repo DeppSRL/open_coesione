@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
 import json
-import logging
 import re
 import urllib
+from django.contrib.gis.geos import Point
 from django.contrib.sites.models import Site
+from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
-from django.template.defaultfilters import slugify
 from django.http import HttpResponse, Http404
-from django.contrib.gis.geos import Point
+from django.template.defaultfilters import slugify
 from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
-from django.conf import settings
-from django.core.cache import cache
 from lxml import etree
+from models import Territorio
 from open_coesione.data_classification import DataClassifier
 from open_coesione.views import AggregatoMixin, cached_context
 from progetti.gruppo_programmi import GruppoProgrammi
 from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 from progetti.views import BaseCSVView
-from models import Territorio
 
 
 class JSONResponseMixin(object):
@@ -107,19 +106,16 @@ class InfoView(JSONResponseMixin, TemplateView):
         tema_key = tema.slug if tema is not None else 'na'
         natura_key = natura.slug if natura is not None else 'na'
         programmi_key = programma.codice if programma is not None else (gruppo_programmi.codice if gruppo_programmi is not None else 'na')
-        cache_key = 'terr:{0}_tema:{1}_natura:{2}_programmi:{3}'.format(
-            territorio.pk,
-            tema_key, natura_key, programmi_key
-        )
+        cache_key = 'terr:{}_tema:{}_natura:{}_programmi:{}'.format(territorio.pk, tema_key, natura_key, programmi_key)
 
         # check vars existance in the cache, or compute and store them
         cached_vars = cache.get(cache_key)
         if cached_vars is None:
             cached_vars = {
                 'popolazione_totale': (territorio.popolazione_totale if territorio else Territorio.objects.nazione().popolazione_totale) or 0,
-                'costo_totale': Progetto.objects.totale_costi(territorio=territorio, tema=tema, classificazione=natura, programmi=programmi) or 0,
-                'n_progetti': Progetto.objects.totale_progetti(territorio=territorio, tema=tema, classificazione=natura, programmi=programmi) or 0,
-                'pagamento_totale': Progetto.objects.totale_pagamenti(territorio=territorio, tema=tema, classificazione=natura, programmi=programmi) or 0,
+                'costo_totale': Progetto.objects.totale_costi(territori=[territorio], tema=tema, classificazione=natura, programmi=programmi) or 0,
+                'n_progetti': Progetto.objects.totale_progetti(territori=[territorio], tema=tema, classificazione=natura, programmi=programmi) or 0,
+                'pagamento_totale': Progetto.objects.totale_pagamenti(territori=[territorio], tema=tema, classificazione=natura, programmi=programmi) or 0,
             }
             cache.set(cache_key, cached_vars)
 
@@ -200,16 +196,13 @@ class LeafletView(TemplateView):
         # - province
 
         if 'cod_reg' in context:
-            codice = context['cod_reg']
-            area = Territorio.objects.get(territorio=Territorio.TERRITORIO.R, cod_reg=codice).geom
+            area = Territorio.objects.regioni().get(cod_reg=context['cod_reg']).geom
             context['zoom'] = {'min': 7, 'max': 10}
         elif 'cod_prov' in context:
-            codice = context['cod_prov']
-            area = Territorio.objects.get(territorio=Territorio.TERRITORIO.P, cod_prov=codice).geom
+            area = Territorio.objects.provincie().get(cod_prov=context['cod_prov']).geom
             context['zoom'] = {'min': 8, 'max': 11}
-        else:
-            # Collect all comuni except 'Lampedusa e Linosa' to reduce zoomlevel of fitbound
-            area = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).exclude(cod_com='84020').collect()
+        else:  # Collect all comuni except 'Lampedusa e Linosa' to reduce zoomlevel of fitbound
+            area = Territorio.objects.comuni().exclude(cod_com='84020').collect()
             context['zoom'] = {'min': 5, 'max': 7}
 
         # compute bounds, to use inside the maps
@@ -242,9 +235,9 @@ class LeafletView(TemplateView):
         context['layer_type'] = path.split('/')[-1:][0][0:1].upper()
 
         # read legend html directly from mapnik xml (which should be cached at this point)
-        mapnik_xml_path = '{0}.xml?tematizzazione={1}'.format(re.sub(r'leaflet', 'mapnik', path), tematizzazione)
+        mapnik_xml_path = '{}.xml?tematizzazione={}'.format(re.sub(r'leaflet', 'mapnik', path), tematizzazione)
         mapnik_host = settings.MAPNIK_HOST or Site.objects.get_current()
-        mapnik_xml_url = 'http://{0}{1}'.format(mapnik_host, mapnik_xml_path)
+        mapnik_xml_url = 'http://{}{}'.format(mapnik_host, mapnik_xml_path)
         try:
             mapnik_xml = urllib.urlopen(mapnik_xml_url)
         except IOError:
@@ -269,10 +262,7 @@ class LeafletView(TemplateView):
             }
 
             # convert inner_filter to its plural when creating info url
-            context['info_base_url'] = '/territori/info/{0}/{1}'.format(
-                filter_plurals[self.inner_filter],
-                pk
-            )
+            context['info_base_url'] = '/territori/info/{}/{}'.format(filter_plurals[self.inner_filter], pk)
         else:
             context['info_base_url'] = '/territori/info'.format(Site.objects.get_current())
 
@@ -290,13 +280,13 @@ class TilesConfigView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(TilesConfigView, self).get_context_data(**kwargs)
         context['tematizzazioni'] = self.TEMATIZZAZIONI
-        context['regioni'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R)
-        context['province'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.P)
+        context['regioni'] = Territorio.objects.regioni()
+        context['province'] = Territorio.objects.provincie()
         context['temi'] = Tema.objects.principali()
         context['nature'] = ClassificazioneAzione.objects.nature()
         context['programmi'] = list(ProgrammaAsseObiettivo.objects.programmi()) + list(ProgrammaLineaAzione.objects.programmi())
         context['gruppi_programmi_codici'] = GruppoProgrammi.GRUPPI_PROGRAMMI.keys()
-        context['mapnik_base_url'] = 'http://{0}/territori/mapnik'.format(Site.objects.get_current())
+        context['mapnik_base_url'] = 'http://{}/territori/mapnik'.format(Site.objects.get_current())
         context['path_to_cache'] = settings.TILESTACHE_CACHE_PATH
 
         return context
@@ -322,7 +312,7 @@ class MapnikView(TemplateView):
         context['codice_field'] = self.codice_field
         context['srs'] = self.srs
         context['shp_file'] = self.shp_file
-        context['countries_shp_file'] = '{0}/dati/countries/82945364-10m-admin-0-countries.shp'.format(settings.REPO_ROOT)
+        context['countries_shp_file'] = '{}/dati/countries/82945364-10m-admin-0-countries.shp'.format(settings.REPO_ROOT)
 
         self.refine_context(context)
 
@@ -373,7 +363,7 @@ class MapnikView(TemplateView):
         # foreach, invoke the tematizzazione method, with specified filters
         for t in self.queryset:
             data[t.codice] = getattr(Progetto.objects, tematizzazione)(
-                territorio=t,
+                territori=[t],
                 tema=tema,
                 classificazione=natura,
                 programmi=programmi,
@@ -422,8 +412,8 @@ class MapnikRegioniView(MapnikView):
     territori_name = 'regioni'
     codice_field = 'COD_REG'
     srs = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over'
-    shp_file = '{0}/dati/reg2011_g/regioni_stats.shp'.format(settings.REPO_ROOT)
-    queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R)
+    shp_file = '{}/dati/reg2011_g/regioni_stats.shp'.format(settings.REPO_ROOT)
+    queryset = Territorio.objects.regioni()
 
     def refine_context(self, context):
         pass
@@ -433,34 +423,33 @@ class MapnikProvinceView(MapnikView):
     territori_name = 'province'
     codice_field = 'COD_PRO'
     srs = '+proj=utm +zone=32 +ellps=intl +units=m +no_defs'
-    shp_file = '{0}/dati/prov2011_g/prov2011_g.shp'.format(settings.REPO_ROOT)
+    shp_file = '{}/dati/prov2011_g/prov2011_g.shp'.format(settings.REPO_ROOT)
 
     def refine_context(self, context):
-        #super(MapnikProvinceView, self).refine_context(context)
+        self.queryset = Territorio.objects.provincie()
+
         if 'cod_reg' in context:
             cod_reg = context['cod_reg']
-            self.queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.P, cod_reg=cod_reg)
-            self.territori_name = 'regioni_{0}_province'.format(cod_reg)
-        else:
-            self.queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.P)
+            self.queryset = self.queryset.filter(cod_reg=cod_reg)
+            self.territori_name = 'regioni_{}_province'.format(cod_reg)
 
 
 class MapnikComuniView(MapnikView):
     territori_name = 'comuni'
     codice_field = 'PRO_COM'
     srs = '+proj=utm +zone=32 +ellps=intl +units=m +no_defs'
-    shp_file = '{0}/dati/com2011_g/com2011_g.shp'.format(settings.REPO_ROOT)
+    shp_file = '{}/dati/com2011_g/com2011_g.shp'.format(settings.REPO_ROOT)
 
     def refine_context(self, context):
-        #super(MapnikComuniView, self).refine_context(context)
+        self.queryset = Territorio.objects.comuni()
         if 'cod_reg' in context:
             cod_reg = context['cod_reg']
-            self.queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C, cod_reg=cod_reg)
-            self.territori_name = 'regioni_{0}_comuni'.format(cod_reg)
+            self.queryset = self.queryset.filter(cod_reg=cod_reg)
+            self.territori_name = 'regioni_{}_comuni'.format(cod_reg)
         elif 'cod_prov' in context:
             cod_prov = context['cod_prov']
-            self.queryset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C, cod_prov=cod_prov)
-            self.territori_name = 'province_{0}_comuni'.format(cod_prov)
+            self.queryset = self.queryset.filter(cod_prov=cod_prov)
+            self.territori_name = 'province_{}_comuni'.format(cod_prov)
         else:
             raise Exception('a region or a province must be specified for this view')
 
@@ -471,20 +460,11 @@ class TerritorioView(AggregatoMixin, DetailView):
 
     @cached_context
     def get_cached_context_data(self):
-        logger = logging.getLogger('console')
-
         context = {}
 
-        logger.debug('get_aggregate_data start')
-        context = self.get_aggregate_data(context, territorio=self.object)
+        context = self.get_aggregate_data(context, territori=[self.object])
 
-        logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().nel_territorio(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-
-        logger.debug('territori_piu_finanziati_pro_capite start')
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
-            filters=self.object.get_cod_dict()
-        )
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters=self.object.get_cod_dict())
 
         return context
 
@@ -493,7 +473,7 @@ class TerritorioView(AggregatoMixin, DetailView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().nel_territorio(self.object).conclusi()[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.nei_territori([self.object]).no_privacy().conclusi()[:5]
 
         return context
 
@@ -504,7 +484,6 @@ class TerritorioView(AggregatoMixin, DetailView):
             else:
                 return Territorio.objects.get(territorio=self.tipo_territorio)
         except ObjectDoesNotExist:
-            # return None
             raise Http404()
 
 
@@ -540,112 +519,36 @@ class AmbitoEsteroView(AggregatoMixin, ListView):
 
     @cached_context
     def get_cached_context_data(self, territori):
-        logger = logging.getLogger('console')
-
         context = {}
+
+        context = self.get_aggregate_data(context, territori=territori)
 
         # add object_list to context, to make the get_context_data work in the setup_view environment
         # used in cache generators scripts and in the API
         context['object_list'] = self.object_list if hasattr(self, 'object_list') else None
 
-        logger.debug('totale_costi start')
-        context['totale_costi'] = Progetto.objects.totale_costi(territori=territori)
+        progetti = Progetto.objects.myfilter(territori=territori)
 
-        logger.debug('totale_pagamenti start')
-        context['totale_pagamenti'] = Progetto.objects.totale_pagamenti(territori=territori)
-
-        logger.debug('totale_progetti start')
-        context['totale_progetti'] = Progetto.objects.totale_progetti(territori=territori)
-
-        context['percentuale_costi_pagamenti'] = '{0:.0%}'.format(
-            context['totale_pagamenti'] /
-            context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0
-        )
-        # read tematizzazione GET param
-        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
-
-        query_models = {
-            'temi_principali': {
-                'manager': Tema.objects,
-                'parent_class_field': 'tema_superiore',
-                'manager_parent_method': 'principali',
-                'filter_name': 'tema',
-            },
-            'nature_principali': {
-                'manager': ClassificazioneAzione.objects,
-                'parent_class_field': 'classificazione_superiore',
-                'manager_parent_method': 'nature',
-                'filter_name': 'classificazione'
-            }
-        }
-
-        # specialize the filter
-        query_filters = dict(territori=territori)
-
-        for name in query_models:
-            context[name] = []
-            # takes all root models (principali or nature)
-            for object in getattr(query_models[name]['manager'], query_models[name]['manager_parent_method'])():
-                q = query_filters.copy()
-                # add %model%_superiore to query filters
-                q[query_models[name]['filter_name']] = object
-                # make query and add totale to object
-                # object.tot = query_models[name]['manager'].filter( **q ).aggregate( tot=aggregate_field )['tot']
-                logger.debug('totale_{0}, models: {1}, object: {2} -- start'.format(
-                    context['tematizzazione'],
-                    query_models[name],
-                    object
-                ))
-
-                object.tot = getattr(Progetto.objects, context['tematizzazione'])(**q)
-                # add object to right context
-                context[name].append(object)
-
-        logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().nei_territori(territori).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico').distinct()[:5]
-
-        # context['nazioni_piu_finanziate'] = self.queryset.annotate(totale=models.Sum('progetto__fin_totale_pubblico')).filter( totale__isnull=False ).order_by('-totale')
-
-        progetti_multi_territorio = []
         multi_territori = {}
-        # per ogni progetto multi-localizzato nel db
-        logger.debug('blob multiloc start')
+        for progetto in progetti.annotate(cnt=Count('territorio_set')).filter(cnt__gt=1):
+            key = ', '.join(sorted([t.denominazione for t in progetto.territori if t in territori]))
+            multi_territori.setdefault(key, []).append(progetto.pk)
 
-        # for progetto in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).select_related('territori'):
-        #     # se ha nei suoi territori un territorio estero..
-        #     if any([x in territori for x in progetto.territori]):
-        #         progetti_multi_territorio.append(progetto.pk)
-        #         key = ', '.join(sorted([t.denominazione for t in progetto.territori]))
-        #         if key not in multi_territori:
-        #             multi_territori[key] = []
-        #         multi_territori[key].append(progetto.pk)
+        # from itertools import chain
+        # progetti_multilocalizzati_pks = list(chain.from_iterable(multi_territori.values()))
+        progetti_multilocalizzati_pks = [item for sublist in multi_territori.values() for item in sublist]
 
-        for progetto in Progetto.objects.annotate(tot=Count('territorio_set')).filter(tot__gt=1).select_related('territori'):
-            progetto_territori_esteri = [x for x in progetto.territori if x in territori]
+        context['territori'] = self.add_totali(territori, progetti.exclude(pk__in=progetti_multilocalizzati_pks).totali_group_by('localizzazione__territorio_id'))
 
-            # se ha nei suoi territori più di un territorio estero...
-            if len(progetto_territori_esteri) > 1:
-                progetti_multi_territorio.append(progetto.pk)
-                key = ', '.join(sorted([t.denominazione for t in progetto_territori_esteri]))
-                if key not in multi_territori:
-                    multi_territori[key] = []
-                multi_territori[key].append(progetto.pk)
+        for name, pks in multi_territori.items():
+            territorio = Territorio(denominazione=name, territorio=Territorio.TERRITORIO.E)
+            territorio.totali = Progetto.objects.filter(pk__in=pks).totali()
+            context['territori'].append(territorio)
 
-        context['lista_finanziamenti_per_nazione'] = [
-            (nazione, getattr(
-                Progetto.objects.exclude(pk__in=progetti_multi_territorio).nel_territorio(nazione),
-                context['tematizzazione'])())
-            for nazione in territori
-        ]
+        context['territori'] = [t for t in context['territori'] if t.totali != {}]
 
-        for key in multi_territori:
-            context['lista_finanziamenti_per_nazione'].append(
-                (
-                    Territorio(denominazione=key, territorio=Territorio.TERRITORIO.E), getattr(Progetto.objects.filter(pk__in=multi_territori[key]), context['tematizzazione'])()
-                )
-            )
-
-        # context['territori_esteri'] = territori
+        for obj in context['territori']:
+            obj.totale = obj.totali.get(context['tematizzazione'], 0)
 
         return context
 
@@ -656,7 +559,7 @@ class AmbitoEsteroView(AggregatoMixin, ListView):
 
         context.update(self.get_cached_context_data(territori=territori))
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().nei_territori(territori).conclusi()[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.nei_territori(territori).no_privacy().conclusi()[:5]
 
         context['tipo_territorio'] = self.tipo_territorio
 

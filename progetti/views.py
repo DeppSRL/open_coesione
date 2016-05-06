@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-import StringIO
-from collections import OrderedDict
 import csv
-from datetime import date
+import StringIO
 import zipfile
-import logging
-
+from collections import OrderedDict
+from datetime import date
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse_lazy
 from django.db.models import Sum
 from django.http import HttpResponse, Http404
-from django.core.urlresolvers import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
-from oc_search.views import OCFacetedSearchView
-from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione, PagamentoProgetto, Ruolo
-from open_coesione import utils
-from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
 from forms import DescrizioneProgettoForm
 from gruppo_programmi import GruppoProgrammi, split_by_type
-from models import Tema, Fonte, SegnalazioneProgetto
+from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione, PagamentoProgetto,\
+    Ruolo, Tema, Fonte, SegnalazioneProgetto
+from oc_search.views import OCFacetedSearchView
+from open_coesione import utils
+from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
@@ -164,19 +162,9 @@ class ProgettoSearchView(OCFacetedSearchView):
 class BaseProgrammaView(AggregatoMixin, TemplateView):
     @cached_context
     def get_cached_context_data(self, programmi):
-        logger = logging.getLogger('console')
-
         context = {}
 
-        logger.debug('get_aggregate_data start')
         context = self.get_aggregate_data(context, programmi=programmi)
-
-        context['numero_soggetti'] = Soggetto.objects.count()
-
-        logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().con_programmi(programmi).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-
-        logger.debug('territori_piu_finanziati_pro_capite start')
 
         # discriminate between ProgrammaAsseObiettivo and ProgrammaLineaAzione
         programmi_splitted = split_by_type(programmi)
@@ -199,7 +187,7 @@ class BaseProgrammaView(AggregatoMixin, TemplateView):
 
         context.update(self.get_cached_context_data(programmi=programmi))
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().con_programmi(programmi).conclusi()[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.con_programmi(programmi).no_privacy().conclusi()[:5]
 
         return context
 
@@ -220,15 +208,11 @@ class ProgrammiView(BaseProgrammaView):
 
             data_pagamenti_per_programma = date(2015, 12, 31)
 
-            logger = logging.getLogger('console')
-
             # dotazioni_totali = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Dotazioni_Certificazioni.xls'), 'rb')).splitlines()))
             dotazioni_totali = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Target_Certificato_Pagamenti.xls'), 'rb'), sheet='Target spesa cert ammessi va').splitlines()))  ##########
 
             for trend in ('conv', 'cro'):
                 programmi_codici = [programma.codice for programma in programmi if ' {} '.format(trend) in programma.descrizione.lower()]
-
-                logger.debug('pagamenti_per_anno_{} start'.format(trend))
 
                 progetti = Progetto.objects.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici)
                 pagamenti_per_anno = PagamentoProgetto.objects.filter(data__day=31, data__month=12, progetto__in=progetti).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
@@ -258,8 +242,6 @@ class ProgrammiView(BaseProgrammaView):
                 context['pagamenti_per_anno_{}'.format(trend)] = [{'year': pagamento['data'].year, 'total_amount': dotazioni_totali_per_anno[pagamento['data'].year], 'paid_amount': pagamento['ammontare'] or 0} for pagamento in pagamenti_per_anno]
                 context['pagamenti_per_anno_{}'.format(trend)] = [x for x in context['pagamenti_per_anno_{}'.format(trend)] if x['year'] != 2006]  ###########
                 # context['pagamenti_per_anno_{}'.format(trend)].append({'year': 2015, 'total_amount': dotazioni_totali_2015, 'paid_amount': pagamenti_2015})  ##########
-
-                logger.debug('pagamenti_per_programma_{} start'.format(trend))
 
                 # programmi_con_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__data=data_pagamenti_per_programma, classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_codici).values('descrizione', 'codice').annotate(ammontare=Sum('classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__ammontare_rendicontabile_ue')).order_by('descrizione')
                 programmi_senza_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_codici).distinct().values('descrizione', 'codice').order_by('descrizione')  ##############
@@ -337,30 +319,16 @@ class ProgrammaView(BaseProgrammaView):
 
 
 class ClassificazioneAzioneView(AggregatoMixin, DetailView):
-    context_object_name = 'tipologia'
+    context_object_name = 'natura'
     model = ClassificazioneAzione
 
     @cached_context
     def get_cached_context_data(self):
-        logger = logging.getLogger('console')
-
         context = {}
 
-        logger.debug('get_aggregate_data start')
         context = self.get_aggregate_data(context, classificazione=self.object)
 
-        context['numero_soggetti'] = Soggetto.objects.count()
-        context['map_selector'] = 'nature/{}/'.format(self.kwargs['slug'])
-
-        logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().con_natura(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-
-        logger.debug('territori_piu_finanziati_pro_capite start')
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
-            filters={
-                'progetto__classificazione_azione__classificazione_superiore': self.object
-            }
-        )
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__classificazione_azione__classificazione_superiore': self.object})
 
         return context
 
@@ -369,7 +337,9 @@ class ClassificazioneAzioneView(AggregatoMixin, DetailView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().con_natura(self.object).conclusi()[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.con_natura(self.object).no_privacy().conclusi()[:5]
+
+        context['map_selector'] = 'nature/{}/'.format(self.kwargs['slug'])
 
         return context
 
@@ -379,25 +349,11 @@ class TemaView(AggregatoMixin, DetailView):
 
     @cached_context
     def get_cached_context_data(self):
-        logger = logging.getLogger('console')
-
         context = {}
 
-        logger.debug('get_aggregate_data start')
         context = self.get_aggregate_data(context, tema=self.object)
 
-        context['numero_soggetti'] = Soggetto.objects.count()
-        context['map_selector'] = 'temi/{}/'.format(self.kwargs['slug'])
-
-        logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().con_tema(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-
-        logger.debug('territori_piu_finanziati_pro_capite start')
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
-            filters={
-                'progetto__tema__tema_superiore': self.object
-            }
-        )
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__tema__tema_superiore': self.object})
 
         return context
 
@@ -406,7 +362,9 @@ class TemaView(AggregatoMixin, DetailView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().con_tema(self.object).conclusi()[:5]
+        context['ultimi_progetti_conclusi'] = Progetto.objects.con_tema(self.object).no_privacy().conclusi()[:5]
+
+        context['map_selector'] = 'temi/{}/'.format(self.kwargs['slug'])
 
         return context
 
@@ -508,6 +466,7 @@ class ProgettoCSVSearchView(ProgettoSearchView):
         Generates a zipped, downloadale CSV file, from search results
         """
         import datetime
+        import logging
         import pandas as pd
         from open_coesione.views import OpendataView
 
@@ -637,7 +596,7 @@ class ProgettoCSVSearchView(ProgettoSearchView):
                 except KeyError:
                     pass
                 else:
-                    csv_data = json.loads(object.csv_data)
+                    csv_data = json.loads(object.csv_data, object_pairs_hook=OrderedDict)
                     csv_data = {{'COD_DIPE': u'COD_LOCALE_PROGETTO'}.get(k, k): v for k, v in csv_data.items()}
 
                     # row = [myformat(csv_data.get(x, '')) for x in csv_columns] + [myformat(getattr(object, x) or '') for x in extra_columns.values()]

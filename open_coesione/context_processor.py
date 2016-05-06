@@ -43,7 +43,7 @@ def main_settings(request):
             'SITE_URL': 'http://{}'.format(host),
             'IS_PRODUCTION': all(h not in host for h in ('localhost', 'staging')),
             'lista_regioni': regioni,
-            'lista_tipologie_principali': classificazioni,
+            'lista_classificazioni_principali': classificazioni,
             'lista_temi_principali': temi,
             'latest_entry': Entry.objects.filter(published_at__lte=datetime.now()).latest('published_at'),
             'lista_programmi': Config.get_lista_programmi(),
