@@ -7,13 +7,13 @@
         <div class="row">
             <div id="map-layer-selector" class="span6 block-container">
                 <a href="{{ request.path }}?tematizzazione=totale_costi" class="block-chart{% if tematizzazione == 'totale_costi' %} block-active{% endif %}" data-dataset="totale_costi">
-                    <strong class="title">Finanziamenti monitorati{% comment %}<br />(incluse risorse attratte){% endcomment %}</strong>
+                    <strong class="title">Finanziamenti monitorati<br />(incluse risorse attratte)</strong>
                     <p>{{ totale_costi|intword }} <span>di euro</span></p>
                     {% if tematizzazione == 'totale_costi' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
                 </a>
 
                 <a href="{{ request.path }}?tematizzazione=totale_pagamenti" class="block-chart{% if tematizzazione == 'totale_pagamenti' %} block-active{% endif %}" title="{{ percentuale_costi_pagamenti }} del totale" data-dataset="totale_pagamenti">
-                    <strong class="title">Pagamenti monitorati{% comment %}<br />(incluse risorse attratte){% endcomment %}</strong>
+                    <strong class="title">Pagamenti monitorati<br />(incluse risorse attratte)</strong>
                     <p>{{ totale_pagamenti|intword }} <span>di euro</span></p>
                     {% if tematizzazione == 'totale_pagamenti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
                 </a>
