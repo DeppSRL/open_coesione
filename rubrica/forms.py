@@ -46,6 +46,6 @@ class NLContactForm(forms.Form):
         text_content = strip_tags(html_content)  # this strips the html, so people will have the text as well.
 
         # create the email, and attach the HTML version as well.
-        msg = EmailMultiAlternatives('Notifica iscrizione alla newsletter di opencoesione.gov.it', text_content, self.cleaned_data.get('email'), settings.CONTACTS_EMAIL)
+        msg = EmailMultiAlternatives('Notifica iscrizione alla newsletter di opencoesione.gov.it', text_content, settings.EMAIL_DEFAULT_FROM, settings.CONTACTS_EMAIL)
         msg.attach_alternative(html_content, 'text/html')
         msg.send()

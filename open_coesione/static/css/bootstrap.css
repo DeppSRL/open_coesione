@@ -5245,6 +5245,12 @@ section h2.title span {
   float: right;
   margin-left: 15px;
 }
+#wrapper > footer a.flag.flag-dps {
+  width: 252px;
+  height: 70px;
+  background: url('../img/header/dps.png') no-repeat right;
+}
+
 #wrapper > header a.flag.flag-dps {
   width: 252px;
   height: 70px;
@@ -5435,7 +5441,7 @@ section h2.title span {
 }
 #wrapper > footer .flag.flag-rgs {
   width: 140px;
-  margin-left: 45px;
+  margin-left: 115px;
   background-image: url('../img/footer/rgs.png');
 }
 #wrapper > footer .flag.flag-ue {
