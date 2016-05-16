@@ -4,4 +4,5 @@
 # But not these files...
 !.gitignore
 !spesatot_data.csv
+!spesatot_data_1420.csv
 !spesacertificata_data.csv
