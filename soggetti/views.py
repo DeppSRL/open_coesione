@@ -4,10 +4,10 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Count, Sum
 from django.views.generic.detail import DetailView
+from models import Soggetto
 from oc_search.views import OCFacetedSearchView
 from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin
 from progetti.models import Progetto, Tema, Ruolo
-from models import Soggetto
 from territori.models import Territorio
 
 

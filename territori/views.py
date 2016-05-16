@@ -2,9 +2,9 @@
 import json
 import re
 import urllib
+from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.contrib.sites.models import Site
-from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
