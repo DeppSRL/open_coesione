@@ -6,6 +6,7 @@ from django.core.management import call_command
 from django.db.models import Count
 
 from optparse import make_option
+from progetti.gruppo_programmi import GruppoProgrammi
 from progetti.models import Progetto
 from soggetti.models import Soggetto
 
@@ -131,7 +132,7 @@ class Command(BaseCommand):
                     self.logger.info("Program {0}. Skipping cache generation for {1} projects.".format(code, n_progetti))
 
         # generate programs aggregates
-        for pr_aggregate_slug in ['ue-fesr', 'ue-fse', 'fsc']:
+        for pr_aggregate_slug in GruppoProgrammi.GRUPPI_PROGRAMMI.keys():
             self._aggregate_cache_computation(
                 pr_aggregate_slug, page_type='programmi',
                 clearcache=options['clearcache'], verbosity=options['verbosity']
