@@ -7,42 +7,27 @@
 {% block content %}
     <div class="flat_content">
         <h1>La spesa certificata all’UE per i programmi cofinanziati dai Fondi Strutturali</h1>
-        <p>
-            La spesa complessiva certificata all'UE al 31 dicembre 2015 è pari a 37,1 miliardi di euro,
-            con un incremento di circa 1,3 miliardi rispetto alla precedente rilevazione del 31 ottobre 2015.
-            La quota di spesa certificata all’Unione Europea è, al 31 dicembre 2015, pari all’81% della dotazione effettiva dei Programmi alla medesima data.
-            Dai dati di monitoraggio dei progetti pubblicati su OpenCoesione, si registra un ammontare dei pagamenti rendicontabili al 31 dicembre 2015
-            (cfr. variabile OC_TOT_PAGAMENTI_RENDICONTAB_UE nei dataset <a href="{% url 'opendata_clean' 'pagamenti_FS0713.zip' %}">Pagamenti</a>,
-            che restituisce la serie storica bimestrale del totale dei pagamenti ammessi) significativamente superiore
-            (pari al 93,5% della dotazione effettiva dei programmi) al dato certificato a questa stessa data,
-            a conferma del fatto che nella fase di chiusura della Programmazione 2007-2013 le Amministrazioni titolari di programmi operativi
-            sono maggiormente concentrate sull’esecuzione di pagamenti rimborsabili sul bilancio europeo del settennio 2007-2013
-            (in base alle regole di esecuzione del bilancio vigenti) che potranno poi successivamente trasformarsi in certificazioni e richieste di rimborso
-            secondo le <a href="{% url 'faq-it' %}#quali-sono-le-regole-di-chiusura-del-ciclo-di-programmazione-2007-2013-i-fondi-strutturali">regole previste per la chiusura dei programmi 2007-2013</a>,
-            piuttosto che sulle certificazioni.
-        </p>
+        <p>Al 31 dicembre 2015 la spesa complessiva certificata all'UE è pari a 37,1 miliardi di euro, con un incremento di circa 1,3 miliardi rispetto alla precedente rilevazione del 31 ottobre. Rispetto alla dotazione effettiva dei Programmi alla medesima data la quota di spesa certificata all’Unione Europea è pari all’81% e la quota di pagamenti rendicontabili (dati di monitoraggio dei progetti pubblicati su OpenCoesione aggiornati al 29 febbraio 2016, variabile OC_TOT_PAGAMENTI_RENDICONTAB_UE disponibile in serie storica nei dataset <a href="{% url 'opendata_clean' 'pagamenti_FS0713.zip' %}">Pagamenti</a>) è pari al 96,5%.</p>
+        <p>Secondo le <a href="{% url 'faq-it' %}#quali-sono-le-regole-di-chiusura-del-ciclo-di-programmazione-2007-2013-i-fondi-strutturali">regole previste per la chiusura dei programmi 2007-2013</a> i pagamenti effettuati dalle Amministrazioni titolari di programmi operativi entro il 31 dicembre 2015 potranno successivamente trasformarsi in certificazioni e richieste di rimborso fino al 31 marzo 2017.</p>
 
         <h3>AVANZAMENTO DEI PAGAMENTI AMMESSI E DELLA SPESA CERTIFICATA ALL’UE PER I PROGRAMMI COFINANZIATI DAI FONDI STRUTTURALI 2007-2013 - TOTALE ITALIA</h3>
         <p>(% dei pagamenti ammessi e della spesa certificata all’UE rispetto alla dotazione finanziaria disponibile - aggiornamento al 29 febbraio 2016)</p>
-        <p>
-            <figure style="-webkit-margin-start: 0; margin: 0">
-                <div id="sc_container" style="height: 500px; max-width: 960px"></div>
-                <figcaption>
-                    NOTA: Il grafico riporta il progressivo avanzamento del dato di spesa certificata rispetto alla dotazione finanziaria che proseguirà con cadenza periodica fino al 31/03/2017.<br />La serie dei pagamenti su dotazione si ferma invece al 31/12/2015 ma sarà anche successivamente aggiornata nei valori in concomitanza delle cadenze bimestrali del Sistema di monitoraggio unitario.<br />Gli obiettivi comunitari sono quelli definiti dalla cosiddetta <a href="{% url 'faq-it' %}#quali-sono-le-regole-di-chiusura-del-ciclo-di-programmazione-2007-2013-i-fondi-strutturali">regola &ldquo;n+2&rdquo;</a> per il dicembre di ciascun anno fino all’anno 2014 e sono stati accompagnati, tra la fine del 2011 e il 2014, da target intermedi nazionali infrannuali per facilitare il raggiungimento dei risultati. Non sono previsti obiettivi comunitari relativi alla spesa certificata per il 2015 rimanendo l’unico obiettivo di riferimento quello alla data ultima di chiusura dei programmi del 31 marzo 2017.
-                </figcaption>
-            </figure>
-        </p>
+
+        <figure style="-webkit-margin-start: 0; margin: 0">
+            <div id="sc_container" style="height: 500px; max-width: 960px"></div>
+            <figcaption>
+                NOTA: Il grafico riporta il progressivo avanzamento dei pagamenti rendicontabili (in concomitanza delle cadenze bimestrali del Sistema di monitoraggio) e della spesa certificata (che proseguirà con cadenza periodica fino al 31/03/2017) rispetto alla dotazione finanziaria dei Programmi cofinanziati dai Fondi Strutturali 2007-2013.<br />
+                La serie dei pagamenti su dotazione, ferma al 31/12/2015, viene comunque aggiornata nei valori in concomitanza delle cadenze bimestrali del Sistema di monitoraggio unitario. Il dato rappresenta i pagamenti cumulati sul totale dell’attuazione dei Programmi cofinanziati dai Fondi Strutturali 2007-2013 presenti nel monitoraggio e in fase di progressivo assestamento.<br />
+                Per alcuni Programmi il valore dei pagamenti rendicontabili a essi attribuiti può superare il valore della loro dotazione effettiva (per la pratica nota come overbooking infatti un Programma può temporaneamente includere progetti per un valore superiore a quello della sua dotazione).<br />
+                Gli obiettivi comunitari sono quelli definiti dalla cosiddetta <a href="{% url 'faq-it' %}#quali-sono-le-regole-di-chiusura-del-ciclo-di-programmazione-2007-2013-i-fondi-strutturali">regola &ldquo;n+2&rdquo;</a> per il dicembre di ciascun anno fino all’anno 2014 e sono stati accompagnati, tra la fine del 2011 e il 2014, da target intermedi nazionali infrannuali per facilitare il raggiungimento dei risultati. Non sono previsti obiettivi comunitari relativi alla spesa certificata per il 2015 rimanendo l’unico obiettivo di riferimento quello alla data ultima di chiusura dei programmi del 31 marzo 2017.
+            </figcaption>
+        </figure>
+
         <p style="margin-left: 1em;">
             <i class="icon-download-alt"></i> <b>Scarica</b> dati e metadati per ciascun Programma Operativo su:
             <ul style="margin-left: 40px;">
-                <li>
-                    <a href="{{ spesa_dotazione_file.file_name }}">dotazione finanziaria complessiva e spesa certificata alla UE</a>
-                    ({{ spesa_dotazione_file.file_ext }}, {{ spesa_dotazione_file.file_size|filesizeformat }}) (aggiornamento al {{ spesa_dotazione_file.file_date|date:'SHORT_DATE_FORMAT' }})
-                </li>
-                <li>
-                    <a href="{{ spesa_target_file.file_name }}">target di spesa certificata</a>
-                    ({{ spesa_target_file.file_ext }}, {{ spesa_target_file.file_size|filesizeformat }}) (aggiornamento al {{ spesa_target_file.file_date|date:'SHORT_DATE_FORMAT' }})
-                </li>
+                <li><a href="{{ spesa_dotazione_file.file_name }}">dotazione finanziaria complessiva e spesa certificata alla UE</a> ({{ spesa_dotazione_file.file_ext }}, {{ spesa_dotazione_file.file_size|filesizeformat }}) (aggiornamento al {{ spesa_dotazione_file.file_date|date:'SHORT_DATE_FORMAT' }})</li>
+                <li><a href="{{ spesa_target_file.file_name }}">target di spesa certificata</a> ({{ spesa_target_file.file_ext }}, {{ spesa_target_file.file_size|filesizeformat }}) (aggiornamento al {{ spesa_target_file.file_date|date:'SHORT_DATE_FORMAT' }})</li>
             </ul>
         </p>
         <p style="margin-left: 1em;">
@@ -56,97 +41,20 @@
         </p>
 
         <h3>Cos’è la spesa certificata all’UE?</h3>
-        <p>
-            La spesa certificata all’UE corrisponde alle richieste di rimborso delle spese sostenute
-            che vengono presentate alla Commissione Europea dalle Amministrazioni titolari dei
-            Programmi cofinanziati dai Fondi Strutturali.
-            Tali richieste, per ogni annualità contabile delle risorse impegnate sul bilancio
-            comunitario per ciascun Fondo (FSE, FESR) e Programma Operativo, sono da presentare
-            entro un determinato periodo di tempo, specificamente stabilito per ciascun periodo
-            di programmazione. Le risorse che non risultino certificate alla Commissione entro
-            i termini prestabiliti sono soggette a disimpegno automatico, cioè alla riduzione del
-            finanziamento comunitario e del corrispondente cofinanziamento nazionale del Programma.
-        </p>
+        <p>La spesa certificata all’UE corrisponde alle richieste di rimborso delle spese sostenute che vengono presentate alla Commissione Europea dalle Amministrazioni titolari dei Programmi cofinanziati dai Fondi Strutturali. Tali richieste, per ogni annualità contabile delle risorse impegnate sul bilancio comunitario per ciascun Fondo (FSE, FESR) e Programma Operativo, sono da presentare entro un determinato periodo di tempo, specificamente stabilito per ciascun periodo di programmazione. Le risorse che non risultino certificate alla Commissione entro i termini prestabiliti sono soggette a disimpegno automatico, cioè alla riduzione del finanziamento comunitario e del corrispondente cofinanziamento nazionale del Programma.</p>
 
         <h3>Quali regole per il ciclo di programmazione 2007-2013?</h3>
-        <p>
-            Per il periodo 2007-2013 vale l’obbligo comunitario della regola nota come &ldquo;n+2&rdquo;
-            (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1083:IT:NOT">art. 93 del Regolamento CE 1083/2006</a>),
-            pertanto le certificazioni alla Commissione devono essere presentate entro il
-            31 dicembre del secondo anno successivo a quello dell’impegno nell’ambito del Programma.
-            Tra gli effetti di questa regola, quindi, c’è anche quello di aver fissato al
-            31 dicembre 2015 il termine ultimo di ammissibilità della spesa
-            rendicontabile alla Commissione per il ciclo 2007-2013.
-            Nel periodo 2007-2013, per incoraggiare l’attuazione dei Programmi Operativi cofinanziati
-            dai Fondi Strutturali, l’Italia ha stabilito, in sede di Comitato QSN del 30 marzo 2011 e successivi aggiornamenti,
-            dei target infra-annuali nazionali per le spese effettivamente sostenute e certificate e quindi,
-            oltre alla data del 31 dicembre di ciascun anno, la spesa certificata viene monitorata anche
-            al 31 maggio e al 31 ottobre.
-        </p>
+        <p>Per il periodo 2007-2013 vale l’obbligo comunitario della regola nota come &ldquo;n+2&rdquo; (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1083:IT:NOT">art. 93 del Regolamento CE 1083/2006</a>), pertanto le certificazioni alla Commissione devono essere presentate entro il 31 dicembre del secondo anno successivo a quello dell’impegno nell’ambito del Programma. Tra gli effetti di questa regola, quindi, c’è anche quello di aver fissato al 31 dicembre 2015 il termine ultimo di ammissibilità della spesa rendicontabile alla Commissione per il ciclo 2007-2013. Nel periodo 2007-2013, per incoraggiare l’attuazione dei Programmi Operativi cofinanziati dai Fondi Strutturali, l’Italia ha stabilito, in sede di Comitato QSN del 30 marzo 2011 e successivi aggiornamenti, dei target infra-annuali nazionali per le spese effettivamente sostenute e certificate e quindi, oltre alla data del 31 dicembre di ciascun anno, la spesa certificata viene monitorata anche al 31 maggio e al 31 ottobre.</p>
 
         <h3>Cosa rappresenta il 31 dicembre 2015?</h3>
-        <p>
-            La data del 31 dicembre 2015 è il termine ultimo di ammissibilità della spesa rendicontabile alla Commissione
-            per il ciclo 2007-2013 (con minime deroghe, ad esempio, per gli strumenti di ingegneria finanziaria).
-            <a href="{% url 'faq-it' %}#quali-sono-le-regole-di-chiusura-del-ciclo-di-programmazione-2007-2013-i-fondi-strutturali">Qui</a>
-            è possibile trovare informazioni dettagliate sulle regole di chiusura del ciclo 2007-2013.
-            Rispetto all’eventuale disimpegno delle risorse dal bilancio europeo, questo può avvenire solo
-            dopo l'istruttoria della Commissione Europea sui documenti presentati entro il 31 marzo 2017,
-            data entro la quale è necessario inviare domanda di pagamento alla Commissione.
-            Il target del 100%  sulla spesa certificata oggi previsto per marzo 2017 implica che con riferimento al 31 dicembre 2015
-            siano  realizzati  pagamenti rendicontabili almeno pari alla dotazione dei programmi
-            e da richiedere a rimborso quale spesa certificata alla Commissione da quella data fino alla chiusura formale dei programmi.
-        </p>
-        <p>
-            Va considerato, infatti, che, come già avvenuto nei precedenti cicli di programmazione,
-            nell'ultimo anno di ammissibilità della spesa la presentazione delle certificazioni subisce un “fisiologico” rallentamento,
-            sia a causa delle regole di esecuzione del bilancio comunitario (vedi, ad esempio,
-            <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2006:210:0025:0078:IT:PDF">art. 79 del Regolamento CE 1083/2006</a>),
-            sia per le operazioni legate alla fase di chiusura (termine ammissibilità, controlli finali, spostamento risorse, predisposizione documenti, ecc.).
-        </p>
-
-        {%  comment %}
-        <h1>Cosa sono i target infra-annuali?</h1>
-        <p>
-            Tra le misure di accelerazione dell’attuazione dei Programmi Operativi dei Fondi Strutturali 2007-2013,
-            adottate a livello nazionale e introdotte a partire dalla
-            <a href="http://www.cipecomitato.it/it/il_cipe/delibere/download?f=E110001.pdf">Delibera CIPE n. 1/2011</a>,
-            per evitare il disimpegno automatico derivante dalla regola dell’n+2,
-            sono stati previsti anche target infra-annuali delle spese certificate.
-            Oltre alla data del 31 dicembre, la spesa certificata viene pertanto verificata anche al
-            31 maggio e al 31 ottobre di ciascun anno fino al 2015. Il mancato raggiungimento dei target
-            infra-annuali comporta la riprogrammazione delle risorse assegnate al Programma per un
-            importo calcolato sulla soglia annuale e graduato in funzione della distanza della spesa
-            certificata dal target prestabilito. I target infra-annuali sono definiti in base ad
-            appropriate percentuali (stabilite in sede di Comitato nazionale per il coordinamento e
-            la sorveglianza della politica regionale unitaria) delle soglie da raggiungere al 31 dicembre.
-            Il calcolo dei target dipende anche, per ciascun Programma, dal piano
-            finanziario dei Grandi Progetti – ovvero i progetti di importo superiore ai
-            50 milioni di euro che seguono un particolare iter autorizzativo da parte della
-            Commissione – per i quali sono previste specifiche deroghe proprio per la regola dell’n+2.
-        </p>
-        {%  endcomment %}
+        <p>La data del 31 dicembre 2015 è il termine ultimo di ammissibilità della spesa rendicontabile alla Commissione per il ciclo 2007-2013 (con minime deroghe, ad esempio, per gli strumenti di ingegneria finanziaria). <a href="{% url 'faq-it' %}#quali-sono-le-regole-di-chiusura-del-ciclo-di-programmazione-2007-2013-i-fondi-strutturali">Qui</a> è possibile trovare informazioni dettagliate sulle regole di chiusura del ciclo 2007-2013. Rispetto all’eventuale disimpegno delle risorse dal bilancio europeo, questo può avvenire solo dopo l'istruttoria della Commissione Europea sui documenti presentati entro il 31 marzo 2017, data entro la quale è necessario inviare domanda di pagamento alla Commissione. Il target del 100%  sulla spesa certificata oggi previsto per marzo 2017 implica che con riferimento al 31 dicembre 2015 siano  realizzati  pagamenti rendicontabili almeno pari alla dotazione dei programmi e da richiedere a rimborso quale spesa certificata alla Commissione da quella data fino alla chiusura formale dei programmi.</p>
+        <p>Va considerato, infatti, che, come già avvenuto nei precedenti cicli di programmazione, nell'ultimo anno di ammissibilità della spesa la presentazione delle certificazioni subisce un “fisiologico” rallentamento, sia a causa delle regole di esecuzione del bilancio comunitario (vedi, ad esempio, <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2006:210:0025:0078:IT:PDF">art. 79 del Regolamento CE 1083/2006</a>), sia per le operazioni legate alla fase di chiusura (termine ammissibilità, controlli finali, spostamento risorse, predisposizione documenti, ecc.).</p>
 
         <h3>Quali regole per il ciclo di programmazione 2014-2020?</h3>
-        <p>
-            Per il periodo 2014-2020 vale la cosiddetta regola &ldquo;n+3&rdquo;
-            (art. 136 del Regolamento CE 1303/2013),
-            (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0320:0469:IT:pdf">art. 136 del Regolamento CE 1303/2013</a>),
-            pertanto le certificazioni alla Commissione devono essere presentate entro il 31 dicembre
-            del terzo anno successivo a quello dell’impegno nell’ambito del Programma.
-            Non sono previste deroghe per i Grandi Progetti.
-        </p>
+        <p>Per il periodo 2014-2020 vale la cosiddetta regola &ldquo;n+3&rdquo; (art. 136 del Regolamento CE 1303/2013), (<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:347:0320:0469:IT:pdf">art. 136 del Regolamento CE 1303/2013</a>), pertanto le certificazioni alla Commissione devono essere presentate entro il 31 dicembre del terzo anno successivo a quello dell’impegno nell’ambito del Programma. Non sono previste deroghe per i Grandi Progetti.</p>
 
         <h3>Qual è la differenza tra spesa certificata e spesa monitorata?</h3>
-        <p>
-            Per il periodo 2007-2013 il sistema di rendicontazione all’UE della spesa per i
-            Programmi finanziati dai Fondi Strutturali è diverso da quello di monitoraggio puntuale
-            dei progetti, da cui provengono i dati pubblicati su OpenCoesione. In generale,
-            un pagamento rendicontabile viene inserito nel sistema di monitoraggio dei progetti
-            quando è stato effettuato e può essere portato a rendicontazione anche in un secondo momento.
-            Pertanto la somma dei pagamenti rendicontabili all’UE di ciascun Programma può non
-            corrispondere al valore più recente di certificazione ufficiale delle spese alla Commissione Europea.
-        </p>
+        <p>Per il periodo 2007-2013 il sistema di rendicontazione all’UE della spesa per i Programmi finanziati dai Fondi Strutturali è diverso da quello di monitoraggio puntuale dei progetti, da cui provengono i dati pubblicati su OpenCoesione. In generale, un pagamento rendicontabile viene inserito nel sistema di monitoraggio dei progetti quando è stato effettuato e può essere portato a rendicontazione anche in un secondo momento. Pertanto la somma dei pagamenti rendicontabili all’UE di ciascun Programma può non corrispondere al valore più recente di certificazione ufficiale delle spese alla Commissione Europea.</p>
     </div>
 
     {% add_data 'js-data' 'js/vendor/highcharts/highcharts.js' %}
