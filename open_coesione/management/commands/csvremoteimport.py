@@ -30,11 +30,11 @@ class Command(BaseCommand):
         make_option('--csv-file',
                     dest='csv_file',
                     default=None,
-                    help='Select csv files file.'),
+                    help='Select csv file.'),
         make_option('--import-type',
                     dest='import_type',
                     default=None,
-                    help='Type of import; select among {}.'.format(', '.join(['"' + t + '"' for t in import_types]))),
+                    help='Type of import; choose among {}.'.format(', '.join('"{}"'.format(t) for t in import_types))),
         make_option('--encoding',
                     dest='encoding',
                     default='utf-8-sig',
@@ -64,7 +64,7 @@ class Command(BaseCommand):
         separator = options['separator']
 
         if not importtype in self.import_types:
-            self.logger.error(u'Wrong type "{}". Select among {}.'.format(importtype, ', '.join(['"' + t + '"' for t in self.import_types])))
+            self.logger.error(u'Wrong --import-type option "{}". Choose among {}.'.format(importtype, ', '.join('"{}"'.format(t) for t in self.import_types)))
             exit(1)
 
         # read csv file
