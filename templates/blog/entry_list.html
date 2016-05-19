@@ -45,17 +45,17 @@
                     }
                     e.preventDefault();
                 });
-                
-                /** 
+
+                /**
                  * simulate click on articles when specified in URLs 
                  * map exceptions due to news change in title and slugs
                  **/
-                location_hash = location.hash
-                if (location_hash == '#selezione-scuole-asoc-2015-2016-185-candidature-pervenute/') {
-                    location_hash = '#selezione-scuole-asoc-2015-2016-174-candidature-pervenute/';
+                location_hash = location.hash.replace(/\/+$/, '');
+                if (location_hash == '#selezione-scuole-asoc-2015-2016-185-candidature-pervenute') {
+                    location_hash = '#selezione-scuole-asoc-2015-2016-174-candidature-pervenute';
                 }
-                else if (location_hash == '#pillola-di-opencoesione-n28-attuazione-del-ciclo-2007-2013-e-primo-sguardo-al-ciclo-2014-2020/') {
-                    location_hash = '#aggiornamento-dei-dati-al-29-febbraio-2016-e-pillola-di-opencoesione-n-28/';
+                else if (location_hash == '#pillola-di-opencoesione-n28-attuazione-del-ciclo-2007-2013-e-primo-sguardo-al-ciclo-2014-2020') {
+                    location_hash = '#aggiornamento-dei-dati-al-29-febbraio-2016-e-pillola-di-opencoesione-n-28';
                 }
                 blog.find('article' + location_hash + ':first header a').trigger('click');
 
