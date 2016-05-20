@@ -548,9 +548,15 @@ class ProgettoCSVSearchView(ProgettoSearchView):
         # import os
         # from csvkit import convert
         # from open_coesione.views import OpendataView
+        import decimal
+        import locale
+
+        locale.setlocale(locale.LC_ALL, 'it_IT.UTF-8')
 
         def myformat(val):
-            if isinstance(val, (list, set)):
+            if isinstance(val, (float, decimal.Decimal)):
+                val = locale.format('%.2f', val)
+            elif isinstance(val, (list, set)):
                 val = u':::'.join(val)
             return val
 
@@ -597,7 +603,7 @@ class ProgettoCSVSearchView(ProgettoSearchView):
                     pass
                 else:
                     csv_data = json.loads(object.csv_data, object_pairs_hook=OrderedDict)
-                    csv_data = {{'COD_DIPE': u'COD_LOCALE_PROGETTO'}.get(k, k): v for k, v in csv_data.items()}
+                    csv_data = {{'COD_DIPE': u'COD_LOCALE_PROGETTO', 'ASSEGNAZIONE_CIPE_AGG': u'FINANZ_TOTALE_PUBBLICO'}.get(k, k): v for k, v in csv_data.items()}  # necessario per assegnazioni CIPE
 
                     # row = [myformat(csv_data.get(x, '')) for x in csv_columns] + [myformat(getattr(object, x) or '') for x in extra_columns.values()]
                     row = [myformat(getattr(object, extra_columns[c]) or '' if c in extra_columns else csv_data.get(c, '')) for c in columns]
