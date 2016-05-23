@@ -2,12 +2,12 @@
 import glob
 import os
 import urllib2
+from collections import OrderedDict
 from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db.models import Sum
 from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse, Http404
-from django.utils.datastructures import SortedDict
 from django.views.generic.base import TemplateView, RedirectView, TemplateResponseMixin
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
@@ -255,12 +255,6 @@ class SpesaCertificataGraficiView(RisorsaView):
                     if date_data:
                         dates_data.append((datetime.strptime(date, '%Y%m%d').strftime('%d/%m/%Y'), date_data))
 
-                # dates_data[-1][1]['target'] = 0.0   # richiesta di Chiara Ricci del 01/12/2015
-                # dates_data.append(('31/12/2015', {}))  # richiesta di Chiara Ricci del 11/12/2015
-                # dates_data.append(('30/06/2016', {}))  # richiesta di Chiara Ricci del 11/12/2015
-                # dates_data.append(('31/12/2016', {}))  # richiesta di Chiara Ricci del 11/12/2015
-                # dates_data.append(('31/03/2017', {'target': '100'}))  # richiesta di Chiara Ricci del 11/12/2015
-
                 for type_name, type_key in [('Obiettivo di spesa certificata', 'target'), ('Spesa certificata su dotazione', 'risultato_spesa'), ('Pagamenti su dotazione', 'risultato_pagamenti')]:
                     data[group_key].append(OrderedDict([('Programma operativo', program_name), ('Tipo dato', type_name)] + [(date, format_number(date_data.get(type_key))) for date, date_data in dates_data]))
 
@@ -309,7 +303,7 @@ class OpendataView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(OpendataView, self).get_context_data(**kwargs)
 
-        context['oc_sections'] = SortedDict([
+        context['oc_sections'] = OrderedDict([
             ('prog', {
                 'name': 'progetti',
                 'complete_file': self.get_complete_localfile('progetti_OC.zip'),
@@ -332,7 +326,7 @@ class OpendataView(TemplateView):
             }),
         ])
 
-        context['fs_sections'] = SortedDict([
+        context['fs_sections'] = OrderedDict([
             ('prog', {
                 'name': 'progetti',
                 'complete_file': self.get_complete_localfile('progetti_FS0713.zip'),
@@ -355,7 +349,7 @@ class OpendataView(TemplateView):
             }),
         ])
 
-        context['fsc_sections'] = SortedDict([
+        context['fsc_sections'] = OrderedDict([
             ('prog', {
                 'name': 'progetti',
                 'complete_file': self.get_complete_localfile('progetti_FSC0713.zip'),
@@ -374,7 +368,7 @@ class OpendataView(TemplateView):
             }),
         ])
 
-        # context['fsc2_sections'] = SortedDict([
+        # context['fsc2_sections'] = OrderedDict([
         #     ('prog', {
         #         'name': 'progetti',
         #         'complete_file': self.get_complete_localfile('progetti_FSC0006.zip'),
@@ -393,7 +387,7 @@ class OpendataView(TemplateView):
         #     }),
         # ])
 
-        context['pac_sections'] = SortedDict([
+        context['pac_sections'] = OrderedDict([
             ('prog', {
                 'name': 'progetti',
                 'complete_file': self.get_complete_localfile('progetti_PAC.zip'),
@@ -412,7 +406,7 @@ class OpendataView(TemplateView):
             }),
         ])
 
-        context['cipe_sections'] = SortedDict([
+        context['cipe_sections'] = OrderedDict([
             ('prog', {
                 'name': 'progetti',
                 'complete_file': self.get_complete_localfile('progetti_assegnazioni_CIPE.zip'),
@@ -536,7 +530,7 @@ class OpendataView(TemplateView):
 
     @classmethod
     def get_regional_files(cls, section_code, prefix):
-        regions = SortedDict([
+        regions = OrderedDict([
             ('VDA', "Valle d'Aosta"),
             ('PIE', 'Piemonte'),
             ('LOM', 'Lombardia'),
