@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.utils.functional import cached_property
-from haystack.views import SearchView
 from forms import OCFacetedSearchForm, format_facet_field
+from haystack.views import SearchView
 from territori.models import Territorio
 
 
