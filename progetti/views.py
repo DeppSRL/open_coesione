@@ -2,10 +2,9 @@
 import csv
 import StringIO
 import zipfile
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 from datetime import date
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Sum
 from django.http import HttpResponse, Http404
@@ -107,10 +106,10 @@ class ProgettoSearchView(OCFacetedSearchView):
         if fonte_fin:
             try:
                 extra['fonte_fin'] = ProgrammaAsseObiettivo.objects.get(pk=fonte_fin)
-            except ObjectDoesNotExist:
+            except ProgrammaAsseObiettivo.DoesNotExist:
                 try:
                     extra['fonte_fin'] = ProgrammaLineaAzione.objects.get(pk=fonte_fin)
-                except ObjectDoesNotExist:
+                except ProgrammaLineaAzione.DoesNotExist:
                     pass
 
         programmi_slug = self.request.GET.get('gruppo_programmi')
@@ -124,7 +123,7 @@ class ProgettoSearchView(OCFacetedSearchView):
         if soggetto_slug:
             try:
                 extra['soggetto'] = Soggetto.objects.get(slug=soggetto_slug)
-            except ObjectDoesNotExist:
+            except Soggetto.DoesNotExist:
                 pass
             else:
                 soggetto_ruolo = self.request.GET.get('ruolo')
@@ -162,9 +161,7 @@ class ProgettoSearchView(OCFacetedSearchView):
 class BaseProgrammaView(AggregatoMixin, TemplateView):
     @cached_context
     def get_cached_context_data(self, programmi):
-        context = {}
-
-        context = self.get_aggregate_data(context, programmi=programmi)
+        context = self.get_aggregate_data()
 
         # discriminate between ProgrammaAsseObiettivo and ProgrammaLineaAzione
         programmi_splitted = split_by_type(programmi)
@@ -187,7 +184,9 @@ class BaseProgrammaView(AggregatoMixin, TemplateView):
 
         context.update(self.get_cached_context_data(programmi=programmi))
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.con_programmi(programmi).no_privacy().conclusi()[:5]
+        self.tematizza_context_data(context)
+
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:5]
 
         return context
 
@@ -197,6 +196,9 @@ class ProgrammiView(BaseProgrammaView):
 
     def get_object(self):
         return GruppoProgrammi(codice=self.kwargs.get('slug'))
+
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_programmi(self.get_object().programmi)
 
     @cached_context
     def get_cached_context_data(self, programmi):
@@ -285,8 +287,11 @@ class ProgrammaView(BaseProgrammaView):
     def get_object(self):
         try:
             return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
-        except ObjectDoesNotExist:
+        except ProgrammaAsseObiettivo.DoesNotExist:
             return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
+
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_programmi([self.get_object()])
 
     def get_context_data(self, **kwargs):
         try:
@@ -307,11 +312,12 @@ class ClassificazioneAzioneView(AggregatoMixin, DetailView):
     context_object_name = 'natura'
     model = ClassificazioneAzione
 
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_natura(self.object)
+
     @cached_context
     def get_cached_context_data(self):
-        context = {}
-
-        context = self.get_aggregate_data(context, classificazione=self.object)
+        context = self.get_aggregate_data()
 
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__classificazione_azione__classificazione_superiore': self.object})
 
@@ -322,7 +328,9 @@ class ClassificazioneAzioneView(AggregatoMixin, DetailView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.con_natura(self.object).no_privacy().conclusi()[:5]
+        self.tematizza_context_data(context)
+
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:5]
 
         context['map_selector'] = 'nature/{}/'.format(self.kwargs['slug'])
 
@@ -332,11 +340,12 @@ class ClassificazioneAzioneView(AggregatoMixin, DetailView):
 class TemaView(AggregatoMixin, DetailView):
     model = Tema
 
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_tema(self.object)
+
     @cached_context
     def get_cached_context_data(self):
-        context = {}
-
-        context = self.get_aggregate_data(context, tema=self.object)
+        context = self.get_aggregate_data()
 
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__tema__tema_superiore': self.object})
 
@@ -347,7 +356,9 @@ class TemaView(AggregatoMixin, DetailView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.con_tema(self.object).no_privacy().conclusi()[:5]
+        self.tematizza_context_data(context)
+
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:5]
 
         context['map_selector'] = 'temi/{}/'.format(self.kwargs['slug'])
 

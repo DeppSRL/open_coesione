@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 import logging
-import subprocess
+# import subprocess
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
@@ -84,13 +84,13 @@ class Command(BaseCommand):
         from territori.models import Territorio
 
         for slug in Territorio.objects.regioni().values_list('slug', flat=True):
-            self._aggregate_cache_computation(slug, page_type='regione', tipo_territorio='regione', **options)
+            self._aggregate_cache_computation(slug, page_type='regione', **options)
 
     def handle_provincie(self, **options):
         from territori.models import Territorio
 
         for slug in Territorio.objects.provincie().values_list('slug', flat=True):
-            self._aggregate_cache_computation(slug, page_type='provincia', tipo_territorio='provincia', **options)
+            self._aggregate_cache_computation(slug, page_type='provincia', **options)
 
     def handle_estero(self, **options):
         self._aggregate_cache_computation('', page_type='ambitoestero', **options)
@@ -123,15 +123,14 @@ class Command(BaseCommand):
 
         self.logger.info('== building urls list')
         for soggetto in Soggetto.objects.annotate(n=Count('progetto')).filter(n__gt=settings.BIG_SOGGETTI_THRESHOLD).order_by('n'):
-            self.logger.info('{}; n_progetti: {}'.format(soggetto.slug, soggetto.progetti.count()))
-            if not options['dryrun']:
-                for thematization in ('', 'totale_costi', 'totale_pagamenti', 'totale_progetti'):
-                    subprocess.call(['python', 'manage.py', 'preparesoggetto', soggetto.slug, '--clear-cache' if options['clearcache'] else '', '--verbosity={}'.format(options['verbosity']), '--thematization={}'.format(thematization) if thematization else ''])
+            self.logger.info('Soggetto {}. Generating cache for {} projects.'.format(soggetto.slug, soggetto.n))
+            self._aggregate_cache_computation(soggetto.slug, page_type='soggetto', **options)
+            # if not options['dryrun']:
+            #     subprocess.call(['python', 'manage.py', 'preparesoggetto', soggetto.slug, '--clear-cache' if options['clearcache'] else '', '--verbosity={}'.format(options['verbosity'])])
 
-    def _aggregate_cache_computation(self, slug, page_type, tipo_territorio=None, **options):
+    def _aggregate_cache_computation(self, slug, page_type, **options):
         if not options['dryrun']:
             self.logger.info('== Executing prepareaggregate for "{}"'.format(slug))
-            for thematization in ('', 'totale_costi', 'totale_costi_procapite', 'totale_pagamenti', 'totale_progetti'):
-                call_command('prepareaggregate', slug, type=page_type, clearcache=options['clearcache'], verbosity=options['verbosity'], thematization=thematization, tipo_territorio=tipo_territorio)
+            call_command('prepareaggregate', slug=slug, type=page_type, clearcache=options['clearcache'], verbosity=options['verbosity'])
         else:
             self.logger.info('== Blocking execution for "{}", due to --dryrun option'.format(slug))

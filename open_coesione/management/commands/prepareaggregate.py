@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import logging
-from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
@@ -8,8 +7,9 @@ from open_coesione.utils import setup_view
 from open_coesione.views import HomeView
 from optparse import make_option
 from progetti.views import ClassificazioneAzioneView, TemaView, ProgrammaView, ProgrammiView
+from soggetti.views import SoggettoView
 from territori.models import Territorio
-from territori.views import TerritorioView, MapnikRegioniView, MapnikProvinceView, MapnikComuniView, LeafletView, AmbitoEsteroView
+from territori.views import MapnikRegioniView, MapnikProvinceView, MapnikComuniView, AmbitoEsteroView, RegioneView, ProvinciaView
 
 
 class Command(BaseCommand):
@@ -20,28 +20,93 @@ class Command(BaseCommand):
 
     help = 'Extracts relevant information to build the aggregate page'
 
-    logger = logging.getLogger('console')
+    page_types = {
+        'home': {
+            'aggregate_view_class': HomeView,
+            'url_name': 'home',
+            'mapnik_url_names_views': (
+                {'name': 'territori_mapnik_regioni', 'view': MapnikRegioniView},
+                {'name': 'territori_mapnik_province', 'view': MapnikProvinceView},
+            ),
+        },
+        'tema': {
+            'aggregate_view_class': TemaView,
+            'url_name': 'progetti_tema',
+            'inner_filter': 'tema',
+            'mapnik_url_names_views': (
+                {'name': 'territori_mapnik_regioni_tema', 'view': MapnikRegioniView},
+                {'name': 'territori_mapnik_province_tema', 'view': MapnikProvinceView},
+            ),
+        },
+        'natura': {
+            'aggregate_view_class': ClassificazioneAzioneView,
+            'url_name': 'progetti_tipologia',
+            'inner_filter': 'natura',
+            'mapnik_url_names_views': (
+                {'name': 'territori_mapnik_regioni_natura', 'view': MapnikRegioniView},
+                {'name': 'territori_mapnik_province_natura', 'view': MapnikProvinceView},
+            ),
+        },
+        'programma': {
+            'aggregate_view_class': ProgrammaView,
+            'url_name': 'progetti_programma',
+            'inner_filter': 'programma',
+            'mapnik_url_names_views': (
+                {'name': 'territori_mapnik_regioni_programma', 'view': MapnikRegioniView},
+                {'name': 'territori_mapnik_province_programma', 'view': MapnikProvinceView},
+            ),
+        },
+        'programmi': {
+            'aggregate_view_class': ProgrammiView,
+            'url_name': 'progetti_programmi',
+            'inner_filter': 'gruppo_programmi',
+            'mapnik_url_names_views': (
+                {'name': 'territori_mapnik_regioni_gruppoprogrammi', 'view': MapnikRegioniView},
+                {'name': 'territori_mapnik_province_gruppoprogrammi', 'view': MapnikProvinceView},
+            ),
+        },
+        'regione': {
+            'aggregate_view_class': RegioneView,
+            'url_name': 'territori_regione',
+            'mapnik_url_names_views': (
+                {'name': 'territori_mapnik_province_regione', 'view': MapnikProvinceView},
+                {'name': 'territori_mapnik_comuni_regione', 'view': MapnikComuniView},
+            ),
+        },
+        'provincia': {
+            'aggregate_view_class': ProvinciaView,
+            'url_name': 'territori_provincia',
+            'mapnik_url_names_views': (
+                {'name': 'territori_mapnik_comuni_provincia', 'view': MapnikComuniView},
+            ),
+        },
+        'ambitoestero': {
+            'aggregate_view_class': AmbitoEsteroView,
+            'url_name': 'territori_estero',
+        },
+        'soggetto': {
+            'aggregate_view_class': SoggettoView,
+            'url_name': 'soggetti_soggetto',
+        },
+    }
 
     option_list = BaseCommand.option_list + (
         make_option('--type',
                     dest='type',
-                    default='home',
-                    help='One of home, tema, natura, programma, territorio'),
-        make_option('--thematization',
-                    dest='thematization',
-                    default='',
-                    help='One of totale_costi, totale_pagamenti, totale_progetti'),
+                    default=None,
+                    help='Page type; choose among {}.'.format(', '.join('"{}"'.format(t) for t in page_types))),
+        make_option('--slug',
+                    dest='slug',
+                    default=None,
+                    help='Page object slug'),
         make_option('--clear-cache',
                     action='store_true',
                     dest='clearcache',
                     default=False,
-                    help='Clear the cache for the soggetto, before extracting the data'),
+                    help='Clear the cache for the view, before extracting the data'),
     )
 
-    page_type = None
-    thematization = None
-    clearcache = None
-    slug = ''  # it may refer to a code, for programmi pages
+    logger = logging.getLogger('console')
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -54,356 +119,74 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        self.page_type = options['type']
-        if self.page_type not in ('home', 'ambitoestero'):
-            if args:
-                if len(args) > 1:
-                    raise Exception('Please insert just one slug')
-                self.slug = args[0]
-            else:
-                raise Exception('Please insert at least a slug')
+        page_type = options['type']
 
-        if options['thematization'] not in ('', 'totale_costi', 'totale_pagamenti', 'totale_progetti', 'totale_costi_procapite'):
-            raise Exception('Wrong thematization {}. Choose one among "totale_costi", "totale_pagamenti", "totale_progetti", "totale_costi_procapite"'.format(options['thematization']))
-
-        self.thematization = '?tematizzazione={}'.format(options['thematization']) if options['thematization'] else ''
-
-        self.clearcache = options['clearcache']
-
-        # invoke correct handler method, passes along the correct view class, url_name and tipo_territorio if needed
-        handlers = {
-            'home': (self.handle_home, {
-                'aggregate_view_class': HomeView,
-                'url_name': 'home',
-                'mapnik_url_names_views': (
-                    {'name': 'territori_mapnik_regioni', 'view': MapnikRegioniView},
-                    {'name': 'territori_mapnik_province', 'view': MapnikProvinceView},
-                ),
-                'leaflet_url_names': (
-                    {'name': 'territori_leaflet_regioni'},
-                    {'name': 'territori_leaflet_province'},
-                ),
-            }),
-            'tema': (self.handle_other, {
-                'aggregate_view_class': TemaView,
-                'url_name': 'progetti_tema',
-                'inner_filter': 'tema',
-                'mapnik_url_names_views': (
-                    {'name': 'territori_mapnik_regioni_tema', 'view': MapnikRegioniView},
-                    {'name': 'territori_mapnik_province_tema', 'view': MapnikProvinceView},
-                ),
-                'leaflet_url_names': (
-                    {'name': 'territori_leaflet_regioni_tema'},
-                    {'name': 'territori_leaflet_province_tema'},
-                ),
-            }),
-            'natura': (self.handle_other, {
-                'aggregate_view_class': ClassificazioneAzioneView,
-                'url_name': 'progetti_tipologia',
-                'inner_filter': 'natura',
-                'mapnik_url_names_views': (
-                    {'name': 'territori_mapnik_regioni_natura', 'view': MapnikRegioniView},
-                    {'name': 'territori_mapnik_province_natura', 'view': MapnikProvinceView},
-                ),
-                'leaflet_url_names': (
-                    {'name': 'territori_leaflet_regioni_natura'},
-                    {'name': 'territori_leaflet_province_natura'},
-                ),
-            }),
-            'programma': (self.handle_other, {
-                'aggregate_view_class': ProgrammaView,
-                'url_name': 'progetti_programma',
-                'inner_filter': 'programma',
-                'mapnik_url_names_views': (
-                    {'name': 'territori_mapnik_regioni_programma', 'view': MapnikRegioniView},
-                    {'name': 'territori_mapnik_province_programma', 'view': MapnikProvinceView},
-                ),
-                'leaflet_url_names': (
-                    {'name': 'territori_leaflet_regioni_programma'},
-                    {'name': 'territori_leaflet_province_programma'},
-                )
-            }),
-            'programmi': (self.handle_other, {
-                'aggregate_view_class': ProgrammiView,
-                'url_name': 'progetti_programmi',
-                'inner_filter': 'gruppo_programmi',
-                'mapnik_url_names_views': (
-                    {'name': 'territori_mapnik_regioni_gruppoprogrammi', 'view': MapnikRegioniView},
-                    {'name': 'territori_mapnik_province_gruppoprogrammi', 'view': MapnikProvinceView},
-                ),
-                'leaflet_url_names': (
-                    {'name': 'territori_leaflet_regioni_gruppoprogrammi'},
-                    {'name': 'territori_leaflet_province_gruppoprogrammi'},
-                )
-            }),
-            'regione': (self.handle_other, {
-                'aggregate_view_class': TerritorioView,
-                'url_name': 'territori_regione',
-                'tipo_territorio': Territorio.TERRITORIO.R,
-                'mapnik_url_names_views': (
-                    {'name': 'territori_mapnik_province_regione', 'view': MapnikProvinceView},
-                    {'name': 'territori_mapnik_comuni_regione', 'view': MapnikComuniView},
-                ),
-                'leaflet_url_names': (
-                    {'name': 'territori_leaflet_province_regione'},
-                    {'name': 'territori_leaflet_comuni_regione'},
-                ),
-            }),
-            'provincia': (self.handle_other, {
-                'aggregate_view_class': TerritorioView,
-                'url_name': 'territori_provincia',
-                'tipo_territorio': Territorio.TERRITORIO.P,
-                'mapnik_url_names_views': (
-                    {'name': 'territori_mapnik_comuni_provincia', 'view': MapnikComuniView},
-                ),
-                'leaflet_url_names': (
-                    {'name': 'territori_leaflet_comuni_provincia'},
-                ),
-            }),
-            'ambitoestero': (self.handle_ambito_estero, {
-                'aggregate_view_class': AmbitoEsteroView,
-                'url_name': 'territori_estero',
-            }),
-        }
+        if page_type in ('home', 'ambitoestero'):
+            slug = ''
+        else:
+            slug = options['slug']
+            if not slug:
+                self.logger.error('Please insert a slug')
+                exit(1)
 
         try:
-            handlers[self.page_type][0](**handlers[self.page_type][1])
+            self._handle(page_type, slug, options['clearcache'], self.page_types[page_type])
         except Exception as e:
-            self.logger.error('{} catched. type: {}, slug: {}, thematization: {}'.format(e, self.page_type, self.slug, self.thematization))
+            self.logger.error('{} catched. type: {}, slug: {}'.format(e, page_type, slug))
 
-    def handle_home(self, *args, **kwargs):
-        self.logger.info('Home page, Thematization: {}'.format(self.thematization))
-        mapnik_url_names_views = kwargs['mapnik_url_names_views']
-        leaflet_url_names = kwargs['leaflet_url_names']
+    def _handle(self, page_type, slug, clearcache, params):
+        self.logger.info('{} page, slug: {}'.format(page_type, slug))
 
-        if self.clearcache:
-            cache_key = 'context/{}'.format(self.thematization)
-            self.logger.info('Clearing the cache for key {}'.format(cache_key))
-            cache.delete(cache_key)
+        mapnik_url_names_views = params.get('mapnik_url_names_views', ())
+        inner_filter = params.get('inner_filter')
 
-            for nv in mapnik_url_names_views:
-                mapnik_url = reverse(nv['name'])
-                cache_key = 'context{}{}'.format(mapnik_url, self.thematization)
-                self.logger.info('Clearing the cache for key {}'.format(cache_key))
-                cache.delete(cache_key)
+        aggregate_view_class = params['aggregate_view_class']
 
-            for n in leaflet_url_names:
-                leaflet_url = reverse(n['name'], kwargs={'ext': 'json'})
-                cache_key = 'context{}{}'.format(leaflet_url, self.thematization)
-                self.logger.info('Clearing the cache for key {}'.format(cache_key))
-                cache.delete(cache_key)
-
-        aggregate_view_class = kwargs['aggregate_view_class']
-        view = setup_view(
-            aggregate_view_class(),
-            RequestFactory().get('/{}'.format(self.thematization)),
-        )
-        context = view.get_context_data()
-        self.logger.info('context for /{} fetched::::'.format(self.thematization))
-
-        for nv in mapnik_url_names_views:
-            mapnik_url = reverse(nv['name'])
-            mapnik_view = nv['view']
-            view = setup_view(
-                mapnik_view(),
-                RequestFactory().get('{}{}'.format(mapnik_url, self.thematization)),
-            )
-            context = view.get_context_data()
-            self.logger.info('context for {}{} fetched::::'.format(mapnik_url, self.thematization))
-
-        for n in leaflet_url_names:
-            leaflet_url = reverse(n['name'], kwargs={'ext': 'json'})
-            leaflet_view = LeafletView
-            view = setup_view(
-                leaflet_view(),
-                RequestFactory().get('{}{}'.format(leaflet_url, self.thematization)),
-            )
-            context = view.get_context_data()
-            self.logger.info('context for {}{} fetched::::'.format(leaflet_url, self.thematization))
-
-    def handle_ambito_estero(self, *args, **kwargs):
-        self.logger.info('{} page, Thematization: {}'.format(self.page_type, self.thematization))
-
-        url_name = kwargs['url_name']
-        url = reverse(url_name)
-        req = RequestFactory().get('{}{}'.format(url, self.thematization))
-
-        if self.clearcache:
-            cache_key = 'context{}{}'.format(url, self.thematization)
-            self.logger.info('Clearing the cache for key {}'.format(cache_key))
-            cache.delete(cache_key)
-
-        aggregate_view_class = kwargs['aggregate_view_class']
-        view = setup_view(
-            aggregate_view_class(),
-            req,
-        )
-
-        context = view.get_context_data(object_list=Territorio.objects.filter(territorio=Territorio.TERRITORIO.E))
-        self.logger.info('context for {}{} fetched::::'.format(url, self.thematization))
-
-    def handle_other(self, *args, **kwargs):
-        self.logger.info('{} page, Slug: {}, Thematization: {}'.format(self.page_type, self.slug, self.thematization))
-        mapnik_url_names_views = kwargs['mapnik_url_names_views']
-        leaflet_url_names = kwargs['leaflet_url_names']
-        inner_filter = kwargs.pop('inner_filter', None)
-
-        if 'tipo_territorio' in kwargs:
-            t = Territorio.objects.get(slug=self.slug)
-
-        # get the URL from the url_name, using the slug
-        url_name = kwargs['url_name']
-        if 'programma' in url_name:
-            url = reverse(url_name, kwargs={'codice': self.slug})
+        url_name = params['url_name']
+        if slug:
+            slug_cond = {'codice' if 'programma' in url_name else 'slug': slug}
         else:
-            url = reverse(url_name, kwargs={'slug': self.slug})
+            slug_cond = {}
+        url = reverse(url_name, kwargs=slug_cond)
 
-        # build mapnik urls, and views arrays considering territorio special case
-        mapnik_urls = []
-        mapnik_views = []
-        for nv in mapnik_url_names_views:
-            mapnik_views.append(nv['view'])
-            if 'tipo_territorio' in kwargs:
-                if kwargs['tipo_territorio'] == Territorio.TERRITORIO.R:
-                    mapnik_urls.append(reverse(nv['name'], kwargs={'cod_reg': t.cod_reg}))
-                if kwargs['tipo_territorio'] == Territorio.TERRITORIO.P:
-                    mapnik_urls.append(reverse(nv['name'], kwargs={'cod_prov': t.cod_prov}))
-            else:
-                if 'programma' in url_name:
-                    mapnik_urls.append(reverse(nv['name'], kwargs={'codice': self.slug}))
-                else:
-                    mapnik_urls.append(reverse(nv['name'], kwargs={'slug': self.slug}))
+        if page_type in ('regione', 'provincia'):
+            mapnik_cond = Territorio.objects.get(slug=slug).get_cod_dict()
+        else:
+            mapnik_cond = slug_cond
 
-        leaflet_urls = []
-        for n in leaflet_url_names:
-            if 'tipo_territorio' in kwargs:
-                if kwargs['tipo_territorio'] == Territorio.TERRITORIO.R:
-                    leaflet_urls.append(reverse(n['name'], kwargs={'ext': 'json', 'cod_reg': t.cod_reg}))
-                if kwargs['tipo_territorio'] == Territorio.TERRITORIO.P:
-                    leaflet_urls.append(reverse(n['name'], kwargs={'ext': 'json', 'cod_prov': t.cod_prov}))
-            else:
-                if 'programma' in url_name:
-                    leaflet_urls.append(reverse(n['name'], kwargs={'ext': 'json', 'codice': self.slug}))
-                else:
-                    leaflet_urls.append(reverse(n['name'], kwargs={'ext': 'json', 'slug': self.slug}))
+        # build mapnik urls and views list considering territorio special case
+        mapnik_urls_views = [{'url': reverse(x['name'], kwargs=mapnik_cond), 'view': x['view']} for x in mapnik_url_names_views]
 
         # check the cache, and remove the keys, if asked
-        if self.clearcache:
-            cache_key = 'context{}{}'.format(url, self.thematization)
-            self.logger.info('Clearing the cache for key {}'.format(cache_key))
-            cache.delete(cache_key)
+        if clearcache:
+            self._clearcache([url] + [x['url'] for x in mapnik_urls_views])
 
-            for mapnik_url in mapnik_urls:
-                cache_key = 'context{}{}'.format(mapnik_url, self.thematization)
-                self.logger.info('Clearing the cache for key {}'.format(cache_key))
-                cache.delete(cache_key)
-            for leaflet_url in leaflet_urls:
-                cache_key = 'context{}{}'.format(leaflet_url, self.thematization)
-                self.logger.info('Clearing the cache for key {}'.format(cache_key))
-                cache.delete(cache_key)
+        view = setup_view(aggregate_view_class(), RequestFactory().get(url), inner_filter=inner_filter, **slug_cond)
 
-        aggregate_view_class = kwargs['aggregate_view_class']
-
-        # prepare the view
-        view_instance = aggregate_view_class()
-        req = RequestFactory().get('{}{}'.format(url, self.thematization))
-        if 'programma' in url_name:
-            view = setup_view(
-                view_instance,
-                req,
-                codice=self.slug, inner_filter=inner_filter
-            )
-        else:
-            view = setup_view(
-                view_instance,
-                req,
-                slug=self.slug, inner_filter=inner_filter
-            )
-
-        # add tipo_territorio to view in case it's passed, since it's needed to extract the Territorio instance from the slug
-        if 'tipo_territorio' in kwargs:
-            self.logger.debug('Tipo territorio: {}'.format(kwargs['tipo_territorio']))
-            view.tipo_territorio = kwargs['tipo_territorio']
+        # # add tipo_territorio to view in case it's passed, since it's needed to extract the Territorio instance from the slug
+        # if 'tipo_territorio' in params:
+        #     view.tipo_territorio = params['tipo_territorio']
 
         # get the object instance using the view's get_object method
-        view.object = view.get_object()
+        if hasattr(view, 'get_object'):
+            view.object = view.get_object()
 
         # emulate the get_context_data method call
-        context = view.get_context_data()
-        self.logger.info('context for {}{} fetched::::'.format(url, self.thematization))
+        if page_type == 'ambitoestero':
+            view.get_context_data(object_list=Territorio.objects.filter(territorio=Territorio.TERRITORIO.E), *view.args, **view.kwargs)
+        else:
+            view.get_context_data(*view.args, **view.kwargs)
+        self.logger.info('context for {} fetched::::'.format(url))
 
-        # repeat for mapnik urls
-        for (k, mapnik_url) in enumerate(mapnik_urls):
-            mapnik_req = RequestFactory().get('{}{}'.format(mapnik_url, self.thematization))
-            mapnik_view = mapnik_views[k]
-            if 'tipo_territorio' in kwargs:
-                if kwargs['tipo_territorio'] == Territorio.TERRITORIO.R:
-                    view = setup_view(
-                        mapnik_view(),
-                        mapnik_req,
-                        cod_reg=t.cod_reg,
-                    )
-                if kwargs['tipo_territorio'] == Territorio.TERRITORIO.P:
-                    view = setup_view(
-                        mapnik_view(),
-                        mapnik_req,
-                        cod_prov=t.cod_prov,
-                    )
-            else:
-                if 'programma' in url_name:
-                    view = setup_view(
-                        mapnik_view(),
-                        mapnik_req,
-                        codice=self.slug, inner_filter=inner_filter
-                    )
-                else:
-                    view = setup_view(
-                        mapnik_view(),
-                        mapnik_req,
-                        slug=self.slug, inner_filter=inner_filter
-                    )
+        for mapnik_url_view in mapnik_urls_views:
+            view = setup_view(mapnik_url_view['view'](), RequestFactory().get(mapnik_url_view['url']), inner_filter=inner_filter, **mapnik_cond)
+            view.get_context_data(*view.args, **view.kwargs)
+            self.logger.info('context for {} fetched::::'.format(mapnik_url_view['url']))
 
-            self.logger.debug('fetching context for {}{}::::'.format(mapnik_url, self.thematization))
-            self.logger.debug('|-context args: {}::::'.format(view.args))
-            self.logger.debug('|-context kwargs: {}::::'.format(view.kwargs))
-            context = view.get_context_data(*view.args, **view.kwargs)
-            self.logger.info('context for {}{} fetched::::'.format(mapnik_url, self.thematization))
+    def _clearcache(self, urls):
+        from django.core.cache import cache
 
-        # repeat for leaflet urls
-        for leaflet_url in leaflet_urls:
-            leaflet_req = RequestFactory().get('{}{}'.format(leaflet_url, self.thematization))
-            leaflet_view = LeafletView
-            if 'tipo_territorio' in kwargs:
-                if kwargs['tipo_territorio'] == Territorio.TERRITORIO.R:
-                    view = setup_view(
-                        leaflet_view(),
-                        leaflet_req,
-                        cod_reg=t.cod_reg,
-                        ext='json',
-                    )
-                if kwargs['tipo_territorio'] == Territorio.TERRITORIO.P:
-                    view = setup_view(
-                        leaflet_view(),
-                        leaflet_req,
-                        cod_prov=t.cod_prov,
-                        ext='json'
-                    )
-            else:
-                if 'programma' in url_name:
-                    view = setup_view(
-                        leaflet_view(),
-                        leaflet_req,
-                        codice=self.slug, inner_filter=inner_filter,
-                        ext='json'
-                    )
-                else:
-                    view = setup_view(
-                        leaflet_view(),
-                        leaflet_req,
-                        slug=self.slug, inner_filter=inner_filter,
-                        ext='json'
-                    )
-
-            self.logger.debug('fetching context for {}{}::::'.format(leaflet_url, self.thematization))
-            context = view.get_context_data(*view.args, **view.kwargs)
-            self.logger.info('context for {}{} fetched::::'.format(leaflet_url, self.thematization))
+        for url in urls:
+            cache_key = 'context{}'.format(url)
+            self.logger.info('Clearing the cache for key {}'.format(cache_key))
+            cache.delete(cache_key)
