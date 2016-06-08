@@ -121,8 +121,8 @@ class Command(BaseCommand):
     def split_csv(self, csv_stream):
         df = pd.read_csv(
             StringIO(csv_stream),
-            # sep=';',
-            sep='\t',
+            sep=';',
+            # sep='\t',
             header=0,
             low_memory=True,
             dtype=object,
