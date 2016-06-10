@@ -5519,21 +5519,27 @@ ul.spaced#overlapping-projects li {
 .highcharts-tooltip .tooltip-box:after {
   clear: both;
 }
-#charts_accordion {
+#charts_accordion,
+.charts_accordion {
   margin-top: 10px;
   margin-bottom: 10px;
 }
 #charts_accordion h1,
-#charts_accordion h2 {
+.charts_accordion h1,
+#charts_accordion h2,
+.charts_accordion h2 {
   line-height: 20px;
 }
-#charts_accordion h1 {
+#charts_accordion h1,
+.charts_accordion h1 {
   font-size: 14px;
   color: #676462;
   margin-top: 10px;
   margin-bottom: 10px;
 }
-#charts_accordion h2 {
+#charts_accordion h2,
+.charts_accordion h2 {
+  overflow: hidden;
   background-color: #f7f6f1;
   font-size: 12px;
   padding: 4px 10px;
@@ -5541,7 +5547,8 @@ ul.spaced#overlapping-projects li {
   /*margin-bottom: 4px;*/
 
 }
-#charts_accordion h2 i {
+#charts_accordion h2 i,
+.charts_accordion h2 i {
   font-size: 16px;
 }
 dl.data {
@@ -5669,9 +5676,6 @@ hr.big.dark {
 #statistics .table td,
 #statistics .table th {
   line-height: 16px;
-}
-#charts_accordion h2 {
-  overflow: hidden;
 }
 #home {
   margin-top: 25px;

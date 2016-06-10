@@ -1,0 +1,100 @@
+{% extends 'base_two_columns.html' %}
+
+{% load staticfiles sekizai_tags jsonify %}
+
+{% block page_title %}{% if lang == 'en' %}TITOLO INGLESE{% else %}Indicatori di accesso a OpenCoesione{% endif %}{% endblock %}
+
+{% block content %}
+    <div class="flat_content">
+        <header class="page-header">
+            <h1>{% if lang == 'en' %}TITOLO INGLESE{% else %}Indicatori di accesso a OpenCoesione{% endif %}</h1>
+        </header>
+
+        {% if lang == 'en' %}
+            <p>
+                TESTO INTRO INGLESE
+            </p>
+        {% else %}
+            <p>
+                Quanti sono gli utenti di OpenCoesione? Quali sono i canali con cui fruiscono dei materiali disponibili?
+                In questa pagina si fornisce un monitoraggio mensile dei dati relativi all'accesso
+                all'iniziativa OpenCoesione tramite le seguenti aree di attività:
+            </p>
+        {% endif %}
+
+        <ul>
+            {% for indicator in indicators %}
+                <li>
+                    <p>
+                        {% if lang == 'en' %}
+                            {% if forloop.counter == 1 %}
+                                <strong>BLOCCO 1 INGLESE</strong>.
+                            {% elif forloop.counter == 2 %}
+                                <strong>BLOCCO 2 INGLESE</strong>.
+                            {% elif forloop.counter == 3 %}
+                                <strong>BLOCCO 3 INGLESE</strong>.
+                            {% endif %}
+                        {% else %}
+                            {% if forloop.counter == 1 %}
+                                <strong>Accessi al portale</strong>.
+                                Visitatori (sessioni); Visitatori unici; Visitatori esteri; Pagine visualizzate; Download &ndash; in termini cumulati dal 16 luglio 2012; Durata sessione media - in secondi, dato mensile.<br/>
+                                (fonte: Google analytics)
+                            {% elif forloop.counter == 2 %}
+                                <strong>Visualizzazione di presentazioni e video</strong>.
+                                Visualizzazione di pagine e di effettive visioni su SlideShare e Vimeo &ndash; in termini cumulati dal 1 giugno 2015.<br/>
+                                (fonte: SlideShare e Vimeo)
+                            {% elif forloop.counter == 3 %}
+                                <strong>Frequenza d'uso delle news di OpenCoesione</strong>.
+                                Numero di news, percentuale di news lette (open rate) e percentuale di news che ha condotto a un accesso al portale (click rate) &ndash; in termini cumulati dal 03 novembre 2014.<br/>
+                                (fonte: Mailchimp)
+                            {% endif %}
+                        {% endif %}
+                    </p>
+
+                    <p><a href="{% static indicator.filename %}">{% if lang == 'en' %}download csv{% else %}scarica il file csv{% endif %}</a></p>
+
+                    <div class="charts_accordion">
+                        <div class="accordion">
+                            {% for chart_name, chart_values in indicator.data.items %}
+                                <div class="accordion-group">
+                                    <div class="accordion-heading">
+                                        <h2 class="accordion-toggle" data-toggle="collapse" data-target="#indicator-{{ forloop.parentloop.counter }}-{{ forloop.counter }}">{{ chart_name }} <i class="icon-circle-arrow-down pull-right"></i></h2>
+                                    </div>
+                                    <div id="indicator-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" class="accordion-body collapse" data-values='{{ chart_values|jsonify }}'>
+                                        <div class="accordion-inner">
+                                            {% if forloop.first %}
+                                                <div class="chart-container" id="chart-container-{{ forloop.parentloop.counter }}" style="height: 270px"></div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% add_data 'js-data' 'js/bootstrap-collapse.js' %}
+    {% add_data 'js-data' 'js/highstock.js' %}
+    {% add_data 'js-data' 'js/oc-indicatori-accesso.js' %}
+    {% addtoblock 'js' strip %}
+        <script>
+            $(document).ready(function() {
+                var text = {'open': '{% if lang == 'en' %}show charts{% else %}visualizza i grafici{% endif %}', 'close': '{% if lang == 'en' %}hide charts{% else %}nascondi i grafici{% endif %}'};
+
+                var elems = $('.charts_accordion').hide();
+
+                $('<p><a href="#">' + text['open'] + '</a></p>').insertBefore(elems).find('a').on('click', function(e) {
+                    var self = $(this);
+                    self.parent().next().slideToggle('fast', function() { self.text(($(this).is(':visible') ? text['close'] : text['open'])) });
+                });
+
+                $('.chart-container').each(function() {
+                    new AccessIndicatorsGraph($(this).attr('id'), '{{ lang }}');
+                });
+            });
+        </script>
+    {% endaddtoblock %}
+{% endblock %}

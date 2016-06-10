@@ -632,3 +632,41 @@ class FAQListView(ListView):
 class DocumentsRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
         return u'/media/uploads/documenti/{}'.format(kwargs['path'])
+
+
+class IndicatoriAccessoView(TemplateView):
+    lang = None
+
+    def __init__(self, **kwargs):
+        super(IndicatoriAccessoView, self).__init__(**kwargs)
+        self.lang = self.lang if self.lang == 'en' else 'it'
+
+    def get_context_data(self, **kwargs):
+        import csv
+        import dateutil.parser as parser
+
+        context = super(IndicatoriAccessoView, self).get_context_data(**kwargs)
+
+        indicators = []
+        for filename in ['indicatori_accesso_1.csv', 'indicatori_accesso_2.csv', 'indicatori_accesso_3.csv']:
+            reader = csv.reader(open(os.path.join(settings.STATIC_ROOT, 'csv', filename), 'rb'), delimiter=';')
+
+            colnames_dict = {
+                'en': reader.next(),
+                'it': reader.next(),
+            }
+
+            colnames = colnames_dict[self.lang][1:]
+
+            data = OrderedDict((k, []) for k in colnames)
+            for row in reader:
+                date = parser.parse(row.pop(0)).strftime('%d/%m/%Y')
+                for idx, colname in enumerate(colnames):
+                    data[colname].append({'date': date, 'value': row[idx]})
+
+            indicators.append({'filename': 'csv/{}'.format(filename), 'data': data})
+
+        context['indicators'] = indicators
+        context['lang'] = self.lang
+
+        return context

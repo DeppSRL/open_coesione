@@ -464,11 +464,13 @@ ul.spaced {
     }
 }
 
-#charts_accordion {
+#charts_accordion,
+.charts_accordion {
     margin-top: 10px; margin-bottom: 10px;
     h1, h2 { line-height: 20px; }
     h1 { font-size: 14px; color: @grayDark; margin-top: 10px; margin-bottom: 10px;    }
     h2 {
+        overflow: hidden;
         .bg-gray;
         font-size: 12px;
         padding: 4px 10px;
@@ -479,7 +481,6 @@ ul.spaced {
 }
 
 dl.data {
-
     padding-left: 25px;
 
     dt, dd {
@@ -613,10 +614,6 @@ hr.big {
     .table td, .table th {
         line-height: 16px;
     }
-}
-
-#charts_accordion h2 {
-    overflow: hidden;
 }
 
 #home {
