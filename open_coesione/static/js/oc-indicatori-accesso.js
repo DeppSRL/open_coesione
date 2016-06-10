@@ -15,7 +15,7 @@ var AccessIndicatorsGraph;
 
             _chart_instance && _chart_instance.destroy();
 
-            var xaxis_max = 20;
+//            var xaxis_max = 20;
 
             var data = values.map(function (x) { return parseFloat(x['value'].replace(/\./g, '').replace(',', '.') || 0) });
 
@@ -36,8 +36,8 @@ var AccessIndicatorsGraph;
                     text: ''
                 },
                 xAxis: {
-                    categories: values.map(function (x) { return x['date'] }),
-                    min: 0, max: Math.min(values.length - 1, xaxis_max)
+//                    min: 0, max: Math.min(values.length - 1, xaxis_max),
+                    categories: values.map(function (x) { return x['date'] })
                },
                 yAxis: {
                     min: 0, max: Math.max.apply(null, data),
@@ -54,9 +54,9 @@ var AccessIndicatorsGraph;
                 legend: {
                     enabled: false
                 },
-                scrollbar: {
-                    enabled: (values.length - 1 > xaxis_max)
-                },
+//                scrollbar: {
+//                    enabled: (values.length - 1 > xaxis_max)
+//                },
                 tooltip: {
                     formatter: function() {
                         return this.x + ': ' + Highcharts.numberFormat(this.y, decimals);

@@ -84,7 +84,7 @@
             $(document).ready(function() {
                 var text = {'open': '{% if lang == 'en' %}show charts{% else %}visualizza i grafici{% endif %}', 'close': '{% if lang == 'en' %}hide charts{% else %}nascondi i grafici{% endif %}'};
 
-                var elems = $('.charts_accordion').hide();
+                var elems = $('.charts_accordion');
 
                 $('<p><a href="#">' + text['open'] + '</a></p>').insertBefore(elems).find('a').on('click', function(e) {
                     var self = $(this);
@@ -93,7 +93,10 @@
 
                 $('.chart-container').each(function() {
                     new AccessIndicatorsGraph($(this).attr('id'), '{{ lang }}');
+                    $(this).closest('.collapse').collapse('show');
                 });
+
+                elems.hide();
             });
         </script>
     {% endaddtoblock %}
