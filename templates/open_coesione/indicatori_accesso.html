@@ -26,26 +26,28 @@
             {% for indicator in indicators %}
                 <li>
                     <p>
-                        {% if lang == 'en' %}
-                            {% if forloop.counter == 1 %}
+                        {% if forloop.counter == 1 %}
+                            {% if lang == 'en' %}
                                 <strong>BLOCCO 1 INGLESE</strong>.
-                            {% elif forloop.counter == 2 %}
-                                <strong>BLOCCO 2 INGLESE</strong>.
-                            {% elif forloop.counter == 3 %}
-                                <strong>BLOCCO 3 INGLESE</strong>.
-                            {% endif %}
-                        {% else %}
-                            {% if forloop.counter == 1 %}
+                            {% else %}
                                 <strong>Accessi al portale</strong>.
-                                Visitatori (sessioni); Visitatori unici; Visitatori esteri; Pagine visualizzate; Download &ndash; in termini cumulati dal 16 luglio 2012; Durata sessione media - in secondi, dato mensile.<br/>
+                                Visitatori (sessioni); Visitatori unici; Visitatori esteri; Pagine visualizzate - in termini cumulati dal 16 luglio 2012; Download - in termini cumulati dal 1 giugno 2014; ​Durata sessione media - in secondi, dato mensile.​<br/>
                                 (fonte: Google analytics)
-                            {% elif forloop.counter == 2 %}
+                            {% endif %}
+                        {% elif forloop.counter == 2 %}
+                            {% if lang == 'en' %}
+                                <strong>BLOCCO 2 INGLESE</strong>.
+                            {% else %}
                                 <strong>Visualizzazione di presentazioni e video</strong>.
-                                Visualizzazione di pagine e di effettive visioni su SlideShare e Vimeo &ndash; in termini cumulati dal 1 giugno 2015.<br/>
+                                Visualizzazione di pagine e di effettive visioni su SlideShare e Vimeo - in termini cumulati dal 1 giugno 2015.<br/>
                                 (fonte: SlideShare e Vimeo)
-                            {% elif forloop.counter == 3 %}
+                            {% endif %}
+                        {% elif forloop.counter == 3 %}
+                            {% if lang == 'en' %}
+                                <strong>BLOCCO 3 INGLESE</strong>.
+                            {% else %}
                                 <strong>Frequenza d'uso delle news di OpenCoesione</strong>.
-                                Numero di news, percentuale di news lette (open rate) e percentuale di news che ha condotto a un accesso al portale (click rate) &ndash; in termini cumulati dal 03 novembre 2014.<br/>
+                                Numero di news, percentuale di news lette (open rate) e percentuale di news che ha condotto a un accesso al portale (click rate) - in termini cumulati dal 03 novembre 2014.<br/>
                                 (fonte: Mailchimp)
                             {% endif %}
                         {% endif %}
@@ -93,7 +95,6 @@
 
                 $('.chart-container').each(function() {
                     new AccessIndicatorsGraph($(this).attr('id'), '{{ lang }}');
-                    $(this).closest('.collapse').collapse('show');
                 });
 
                 elems.hide();

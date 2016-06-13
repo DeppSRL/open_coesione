@@ -2,7 +2,7 @@
 import csv
 import StringIO
 import zipfile
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 from datetime import date
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
