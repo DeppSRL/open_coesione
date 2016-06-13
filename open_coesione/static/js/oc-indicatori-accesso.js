@@ -17,7 +17,8 @@ var AccessIndicatorsGraph;
 
 //            var xaxis_max = 20;
 
-            var data = values.map(function (x) { return parseFloat(x['value'].replace(/\./g, '').replace(',', '.') || 0) });
+            var data = values.map(function (x) { return x['value'] });
+            var categories = values.map(function (x) { return x['date'] });
 
             var decimals = 0;
             for (var i = 0; i < data.length && decimals == 0; i++) {
@@ -37,7 +38,7 @@ var AccessIndicatorsGraph;
                 },
                 xAxis: {
 //                    min: 0, max: Math.min(values.length - 1, xaxis_max),
-                    categories: values.map(function (x) { return x['date'] })
+                    categories: categories
                },
                 yAxis: {
                     min: 0, max: Math.max.apply(null, data),
@@ -79,7 +80,7 @@ var AccessIndicatorsGraph;
                 chartContainer.empty().appendTo(self.children().first());
             }).on('shown', function () {
                 _printChart(chartContainerID, $(this).data('values'), lang);
-            });
+            }).first().collapse('show');
         };
 
         _initCharts(chartContainerID, lang);

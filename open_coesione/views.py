@@ -662,7 +662,12 @@ class IndicatoriAccessoView(TemplateView):
             for row in reader:
                 date = parser.parse(row.pop(0)).strftime('%d/%m/%Y')
                 for idx, colname in enumerate(colnames):
-                    data[colname].append({'date': date, 'value': row[idx]})
+                    try:
+                        value = float(row[idx].replace('.', '').replace(',', '.'))
+                    except ValueError:
+                        pass
+                    else:
+                        data[colname].append({'date': date, 'value': value})
 
             indicators.append({'filename': 'csv/{}'.format(filename), 'data': data})
 
