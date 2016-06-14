@@ -40,7 +40,11 @@
                 <li><a href="/sollecita/">Sollecita: partecipazione e riuso</a></li>
                 <li><a href="/rassegna-stampa/">Dicono di noi</a></li>
                 <li><a href="/opencoesione-si-valuta/">OpenCoesione si valuta</a></li>
-                <li><a href="{% url 'indicatori-accesso-it' %}">Indicatori di accesso a OpenCoesione</a></li>
+                <li class="bi-lingual">
+                    <a href="{% url 'indicatori-accesso-it' %}">Indicatori di accesso a OpenCoesione</a>
+                    <br/>&nbsp;
+                    <em><a href="{% url 'indicatori-accesso-en' %}">OpenCoesione access indicators <img src="{% static 'img/flag-uk.png' %}" alt="english version" /></a></em>
+                </li>
                 <li class="bi-lingual">
                     <a href="{% url 'faq-it' %}">Domande frequenti</a>
                     <br/>&nbsp;
