@@ -179,8 +179,8 @@ def export_select_fields_csv_action(description="Export selected objects as CSV 
         if exclude:
             field_names = [v for v in standard_field_names if v not in exclude]
         elif fields:
-            field_names = [k for k, v in fields if k in standard_field_names or '__' in k or k == 'pippo']
-            labels = [v for k, v in fields if k in standard_field_names or '__' in k or k == 'pippo']
+            field_names = [k for k, v in fields if k in standard_field_names or '__' in k]
+            labels = [v for k, v in fields if k in standard_field_names or '__' in k]
         else:
             field_names = standard_field_names
 
@@ -190,7 +190,7 @@ def export_select_fields_csv_action(description="Export selected objects as CSV 
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename=%s.csv' % unicode(opts).replace('.', '_')
 
-        writer = csvkit.unicsv.UnicodeCSVWriter(response, delimiter=',')
+        writer = csvkit.unicsv.UnicodeCSVWriter(response, delimiter=';')
         if header:
             if labels:
                 writer.writerow(labels)

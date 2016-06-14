@@ -39,8 +39,11 @@ class SubscriptionAdmin(admin.ModelAdmin):
                 ('contact__first_name', 'Nome'),
                 ('contact__last_name', 'Cognome'),
                 ('contact__email', 'Email'),
-                ('pippo', 'Tipologia di utente'),
+                ('title', 'Qualifica'),
+                ('role', 'Ruolo'),
+                ('user_type', 'Tipo utente'),
                 ('notes', 'Note'),
+                ('source__name', 'Fonte')
             ],
             header=True
         ),

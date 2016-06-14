@@ -58,7 +58,7 @@ class Iscrizione(Timestampable, models.Model):
     TYPES = Choices(
         ('cittadino', 'Cittadino'),
         ('sviluppatore', 'Sviluppatore'),
-        ('publicservant', 'Funzionario PA'),
+        ('publicservant', 'Public Servant'),
         ('giornalista', 'Giornalista'),
     )
 
@@ -70,10 +70,6 @@ class Iscrizione(Timestampable, models.Model):
     notes = models.TextField('note', blank=True, null=True)
 
     objects = IscrizioneManager()
-
-    @property
-    def pippo(self):
-        return self.get_user_type_display()
 
     @property
     def email(self):
