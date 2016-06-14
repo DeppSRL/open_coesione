@@ -26,6 +26,6 @@ class NLContactView(TemplateView):
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
 
-            return HttpResponseRedirect('{}?completed=true'.format(reverse('rubrica-newsletter')))  # Redirect after POST
+            return HttpResponseRedirect('{}?completed=true'.format(reverse('newsletter')))  # Redirect after POST
 
         return self.get(request, *args, **kwargs)

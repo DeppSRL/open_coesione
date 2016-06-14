@@ -14,7 +14,7 @@
             <p>Vuoi restare aggiornato sulle principali novità sull'attuazione delle politiche di coesione e sul portale OpenCoesione?</p>
             <p>Iscriviti alla mailing list, utilizzando il form sottostante, per ricevere in automatico via posta elettronica ogni nuovo numero della newsletter.</p>
 
-            <form action="{% url 'rubrica-newsletter' %}" id="newsletter-form" method="post" class="form-horizontal">
+            <form action="{% url 'newsletter' %}" id="newsletter-form" method="post" class="form-horizontal">
                 {% csrf_token %}
                 <div class="row-fluid clearfix">
                     <fieldset class="span10">

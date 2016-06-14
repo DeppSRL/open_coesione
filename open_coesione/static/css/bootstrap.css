@@ -5884,7 +5884,8 @@ hr.big.dark {
   padding-left: 1em;
 }
 #informativa h2 {
-  font-size: 13px;
+  font-size: 13px !important;
+  margin: 0 !important;
 }
 #newsletter-form.form-horizontal .control-label {
   width: 160px;

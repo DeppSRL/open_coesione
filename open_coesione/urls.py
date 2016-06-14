@@ -75,7 +75,8 @@ urlpatterns = patterns('',
     url(r'^indicatori_di_accesso/$', IndicatoriAccessoView.as_view(lang='it', template_name='open_coesione/indicatori_accesso.html'), name='indicatori-accesso-it'),
     # url(r'^indicatori_di_accesso_eng/$', IndicatoriAccessoView.as_view(lang='en', template_name='open_coesione/indicatori_accesso.html'), name='indicatori-accesso-en'),
 
-    url(r'^segui/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
+    url(r'^segui/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='newsletter'),
+    url(r'^segui_new/', TemplateView.as_view(template_name='open_coesione/newsletter.html'), name='newsletter2'),
 
     url(r'^rassegna-stampa/', PressReviewListView.as_view()),
 
