@@ -6,7 +6,6 @@ from django.views.generic.base import TemplateView
 from views import HomeView, FondiView, RisorsaView, ContactView, SpesaCertificataGraficiView,\
     OpendataView, OpendataRedirectView, PillolaListView, PillolaDetailView, DocumentsRedirectView, FAQListView,\
     PressReviewListView, DatiISTATView, SpesaCertificataView, IndicatoriAccessoView
-from rubrica.views import NLContactView
 from filebrowser.sites import site
 
 
@@ -75,7 +74,6 @@ urlpatterns = patterns('',
     url(r'^indicatori_di_accesso/$', IndicatoriAccessoView.as_view(lang='it', template_name='open_coesione/indicatori_accesso.html'), name='indicatori-accesso-it'),
     url(r'^access_indicators/$', IndicatoriAccessoView.as_view(lang='en', template_name='open_coesione/indicatori_accesso.html'), name='indicatori-accesso-en'),
 
-    # url(r'^segui/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='newsletter'),
     url(r'^segui/', TemplateView.as_view(template_name='open_coesione/newsletter.html'), name='newsletter'),
 
     url(r'^rassegna-stampa/', PressReviewListView.as_view()),
