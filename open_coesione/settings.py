@@ -173,7 +173,6 @@ INSTALLED_APPS = (
     'progetti',
     'soggetti',
     'territori',
-    'rubrica',
     'blog',
     'idioticon',
     'tagging',
