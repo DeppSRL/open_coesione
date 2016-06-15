@@ -43,7 +43,6 @@ urlpatterns = patterns('',
     url(r'^su/', include('urlshortener.urls')),
 
     # pillole
-    # url(r'^pillole/(?P<path>.+)$', PillolaRedirectView.as_view(), name='pillole_clean'),
     url(r'^pillole/$', PillolaListView.as_view(), name='pillole'),
     url(r'^pillola/(?P<slug>[\w-]+)/$', PillolaDetailView.as_view(), name='pillola'),
 
@@ -57,12 +56,10 @@ urlpatterns = patterns('',
 
     # pre-csm page routes
     # TODO: move into flatpages
-#    url(r'^progetto/$', TemplateView.as_view(template_name='flat/progetto.html'), name='oc-progetto-it'),
     url(r'^progetto/en/$', TemplateView.as_view(template_name='flat/project.html')),
     url(r'^project/$', TemplateView.as_view(template_name='flat/project.html'), name='oc-progetto-en'),
     url(r'^a-scuola-di-opencoesione/', TemplateView.as_view(template_name='flat/a_scuola_di_opencoesione.html')),
     url(r'^cerca-un-progetto/', TemplateView.as_view(template_name='flat/cerca_progetto.html')),
-    # url(r'^privacy/$', TemplateView.as_view(template_name='flat/privacy.html'), name='oc-privacy'),
     url(r'^contatti/$', ContactView.as_view(template_name='flat/contatti.html'), name='oc-contatti'),
     url(r'^cerca-un-soggetto/', TemplateView.as_view(template_name='flat/cerca_soggetto.html')),
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
