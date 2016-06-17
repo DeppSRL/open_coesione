@@ -31,14 +31,17 @@ def cached_context(get_context_data):
     """
 
     def decorator(self, **kwargs):
-        key = 'context' + self.request.get_full_path()
-        context = cache.get(key)
-        if context is None:
-            context = get_context_data(self, **kwargs)
-            serializable_context = context.copy()
-            serializable_context.pop('view', None)
-            cache.set(key, serializable_context)
-        return context
+        if getattr(self, 'cache_enabled', True):
+            key = 'context' + getattr(self, 'cache_key', self.request.get_full_path())
+            context = cache.get(key)
+            if context is None:
+                context = get_context_data(self, **kwargs)
+                serializable_context = context.copy()
+                serializable_context.pop('view', None)
+                cache.set(key, serializable_context)
+            return context
+        else:
+            return get_context_data(self, **kwargs)
     return decorator
 
 
@@ -56,49 +59,59 @@ class XRobotsTagTemplateResponseMixin(TemplateResponseMixin):
 
 
 class AggregatoMixin(object):
+    TEMATIZZAZIONI = settings.TEMATIZZAZIONI
+
+    @property
+    def cache_key(self):
+        return self.request.path
+
     @staticmethod
-    def add_totali(objects, totali):
-        totali_by_pk = {x.pop('id'): x for x in totali}
+    def add_totali(objects, totali, key='pk'):
+        totali_by_key = {x.pop('id'): x for x in totali}
         objects_with_totali = []
         for object in objects:
-            object.totali = totali_by_pk.get(object.pk, {})
+            object.totali = totali_by_key.get(getattr(object, key), {})
             objects_with_totali.append(object)
         return objects_with_totali
 
-    def get_aggregate_data(self, context, **filter):
-        if 'territorio' in filter:
-            raise Exception('"territorio" filter is deprecated. Use "territori" instead.')
+    def get_progetti_queryset(self):
+        return Progetto.objects
 
-        filter = {k: v for k, v in filter.items() if k in ('classificazione', 'programmi', 'soggetto', 'tema', 'territori')}
+    def get_aggregate_data(self):
+        progetti = self.get_progetti_queryset()
 
-        if len(filter) > 1:
-            raise Exception('Only one filter kwargs is accepted')
+        aggregate_data = progetti.totali()
 
-        progetti = Progetto.objects.myfilter(**filter)
+        aggregate_data['percentuale_costi_pagamenti'] = '{:.0%}'.format(aggregate_data['totale_pagamenti'] / aggregate_data['totale_costi'] if aggregate_data['totale_costi'] > 0.0 else 0.0)
 
-        context.update(progetti.totali())
+        if not isinstance(getattr(self, 'object', None), Tema):
+            aggregate_data['temi_principali'] = self.add_totali(Tema.objects.principali(), progetti.totali_group_by('tema__tema_superiore'))
 
-        context['percentuale_costi_pagamenti'] = '{:.0%}'.format(context['totale_pagamenti'] / context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0)
+        if not isinstance(getattr(self, 'object', None), ClassificazioneAzione):
+            aggregate_data['nature_principali'] = self.add_totali(ClassificazioneAzione.objects.nature(), progetti.totali_group_by('classificazione_azione__classificazione_superiore'))
 
-        if 'tema' not in filter:
-            context['temi_principali'] = self.add_totali(Tema.objects.principali(), progetti.totali_group_by('tema__tema_superiore'))
+        aggregate_data['top_progetti_per_costo'] = progetti.no_privacy().filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico', '-data_fine_effettiva')[:5]
 
-        if 'classificazione' not in filter:
-            context['nature_principali'] = self.add_totali(ClassificazioneAzione.objects.nature(), progetti.totali_group_by('classificazione_azione__classificazione_superiore'))
-
-        context['top_progetti_per_costo'] = progetti.no_privacy().filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico', '-data_fine_effettiva')[:5]
-
-        context['map_legend_colors'] = settings.MAP_COLORS
+        aggregate_data['map_legend_colors'] = settings.MAP_COLORS
 
         if self.request.GET.get('pro_capite'):
-            context['mappa_pro_capite'] = True
+            aggregate_data['mappa_pro_capite'] = True
 
-        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
+        return aggregate_data
 
-        for obj in context.get('temi_principali', []) + context.get('nature_principali', []):
+    def get_tematizzazione(self):
+        tematizzazione = self.request.GET.get('tematizzazione', self.TEMATIZZAZIONI[0])
+
+        if tematizzazione in self.TEMATIZZAZIONI:
+            return tematizzazione
+        else:
+            raise Http404
+
+    def tematizza_context_data(self, context):
+        context['tematizzazione'] = self.get_tematizzazione()
+
+        for obj in context.get('temi_principali', []) + context.get('nature_principali', []) + context.get('territori', []):
             obj.totale = obj.totali.get(context['tematizzazione'], 0)
-
-        return context
 
     def top_comuni_pro_capite(self, filters, qnt=5):
         def pro_capite_order(territorio):
@@ -134,9 +147,7 @@ class AggregatoMixin(object):
 class HomeView(AggregatoMixin, TemplateView):
     @cached_context
     def get_cached_context_data(self):
-        context = {}
-
-        context = self.get_aggregate_data(context)
+        context = self.get_aggregate_data()
 
         context['top_progetti'] = context.pop('top_progetti_per_costo')[:3]
 
@@ -149,7 +160,9 @@ class HomeView(AggregatoMixin, TemplateView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().conclusi()[:3]
+        self.tematizza_context_data(context)
+
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:3]
 
         context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
 
