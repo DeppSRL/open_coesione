@@ -646,9 +646,13 @@ class IndicatoriAccessoView(TemplateView):
         import dateutil.parser as parser
 
         context = super(IndicatoriAccessoView, self).get_context_data(**kwargs)
+        filenames = {
+            'en': ['access_indicators_1.csv', 'access_indicators_2.csv', 'access_indicators_3.csv'],
+            'it': ['indicatori_accesso_1.csv', 'indicatori_accesso_2.csv', 'indicatori_accesso_3.csv'],
+        }
 
         indicators = []
-        for filename in ['indicatori_accesso_1.csv', 'indicatori_accesso_2.csv', 'indicatori_accesso_3.csv']:
+        for filename in filenames[self.lang]:
             reader = csv.reader(open(os.path.join(settings.STATIC_ROOT, 'csv', filename), 'rb'), delimiter=';')
 
             colnames_dict = {
