@@ -53,6 +53,7 @@ class Config(object):
                 Q(descrizione__contains='FESR') & (
                     Q(descrizione__contains='ATTRATTORI CULTURALI') |
                     Q(descrizione__contains='RETI E MOBILITÀ') |
+                    Q(descrizione__contains='SICUREZZA') |
                     Q(descrizione__contains='CAMPANIA') |
                     Q(descrizione__contains='CALABRIA') |
                     Q(descrizione__contains='SICILIA') |
@@ -83,7 +84,7 @@ class Config(object):
                 OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith(('PROGRAMMA ATTUATIVO', 'PROGRAMMA STRATEGICO'))]))),
                 OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PROGRAMMA REGIONALE')]))),
                 OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PROGRAMMA NAZIONALE')]))),
-                OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PIANO STRAORDINARIO TUTELA E GESTIONE RISORSA IDRICA')]))),
+                OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PIANO STRAORDINARIO')]))),
                 OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PROGRAMMA OBIETTIVI DI SERVIZIO')]))),
             ],
             'pac_pac_m': OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PROGRAMMA PAC') and (' MINISTERO ' in p.descrizione.upper() or ' PCM ' in p.descrizione.upper() or ' GOVERNANCE ' in p.descrizione.upper())]))),
