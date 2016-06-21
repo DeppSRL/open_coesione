@@ -7,8 +7,9 @@ $(document).ready(function() {
         $('.submenu').not($(this).parents('.submenu')).children('ul').removeClass('submenu-show').addClass('submenu-hide');
         $(this).children('ul').removeClass('submenu-hide').addClass('submenu-show');
         e.stopPropagation();
+    }).children('a').append(' &raquo; ').filter('[href="#"]').on('click', function(e) {
         e.preventDefault();
-    }).children('a').append(' &raquo; ');
+    });
 
     $('#menu-search-type-selector').on('change', function() {
         $(this).closest('form').attr('action', '/' + $(this).val() + '/').find('input').attr('placeholder', 'Cerca tra i ' +  $(this).val());
