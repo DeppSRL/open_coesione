@@ -486,7 +486,7 @@ class AmbitoEsteroView(AggregatoMixin, ListView):
 
         # add object_list to context, to make the get_context_data work in the setup_view environment
         # used in cache generators scripts and in the API
-        # context['object_list'] = self.object_list if hasattr(self, 'object_list') else None
+        context['object_list'] = self.object_list if hasattr(self, 'object_list') else None
 
         progetti = self.get_progetti_queryset()
 
