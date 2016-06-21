@@ -216,7 +216,8 @@ class TemaManager(models.Manager):
 
 class ClassificazioneAzioneManager(models.Manager):
     def nature(self):
-        return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.natura).order_by('priorita')
+        # return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.natura).filter(classificazione_set__progetto_set__active_flag=True).distinct().order_by('priorita')
+        return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.natura).filter(priorita__gt=0).order_by('priorita')
 
     def costo_totale(self):
         return self.get_query_set().annotate(totale=models.Sum('progetto_set__fin_totale_pubblico'))
