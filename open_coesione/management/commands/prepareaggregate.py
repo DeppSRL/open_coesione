@@ -173,7 +173,7 @@ class Command(BaseCommand):
 
         # emulate the get_context_data method call
         if page_type == 'ambitoestero':
-            view.get_context_data(object_list=Territorio.objects.filter(territorio=Territorio.TERRITORIO.E), *view.args, **view.kwargs)
+            view.get_context_data(object_list=view.get_queryset(), *view.args, **view.kwargs)
         else:
             view.get_context_data(*view.args, **view.kwargs)
         self.logger.info('context for {} fetched::::'.format(url))

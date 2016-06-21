@@ -478,7 +478,7 @@ class AmbitoEsteroView(AggregatoMixin, ListView):
     queryset = Territorio.objects.filter(territorio=tipo_territorio)
 
     def get_progetti_queryset(self):
-        return Progetto.objects.nei_territori(self.object_list)
+        return Progetto.objects.nei_territori(self.get_queryset())
 
     @cached_context
     def get_cached_context_data(self):
@@ -486,11 +486,11 @@ class AmbitoEsteroView(AggregatoMixin, ListView):
 
         # add object_list to context, to make the get_context_data work in the setup_view environment
         # used in cache generators scripts and in the API
-        context['object_list'] = self.object_list if hasattr(self, 'object_list') else None
+        # context['object_list'] = self.object_list if hasattr(self, 'object_list') else None
 
         progetti = self.get_progetti_queryset()
 
-        territori = self.object_list
+        territori = self.get_queryset()
 
         multi_territori = {}
         for progetto in progetti.annotate(cnt=Count('territorio_set')).filter(cnt__gt=1):
