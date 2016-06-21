@@ -7,6 +7,7 @@ $(document).ready(function() {
         $('.submenu').not($(this).parents('.submenu')).children('ul').removeClass('submenu-show').addClass('submenu-hide');
         $(this).children('ul').removeClass('submenu-hide').addClass('submenu-show');
         e.stopPropagation();
+        e.preventDefault();
     }).children('a').append(' &raquo; ');
 
     $('#menu-search-type-selector').on('change', function() {
