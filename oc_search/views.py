@@ -62,7 +62,7 @@ class ExtendedFacetedSearchView(SearchView):
                     'short_label': key_to_labels[c[0]][1],
                     'count': c[1],
                     'urls': self._get_facet_urls(field, c[0]),
-                } for c in facet_counts_fields[field]]
+                } for c in facet_counts_fields[field] if c[0] in key_to_labels]
 
         return facet
 
