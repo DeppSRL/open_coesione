@@ -18,9 +18,12 @@ class DataClassifier:
 
     def get_bins_ranges(self):
         bins = list(self.dc.bins)
-        return [{'start': current, 'end': next} for current, next in zip([-1] + bins, bins)]
+        return [{'start': current, 'end': next} for current, next in zip([0] + bins, bins)]
 
     def get_class(self, value):
-        for n, bin_range in enumerate(self.get_bins_ranges(), 1):
-            if bin_range['start'] < value <= bin_range['end']:
-                return 'c{}'.format(n)
+        if value == 0:
+            return 'c0'
+        else:
+            for n, bin_range in enumerate(self.get_bins_ranges(), 1):
+                if bin_range['start'] < value <= bin_range['end']:
+                    return 'c{}'.format(n)
