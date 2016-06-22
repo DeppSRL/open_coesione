@@ -185,7 +185,7 @@ class ProgettoManager(models.Manager):
 
     def totale_costi_procapite(self, **kwargs):
         from territori.models import Territorio
-        territorio = kwargs.setdefault('territorio', Territorio.objects.nazione())
+        territorio = kwargs.setdefault('territori', [Territorio.objects.nazione()])[0]
         return round(self.get_query_set().totale_costi(**kwargs) / territorio.popolazione_totale) if territorio.popolazione_totale else 0
 
     def totale_pagamenti_procapite(self, **kwargs):
