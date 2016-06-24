@@ -220,7 +220,7 @@ class ProgrammiView(BaseProgrammaView):
                 valori_per_anno[2015] = valori_per_anno.pop(2016)  # i valori del 20160229 sono assegnati al 20151231
 
                 for row in dotazioni_totali:
-                    programma_codice = row['DPS_CODICE_PROGRAMMA']
+                    programma_codice = row['OC_CODICE_PROGRAMMA']
                     if programma_codice in programmi_per_trend_codici:
                         for anno in valori_per_anno:
                             data = '{}1231'.format(max(anno, 2010))  # i dati delle dotazioni totali partono dal 2010; per gli anni precedenti valgono i dati del 2010
@@ -238,7 +238,7 @@ class ProgrammiView(BaseProgrammaView):
                 dotazioni_totali_per_programma = {}
                 pagamenti_per_programma = {}
                 for row in dotazioni_totali:
-                    programma_codice = row['DPS_CODICE_PROGRAMMA']
+                    programma_codice = row['OC_CODICE_PROGRAMMA']
                     if programma_codice in programmi_per_trend_codici:
                         data = data_pagamenti_per_programma.strftime('%Y%m%d')
                         try:

@@ -249,8 +249,8 @@ class SpesaCertificataGraficiView(RisorsaView):
 
         data = {}
         for row in reader:
-            if row['DPS_CODICE_PROGRAMMA']:
-                program_name = format_name(row['DPS_DESCRIZIONE_PROGRAMMA'])
+            if row['OC_CODICE_PROGRAMMA']:
+                program_name = format_name(row['OC_DESCRIZIONE_PROGRAMMA'])
                 group_key = '{}_{}'.format(row['QSN_AREA_OBIETTIVO_UE'], row['QSN_FONDO_COMUNITARIO ']).lower()
 
                 if not group_key in data:
