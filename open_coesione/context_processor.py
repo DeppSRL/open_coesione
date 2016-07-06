@@ -39,7 +39,6 @@ def main_settings(request):
             'DEBUG': settings.DEBUG,
             'TEMPLATE_DEBUG': settings.TEMPLATE_DEBUG,
             'STATIC_URL': settings.STATIC_URL,
-            'TILESTACHE_URL': settings.TILESTACHE_URL,
             'SITE_URL': 'http://{}'.format(host),
             'IS_PRODUCTION': all(h not in host for h in ('localhost', 'staging')),
             'lista_regioni': regioni,

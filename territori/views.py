@@ -170,10 +170,8 @@ class LeafletView(JSONResponseMixin, TemplateView):
     layer = None
 
     @cached_context
-    def get_context_data(self, **kwargs):
-        context = super(LeafletView, self).get_context_data(**kwargs)
-
-        context['tilestache_url'] = settings.TILESTACHE_URL
+    def get_cached_context_data(self):
+        context = {}
 
         # fetch Geometry object to look at
         # - nation
@@ -254,6 +252,13 @@ class LeafletView(JSONResponseMixin, TemplateView):
             context['info_base_url'] = '/territori/info'
 
         return context
+
+    def get_context_data(self, **kwargs):
+        context = super(LeafletView, self).get_context_data(**kwargs)
+
+        context.update(self.get_cached_context_data())
+
+        context['tilestache_url'] = settings.TILESTACHE_URL
 
 
 class TilesConfigView(TemplateView):
