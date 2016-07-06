@@ -37,10 +37,10 @@ class SoggettoIndex(SearchIndex):
         return Tema.objects.filter(tema_set__progetto_set__soggetto_set=obj).values_list('codice', flat=True).distinct()
 
     def prepare_costo(self, obj):
-        return Progetto.objects.myfilter(soggetto=obj).totali()['totale_costi']
+        return Progetto.objects.del_soggetto(obj).totali()['totale_costi']
 
     def prepare_n_progetti(self, obj):
-        return Progetto.objects.myfilter(soggetto=obj).totali()['totale_progetti']
+        return Progetto.objects.del_soggetto(obj).totali()['totale_progetti']
 
     def index_queryset(self):
         return self.model._default_manager.select_related('territorio')

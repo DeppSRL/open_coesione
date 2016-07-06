@@ -14,7 +14,7 @@ def main_settings(request):
     this function adds a subset of application settings to template context
     """
 
-    if any(path in request.path for path in ('/admin/', '/api/')):
+    if any(path in request.path for path in ('/admin/', '/api/', '/leaflet/', '/mapnik/')):
         return {}
     else:
         regioni = cache.get('territori.regioni')

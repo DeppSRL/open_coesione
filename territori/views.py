@@ -6,14 +6,12 @@ from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.contrib.sites.models import Site
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
 from django.http import HttpResponse, Http404
 from django.template.defaultfilters import slugify
 from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
-from lxml import etree
 from models import Territorio
 from open_coesione.data_classification import DataClassifier
 from open_coesione.views import AggregatoMixin, cached_context
@@ -31,8 +29,7 @@ class JSONResponseMixin(object):
         """
         response_kwargs['content_type'] = 'application/json'
         serializable_context = context.copy()
-        if 'view' in serializable_context:
-            del serializable_context['view']
+        serializable_context.pop('view', None)
         return self.response_class(
             json.dumps(serializable_context),
             **response_kwargs
@@ -86,7 +83,7 @@ class InfoView(JSONResponseMixin, TemplateView):
         if self.filter == 'programmi':
             try:
                 programma = ProgrammaAsseObiettivo.objects.get(codice=kwargs['slug'])
-            except ObjectDoesNotExist:
+            except ProgrammaAsseObiettivo.DoesNotExist:
                 programma = ProgrammaLineaAzione.objects.get(codice=kwargs['slug'])
 
             programmi = [programma]
@@ -111,11 +108,19 @@ class InfoView(JSONResponseMixin, TemplateView):
         # check vars existance in the cache, or compute and store them
         cached_vars = cache.get(cache_key)
         if cached_vars is None:
+            progetti = Progetto.objects.nei_territori([territorio])
+            if tema:
+                progetti = progetti.con_tema(tema)
+            if natura:
+                progetti = progetti.con_natura(natura)
+            if programmi:
+                progetti = progetti.con_programmi(programmi)
+            totali = progetti.totali()
             cached_vars = {
                 'popolazione_totale': (territorio.popolazione_totale if territorio else Territorio.objects.nazione().popolazione_totale) or 0,
-                'costo_totale': Progetto.objects.totale_costi(territori=[territorio], tema=tema, classificazione=natura, programmi=programmi) or 0,
-                'n_progetti': Progetto.objects.totale_progetti(territori=[territorio], tema=tema, classificazione=natura, programmi=programmi) or 0,
-                'pagamento_totale': Progetto.objects.totale_pagamenti(territori=[territorio], tema=tema, classificazione=natura, programmi=programmi) or 0,
+                'costo_totale': totali['totale_costi'],
+                'n_progetti': totali['totale_progetti'],
+                'pagamento_totale': totali['totale_pagamenti'],
             }
             cache.set(cache_key, cached_vars)
 
@@ -160,35 +165,15 @@ class AutocompleteView(JSONResponseMixin, TemplateView):
         return context
 
 
-class LeafletView(TemplateView):
-    template_name = 'territori/leaflet.html'
+class LeafletView(JSONResponseMixin, TemplateView):
     inner_filter = None
     layer = None
-
-    def render_to_response(self, context, **response_kwargs):
-        """
-        Returns a JSON response, transforming 'context' to make the payload.
-        """
-        if self.kwargs['ext'] == 'json':
-            response_kwargs['content_type'] = 'application/json'
-            context['tilestache_url'] = settings.TILESTACHE_URL
-            serializable_context = context.copy()
-            serializable_context.pop('view', None)
-            return HttpResponse(
-                json.dumps(serializable_context),
-                **response_kwargs
-            )
-
-        return self.response_class(
-            request=self.request,
-            template=self.get_template_names(),
-            context=context,
-            **response_kwargs
-        )
 
     @cached_context
     def get_context_data(self, **kwargs):
         context = super(LeafletView, self).get_context_data(**kwargs)
+
+        context['tilestache_url'] = settings.TILESTACHE_URL
 
         # fetch Geometry object to look at
         # - nation
@@ -206,7 +191,7 @@ class LeafletView(TemplateView):
             context['zoom'] = {'min': 5, 'max': 7}
 
         # compute bounds, to use inside the maps
-        bounds = {
+        context['bounds'] = {
             'southwest': {
                 'lng': str(area.extent[0]),
                 'lat': str(area.extent[1])
@@ -216,7 +201,6 @@ class LeafletView(TemplateView):
                 'lat': str(area.extent[3])
             }
         }
-        context['bounds'] = bounds
 
         if self.layer == 'world':
             context['zoom'] = {'min': 4, 'max': 11}
@@ -224,8 +208,9 @@ class LeafletView(TemplateView):
             return context
 
         # compute layer name from request.path and tematizzazione query string
-        tematizzazione = self.request.GET.get('tematizzazione', 'totale_costi')
-        if tematizzazione not in TilesConfigView.TEMATIZZAZIONI:
+
+        tematizzazione = self.request.GET.get('tematizzazione', settings.MAP_TEMATIZZAZIONI[0])
+        if tematizzazione not in settings.MAP_TEMATIZZAZIONI:
             raise Http404
 
         path = self.request.path.split('.')[0]
@@ -235,36 +220,38 @@ class LeafletView(TemplateView):
         context['layer_type'] = path.split('/')[-1:][0][0:1].upper()
 
         # read legend html directly from mapnik xml (which should be cached at this point)
-        mapnik_xml_path = '{}.xml?tematizzazione={}'.format(re.sub(r'leaflet', 'mapnik', path), tematizzazione)
         mapnik_host = settings.MAPNIK_HOST or Site.objects.get_current()
+        mapnik_xml_path = '{}.xml?tematizzazione={}'.format(re.sub(r'leaflet', 'mapnik', path), tematizzazione)
         mapnik_xml_url = 'http://{}{}'.format(mapnik_host, mapnik_xml_path)
         try:
             mapnik_xml = urllib.urlopen(mapnik_xml_url)
         except IOError:
-            raise Http404('Cannot retrieve mapnik xml')
-        tree = etree.parse(mapnik_xml, parser=etree.XMLParser())
-        context['legend_html'] = tree.getroot()[0].text
+            raise Http404('Cannot retrieve mapnik xml ({})'.format(mapnik_xml_url))
+        else:
+            from lxml import etree
+            context['legend_html'] = etree.parse(mapnik_xml, parser=etree.XMLParser()).getroot()[0].text
 
-        # info_base_url for popup changes in case temi, nature or programmi filters are applied
+        # info_base_url for popup changes in case temi, nature, programmi or gruppiprogrammi filters are applied
         if self.inner_filter:
-            if 'slug' in self.kwargs:
+            try:
                 pk = self.kwargs['slug']
-            elif 'codice' in self.kwargs:
-                pk = self.kwargs['codice']
-            else:
-                raise Exception('slug or codice must be in kwargs')
+            except:
+                try:
+                    pk = self.kwargs['codice']
+                except:
+                    raise Exception('Slug or codice must be in kwargs')
 
-            filter_plurals = {
+            # convert inner_filter to its plural when creating info url
+            filter_plural = {
                 'tema': 'temi',
                 'natura': 'nature',
                 'programma': 'programmi',
                 'gruppo_programmi': 'gruppo-programmi',
-            }
+            }[self.inner_filter]
 
-            # convert inner_filter to its plural when creating info url
-            context['info_base_url'] = '/territori/info/{}/{}'.format(filter_plurals[self.inner_filter], pk)
+            context['info_base_url'] = '/territori/info/{}/{}'.format(filter_plural, pk)
         else:
-            context['info_base_url'] = '/territori/info'.format(Site.objects.get_current())
+            context['info_base_url'] = '/territori/info'
 
         return context
 
@@ -273,209 +260,160 @@ class TilesConfigView(TemplateView):
     template_name = 'territori/tiles.cfg'
     content_type = 'application/json'
 
-    TEMATIZZAZIONI = (
-        'totale_costi', 'totale_pagamenti', 'totale_progetti',
-        'totale_costi_procapite')
-
     def get_context_data(self, **kwargs):
         context = super(TilesConfigView, self).get_context_data(**kwargs)
-        context['tematizzazioni'] = self.TEMATIZZAZIONI
+        context['tematizzazioni'] = settings.MAP_TEMATIZZAZIONI
         context['regioni'] = Territorio.objects.regioni()
         context['province'] = Territorio.objects.provincie()
         context['temi'] = Tema.objects.principali()
         context['nature'] = ClassificazioneAzione.objects.nature()
         context['programmi'] = list(ProgrammaAsseObiettivo.objects.programmi()) + list(ProgrammaLineaAzione.objects.programmi())
         context['gruppi_programmi_codici'] = GruppoProgrammi.GRUPPI_PROGRAMMI.keys()
-        context['mapnik_base_url'] = 'http://{}/territori/mapnik'.format(Site.objects.get_current())
+        context['mapnik_base_url'] = 'http://{}/territori/mapnik'.format(settings.MAPNIK_HOST or Site.objects.get_current())
         context['path_to_cache'] = settings.TILESTACHE_CACHE_PATH
 
         return context
 
 
-class MapnikView(TemplateView):
-    """
-    Base class for rendering xml Mapnik files
-    """
-    territori_name = 'Territori'
+class BaseMapnikView(AggregatoMixin, TemplateView):
+    TEMATIZZAZIONI = settings.MAP_TEMATIZZAZIONI
+
     template_name = 'territori/mapnik.xml'
     content_type = 'application/xml'
-    queryset = Territorio.objects.all()
-    inner_filter = None
 
-    # Class-colors mapping
-    colors = settings.MAP_COLORS
+    inner_filter = None
+    queryset = None
+    territori_name = None
+    codice_field = None
+    cod_fld = None
+    srs = None
+    shp_file = None
 
     @cached_context
-    def get_context_data(self, **kwargs):
-        context = super(MapnikView, self).get_context_data(**kwargs)
+    def get_cached_context_data(self):
+        context = {}
+
         context['territori_name'] = self.territori_name
         context['codice_field'] = self.codice_field
         context['srs'] = self.srs
         context['shp_file'] = self.shp_file
         context['countries_shp_file'] = '{}/dati/countries/82945364-10m-admin-0-countries.shp'.format(settings.REPO_ROOT)
 
-        self.refine_context(context)
-
-        # get tematisation from GET
-        # totale_costi is the default tematisation
-        # tematizzazione contains the name of the method in progetti.managers.ProgettiManager
-        if 'tematizzazione' in self.request.GET:
-            tematizzazione = self.request.GET['tematizzazione']
-        else:
-            tematizzazione = 'totale_costi'
-        if tematizzazione not in TilesConfigView.TEMATIZZAZIONI:
-            raise Http404
-
-        # build the collection of aggregated data for the map
-        data = {}
-        nonzero_data = {}
-        slugged_data = {}
+        progetti = Progetto.objects
+        territori = self.queryset.defer('geom')
 
         # eventual filter on tema
-        tema = None
         if self.inner_filter == 'tema':
-            tema = Tema.objects.get(slug=self.kwargs['slug'])
+            progetti = progetti.con_tema(Tema.objects.get(slug=self.kwargs['slug']))
 
         # eventual filter on natura
-        natura = None
         if self.inner_filter == 'natura':
-            natura = ClassificazioneAzione.objects.get(slug=self.kwargs['slug'])
+            progetti = progetti.con_natura(ClassificazioneAzione.objects.get(slug=self.kwargs['slug']))
 
         # eventual filter on programma or gruppo_programmi
-        programmi = None
         if self.inner_filter == 'programma':
             try:
                 programma = ProgrammaAsseObiettivo.objects.get(pk=self.kwargs['codice'])
-            except ObjectDoesNotExist:
+            except ProgrammaAsseObiettivo.DoesNotExist:
                 try:
                     programma = ProgrammaLineaAzione.objects.get(pk=self.kwargs['codice'])
-                except ObjectDoesNotExist:
+                except ProgrammaLineaAzione.DoesNotExist:
                     raise Exception('Could not find appropriate programma')
-            programmi = [programma]
+            progetti = progetti.con_programmi([programma])
         elif self.inner_filter == 'gruppo_programmi':
             try:
                 gruppo_programmi = GruppoProgrammi(codice=self.kwargs['slug'])
             except:
                 raise Exception('Could not find appropriate gruppo programmi')
-            programmi = gruppo_programmi.programmi
-
-        # loop over all territories
-        # foreach, invoke the tematizzazione method, with specified filters
-        for t in self.queryset:
-            data[t.codice] = getattr(Progetto.objects, tematizzazione)(
-                territori=[t],
-                tema=tema,
-                classificazione=natura,
-                programmi=programmi,
-            )
-            if data[t.codice]:
-                nonzero_data[t.codice] = data[t.codice]
-            slugged_data[t.slug] = data[t.codice]
-
-        context['data'] = slugged_data
-
-        # DataClassifier instance
-
-        # computes number of bins
-        n_bins = 5
-        n_values = len(nonzero_data)
-        if n_values < 5:
-            n_bins = n_values
-
-        self.dc = DataClassifier(nonzero_data.values(), classifier_args={'k': n_bins}, colors_map=self.colors)
-        if self.dc.dc:
-            context['classification_bins'] = self.dc.get_bins_ranges()
-        else:
-            context['classification_bins'] = None  # empty data
-
-        # return codice and colore, for each territorio
-        # to be easily used in the view
-        context['territori'] = []
-        for t in self.queryset:
-            if t.codice in data:
-                colore = self.dc.get_color(data[t.codice])
             else:
-                colore = self.dc.get_color(0)
+                progetti = progetti.con_programmi(gruppo_programmi.programmi)
 
-            context['territori'].append({
-                'codice': str(t.codice),
-                'colore': colore,
-            })
-
-        return context
-
-    def refine_context(self, context):
-        pass
-
-
-class MapnikRegioniView(MapnikView):
-    territori_name = 'regioni'
-    codice_field = 'COD_REG'
-    srs = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over'
-    shp_file = '{}/dati/reg2011_g/regioni_stats.shp'.format(settings.REPO_ROOT)
-    queryset = Territorio.objects.regioni()
-
-    def refine_context(self, context):
-        pass
-
-
-class MapnikProvinceView(MapnikView):
-    territori_name = 'province'
-    codice_field = 'COD_PRO'
-    srs = '+proj=utm +zone=32 +ellps=intl +units=m +no_defs'
-    shp_file = '{}/dati/prov2011_g/prov2011_g.shp'.format(settings.REPO_ROOT)
-
-    def refine_context(self, context):
-        self.queryset = Territorio.objects.provincie()
-
-        if 'cod_reg' in context:
-            cod_reg = context['cod_reg']
-            self.queryset = self.queryset.filter(cod_reg=cod_reg)
-            self.territori_name = 'regioni_{}_province'.format(cod_reg)
-
-
-class MapnikComuniView(MapnikView):
-    territori_name = 'comuni'
-    codice_field = 'PRO_COM'
-    srs = '+proj=utm +zone=32 +ellps=intl +units=m +no_defs'
-    shp_file = '{}/dati/com2011_g/com2011_g.shp'.format(settings.REPO_ROOT)
-
-    def refine_context(self, context):
-        self.queryset = Territorio.objects.comuni()
-        if 'cod_reg' in context:
-            cod_reg = context['cod_reg']
-            self.queryset = self.queryset.filter(cod_reg=cod_reg)
-            self.territori_name = 'regioni_{}_comuni'.format(cod_reg)
-        elif 'cod_prov' in context:
-            cod_prov = context['cod_prov']
-            self.queryset = self.queryset.filter(cod_prov=cod_prov)
-            self.territori_name = 'province_{}_comuni'.format(cod_prov)
-        else:
-            raise Exception('a region or a province must be specified for this view')
-
-
-class TerritorioView(AggregatoMixin, DetailView):
-    model = Territorio
-    tipo_territorio = None
-
-    @cached_context
-    def get_cached_context_data(self):
-        context = {}
-
-        context = self.get_aggregate_data(context, territori=[self.object])
-
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters=self.object.get_cod_dict())
+        context['territori'] = self.add_totali(territori, progetti.nei_territori(territori).totali_group_by('territorio_set__{}'.format(self.cod_fld)), self.cod_fld)
 
         return context
 
     def get_context_data(self, **kwargs):
-        context = super(TerritorioView, self).get_context_data(**kwargs)
+        context = super(BaseMapnikView, self).get_context_data(**kwargs)
+
+        self.refine_context(context)
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.nei_territori([self.object]).no_privacy().conclusi()[:5]
+        tematizzazione = self.get_tematizzazione()
+
+        for obj in context['territori']:
+            obj.totale = obj.totali.get(tematizzazione.replace('_procapite', ''), 0)
+            if tematizzazione.endswith('_procapite'):
+                obj.totale = round(obj.totale / obj.popolazione_totale) if obj.popolazione_totale else 0
+
+        context['data'] = {t.slug: t.totale for t in context['territori']}
+
+        # DataClassifier instance
+
+        colors_map = settings.MAP_COLORS
+
+        n_bins = len(colors_map.keys()) - 1
+
+        dc = DataClassifier([t.totale for t in context['territori'] if t.totale], classifier_args={'k': n_bins})
+
+        context['classification_bins'] = dc.get_bins_ranges() if dc.dc else None
+
+        context['territori'] = [{'codice': str(t.codice), 'colore': colors_map[dc.get_class(t.totale)]} for t in context['territori']]
 
         return context
+
+    def refine_context(self, context):
+        pass
+
+
+class MapnikRegioniView(BaseMapnikView):
+    queryset = Territorio.objects.regioni()
+    territori_name = 'regioni'
+    codice_field = 'COD_REG'
+    cod_fld = 'cod_reg'
+    srs = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over'
+    shp_file = '{}/dati/reg2011_g/regioni_stats.shp'.format(settings.REPO_ROOT)
+
+
+class MapnikProvinceView(BaseMapnikView):
+    queryset = Territorio.objects.provincie()
+    territori_name = 'province'
+    codice_field = 'COD_PRO'
+    cod_fld = 'cod_prov'
+    srs = '+proj=utm +zone=32 +ellps=intl +units=m +no_defs'
+    shp_file = '{}/dati/prov2011_g/prov2011_g.shp'.format(settings.REPO_ROOT)
+
+    def refine_context(self, context):
+        if 'cod_reg' in context:
+            cod_reg = context['cod_reg']
+            self.queryset = self.queryset.filter(cod_reg=cod_reg)
+            # self.territori_name = 'regioni_{}_province'.format(cod_reg)
+
+
+class MapnikComuniView(BaseMapnikView):
+    queryset = Territorio.objects.comuni()
+    territori_name = 'comuni'
+    codice_field = 'PRO_COM'
+    cod_fld = 'cod_com'
+    srs = '+proj=utm +zone=32 +ellps=intl +units=m +no_defs'
+    shp_file = '{}/dati/com2011_g/com2011_g.shp'.format(settings.REPO_ROOT)
+
+    def refine_context(self, context):
+        if 'cod_reg' in context:
+            cod_reg = context['cod_reg']
+            self.queryset = self.queryset.filter(cod_reg=cod_reg)
+            # self.territori_name = 'regioni_{}_comuni'.format(cod_reg)
+        elif 'cod_prov' in context:
+            cod_prov = context['cod_prov']
+            self.queryset = self.queryset.filter(cod_prov=cod_prov)
+            # self.territori_name = 'province_{}_comuni'.format(cod_prov)
+        else:
+            raise Exception('A region or a province must be specified for this view')
+
+
+class BaseTerritorioView(AggregatoMixin, DetailView):
+    model = Territorio
+    tipo_territorio = None
 
     def get_object(self, queryset=None):
         try:
@@ -483,11 +421,33 @@ class TerritorioView(AggregatoMixin, DetailView):
                 return Territorio.objects.get(slug=slugify(self.kwargs['slug']), territorio=self.tipo_territorio)
             else:
                 return Territorio.objects.get(territorio=self.tipo_territorio)
-        except ObjectDoesNotExist:
-            raise Http404()
+        except Territorio.DoesNotExist:
+            raise Http404
+
+    def get_progetti_queryset(self):
+        return Progetto.objects.nei_territori([self.object])
+
+    @cached_context
+    def get_cached_context_data(self):
+        context = self.get_aggregate_data()
+
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters=self.object.get_cod_dict())
+
+        return context
+
+    def get_context_data(self, **kwargs):
+        context = super(BaseTerritorioView, self).get_context_data(**kwargs)
+
+        context.update(self.get_cached_context_data())
+
+        self.tematizza_context_data(context)
+
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:5]
+
+        return context
 
 
-class RegioneView(TerritorioView):
+class RegioneView(BaseTerritorioView):
     tipo_territorio = Territorio.TERRITORIO.R
 
     def get_context_data(self, **kwargs):
@@ -501,15 +461,15 @@ class RegioneView(TerritorioView):
         return context
 
 
-class ProvinciaView(TerritorioView):
+class ProvinciaView(BaseTerritorioView):
     tipo_territorio = Territorio.TERRITORIO.P
 
 
-class ComuneView(TerritorioView):
+class ComuneView(BaseTerritorioView):
     tipo_territorio = Territorio.TERRITORIO.C
 
 
-class AmbitoNazionaleView(TerritorioView):
+class AmbitoNazionaleView(BaseTerritorioView):
     tipo_territorio = Territorio.TERRITORIO.N
 
 
@@ -517,17 +477,20 @@ class AmbitoEsteroView(AggregatoMixin, ListView):
     tipo_territorio = Territorio.TERRITORIO.E
     queryset = Territorio.objects.filter(territorio=tipo_territorio)
 
-    @cached_context
-    def get_cached_context_data(self, territori):
-        context = {}
+    def get_progetti_queryset(self):
+        return Progetto.objects.nei_territori(self.get_queryset())
 
-        context = self.get_aggregate_data(context, territori=territori)
+    @cached_context
+    def get_cached_context_data(self):
+        context = self.get_aggregate_data()
 
         # add object_list to context, to make the get_context_data work in the setup_view environment
         # used in cache generators scripts and in the API
-        context['object_list'] = self.object_list if hasattr(self, 'object_list') else None
+        # context['object_list'] = self.object_list if hasattr(self, 'object_list') else None
 
-        progetti = Progetto.objects.myfilter(territori=territori)
+        progetti = self.get_progetti_queryset()
+
+        territori = self.get_queryset()
 
         multi_territori = {}
         for progetto in progetti.annotate(cnt=Count('territorio_set')).filter(cnt__gt=1):
@@ -547,21 +510,16 @@ class AmbitoEsteroView(AggregatoMixin, ListView):
 
         context['territori'] = [t for t in context['territori'] if t.totali != {}]
 
-        for obj in context['territori']:
-            obj.totale = obj.totali.get(context['tematizzazione'], 0)
-
         return context
 
     def get_context_data(self, **kwargs):
-        territori = self.queryset.all()
-
         context = super(AmbitoEsteroView, self).get_context_data(**kwargs)
 
-        context.update(self.get_cached_context_data(territori=territori))
+        context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.nei_territori(territori).no_privacy().conclusi()[:5]
+        self.tematizza_context_data(context)
 
-        context['tipo_territorio'] = self.tipo_territorio
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:5]
 
         return context
 

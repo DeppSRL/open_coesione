@@ -5,7 +5,6 @@ import zipfile
 from collections import OrderedDict
 from datetime import date
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Sum
 from django.http import HttpResponse, Http404
@@ -107,10 +106,10 @@ class ProgettoSearchView(OCFacetedSearchView):
         if fonte_fin:
             try:
                 extra['fonte_fin'] = ProgrammaAsseObiettivo.objects.get(pk=fonte_fin)
-            except ObjectDoesNotExist:
+            except ProgrammaAsseObiettivo.DoesNotExist:
                 try:
                     extra['fonte_fin'] = ProgrammaLineaAzione.objects.get(pk=fonte_fin)
-                except ObjectDoesNotExist:
+                except ProgrammaLineaAzione.DoesNotExist:
                     pass
 
         programmi_slug = self.request.GET.get('gruppo_programmi')
@@ -124,7 +123,7 @@ class ProgettoSearchView(OCFacetedSearchView):
         if soggetto_slug:
             try:
                 extra['soggetto'] = Soggetto.objects.get(slug=soggetto_slug)
-            except ObjectDoesNotExist:
+            except Soggetto.DoesNotExist:
                 pass
             else:
                 soggetto_ruolo = self.request.GET.get('ruolo')
@@ -162,9 +161,7 @@ class ProgettoSearchView(OCFacetedSearchView):
 class BaseProgrammaView(AggregatoMixin, TemplateView):
     @cached_context
     def get_cached_context_data(self, programmi):
-        context = {}
-
-        context = self.get_aggregate_data(context, programmi=programmi)
+        context = self.get_aggregate_data()
 
         # discriminate between ProgrammaAsseObiettivo and ProgrammaLineaAzione
         programmi_splitted = split_by_type(programmi)
@@ -187,7 +184,9 @@ class BaseProgrammaView(AggregatoMixin, TemplateView):
 
         context.update(self.get_cached_context_data(programmi=programmi))
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.con_programmi(programmi).no_privacy().conclusi()[:5]
+        self.tematizza_context_data(context)
+
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:5]
 
         return context
 
@@ -197,6 +196,9 @@ class ProgrammiView(BaseProgrammaView):
 
     def get_object(self):
         return GruppoProgrammi(codice=self.kwargs.get('slug'))
+
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_programmi(self.get_object().programmi)
 
     @cached_context
     def get_cached_context_data(self, programmi):
@@ -208,50 +210,36 @@ class ProgrammiView(BaseProgrammaView):
 
             data_pagamenti_per_programma = date(2015, 12, 31)
 
-            # dotazioni_totali = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Dotazioni_Certificazioni.xls'), 'rb')).splitlines()))
-            dotazioni_totali = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Target_Certificato_Pagamenti.xls'), 'rb'), sheet='Target spesa cert ammessi va').splitlines()))  ##########
+            dotazioni_totali = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Target_Certificato_Pagamenti.xls'), 'rb'), sheet='Target spesa cert ammessi va').splitlines()))
 
             for trend in ('conv', 'cro'):
-                programmi_codici = [programma.codice for programma in programmi if ' {} '.format(trend) in programma.descrizione.lower()]
+                programmi_per_trend_codici = [programma.codice for programma in programmi if ' {} '.format(trend) in programma.descrizione.lower()]
 
-                progetti = Progetto.objects.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici)
-                pagamenti_per_anno = PagamentoProgetto.objects.filter(data__day=31, data__month=12, progetto__in=progetti).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
-                # pagamenti_per_anno = PagamentoProgetto.objects.filter(data__day=31, data__month=12, progetto__active_flag=True, progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
+                progetti = Progetto.objects.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_per_trend_codici)
+                valori_per_anno = OrderedDict([(x['data'].year, {'dotazioni_totali': 0.0, 'pagamenti': float(x['ammontare'])}) for x in PagamentoProgetto.objects.filter(progetto__in=progetti).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data') if x['data'].strftime('%m%d') == '1231' or x['data'].strftime('%Y%m%d') == '20160229'])
+                valori_per_anno[2015] = valori_per_anno.pop(2016)  # i valori del 20160229 sono assegnati al 20151231
 
-                # pagamenti_2015 = 0  ##########
-                # dotazioni_totali_2015 = 0  #######
-
-                dotazioni_totali_per_anno = {pagamento['data'].year: 0 for pagamento in pagamenti_per_anno}
                 for row in dotazioni_totali:
-                    # programma_codice = row['OC_CODICE_PROGRAMMA']
-                    programma_codice = row['DPS_CODICE_PROGRAMMA']  ###########
-                    if programma_codice in programmi_codici:
-                        # pagamenti_2015 += float(row['pagamenti ammessi 20151231'])  ########
-                        # dotazioni_totali_2015 += float(row['DOTAZIONE TOTALE PROGRAMMA POST PAC 20151231'])  ########
-
-                        for anno in dotazioni_totali_per_anno:
-                            # data = '{}1231'.format(max(anno, 2009))  # i dati delle dotazioni totali partono dal 2009; per gli anni precedenti valgono i dati del 2009
-                            data = '{}1231'.format(max(anno, 2010))  ##############
+                    programma_codice = row['OC_CODICE_PROGRAMMA']
+                    if programma_codice in programmi_per_trend_codici:
+                        for anno in valori_per_anno:
+                            data = '{}1231'.format(max(anno, 2010))  # i dati delle dotazioni totali partono dal 2010; per gli anni precedenti valgono i dati del 2010
                             try:
                                 valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {}'.format(data)]
                             except KeyError:
                                 valore = row['DOTAZIONE TOTALE PROGRAMMA {}'.format(data)]
 
-                            dotazioni_totali_per_anno[anno] += float(valore)
+                            valori_per_anno[anno]['dotazioni_totali'] += float(valore)
 
-                context['pagamenti_per_anno_{}'.format(trend)] = [{'year': pagamento['data'].year, 'total_amount': dotazioni_totali_per_anno[pagamento['data'].year], 'paid_amount': pagamento['ammontare'] or 0} for pagamento in pagamenti_per_anno]
-                context['pagamenti_per_anno_{}'.format(trend)] = [x for x in context['pagamenti_per_anno_{}'.format(trend)] if x['year'] != 2006]  ###########
-                # context['pagamenti_per_anno_{}'.format(trend)].append({'year': 2015, 'total_amount': dotazioni_totali_2015, 'paid_amount': pagamenti_2015})  ##########
+                context['pagamenti_per_anno_{}'.format(trend)] = [{'year': anno, 'total_amount': valori['dotazioni_totali'], 'paid_amount': valori['pagamenti']} for anno, valori in valori_per_anno.items()]
 
-                # programmi_con_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__data=data_pagamenti_per_programma, classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_codici).values('descrizione', 'codice').annotate(ammontare=Sum('classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__ammontare_rendicontabile_ue')).order_by('descrizione')
-                programmi_senza_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_codici).distinct().values('descrizione', 'codice').order_by('descrizione')  ##############
+                programmi_per_trend = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_per_trend_codici).distinct().values('descrizione', 'codice').order_by('descrizione')
 
                 dotazioni_totali_per_programma = {}
-                pagamenti_per_programma = {}  ##########
+                pagamenti_per_programma = {}
                 for row in dotazioni_totali:
-                    # programma_codice = row['OC_CODICE_PROGRAMMA']
-                    programma_codice = row['DPS_CODICE_PROGRAMMA']  ###########
-                    if programma_codice in programmi_codici:
+                    programma_codice = row['OC_CODICE_PROGRAMMA']
+                    if programma_codice in programmi_per_trend_codici:
                         data = data_pagamenti_per_programma.strftime('%Y%m%d')
                         try:
                             valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {}'.format(data)]
@@ -260,10 +248,9 @@ class ProgrammiView(BaseProgrammaView):
 
                         dotazioni_totali_per_programma[programma_codice] = float(valore)
 
-                        pagamenti_per_programma[programma_codice] = float(row['pagamenti ammessi {}'.format(data)])  ##############
+                        pagamenti_per_programma[programma_codice] = float(row['pagamenti ammessi {}'.format(data)])
 
-                # context['pagamenti_per_programma_{}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': dotazioni_totali_per_programma[programma['codice']], 'paid_amount': programma['ammontare']} for programma in programmi_con_pagamenti]
-                context['pagamenti_per_programma_{}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': dotazioni_totali_per_programma[programma['codice']], 'paid_amount': pagamenti_per_programma[programma['codice']]} for programma in programmi_senza_pagamenti]  ###############
+                context['pagamenti_per_programma_{}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': dotazioni_totali_per_programma[programma['codice']], 'paid_amount': pagamenti_per_programma[programma['codice']]} for programma in programmi_per_trend]
 
             pagamenti_per_anno_tutti = {}
             for item in context['pagamenti_per_anno_conv'] + context['pagamenti_per_anno_cro']:
@@ -300,8 +287,11 @@ class ProgrammaView(BaseProgrammaView):
     def get_object(self):
         try:
             return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
-        except ObjectDoesNotExist:
+        except ProgrammaAsseObiettivo.DoesNotExist:
             return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
+
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_programmi([self.get_object()])
 
     def get_context_data(self, **kwargs):
         try:
@@ -322,11 +312,12 @@ class ClassificazioneAzioneView(AggregatoMixin, DetailView):
     context_object_name = 'natura'
     model = ClassificazioneAzione
 
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_natura(self.object)
+
     @cached_context
     def get_cached_context_data(self):
-        context = {}
-
-        context = self.get_aggregate_data(context, classificazione=self.object)
+        context = self.get_aggregate_data()
 
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__classificazione_azione__classificazione_superiore': self.object})
 
@@ -337,7 +328,9 @@ class ClassificazioneAzioneView(AggregatoMixin, DetailView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.con_natura(self.object).no_privacy().conclusi()[:5]
+        self.tematizza_context_data(context)
+
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:5]
 
         context['map_selector'] = 'nature/{}/'.format(self.kwargs['slug'])
 
@@ -347,11 +340,12 @@ class ClassificazioneAzioneView(AggregatoMixin, DetailView):
 class TemaView(AggregatoMixin, DetailView):
     model = Tema
 
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_tema(self.object)
+
     @cached_context
     def get_cached_context_data(self):
-        context = {}
-
-        context = self.get_aggregate_data(context, tema=self.object)
+        context = self.get_aggregate_data()
 
         context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__tema__tema_superiore': self.object})
 
@@ -362,7 +356,9 @@ class TemaView(AggregatoMixin, DetailView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.con_tema(self.object).no_privacy().conclusi()[:5]
+        self.tematizza_context_data(context)
+
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:5]
 
         context['map_selector'] = 'temi/{}/'.format(self.kwargs['slug'])
 

@@ -89,7 +89,7 @@
     {% addtoblock 'js' strip %}
         <script>
             $(document).ready(function() {
-                $('a[href="#"]').on('click', function(e) {
+                $('body').on('click', 'a[href="#"]', function(e) {
                     e.preventDefault();
                 });
 
@@ -138,7 +138,7 @@
                             <h1><a href="{% url 'home' %}"><img src="{% static 'img/header/testata.png' %}" alt="OpenCoesione. Verso un migliore uso delle risorse: scopri, segui, sollecita"></a></h1>
                         </div>
                         <ul id="social_links">
-                            <li><a rel="info-tooltip" data-placement="bottom" title="La newsletter di OpenCoesione" class="mail" href="{% url 'rubrica-newsletter' %}">Newsletter</a></li>
+                            <li><a rel="info-tooltip" data-placement="bottom" title="La newsletter di OpenCoesione" class="mail" href="{% url 'newsletter' %}">Newsletter</a></li>
                             <li><a rel="info-tooltip" data-placement="bottom" title="OpenCoesione su Twitter" class="twitter" href="https://twitter.com/OpenCoesione">Twitter</a></li>
                             <li><a rel="info-tooltip" data-placement="bottom" title="Il canale OpenCoesione su Vimeo" class="vimeo" href="https://vimeo.com/channels/787486">Vimeo</a></li>
                             <li><a rel="info-tooltip" data-placement="bottom" title="Le slide di OpenCoesione su SlideShare" class="slideshare" href="http://www.slideshare.net/OpenCoesione">SlideShare</a></li>

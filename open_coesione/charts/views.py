@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from collections import OrderedDict
-from itertools import groupby
 import json
+from collections import OrderedDict
 from django.http import HttpResponse
+from itertools import groupby
 from models import Indicatore, Ripartizione, IndicatoreRegionale
 
 

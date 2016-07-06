@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict, OrderedDict
 from django.conf import settings
-from django.core.cache import cache
 from django.db.models import Count, Sum
 from django.views.generic.detail import DetailView
 from models import Soggetto
 from oc_search.views import OCFacetedSearchView
-from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin
+from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
 from progetti.models import Progetto, Tema, Ruolo
 from territori.models import Territorio
 
@@ -18,33 +17,24 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
     def get_x_robots_tag(self):
         return 'noindex' if self.object.privacy_flag else False
 
-    def get_context_data(self, **kwargs):
-        # look for context in cache (only for soggetti with a high number of progetti).
-        cache_key = None
-        if self.object.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
-            cache_key = 'context' + self.request.get_full_path()
-            context = cache.get(cache_key)
-            if context is not None:
-                return context
+    def get_progetti_queryset(self):
+        return Progetto.objects.del_soggetto(self.object)
 
-        context = super(SoggettoView, self).get_context_data(**kwargs)
+    @property
+    def cache_enabled(self):
+        return self.object.n_progetti > settings.BIG_SOGGETTI_THRESHOLD
 
-        # if self.request.GET.get('tematizzazione', 'totale_costi') == 'anagrafica':
-        #     context['tematizzazione'] = 'anagrafica'
-        #     context.update(
-        #         self.get_totals(soggetto=self.object)
-        #     )
-        #
-        #     self.template_name = 'soggetti/soggetto_detail_anagrafica.html'
-        #     return context
+    @cached_context
+    def get_cached_context_data(self):
+        sum_dict = lambda *ds: {k: sum(d.get(k, 0) or 0 for d in ds) for k in ds[0]}
 
-        context = self.get_aggregate_data(context, soggetto=self.object)
-
-        # PROGETTI CON PIÙ FONDI
+        context = self.get_aggregate_data()
 
         context['top_progetti'] = context.pop('top_progetti_per_costo')
 
-        # COLLABORATORI CON CUI SI SPARTISCONO PIÙ SOLDI
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__soggetto_set__pk': self.object.pk})
+
+        # == COLLABORATORI CON CUI SI SPARTISCONO PIÙ SOLDI =======================================
 
         top_collaboratori = Soggetto.objects.filter(progetto__ruolo__soggetto=self.object).exclude(pk=self.object.pk).values('pk').annotate(totale=Count('pk')).order_by('-totale')[:5]
 
@@ -56,80 +46,81 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
             soggetto.totale = c['totale']
             context['top_collaboratori'].append(soggetto)
 
-        # COMUNI IN CUI QUESTO SOGGETTO HA OPERATO DI PIU'
+        # == TOTALI PER REGIONI (E NAZIONI) =======================================================
 
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__soggetto_set__pk': self.object.pk})
-
-        # TOTALI PER REGIONI (E NAZIONI)
-
-        progetti = Progetto.objects.myfilter(soggetto=self.object)
+        progetti = self.get_progetti_queryset()
 
         # i progetti del soggetto localizzati in più territori (vengono considerati a parte per evitare di contarli più volte nelle aggregazioni)
         progetti_multilocalizzati_pks = [x['pk'] for x in progetti.values('pk').annotate(cnt=Count('territorio_set__cod_reg', distinct=True)).filter(cnt__gt=1)]
 
-        totali_non_multilocalizzati = {x['id']: x[context['tematizzazione']] for x in progetti.exclude(pk__in=progetti_multilocalizzati_pks).totali_group_by('territorio_set__cod_reg')}
+        totali_non_multilocalizzati = {x.pop('id'): x for x in progetti.exclude(pk__in=progetti_multilocalizzati_pks).totali_group_by('territorio_set__cod_reg')}
 
-        totale_multilocalizzati_nazionali = 0
-        totale_multilocalizzati_non_nazionali = 0
+        totali_multilocalizzati_nazionali = {}
+        totali_multilocalizzati_non_nazionali = {}
         for progetto in Progetto.objects.filter(pk__in=progetti_multilocalizzati_pks).prefetch_related('territorio_set'):
-            if context['tematizzazione'] == 'totale_costi':
-                val = float(progetto.fin_totale_pubblico)
-            elif context['tematizzazione'] == 'totale_pagamenti':
-                val = float(progetto.pagamento)
-            elif context['tematizzazione'] == 'totale_progetti':
-                val = 1
+            totali_progetto = {'totale_costi': float(progetto.fin_totale_pubblico or 0), 'totale_pagamenti': float(progetto.pagamento or 0), 'totale_progetti': 1}
 
-            if any([t.is_nazionale for t in progetto.territori]) and not any([t.is_estero for t in progetto.territori]):  # con almeno una localizzazione nazionale e nessuna estera
-                totale_multilocalizzati_nazionali += val
+            if any(t.is_nazionale for t in progetto.territori) and not any(t.is_estero for t in progetto.territori):  # con almeno una localizzazione nazionale e nessuna estera
+                totali_multilocalizzati_nazionali = sum_dict(totali_progetto, totali_multilocalizzati_nazionali)
             else:
-                totale_multilocalizzati_non_nazionali += val
+                totali_multilocalizzati_non_nazionali = sum_dict(totali_progetto, totali_multilocalizzati_non_nazionali)
 
-        if totale_multilocalizzati_nazionali:
-            totali_non_multilocalizzati[0] = totali_non_multilocalizzati.get(0, 0) + totale_multilocalizzati_nazionali
+        if any(totali_multilocalizzati_nazionali.viewvalues()):
+            totali_non_multilocalizzati[0] = sum_dict(totali_multilocalizzati_nazionali, totali_non_multilocalizzati.get(0, {}))
 
-        totali_non_multilocalizzati = {k: v for k, v in totali_non_multilocalizzati.items() if v > 0}
+        # totali_non_multilocalizzati = {key: tots for key, tots in totali_non_multilocalizzati.items() if any(tots.viewvalues())}
 
         context['territori'] = []
 
         for territorio in Territorio.objects.regioni(with_nation=True).filter(cod_reg__in=totali_non_multilocalizzati.keys()).order_by('-territorio', 'denominazione').defer('geom'):
-            territorio.totale = totali_non_multilocalizzati[territorio.cod_reg]
+            territorio.totali = totali_non_multilocalizzati[territorio.cod_reg]
             context['territori'].append(territorio)
 
         # assegno a un territorio fittizio i progetti multilocalizzati senza localizzazione nazionale
-        if totale_multilocalizzati_non_nazionali:
+        if any(totali_multilocalizzati_non_nazionali.viewvalues()):
             territorio = Territorio(denominazione=u'In più territori', territorio='X')
-            territorio.totale = totale_multilocalizzati_non_nazionali
+            territorio.totali = totali_multilocalizzati_non_nazionali
             context['territori'].append(territorio)
 
-        # TOTALI PER RUOLO
+        # == TOTALI PER RUOLO =====================================================================
 
-        aggregazione_ruolo = {
-            'totale_costi': Sum('progetto__fin_totale_pubblico'),
-            'totale_pagamenti': Sum('progetto__pagamento'),
-            'totale_progetti': Count('progetto')
-        }[context['tematizzazione']]
-
-        progetto_to_ruoli = defaultdict(dict)
+        totali_by_ruolo_by_progetto = defaultdict(dict)
 
         for ruolo in dict(Ruolo.RUOLO).keys():
-            for progetto_id, totale in Ruolo.objects.filter(soggetto=self.object, ruolo=ruolo).annotate(totale=aggregazione_ruolo).values_list('progetto_id', 'totale'):
-                progetto_to_ruoli[progetto_id][ruolo] = float(totale or 0)
+            for totali in Ruolo.objects.filter(soggetto=self.object, ruolo=ruolo).values('progetto_id').annotate(totale_costi=Sum('progetto__fin_totale_pubblico'), totale_pagamenti=Sum('progetto__pagamento'), totale_progetti=Count('progetto')):
+                totali_by_ruolo_by_progetto[totali.pop('progetto_id')][ruolo] = totali
 
-        dict_finanziamenti_per_ruolo = defaultdict(float)
+        totali_by_ruolo = defaultdict(dict)
 
-        for ruoli in progetto_to_ruoli.values():
-            codice = ''.join(ruoli.keys())  # in caso di più ruoli per uno stesso progetto si crea un nuovo codice
-            totale = max(ruoli.values())    # prendo il massimo dei totali per ruolo, tanto DEVONO essere tutti uguali
+        for totaliprogetto_by_ruolo in totali_by_ruolo_by_progetto.values():
+            codice = ''.join(totaliprogetto_by_ruolo.keys())  # in caso di più ruoli per uno stesso progetto si crea un nuovo codice
+            totali = totaliprogetto_by_ruolo.values()[0]  # prendo il primo dei totali per ruolo, tanto DEVONO essere tutti uguali
 
-            dict_finanziamenti_per_ruolo[codice] += totale
+            totali_by_ruolo[codice] = sum_dict(totali, totali_by_ruolo[codice])
 
-        context['ruoli'] = sorted([{'nome': '/'.join(sorted([dict(Ruolo.RUOLO)[r] for r in x[0]])), 'codice': x[0], 'totale': x[1]} for x in dict_finanziamenti_per_ruolo.items()], key=lambda x: x['totale'], reverse=True)
+        context['ruoli'] = [{'nome': '/'.join(sorted([dict(Ruolo.RUOLO)[r] for r in codice])), 'codice': codice, 'totali': totali} for codice, totali in totali_by_ruolo.items()]
 
-        # store context in cache (only for soggetti with a high number of progetti).
-        if self.object.n_progetti > settings.BIG_SOGGETTI_THRESHOLD:
-            serializable_context = context.copy()
-            serializable_context.pop('view', None)
-            cache.set(cache_key, serializable_context)
+        return context
+
+    def get_context_data(self, **kwargs):
+        context = super(SoggettoView, self).get_context_data(**kwargs)
+
+        # if self.request.GET.get('tematizzazione', 'totale_costi') == 'anagrafica':
+        #     context['tematizzazione'] = 'anagrafica'
+        #     context.update(self.get_progetti_queryset().totali())
+        #
+        #     self.template_name = 'soggetti/soggetto_detail_anagrafica.html'
+        #
+        #     return context
+
+        context.update(self.get_cached_context_data())
+
+        self.tematizza_context_data(context)
+
+        for r in context['ruoli']:
+            r['totale'] = r.pop('totali').get(context['tematizzazione'], 0)
+
+        context['ruoli'] = sorted(context['ruoli'], key=lambda x: x['totale'], reverse=True)
 
         return context
 

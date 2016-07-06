@@ -1,34 +1,31 @@
 # -*- coding: utf-8 -*-
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.core.management.base import BaseCommand
+import logging
 import sys
-
+from django.core.management.base import BaseCommand
 from open_coesione import utils
 from optparse import make_option
-import logging
-
 from progetti.models import Progetto, Tema
 from territori.models import Territorio
+
 
 class Command(BaseCommand):
     """
     Which regions get the money, for what topic?
     """
-    help = "Which regions get the money, for what topic?"
+    help = 'Which regions get the money, for what topic?'
 
     option_list = BaseCommand.option_list + (
         make_option('--topic',
                     dest='topic',
                     help='topic slug'),
         make_option('--topic-list', action='store_true', dest='topiclist',
-                    help='Print the list of all topics\' slugs and exit'),
+                    help="Print the list of all topics' slugs and exit"),
     )
 
     logger = logging.getLogger('csvimport')
     unicode_writer = None
 
     def handle(self, *args, **options):
-
         verbosity = options['verbosity']
         if verbosity == '0':
             self.logger.setLevel(logging.ERROR)
@@ -39,50 +36,42 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        ## handle request to show topics list
         if options['topiclist']:
-            topics = Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico)
+            topics = Tema.objects.principali()
             for t in topics:
-                print u"{0}".format(t.slug)
-            exit(1)
-
-        csv_writer = utils.UnicodeWriter(sys.stdout, dialect=utils.excel_semicolon)
-        csv_writer.writerow(self.get_first_row())
-
-
-        ## fetch topic
-        regs = Territorio.objects.regioni()
-        if options['topic']:
+                print u'{}'.format(t.slug)
+        elif options['topic']:
             try:
-                topic = Tema.objects.get(tipo_tema=Tema.TIPO.sintetico, slug=options['topic'])
-            except ObjectDoesNotExist:
-                raise Exception("Unknown topic {0}".format(options['topic']))
-            costo = Progetto.objects.totale_costi(tema=topic)
-            costo_procapite = Progetto.objects.totale_costi_procapite(tema=topic)
+                tema = Tema.objects.principali().get(slug=options['topic'])
+            except Tema.DoesNotExist:
+                raise Exception('Unknown topic {}'.format(options['topic']))
+            else:
+                progetti = Progetto.objects.con_tema(tema)
+                costo = progetti.totale_costi()
+                costo_procapite = round(costo / Territorio.objects.nazione().popolazione_totale)
+
+                csv_writer = utils.UnicodeWriter(sys.stdout, dialect=utils.excel_semicolon)
+                csv_writer.writerow(self.get_first_row())
+
+                for regione in Territorio.objects.regioni():
+                    costo_regione = progetti.nei_territori([regione]).totale_costi()
+                    costo_procapite_regione = round(costo_regione / regione.popolazione_totale) if regione.popolazione_totale else 0
+                    csv_writer.writerow([
+                        regione.denominazione,
+                        '{:.2f}'.format(costo_regione),
+                        '{:.2f}'.format(costo_procapite_regione),
+                        '{:.2f}'.format(costo_regione / costo * 100),
+                    ])
+
+                csv_writer.writerow([
+                    'TOTALE',
+                    '{:.2f}'.format(costo),
+                    '{:.2f}'.format(costo_procapite),
+                    '{:.2f}'.format(100),
+                ])
         else:
-            raise Exception("Please select a topic slug")
+            raise Exception('Please select a topic slug')
 
-        for reg in regs:
-            costo_reg = Progetto.objects.totale_costi(tema=topic, territorio=reg)
-            costo_procapite_reg = Progetto.objects.totale_costi_procapite(tema=topic, territorio=reg)
-            csv_writer.writerow([
-                reg.denominazione,
-                "{0:.2f}".format(costo_reg),
-                "{0:.2f}".format(costo_procapite_reg),
-                "{0:.2f}".format(costo_reg/costo*100),
-            ])
-
-        csv_writer.writerow([
-            "TOTALE",
-            "{0:.2f}".format(costo),
-            "{0:.2f}".format(costo_procapite),
-            "{0:.2f}".format(100),
-        ])
-
-    def get_first_row(self):
+    @staticmethod
+    def get_first_row():
         return ['Regione', 'Finanziamento totale', 'Finanziamento pro capite', 'Percentuale finanziamento su tema']
-
-
-
-
-

@@ -5,8 +5,7 @@ from django.contrib.gis import admin
 from django.views.generic.base import TemplateView
 from views import HomeView, FondiView, RisorsaView, ContactView, SpesaCertificataGraficiView,\
     OpendataView, OpendataRedirectView, PillolaListView, PillolaDetailView, DocumentsRedirectView, FAQListView,\
-    PressReviewListView, DatiISTATView, SpesaCertificataView
-from rubrica.views import NLContactView
+    PressReviewListView, DatiISTATView, SpesaCertificataView, IndicatoriAccessoView
 from filebrowser.sites import site
 
 
@@ -44,7 +43,6 @@ urlpatterns = patterns('',
     url(r'^su/', include('urlshortener.urls')),
 
     # pillole
-    # url(r'^pillole/(?P<path>.+)$', PillolaRedirectView.as_view(), name='pillole_clean'),
     url(r'^pillole/$', PillolaListView.as_view(), name='pillole'),
     url(r'^pillola/(?P<slug>[\w-]+)/$', PillolaDetailView.as_view(), name='pillola'),
 
@@ -58,12 +56,10 @@ urlpatterns = patterns('',
 
     # pre-csm page routes
     # TODO: move into flatpages
-#    url(r'^progetto/$', TemplateView.as_view(template_name='flat/progetto.html'), name='oc-progetto-it'),
     url(r'^progetto/en/$', TemplateView.as_view(template_name='flat/project.html')),
     url(r'^project/$', TemplateView.as_view(template_name='flat/project.html'), name='oc-progetto-en'),
     url(r'^a-scuola-di-opencoesione/', TemplateView.as_view(template_name='flat/a_scuola_di_opencoesione.html')),
     url(r'^cerca-un-progetto/', TemplateView.as_view(template_name='flat/cerca_progetto.html')),
-    # url(r'^privacy/$', TemplateView.as_view(template_name='flat/privacy.html'), name='oc-privacy'),
     url(r'^contatti/$', ContactView.as_view(template_name='flat/contatti.html'), name='oc-contatti'),
     url(r'^cerca-un-soggetto/', TemplateView.as_view(template_name='flat/cerca_soggetto.html')),
     url(r'^scheda-progetto/', TemplateView.as_view(template_name='flat/scheda_progetto.html')),
@@ -72,7 +68,10 @@ urlpatterns = patterns('',
 
     url(r'^dati-istat-di-contesto/$', DatiISTATView.as_view(template_name='open_coesione/dati_istat.html'), name='dati-istat'),
 
-    url(r'^segui/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
+    url(r'^indicatori_di_accesso/$', IndicatoriAccessoView.as_view(lang='it', template_name='open_coesione/indicatori_accesso.html'), name='indicatori-accesso-it'),
+    url(r'^access_indicators/$', IndicatoriAccessoView.as_view(lang='en', template_name='open_coesione/indicatori_accesso.html'), name='indicatori-accesso-en'),
+
+    url(r'^segui/', TemplateView.as_view(template_name='open_coesione/newsletter.html'), name='newsletter'),
 
     url(r'^rassegna-stampa/', PressReviewListView.as_view()),
 

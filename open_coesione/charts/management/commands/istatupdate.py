@@ -19,6 +19,7 @@ from open_coesione.charts.models import Indicatore, IndicatoreRegionale, Riparti
 ISTAT_ARCHIVE_FILE_PATH = 'http://www.istat.it/storage/politiche-sviluppo/Archivio_unico_indicatori_regionali.zip'
 ISTAT_FILE_NAME = 'Archivio_unico_indicatori_regionali.csv'
 ISTAT_FILE_ENCODING = 'utf-8-sig'
+# ISTAT_FILE_ENCODING = 'latin1'
 
 # csv fields
 CSV_CODE = 'COD_INDICATORE'
@@ -121,6 +122,7 @@ class Command(BaseCommand):
         df = pd.read_csv(
             StringIO(csv_stream),
             sep=';',
+            # sep='\t',
             header=0,
             low_memory=True,
             dtype=object,
