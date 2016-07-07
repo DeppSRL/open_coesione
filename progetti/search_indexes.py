@@ -8,7 +8,7 @@ import datetime
 class ProgettoIndex(SearchIndex):
     text = CharField(document=True, use_template=True, stored=False)
 
-    soggetto = MultiValueField(stored=False)
+    soggetto = FacetMultiValueField(stored=False)
 
     territorio_tipo = MultiValueField(stored=False)
     territorio_com = MultiValueField(stored=False)

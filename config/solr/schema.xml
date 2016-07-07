@@ -108,7 +108,7 @@
 
     <field name="natura" type="string" indexed="true" stored="false" multiValued="false" />
 
-    <field name="soggetto" type="text" indexed="true" stored="false" multiValued="true" />
+    <field name="soggetto" type="string" indexed="true" stored="false" multiValued="true" />
 
     <field name="territorio_com" type="text" indexed="true" stored="false" multiValued="true" />
 
