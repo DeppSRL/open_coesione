@@ -260,6 +260,8 @@ class LeafletView(JSONResponseMixin, TemplateView):
 
         context['tilestache_url'] = settings.TILESTACHE_URL
 
+        return context
+
 
 class TilesConfigView(TemplateView):
     template_name = 'territori/tiles.cfg'
