@@ -21,7 +21,7 @@
         <hr/>
 
         {% for object in object_list %}
-            {% include 'open_coesione/pillola_item.html' with object=object title_linked=True full_view=forloop.first only %}
+            {% include 'open_coesione/pillola_item.html' with object=object title_linked=True full_view=forloop.first SEKIZAI_CONTENT_HOLDER=SEKIZAI_CONTENT_HOLDER only %}
             <hr/>
         {% endfor %}
     </div>
