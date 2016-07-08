@@ -1,4 +1,4 @@
-{% load staticfiles %}
+{% load sekizai_tags staticfiles %}
 
 <article id="pillola-{{ object.pk }}">
     <header>
@@ -27,3 +27,5 @@
         <p><a href="{{ object.get_absolute_url }}">Leggi tutto</a></p>
     {% endif %}
 </article>
+
+{% add_data 'js-data' 'js/bootstrap-collapse.js' %}
