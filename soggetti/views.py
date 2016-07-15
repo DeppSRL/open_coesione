@@ -104,10 +104,10 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(SoggettoView, self).get_context_data(**kwargs)
+        context['MIUR_EXT_API_URL'] = settings.MIUR_EXT_API_URL
 
         if self.request.GET.get('tematizzazione', 'totale_costi') == 'anagrafica':
              context['tematizzazione'] = 'anagrafica'
-             context['MIUR_EXT_API_URL'] = settings.MIUR_EXT_API_URL
              context.update(self.get_progetti_queryset().totali())
        
              self.template_name = 'soggetti/soggetto_detail_anagrafica.html'

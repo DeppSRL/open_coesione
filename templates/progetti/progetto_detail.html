@@ -225,7 +225,7 @@
 
                     <script type="text/javascript">
                     $( document ).ready(function() {
-                      var id = '{{ progetto.pk }}';
+                      var id = '{{ progetto.codice_locale }}';
 
                       $.getJSON( "{{ MIUR_EXT_API_URL }}indicatori_progetti?id="+id, function( data ) {
                         var items = [];
