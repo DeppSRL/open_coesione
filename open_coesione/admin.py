@@ -111,7 +111,7 @@ class PressReviewAdmin(admin.ModelAdmin):
 
 class PillolaAdmin(admin.ModelAdmin):
     date_hierarchy = 'published_at'
-    list_display = ('title', 'published_at')
+    list_display = ('title', 'published_at', 'in_english')
     ordering = ('-published_at',)
     prepopulated_fields = {'slug': ('title',)}
     inlines = [FileInline, TagInline]

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% load staticfiles sekizai_tags %}
+{% load sekizai_tags %}
 
 {% block page_title %}Indicatori territoriali e tematici{% endblock %}
 
@@ -49,10 +49,10 @@
                                         <form action="#">
                                             <div class="input-append text-center">
                                                 {% spaceless %}
-                                                    <select id="region-selector" class="span3">
+                                                    <select id="location-selector" class="span3">
                                                         <option value=""> -- Confronta le regioni -- </option>
                                                     </select>
-                                                    <a id="region-reset" class="btn add-on" href="#">reset</a>
+                                                    <a id="location-reset" class="btn add-on" href="#">reset</a>
                                                 {% endspaceless %}
 
                                                 <select id="indicator-selector" class="span5"></select>
@@ -70,12 +70,11 @@
 
     {% add_data 'js-data' 'js/bootstrap-collapse.js' %}
     {% add_data 'js-data' 'js/highcharts.js' %}
-    {% add_data 'js-data' 'js/oc-charts.js' %}
     {% add_data 'js-data' 'js/oc-indicatori.js' %}
     {% addtoblock 'js' strip %}
         <script>
             $(document).ready(function() {
-                init_charts('#index_charts', '{% static '' %}', 1 ,{{ lista_regioni|length|add:1 }});
+                var G = new IndicatorsGraph('#index_charts', 1, {{ lista_regioni|length|add:1 }});
             });
         </script>
     {% endaddtoblock %}

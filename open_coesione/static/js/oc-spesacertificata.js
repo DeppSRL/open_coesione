@@ -244,7 +244,7 @@ var OPCOGraph;
                         s += '<table>';
                         $.each(this.points, function () {
                             s += '<tr><td style="color:' + this.color + '">\u25CF ' + this.series.name + ': </td>' +
-                                '<td style="text-align: right"><b>' + Highcharts.numberFormat(this.y, 2) + '%' + '</b></td></tr>';
+                                '<td style="text-align: right"><b>' + Highcharts.numberFormat(this.y, 0) + '%' + '</b></td></tr>';
                         });
                         s += '</table>';
 
@@ -311,6 +311,7 @@ var OPCOGraph;
                         },
                         lineWidth: 2
                     },
+/*
                     {
                         name: 'Obiettivo nazionale di spesa certificata',
                         //allowPointSelect: true,
@@ -325,6 +326,7 @@ var OPCOGraph;
                         },
                         lineWidth: 0
                     },
+*/
                     {
                         name: 'Obiettivo comunitario di spesa certificata',
                         //allowPointSelect: true,

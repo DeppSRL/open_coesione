@@ -92,7 +92,13 @@ function build_map( container, data_url, callback, failback ) {
             scrollWheelZoom: false,
             attributionControl: false
         });
+
+        var attribution = new L.Control.Attribution();
+        attribution.setPrefix('');
+        attribution.addAttribution('Map data © <a href="http://www.istat.it/it/strumenti/territorio-e-cartografia">ISTAT</a>, OpenCoesione and <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors');
+        attribution.addTo(MAPPA);
     }
+
     if ( !MAPPA_POPUP ) {
         MAPPA_POPUP = new L.Popup();
     }

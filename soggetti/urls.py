@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.conf.urls import patterns, url
 from soggetti.search_querysets import sqs
 from soggetti.views import SoggettoView, SoggettoSearchView
