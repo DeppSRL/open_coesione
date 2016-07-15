@@ -729,6 +729,7 @@ class Ruolo(models.Model):
     soggetto = models.ForeignKey(Soggetto)
     ruolo = models.CharField(max_length=1, choices=RUOLO)
     progressivo_ruolo = models.PositiveSmallIntegerField(null=True, blank=True)
+    codice_progetto = models.CharField(max_length=100, db_index=True)
 
     @classmethod
     def inv_ruoli_dict(cls):
