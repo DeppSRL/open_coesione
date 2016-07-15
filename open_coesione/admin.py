@@ -1,17 +1,13 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.contrib.flatpages.models import FlatPage
-from models import ContactMessage, PressReview, Pillola, File, Link, FAQ
-from django.forms import ModelForm
 from django.contrib.contenttypes import generic
-
-from tinymce.widgets import TinyMCE
-from open_coesione.utils import export_select_fields_csv_action
-
-from tagging.admin import TagInline
-
-
 from django.contrib.flatpages.admin import FlatPageAdmin, FlatpageForm
+from django.contrib.flatpages.models import FlatPage
+from django.forms import ModelForm
+from models import ContactMessage, PressReview, Pillola, File, Link, FAQ
+from utils import export_select_fields_csv_action
+from tagging.admin import TagInline
+from tinymce.widgets import TinyMCE
 
 
 common_mce_attrs = {
@@ -123,7 +119,6 @@ class FAQAdmin(admin.ModelAdmin):
     list_editable = ('priorita',)
     prepopulated_fields = {'slug_it': ('domanda_it',), 'slug_en': ('domanda_en',)}
     form = FAQAdminForm
-
 
 admin.site.register(ContactMessage, MessagesAdmin)
 admin.site.register(PressReview, PressReviewAdmin)

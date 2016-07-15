@@ -108,15 +108,15 @@
 
     <field name="natura" type="string" indexed="true" stored="false" multiValued="false" />
 
-    <field name="soggetto" type="text" indexed="true" stored="false" multiValued="true" />
+    <field name="soggetto" type="string" indexed="true" stored="false" multiValued="true" />
 
     <field name="territorio_com" type="text" indexed="true" stored="false" multiValued="true" />
 
-    <field name="fonte_fin" type="string" indexed="true" stored="false" multiValued="true" />
+    <field name="fonte_fin" type="text" indexed="true" stored="false" multiValued="true" />
 
     <field name="text" type="text" indexed="true" stored="false" multiValued="false" />
 
-    <field name="tipo_progetto" type="string" indexed="true" stored="false" multiValued="false" />
+    <field name="is_active" type="boolean" indexed="true" stored="false" multiValued="false" />
 
     <field name="territorio_prov" type="text" indexed="true" stored="false" multiValued="true" />
 
@@ -136,9 +136,9 @@
 
     <field name="perc_pagamento" type="sfloat" indexed="true" stored="false" multiValued="false" />
 
-    <field name="is_active" type="boolean" indexed="true" stored="false" multiValued="false" />
-
     <field name="fonte" type="string" indexed="true" stored="false" multiValued="true" />
+
+    <field name="classificazione_cup" type="text" indexed="true" stored="false" multiValued="false" />
 
   </fields>
 

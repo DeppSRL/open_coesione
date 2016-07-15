@@ -1,24 +1,9 @@
+# -*- coding: utf-8 -*-
 from datetime import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.html import strip_tags
 from tagging import models as tagging_models
-
-
-class EntryManager(models.Manager):
-    def get_latest_entries(self, qnt=10, start_date=None, end_date=None, single=False):
-        end_date = end_date or datetime.now()
-        qnt = qnt if not single else 1
-
-        if start_date:
-            entries = self.get_query_set().filter(published_at__range=(start_date, end_date))[:qnt]
-        else:
-            entries = self.get_query_set().filter(published_at__lte=end_date)[:qnt]
-
-        if single:
-            return entries[0] if entries else None
-
-        return entries
 
 
 class Entry(tagging_models.TagMixin, models.Model):
@@ -29,8 +14,6 @@ class Entry(tagging_models.TagMixin, models.Model):
     published_at = models.DateTimeField(default=datetime.now(), verbose_name='Data di pubblicazione')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    objects = EntryManager()
 
     def get_absolute_url(self):
         return reverse('blog_item', kwargs={'slug': self.slug})

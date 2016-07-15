@@ -5060,6 +5060,9 @@ a.block-chart {
 #banner-container #banner ul li a#bandi {
   background-image: url('../img/banner1420/bandi_ico.png');
 }
+#banner-container #banner ul li a#progetti {
+  background-image: url('../img/banner1420/progetti_ico.png');
+}
 #banner-container #banner ul li a:hover {
   text-decoration: none;
   background-color: #eae9e5;
@@ -5385,36 +5388,10 @@ section h2.title span {
 #wrapper > footer {
   background-color: #5b5955;
   color: #ffffff;
-  padding-top: 20px;
+  padding: 20px 0;
 }
 #wrapper > footer h1 {
   font-size: 24px;
-}
-#wrapper > footer #ue-pon-logos .logo-container {
-  width: 200px;
-  height: 75px;
-}
-#wrapper > footer #ue-pon-logos .logo-container.float-right {
-  float: right;
-}
-#wrapper > footer #ue-pon-logos .logo-container.float-left {
-  float: left;
-}
-#wrapper > footer #pon-disclaimer {
-  color: #ffffff;
-  font-size: 11px;
-  margin: 1em 0;
-}
-#wrapper > footer .data-disclaimer {
-  font-size: 11px;
-  margin-top: 1em;
-  text-align: center;
-  clear: both;
-}
-#wrapper > footer div.data-disclaimer {
-  width: 200px;
-  float: right;
-  margin-left: 15px;
 }
 #wrapper > footer a {
   color: #ffffff;
@@ -5422,47 +5399,55 @@ section h2.title span {
 #wrapper > footer a:hover {
   text-decoration: underline;
 }
-#wrapper > footer a.flag {
+#wrapper > footer .data-disclaimer {
+  font-size: 11px;
+  text-align: center;
+  padding-bottom: 4px;
+  margin: 0 12px 12px 12px;
+  border-bottom: 1px solid #ffffff;
+}
+#wrapper > footer .flag {
   display: block;
   text-indent: -99999px;
-  float: right;
-  margin-left: 15px;
-  width: 201px;
+  float: left;
+  width: 185px;
   height: 60px;
+  margin-bottom: 20px;
+  background-repeat: no-repeat;
+  background-position: -200px 0;
 }
-#wrapper > footer a.flag.flag-ue {
-  width: 200px;
-  height: 75px;
-  background: url('../img/footer/eu.png') no-repeat right;
+#wrapper > footer .flag:hover {
+  background-position: 0 0 !important;
 }
-#wrapper > footer a.flag.flag-ue:hover {
-  background-position: 0 0;
+#wrapper > footer .flag.flag-dpc {
+  float: none;
+  width: 352px;
+  height: 78px;
+  margin-top: 18px;
+  margin-left: auto;
+  margin-right: auto;
+  background-position: -352px 0;
+  background-image: url('../img/footer/dpc.png');
 }
-#wrapper > footer a.flag.pon-gat {
-  width: 200px;
-  height: 75px;
-  background: url('../img/footer/pon.png') no-repeat right;
+#wrapper > footer .flag.flag-act {
+  width: 165px;
+  margin-left: 10px;
+  margin-right: 10px;
+  background-position: -165px 0;
+  background-image: url('../img/footer/act.png');
 }
-#wrapper > footer a.flag.pon-gat:hover {
-  background-position: 0 0;
+#wrapper > footer .flag.flag-rgs {
+  width: 140px;
+  margin-left: 45px;
+  background-image: url('../img/footer/rgs.png');
 }
-#wrapper > footer a.flag.flag-dps {
-  background: url('../img/footer/dps.png') no-repeat right;
+#wrapper > footer .flag.flag-ue {
+  height: 70px;
+  background-image: url('../img/footer/ue.png');
 }
-#wrapper > footer a.flag.flag-dps:hover {
-  background-position: 0 0;
-}
-#wrapper > footer a.flag.flag-rgs {
-  background: url('../img/footer/rgs.png') no-repeat right;
-}
-#wrapper > footer a.flag.flag-rgs:hover {
-  background-position: 0 0;
-}
-#wrapper > footer a.flag.flag-cipe {
-  background: url('../img/footer/cipe.png') no-repeat right;
-}
-#wrapper > footer a.flag.flag-cipe:hover {
-  background-position: 0 0;
+#wrapper > footer .flag.flag-pongat {
+  height: 70px;
+  background-image: url('../img/footer/pongat.png');
 }
 .tabbable.boxed .content {
   padding: 10px;
@@ -5537,21 +5522,27 @@ ul.spaced#overlapping-projects li {
 .highcharts-tooltip .tooltip-box:after {
   clear: both;
 }
-#charts_accordion {
+#charts_accordion,
+.charts_accordion {
   margin-top: 10px;
   margin-bottom: 10px;
 }
 #charts_accordion h1,
-#charts_accordion h2 {
+.charts_accordion h1,
+#charts_accordion h2,
+.charts_accordion h2 {
   line-height: 20px;
 }
-#charts_accordion h1 {
+#charts_accordion h1,
+.charts_accordion h1 {
   font-size: 14px;
   color: #676462;
   margin-top: 10px;
   margin-bottom: 10px;
 }
-#charts_accordion h2 {
+#charts_accordion h2,
+.charts_accordion h2 {
+  overflow: hidden;
   background-color: #f7f6f1;
   font-size: 12px;
   padding: 4px 10px;
@@ -5559,7 +5550,8 @@ ul.spaced#overlapping-projects li {
   /*margin-bottom: 4px;*/
 
 }
-#charts_accordion h2 i {
+#charts_accordion h2 i,
+.charts_accordion h2 i {
   font-size: 16px;
 }
 dl.data {
@@ -5687,9 +5679,6 @@ hr.big.dark {
 #statistics .table th {
   line-height: 16px;
 }
-#charts_accordion h2 {
-  overflow: hidden;
-}
 #home {
   margin-top: 25px;
 }
@@ -5780,7 +5769,7 @@ hr.big.dark {
   display: inline-block;
   width: 30px;
   height: 30px;
-  background: transparent url("/static/img/icon-baloons-small.png") no-repeat left top;
+  background: transparent url('../img/icon-baloons-small.png') no-repeat left top;
   color: white;
   font-size: 12px;
   font-weight: bold;
@@ -5897,7 +5886,8 @@ hr.big.dark {
   padding-left: 1em;
 }
 #informativa h2 {
-  font-size: 13px;
+  font-size: 13px !important;
+  margin: 0 !important;
 }
 #newsletter-form.form-horizontal .control-label {
   width: 160px;

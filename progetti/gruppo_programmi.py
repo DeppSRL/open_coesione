@@ -53,6 +53,7 @@ class Config(object):
                 Q(descrizione__contains='FESR') & (
                     Q(descrizione__contains='ATTRATTORI CULTURALI') |
                     Q(descrizione__contains='RETI E MOBILITÀ') |
+                    Q(descrizione__contains='SICUREZZA') |
                     Q(descrizione__contains='CAMPANIA') |
                     Q(descrizione__contains='CALABRIA') |
                     Q(descrizione__contains='SICILIA') |
@@ -74,29 +75,16 @@ class Config(object):
             )
             cache.set('programmi_pac_fse', programmi_pac_fse)
 
-        # some fsc lists must be built by hand
-        # lista_programmi_fsc_pas = OrderedDict([
-        #     (u'PROGRAMMA ATTUATIVO SPECIALE FSC COMUNE DI PALERMO', u'2007SI002FAPA1'),
-        #     (u'PROGRAMMA ATTUATIVO SPECIALE FSC DIRETTRICI FERROVIARIE', u'2007IT001FA005'),
-        #     (u'PROGRAMMA ATTUATIVO SPECIALE FSC GIUSTIZIA CIVILE CELERE PER LA CRESCITA', u'2007IT005FAMG1'),
-        #     (u'PROGRAMMA ATTUATIVO SPECIALE FSC RI.MED', u'2007IT002FA030'),
-        #     (u'PROGRAMMA STRATEGICO FSC COMPENSAZIONI AMBIENTALI REGIONE CAMPANIA', u'2007IT005FAMAC'),
-        # ])
-        # lista_programmi_fsc_pna = OrderedDict([
-        #     (u'PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) FSC DA EXPO AI TERRITORI', u'2007IT001FA003'),
-        #     (u"PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) FSC NUOVA IMPRENDITORIALITA' AGRICOLA", u'2007IT006FISMA'),
-        #     (u'PROGRAMMA NAZIONALE DI ATTUAZIONE (PNA) FSC RISANAMENTO AMBIENTALE', u'2007IT004FAMA1'),
-        # ])
-
         lista_programmi = {
             'fse': [p for p in programmi_asse_obiettivo if ' FSE ' in p.descrizione.upper()],
             'fesr': [p for p in programmi_asse_obiettivo if ' FESR ' in p.descrizione.upper()],
-            'fsc': [
-                OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PAR')]))),
+            'fsc_1': [OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PAR')])))],
+            # 'fsc_2': [OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('INTESA ISTITUZIONALE DI PROGRAMMA')])))],
+            'fsc_3': [
                 OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith(('PROGRAMMA ATTUATIVO', 'PROGRAMMA STRATEGICO'))]))),
                 OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PROGRAMMA REGIONALE')]))),
                 OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PROGRAMMA NAZIONALE')]))),
-                OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PIANO STRAORDINARIO TUTELA E GESTIONE RISORSA IDRICA')]))),
+                OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PIANO STRAORDINARIO')]))),
                 OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PROGRAMMA OBIETTIVI DI SERVIZIO')]))),
             ],
             'pac_pac_m': OrderedDict(sorted(list([(p.descrizione, p.codice) for p in programmi_linea_azione if p.descrizione.upper().startswith('PROGRAMMA PAC') and (' MINISTERO ' in p.descrizione.upper() or ' PCM ' in p.descrizione.upper() or ' GOVERNANCE ' in p.descrizione.upper())]))),
@@ -110,12 +98,20 @@ class Config(object):
 
 
 class GruppoProgrammi(object):
-    CODICI = ('ue-fesr', 'ue-fse', 'fsc', 'pac')
+    GRUPPI_PROGRAMMI = {
+        'ue-fesr': u'Programmi UE FESR',
+        'ue-fse': u'Programmi UE FSE',
+        'fsc': u'Programmi FSC',
+        'fsc-1': u'Programmi Attuativi Regionali',
+        # 'fsc-2': u'Intese Istituzionali di Programma',
+        'fsc-3': u'Altri Programmi FSC',
+        'pac': u'Programmi PAC',
+    }
 
     codice = None
 
     def __init__(self, codice):
-        if codice in self.CODICI:
+        if codice in self.GRUPPI_PROGRAMMI:
             self.codice = codice
         else:
             raise ValueError('Wrong codice: {}'.format(codice))
@@ -125,21 +121,22 @@ class GruppoProgrammi(object):
 
     @property
     def descrizione(self):
-        return u'Programmi {}'.format(self.codice.replace('-', ' ').upper())
+        return self.GRUPPI_PROGRAMMI[self.codice]
 
     @cached_property
     def programmi(self):
-        programmi = None
-
         lista_programmi = Config.get_lista_programmi()
 
-        if self.codice == 'ue-fesr' or self.codice == 'ue-fse':
+        if self.codice in ('ue-fesr', 'ue-fse'):
             programmi = lista_programmi[self.codice.replace('ue-', '')]
-        elif self.codice == 'fsc' or self.codice == 'pac':
+        else:
             from itertools import chain
 
             if self.codice == 'fsc':
-                ids = list(chain.from_iterable([x.values() for x in lista_programmi['fsc']]))
+                # ids = list(chain.from_iterable([x.values() for x in lista_programmi['fsc_1'] + lista_programmi['fsc_2'] + lista_programmi['fsc_3']]))
+                ids = list(chain.from_iterable([x.values() for x in lista_programmi['fsc_1'] + lista_programmi['fsc_3']]))
+            elif self.codice.startswith('fsc-'):
+                ids = list(chain.from_iterable([x.values() for x in lista_programmi[self.codice.replace('-', '_')]]))
             else:
                 ids = lista_programmi['pac_pac_m'].values() + lista_programmi['pac_pac_r'].values()
 
@@ -149,9 +146,4 @@ class GruppoProgrammi(object):
 
     @cached_property
     def dotazione_totale(self):
-        dotazione_totale = 0
-        for programma in self.programmi:
-            if programma.dotazione_totale:
-                dotazione_totale += programma.dotazione_totale
-
-        return dotazione_totale
+        return sum(programma.dotazione_totale or 0 for programma in self.programmi)

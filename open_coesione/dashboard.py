@@ -27,7 +27,7 @@ class CustomIndexDashboard(Dashboard):
             collapsible=True,
             column=1,
             css_classes=('collapse closed',),
-            models=('blog.*', 'idioticon.*', 'rubrica.*', 'tagging.*', 'open_coesione.*', 'progetti.*', 'soggetti.*', 'territori.*',),
+            models=('blog.*', 'idioticon.*', 'tagging.*', 'open_coesione.*', 'progetti.*', 'soggetti.*', 'territori.*', 'urlshortener.*'),
             exclude=('django.contrib.*',),
         ))
         

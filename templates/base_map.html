@@ -3,33 +3,33 @@
 {% load staticfiles sekizai_tags humanize search_url_filters %}
 
 {% block container %}
+    {% block content-header %}
     <div class="container" id="content-header">
         <div class="row">
-            {% block layer-selector %}
-                <div id="map-layer-selector" class="{% block selector-span %}span6{% endblock %} block-container">
-                    <a href="{{ request.path }}?tematizzazione=totale_costi" class="block-chart{% if tematizzazione == 'totale_costi' %} block-active{% endif %}" data-dataset="totale_costi">
-                        <strong class="title">Finanziamenti monitorati</strong>
-                        <p>{{ totale_costi|intword }} <span>di euro</span></p>
-                        {% if tematizzazione == 'totale_costi' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-                    </a>
+            <div id="map-layer-selector" class="span6 block-container">
+                <a href="{{ request.path }}?tematizzazione=totale_costi" class="block-chart{% if tematizzazione == 'totale_costi' %} block-active{% endif %}" data-dataset="totale_costi">
+                    <strong class="title">Finanziamenti monitorati<br />(incluse risorse attratte)</strong>
+                    <p>{{ totale_costi|intword }} <span>{% if totale_costi >= 1000000 %}di {% endif %}euro</span></p>
+                    {% if tematizzazione == 'totale_costi' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+                </a>
 
-                    <a href="{{ request.path }}?tematizzazione=totale_pagamenti" class="block-chart{% if tematizzazione == 'totale_pagamenti' %} block-active{% endif %}" title="{{ percentuale_costi_pagamenti }} del totale" data-dataset="totale_pagamenti">
-                        <strong class="title">Pagamenti monitorati</strong>
-                        <p>{{ totale_pagamenti|intword }} <span>di euro</span></p>
-                        {% if tematizzazione == 'totale_pagamenti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-                    </a>
+                <a href="{{ request.path }}?tematizzazione=totale_pagamenti" class="block-chart{% if tematizzazione == 'totale_pagamenti' %} block-active{% endif %}" title="{{ percentuale_costi_pagamenti }} del totale" data-dataset="totale_pagamenti">
+                    <strong class="title">Pagamenti monitorati<br />(incluse risorse attratte)</strong>
+                    <p>{{ totale_pagamenti|intword }} <span>{% if totale_pagamenti >= 1000000 %}di {% endif %}euro</span></p>
+                    {% if tematizzazione == 'totale_pagamenti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+                </a>
 
-                    <a href="{{ request.path }}?tematizzazione=totale_progetti" class="block-chart{% if tematizzazione == 'totale_progetti' %} block-active{% endif %}" data-dataset="totale_progetti">
-                        <strong class="title">Progetti monitorati</strong>
-                        <p>{{ totale_progetti|intcomma }}</p>
-                        {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
-                    </a>
-                </div>
-            {% endblock %}
+                <a href="{{ request.path }}?tematizzazione=totale_progetti" class="block-chart{% if tematizzazione == 'totale_progetti' %} block-active{% endif %}" data-dataset="totale_progetti">
+                    <strong class="title">Progetti monitorati</strong>
+                    <p>{{ totale_progetti|intcomma }}</p>
+                    {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
+                </a>
+            </div>
 
             {% block top_content %}{% endblock %}
         </div>
     </div>
+    {% endblock %}
 
     <div class="area">
         <div class="container">
@@ -43,8 +43,8 @@
                         {% if tema %}
                             <div class="span6">{{ tema.descrizione_estesa|default_if_none:'&nbsp;' }}</div>
                         {% endif %}
-                        {% if tipologia %}
-                            <div class="span6">{{ tipologia.descrizione_estesa|default_if_none:'&nbsp;' }}</div>
+                        {% if natura %}
+                            <div class="span6">{{ natura.descrizione_estesa|default_if_none:'&nbsp;' }}</div>
                         {% endif %}
                         {% if nature_principali %}
                             <div class="span6">
@@ -55,24 +55,24 @@
                                 <div id="main_types_chart" style="width: 100%; height: 250px"></div>
 
                                 <table id="main_types" class="table">
-                                    {% for tipologia in nature_principali %}
+                                    {% for natura_principale in nature_principali %}
                                         <tr>
                                             <td>
                                                 {% if territorio %}
-                                                    <a href="{{ territorio|progetti_search_url_by_natura:tipologia }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                    <a href="{{ territorio|progetti_search_url_by_natura:natura_principale }}" title="{{ natura_principale.descrizione }}">{{ natura_principale.short_label }}</a>
                                                 {%  elif tema %}
-                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ natura_principale.codice }}&selected_facets=tema:{{ tema.codice }}" title="{{ natura_principale.descrizione }}">{{ natura_principale.short_label }}</a>
                                                 {%  elif soggetto %}
-                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&soggetto={{ soggetto.slug }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ natura_principale.codice }}&soggetto={{ soggetto.slug }}" title="{{ natura_principale.descrizione }}">{{ natura_principale.short_label }}</a>
                                                 {%  elif programma %}
-                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&fonte_fin={{ programma.codice }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ natura_principale.codice }}&fonte_fin={{ programma.codice }}" title="{{ natura_principale.descrizione }}">{{ natura_principale.short_label }}</a>
                                                 {%  elif tipo_territorio %}
-                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ tipologia.codice }}&territorio_tipo={{ tipo_territorio }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=natura:{{ natura_principale.codice }}&territorio_tipo={{ tipo_territorio }}" title="{{ natura_principale.descrizione }}">{{ natura_principale.short_label }}</a>
                                                 {%  else %}
-                                                    <a href="{{ tipologia.get_absolute_url }}" title="{{ tipologia.descrizione }}">{{ tipologia.short_label }}</a>
+                                                    <a href="{{ natura_principale.get_absolute_url }}" title="{{ natura_principale.descrizione }}">{{ natura_principale.short_label }}</a>
                                                 {% endif %}
                                             </td>
-                                            <td class="amount"><strong>{{ tipologia.tot|default:'0'|floatformat:'0' }}</strong></td>
+                                            <td class="amount"><strong>{{ natura_principale.totale|default:'0'|floatformat:'0' }}</strong></td>
                                         </tr>
                                     {% endfor %}
                                 </table>
@@ -87,24 +87,24 @@
                                 <div id="main_topics_chart" style="width: 100%; height: 250px"></div>
 
                                 <table id="main_topics" class="table">
-                                    {% for tema in temi_principali %}
+                                    {% for tema_principale in temi_principali %}
                                         <tr>
                                             <td>
                                                 {% if territorio %}
-                                                    <a href="{{ territorio|progetti_search_url_by_tema:tema }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}
-                                                {%  elif tipologia %}
-                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&selected_facets=natura:{{ tipologia.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment %}({{ tema.data.numero }}){%  endcomment %}
+                                                    <a href="{{ territorio|progetti_search_url_by_tema:tema_principale }}" title="{{ tema_principale.descrizione }}">{{ tema_principale.short_label }}</a>
+                                                {%  elif natura %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema_principale.codice }}&selected_facets=natura:{{ natura.codice }}" title="{{ tema_principale.descrizione }}">{{ tema_principale.short_label }}</a>
                                                 {%  elif soggetto %}
-                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&soggetto={{ soggetto.slug }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema_principale.codice }}&soggetto={{ soggetto.slug }}" title="{{ tema_principale.descrizione }}">{{ tema_principale.short_label }}</a>
                                                 {%  elif programma %}
-                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&fonte_fin={{ programma.codice }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema_principale.codice }}&fonte_fin={{ programma.codice }}" title="{{ tema_principale.descrizione }}">{{ tema_principale.short_label }}</a>
                                                 {%  elif tipo_territorio %}
-                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema.codice }}&territorio_tipo={{ tipo_territorio }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a> {%  comment  %}({{ tipologia.data.numero }}) {%  endcomment %}
+                                                    <a href="{% url 'progetti_search' %}?q=&selected_facets=tema:{{ tema_principale.codice }}&territorio_tipo={{ tipo_territorio }}" title="{{ tema_principale.descrizione }}">{{ tema_principale.short_label }}</a>
                                                 {%  else %}
-                                                    <a href="{{ tema.get_absolute_url }}" title="{{ tema.descrizione }}">{{ tema.short_label }}</a>
+                                                    <a href="{{ tema_principale.get_absolute_url }}" title="{{ tema_principale.descrizione }}">{{ tema_principale.short_label }}</a>
                                                 {% endif %}
                                             </td>
-                                            <td class="amount"><strong>{{ tema.tot|default:'0'|floatformat:'0' }}</strong></td>
+                                            <td class="amount"><strong>{{ tema_principale.totale|default:'0'|floatformat:'0' }}</strong></td>
                                         </tr>
                                     {% endfor %}
                                 </table>
@@ -165,6 +165,7 @@
                         {% add_data 'js-data' 'leaflet-dist/leaflet.js' %}
                         {% add_data 'js-data' 'js/jquery-loader.js' %}
                         {% add_data 'js-data' 'js/oc-maps.js' %}
+                        {% add_data 'js-data' 'js/oc-map-aggregate.js' %}
                         {% add_data 'js-data' 'js/oc-territori-autocomplete.js' %}
 
                         {% addtoblock 'css' strip %}
@@ -235,8 +236,8 @@
 
                                 {% if tema %}
                                     <a href="{% url 'progetti_tema_csv' slug=tema.slug %}">Scarica i dati di tutti i comuni</a>
-                                {% elif tipologia %}
-                                    <a href="{% url 'progetti_tipologia_csv' slug=tipologia.slug %}">Scarica i dati di tutti i comuni</a>
+                                {% elif natura %}
+                                    <a href="{% url 'progetti_tipologia_csv' slug=natura.slug %}">Scarica i dati di tutti i comuni</a>
                                 {% elif territorio %}
                                     {% if territorio.is_provincia %}
                                         <a href="{% url 'progetti_provincia_csv' slug=territorio.slug %}">Scarica i dati di tutti i comuni</a>

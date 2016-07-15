@@ -1,26 +1,23 @@
 # -*- coding: utf-8 -*-
+import glob
 import os
 import urllib2
-import glob
-
-from django.views.generic.base import TemplateView, RedirectView, TemplateResponseMixin
-from django.db.models import Sum
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse, Http404
-from django.utils.datastructures import SortedDict
-from django.views.generic import ListView
+from collections import OrderedDict
 from django.conf import settings
 from django.core.cache import cache
+from django.core.urlresolvers import reverse
+from django.db.models import Sum
+from django.http import HttpResponseRedirect, BadHeaderError, HttpResponse, Http404
+from django.views.generic.base import TemplateView, RedirectView, TemplateResponseMixin
 from django.views.generic.detail import DetailView
-
-from open_coesione.forms import ContactForm
-from open_coesione.models import PressReview, Pillola, FAQ
+from django.views.generic.list import ListView
+from forms import ContactForm
+from mixins import DateFilterMixin
+from models import PressReview, Pillola, FAQ
 from progetti.models import Progetto, Tema, ClassificazioneAzione, DeliberaCIPE
 from soggetti.models import Soggetto
-from territori.models import Territorio
-
 from tagging.views import TagFilterMixin
-from open_coesione.mixins import DateFilterMixin
+from territori.models import Territorio
 
 
 def cached_context(get_context_data):
@@ -34,14 +31,17 @@ def cached_context(get_context_data):
     """
 
     def decorator(self, **kwargs):
-        key = 'context' + self.request.get_full_path()
-        context = cache.get(key)
-        if context is None:
-            context = get_context_data(self, **kwargs)
-            serializable_context = context.copy()
-            serializable_context.pop('view', None)
-            cache.set(key, serializable_context)
-        return context
+        if getattr(self, 'cache_enabled', True):
+            key = 'context' + getattr(self, 'cache_key', self.request.get_full_path())
+            context = cache.get(key)
+            if context is None:
+                context = get_context_data(self, **kwargs)
+                serializable_context = context.copy()
+                serializable_context.pop('view', None)
+                cache.set(key, serializable_context)
+            return context
+        else:
+            return get_context_data(self, **kwargs)
     return decorator
 
 
@@ -59,74 +59,59 @@ class XRobotsTagTemplateResponseMixin(TemplateResponseMixin):
 
 
 class AggregatoMixin(object):
-    def get_totals(self, **filter):
-        return dict(
-            totale_costi=Progetto.objects.totale_costi(**filter),
-            totale_pagamenti=Progetto.objects.totale_pagamenti(**filter),
-            totale_progetti=Progetto.objects.totale_progetti(**filter),
-        )
+    TEMATIZZAZIONI = settings.TEMATIZZAZIONI
 
-    def get_aggregate_data(self, context, **filter):
-        if len(filter) > 1:
-            raise Exception('Only one filter kwargs is accepted')
+    @property
+    def cache_key(self):
+        return self.request.path
 
-        context['tematizzazione'] = self.request.GET.get('tematizzazione', 'totale_costi')
+    @staticmethod
+    def add_totali(objects, totali, key='pk'):
+        totali_by_key = {x.pop('id'): x for x in totali}
+        objects_with_totali = []
+        for object in objects:
+            object.totali = totali_by_key.get(getattr(object, key), {})
+            objects_with_totali.append(object)
+        return objects_with_totali
 
-        context.update(Progetto.objects.dict_totali(**filter))
+    def get_progetti_queryset(self):
+        return Progetto.objects
 
-        context['percentuale_costi_pagamenti'] = '{0:.0%}'.format(context['totale_pagamenti'] / context['totale_costi'] if context['totale_costi'] > 0.0 else 0.0)
+    def get_aggregate_data(self):
+        progetti = self.get_progetti_queryset()
 
-        query_models = {
-            'temi_principali': {
-                'manager': Tema.objects,
-                'parent_class_field': 'tema_superiore',
-                'manager_parent_method': 'principali',
-                'filter_name': 'tema',
-            },
-            'nature_principali': {
-                'manager': ClassificazioneAzione.objects,
-                'parent_class_field': 'classificazione_superiore',
-                'manager_parent_method': 'tematiche',
-                'filter_name': 'classificazione'
-            }
-        }
+        aggregate_data = progetti.totali()
 
-        # specialize the filter
-        if 'territorio' in filter:
-            query_filters = dict(territorio=filter['territorio'])
-        elif 'soggetto' in filter:
-            query_filters = dict(soggetto=filter['soggetto'])
-        elif 'programmi' in filter:
-            query_filters = dict(programmi=filter['programmi'])
-        elif 'tema' in filter:
-            query_filters = dict(tema=filter['tema'])
-            del query_models['temi_principali']
-        elif 'classificazione' in filter:
-            query_filters = dict(classificazione=filter['classificazione'])
-            del query_models['nature_principali']
-        else:
-            # homepage takes all
-            query_filters = {}
+        aggregate_data['percentuale_costi_pagamenti'] = '{:.0%}'.format(aggregate_data['totale_pagamenti'] / aggregate_data['totale_costi'] if aggregate_data['totale_costi'] > 0.0 else 0.0)
 
-        for name in query_models:
-            context[name] = []
-            # takes all root models ( principali or tematiche )
-            for obj in getattr(query_models[name]['manager'], query_models[name]['manager_parent_method'])():
-                q = query_filters.copy()
-                # add %model%_superiore to query filters
-                q[query_models[name]['filter_name']] = obj
-                # make query and add totale to object
-                # obj.tot = query_models[name]['manager'].filter( **q ).aggregate( tot=aggregate_field )['tot']
-                obj.tot = getattr(Progetto.objects, context['tematizzazione'])(**q)
-                # add object to right context
-                context[name].append(obj)
+        if not isinstance(getattr(self, 'object', None), Tema):
+            aggregate_data['temi_principali'] = self.add_totali(Tema.objects.principali(), progetti.totali_group_by('tema__tema_superiore'))
 
-        context['map_legend_colors'] = settings.MAP_COLORS
+        if not isinstance(getattr(self, 'object', None), ClassificazioneAzione):
+            aggregate_data['nature_principali'] = self.add_totali(ClassificazioneAzione.objects.nature(), progetti.totali_group_by('classificazione_azione__classificazione_superiore'))
+
+        aggregate_data['top_progetti_per_costo'] = progetti.no_privacy().filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico', '-data_fine_effettiva')[:5]
+
+        aggregate_data['map_legend_colors'] = settings.MAP_COLORS
 
         if self.request.GET.get('pro_capite'):
-            context['mappa_pro_capite'] = True
+            aggregate_data['mappa_pro_capite'] = True
 
-        return context
+        return aggregate_data
+
+    def get_tematizzazione(self):
+        tematizzazione = self.request.GET.get('tematizzazione', self.TEMATIZZAZIONI[0])
+
+        if tematizzazione in self.TEMATIZZAZIONI:
+            return tematizzazione
+        else:
+            raise Http404
+
+    def tematizza_context_data(self, context):
+        context['tematizzazione'] = self.get_tematizzazione()
+
+        for obj in context.get('temi_principali', []) + context.get('nature_principali', []) + context.get('territori', []):
+            obj.totale = obj.totali.get(context['tematizzazione'], 0)
 
     def top_comuni_pro_capite(self, filters, qnt=5):
         def pro_capite_order(territorio):
@@ -147,7 +132,7 @@ class AggregatoMixin(object):
 
         territori = sorted(territori, key=pro_capite_order, reverse=True)[:qnt]
 
-        territori_by_pk = Territorio.objects.in_bulk(x['pk'] for x in territori)
+        territori_by_pk = Territorio.objects.defer('geom').in_bulk(x['pk'] for x in territori)
 
         top_comuni_pro_capite = []
         for t in territori:
@@ -159,26 +144,14 @@ class AggregatoMixin(object):
         return top_comuni_pro_capite
 
 
-class AccessControlView(object):
-    """
-    Define access control for the view
-    """
-    # @method_decorator(login_required)
-    # def dispatch(self, *args, **kwargs):
-    #     return super(AccessControlView, self).dispatch(*args, **kwargs)
-    pass
-
-
-class HomeView(AccessControlView, AggregatoMixin, TemplateView):
+class HomeView(AggregatoMixin, TemplateView):
     @cached_context
     def get_cached_context_data(self):
-        context = {}
+        context = self.get_aggregate_data()
 
-        context = self.get_aggregate_data(context)
+        context['top_progetti'] = context.pop('top_progetti_per_costo')[:3]
 
         context['numero_soggetti'] = Soggetto.objects.count()
-
-        context['top_progetti'] = Progetto.objects.no_privacy().filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico', '-data_fine_effettiva')[:3]
 
         return context
 
@@ -187,14 +160,16 @@ class HomeView(AccessControlView, AggregatoMixin, TemplateView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().conclusi()[:3]
+        self.tematizza_context_data(context)
+
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:3]
 
         context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
 
         return context
 
 
-class RisorsaView(AccessControlView, TemplateView):
+class RisorsaView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(RisorsaView, self).get_context_data(**kwargs)
 
@@ -258,7 +233,8 @@ class SpesaCertificataGraficiView(RisorsaView):
                 value = value.replace("D'", "d'")
             return value
 
-        dates = ['{}{:02d}31'.format(y, m) for y in range(2010, datetime.now().year + 1) for m in [5, 10, 12]]
+        dates = ['{}{:02d}31'.format(y, m) for y in range(2010, 2016) for m in [5, 10, 12]]
+        dates += ['20160630', '20161231', '20170331']
 
         csv2data_key_map = (
             ('TARGET {}', 'target'),
@@ -273,8 +249,8 @@ class SpesaCertificataGraficiView(RisorsaView):
 
         data = {}
         for row in reader:
-            if row['DPS_CODICE_PROGRAMMA']:
-                program_name = format_name(row['DPS_DESCRIZIONE_PROGRAMMA'])
+            if row['OC_CODICE_PROGRAMMA']:
+                program_name = format_name(row['OC_DESCRIZIONE_PROGRAMMA'])
                 group_key = '{}_{}'.format(row['QSN_AREA_OBIETTIVO_UE'], row['QSN_FONDO_COMUNITARIO ']).lower()
 
                 if not group_key in data:
@@ -291,12 +267,6 @@ class SpesaCertificataGraficiView(RisorsaView):
 
                     if date_data:
                         dates_data.append((datetime.strptime(date, '%Y%m%d').strftime('%d/%m/%Y'), date_data))
-
-                # dates_data[-1][1]['target'] = 0.0   # richiesta di Chiara Ricci del 01/12/2015
-                # dates_data.append(('31/12/2015', {}))  # richiesta di Chiara Ricci del 11/12/2015
-                dates_data.append(('30/06/2016', {}))  # richiesta di Chiara Ricci del 11/12/2015
-                dates_data.append(('31/12/2016', {}))  # richiesta di Chiara Ricci del 11/12/2015
-                dates_data.append(('31/03/2017', {'target': '100'}))  # richiesta di Chiara Ricci del 11/12/2015
 
                 for type_name, type_key in [('Obiettivo di spesa certificata', 'target'), ('Spesa certificata su dotazione', 'risultato_spesa'), ('Pagamenti su dotazione', 'risultato_pagamenti')]:
                     data[group_key].append(OrderedDict([('Programma operativo', program_name), ('Tipo dato', type_name)] + [(date, format_number(date_data.get(type_key))) for date, date_data in dates_data]))
@@ -346,7 +316,7 @@ class OpendataView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(OpendataView, self).get_context_data(**kwargs)
 
-        context['oc_sections'] = SortedDict([
+        context['oc_sections'] = OrderedDict([
             ('prog', {
                 'name': 'progetti',
                 'complete_file': self.get_complete_localfile('progetti_OC.zip'),
@@ -369,7 +339,7 @@ class OpendataView(TemplateView):
             }),
         ])
 
-        context['fs_sections'] = SortedDict([
+        context['fs_sections'] = OrderedDict([
             ('prog', {
                 'name': 'progetti',
                 'complete_file': self.get_complete_localfile('progetti_FS0713.zip'),
@@ -392,7 +362,7 @@ class OpendataView(TemplateView):
             }),
         ])
 
-        context['fsc_sections'] = SortedDict([
+        context['fsc_sections'] = OrderedDict([
             ('prog', {
                 'name': 'progetti',
                 'complete_file': self.get_complete_localfile('progetti_FSC0713.zip'),
@@ -411,7 +381,26 @@ class OpendataView(TemplateView):
             }),
         ])
 
-        context['pac_sections'] = SortedDict([
+        # context['fsc2_sections'] = OrderedDict([
+        #     ('prog', {
+        #         'name': 'progetti',
+        #         'complete_file': self.get_complete_localfile('progetti_FSC0006.zip'),
+        #     }),
+        #     ('sog', {
+        #         'name': 'soggetti',
+        #         'complete_file': self.get_complete_localfile('soggetti_FSC0006.zip'),
+        #     }),
+        #     ('loc', {
+        #         'name': 'localizzazioni',
+        #         'complete_file': self.get_complete_localfile('localizzazioni_FSC0006.zip'),
+        #     }),
+        #     ('pag', {
+        #         'name': 'pagamenti',
+        #         'complete_file': self.get_complete_localfile('pagamenti_FSC0006.zip'),
+        #     }),
+        # ])
+
+        context['pac_sections'] = OrderedDict([
             ('prog', {
                 'name': 'progetti',
                 'complete_file': self.get_complete_localfile('progetti_PAC.zip'),
@@ -430,7 +419,7 @@ class OpendataView(TemplateView):
             }),
         ])
 
-        context['cipe_sections'] = SortedDict([
+        context['cipe_sections'] = OrderedDict([
             ('prog', {
                 'name': 'progetti',
                 'complete_file': self.get_complete_localfile('progetti_assegnazioni_CIPE.zip'),
@@ -464,12 +453,12 @@ class OpendataView(TemplateView):
         context['istat_data_file'] = self.get_complete_remotefile(istat_path.format('Archivio_unico_indicatori_regionali.zip'))
         context['istat_metadata_file'] = self.get_complete_remotefile(istat_path.format('Metainformazione.xls'))
 
-        cpt_path = 'http://www.agenziacoesione.gov.it/it/cpt/I_dati_del_Sistema_CPT/DatiCPT_CatalogoCPT/datasets/{}'
-        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format('PA_E.zip'))
-        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format('PA_S.zip'))
-        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format('SPA_E.zip'))
-        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format('SPA_S.zip'))
-        context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('CPT_Metadati_albero_2015.xls'))
+        cpt_path = 'http://www.agenziacoesione.gov.it/it/cpt/02_dati/01catalogo_open_cpt/datasets/{}'
+        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format('PA_ENTRATE_2000-2014.zip'))
+        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format('PA_SPESE_2000-2014.zip'))
+        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format('SPA_ENTRATE_2000-2014.zip'))
+        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format('SPA_SPESE_2000-2014.zip'))
+        context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('Metadati_flussi.xls'))
 
         context['indagine_data_file'] = self.get_complete_localfile('indagine_data.zip')
         context['indagine_metadata_file'] = self.get_complete_localfile('indagine_metadata.xls')
@@ -554,7 +543,7 @@ class OpendataView(TemplateView):
 
     @classmethod
     def get_regional_files(cls, section_code, prefix):
-        regions = SortedDict([
+        regions = OrderedDict([
             ('VDA', "Valle d'Aosta"),
             ('PIE', 'Piemonte'),
             ('LOM', 'Lombardia'),
@@ -643,3 +632,50 @@ class FAQListView(ListView):
 class DocumentsRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
         return u'/media/uploads/documenti/{}'.format(kwargs['path'])
+
+
+class IndicatoriAccessoView(TemplateView):
+    lang = None
+
+    def __init__(self, **kwargs):
+        super(IndicatoriAccessoView, self).__init__(**kwargs)
+        self.lang = self.lang if self.lang == 'en' else 'it'
+
+    def get_context_data(self, **kwargs):
+        import csv
+        import dateutil.parser as parser
+
+        context = super(IndicatoriAccessoView, self).get_context_data(**kwargs)
+        filenames = {
+            'en': ['access_indicators_1.csv', 'access_indicators_2.csv', 'access_indicators_3.csv'],
+            'it': ['indicatori_accesso_1.csv', 'indicatori_accesso_2.csv', 'indicatori_accesso_3.csv'],
+        }
+
+        indicators = []
+        for filename in filenames[self.lang]:
+            reader = csv.reader(open(os.path.join(settings.STATIC_ROOT, 'csv', filename), 'rb'), delimiter=';')
+
+            colnames_dict = {
+                'en': reader.next(),
+                'it': reader.next(),
+            }
+
+            colnames = colnames_dict[self.lang][1:]
+
+            data = OrderedDict((k, []) for k in colnames)
+            for row in reader:
+                date = parser.parse(row.pop(0)).strftime('%d/%m/%Y')
+                for idx, colname in enumerate(colnames):
+                    try:
+                        value = float(row[idx].replace('.', '').replace(',', '.'))
+                    except ValueError:
+                        pass
+                    else:
+                        data[colname].append({'date': date, 'value': value})
+
+            indicators.append({'filename': 'csv/{}'.format(filename), 'data': data})
+
+        context['indicators'] = indicators
+        context['lang'] = self.lang
+
+        return context

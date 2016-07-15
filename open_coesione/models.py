@@ -1,15 +1,14 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
+import os
+from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.flatpages.models import FlatPage
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
 from django.dispatch import receiver
-import os
 from django.template.defaultfilters import slugify
 from filebrowser.fields import FileBrowseField
 from tagging import models as tagging_models
-
-from django.contrib.flatpages.models import FlatPage
 
 
 FlatPage.add_to_class('extra_content', models.TextField('Contenuto sidebar', blank=True))
@@ -25,7 +24,7 @@ class BaseResource(models.Model):
     priority = models.PositiveSmallIntegerField(default=0, verbose_name='Priorità')
 
     def __unicode__(self):
-        return u'{0}'.format(self.description)
+        return u'{}'.format(self.description)
 
     class Meta:
         abstract = True
@@ -33,14 +32,7 @@ class BaseResource(models.Model):
 
 
 class File(BaseResource):
-    # TYPE = Choices(
-    #     ('documento_programma', u'Documento di programma'),
-    #     ('rapporto_annuale', u'Rapporto annuale di pubblicazione'),
-    # )
-
-    # type = models.CharField(max_length=32, choices=TYPE)
-    # date = models.DateField(blank=True, null=True)
-    file = models.FileField(max_length=255, upload_to=lambda instance, filename: 'files/{0}/{1}'.format(slugify('{0} {1}'.format(instance.content_type, instance.object_id)), filename))
+    file = models.FileField(max_length=255, upload_to=lambda instance, filename: 'files/{}/{}'.format(slugify('{} {}'.format(instance.content_type, instance.object_id)), filename))
 
 
 class Link(BaseResource):
@@ -84,7 +76,7 @@ class PressReview(models.Model):
     published_at = models.DateField(verbose_name='Data di pubblicazione')
 
     def __unicode__(self):
-        return u'{0}'.format(self.title)
+        return u'{}'.format(self.title)
 
     class Meta:
         verbose_name = 'Articolo'
@@ -99,7 +91,6 @@ class Pillola(tagging_models.TagMixin, models.Model):
     abstract = models.TextField(max_length=1024, verbose_name='Descrizione breve', blank=True, null=True)
     description = models.TextField(max_length=1024, verbose_name='Descrizione', blank=True, null=True)
     image = FileBrowseField(max_length=200, directory='immagini/', format='image', verbose_name='Immagine', blank=True, null=True)
-    # file = models.FileField(upload_to='pillole', blank=True, null=True)
     published_at = models.DateField(verbose_name='Data di pubblicazione')
     documents = generic.GenericRelation(File, verbose_name='Documenti')
 
@@ -107,7 +98,7 @@ class Pillola(tagging_models.TagMixin, models.Model):
         return reverse('pillola', kwargs={'slug': self.slug})
 
     def __unicode__(self):
-        return u'{0}'.format(self.title)
+        return u'{}'.format(self.title)
 
     class Meta:
         verbose_name = 'Pillola'
@@ -129,10 +120,10 @@ class FAQ(models.Model):
         if item in ['domanda', 'risposta', 'slug'] and self.lang in ['it', 'en']:
             return getattr(self, item + '_' + self.lang)
         else:
-            raise AttributeError('{0!r} object has no attribute {1!r}'.format(self.__class__.__name__, item))
+            raise AttributeError('{!r} object has no attribute {!r}'.format(self.__class__.__name__, item))
 
     def __unicode__(self):
-        return u'{0}'.format(self.domanda)
+        return u'{}'.format(self.domanda)
 
     class Meta:
         verbose_name = 'Domanda frequente'
@@ -140,7 +131,6 @@ class FAQ(models.Model):
         ordering = ['-priorita', 'id']
 
 
-# @receiver(models.signals.post_delete, sender=Pillola)
 @receiver(models.signals.post_delete, sender=File)
 @receiver(models.signals.post_delete, sender=PressReview)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
@@ -152,7 +142,6 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
             os.remove(instance.file.path)
 
 
-# @receiver(models.signals.pre_save, sender=Pillola)
 @receiver(models.signals.pre_save, sender=File)
 @receiver(models.signals.pre_save, sender=PressReview)
 def auto_delete_file_on_change(sender, instance, **kwargs):

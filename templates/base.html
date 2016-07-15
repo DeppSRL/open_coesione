@@ -12,6 +12,9 @@
     <meta name="description" content="{% block page_description %}{% endblock %}">
     <meta name="author" content="">
     <meta name="format-detection" content="telephone=no">
+    {% if not IS_PRODUCTION %}
+        <meta name="robots" content="noindex,nofollow">
+    {% endif %}
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -66,25 +69,27 @@
         </script>
     {% endaddtoblock %}
 
-    {% addtoblock 'js' strip %}
-        <script>
-            var _gaq = _gaq || [];
-            _gaq.push(['_setAccount', 'UA-980632-20']);
-            _gaq.push(['_setDomainName', 'opencoesione.gov.it']);
-            _gaq.push(['_trackPageview']);
+    {% if IS_PRODUCTION %}
+        {% addtoblock 'js' strip %}
+            <script>
+                var _gaq = _gaq || [];
+                _gaq.push(['_setAccount', 'UA-980632-20']);
+                _gaq.push(['_setDomainName', 'opencoesione.gov.it']);
+                _gaq.push(['_trackPageview']);
 
-            (function() {
-                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-            })();
-        </script>
-    {% endaddtoblock %}
+                (function() {
+                    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+                })();
+            </script>
+        {% endaddtoblock %}
+    {% endif %}
 
     {% addtoblock 'js' strip %}
         <script>
             $(document).ready(function() {
-                $('a[href="#"]').on('click', function(e) {
+                $('body').on('click', 'a[href="#"]', function(e) {
                     e.preventDefault();
                 });
 
@@ -104,20 +109,15 @@
 
     {% with_data 'js-data' as javascripts %}
     {% for javascript in javascripts %}
-        <script src="{% static javascript %}"></script>
+        {% if javascript != 'js/highcharts.js' or 'js/highstock.js' not in javascripts %}
+            <script src="{% static javascript %}"></script>
+        {% endif %}
     {% endfor %}
     {% end_with_data %}
 
     {% render_block 'js' %}
 
-    <!-- fav and touch icons -->
     <link rel="shortcut icon" href="{% static 'ico/favicon.ico' %}">
-    {% comment %}
-        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{% static 'ico/apple-touch-icon-144-precomposed.png' %}">
-        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{% static 'ico/apple-touch-icon-114-precomposed.png' %}">
-        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static 'ico/apple-touch-icon-72-precomposed.png' %}">
-        <link rel="apple-touch-icon-precomposed" href="{% static 'ico/apple-touch-icon-57-precomposed.png' %}">
-    {% endcomment %}
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
@@ -126,14 +126,19 @@
             <div>
                 <div class="container">
                     <div class="row">
-                        <div class="span7">
+                        {% comment %}
+                            <div class="span7">
+                                <h1><a href="{% url 'home' %}"><img src="{% static 'img/header/testata.png' %}" alt="OpenCoesione. Verso un migliore uso delle risorse: scopri, segui, sollecita"></a></h1>
+                            </div>
+                            <div class="span5 text-right">
+                                <a href="http://www.agenziacoesione.gov.it/" class="flag flag-dps"></a>
+                            </div>
+                        {% endcomment %}
+                        <div class="span12" style="margin-bottom: 24px">
                             <h1><a href="{% url 'home' %}"><img src="{% static 'img/header/testata.png' %}" alt="OpenCoesione. Verso un migliore uso delle risorse: scopri, segui, sollecita"></a></h1>
                         </div>
-                        <div class="span5 text-right">
-                            <a href="http://www.dps.gov.it/" class="flag flag-dps"></a>
-                        </div>
                         <ul id="social_links">
-                            <li><a rel="info-tooltip" data-placement="bottom" title="La newsletter di OpenCoesione" class="mail" href="{% url 'rubrica-newsletter' %}">Newsletter</a></li>
+                            <li><a rel="info-tooltip" data-placement="bottom" title="La newsletter di OpenCoesione" class="mail" href="{% url 'newsletter' %}">Newsletter</a></li>
                             <li><a rel="info-tooltip" data-placement="bottom" title="OpenCoesione su Twitter" class="twitter" href="https://twitter.com/OpenCoesione">Twitter</a></li>
                             <li><a rel="info-tooltip" data-placement="bottom" title="Il canale OpenCoesione su Vimeo" class="vimeo" href="https://vimeo.com/channels/787486">Vimeo</a></li>
                             <li><a rel="info-tooltip" data-placement="bottom" title="Le slide di OpenCoesione su SlideShare" class="slideshare" href="http://www.slideshare.net/OpenCoesione">SlideShare</a></li>

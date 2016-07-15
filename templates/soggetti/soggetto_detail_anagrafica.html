@@ -3,12 +3,7 @@
 {% load sekizai_tags %}
 
 {% block container %}
-    <div class="container" id="content-header">
-        <div class="row">
-            {% block layer-selector %}{{ block.super }}{% endblock %}
-            {% block top_content %}{{ block.super }}{% endblock %}
-        </div>
-    </div>
+    {% block content-header %}{{ block.super }}{% endblock %}
 
     <div class="area">
         <div class="container">

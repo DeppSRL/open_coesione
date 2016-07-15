@@ -1,25 +1,18 @@
 # -*- coding: utf-8 -*-
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.db import connection
-from django.db.utils import DatabaseError
-from django.core.management.base import BaseCommand
+import logging
 import sys
-
+from django.core.management.base import BaseCommand
 from open_coesione import utils
 from optparse import make_option
-from decimal import Decimal
-import csv
-import logging
-import datetime
-
 from progetti.models import Progetto
 from territori.models import Territorio
 
+
 class Command(BaseCommand):
     """
-    Which provinces get the money, subduvuded by regions?
+    Which provinces get the money, subdivided by regions?
     """
-    help = "Which provinces get the money, subduvuded by regions?"
+    help = 'Which provinces get the money, subdivided by regions?'
 
     option_list = BaseCommand.option_list + (
         make_option('--region',
@@ -31,7 +24,6 @@ class Command(BaseCommand):
     unicode_writer = None
 
     def handle(self, *args, **options):
-
         verbosity = options['verbosity']
         if verbosity == '0':
             self.logger.setLevel(logging.ERROR)
@@ -45,41 +37,40 @@ class Command(BaseCommand):
         csv_writer = utils.UnicodeWriter(sys.stdout, dialect=utils.excel_semicolon)
         csv_writer.writerow(self.get_first_row())
 
-        ## fetch provinces
+        provincie = Territorio.objects.provincie()
+        progetti = Progetto.objects
+
         if options['region']:
             try:
-                reg = Territorio.objects.get(territorio='R', denominazione__icontains=options['region'])
-                provs = Territorio.objects.filter(cod_reg=reg.cod_reg, territorio='P')
-            except ObjectDoesNotExist:
-                raise Exception("Unknown region {0}".format(options['region']))
-            costo = Progetto.objects.totale_costi(territorio=reg)
-            costo_procapite = Progetto.objects.totale_costi_procapite(territorio=reg)
+                territorio = Territorio.objects.regioni().get(denominazione__icontains=options['region'])
+            except Territorio.DoesNotExist:
+                raise Exception('Unknown region {}'.format(options['region']))
+            else:
+                provincie = provincie.filter(cod_reg=territorio.cod_reg)
+                progetti = progetti.nei_territori([territorio])
         else:
-            provs = Territorio.objects.filter(territorio='P')
-            costo = Progetto.objects.totale_costi()
-            costo_procapite = Progetto.objects.totale_costi_procapite()
+            territorio = Territorio.objects.nazione()
 
-        for prov in provs:
-            costo_prov = Progetto.objects.totale_costi(territorio=prov)
-            costo_procapite_prov = Progetto.objects.totale_costi_procapite(territorio=prov)
+        costo = progetti.totale_costi()
+        costo_procapite = round(costo / territorio.popolazione_totale) if territorio.popolazione_totale else 0
+
+        for provincia in provincie:
+            costo_provincia = Progetto.objects.nei_territori([provincia]).totale_costi()
+            costo_procapite_provincia = round(costo_provincia / provincia.popolazione_totale) if provincia.popolazione_totale else 0
             csv_writer.writerow([
-                prov.denominazione,
-                "{0:.2f}".format(costo_prov),
-                "{0:.2f}".format(costo_procapite_prov),
-                "{0:.2f}".format(costo_prov/costo*100),
+                provincia.denominazione,
+                '{:.2f}'.format(costo_provincia),
+                '{:.2f}'.format(costo_procapite_provincia),
+                '{:.2f}'.format(costo_provincia / costo * 100),
             ])
 
         csv_writer.writerow([
-            "TOTALE",
-            "{0:.2f}".format(costo),
-            "{0:.2f}".format(costo_procapite),
-            "{0:.2f}".format(100),
+            'TOTALE',
+            '{:.2f}'.format(costo),
+            '{:.2f}'.format(costo_procapite),
+            '{:.2f}'.format(100),
         ])
 
-    def get_first_row(self):
+    @staticmethod
+    def get_first_row():
         return ['Provincia', 'Finanziamento totale', 'Finanziamento pro capite', 'Percentuale finanziamento regionale']
-
-
-
-
-

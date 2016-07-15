@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 import re
 import struct
+from django.contrib.gis.db import models
+from django.core.urlresolvers import reverse
 from django.utils.functional import cached_property
 from django_extensions.db.fields import AutoSlugField
 from model_utils import Choices
-from progetti.models import Progetto
-from django.contrib.gis.db import models
-from django.core.urlresolvers import reverse
 
 
-class TerritoriManager(models.GeoManager):
+class TerritorioManager(models.GeoManager):
     def nazione(self):
         return self.get_query_set().get(territorio=self.model.TERRITORIO.N)
 
@@ -36,13 +35,13 @@ class TerritoriManager(models.GeoManager):
 
     def get_from_istat_code(self, istat_code):
         """
-        get single record from Territorio, starting from ISTAT code
+        Get single record from Territorio, starting from ISTAT code
         ISTAT code has the form RRRPPPCCC, where
          - RRR is the regional code, zero padded
          - PPP is the provincial code, zero padded
          - CCC is the municipal code, zero padded
 
-        if a record in Territorio is not found, then the ObjectDoesNotExist exception is thrown
+        If a record in Territorio is not found, then the ObjectDoesNotExist exception is thrown
         """
         if istat_code is None:
             return None
@@ -75,7 +74,7 @@ class Territorio(models.Model):
     popolazione_maschile = models.IntegerField(null=True, blank=True)
     popolazione_femminile = models.IntegerField(null=True, blank=True)
 
-    objects = TerritoriManager()
+    objects = TerritorioManager()
 
     @property
     def nome(self):
@@ -107,7 +106,7 @@ class Territorio(models.Model):
     @property
     def ambito_territoriale(self):
         """
-        returns: a Region (for C,P or R), Nazionale, or Estero
+        Returns: a Region (for C,P or R), Nazionale, or Estero
         """
         if self.is_regione:
             return self.nome
@@ -120,10 +119,6 @@ class Territorio(models.Model):
     def regione(self):
         if self.is_comune or self.is_provincia:
             return self.__class__.objects.regioni_by_cod[self.cod_reg]
-            # if not hasattr(self.__class__, 'regioni_by_cod'):
-            #     self.__class__.regioni_by_cod = {o.cod_reg: o for o in self.__class__.objects.regioni()}
-            # return self.__class__.regioni_by_cod[self.cod_reg]
-            # return self.__class__.objects.regioni().get(cod_reg=self.cod_reg)
         else:
             return None
 
@@ -131,7 +126,6 @@ class Territorio(models.Model):
     def provincia(self):
         if self.is_comune:
             return self.__class__.objects.provincie_by_cod[self.cod_prov]
-            # return self.__class__.objects.provincie().get(cod_prov=self.cod_prov)
         else:
             return None
 
@@ -152,36 +146,12 @@ class Territorio(models.Model):
         return self.progetto_set.count()
 
     @property
-    def progetti_deep(self):
-        """
-        returns all projects related to this or underlying locations
-        (for regions and provinces)
-        """
-        if self.is_provincia:
-            return Progetto.objects.filter(localizzazione__territorio__cod_prov=self.cod_prov)
-        elif self.is_regione:
-            return Progetto.objects.filter(localizzazione__territorio__cod_reg=self.cod_reg)
-        else:
-            return Progetto.objects.filter(localizzazione__territorio__cod_com=self.cod_com)
-
-    @property
-    def n_progetti_deep(self):
-        """
-        returns number of project related to this or underlying locations
-        (for regions and provinces)
-        """
-        if self.is_provincia or self.is_regione:
-            return self.progetti_deep.count()
-        else:
-            return self.n_progetti
-
-    @property
     def code(self):
         return self.get_cod_dict().values()[0]
 
     def get_cod_dict(self, prefix=''):
         """
-        return a dict with {prefix}cod_{type} key initialized with correct value
+        Return a dict with {prefix}cod_{type} key initialized with correct value
         """
         if self.is_comune:
             return {'{}cod_com'.format(prefix): self.cod_com}
@@ -198,7 +168,7 @@ class Territorio(models.Model):
 
     def get_hierarchy(self):
         """
-        returns the list of parent objects (me included)
+        Returns the list of parent objects (self included)
         """
         hierarchy = [self]
         if self.provincia:
@@ -213,8 +183,8 @@ class Territorio(models.Model):
 
     def get_progetti_search_url(self, **kwargs):
         """
-        returns the correct search url in progetti faceted navigation
-        can be used with optional filters:
+        Returns the correct search url in progetti faceted navigation.
+        Can be used with optional filters:
         tema=TemaInstance
         natura=ClassificazioneAzioneInstance
         """
@@ -250,26 +220,6 @@ class Territorio(models.Model):
             return reverse(url_name)
         else:
             return reverse(url_name, kwargs={'slug': self.slug})
-
-    # @property
-    # def is_comune(self):
-    #     return self.territorio == self.__class__.TERRITORIO.C
-
-    # @property
-    # def is_provincia(self):
-    #     return self.territorio == self.__class__.TERRITORIO.P
-
-    # @property
-    # def is_regione(self):
-    #     return self.territorio == self.__class__.TERRITORIO.R
-
-    # @property
-    # def is_nazionale(self):
-    #     return self.territorio == self.__class__.TERRITORIO.N
-
-    # @property
-    # def is_estero(self):
-    #     return self.territorio == self.__class__.TERRITORIO.E
 
     def __getattr__(self, item):
         match = re.search('^is_({})$'.format('|'.join(dict(self.__class__.TERRITORIO).values()).lower()), item)

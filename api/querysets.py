@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 from haystack.models import SearchResult
 
 __author__ = 'guglielmo'
+
 
 class PatchedSearchResult(SearchResult):
     """

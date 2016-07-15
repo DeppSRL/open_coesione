@@ -1,33 +1,28 @@
 # -*- coding: utf-8 -*-
-import StringIO
-from collections import OrderedDict
 import csv
-from datetime import date
+import StringIO
 import zipfile
-import logging
-
+from collections import OrderedDict
+from datetime import date
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse_lazy
 from django.db.models import Sum
 from django.http import HttpResponse, Http404
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
-from oc_search.mixins import FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin, FacetRangePercPayMixin
-from oc_search.views import ExtendedFacetedSearchView
-from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione, PagamentoProgetto, Ruolo
+from forms import DescrizioneProgettoForm
+from gruppo_programmi import GruppoProgrammi, split_by_type
+from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione, PagamentoProgetto,\
+    Ruolo, Tema, Fonte, SegnalazioneProgetto
+from oc_search.views import OCFacetedSearchView
 from open_coesione import utils
-from open_coesione.views import AccessControlView, AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
-from progetti.forms import DescrizioneProgettoForm
-from progetti.gruppo_programmi import GruppoProgrammi, split_by_type
-from progetti.models import Tema, Fonte, SegnalazioneProgetto
+from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
 
-class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailView):
+class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
     model = Progetto
     queryset = Progetto.fullobjects.get_query_set()
 
@@ -51,59 +46,51 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, AccessControlView, DetailVie
 
         # calcolo della percentuale del finanziamento erogato
         fin_totale_pubblico_netto = float(self.object.fin_totale_pubblico_netto or self.object.fin_totale_pubblico or 0)
-        context['cost_payments_ratio'] = '{0:.0%}'.format(context['total_cost_paid'] / fin_totale_pubblico_netto if fin_totale_pubblico_netto > 0.0 else 0.0)
+        context['cost_payments_ratio'] = '{:.0%}'.format(context['total_cost_paid'] / fin_totale_pubblico_netto if fin_totale_pubblico_netto > 0.0 else 0.0)
 
-        context['segnalazioni_pubblicate'] = self.object.segnalazioni
-
-        context['overlapping_projects'] = Progetto.fullobjects.filter(overlapping_projects=self.object)
+        context['progetti_attuatori'] = Progetto.fullobjects.filter(progetti_attuati=self.object)
+        context['progetti_attuati'] = Progetto.fullobjects.filter(progetti_attuatori=self.object).order_by('-cipe_flag')
 
         return context
 
 
-class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRangePercPayMixin, FacetRangeCostoMixin, FacetRangeDateIntervalsMixin, TerritorioMixin):
-    """
-    This view allows faceted search and navigation of a progetto.
-    It extends an extended version of the basic FacetedSearchView,
-    """
-    __name__ = 'ProgettoSearchView'
-
-    PERC_PAY_RANGES = {
-        '0-0TO25':   {'qrange': '[* TO 25.0]', 'r_label': 'da 0 al 25%'},
-        '1-25TO50':  {'qrange': '[25.001 TO 50.0]', 'r_label': 'dal 25% al 50%'},
-        '2-50TO75':  {'qrange': '[50.001 TO 75.0]', 'r_label': 'dal 50% al 75%'},
-        '3-75TO100': {'qrange': '[75.00 TO *]', 'r_label': 'oltre il 75%'},
-    }
-
-    COST_RANGES = {
-        '0-0TO1K':     {'qrange': '[* TO 1000]', 'r_label': 'da 0 a 1.000&euro;'},
-        '1-1KTO10K':   {'qrange': '[1000.01 TO 10000]', 'r_label': 'da 1.000 a 10.000&euro;'},
-        '2-10KTO100K': {'qrange': '[10000.01 TO 100000]', 'r_label': 'da 10.000 a 100.000&euro;'},
-        '3-100KTO10M': {'qrange': '[100000.01 TO 10000000]', 'r_label': 'da 100.000 a 10.000.000&euro;'},
-        '4-10MTOINF':  {'qrange': '[10000001 TO *]', 'r_label': 'oltre 10.000.000&euro;'},
-    }
-
-    DATE_INTERVALS_RANGES = {
-        '2015':  {'qrange': '[2015-01-01T00:00:00Z TO *]', 'r_label': '2015'},
-        '2014':  {'qrange': '[2014-01-01T00:00:00Z TO 2014-12-31T23:59:59Z]', 'r_label': '2014'},
-        '2013':  {'qrange': '[2013-01-01T00:00:00Z TO 2013-12-31T23:59:59Z]', 'r_label': '2013'},
-        '2012':  {'qrange': '[2012-01-01T00:00:00Z TO 2012-12-31T23:59:59Z]', 'r_label': '2012'},
-        '2011':  {'qrange': '[2011-01-01T00:00:00Z TO 2011-12-31T23:59:59Z]', 'r_label': '2011'},
-        '2010':  {'qrange': '[2010-01-01T00:00:00Z TO 2010-12-31T23:59:59Z]', 'r_label': '2010'},
-        '2009':  {'qrange': '[2009-01-01T00:00:00Z TO 2009-12-31T23:59:59Z]', 'r_label': '2009'},
-        '2008':  {'qrange': '[2008-01-01T00:00:00Z TO 2008-12-31T23:59:59Z]', 'r_label': '2008'},
-        '2007':  {'qrange': '[2007-01-01T00:00:00Z TO 2007-12-31T23:59:59Z]', 'r_label': '2007'},
-        'early': {'qrange': '[1970-01-02T00:00:00Z TO 2006-12-31T23:59:59Z]', 'r_label': 'prima del 2007'},
-        'nd':    {'qrange': '[* TO 1970-01-01T00:00:00Z]', 'r_label': 'non disponibile'}
+class ProgettoSearchView(OCFacetedSearchView):
+    RANGES = {
+        'costo': {
+            '0-0TO1K':     {'qrange': '[* TO 1000]',             'label': 'da 0 a 1.000 €'},
+            '1-1KTO10K':   {'qrange': '[1000.01 TO 10000]',      'label': 'da 1.000 a 10.000 €'},
+            '2-10KTO100K': {'qrange': '[10000.01 TO 100000]',    'label': 'da 10.000 a 100.000 €'},
+            '3-100KTO10M': {'qrange': '[100000.01 TO 10000000]', 'label': 'da 100.000 a 10.000.000 €'},
+            '4-10MTOINF':  {'qrange': '[10000001 TO *]',         'label': 'oltre 10.000.000 €'},
+        },
+        'data_inizio': {
+            '00-2015':  {'qrange': '[2015-01-01T00:00:00Z TO *]',                    'label': '2015'},
+            '01-2014':  {'qrange': '[2014-01-01T00:00:00Z TO 2014-12-31T23:59:59Z]', 'label': '2014'},
+            '02-2013':  {'qrange': '[2013-01-01T00:00:00Z TO 2013-12-31T23:59:59Z]', 'label': '2013'},
+            '03-2012':  {'qrange': '[2012-01-01T00:00:00Z TO 2012-12-31T23:59:59Z]', 'label': '2012'},
+            '04-2011':  {'qrange': '[2011-01-01T00:00:00Z TO 2011-12-31T23:59:59Z]', 'label': '2011'},
+            '05-2010':  {'qrange': '[2010-01-01T00:00:00Z TO 2010-12-31T23:59:59Z]', 'label': '2010'},
+            '06-2009':  {'qrange': '[2009-01-01T00:00:00Z TO 2009-12-31T23:59:59Z]', 'label': '2009'},
+            '07-2008':  {'qrange': '[2008-01-01T00:00:00Z TO 2008-12-31T23:59:59Z]', 'label': '2008'},
+            '08-2007':  {'qrange': '[2007-01-01T00:00:00Z TO 2007-12-31T23:59:59Z]', 'label': '2007'},
+            '09-early': {'qrange': '[1970-01-02T00:00:00Z TO 2006-12-31T23:59:59Z]', 'label': 'prima del 2007'},
+            '10-nd':    {'qrange': '[* TO 1970-01-01T00:00:00Z]',                    'label': 'non disponibile'}
+        },
+        'perc_pagamento': {
+            '0-0TO25':   {'qrange': '[* TO 25.0]',      'label': 'da 0 al 25%'},
+            '1-25TO50':  {'qrange': '[25.001 TO 50.0]', 'label': 'dal 25% al 50%'},
+            '2-50TO75':  {'qrange': '[50.001 TO 75.0]', 'label': 'dal 50% al 75%'},
+            '3-75TO100': {'qrange': '[75.00 TO *]',     'label': 'oltre il 75%'},
+        },
     }
 
     @staticmethod
     def _get_objects_by_pk(pks):
         related = ['territorio_set', 'tema__tema_superiore', 'classificazione_azione__classificazione_superiore']
-        return Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks)
+        return {str(key): value for key, value in Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks).items()}
 
     def build_form(self, form_kwargs=None):
-        # the is_active:1 facet is selected by default
-        # and is substituted by is_active:0 when explicitly requested
+        # The is_active:1 facet is selected by default and is substituted by is_active:0 when explicitly requested
         # by clicking on the 'See archive' link in the progetti page
         if 'is_active:0' in self.request.GET.getlist('selected_facets'):
             form_kwargs = {'selected_facets': ['is_active:0']}
@@ -112,54 +99,17 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
 
         return super(ProgettoSearchView, self).build_form(form_kwargs)
 
-    def _get_extended_selected_facets(self):
-        """
-        modifies the extended_selected_facets, adding correct labels for this view
-        works directly on the extended_selected_facets dictionary
-        """
-        extended_selected_facets = super(ProgettoSearchView, self)._get_extended_selected_facets()
-
-        # this comes from the Mixins
-        extended_selected_facets = self.add_perc_pay_extended_selected_facets(extended_selected_facets)
-        extended_selected_facets = self.add_costo_extended_selected_facets(extended_selected_facets)
-        extended_selected_facets = self.add_territorio_extended_selected_facets(extended_selected_facets)
-        extended_selected_facets = self.add_date_interval_extended_selected_facets(extended_selected_facets)
-
-        return extended_selected_facets
-
     def extra_context(self):
-        """
-        Add extra content here, when needed
-        """
         extra = super(ProgettoSearchView, self).extra_context()
-
-        # territorio_com = self.request.GET.get('territorio_com')
-        # territorio_prov = self.request.GET.get('territorio_prov')
-        # territorio_reg = self.request.GET.get('territorio_reg')
-        # if territorio_com and territorio_com != '0':
-        #     extra['territorio'] = Territorio.objects.get(
-        #         territorio=Territorio.TERRITORIO.C,
-        #         cod_com=territorio_com
-        #     ).nome
-        # elif territorio_prov and territorio_prov != '0':
-        #     extra['territorio'] = Territorio.objects.get(
-        #         territorio=Territorio.TERRITORIO.P,
-        #         cod_prov=territorio_prov
-        #     ).nome_con_provincia
-        # elif territorio_reg:
-        #     extra['territorio'] = Territorio.objects.get(
-        #         territorio__in=(Territorio.TERRITORIO.E, Territorio.TERRITORIO.N, Territorio.TERRITORIO.R),
-        #         cod_reg=territorio_reg
-        #     ).nome
 
         fonte_fin = self.request.GET.get('fonte_fin')
         if fonte_fin:
             try:
                 extra['fonte_fin'] = ProgrammaAsseObiettivo.objects.get(pk=fonte_fin)
-            except ObjectDoesNotExist:
+            except ProgrammaAsseObiettivo.DoesNotExist:
                 try:
                     extra['fonte_fin'] = ProgrammaLineaAzione.objects.get(pk=fonte_fin)
-                except ObjectDoesNotExist:
+                except ProgrammaLineaAzione.DoesNotExist:
                     pass
 
         programmi_slug = self.request.GET.get('gruppo_programmi')
@@ -173,127 +123,47 @@ class ProgettoSearchView(AccessControlView, ExtendedFacetedSearchView, FacetRang
         if soggetto_slug:
             try:
                 extra['soggetto'] = Soggetto.objects.get(slug=soggetto_slug)
-            except ObjectDoesNotExist:
+            except Soggetto.DoesNotExist:
                 pass
             else:
                 soggetto_ruolo = self.request.GET.get('ruolo')
                 if soggetto_ruolo:
                     extra['ruolo'] = '/'.join(sorted(set(dict(Ruolo.RUOLO).get(r, '') for r in soggetto_ruolo))).strip('/')
 
-        # get data about perc pay and n_progetti range facets
-        extra['facet_queries_perc_pay'] = self.get_custom_facet_queries_perc_pay()
-
-        # get data about custom costo and n_progetti range facets
-        extra['facet_queries_costo'] = self.get_custom_facet_queries_costo()
-
-        # get data about custom date range facets
-        extra['facet_queries_date'] = self.get_custom_facet_queries_date()
-
-        # definizione struttura dati per visualizzazione faccette natura
-        extra['natura'] = {
-            'descrizione': {},
-            'short_label': {}
-        }
-        for c in ClassificazioneAzione.objects.filter(tipo_classificazione='natura'):
-            if c.codice != ' ':
-                codice = c.codice
-            else:
-                codice = 'ND'
-
-            extra['natura']['descrizione'][codice] = c.descrizione
-            extra['natura']['short_label'][codice] = c.short_label
-
-        # definizione struttura dati per visualizzazione faccette tema
-        extra['tema'] = {
-            'descrizione': {},
-            'short_label': {}
-        }
-        for c in Tema.objects.principali():
-            if c.codice != ' ':
-                codice = c.codice
-            else:
-                codice = 'ND'
-
-            extra['tema']['descrizione'][codice] = c.descrizione
-            extra['tema']['short_label'][codice] = c.short_label
-
-        # definizione struttura dati per visualizzazione faccette tipo progetto
-        extra['tipo_progetto'] = {
-            'descrizione': {},
-            'short_label': {}
-        }
-        for c in Progetto.TIPI_PROGETTO:
-            codice, descrizione = c
-
-            extra['tipo_progetto']['descrizione'][codice] = descrizione
-            extra['tipo_progetto']['short_label'][codice] = descrizione
-
-        # definizione struttura dati per visualizzazione faccette fonte
-        extra['fonte'] = {
-            'descrizione': {},
-            'short_label': {}
-        }
-        for c in Fonte.objects.all():
-            extra['fonte']['descrizione'][c.codice] = c.descrizione
-            extra['fonte']['short_label'][c.codice] = c.short_label
-
-        # definizione struttura dati per visualizzazione faccette stato progetto
-        extra['stato_progetto'] = {
-            'descrizione': {},
-            'short_label': {}
-        }
-        for c in Progetto.STATO:
-            codice, descrizione = c
-
-            extra['stato_progetto']['descrizione'][codice] = descrizione
-            extra['stato_progetto']['short_label'][codice] = descrizione
-
-        extra['base_url'] = reverse('progetti_search') + '?' + extra['params'].urlencode()
-
-        paginator = Paginator(self.results, 10)
-        page = self.request.GET.get('page')
-        try:
-            page_obj = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            page_obj = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            page_obj = paginator.page(paginator.num_pages)
-
-        selected_facets = self.request.GET.getlist('selected_facets')
-        extra['search_within_non_active'] = 'is_active:0' in selected_facets
-
-        extra['paginator'] = paginator
-        extra['page_obj'] = page_obj
+        extra['params'] = self.params.urlencode(safe=':')
 
         extra['n_max_downloadable'] = settings.N_MAX_DOWNLOADABLE_RESULTS
 
-        extra['perc_pay_facets_enabled'] = getattr(settings, 'PERC_PAY_FACETS_ENABLED', False)
+        extra['search_within_non_active'] = 'is_active:0' in self.request.GET.getlist('selected_facets')
 
-        extra['facets']['fields']['stato_progetto']['counts'] = sorted(extra['facets']['fields']['stato_progetto']['counts'], key=lambda x: x[0], reverse=True)
+        # definizione struttura dati per visualizzazione faccette
+
+        facets = OrderedDict()
+
+        facets['natura'] = self._build_facet_field_info('natura', "Natura dell'investimento", {o.codice.strip() or 'ND': (o.descrizione, o.short_label) for o in ClassificazioneAzione.objects.nature()})
+        facets['tema'] = self._build_facet_field_info('tema', 'Tema', {o.codice: (o.descrizione, o.short_label) for o in Tema.objects.principali()})
+        facets['fonte'] = self._build_facet_field_info('fonte', 'Fonte', {o.codice: (o.descrizione, o.short_label) for o in Fonte.objects.all()})
+        facets['stato_progetto'] = self._build_facet_field_info('stato_progetto', 'Stato progetto', {k: (v, v) for k, v in dict(Progetto.STATO).items()})
+
+        facets['data_inizio'] = self._build_range_facet_queries_info('data_inizio', 'Anno di inizio')
+        facets['costo'] = self._build_range_facet_queries_info('costo', 'Finanziamenti')
+
+        if getattr(settings, 'PERC_PAY_FACETS_ENABLED', False):
+            facets['perc_pagamento'] = self._build_range_facet_queries_info('perc_pagamento', 'Percentuali pagamento')
+
+        facets['stato_progetto']['values'] = sorted(facets['stato_progetto']['values'], key=lambda x: x['key'], reverse=True)
+
+        extra['my_facets'] = facets
 
         return extra
 
 
-class BaseProgrammaView(AccessControlView, AggregatoMixin, TemplateView):
+class BaseProgrammaView(AggregatoMixin, TemplateView):
     @cached_context
     def get_cached_context_data(self, programmi):
-        logger = logging.getLogger('console')
+        context = self.get_aggregate_data()
 
-        context = {}
-
-        logger.debug('get_aggregate_data start')
-        context = self.get_aggregate_data(context, programmi=programmi)
-
-        context['numero_soggetti'] = Soggetto.objects.count()
-
-        logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().con_programmi(programmi).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-
-        logger.debug('territori_piu_finanziati_pro_capite start')
-
-        #discriminate between ProgrammaAsseObiettivo and ProgrammaLineaAzione
+        # discriminate between ProgrammaAsseObiettivo and ProgrammaLineaAzione
         programmi_splitted = split_by_type(programmi)
 
         from django.db.models import Q
@@ -314,7 +184,9 @@ class BaseProgrammaView(AccessControlView, AggregatoMixin, TemplateView):
 
         context.update(self.get_cached_context_data(programmi=programmi))
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().con_programmi(programmi).conclusi()[:5]
+        self.tematizza_context_data(context)
+
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:5]
 
         return context
 
@@ -324,6 +196,9 @@ class ProgrammiView(BaseProgrammaView):
 
     def get_object(self):
         return GruppoProgrammi(codice=self.kwargs.get('slug'))
+
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_programmi(self.get_object().programmi)
 
     @cached_context
     def get_cached_context_data(self, programmi):
@@ -335,56 +210,36 @@ class ProgrammiView(BaseProgrammaView):
 
             data_pagamenti_per_programma = date(2015, 12, 31)
 
-            logger = logging.getLogger('console')
-
-            # dotazioni_totali = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Dotazioni_Certificazioni.xls'), 'rb')).splitlines()))
-            dotazioni_totali = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Target_Certificato_Pagamenti.xls'), 'rb'), sheet='Target spesa cert ammessi va').splitlines()))  ##########
+            dotazioni_totali = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Target_Certificato_Pagamenti.xls'), 'rb'), sheet='Target spesa cert ammessi va').splitlines()))
 
             for trend in ('conv', 'cro'):
-                programmi_codici = [programma.codice for programma in programmi if ' {} '.format(trend) in programma.descrizione.lower()]
+                programmi_per_trend_codici = [programma.codice for programma in programmi if ' {} '.format(trend) in programma.descrizione.lower()]
 
-                logger.debug('pagamenti_per_anno_{} start'.format(trend))
+                progetti = Progetto.objects.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_per_trend_codici)
+                valori_per_anno = OrderedDict([(x['data'].year, {'dotazioni_totali': 0.0, 'pagamenti': float(x['ammontare'])}) for x in PagamentoProgetto.objects.filter(progetto__in=progetti).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data') if x['data'].strftime('%m%d') == '1231' or x['data'].strftime('%Y%m%d') == '20160229'])
+                valori_per_anno[2015] = valori_per_anno.pop(2016)  # i valori del 20160229 sono assegnati al 20151231
 
-                progetti = Progetto.objects.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici)
-                pagamenti_per_anno = PagamentoProgetto.objects.filter(data__day=31, data__month=12, progetto__in=progetti).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
-                # pagamenti_per_anno = PagamentoProgetto.objects.filter(data__day=31, data__month=12, progetto__active_flag=True, progetto__programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_codici).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data')
-
-                # pagamenti_2015 = 0  ##########
-                # dotazioni_totali_2015 = 0  #######
-
-                dotazioni_totali_per_anno = {pagamento['data'].year: 0 for pagamento in pagamenti_per_anno}
                 for row in dotazioni_totali:
-                    # programma_codice = row['OC_CODICE_PROGRAMMA']
-                    programma_codice = row['DPS_CODICE_PROGRAMMA']  ###########
-                    if programma_codice in programmi_codici:
-                        # pagamenti_2015 += float(row['pagamenti ammessi 20151231'])  ########
-                        # dotazioni_totali_2015 += float(row['DOTAZIONE TOTALE PROGRAMMA POST PAC 20151231'])  ########
-
-                        for anno in dotazioni_totali_per_anno:
-                            # data = '{}1231'.format(max(anno, 2009))  # i dati delle dotazioni totali partono dal 2009; per gli anni precedenti valgono i dati del 2009
-                            data = '{}1231'.format(max(anno, 2010))  ##############
+                    programma_codice = row['OC_CODICE_PROGRAMMA']
+                    if programma_codice in programmi_per_trend_codici:
+                        for anno in valori_per_anno:
+                            data = '{}1231'.format(max(anno, 2010))  # i dati delle dotazioni totali partono dal 2010; per gli anni precedenti valgono i dati del 2010
                             try:
                                 valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {}'.format(data)]
                             except KeyError:
                                 valore = row['DOTAZIONE TOTALE PROGRAMMA {}'.format(data)]
 
-                            dotazioni_totali_per_anno[anno] += float(valore)
+                            valori_per_anno[anno]['dotazioni_totali'] += float(valore)
 
-                context['pagamenti_per_anno_{}'.format(trend)] = [{'year': pagamento['data'].year, 'total_amount': dotazioni_totali_per_anno[pagamento['data'].year], 'paid_amount': pagamento['ammontare'] or 0} for pagamento in pagamenti_per_anno]
-                context['pagamenti_per_anno_{}'.format(trend)] = [x for x in context['pagamenti_per_anno_{}'.format(trend)] if x['year'] != 2006]  ###########
-                # context['pagamenti_per_anno_{}'.format(trend)].append({'year': 2015, 'total_amount': dotazioni_totali_2015, 'paid_amount': pagamenti_2015})  ##########
+                context['pagamenti_per_anno_{}'.format(trend)] = [{'year': anno, 'total_amount': valori['dotazioni_totali'], 'paid_amount': valori['pagamenti']} for anno, valori in valori_per_anno.items()]
 
-                logger.debug('pagamenti_per_programma_{} start'.format(trend))
-
-                # programmi_con_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__data=data_pagamenti_per_programma, classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_codici).values('descrizione', 'codice').annotate(ammontare=Sum('classificazione_set__classificazione_set__progetto_set__pagamentoprogetto_set__ammontare_rendicontabile_ue')).order_by('descrizione')
-                programmi_senza_pagamenti = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_codici).distinct().values('descrizione', 'codice').order_by('descrizione')  ##############
+                programmi_per_trend = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_per_trend_codici).distinct().values('descrizione', 'codice').order_by('descrizione')
 
                 dotazioni_totali_per_programma = {}
-                pagamenti_per_programma = {}  ##########
+                pagamenti_per_programma = {}
                 for row in dotazioni_totali:
-                    # programma_codice = row['OC_CODICE_PROGRAMMA']
-                    programma_codice = row['DPS_CODICE_PROGRAMMA']  ###########
-                    if programma_codice in programmi_codici:
+                    programma_codice = row['OC_CODICE_PROGRAMMA']
+                    if programma_codice in programmi_per_trend_codici:
                         data = data_pagamenti_per_programma.strftime('%Y%m%d')
                         try:
                             valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {}'.format(data)]
@@ -393,10 +248,9 @@ class ProgrammiView(BaseProgrammaView):
 
                         dotazioni_totali_per_programma[programma_codice] = float(valore)
 
-                        pagamenti_per_programma[programma_codice] = float(row['pagamenti ammessi {}'.format(data)])  ##############
+                        pagamenti_per_programma[programma_codice] = float(row['pagamenti ammessi {}'.format(data)])
 
-                # context['pagamenti_per_programma_{}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': dotazioni_totali_per_programma[programma['codice']], 'paid_amount': programma['ammontare']} for programma in programmi_con_pagamenti]
-                context['pagamenti_per_programma_{}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': dotazioni_totali_per_programma[programma['codice']], 'paid_amount': pagamenti_per_programma[programma['codice']]} for programma in programmi_senza_pagamenti]  ###############
+                context['pagamenti_per_programma_{}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': dotazioni_totali_per_programma[programma['codice']], 'paid_amount': pagamenti_per_programma[programma['codice']]} for programma in programmi_per_trend]
 
             pagamenti_per_anno_tutti = {}
             for item in context['pagamenti_per_anno_conv'] + context['pagamenti_per_anno_cro']:
@@ -433,8 +287,11 @@ class ProgrammaView(BaseProgrammaView):
     def get_object(self):
         try:
             return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
-        except ObjectDoesNotExist:
+        except ProgrammaAsseObiettivo.DoesNotExist:
             return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
+
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_programmi([self.get_object()])
 
     def get_context_data(self, **kwargs):
         try:
@@ -451,31 +308,18 @@ class ProgrammaView(BaseProgrammaView):
         return context
 
 
-class ClassificazioneAzioneView(AccessControlView, AggregatoMixin, DetailView):
-    context_object_name = 'tipologia'
+class ClassificazioneAzioneView(AggregatoMixin, DetailView):
+    context_object_name = 'natura'
     model = ClassificazioneAzione
+
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_natura(self.object)
 
     @cached_context
     def get_cached_context_data(self):
-        logger = logging.getLogger('console')
+        context = self.get_aggregate_data()
 
-        context = {}
-
-        logger.debug('get_aggregate_data start')
-        context = self.get_aggregate_data(context, classificazione=self.object)
-
-        context['numero_soggetti'] = Soggetto.objects.count()
-        context['map_selector'] = 'nature/{}/'.format(self.kwargs['slug'])
-
-        logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().con_natura(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-
-        logger.debug('territori_piu_finanziati_pro_capite start')
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
-            filters={
-                'progetto__classificazione_azione__classificazione_superiore': self.object
-            }
-        )
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__classificazione_azione__classificazione_superiore': self.object})
 
         return context
 
@@ -484,35 +328,26 @@ class ClassificazioneAzioneView(AccessControlView, AggregatoMixin, DetailView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().con_natura(self.object).conclusi()[:5]
+        self.tematizza_context_data(context)
+
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:5]
+
+        context['map_selector'] = 'nature/{}/'.format(self.kwargs['slug'])
 
         return context
 
 
-class TemaView(AccessControlView, AggregatoMixin, DetailView):
+class TemaView(AggregatoMixin, DetailView):
     model = Tema
+
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_tema(self.object)
 
     @cached_context
     def get_cached_context_data(self):
-        logger = logging.getLogger('console')
+        context = self.get_aggregate_data()
 
-        context = {}
-
-        logger.debug('get_aggregate_data start')
-        context = self.get_aggregate_data(context, tema=self.object)
-
-        context['numero_soggetti'] = Soggetto.objects.count()
-        context['map_selector'] = 'temi/{}/'.format(self.kwargs['slug'])
-
-        logger.debug('top_progetti_per_costo start')
-        context['top_progetti_per_costo'] = Progetto.objects.no_privacy().con_tema(self.object).filter(fin_totale_pubblico__isnull=False).order_by('-fin_totale_pubblico')[:5]
-
-        logger.debug('territori_piu_finanziati_pro_capite start')
-        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(
-            filters={
-                'progetto__tema__tema_superiore': self.object
-            }
-        )
+        context['territori_piu_finanziati_pro_capite'] = self.top_comuni_pro_capite(filters={'progetto__tema__tema_superiore': self.object})
 
         return context
 
@@ -521,7 +356,11 @@ class TemaView(AccessControlView, AggregatoMixin, DetailView):
 
         context.update(self.get_cached_context_data())
 
-        context['ultimi_progetti_conclusi'] = Progetto.objects.no_privacy().con_tema(self.object).conclusi()[:5]
+        self.tematizza_context_data(context)
+
+        context['ultimi_progetti_conclusi'] = self.get_progetti_queryset().no_privacy().conclusi()[:5]
+
+        context['map_selector'] = 'temi/{}/'.format(self.kwargs['slug'])
 
         return context
 
@@ -558,14 +397,23 @@ class ProgettoPagamentiCSVView(DetailView):
 
 
 class BaseCSVView(AggregatoMixin, DetailView):
-    filter_field = None
+    def comuni_filter(self):
+        return {}
+
+    def comuni_con_pro_capite_filter(self):
+        return {}
 
     def get(self, request, *args, **kwargs):
+        import locale
+
+        locale.setlocale(locale.LC_ALL, 'it_IT.UTF-8')
+
         self.object = self.get_object()
 
-        comuni = list(Territorio.objects.comuni().defer('geom'))
-        comuni_con_pro_capite = self.top_comuni_pro_capite(filters={self.filter_field: self.object}, qnt=None)
-        provincie = dict([(t['cod_prov'], t['denominazione']) for t in Territorio.objects.provincie().values('cod_prov', 'denominazione')])
+        comuni_con_pro_capite = self.top_comuni_pro_capite(filters=self.comuni_con_pro_capite_filter(), qnt=None)
+        altri_comuni = list(Territorio.objects.comuni().filter(**self.comuni_filter()).exclude(pk__in=(x.pk for x in comuni_con_pro_capite)).defer('geom'))
+
+        comuni = comuni_con_pro_capite + altri_comuni
 
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}_pro_capite.csv'.format(self.kwargs.get('slug', 'all'))
@@ -574,19 +422,11 @@ class BaseCSVView(AggregatoMixin, DetailView):
 
         writer.writerow(['Comune', 'Provincia', 'Finanziamento pro capite'])
 
-        for city in comuni_con_pro_capite:
+        for comune in comuni:
             writer.writerow([
-                city.denominazione,
-                provincie[city.cod_prov],
-                '{:.2f}'.format(city.totale / city.popolazione_totale if city.popolazione_totale else .0).replace('.', ',')
-            ])
-            comuni.remove(city)
-
-        for city in comuni:
-            writer.writerow([
-                city.denominazione,
-                provincie[city.cod_prov],
-                '{0:.2f}'.format(.0).replace('.', ',')
+                comune.denominazione,
+                comune.provincia.denominazione,
+                locale.format('%.2f', getattr(comune, 'totale_pro_capite', 0)),
             ])
 
         return response
@@ -594,12 +434,16 @@ class BaseCSVView(AggregatoMixin, DetailView):
 
 class ClassificazioneAzioneCSVView(BaseCSVView):
     model = ClassificazioneAzione
-    filter_field = 'progetto__classificazione_azione__classificazione_superiore'
+
+    def comuni_con_pro_capite_filter(self):
+        return {'progetto__classificazione_azione__classificazione_superiore': self.object}
 
 
 class TemaCSVView(BaseCSVView):
     model = Tema
-    filter_field = 'progetto__tema__tema_superiore'
+
+    def comuni_con_pro_capite_filter(self):
+        return {'progetto__tema__tema_superiore': self.object}
 
 
 class ProgettoCSVSearchView(ProgettoSearchView):
@@ -609,14 +453,16 @@ class ProgettoCSVSearchView(ProgettoSearchView):
 
     @staticmethod
     def _get_objects_by_pk(pks):
-        related = ['territorio_set', 'tema__tema_superiore', 'classificazione_azione__classificazione_superiore', 'ruolo_set__soggetto']
-        return Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks)
+        # related = ['tema__tema_superiore', 'classificazione_azione__classificazione_superiore', 'ruolo_set__soggetto', 'territorio_set']
+        related = ['ruolo_set__soggetto', 'territorio_set']
+        return {str(key): value for key, value in Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks).items()}
 
     def create_response1(self):
         """
         Generates a zipped, downloadale CSV file, from search results
         """
         import datetime
+        import logging
         import pandas as pd
         from open_coesione.views import OpendataView
 
@@ -693,6 +539,83 @@ class ProgettoCSVSearchView(ProgettoSearchView):
         """
         Generates a zipped, downloadale CSV file, from search results
         """
+
+        import json
+        # import os
+        # from csvkit import convert
+        # from open_coesione.views import OpendataView
+        import decimal
+        import locale
+
+        locale.setlocale(locale.LC_ALL, 'it_IT.UTF-8')
+
+        def myformat(val):
+            if isinstance(val, (float, decimal.Decimal)):
+                val = locale.format('%.2f', val)
+            elif isinstance(val, (list, set)):
+                val = u':::'.join(val)
+            return val
+
+        # reader = csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Metadati_attuazione.xls'), 'rb'), sheet='Progetti').splitlines())
+        # csv_columns = [row['Variabile'].strip() for row in reader if row['Presenza nei dataset da query su www.opencoesione.gov.it'].strip()]
+
+        # reader = csv.DictReader(convert.xls2csv(open(os.path.join(settings.STATIC_ROOT, 'Metadati_risultati_ricerca.xls'), 'rb'), sheet='Progetti').splitlines())
+        # columns = [row['Variabile'].strip() for row in reader]
+        # columns = [{'FINANZ_STATO_FONDO_ROTAZIONE': u'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'FINANZ_STATO_PRIVATO': u'FINANZ_PRIVATO'}.get(c, c) for c in columns]
+
+        columns = ['COD_LOCALE_PROGETTO', 'CUP', 'OC_TITOLO_PROGETTO', 'QSN_FONDO_COMUNITARIO', 'OC_TEMA_SINTETICO', 'OC_DESCR_FONTE', 'OC_CODICE_PROGRAMMA', 'OC_DESCRIZIONE_PROGRAMMA', 'DESCR_STRUMENTO', 'DESCR_TIPO_STRUMENTO', 'DATA_APPROV_STRUMENTO', 'CUP_DESCR_NATURA', 'CUP_DESCR_SETTORE', 'CUP_DESCR_SOTTOSETTORE', 'CUP_DESCR_CATEGORIA', 'COD_ATECO', 'DESCRIZIONE_ATECO', 'OC_TIPO_PROGETTO', 'FINANZ_UE', 'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'FINANZ_STATO_FSC', 'FINANZ_STATO_PAC', 'FINANZ_STATO_ALTRI_PROVVEDIMENTI', 'FINANZ_REGIONE', 'FINANZ_PROVINCIA', 'FINANZ_COMUNE', 'FINANZ_RISORSE_LIBERATE', 'FINANZ_ALTRO_PUBBLICO', 'FINANZ_STATO_ESTERO', 'FINANZ_PRIVATO', 'FINANZ_DA_REPERIRE', 'FINANZ_TOTALE_PUBBLICO', 'COSTO_RENDICONTABILE_UE', 'IMPEGNI', 'TOT_PAGAMENTI', 'OC_TOT_PAGAMENTI_RENDICONTAB_UE', 'OC_DATA_INIZIO_PREVISTA', 'OC_DATA_FINE_PREVISTA', 'OC_DATA_INIZIO_EFFETTIVA', 'OC_DATA_FINE_EFFETTIVA', 'OC_STATO_PROGETTO', 'DESCR_PROCED_ATTIVAZIONE', 'DESCR_TIPO_PROCED_ATTIVAZIONE', 'DATA_PREVISTA_BANDO_PROC_ATTIV', 'DATA_EFFETTIVA_BANDO_PROC_ATTIV', 'DATA_PREVISTA_FINE_PROC_ATTIV', 'DATA_EFFETTIVA_FINE_PROC_ATTIV', 'DATA_AGGIORNAMENTO', 'SOGGETTI_PROGRAMMATORI', 'SOGGETTI_ATTUATORI', 'AMBITI_TERRITORIALI', 'TERRITORI']
+
+        extra_columns = OrderedDict([
+            ('OC_TIPO_PROGETTO', 'get_tipo_progetto_display'),
+            ('SOGGETTI_PROGRAMMATORI', 'nomi_programmatori'),
+            ('SOGGETTI_ATTUATORI', 'nomi_attuatori'),
+            ('AMBITI_TERRITORIALI', 'ambiti_territoriali'),
+            ('TERRITORI', 'nomi_territori'),
+        ])
+
+        results = self.get_results()
+
+        response = HttpResponse(content_type='application/x-zip-compressed')
+        response['Content-Disposition'] = 'attachment; filename=progetti.csv.zip'
+
+        z = zipfile.ZipFile(response, 'w', zipfile.ZIP_DEFLATED)
+
+        output = StringIO.StringIO()
+
+        writer = utils.UnicodeWriter(output, dialect=utils.excel_semicolon)
+
+        # writer.writerow(csv_columns + extra_columns.keys())
+        writer.writerow(columns)
+
+        chunk_size = 10000
+        for i in xrange(0, len(results), chunk_size):
+            chunked_results = results[i:i + chunk_size]
+
+            objects_by_pk = self._get_objects_by_pk(chunked_results)
+            for result in chunked_results:
+                try:
+                    object = objects_by_pk[result]
+                except KeyError:
+                    pass
+                else:
+                    csv_data = json.loads(object.csv_data, object_pairs_hook=OrderedDict)
+                    csv_data = {{'COD_DIPE': u'COD_LOCALE_PROGETTO', 'ASSEGNAZIONE_CIPE_AGG': u'FINANZ_TOTALE_PUBBLICO'}.get(k, k): v for k, v in csv_data.items()}  # necessario per assegnazioni CIPE
+
+                    # row = [myformat(csv_data.get(x, '')) for x in csv_columns] + [myformat(getattr(object, x) or '') for x in extra_columns.values()]
+                    row = [myformat(getattr(object, extra_columns[c]) or '' if c in extra_columns else csv_data.get(c, '')) for c in columns]
+
+                    writer.writerow(row)
+
+        z.writestr('progetti.csv', output.getvalue())
+
+        z.close()
+
+        return response
+
+    def create_response_old(self):
+        """
+        Generates a zipped, downloadale CSV file, from search results
+        """
         import datetime
         import decimal
         import locale
@@ -713,8 +636,6 @@ class ProgettoCSVSearchView(ProgettoSearchView):
                 except AttributeError:
                     return None
             return attr
-
-        results = self.get_results()
 
         columns = OrderedDict([
             ('COD_LOCALE_PROGETTO', 'codice_locale'),
@@ -740,14 +661,16 @@ class ProgettoCSVSearchView(ProgettoSearchView):
             ('TOT_PAGAMENTI', 'pagamento'),
             ('QSN_FONDO_COMUNITARIO', 'fondo_comunitario'),
             ('OC_DATA_INIZIO_PREVISTA', 'data_inizio_prevista'),
-            ('OC_DATA_FINE_PREVISTA', 'data_inizio_effettiva'),
-            ('OC_DATA_INIZIO_EFFETTIVA', 'data_fine_prevista'),
+            ('OC_DATA_FINE_PREVISTA', 'data_fine_prevista'),
+            ('OC_DATA_INIZIO_EFFETTIVA', 'data_inizio_effettiva'),
             ('OC_DATA_FINE_EFFETTIVA', 'data_fine_effettiva'),
             ('SOGGETTI_PROGRAMMATORI', 'nomi_programmatori'),
             ('SOGGETTI_ATTUATORI', 'nomi_attuatori'),
             ('AMBITI_TERRITORIALI', 'ambiti_territoriali'),
             ('TERRITORI', 'nomi_territori'),
         ])
+
+        results = self.get_results()
 
         response = HttpResponse(content_type='application/x-zip-compressed')
         response['Content-Disposition'] = 'attachment; filename=progetti.csv.zip'
@@ -806,7 +729,6 @@ class ProgettoCSVSearchView(ProgettoSearchView):
 
         z.close()
 
-        # raise Exception
         return response
 
 
@@ -818,7 +740,7 @@ class ProgettoLocCSVSearchView(ProgettoSearchView):
     @staticmethod
     def _get_objects_by_pk(pks):
         related = ['territorio_set']
-        return Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks)
+        return {str(key): value for key, value in Progetto.fullobjects.select_related(*related).prefetch_related(*related).in_bulk(pks).items()}
 
     def create_response(self):
         """

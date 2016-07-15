@@ -1,50 +1,43 @@
 # -*- coding: utf-8 -*-
-import subprocess
-from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
-from django.core.management import call_command
-from django.db.models import Count
-
-from optparse import make_option
-from progetti.models import Progetto
-from soggetti.models import Soggetto
-
+import datetime
 import logging
+# import subprocess
+from django.conf import settings
+from django.core.management import call_command
+from django.core.management.base import BaseCommand
+from django.db.models import Count
+from optparse import make_option
+
 
 class Command(BaseCommand):
     """
     Generate cached content by visiting pages, uses request.
-
     """
-    help = "Generate cached content for aggregate pages or recipients"
+
+    help = 'Generate cached content for aggregate pages or soggetti'
+
+    cache_types = ['home', 'temi', 'nature', 'regioni', 'provincie', 'estero', 'programmi', 'gruppiprogrammi', 'soggetti']
 
     option_list = BaseCommand.option_list + (
+        make_option('--type',
+                    dest='type',
+                    default=None,
+                    help='Type of cache; choose among {}.'.format(', '.join('"{}"'.format(t) for t in cache_types))),
+        make_option('--clear-cache',
+                    dest='clearcache',
+                    action='store_true',
+                    default=False,
+                    help='Clear the cache, before extracting the data.'),
         make_option('--dryrun',
                     dest='dryrun',
                     action='store_true',
                     default=False,
-                    help='Show generated urls'),
-        make_option('--clear-cache',
-                    action='store_true',
-                    dest='clearcache',
-                    default=False,
-                    help='Clear the cache, before extracting the data'),
-        make_option('--type',
-                    dest='type',
-                    default=None,
-                    help='Type of generation: recipients,home, temi, nature, regioni, province, estero, programmi'),
-        make_option('--big-recipients-treshold',
-                    dest='big_recipients_treshold',
-                    default='50',
-                    help='Treshold for progetti.count to be considered a big recipient'),
+                    help='Show generated urls.'),
     )
 
     logger = logging.getLogger('console')
 
     def handle(self, *args, **options):
-
-        self.dryrun = options['dryrun']
-
         verbosity = options['verbosity']
         if verbosity == '0':
             self.logger.setLevel(logging.ERROR)
@@ -56,166 +49,88 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         cache_type = options['type']
-        if cache_type is None:
-            raise Exception("No --type option, choose among 'recipients, home', 'temi', 'nature', 'regioni', 'province', 'estero', 'programmi'")
-        if cache_type not in ('recipients', 'home', 'temi', 'nature', 'regioni', 'province', 'estero', 'programmi'):
-            raise Exception("Wrong --type option: choose among 'recipients', 'home', 'temi', 'nature', 'regioni', 'province', 'estero', 'programmi'")
 
-        # invoke correct handler method,
-        # passes along the correct view class, url_name and tipo_territorio, if needed
-        handlers = {
-            'recipients': self.handle_recipients,
-            'home': self.handle_home,
-            'temi': self.handle_temi,
-            'nature': self.handle_nature,
-            'regioni': self.handle_regioni,
-            'province': self.handle_province,
-            'estero': self.handle_estero,
-            'programmi': self.handle_programmi,
-        }
-        handlers[cache_type](*args, **options)
-
-
-    def handle_home(self, *args, **options):
-        self.logger.info("== regenerating cache for home page")
-        self._aggregate_cache_computation(
-            '', page_type='home',
-            clearcache=options['clearcache'], verbosity=options['verbosity']
-        )
-
-    def handle_temi(self, *args, **options):
-        self.logger.info("== regenerating cache for temi")
-        from progetti.models import Tema
-        temi_slugs = (item['slug'] for item in Tema.objects.filter(tipo_tema=Tema.TIPO.sintetico).values('slug'))
-        for tema_slug in temi_slugs:
-            self._aggregate_cache_computation(
-                tema_slug, page_type='tema',
-                clearcache=options['clearcache'], verbosity=options['verbosity']
-            )
-
-    def handle_nature(self, *args, **options):
-        self.logger.info("== regenerating cache for nature")
-        from progetti.models import ClassificazioneAzione
-        nature_slugs = (item['slug'] for item in ClassificazioneAzione.objects.filter(tipo_classificazione=ClassificazioneAzione.TIPO.natura).values('slug'))
-        for natura_slug in nature_slugs:
-            self._aggregate_cache_computation(
-                natura_slug, page_type='natura',
-                clearcache=options['clearcache'], verbosity=options['verbosity']
-            )
-
-    def handle_programmi(self, *args, **options):
-        self.logger.info("== regenerating cache for programmi")
-
-
-        # generate cache for single programs exceeding the BIG_PROGRAMMI_THRESHOLD
-        from progetti.models import ProgrammaAsseObiettivo, ProgrammaLineaAzione
-        prog_classification = {
-            'PAO': {'class': ProgrammaAsseObiettivo,
-                    'filter': 'programma_asse_obiettivo' },
-            'PLA': {'class': ProgrammaLineaAzione,
-                    'filter': 'programma_linea_azione' }
-        }
-        for cl_key,cl in prog_classification.items():
-            codes = cl['class'].objects.programmi().values_list('codice', flat=True)
-            filter_key = "%s__classificazione_superiore__classificazione_superiore" % (cl['filter'],)
-            for code in codes:
-                filter_dict = { filter_key: code }
-                n_progetti = Progetto.objects.filter(**filter_dict).count()
-                if n_progetti >= settings.BIG_PROGRAMMI_THRESHOLD:
-                    self.logger.info("Program {0}. Generating cache for {1} projects.".format(code, n_progetti))
-                    self._aggregate_cache_computation(
-                        code, page_type='programma',
-                        clearcache=options['clearcache'], verbosity=options['verbosity']
-                    )
-                else:
-                    self.logger.info("Program {0}. Skipping cache generation for {1} projects.".format(code, n_progetti))
-
-        # generate programs aggregates
-        for pr_aggregate_slug in ['ue-fesr', 'ue-fse', 'fsc']:
-            self._aggregate_cache_computation(
-                pr_aggregate_slug, page_type='programmi',
-                clearcache=options['clearcache'], verbosity=options['verbosity']
-            )
-
-    def handle_estero(self, *args, **options):
-        self.logger.info("== regenerating cache for ambito estero")
-        self._aggregate_cache_computation(
-            '', page_type='ambitoestero',
-            clearcache=options['clearcache'], verbosity=options['verbosity']
-        )
-
-
-    def handle_regioni(self, *args, **options):
-        self.logger.info("== regenerating cache for regioni")
-        from territori.models import Territorio
-        territori_slugs = (item['slug'] for item in Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values('slug'))
-        for territorio_slug in territori_slugs:
-            self.logger.debug("    :: regione {0}".format(territorio_slug))
-            self._aggregate_cache_computation(
-                territorio_slug, page_type='regione',
-                clearcache=options['clearcache'], verbosity=options['verbosity'],
-                tipo_territorio='regione'
-            )
-
-
-    def handle_province(self, *args, **options):
-        self.logger.info("== regenerating cache for province")
-        from territori.models import Territorio
-        territori_slugs = (item['slug'] for item in Territorio.objects.filter(territorio=Territorio.TERRITORIO.P).values('slug'))
-        for territorio_slug in territori_slugs:
-            self._aggregate_cache_computation(
-                territorio_slug, page_type='provincia',
-                clearcache=options['clearcache'], verbosity=options['verbosity'],
-                tipo_territorio='provincia'
-            )
-
-
-
-    def _aggregate_cache_computation(self, slug, page_type, clearcache, verbosity, tipo_territorio=None):
-        if not self.dryrun:
-            self.logger.info("== Executing prepareaggregate for {0}".format(slug))
-            for thematization in ('', 'totale_costi', 'totale_costi_procapite', 'totale_pagamenti', 'totale_progetti'):
-                call_command('prepareaggregate', slug,
-                             type=page_type,
-                             clearcache=clearcache,
-                             verbosity=verbosity,
-                             thematization=thematization,
-                             tipo_territorio=tipo_territorio)
+        if cache_type not in self.cache_types:
+            self.logger.error(u'Wrong --type option "{}". Choose among {}.'.format(cache_type, ', '.join('"{}"'.format(t) for t in self.cache_types)))
         else:
-            self.logger.info("== Blocking execution for {0}, due to --dryrun option".format(slug))
+            self.logger.info(u'Regenerating cache for "{}".'.format(cache_type))
 
+            start_time = datetime.datetime.now()
 
+            method = getattr(self, 'handle_{}'.format(cache_type))
+            method(**options)
 
+            duration = datetime.datetime.now() - start_time
+            seconds = round(duration.total_seconds())
 
+            self.logger.info(u'Done. Execution time: {:02d}:{:02d}:{:02d}.'.format(int(seconds // 3600), int((seconds % 3600) // 60), int(seconds % 60)))
 
-    def handle_recipients(self, *args, **options):
-        treshold = options['big_recipients_treshold']
-        self.logger.info("== regenerating cache for recipients with more than {0} projects".format(treshold))
-        grandi_soggetti = Soggetto.objects.all().annotate(n=Count('progetto')).filter(n__gt=treshold).order_by('n')
-        self.logger.info("== building urls list")
-        for s in grandi_soggetti:
-            if self.dryrun:
-                self.logger.info("{0}; n_progetti: {1}".format(s.slug, s.progetti.count()))
-            else:
-                self.logger.info("{0}; n_progetti: {1}".format(s.slug, s.progetti.count()))
-                subprocess.call(
-                    ["python",  "manage.py",  "preparesoggetto", s.slug,
-                    "--clear-cache" if options['clearcache'] else "",
-                    "--verbosity={0}".format(options['verbosity'])])
+    def handle_home(self, **options):
+        self._aggregate_cache_computation('', page_type='home', **options)
 
+    def handle_temi(self, **options):
+        from progetti.models import Tema
 
-                for thematization in ('totale_costi', 'totale_pagamenti', 'totale_progetti'):
-                    subprocess.call(
-                        ["python",  "manage.py",  "preparesoggetto", s.slug,
-                        "--clear-cache" if options['clearcache'] else "",
-                        "--verbosity={0}".format(options['verbosity']),
-                        "--thematization={0}".format(thematization)])
+        for slug in Tema.objects.principali().values_list('slug', flat=True):
+            self._aggregate_cache_computation(slug, page_type='tema', **options)
 
+    def handle_nature(self, **options):
+        from progetti.models import ClassificazioneAzione
 
+        for slug in ClassificazioneAzione.objects.nature().values_list('slug', flat=True):
+            self._aggregate_cache_computation(slug, page_type='natura', **options)
 
+    def handle_regioni(self, **options):
+        from territori.models import Territorio
 
+        for slug in Territorio.objects.regioni().values_list('slug', flat=True):
+            self._aggregate_cache_computation(slug, page_type='regione', **options)
 
+    def handle_provincie(self, **options):
+        from territori.models import Territorio
 
+        for slug in Territorio.objects.provincie().values_list('slug', flat=True):
+            self._aggregate_cache_computation(slug, page_type='provincia', **options)
 
+    def handle_estero(self, **options):
+        self._aggregate_cache_computation('', page_type='ambitoestero', **options)
 
+    def handle_programmi(self, **options):
+        from progetti.models import Progetto, ProgrammaAsseObiettivo, ProgrammaLineaAzione
 
+        prog_classifications = [
+            {'class': ProgrammaAsseObiettivo, 'attribute': 'programma_asse_obiettivo'},
+            {'class': ProgrammaLineaAzione, 'attribute': 'programma_linea_azione'}
+        ]
+        for prog_classification in prog_classifications:
+            filter_key = '{}__classificazione_superiore__classificazione_superiore'.format(prog_classification['attribute'])
+            for code in prog_classification['class'].objects.programmi().values_list('codice', flat=True):
+                n_progetti = Progetto.objects.filter(**{filter_key: code}).count()
+                if n_progetti >= settings.BIG_PROGRAMMI_THRESHOLD:
+                    self.logger.info('Program {}. Generating cache for {} projects.'.format(code, n_progetti))
+                    self._aggregate_cache_computation(code, page_type='programma', **options)
+                else:
+                    self.logger.info('Program {}. Skipping cache generation for {} projects.'.format(code, n_progetti))
+
+    def handle_gruppiprogrammi(self, **options):
+        from progetti.gruppo_programmi import GruppoProgrammi
+
+        for slug in GruppoProgrammi.GRUPPI_PROGRAMMI.keys():
+            self._aggregate_cache_computation(slug, page_type='programmi', **options)
+
+    def handle_soggetti(self, **options):
+        from soggetti.models import Soggetto
+
+        self.logger.info('== building urls list')
+        for soggetto in Soggetto.objects.annotate(n=Count('progetto')).filter(n__gt=settings.BIG_SOGGETTI_THRESHOLD).order_by('n'):
+            self.logger.info('Soggetto {}. Generating cache for {} projects.'.format(soggetto.slug, soggetto.n))
+            self._aggregate_cache_computation(soggetto.slug, page_type='soggetto', **options)
+            # if not options['dryrun']:
+            #     subprocess.call(['python', 'manage.py', 'preparesoggetto', soggetto.slug, '--clear-cache' if options['clearcache'] else '', '--verbosity={}'.format(options['verbosity'])])
+
+    def _aggregate_cache_computation(self, slug, page_type, **options):
+        if not options['dryrun']:
+            self.logger.info('== Executing prepareaggregate for "{}"'.format(slug))
+            call_command('prepareaggregate', slug=slug, type=page_type, clearcache=options['clearcache'], verbosity=options['verbosity'])
+        else:
+            self.logger.info('== Blocking execution for "{}", due to --dryrun option'.format(slug))

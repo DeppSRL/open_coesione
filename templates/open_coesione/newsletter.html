@@ -1,0 +1,158 @@
+{% extends 'base_two_columns.html' %}
+
+{% load sekizai_tags %}
+
+{% block page_title %}Seguici{% endblock %}
+
+{% block content %}
+    <div class="flat_content">
+        <h1>La newsletter di OpenCoesione</h1>
+
+        <hr/>
+
+        <p>Vuoi restare aggiornato sulle principali novità sull'attuazione delle politiche di coesione e sul portale OpenCoesione?</p>
+        <p>Iscriviti alla mailing list, utilizzando il form sottostante, per ricevere in automatico via posta elettronica ogni nuovo numero della newsletter.</p>
+
+        <!-- Begin MailChimp Signup Form -->
+        <div id="mc_embed_signup">
+            <form action="//opencoesione.us8.list-manage.com/subscribe/post?u=06d98854777f8d543b9f5e8a8&amp;id=d613f38322" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+                <div id="mc_embed_signup_scroll">
+                    <div class="indicates-required"><span class="asterisk">*</span> campi obbligatori</div>
+                    <div class="mc-field-group">
+                    	<label for="mce-FNAME" class="control-label">Nome</label>
+                    	<input type="text" value="" name="FNAME" class="" id="mce-FNAME">
+                    </div>
+                    <div class="mc-field-group">
+                    	<label for="mce-LNAME" class="control-label">Cognome</label>
+                    	<input type="text" value="" name="LNAME" class="" id="mce-LNAME">
+                    </div>
+                    <div class="mc-field-group">
+                    	<label for="mce-EMAIL" class="control-label">Indirizzo email <span class="asterisk">*</span></label>
+                    	<input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL">
+                    </div>
+                    <div class="mc-field-group">
+                    	<label for="mce-TIPO" class="control-label">Tipologia di utente <span class="asterisk">*</span></label>
+                        <select name="TIPO" class="required" id="mce-TIPO">
+                            <option value=""></option>
+                            <option value="Cittadino">Cittadino</option>
+                            <option value="Sviluppatore">Sviluppatore</option>
+                            <option value="Funzionario PA">Funzionario PA</option>
+                            <option value="Giornalista">Giornalista</option>
+                        </select>
+                    </div>
+                    <div class="mc-field-group">
+                    	<label for="mce-NOTE" class="control-label">Note</label>
+                    	<input type="text" value="" name="NOTE" class="" id="mce-NOTE">
+                    </div>
+                    <div class="mc-field-group">
+                    	<label for="mce-PRIVACY" class="control-label">Autorizzazione all'utilizzo dei dati personali <span class="asterisk">*</span></label>
+                    	<input type="checkbox" value="Autorizzo" name="PRIVACY" class="required" id="mce-PRIVACY" style="width: auto; margin: 3px auto">
+                    </div>
+                    <div id="informativa">
+                        <h2>INFORMATIVA PER IL TRATTAMENTO DEI DATI PERSONALI</h2>
+                        <p>
+                            La presente informativa è resa ai sensi dell'articolo 13 del d.lg. n. 196/2003 - Codice in materia di protezione dei dati personali.<br/>
+                            La newsletter di OpenCoesione è inviata via posta elettronica a coloro che ne fanno esplicita richiesta, compilando il form presente in questa pagina e autorizzando il DPS al trattamento dei propri dati personali.<br/>
+                            Il conferimento dei dati è facoltativo. Il rifiuto a fornire i dati comporta l'impossibilità di ottenere il servizio newsletter.
+                        </p>
+                        <h2>Finalità del trattamento</h2>
+                        <p>
+                            I dati personali forniti dagli utenti sono utilizzati al solo fine di inviare la newsletter e non saranno comunicati a terzi.
+                        </p>
+                        <h2>Modalità per il trattamento dei dati</h2>
+                        <p>
+                            I dati raccolti sono trattati con strumenti informatici. Idonee misure di sicurezza sono osservate per prevenire la perdita dei dati, usi illeciti o non corretti ed accessi non autorizzati.
+                        </p>
+                        <h2>Il titolare del trattamento</h2>
+                        <p>
+                            Il titolare del trattamento dei dati raccolti è il Dipartimento per lo sviluppo e la coesione economica, che ha sede in via Sicilia 162/c Roma.<br/>
+                            I trattamenti di dati connessi al servizio newsletter hanno luogo presso la predetta sede e sono curati da personale interno.
+                        </p>
+                        <h2>Responsabile del trattamento</h2>
+                        <p>
+                            In caso di necessità, per attività legate alla manutenzione della parte tecnologica del sito, i dati connessi al servizio newsletter possono essere trattati da incaricati della società DEPP S.r.l., responsabile del trattamento dei dati ai sensi dell'articolo 29 del Codice in materia di protezione dei dati personali.
+                        </p>
+                        <h2>Diritti degli interessati</h2>
+                        <p>
+                            I soggetti cui si riferiscono i dati personali hanno il diritto in qualunque momento di ottenere la conferma dell'esistenza o meno dei medesimi dati e di conoscerne il contenuto e l'origine, verificarne l'esattezza o chiederne l'integrazione o l'aggiornamento, oppure la rettificazione (articolo 7 del Codice in materia di protezione dei dati personali). Ai sensi del medesimo articolo si ha il diritto di chiedere la cancellazione, la trasformazione in forma anonima o il blocco dei dati trattati in violazione di legge, nonché di opporsi in ogni caso, per motivi legittimi, al loro trattamento.<br/>
+                            Le richieste vanno rivolte via e-mail, all'indirizzo: <a href="mailto:opencoesione@dps.gov.it">opencoesione@dps.gov.it</a>.<br/>
+                            Per ulteriori approfondimenti, si rimanda anche alla <a href="/informativa_privacy/">informativa sulla privacy</a> del sito.
+                        </p>
+                        <h2>Cancellazione del servizio</h2>
+                        <p>
+                            Per non ricevere più la newsletter, fare click sul link apposito, inviato in fondo a ogni numero della newsletter.<br/>
+                            In caso di problemi, inviare una segnalazione e-mail a: <a href="mailto:opencoesione@dps.gov.it">opencoesione@dps.gov.it</a>.
+                        </p>
+                    </div>
+                	<div id="mce-responses" class="clear">
+                		<div class="response" id="mce-error-response" style="display: none"></div>
+                		<div class="response" id="mce-success-response" style="display: none"></div>
+                	</div>
+                    <div style="position: absolute; left: -5000px" aria-hidden="true">
+                        <input type="text" name="b_06d98854777f8d543b9f5e8a8_d613f38322" tabindex="-1" value="">
+                    </div>
+                    <div class="clear form-actions">
+                        <button class="btn btn-info" type="submit" name="subscribe">Invia</button>
+                        <button class="btn" type="reset">Annulla</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <script src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script>
+        <script>
+            (function($) {
+                window.fnames = new Array();
+                window.ftypes = new Array();
+                fnames[1]='FNAME';
+                ftypes[1]='text';
+                fnames[2]='LNAME';
+                ftypes[2]='text';
+                fnames[0]='EMAIL';
+                ftypes[0]='email';
+                fnames[4]='TIPO';
+                ftypes[4]='dropdown';
+                fnames[3]='NOTE';
+                ftypes[3]='text';
+                fnames[5]='PRIVACY';
+                ftypes[5]='dropdown';
+                /*
+                 * Translated default messages for the $ validation plugin.
+                 * Locale: IT
+                 */
+                $.extend($.validator.messages, {
+                    required: "Campo obbligatorio.",
+                    remote: "Controlla questo campo.",
+                    email: "Inserisci un indirizzo email valido.",
+                    url: "Inserisci un indirizzo web valido.",
+                    date: "Inserisci una data valida.",
+                    dateISO: "Inserisci una data valida (ISO).",
+                    number: "Inserisci un numero valido.",
+                    digits: "Inserisci solo numeri.",
+                    creditcard: "Inserisci un numero di carta di credito valido.",
+                    equalTo: "Il valore non corrisponde.",
+                    accept: "Inserisci un valore con un&apos;estensione valida.",
+                    maxlength: $.validator.format("Non inserire pi&ugrave; di {0} caratteri."),
+                    minlength: $.validator.format("Inserisci almeno {0} caratteri."),
+                    rangelength: $.validator.format("Inserisci un valore compreso tra {0} e {1} caratteri."),
+                    range: $.validator.format("Inserisci un valore compreso tra {0} e {1}."),
+                    max: $.validator.format("Inserisci un valore minore o uguale a {0}."),
+                    min: $.validator.format("Inserisci un valore maggiore o uguale a {0}.")
+                });
+            }(jQuery));
+            var $mcj = jQuery.noConflict(true);
+        </script>
+        <!--End mc_embed_signup-->
+    </div>
+    {% addtoblock 'css' strip %}
+        <link rel="stylesheet" href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css">
+    {% endaddtoblock %}
+{% endblock %}
+
+{% block sidebar %}
+    <p>Seguici sui nostri canali <em>social</em></p>
+    <ul id="social_links">
+        <li><a class="twitter" href="https://twitter.com/OpenCoesione">Twitter</a> <a href="https://twitter.com/OpenCoesione">@OpenCoesione</a> su Twitter</li>
+        <li><a class="vimeo" href="https://vimeo.com/channels/787486">Vimeo</a> il <a href="https://vimeo.com/channels/787486">canale OpenCoesione</a> su Vimeo</li>
+        <li><a class="slideshare" href="http://www.slideshare.net/OpenCoesione">SlideShare</a> le slide di <a href="http://www.slideshare.net/OpenCoesione">OpenCoesione</a> su SlideShare</li>
+    </ul>
+{% endblock %}

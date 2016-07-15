@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 # Django settings for open_coesione project.
-
 import os
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -10,7 +10,6 @@ API_URL = None
 HAYSTACK_SITECONF = 'open_coesione.search_sites'
 HAYSTACK_SEARCH_ENGINE = ''
 HAYSTACK_SOLR_URL = ''
-
 
 # GeoDjango needs GDAL
 GDAL_LIBRARY_PATH = ''
@@ -96,7 +95,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -111,13 +110,13 @@ RECAPTCHA_PRIVATE_KEY = ''
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    # 'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
-#    'django.middleware.cache.UpdateCacheMiddleware',
+    # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
-#    'django.middleware.cache.FetchFromCacheMiddleware',
+    # 'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -154,27 +153,22 @@ INSTALLED_APPS = (
     'south',
     'haystack',
     'oc_search',
-
-    # TinyMCE
     'tinymce',
     'captcha',
-    # debug toolbar 3rd party panels
     'cache_panel',
     'disqus',
-    # API applications
-    'rest_framework',
-    'api',
-    'widgets',
-
-    'progetti',
-    'territori',
-    'soggetti',
-    'rubrica',
     'open_coesione',
+    'progetti',
+    'soggetti',
+    'territori',
     'blog',
     'idioticon',
     'tagging',
+    'urlshortener',
     'open_coesione.charts',
+    'rest_framework',
+    'api',
+    'widgets',
 )
 
 DEBUG_TOOLBAR_PANELS = (
@@ -192,13 +186,15 @@ DEBUG_TOOLBAR_PANELS = (
 
 # context processors and templates directory
 from django.conf.global_settings import TEMPLATE_DIRS, TEMPLATE_CONTEXT_PROCESSORS
-TEMPLATE_DIRS += ( os.path.join(REPO_ROOT, 'templates'), )
+TEMPLATE_DIRS += (os.path.join(REPO_ROOT, 'templates'),)
 TEMPLATE_CONTEXT_PROCESSORS += (
-    'open_coesione.context_processor.main_settings' ,
+    'open_coesione.context_processor.main_settings',
     'django.core.context_processors.request',
     'sekizai.context_processors.sekizai',
 )
 
+TEMATIZZAZIONI = ('totale_costi', 'totale_pagamenti', 'totale_progetti')
+MAP_TEMATIZZAZIONI = TEMATIZZAZIONI + ('totale_costi_procapite',)
 
 CACHES = {
     "default": {
@@ -368,7 +364,6 @@ REST_FRAMEWORK = {
     'PAGINATE_BY_PARAM': 'page_size',
 }
 
-
 SOUTH_TESTS_MIGRATE = False
 
 TEST_RUNNER = 'open_coesione.testing.DatabaselessTestRunner'
@@ -394,15 +389,16 @@ FILEBROWSER_SEARCH_TRAVERSE = True
 FILEBROWSER_MAX_UPLOAD_SIZE = 104857600
 FILEBROWSER_EXTENSIONS = {
     'Folder': [''],
-    'Image': ['.jpg','.jpeg','.gif','.png','.tif','.tiff'],
-    'Document': ['.pdf','.doc','.rtf','.txt','.xls','.csv','.zip'],
-    'Video': ['.mov','.wmv','.mpeg','.mpg','.avi','.rm'],
-    'Audio': ['.mp3','.mp4','.wav','.aiff','.midi','.m4p']
+    'Image': ['.jpg', '.jpeg', '.gif', '.png', '.tif', '.tiff'],
+    'Document': ['.pdf', '.doc', '.rtf', '.txt', '.xls', '.csv', '.zip'],
+    'Video': ['.mov', '.wmv', '.mpeg', '.mpg', '.avi', '.rm'],
+    'Audio': ['.mp3', '.mp4', '.wav', '.aiff', '.midi', '.m4p']
 }
 FILEBROWSER_SELECT_FORMATS = {
-    'file': ['Folder','Image','Document','Video','Audio'],
+    'file': ['Folder', 'Image', 'Document', 'Video', 'Audio'],
     'image': ['Image'],
     'document': ['Document'],
-    'media': ['Video','Audio'],
-
+    'media': ['Video', 'Audio'],
 }
+
+URLSHORTENER_DOMAIN = 'opencoesione.gov.it'
