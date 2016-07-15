@@ -64,6 +64,7 @@ urlpatterns = patterns('',
     url(r'^api-faq/', TemplateView.as_view(template_name='flat/api.html'), name='api-faq'),
 
     url(r'^dati-istat-di-contesto/$', DatiISTATView.as_view(template_name='open_coesione/dati_istat.html'), name='dati-istat'),
+    url(r'^dati-mev/$', TemplateView.as_view(template_name='open_coesione/dati_mev.html'), name='dati-mev'),
 
     url(r'^segui/', NLContactView.as_view(template_name='rubrica/newsletter_subscription.html'), name='rubrica-newsletter'),
 

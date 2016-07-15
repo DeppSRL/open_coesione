@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% load staticfiles sekizai_tags %}
+
+{% block page_title %}Indicatori aggregati dei progetti MEV{% endblock %}
+
+{% block container %}
+    <section class="container">
+        <div id="api_result" class="row"></div>
+    </section>
+
+
+    <!-- evodevo api call -->
+    {% add_data 'js-data' 'js/amcharts/amcharts.js' %}
+    {% add_data 'js-data' 'js/amcharts/pie.js' %}
+    {% comment %}
+    {% add_data 'js-data' 'js/amcharts/serial.js' %}
+    {% endcomment %}
+
+    {% add_data 'js-data' 'js/amcharts/ammap/ammap.js' %}
+    {% add_data 'js-data' 'js/amcharts/ammap/italy.js' %}
+    {% add_data 'js-data' 'js/datatable/datatable.min.js' %}
+
+
+    {% addtoblock 'css' strip %}
+      <link rel="stylesheet" href="{% static 'js/amcharts/ammap/ammap.css' %}" />
+      <link rel="stylesheet" href="{% static 'js/datatable/datatable.css' %}" />
+    {% endaddtoblock %}
+
+
+    {% addtoblock 'js' strip %}
+        <script>
+            $(document).ready(function() {
+                $.getJSON('{{ MIUR_EXT_API_URL }}indicatori_aggregati', function(data) {
+                    var items = [];
+                    $("#api_result").html(data.result.html);
+                    eval(data.result.js);
+                });
+            });
+        </script>
+    {% endaddtoblock %}
+
+{% endblock %}
