@@ -33,7 +33,7 @@
                 $.getJSON('{{ MIUR_EXT_API_URL }}indicatori_soggetti?id={{ soggetto.pk|safe }}', function(data) {
                    var items = [];
 
-                   if (!data.is_school) {
+                   if (data.is_school) {
                         $('#map-layer-selector .block-chart').addClass('block-chart-soggetto');
                         $('#map-layer-selector').append(
                          '<a href="{{ request.path }}?tematizzazione=anagrafica" class="block-chart block-chart-soggetto{% if tematizzazione == "anagrafica" %} block-active{% endif %}" style="width:24%;" id="button_anagrafica_indicatori">' +
