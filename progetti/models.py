@@ -336,7 +336,7 @@ class Progetto(models.Model):
         ('4', 'concluso', u'Concluso'),
     )
 
-    codice_locale = models.CharField(max_length=100, unique=True, db_index=True, db_column='cod_locale_progetto')
+    codice_locale = models.CharField(max_length=100, unique=True, db_index=True)
 
     cup = models.CharField(max_length=15, blank=True)
     active_flag = models.BooleanField(default=True, db_index=True)
@@ -351,19 +351,19 @@ class Progetto(models.Model):
     descrizione_fonte_nome = models.TextField(blank=True, null=True)
     descrizione_fonte_url = models.URLField(blank=True, null=True)
 
-    classificazione_qsn = models.ForeignKey('ClassificazioneQSN', related_name='progetto_set', null=True, blank=True, db_column='classificazione_qsn')
-    programma_asse_obiettivo = models.ForeignKey('ProgrammaAsseObiettivo', related_name='progetto_set', null=True, blank=True, db_column='programma_asse_progetto')
-    programma_linea_azione = models.ForeignKey('ProgrammaLineaAzione', related_name='progetto_set', null=True, blank=True, db_column='programma_linea_azione')
+    classificazione_qsn = models.ForeignKey('ClassificazioneQSN', related_name='progetto_set', null=True, blank=True)
+    programma_asse_obiettivo = models.ForeignKey('ProgrammaAsseObiettivo', related_name='progetto_set', null=True, blank=True)
+    programma_linea_azione = models.ForeignKey('ProgrammaLineaAzione', related_name='progetto_set', null=True, blank=True)
 
     obiettivo_sviluppo = models.CharField(max_length=16, blank=True, null=True, choices=OBIETTIVO_SVILUPPO)
     tipo_operazione = models.IntegerField(blank=True, null=True, choices=TIPO_OPERAZIONE)
     fondo_comunitario = models.CharField(max_length=4, blank=True, null=True, choices=FONDO_COMUNITARIO)
-    tema = models.ForeignKey('Tema', related_name='progetto_set', null=True, blank=True, db_column='tema')
+    tema = models.ForeignKey('Tema', related_name='progetto_set', null=True, blank=True)
 
     fonte_set = models.ManyToManyField('Fonte', related_name='progetto_set', db_table='progetti_progetto_has_fonte')
 
-    classificazione_azione = models.ForeignKey('ClassificazioneAzione', related_name='progetto_set', null=True, blank=True, db_column='classificazione_azione')
-    classificazione_oggetto = models.ForeignKey('ClassificazioneOggetto', related_name='progetto_set', null=True, blank=True, db_column='classificazione_oggetto')
+    classificazione_azione = models.ForeignKey('ClassificazioneAzione', related_name='progetto_set', null=True, blank=True)
+    classificazione_oggetto = models.ForeignKey('ClassificazioneOggetto', related_name='progetto_set', null=True, blank=True)
 
     cipe_flag = models.BooleanField(default=False)
 
