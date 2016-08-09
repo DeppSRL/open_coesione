@@ -38,6 +38,7 @@ def main_settings(request):
         return {
             'DEBUG': settings.DEBUG,
             'TEMPLATE_DEBUG': settings.TEMPLATE_DEBUG,
+            'USE_LESS': settings.USE_LESS,
             'STATIC_URL': settings.STATIC_URL,
             'SITE_URL': 'http://{}'.format(host),
             'IS_PRODUCTION': all(h not in host for h in ('localhost', 'staging')),
