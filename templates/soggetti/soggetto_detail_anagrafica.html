@@ -37,8 +37,8 @@
                         $('#map-layer-selector .block-chart').addClass('block-chart-soggetto');
                         $('#map-layer-selector').append(
                          '<a href="{{ request.path }}?tematizzazione=anagrafica" class="block-chart block-chart-soggetto{% if tematizzazione == "anagrafica" %} block-active{% endif %}" style="width:24%;" id="button_anagrafica_indicatori">' +
-                         '  <strong class="title">Anagrafica e Altri Dettagli</strong>' + 
-                         '  {% if tematizzazione == "anagrafica" %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}' + 
+                         '  <strong class="title">Anagrafica e Altri Dettagli</strong>' +
+                         '  {% if tematizzazione == "anagrafica" %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}' +
                          '</a>'
                         );
 
@@ -51,6 +51,5 @@
         </script>
     {% endaddtoblock %}
 
-    {% include 'soggetti/includes/soggetto_detail_bottomboxes.html' %}
 {% endblock %}
 

@@ -5,10 +5,9 @@
 {% block page_title %}Indicatori aggregati dei progetti MEV{% endblock %}
 
 {% block container %}
-    <section class="container">
-        <div id="api_result" class="row"></div>
-    </section>
-
+    <div class="area">
+        <div id="api_result" class="container"></div>
+    </div>
 
     <!-- evodevo api call -->
     {% add_data 'js-data' 'js/amcharts/amcharts.js' %}
@@ -17,13 +16,13 @@
     {% add_data 'js-data' 'js/amcharts/serial.js' %}
     {% endcomment %}
 
-    {% add_data 'js-data' 'js/amcharts/ammap/ammap.js' %}
-    {% add_data 'js-data' 'js/amcharts/ammap/italy.js' %}
+    {% add_data 'js-data' 'js/ammap/ammap.js' %}
+    {% add_data 'js-data' 'js/ammap/italy.js' %}
     {% add_data 'js-data' 'js/datatable/datatable.min.js' %}
 
 
     {% addtoblock 'css' strip %}
-      <link rel="stylesheet" href="{% static 'js/amcharts/ammap/ammap.css' %}" />
+      <link rel="stylesheet" href="{% static 'js/ammap/ammap.css' %}" />
       <link rel="stylesheet" href="{% static 'js/datatable/datatable.css' %}" />
     {% endaddtoblock %}
 

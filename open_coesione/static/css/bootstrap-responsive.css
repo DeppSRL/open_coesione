@@ -781,6 +781,9 @@
   #wrapper header hr.big {
     margin: 0 -20px;
   }
+  #wrapper header hr.medium {
+    margin: 0 -15px;
+  }
 }
 @media (min-width: 768px) and (max-width: 979px) {
   #wrapper > section#main table td.amount,

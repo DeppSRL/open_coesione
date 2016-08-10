@@ -507,6 +507,12 @@ hr.big {
     &.dark { border-top-color: #5B5955; }
 }
 
+hr.medium {
+    border-top: 2px solid #EBE8E0;
+    border-bottom: 0;
+    &.dark { border-top-color: #5B5955; }
+}
+
 .table th, .table td {
     padding: 6px;
 }
@@ -930,4 +936,11 @@ a[rel=info-tooltip]:hover i {
 .tooltip-inner {
     text-align: left!important;
     font-size: 14px;
+}
+
+
+#api_result {
+    hr.medium {
+        margin: 9px 0;
+    }
 }
