@@ -12,18 +12,15 @@
     <!-- evodevo api call -->
     {% add_data 'js-data' 'js/amcharts/amcharts.js' %}
     {% add_data 'js-data' 'js/amcharts/pie.js' %}
-    {% comment %}
-    {% add_data 'js-data' 'js/amcharts/serial.js' %}
-    {% endcomment %}
 
     {% add_data 'js-data' 'js/ammap/ammap.js' %}
     {% add_data 'js-data' 'js/ammap/italy.js' %}
-    {% add_data 'js-data' 'js/datatable/datatable.min.js' %}
+    {% add_data 'js-data' 'js/datatables/datatables.min.js' %}
 
 
     {% addtoblock 'css' strip %}
       <link rel="stylesheet" href="{% static 'js/ammap/ammap.css' %}" />
-      <link rel="stylesheet" href="{% static 'js/datatable/datatable.css' %}" />
+      <link rel="stylesheet" href="{% static 'js/datatables/datatables.min.css' %}" />
     {% endaddtoblock %}
 
 

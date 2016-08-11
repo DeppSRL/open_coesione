@@ -5995,3 +5995,6 @@ a[rel=info-tooltip]:hover i {
   text-align: left!important;
   font-size: 14px;
 }
+#api_result hr.medium {
+  margin: 9px 0;
+}
