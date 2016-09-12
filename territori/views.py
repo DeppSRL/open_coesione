@@ -170,7 +170,7 @@ class LeafletView(JSONResponseMixin, TemplateView):
     layer = None
 
     @cached_context
-    def get_cached_context_data(self):
+    def get_cached_context_data(self, **kwargs):
         context = {}
 
         # fetch Geometry object to look at
@@ -178,11 +178,11 @@ class LeafletView(JSONResponseMixin, TemplateView):
         # - region
         # - province
 
-        if 'cod_reg' in context:
-            area = Territorio.objects.regioni().get(cod_reg=context['cod_reg']).geom
+        if 'cod_reg' in kwargs:
+            area = Territorio.objects.regioni().get(cod_reg=kwargs['cod_reg']).geom
             context['zoom'] = {'min': 7, 'max': 10}
-        elif 'cod_prov' in context:
-            area = Territorio.objects.provincie().get(cod_prov=context['cod_prov']).geom
+        elif 'cod_prov' in kwargs:
+            area = Territorio.objects.provincie().get(cod_prov=kwargs['cod_prov']).geom
             context['zoom'] = {'min': 8, 'max': 11}
         else:  # Collect all comuni except 'Lampedusa e Linosa' to reduce zoomlevel of fitbound
             area = Territorio.objects.comuni().exclude(cod_com='84020').collect()
@@ -256,7 +256,7 @@ class LeafletView(JSONResponseMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(LeafletView, self).get_context_data(**kwargs)
 
-        context.update(self.get_cached_context_data())
+        context.update(self.get_cached_context_data(**kwargs))
 
         context['tilestache_url'] = settings.TILESTACHE_URL
 
