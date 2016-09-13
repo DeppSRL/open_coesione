@@ -1,7 +1,0 @@
----
-- name: Configure tilestache server
-  hosts: tilestache
-  roles:
-    - { role: tilestache-dev }
-
-

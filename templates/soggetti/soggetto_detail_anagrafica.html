@@ -1,0 +1,55 @@
+{% extends 'soggetti/soggetto_detail.html' %}
+
+{% load sekizai_tags %}
+
+{% block container %}
+    {% block content-header %}{{ block.super }}{% endblock %}
+
+    <div class="area">
+        <div class="container">
+            <div class="row" id="statistics">
+                {% block page_header %}{{ block.super }}{% endblock %}
+
+                <!-- evodevo api call -->
+                <div id="api_result"></div>
+            </div>
+        </div>
+    </div>
+
+    {% add_data 'js-data' 'js/amcharts/amcharts.js' %}
+    {% add_data 'js-data' 'js/amcharts/serial.js' %}
+    {% add_data 'js-data' 'js/amcharts/pie.js' %}
+
+    {% addtoblock 'js' strip %}
+        <script src="http://maps.google.com/maps/api/js?v=3&sensor=false"></script>
+    {% endaddtoblock %}
+
+    {% addtoblock 'js' strip %}
+        <script>
+            /* read data from mev, create anagrafica button, resize the others
+               inject html in the api_result div and execute the javascript
+               returned by the API (mostly creates Pie charts */
+            $(document).ready(function() {
+                $.getJSON('{{ MIUR_EXT_API_URL }}indicatori_soggetti?id={{ soggetto.pk|safe }}', function(data) {
+                   var items = [];
+
+                   if (data.is_school) {
+                        $('#map-layer-selector .block-chart').addClass('block-chart-soggetto');
+                        $('#map-layer-selector').append(
+                         '<a href="{{ request.path }}?tematizzazione=anagrafica" class="block-chart block-chart-soggetto{% if tematizzazione == "anagrafica" %} block-active{% endif %}" style="width:24%;" id="button_anagrafica_indicatori">' +
+                         '  <strong class="title">Anagrafica e Altri Dettagli</strong>' +
+                         '  {% if tematizzazione == "anagrafica" %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}' +
+                         '</a>'
+                        );
+
+                        $("#api_result").html(data.result.html);
+                        eval(data.result.js);
+                    }
+
+                });
+            });
+        </script>
+    {% endaddtoblock %}
+
+{% endblock %}
+

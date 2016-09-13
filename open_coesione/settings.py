@@ -16,6 +16,8 @@ GDAL_LIBRARY_PATH = ''
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+USE_LESS=False
+
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),

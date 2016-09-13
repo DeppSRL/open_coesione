@@ -6,17 +6,13 @@
 {% block page_description %}Informazioni sui progetti in cui partecipa {{ soggetto }}{% endblock %}
 
 {% block top_content %}
-    <div id="claim-container">
-        <p class="claim">Al soggetto è associato l'intero finanziamento dei progetti in cui è coinvolto, anche quando i progetti coinvolgono più soggetti.</p>
+    <div id="claim-container" style="width: 50%">
+        <p class="claim" style="padding-left: 1em;">Al soggetto è associato l'intero finanziamento dei progetti in cui è coinvolto, anche quando i progetti coinvolgono più soggetti.</p>
     </div>
 {% endblock %}
 
 
 {% block page_header %}
-    <script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3&sensor=false"></script>
-
-    <div id="api_result"></div>
-
     <div class="span12">
         <h1 class="title violet"><span>{{ soggetto }}</span></h1>
         <p style="padding: 0 25px">
@@ -76,6 +72,28 @@
             </div>
         </section>
     </div>
+
+
+    {% addtoblock 'js' strip %}
+
+        <script>
+            /* create anagrafica button and resize other buttons if soggetto is a school */
+            $(document).ready(function() {
+                $.getJSON('{{ MIUR_EXT_API_URL }}indicatori_soggetti?id={{ soggetto.pk|safe }}', function(data) {
+                    if (data.is_school) {
+                        $('#map-layer-selector .block-chart').addClass('block-chart-soggetto');
+                        $('#map-layer-selector').append(
+                         '<a href="{{ request.path }}?tematizzazione=anagrafica" class="block-chart block-chart-soggetto{% if tematizzazione == "anagrafica" %} block-active{% endif %}" style="width:24%;" id="button_anagrafica_indicatori">' +
+                         '  <strong class="title">Anagrafica e Altri Dettagli</strong>' + 
+                         '  {% if tematizzazione == "anagrafica" %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}' + 
+                         '</a>'
+                        );
+                    }
+                });
+            });
+        </script>
+    {% endaddtoblock %}
+
 {% endblock %}
 
 {% block map %}
@@ -126,3 +144,5 @@
         </script>
     {% endaddtoblock %}
 {% endblock %}
+
+

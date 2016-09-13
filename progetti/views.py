@@ -50,6 +50,7 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
 
         context['progetti_attuatori'] = Progetto.fullobjects.filter(progetti_attuati=self.object)
         context['progetti_attuati'] = Progetto.fullobjects.filter(progetti_attuatori=self.object).order_by('-cipe_flag')
+        context['MIUR_EXT_API_URL'] = settings.MIUR_EXT_API_URL
 
         return context
 

@@ -3,6 +3,7 @@
 {% load staticfiles sekizai_tags humanize search_url_filters %}
 
 {% block container %}
+    {% block content-header %}
     <div class="container" id="content-header">
         <div class="row">
             <div id="map-layer-selector" class="span6 block-container">
@@ -23,12 +24,13 @@
                     <p>{{ totale_progetti|intcomma }}</p>
                     {% if tematizzazione == 'totale_progetti' %}<div class="caret"></div>{% else %}<i class="icon-undo"></i>{% endif %}
                 </a>
-                {% block anagrafica_sogg_miur %}{% endblock %}
+
             </div>
 
             {% block top_content %}{% endblock %}
         </div>
     </div>
+    {% endblock %}
 
     <div class="area">
         <div class="container">
