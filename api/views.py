@@ -38,7 +38,7 @@ def api_root(request, format=None):
     Authentication is done through HTTP Basic Authentication.
 
     You can request a username/password to authenticate,
-    by writing an email to the following address: opencoesione@dps.gov.it.
+    by writing an email to the following address: info@opencoesione.gov.it.
 
     If for some reasons, you need to scrape all the OpenCoesione data, please consider a bulk **CSV download**.
     See the ``http://www.opencoesione.gov.it/opendata/`` page in the web site.
