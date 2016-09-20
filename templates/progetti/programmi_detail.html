@@ -81,7 +81,7 @@
                         data: {{ pagamenti_per_anno_cro|jsonify }}
                     });
 
-                    print_spline_chart('spline_chart', series, 'Andamento percentuale dei pagamenti rispetto al costo pubblico');
+                    print_spline_chart('spline_chart', series, 'Andamento percentuale dei pagamenti rispetto alla dotazione finanziaria dei Programmi');
 
                     print_column_chart('conv_column_chart', {{ pagamenti_per_programma_conv|jsonify }}, 'Avanzamento finanziario dei programmi: confronto della spesa tra i programmi operativi regionali e nazionali al {{ data_pagamenti_per_programma|date:'SHORT_DATE_FORMAT' }}');
                     print_column_chart('cro_column_chart', {{ pagamenti_per_programma_cro|jsonify }}, 'Avanzamento finanziario dei programmi: confronto della spesa tra i programmi operativi regionali{% if gruppo_programmi.codice == 'ue-fse' %} e nazionali{% endif %} al {{ data_pagamenti_per_programma|date:'SHORT_DATE_FORMAT' }}');
