@@ -234,7 +234,7 @@ class SpesaCertificataGraficiView(RisorsaView):
             return value
 
         dates = ['{}{:02d}31'.format(y, m) for y in range(2010, 2016) for m in [5, 10, 12]]
-        dates += ['20160630', '20161231', '20170331']
+        dates += ['20160731', '20161231', '20170331']
 
         csv2data_key_map = (
             ('TARGET {}', 'target'),
