@@ -9,7 +9,8 @@ var print_spline_chart = function(container, data, title) {
         chart: {
             renderTo: container,
             type: 'spline',
-            backgroundColor: null
+            backgroundColor: null,
+            marginBottom: 120
         },
         title: {
             text: title
@@ -22,10 +23,13 @@ var print_spline_chart = function(container, data, title) {
             labels: {
                 formatter: function() {
                     return Highcharts.dateFormat('31/12/%Y', this.value);
+                },
+                rotation: -45,
+                align: 'right',
+                style: {
+                    font: 'normal 13px Verdana, sans-serif'
                 }
-            },
-            minPadding: 0.025,
-            maxPadding: 0.025
+            }
         },
         yAxis: {
             min: 0,
