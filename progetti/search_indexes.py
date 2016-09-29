@@ -18,7 +18,9 @@ class ProgettoIndex(SearchIndex):
     fonte_fin = MultiValueField(stored=False)
     classificazione_cup = CharField(stored=False)
 
+    is_scuola = FacetBooleanField(model_attr='scuola_flag', stored=False)
     is_active = FacetBooleanField(model_attr='active_flag', stored=False)
+
     natura = FacetCharField(stored=False)
     tema = FacetCharField(stored=False)
     fonte = FacetMultiValueField(stored=False)
