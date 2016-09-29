@@ -6,7 +6,7 @@ from views import ProgettoSearchView
 
 sqs = SearchQuerySet().filter(django_ct='progetti.progetto').order_by('-costo')
 
-for name in ('is_active', 'natura', 'tema', 'fonte', 'stato_progetto'):
+for name in ('is_scuola', 'is_active', 'natura', 'tema', 'fonte', 'stato_progetto'):
     sqs = sqs.facet(format_facet_field(name))
 
 for name in ProgettoSearchView.RANGES:
