@@ -590,10 +590,10 @@ class Progetto(models.Model):
 
         return fonti_fin
 
-    @property
-    def get_tipo_progetto_display(self):
-        # per csv
-        return dict(self.TIPI_PROGETTO)[self.tipo_progetto]
+    # @property
+    # def get_tipo_progetto_display(self):
+    #     # per csv
+    #     return dict(self.TIPI_PROGETTO)[self.tipo_progetto]
 
     @property
     def nomi_programmatori(self):
