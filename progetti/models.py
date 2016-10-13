@@ -416,6 +416,8 @@ class Progetto(models.Model):
     stato_progetto = models.CharField(max_length=1, choices=STATO, null=True, blank=True, db_index=True)
     stato_finanziario = models.CharField(max_length=1, choices=STATO, null=True, blank=True)
 
+    scuola_flag = models.BooleanField(default=False)
+
     csv_data = models.TextField()
 
     territorio_set = models.ManyToManyField('territori.Territorio', through='Localizzazione')
