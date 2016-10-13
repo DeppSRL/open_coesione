@@ -798,7 +798,7 @@ class Command(BaseCommand):
 
                 values['titolo_progetto'] = row['OC_TITOLO_PROGETTO']
 
-                #values['active_flag'] = row['FLAG_ATTIVO']
+                values['active_flag'] = False
                 values['cipe_flag'] = True
 
                 values['programma_asse_obiettivo_id'] = '{}/{}/{}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO'])
