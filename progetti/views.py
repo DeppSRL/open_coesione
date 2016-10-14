@@ -154,10 +154,8 @@ class ProgettoSearchView(OCFacetedSearchView):
 
         facets['stato_progetto']['values'] = sorted(facets['stato_progetto']['values'], key=lambda x: x['key'], reverse=True)
 
-        # esclude i valori delle faccette con 0 elementi quando si effettua la ricerca di tutti i progetti
-        if not any(self.request.GET.values()):
-            for facet in facets.values():
-                facet['values'] = [v for v in facet['values'] if v['count']]
+        if not extra['search_within_non_active']:
+            facets['fonte']['values'] = [v for v in facets['fonte']['values'] if v['key'] != 'FSC0006']
 
         extra['my_facets'] = facets
 
