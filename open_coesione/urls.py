@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from django.conf.urls import patterns, include, url
+from django.contrib.auth.decorators import login_required
 from django.contrib.gis import admin
 from django.views.generic.base import TemplateView
 from views import HomeView, FondiView, RisorsaView, ContactView, SpesaCertificataGraficiView,\
@@ -67,7 +68,7 @@ urlpatterns = patterns('',
     url(r'^api-faq/', TemplateView.as_view(template_name='flat/api.html'), name='api-faq'),
 
     url(r'^dati-istat-di-contesto/$', DatiISTATView.as_view(template_name='open_coesione/dati_istat.html'), name='dati-istat'),
-    url(r'^speciale-scuole/$', TemplateView.as_view(template_name='open_coesione/speciale_scuole.html'), {'MIUR_EXT_API_URL': settings.MIUR_EXT_API_URL}, name='speciale-scuole'),
+    url(r'^speciale-scuole/$', login_required(TemplateView.as_view(template_name='open_coesione/speciale_scuole.html')), {'MIUR_EXT_API_URL': settings.MIUR_EXT_API_URL}, name='speciale-scuole'),
 
     url(r'^indicatori_di_accesso/$', IndicatoriAccessoView.as_view(lang='it', template_name='open_coesione/indicatori_accesso.html'), name='indicatori-accesso-it'),
     url(r'^access_indicators/$', IndicatoriAccessoView.as_view(lang='en', template_name='open_coesione/indicatori_accesso.html'), name='indicatori-accesso-en'),

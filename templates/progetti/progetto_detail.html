@@ -199,49 +199,43 @@
                     {% add_data 'js-data' 'js/amcharts/pie.js' %}
 
                     {% addtoblock 'css' %}
-                    <style type="text/css">
-                      .api_chart {
-                        width   : 100%;
-                        height    : 500px;
-                        font-size : 11px;
-                      }
-
-                      .amcharts-export-menu-top-right {
-                        top: 10px;
-                        right: 0;
-                      }
-                    </style>
+                        <style type="text/css">
+                            .api_chart {
+                                width: 100%;
+                                height: 500px;
+                                font-size: 11px;
+                            }
+                            .amcharts-export-menu-top-right {
+                                top: 10px;
+                                right: 0;
+                            }
+                        </style>
                     {% endaddtoblock %}
 
                     <div class="tabbable boxed">
-                      <!-- Only required for left/right tabs -->
-                      <ul class="nav nav-tabs">
-                          <li class="active"><a href="#finanziamenti" data-toggle="tab">Risorse pubbliche</a>
-                          </li>
-                          <li id="tab_indicatori"><a href="#indicatori" data-toggle="tab">Vuoi saperne di più?</a>
-                          </li>
-                      </ul>
+                        <!-- Only required for left/right tabs -->
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#finanziamenti" data-toggle="tab">Risorse pubbliche</a></li>
+                            <li id="tab_indicatori" style="display: none"><a href="#indicatori" data-toggle="tab">Vuoi saperne di più?</a></li>
+                        </ul>
                     </div>
 
-                    <script type="text/javascript">
-                    $( document ).ready(function() {
-                      var id = '{{ progetto.codice_locale }}';
+                    {% if request.user.is_authenticated %}
+                        <script>
+                            $(document).ready(function() {
+                                var id = '{{ progetto.codice_locale }}';
 
-                      $.getJSON( "{{ MIUR_EXT_API_URL }}indicatori_progetti?id="+id, function( data ) {
-                        var items = [];
-                        console.log(data.result);
-                        if(data.result.case=='NESSUNO'){
-                          $("#tab_indicatori").css('display','none');
-                        }else{
-                          $("#api_result").html(data.result.html);
-                          eval(data.result.js);
-                        }
-
-                      });
-                    });
-                    </script>
-
- 
+                                $.getJSON('{{ MIUR_EXT_API_URL }}indicatori_progetti?id=' + id, function(data) {
+                                    var items = [];
+                                    if (data.result.case != 'NESSUNO') {
+                                        $('#tab_indicatori').show();
+                                        $('#api_result').html(data.result.html);
+                                        eval(data.result.js);
+                                    }
+                                });
+                            });
+                        </script>
+                    {% endif %}
                 </div>
 
                  <div class="tab-content">
