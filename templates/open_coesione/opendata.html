@@ -281,28 +281,48 @@
 
         <h2 id="programmazione">Programmazione delle politiche di coesione</h2>
 
+        <h3 id="risorse1420-title" class="h3-switcher" data-target="risorse1420-content">
+            <a href="#">Risorse finanziarie dei Fondi Strutturali e di Investimento europei 2014/2020 <i></i></a>
+        </h3>
+
+        <div id="risorse1420-content">
+            <p>
+                I Fondi Strutturali e di Investimento europei disponibili in Italia per il periodo 2014-2020 sono il Fondo europeo per lo sviluppo regionale (FESR), il Fondo sociale europeo (FSE), il Fondo europeo agricolo per lo sviluppo rurale (FEASR) e il Fondo europeo per gli affari marittimi e la pesca (FEAMP).
+                I Fondi FESR e FSE sono attuati attraverso Programmi Operativi nazionali (PON) e regionali (POR), mentre i Fondi FEASR e FEAMP che, pur non rientrando nel perimetro delle politiche di coesione, fanno parte dell’Accordo di Partenariato, sono attuati attraverso Programmi di Sviluppo Rurale (PSR) nazionali e regionali.
+                La dotazione di un Programma, approvato con apposita decisione dalla Commissione UE, è articolata nel valore complessivo delle risorse stanziate con dettaglio della quota a valere sul bilancio comunitario e della quota di cofinanziamento nazionale obbligatorio.
+                La dotazione dei Programmi Operativi è riportata in valore assoluto ed espressa in euro.
+            </p>
+
+            <table class="table">
+                <tr>
+                    <td class="label" style="width: 50%">Dati e metadati su dotazione finanziaria complessiva dei Programmi Operativi 2014-2020*</td>
+                    <td><a href="{{ risorse1420_file.file_name }}">> [<i class="icon-download-alt"></i> {{ risorse1420_file.file_ext }} {{ risorse1420_file.file_size|filesizeformat }}]</a></td>
+                </tr>
+            </table>
+
+            <p>{% comment %}Ultimo aggiornamento: dati al {{ risorse1420_file.file_date|date:'SHORT_DATE_FORMAT' }}.<br/>{% endcomment %}* Dati non navigabili sul portale OpenCoesione.</p>
+        </div>
+
         <h3 id="risorse-title" class="h3-switcher" data-target="risorse-content">
             <a href="#">Risorse finanziarie dei Fondi Strutturali 2007/2013 <i></i></a>
         </h3>
 
         <div id="risorse-content">
             <p>
-                I Fondi Strutturali europei disponibili in Italia per il periodo 2007-2013 sono il Fondo europeo per lo sviluppo regionale (FESR) e il Fondo sociale europeo (FSE)
-                attuati attraverso Programmi Operativi nazionali (PON), regionali (POR) o interregionali (POIN).
+                I Fondi Strutturali europei disponibili in Italia per il periodo 2007-2013 sono il Fondo europeo per lo sviluppo regionale (FESR) e il Fondo sociale europeo (FSE) attuati attraverso Programmi Operativi nazionali (PON), regionali (POR) o interregionali (POIN).
                 La dotazione di un Programma, approvato con apposita decisione dalla Commissione UE, è articolata nel valore complessivo delle risorse stanziate con dettaglio della quota a valere sul bilancio comunitario.
-                A partire dal 2012 viene indicata anche la dotazione a seguito della riprogrammazione introdotta in una delle fasi in cui si è articolato il Piano d'Azione Coesione,
-                che per alcuni Programmi ha comportato una riduzione della quota nazionale di risorse (tasso di cofinanziamento nazionale).
+                A partire dal 2012 viene indicata anche la dotazione a seguito della riprogrammazione introdotta in una delle fasi in cui si è articolato il Piano d'Azione Coesione, che per alcuni Programmi ha comportato una riduzione della quota nazionale di risorse (tasso di cofinanziamento nazionale).
                 La dotazione dei Programmi Operativi è riportata in valore assoluto ed espressa in euro.
             </p>
 
             <table class="table">
                 <tr>
                     <td class="label" style="width: 50%">Dati e metadati su dotazione finanziaria complessiva dei Programmi Operativi 2007-2013*</td>
-                    <td><a href="{{ risorse_file.file_name }}">> [<i class="icon-download-alt"></i> {{ risorse_file.file_ext }} {{ risorse_file.file_size|filesizeformat }}]</a></td>
+                    <td><a href="{{ risorse0713_file.file_name }}">> [<i class="icon-download-alt"></i> {{ risorse0713_file.file_ext }} {{ risorse0713_file.file_size|filesizeformat }}]</a></td>
                 </tr>
             </table>
 
-            <p>Ultimo aggiornamento: dati al {{ risorse_file.file_date|date:'SHORT_DATE_FORMAT' }}.<br/>* Dati non navigabili sul portale OpenCoesione.</p>
+            <p>Ultimo aggiornamento: dati al {{ risorse0713_file.file_date|date:'SHORT_DATE_FORMAT' }}.<br/>* Dati non navigabili sul portale OpenCoesione.</p>
         </div>
 
         <h3 id="cipe0713-title" class="h3-switcher" data-target="cipe0713-content">
