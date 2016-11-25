@@ -69,6 +69,7 @@ urlpatterns = patterns('',
 
     url(r'^dati-istat-di-contesto/$', DatiISTATView.as_view(template_name='open_coesione/dati_istat.html'), name='dati-istat'),
     url(r'^speciale-scuole/$', login_required(TemplateView.as_view(template_name='open_coesione/focus_scuole.html')), {'MIUR_EXT_API_URL': settings.MIUR_EXT_API_URL}, name='speciale-scuole'),
+    url(r'^focus-scuole/$', login_required(TemplateView.as_view(template_name='open_coesione/focus_scuole.html')), {'MIUR_EXT_API_URL': settings.MIUR_EXT_API_URL}, name='speciale-scuole'),
 
     url(r'^indicatori_di_accesso/$', IndicatoriAccessoView.as_view(lang='it', template_name='open_coesione/indicatori_accesso.html'), name='indicatori-accesso-it'),
     url(r'^access_indicators/$', IndicatoriAccessoView.as_view(lang='en', template_name='open_coesione/indicatori_accesso.html'), name='indicatori-accesso-en'),
