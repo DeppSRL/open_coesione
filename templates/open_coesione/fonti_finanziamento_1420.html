@@ -20,7 +20,7 @@
         </p>
 
         <h3>Risorse finanziarie disponibili 2014-2020</h3>
-        <p>(milioni di €, aggiornamento a maggio 2016)</p>
+        <p>(milioni di €)</p>
 
         {% addtoblock 'js' strip %}
             <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
@@ -36,11 +36,16 @@
             <div id="graph"></div>
     	</div>
 
+        <p>
+            Per i Fondi Strutturali e di Investimento Europei la fonte è la <a href="https://cohesiondata.ec.europa.eu/countries/IT">Piattaforma della Commissione Europea</a>,
+            ad aggiornamento semestrale, al netto di eventuali aggiornamenti infra semestrali esplicitamente citati.
+        </p>
+
         <p style="font-style: italic">
             <a href="{{ tabella_risorse_1420.file_name }}">Scarica la tabella</a>
             con dettagli e note complete sulle Risorse finanziarie delle politiche di coesione per il periodo di programmazione 2014-2020
             ({{ tabella_risorse_1420.file_ext }}, {{ tabella_risorse_1420.file_size|filesizeformat }})
-            (aggiornamento al {{ tabella_risorse_1420.file_date|date:'SHORT_DATE_FORMAT'|default:'10/05/2016' }})
+            (aggiornamento al {{ tabella_risorse_1420.file_date|date:'SHORT_DATE_FORMAT'|default:'10/11/2016' }})
         </p>
 
         <ul>
