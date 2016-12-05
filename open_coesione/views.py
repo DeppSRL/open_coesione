@@ -468,10 +468,10 @@ class OpendataView(TemplateView):
 
         context['raccordo_temi_sintetici_file'] = self.get_complete_localfile('raccordo_temi_sintetici.xls')
 
-        context['approfondimenti_1_1_file'] = self.get_complete_localfile('#')
+        context['approfondimenti_1_1_file'] = self.get_complete_localfile('approfondimenti/beni_confiscati_20160630.csv')
         context['approfondimenti_1_2_file'] = self.get_complete_localfile('approfondimenti/progetti_beni_confiscati_20151231.csv')
         context['approfondimenti_1_3_file'] = self.get_complete_localfile('approfondimenti/progetti_beni_confiscati_20141231.csv')
-        context['approfondimenti_1_metadata_file'] = self.get_complete_localfile('#')
+        context['approfondimenti_1_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_beni_confiscati.xls')
 
         return context
 
