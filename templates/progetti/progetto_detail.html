@@ -220,22 +220,20 @@
                         </ul>
                     </div>
 
-                    {% if request.user.is_authenticated %}
-                        <script>
-                            $(document).ready(function() {
-                                var id = '{{ progetto.codice_locale }}';
+                    <script>
+                        $(document).ready(function() {
+                            var id = '{{ progetto.codice_locale }}';
 
-                                $.getJSON('{{ MIUR_EXT_API_URL }}indicatori_progetti?id=' + id, function(data) {
-                                    var items = [];
-                                    if (data.result.case != 'NESSUNO') {
-                                        $('#tab_indicatori').show();
-                                        $('#api_result').html(data.result.html);
-                                        eval(data.result.js);
-                                    }
-                                });
+                            $.getJSON('{{ MIUR_EXT_API_URL }}indicatori_progetti?id=' + id, function(data) {
+                                var items = [];
+                                if (data.result.case != 'NESSUNO') {
+                                    $('#tab_indicatori').show();
+                                    $('#api_result').html(data.result.html);
+                                    eval(data.result.js);
+                                }
                             });
-                        </script>
-                    {% endif %}
+                        });
+                    </script>
                 </div>
 
                  <div class="tab-content">
