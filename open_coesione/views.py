@@ -474,7 +474,7 @@ class OpendataView(TemplateView):
         context['approfondimenti_1_3_file'] = self.get_complete_localfile('approfondimenti/progetti_beni_confiscati_20141231.csv')
         context['approfondimenti_1_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_beni_confiscati.xls')
 
-        context['approfondimenti_2_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole_30062016.zip')
+        context['approfondimenti_2_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole.zip')
         context['approfondimenti_2_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_focus_scuole.xls')
 
         return context
