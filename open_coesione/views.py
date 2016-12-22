@@ -590,12 +590,7 @@ class OpendataRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
         path = kwargs['path']
         try:
-            if 'focus-scuole' in path:
-                mev_url = settings.MIUR_EXT_URL
-                path = path.replace('focus-scuole', '')
-                return '{0}/media/open-data{1}'.format(mev_url, path)
-            else:
-                return u'/media/open_data/{}'.format(OpendataView.get_latest_localfile(path, as_urlpath=True))
+            return u'/media/open_data/{}'.format(OpendataView.get_latest_localfile(path, as_urlpath=True))
         except:
             raise Http404('File not found.')
 
