@@ -447,6 +447,30 @@
                 i file csv con dati e metadati utilizzati per le analisi pubblicate e il file csv con dati e metadati all’ultimo aggiornamento del portale.
             </p>
 
+            <h4 class="switcher" data-target="approfondimenti-2-content" style="font-size: 16px; text-transform: none"><a href="#">Scuole <i></i></a></h4>
+
+            <div id="approfondimenti-2-content">
+                <p>
+                    I dati, navigabili anche nell’apposita sezione “<a href="{% url 'focus-scuole' %}">focus scuole</a>”
+                    offrono l’integrazione di quanto già pubblicato su OpenCoesione per progetti gestiti dal MIUR nelle scuole in Calabria, Campania, Puglia e Sicilia
+                    e quanto pubblicato in formato aperto dallo stesso MIUR, con maggiore granularità e ricchezza di dettagli, sui singoli interventi realizzati nell’ambito dei vari progetti e su chi ne ha fruito.
+                    L’universo di progetti e interventi, di carattere formativo e infrastrutturale, è oggetto delle analisi riportate nella
+                    “<a href="/media/files/pillola-44/Pillola%20di%20OpenCoesione%20n_33_Focus%20scuole.pdf">Pillola n. 33 - Focus scuole: i progetti finanziati dalle politiche di coesione in Calabria, Campania, Puglia e Sicilia</a>”,
+                    che approfondiscono il contributo delle politiche di coesione 2007-2013 al mondo della scuola nelle 4 principali regioni del Mezzogiorno.
+                </p>
+
+                <table class="table">
+                    <tr>
+                        <td class="label">Progetti e interventi nelle scuole in Calabria, Campania, Puglia e Sicilia<br/>(aggiornamento {{ approfondimenti_2_file.file_date|date:'SHORT_DATE_FORMAT' }} e <a href="/media/files/pillola-44/Pillola%20di%20OpenCoesione%20n_33_Focus%20scuole.pdf">Pillola n. 33</a>)</td>
+                        <td><a href="{{ approfondimenti_2_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_2_file.file_ext }} {{ approfondimenti_2_file.file_size|filesizeformat }}]</a></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Metadati</td>
+                        <td><a href="{{ approfondimenti_2_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_2_metadata_file.file_ext }} {{ approfondimenti_2_metadata_file.file_size|filesizeformat }}]</a></td>
+                    </tr>
+                </table>
+            </div>
+
             <h4 class="switcher" data-target="approfondimenti-1-content" style="font-size: 16px; text-transform: none"><a href="#">Beni confiscati <i></i></a></h4>
 
             <div id="approfondimenti-1-content">
