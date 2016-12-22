@@ -474,7 +474,7 @@ class OpendataView(TemplateView):
         context['approfondimenti_1_3_file'] = self.get_complete_localfile('approfondimenti/progetti_beni_confiscati_20141231.csv')
         context['approfondimenti_1_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_beni_confiscati.xls')
 
-        context['approfondimenti_2_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole.zip')
+        context['approfondimenti_2_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole_30062016.zip')
         context['approfondimenti_2_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_focus_scuole.xls')
 
         return context
@@ -591,8 +591,14 @@ class OpendataView(TemplateView):
 
 class OpendataRedirectView(RedirectView):
     def get_redirect_url(self, **kwargs):
+        path = kwargs['path']
         try:
-            return u'/media/open_data/{}'.format(OpendataView.get_latest_localfile(kwargs['path'], as_urlpath=True))
+            if 'focus-scuole' in path:
+                mev_url = settings.MIUR_EXT_URL
+                path = path.replace('focus-scuole', '')
+                return '{0}/media/open-data{1}'.format(mev_url, path)
+            else:
+                return u'/media/open_data/{}'.format(OpendataView.get_latest_localfile(path, as_urlpath=True))
         except:
             raise Http404('File not found.')
 
