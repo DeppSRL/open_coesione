@@ -20,6 +20,13 @@ from soggetti.models import Soggetto
 from territori.models import Territorio
 
 
+def strip(val):
+    try:
+        return val.strip()
+    except AttributeError:
+        return val
+
+
 def convert_progetto_cup_cod_natura(val):
     if val.strip():
         try:
@@ -138,6 +145,7 @@ class Command(BaseCommand):
             'import_method': '_import_soggetti',
             'converters': {
                 'OC_DENOMINAZIONE_SOGG': convert_soggetto_oc_denominazione_sogg,
+                'OC_CODICE_FISCALE_SOGG': strip,
             },
         },
         'localizzazioni': {
@@ -964,8 +972,8 @@ class Command(BaseCommand):
 
             row = df2.iloc[0]
 
-            denominazione = row['OC_DENOMINAZIONE_SOGG'].strip()
-            codice_fiscale = row['OC_CODICE_FISCALE_SOGG'].strip()
+            denominazione = row['OC_DENOMINAZIONE_SOGG']
+            codice_fiscale = row['OC_CODICE_FISCALE_SOGG']
 
             try:
                 territorio = Territorio.objects.get_from_istat_code(row['COD_COMUNE_SEDE_SOGG'])
@@ -1014,8 +1022,8 @@ class Command(BaseCommand):
                 self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
 
             else:
-                denominazione = row['OC_DENOMINAZIONE_SOGG'].strip()
-                codice_fiscale = row['OC_CODICE_FISCALE_SOGG'].strip()
+                denominazione = row['OC_DENOMINAZIONE_SOGG']
+                codice_fiscale = row['OC_CODICE_FISCALE_SOGG']
 
                 try:
                     soggetto = Soggetto.objects.get(denominazione=denominazione, codice_fiscale=codice_fiscale)
