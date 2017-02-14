@@ -17,5 +17,6 @@ $(document).ready(function() {
         var is_territori = $(this).val() == 'territori';
         $('#menu-search').toggle(!is_territori);
         $('#menu-search-territori').toggle(is_territori);
+        $('#menu-search-submit').prop('disabled', is_territori);
     }).trigger('change');
 });

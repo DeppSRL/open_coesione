@@ -14,13 +14,13 @@
                 <select id="menu-search-type-selector" name="" class="input-small">
                     <option value="progetti"{% if progetto %} selected="selected"{% endif %}>Progetti</option>
                     <option value="soggetti"{% if soggetto %} selected="selected"{% endif %}>Soggetti</option>
-                    <option value="territori">Territori</option>
+                    <option value="territori"{% if territorio %} selected="selected"{% endif %}>Territori</option>
                 </select>
                 <div class="input-append" style="margin-right: 5px">
                     {% spaceless %}
                         <input id="menu-search" type="text" class="input-medium search-query" name="q"{% if form.q.value %} value="{{ form.q.value }}"{% endif %} placeholder="Cerca tra i {% if soggetto %}soggetti{% else %}progetti{% endif %}" />
                         <input id="menu-search-territori" type="text" class="input-medium search-query" placeholder="Cerca tra i territori" style="display: none" />
-                        <button type="submit" class="btn"><i class="icon-search"></i></button>
+                        <button id="menu-search-submit" type="submit" class="btn"><i class="icon-search"></i></button>
                     {% endspaceless %}
                 </div>
             </form>
