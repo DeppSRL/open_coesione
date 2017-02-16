@@ -220,8 +220,8 @@ class ProgrammiView(BaseProgrammaView):
                 programmi_per_trend_codici = [programma.codice for programma in programmi if ' {} '.format(trend) in programma.descrizione.lower()]
 
                 progetti = Progetto.objects.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_per_trend_codici)
-                valori_per_anno = OrderedDict([(x['data'].year, {'dotazioni_totali': 0.0, 'pagamenti': float(x['ammontare'])}) for x in PagamentoProgetto.objects.filter(progetto__in=progetti).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data') if x['data'].strftime('%m%d') == '1231' or x['data'].strftime('%Y%m%d') == '20160229'])
-                valori_per_anno[2015] = valori_per_anno.pop(2016)  # i valori del 20160229 sono assegnati al 20151231
+                valori_per_anno = OrderedDict([(x['data'].year, {'dotazioni_totali': 0.0, 'pagamenti': float(x['ammontare'])}) for x in PagamentoProgetto.objects.filter(progetto__in=progetti).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data') if x['data'].strftime('%m%d') == '1231' and x['data'].strftime('%Y') <= '2015'])
+                # valori_per_anno[2015] = valori_per_anno.pop(2016)  # i valori del 20160229 sono assegnati al 20151231
 
                 for row in dotazioni_totali:
                     programma_codice = row['OC_CODICE_PROGRAMMA']
