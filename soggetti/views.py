@@ -107,12 +107,12 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
         context['MIUR_EXT_API_URL'] = settings.MIUR_EXT_API_URL
 
         if self.request.GET.get('tematizzazione', 'totale_costi') == 'anagrafica':
-             context['tematizzazione'] = 'anagrafica'
-             context.update(self.get_progetti_queryset().totali())
-       
-             self.template_name = 'soggetti/soggetto_detail_anagrafica.html'
-        
-             return context
+            context['tematizzazione'] = 'anagrafica'
+            context.update(self.get_progetti_queryset().totali())
+
+            self.template_name = 'soggetti/soggetto_detail_anagrafica.html'
+
+            return context
 
         context.update(self.get_cached_context_data())
 
@@ -129,19 +129,52 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
 class SoggettoSearchView(OCFacetedSearchView):
     RANGES = {
         'costo': {
-            '0-0TO100K':   {'qrange': '[* TO 100000]',             'label': 'fino a 100.000 €'},
-            '1-100KTO1M':  {'qrange': '[100000.1 TO 1000000]',     'label': 'da 100.000 a 1 mil. di €'},
-            '2-1MTO10M':   {'qrange': '[1000001 TO 10000000]',     'label': 'da 1 mil. a 10 mil. di €'},
-            '3-10MTO100M': {'qrange': '[10000001 TO 100000000]',   'label': 'da 10 mil. a 100 mil. di €'},
-            '4-100MTO1G':  {'qrange': '[100000010 TO 1000000000]', 'label': 'da 100 mil. a 1 mld. di €'},
-            '5-1GTOINF':   {'qrange': '[1000000001 TO *]',         'label': 'oltre 1 mld. di €'},
+            '0-0TO100K': {
+                'qrange': '[* TO 100000]',
+                'label': 'fino a 100.000 €',
+            },
+            '1-100KTO1M': {
+                'qrange': '[100000.1 TO 1000000]',
+                'label': 'da 100.000 a 1 mil. di €',
+            },
+            '2-1MTO10M': {
+                'qrange': '[1000001 TO 10000000]',
+                'label': 'da 1 mil. a 10 mil. di €',
+            },
+            '3-10MTO100M': {
+                'qrange': '[10000001 TO 100000000]',
+                'label': 'da 10 mil. a 100 mil. di €',
+            },
+            '4-100MTO1G': {
+                'qrange': '[100000010 TO 1000000000]',
+                'label': 'da 100 mil. a 1 mld. di €',
+            },
+            '5-1GTOINF': {
+                'qrange': '[1000000001 TO *]',
+                'label': 'oltre 1 mld. di €',
+            },
         },
         'n_progetti': {
-            '0-0TO10':    {'qrange': '[* TO 10]',       'label': 'fino a 10'},
-            '1-10TO100':  {'qrange': '[11 TO 100]',     'label': 'da 10 a 100'},
-            '2-100TO1K':  {'qrange': '[101 TO 1000]',   'label': 'da 100 a 1.000'},
-            '3-1KTO10K':  {'qrange': '[1001 TO 10000]', 'label': 'da 1.000 a 10.000'},
-            '4-10KTOINF': {'qrange': '[10001 TO *]',    'label': 'oltre 10.000'},
+            '0-0TO10': {
+                'qrange': '[* TO 10]',
+                'label': 'fino a 10',
+            },
+            '1-10TO100': {
+                'qrange': '[11 TO 100]',
+                'label': 'da 10 a 100',
+            },
+            '2-100TO1K': {
+                'qrange': '[101 TO 1000]',
+                'label': 'da 100 a 1.000',
+            },
+            '3-1KTO10K': {
+                'qrange': '[1001 TO 10000]',
+                'label': 'da 1.000 a 10.000',
+            },
+            '4-10KTOINF': {
+                'qrange': '[10001 TO *]',
+                'label': 'oltre 10.000',
+            },
         },
     }
 
