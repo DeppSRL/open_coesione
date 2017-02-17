@@ -2,28 +2,25 @@
 
 {% load sekizai_tags %}
 
-{% block page_title %}Indicatori territoriali e tematici{% endblock %}
+{% block page_title %}Indicatori territoriali per le politiche di sviluppo{% endblock %}
 
 {% block container %}
     <section class="container">
         <div class="row">
             <div class="span12" style="margin-top: 2em; margin-right: 2em">
                 <div class="flat_content">
-                    <h1>Indicatori territoriali e tematici</h1>
+                    <h1>Indicatori territoriali per le politiche di sviluppo</h1>
                     <p>
-                        Per valutare come le risorse delle politiche di coesione vengono utilizzate rispetto ai bisogni dei territori
-                        in cui intervengono, su diversi ambiti tematici, dall’Agenda Digitale ai Trasporti, dall’Inclusione sociale all’Ambiente,
-                        puoi guardare gli indicatori statistici della banca dati DPS-Istat.
+                        Per valutare come le risorse delle politiche di coesione vengono utilizzate rispetto ai bisogni dei territori in cui intervengono, su diversi ambiti tematici, dall’Agenda Digitale ai Trasporti, dall’Inclusione sociale all’Ambiente, puoi guardare gli indicatori statistici della banca dati realizzata dall’Istat.
                     </p>
                     <p>
-                        La banca dati contiene circa 200 indicatori, in serie storica annuale, articolati per area tematica e
-                        per priorità dei diversi cicli di programmazione, a partire dal 2000-2006.
+                        La banca dati contiene oltre 300 indicatori, in serie storica annuale, articolati per area tematica e per priorità dei diversi cicli di programmazione, a partire dal 2000-2006.
                     </p>
                     <p>
                         Alla pagina <a href="{% url 'opendata' %}">Open data</a> puoi scaricare il file completo degli Indicatori
                         (con disaggregazioni per territorio, priorità, asse e tema sintetico) e di seguito puoi visualizzare
-                        i grafici relativi ad una <a href="{{ istat_metadata_file.file_name }}">selezione di circa 50 indicatori</a> (xls, {{ istat_metadata_file.file_size|filesizeformat }}), raggruppati per
-                        <a href="{% url 'faq-it' %}#come-vengono-classificati-i-progetti-nei-13-temi-sintetici">tema sintetico</a>.
+                        i grafici relativi ad una <a href="{{ istat_metadata_file.file_name }}">selezione di circa 50 indicatori</a> (xls, {{ istat_metadata_file.file_size|filesizeformat }}),
+                        raggruppati per <a href="{% url 'faq-it' %}#come-vengono-classificati-i-progetti-nei-13-temi-sintetici">tema sintetico</a>.
                     </p>
                 </div>
             </div>
