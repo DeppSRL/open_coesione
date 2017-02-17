@@ -620,10 +620,10 @@ class ProgettoCSVSearchView(ProgettoSearchView):
                 val = u':::'.join(val)
             return val
 
-        # reader = csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Metadati_attuazione.xls'), 'rb'), sheet='Progetti').splitlines())
+        # reader = csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('metadati_OC_2007_2013.xls'), 'rb'), sheet='Progetti').splitlines())
         # csv_columns = [row['Variabile'].strip() for row in reader if row['Presenza nei dataset da query su www.opencoesione.gov.it'].strip()]
 
-        # reader = csv.DictReader(convert.xls2csv(open(os.path.join(settings.STATIC_ROOT, 'Metadati_risultati_ricerca.xls'), 'rb'), sheet='Progetti').splitlines())
+        # reader = csv.DictReader(convert.xls2csv(open(os.path.join(settings.STATIC_ROOT, 'metadati_risultati_ricerca.xls'), 'rb'), sheet='Progetti').splitlines())
         # columns = [row['Variabile'].strip() for row in reader]
         # columns = [{'FINANZ_STATO_FONDO_ROTAZIONE': u'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'FINANZ_STATO_PRIVATO': u'FINANZ_PRIVATO'}.get(c, c) for c in columns]
 
