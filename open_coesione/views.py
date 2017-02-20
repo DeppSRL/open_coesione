@@ -465,7 +465,7 @@ class OpendataView(TemplateView):
         context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('Metadati_flussi.xls'))
 
         context['indagine_data_file'] = self.get_complete_localfile('indagine_data.zip')
-        context['indagine_metadata_file'] = self.get_complete_localfile('indagine_metadata.xls')
+        context['indagine_metadata_file'] = self.get_complete_localfile('metadati_indagine_beneficiari_2007_2013.xls')
 
         context['raccordo_temi_sintetici_file'] = self.get_complete_localfile('raccordo_temi_sintetici.xls')
 
