@@ -266,7 +266,7 @@ var OPCOGraph;
                 },
                 yAxis: {
                     floor: 0,
-                    ceiling: 100,
+                    ceiling: 110,
                     tickInterval: 10,
                     title: {
                         text: null,
