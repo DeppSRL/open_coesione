@@ -58,30 +58,90 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
 class ProgettoSearchView(OCFacetedSearchView):
     RANGES = {
         'costo': {
-            '0-0TO1K':     {'qrange': '[* TO 1000]',             'label': 'da 0 a 1.000 €'},
-            '1-1KTO10K':   {'qrange': '[1000.01 TO 10000]',      'label': 'da 1.000 a 10.000 €'},
-            '2-10KTO100K': {'qrange': '[10000.01 TO 100000]',    'label': 'da 10.000 a 100.000 €'},
-            '3-100KTO10M': {'qrange': '[100000.01 TO 10000000]', 'label': 'da 100.000 a 10.000.000 €'},
-            '4-10MTOINF':  {'qrange': '[10000001 TO *]',         'label': 'oltre 10.000.000 €'},
+            '0-0TO1K': {
+                'qrange': '[* TO 1000]',
+                'label': 'da 0 a 1.000 €',
+            },
+            '1-1KTO10K': {
+                'qrange': '[1000.01 TO 10000]',
+                'label': 'da 1.000 a 10.000 €',
+            },
+            '2-10KTO100K': {
+                'qrange': '[10000.01 TO 100000]',
+                'label': 'da 10.000 a 100.000 €',
+            },
+            '3-100KTO10M': {
+                'qrange': '[100000.01 TO 10000000]',
+                'label': 'da 100.000 a 10.000.000 €',
+            },
+            '4-10MTOINF': {
+                'qrange': '[10000001 TO *]',
+                'label': 'oltre 10.000.000 €',
+            },
         },
         'data_inizio': {
-            '00-2015':  {'qrange': '[2015-01-01T00:00:00Z TO *]',                    'label': '2015'},
-            '01-2014':  {'qrange': '[2014-01-01T00:00:00Z TO 2014-12-31T23:59:59Z]', 'label': '2014'},
-            '02-2013':  {'qrange': '[2013-01-01T00:00:00Z TO 2013-12-31T23:59:59Z]', 'label': '2013'},
-            '03-2012':  {'qrange': '[2012-01-01T00:00:00Z TO 2012-12-31T23:59:59Z]', 'label': '2012'},
-            '04-2011':  {'qrange': '[2011-01-01T00:00:00Z TO 2011-12-31T23:59:59Z]', 'label': '2011'},
-            '05-2010':  {'qrange': '[2010-01-01T00:00:00Z TO 2010-12-31T23:59:59Z]', 'label': '2010'},
-            '06-2009':  {'qrange': '[2009-01-01T00:00:00Z TO 2009-12-31T23:59:59Z]', 'label': '2009'},
-            '07-2008':  {'qrange': '[2008-01-01T00:00:00Z TO 2008-12-31T23:59:59Z]', 'label': '2008'},
-            '08-2007':  {'qrange': '[2007-01-01T00:00:00Z TO 2007-12-31T23:59:59Z]', 'label': '2007'},
-            '09-early': {'qrange': '[1970-01-02T00:00:00Z TO 2006-12-31T23:59:59Z]', 'label': 'prima del 2007'},
-            '10-nd':    {'qrange': '[* TO 1970-01-01T00:00:00Z]',                    'label': 'non disponibile'}
+            '00-2015': {
+                'qrange': '[2015-01-01T00:00:00Z TO *]',
+                'label': '2015',
+            },
+            '01-2014': {
+                'qrange': '[2014-01-01T00:00:00Z TO 2014-12-31T23:59:59Z]',
+                'label': '2014',
+            },
+            '02-2013': {
+                'qrange': '[2013-01-01T00:00:00Z TO 2013-12-31T23:59:59Z]',
+                'label': '2013',
+            },
+            '03-2012': {
+                'qrange': '[2012-01-01T00:00:00Z TO 2012-12-31T23:59:59Z]',
+                'label': '2012',
+            },
+            '04-2011': {
+                'qrange': '[2011-01-01T00:00:00Z TO 2011-12-31T23:59:59Z]',
+                'label': '2011',
+            },
+            '05-2010': {
+                'qrange': '[2010-01-01T00:00:00Z TO 2010-12-31T23:59:59Z]',
+                'label': '2010',
+            },
+            '06-2009': {
+                'qrange': '[2009-01-01T00:00:00Z TO 2009-12-31T23:59:59Z]',
+                'label': '2009',
+            },
+            '07-2008': {
+                'qrange': '[2008-01-01T00:00:00Z TO 2008-12-31T23:59:59Z]',
+                'label': '2008',
+            },
+            '08-2007': {
+                'qrange': '[2007-01-01T00:00:00Z TO 2007-12-31T23:59:59Z]',
+                'label': '2007',
+            },
+            '09-early': {
+                'qrange': '[1970-01-02T00:00:00Z TO 2006-12-31T23:59:59Z]',
+                'label': 'prima del 2007',
+            },
+            '10-nd': {
+                'qrange': '[* TO 1970-01-01T00:00:00Z]',
+                'label': 'non disponibile',
+            }
         },
         'perc_pagamento': {
-            '0-0TO25':   {'qrange': '[* TO 25.0]',      'label': 'da 0 al 25%'},
-            '1-25TO50':  {'qrange': '[25.001 TO 50.0]', 'label': 'dal 25% al 50%'},
-            '2-50TO75':  {'qrange': '[50.001 TO 75.0]', 'label': 'dal 50% al 75%'},
-            '3-75TO100': {'qrange': '[75.00 TO *]',     'label': 'oltre il 75%'},
+            '0-0TO25': {
+                'qrange': '[* TO 25.0]',
+                'label': 'da 0 al 25%',
+            },
+            '1-25TO50': {
+                'qrange': '[25.001 TO 50.0]',
+                'label': 'dal 25% al 50%',
+            },
+            '2-50TO75': {
+                'qrange': '[50.001 TO 75.0]',
+                'label': 'dal 50% al 75%',
+            },
+            '3-75TO100': {
+                'qrange': '[75.00 TO *]',
+                'label': 'oltre il 75%',
+            },
         },
     }
 
@@ -220,8 +280,8 @@ class ProgrammiView(BaseProgrammaView):
                 programmi_per_trend_codici = [programma.codice for programma in programmi if ' {} '.format(trend) in programma.descrizione.lower()]
 
                 progetti = Progetto.objects.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_per_trend_codici)
-                valori_per_anno = OrderedDict([(x['data'].year, {'dotazioni_totali': 0.0, 'pagamenti': float(x['ammontare'])}) for x in PagamentoProgetto.objects.filter(progetto__in=progetti).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data') if x['data'].strftime('%m%d') == '1231' or x['data'].strftime('%Y%m%d') == '20160229'])
-                valori_per_anno[2015] = valori_per_anno.pop(2016)  # i valori del 20160229 sono assegnati al 20151231
+                valori_per_anno = OrderedDict([(x['data'].year, {'dotazioni_totali': 0.0, 'pagamenti': float(x['ammontare'])}) for x in PagamentoProgetto.objects.filter(progetto__in=progetti).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data') if x['data'].strftime('%m%d') == '1231' and x['data'].strftime('%Y') <= '2015'])
+                # valori_per_anno[2015] = valori_per_anno.pop(2016)  # i valori del 20160229 sono assegnati al 20151231
 
                 for row in dotazioni_totali:
                     programma_codice = row['OC_CODICE_PROGRAMMA']
@@ -560,10 +620,10 @@ class ProgettoCSVSearchView(ProgettoSearchView):
                 val = u':::'.join(val)
             return val
 
-        # reader = csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Metadati_attuazione.xls'), 'rb'), sheet='Progetti').splitlines())
+        # reader = csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('metadati_OC_2007_2013.xls'), 'rb'), sheet='Progetti').splitlines())
         # csv_columns = [row['Variabile'].strip() for row in reader if row['Presenza nei dataset da query su www.opencoesione.gov.it'].strip()]
 
-        # reader = csv.DictReader(convert.xls2csv(open(os.path.join(settings.STATIC_ROOT, 'Metadati_risultati_ricerca.xls'), 'rb'), sheet='Progetti').splitlines())
+        # reader = csv.DictReader(convert.xls2csv(open(os.path.join(settings.STATIC_ROOT, 'metadati_risultati_ricerca.xls'), 'rb'), sheet='Progetti').splitlines())
         # columns = [row['Variabile'].strip() for row in reader]
         # columns = [{'FINANZ_STATO_FONDO_ROTAZIONE': u'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'FINANZ_STATO_PRIVATO': u'FINANZ_PRIVATO'}.get(c, c) for c in columns]
 
@@ -790,6 +850,7 @@ class SegnalaDescrizioneView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(SegnalaDescrizioneView, self).get_context_data(**kwargs)
+
         params = {}
         if 'cup' in self.request.GET:
             params['cup'] = self.request.GET.get('cup')
@@ -799,10 +860,9 @@ class SegnalaDescrizioneView(FormView):
         if params:
             try:
                 context['progetto'] = Progetto.objects.get(**params)
-            except Progetto.DoesNotExist:
+            except (Progetto.DoesNotExist, Progetto.MultipleObjectsReturned):
                 pass
-            except Progetto.MultipleObjectsReturned:
-                pass
+
         return context
 
     def get_initial(self):
@@ -814,18 +874,14 @@ class SegnalaDescrizioneView(FormView):
         initials['is_cipe'] = False
 
         if 'cup' in self.request.GET:
-
             initials['cup'] = self.request.GET.get('cup')
-
         elif 'clp' in self.request.GET:
-
             initials['cup'] = self.request.GET.get('clp')
             initials['is_cipe'] = True
 
         return initials
 
     def form_valid(self, form):
-
         form.save()
         form.send_mail()
 

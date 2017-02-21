@@ -86,7 +86,7 @@ var IndicatorsGraph;
                     xDateFormat: '%Y'
                 },
                 credits: {
-                    text: 'Fonte: DPS-ISTAT',
+                    text: 'Fonte: ISTAT',
                     href:'/opendata'
                 }
             });

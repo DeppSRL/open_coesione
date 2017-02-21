@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-from collections import OrderedDict
+import datetime
 import logging
-from optparse import make_option
-import os
 import zipfile
+from optparse import make_option
+from cStringIO import StringIO
 
 import pandas as pd
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from progetti.models import *
 
@@ -16,10 +16,9 @@ from progetti.models import *
 class Command(BaseCommand):
     """
     Progetti related to MIUR opendata get their scuola_flag set to True.
-    Data are read from oc-ext-miur/media/opendata/interventi_scuole_tot.zip
-    compressed csv file.
+    Data are read from oc-ext-miur/media/opendata/interventi_scuole_tot.zip compressed csv file.
     """
-    help = "Update scuola_flag field in Progetti"
+    help = 'Update scuola_flag field in Progetti'
 
     option_list = BaseCommand.option_list + (
         make_option('--progetti-zip-path',
@@ -31,7 +30,7 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Set the dry-run command mode: no actual modification is made'),
-        )
+    )
 
     logger = logging.getLogger('csvimport')
 
@@ -46,49 +45,43 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-
-        progetti_zip_path = options['progetti_zip_path']
-
+        csvfile = options['progetti_zip_path']
         dryrun = options['dryrun']
 
-        # unzip CSV progetti file and
-        # load OC progetti data (45 sec)
-        self.logger.debug('- unzipping progetti')
-        zip_ref = zipfile.ZipFile(progetti_zip_path, 'r')
-        zip_ref.extractall(os.path.dirname(progetti_zip_path))
-        zip_ref.close()
-        self.logger.info('- progetti file unzipped')
+        try:
+            self.logger.info(u'Reading file {} ....'.format(csvfile))
 
-        progetti_csv_path = progetti_zip_path.replace('.zip','.csv')
+            with zipfile.ZipFile(csvfile) as zfile:
+                csv = zfile.read(zfile.namelist().pop(0))
+        except IOError:
+            self.logger.error(u'It was impossible to open file {}'.format(csvfile))
+        else:
+            df_progetti = pd.read_csv(
+                StringIO(csv.decode('utf-8-sig').encode('utf-8')),
+                sep=';',
+                encoding='utf-8',
+            )
 
-        self.logger.debug('- reading progetti from CSV')
-        df_progetti = pd.read_csv(
-            progetti_csv_path,
-            sep=";", encoding='utf-8-sig'
-        )
-        self.logger.info('- progetti read from CSV')
+            self.logger.info(u'Done.')
 
-        df_progetti_cod = df_progetti['COD_LOCALE_PROGETTO'].unique()
-        os.remove(progetti_csv_path)
+            start_time = datetime.datetime.now()
 
-        n = 0
-        n_tot = len(df_progetti_cod)
-        for cod in df_progetti_cod:
-            n += 1
-            try:
-                progetto = Progetto.objects.get(codice_locale=cod)
-                progetto.scuola_flag = True
-                if not dryrun:
-                    progetto.save()
-                self.logger.info("%s/%s - Progetto: %s aggiornato" % (n, n_tot, cod))
-            except ObjectDoesNotExist:
-                self.logger.warning("%s/%s - Progetto non trovato: %s, skipping" % (n, n_tot, cod))
-                continue
+            df_progetti_cod = df_progetti['COD_LOCALE_PROGETTO'].unique()
 
-        self.logger.info("Fine")
+            df_count = len(df_progetti_cod)
 
+            for n, cod in enumerate(df_progetti_cod, 1):
+                try:
+                    progetto = Progetto.objects.get(codice_locale=cod)
+                    progetto.scuola_flag = True
+                    if not dryrun:
+                        progetto.save()
+                    self.logger.info(u'{}/{} - Progetto: {} aggiornato'.format(n, df_count, cod))
+                except ObjectDoesNotExist:
+                    self.logger.warning(u'{}/{} - Progetto non trovato: {}, skipping'.format(n, df_count, cod))
+                    continue
 
+            duration = datetime.datetime.now() - start_time
+            seconds = round(duration.total_seconds())
 
-
-
-
+            self.logger.info(u'Fine. Tempo di esecuzione: {:02d}:{:02d}:{:02d}.'.format(int(seconds // 3600), int((seconds % 3600) // 60), int(seconds % 60)))

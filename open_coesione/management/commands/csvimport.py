@@ -20,6 +20,13 @@ from soggetti.models import Soggetto
 from territori.models import Territorio
 
 
+def strip(val):
+    try:
+        return val.strip()
+    except AttributeError:
+        return val
+
+
 def convert_progetto_cup_cod_natura(val):
     if val.strip():
         try:
@@ -138,6 +145,7 @@ class Command(BaseCommand):
             'import_method': '_import_soggetti',
             'converters': {
                 'OC_DENOMINAZIONE_SOGG': convert_soggetto_oc_denominazione_sogg,
+                'OC_CODICE_FISCALE_SOGG': strip,
             },
         },
         'localizzazioni': {
@@ -946,13 +954,26 @@ class Command(BaseCommand):
 
         # df1 = df[['OC_DENOMINAZIONE_SOGG', 'OC_CODICE_FISCALE_SOGG', 'COD_FORMA_GIURIDICA_SOGG', 'COD_ATECO_SOGG', 'COD_COMUNE_SEDE_SOGG', 'INDIRIZZO_SOGG', 'CAP_SOGG']].drop_duplicates()
         # df1 = df[['OC_DENOMINAZIONE_SOGG', 'OC_CODICE_FISCALE_SOGG', 'COD_COMUNE_SEDE_SOGG', 'INDIRIZZO_SOGG', 'CAP_SOGG']].drop_duplicates()
-        df1 = df.groupby(['OC_DENOMINAZIONE_SOGG', 'OC_CODICE_FISCALE_SOGG'], as_index=False).first()
+        # df1 = df.groupby(['OC_DENOMINAZIONE_SOGG', 'OC_CODICE_FISCALE_SOGG'], as_index=False).first()
+        # df1 = df[['OC_DENOMINAZIONE_SOGG', 'OC_CODICE_FISCALE_SOGG', 'COD_COMUNE_SEDE_SOGG', 'INDIRIZZO_SOGG', 'CAP_SOGG']].groupby(['OC_DENOMINAZIONE_SOGG', 'OC_CODICE_FISCALE_SOGG'], as_index=False).agg(lambda x: x.value_counts().index[0])
 
-        df_count = len(df1)
+        gb = df.groupby(['OC_DENOMINAZIONE_SOGG', 'OC_CODICE_FISCALE_SOGG'], as_index=False)
 
-        for n, (index, row) in enumerate(df1.iterrows(), 1):
-            denominazione = row['OC_DENOMINAZIONE_SOGG'].strip()
-            codice_fiscale = row['OC_CODICE_FISCALE_SOGG'].strip()
+        df_count = gb.ngroups
+
+        for n, (_, df1) in enumerate(gb, 1):
+            df1 = df1.groupby(['OC_DENOMINAZIONE_SOGG', 'OC_CODICE_FISCALE_SOGG', 'COD_COMUNE_SEDE_SOGG', 'INDIRIZZO_SOGG', 'CAP_SOGG'], as_index=False).size().reset_index(name='SIZE').sort('SIZE', ascending=False)
+
+            df2 = df1[(df1['COD_COMUNE_SEDE_SOGG'].str.strip() != '') & (df1['INDIRIZZO_SOGG'].str.strip() != '')]
+            if df2.empty:
+                df2 = df1[df1['COD_COMUNE_SEDE_SOGG'].str.strip() != '']
+                if df2.empty:
+                    df2 = df1
+
+            row = df2.iloc[0]
+
+            denominazione = row['OC_DENOMINAZIONE_SOGG']
+            codice_fiscale = row['OC_CODICE_FISCALE_SOGG']
 
             try:
                 territorio = Territorio.objects.get_from_istat_code(row['COD_COMUNE_SEDE_SOGG'])
@@ -1001,8 +1022,8 @@ class Command(BaseCommand):
                 self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
 
             else:
-                denominazione = row['OC_DENOMINAZIONE_SOGG'].strip()
-                codice_fiscale = row['OC_CODICE_FISCALE_SOGG'].strip()
+                denominazione = row['OC_DENOMINAZIONE_SOGG']
+                codice_fiscale = row['OC_CODICE_FISCALE_SOGG']
 
                 try:
                     soggetto = Soggetto.objects.get(denominazione=denominazione, codice_fiscale=codice_fiscale)

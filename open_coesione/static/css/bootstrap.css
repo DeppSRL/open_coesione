@@ -5063,6 +5063,9 @@ a.block-chart {
 #banner-container #banner ul li a#progetti {
   background-image: url('../img/banner1420/progetti_ico.png');
 }
+#banner-container #banner ul li a#aiuti {
+  background-image: url('../img/banner1420/aiuti_ico.png');
+}
 #banner-container #banner ul li a:hover {
   text-decoration: none;
   background-color: #eae9e5;

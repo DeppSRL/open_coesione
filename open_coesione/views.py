@@ -434,17 +434,17 @@ class OpendataView(TemplateView):
             }),
         ])
 
-        context['oc_metadata_file'] = self.get_complete_localfile('Metadati_OC.xls')
+        context['oc_metadata_file'] = self.get_complete_localfile('metadati_OC_2007_2013.xls')
         context['oc_utility_metadata_file'] = self.get_complete_localfile('Utility Metadati OC.xls')
 
-        context['metadata_file'] = self.get_complete_localfile('Metadati_attuazione.xls')
+        context['metadata_file'] = context['oc_metadata_file']
         context['utility_metadata_file'] = self.get_complete_localfile('Utility Metadati Attuazione.xls')
 
-        context['cipe_metadata_file'] = self.get_complete_localfile('Metadati_Assegnazioni_CIPE.xls')
+        context['cipe_metadata_file'] = self.get_complete_localfile('metadati_assegnazioni_cipe.xls')
         # context['cipe_utility_metadata_file'] = self.get_complete_localfile('Utility Metadati Assegnazioni CIPE.xls')
 
         context['cipe_corrispondenze_file'] = self.get_complete_localfile('corrispondenze_assegnazioni_progetti.csv')
-        context['cipe_corrispondenze_metadata_file'] = self.get_complete_localfile('Metadati_corrispondenze_Assegnazioni_Attuazione.xls')
+        context['cipe_corrispondenze_metadata_file'] = self.get_complete_localfile('metadati_corrispondenze_assegnazioni_attuazione.xls')
 
         context['risorse0713_file'] = self.get_complete_localfile('Dotazioni_PO_2007-2013.xls')
         context['risorse1420_file'] = self.get_complete_localfile('Dotazioni_PO_SIE_2014-2020.xls')
@@ -465,16 +465,17 @@ class OpendataView(TemplateView):
         context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('Metadati_flussi.xls'))
 
         context['indagine_data_file'] = self.get_complete_localfile('indagine_data.zip')
-        context['indagine_metadata_file'] = self.get_complete_localfile('indagine_metadata.xls')
+        context['indagine_metadata_file'] = self.get_complete_localfile('metadati_indagine_beneficiari_2007_2013.xls')
 
         context['raccordo_temi_sintetici_file'] = self.get_complete_localfile('raccordo_temi_sintetici.xls')
 
-        context['approfondimenti_1_1_file'] = self.get_complete_localfile('approfondimenti/beni_confiscati_20160630.csv')
-        context['approfondimenti_1_2_file'] = self.get_complete_localfile('approfondimenti/progetti_beni_confiscati_20151231.csv')
-        context['approfondimenti_1_3_file'] = self.get_complete_localfile('approfondimenti/progetti_beni_confiscati_20141231.csv')
-        context['approfondimenti_1_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_beni_confiscati.xls')
+        context['approfondimenti_1_1_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_beni_confiscati_20161031.csv')
+        context['approfondimenti_1_2_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_beni_confiscati_20151231.csv')
+        context['approfondimenti_1_3_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_beni_confiscati_20141231.csv')
+        context['approfondimenti_1_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_focus_beni_confiscati.xls')
 
-        context['approfondimenti_2_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole.zip')
+        context['approfondimenti_2_1_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole_20161031.zip')
+        context['approfondimenti_2_2_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole_20160630.zip')
         context['approfondimenti_2_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_focus_scuole.xls')
 
         return context
