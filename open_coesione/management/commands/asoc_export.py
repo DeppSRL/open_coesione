@@ -30,7 +30,7 @@ class Command(BaseCommand):
                     help='Select csv outpput file, defaults to stdout.'),
         make_option('--encoding',
                     dest='encoding',
-                    default='utf-8-sig',
+                    default='utf-8',
                     help='Set character encoding of input file.'),
     )
 
@@ -56,7 +56,7 @@ class Command(BaseCommand):
             csv_out = open(out, 'wb')
 
         writer = csv.writer(csv_out, delimiter=';', quotechar='"', encoding=encoding)
-        writer.writerow(['url', 'slug', 'tema', 'natura', 'cup',
+        writer.writerow(['slug', 'url', 'attivo', 'tema', 'natura', 'cup',
                          'programma', 'classificazione_qsn', 'fondo_comunitario',
                          'fin_totale_pubblico', 'fin_totale_pubblico_netto', 'pagamento',
                          'stato_progetto','stato_finanziamenti'])
@@ -82,10 +82,11 @@ class Command(BaseCommand):
                     slug = slug_search.group(3)
 
                 if slug and '/' not in slug:
-                    output_r = [r[0], slug]
+                    output_r = [slug, r[0]]
 
                 try:
-                    p = Progetto.objects.get(slug=slug)
+                    p = Progetto.fullobjects.get(slug=slug)
+                    is_active = p.active_flag
                     tema = p.tema.tema_superiore.short_label
                     natura = p.classificazione_azione.classificazione_superiore\
                         .short_label
@@ -100,7 +101,7 @@ class Command(BaseCommand):
                     stato_fin = p.get_stato_finanziario_display()
                     stato_prog = p.get_stato_progetto_display()
 
-                    output_r.extend([tema, natura, cup, programma, class_qsn, fondo_com,
+                    output_r.extend([is_active, tema, natura, cup, programma, class_qsn, fondo_com,
                                      fin_tot, fin_tot_netto, pagamento,
                                      stato_fin, stato_prog])
                 except ObjectDoesNotExist:
