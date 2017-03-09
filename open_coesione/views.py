@@ -449,6 +449,10 @@ class OpendataView(TemplateView):
         context['risorse0713_file'] = self.get_complete_localfile('Dotazioni_PO_2007-2013.xls')
         context['risorse1420_file'] = self.get_complete_localfile('Dotazioni_PO_SIE_2014-2020.xls')
         context['decisioni1420_file'] = self.get_complete_localfile('Decisioni_PO_SIE_2014-2020.xls')
+        context['dotazionifsc1420_file'] = self.get_complete_localfile('Dotazioni_FSC_2014-2020.xls')
+        context['decisionifsc1420_file'] = self.get_complete_localfile('Decisioni_FSC_2014-2020.xls')
+        context['dotazionipoc1420_file'] = self.get_complete_localfile('Dotazioni_POC_2014-2020.xls')
+        context['decisionipoc1420_file'] = self.get_complete_localfile('Decisioni_POC_2014-2020.xls')
 
         context['spesa_dotazione_file'] = self.get_complete_localfile('Dotazioni_Certificazioni.xls')
         context['spesa_target_file'] = self.get_complete_localfile('Target_Risultati.xls')
