@@ -90,7 +90,7 @@ $(document).ready(function(){
                 tspan = text.append("tspan").attr("dy", lineHeight + "em").attr("x", d.dx/2).text(word);
             }
         }
-        text.append("tspan").attr("dy", lineHeight + "em").attr("x", d.dx/2).text(numeral(+d.value).format('0,0.00'));
+        text.append("tspan").attr("dy", lineHeight + "em").attr("x", d.dx/2).text(numeral(+d.value).format('0,0.0'));
     }
 
     var json = { name:"", children:[]};
