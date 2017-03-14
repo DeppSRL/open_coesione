@@ -16,7 +16,21 @@ a {
 }
 
 #main {
-    h1, h2, h3, h4 { text-transform: uppercase; }
+    h1, h2, h3, h4 {
+        text-transform: uppercase;
+
+        &.new:after {
+            content: 'Novità';
+            display: inline-block;
+            background-color: #d6df20;
+            margin-left: 2px;
+            padding: 0 6px;
+            line-height: 28px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+    }
+
     header {
         h1 { text-transform: none; font-size: 24px; margin-bottom: 15px; line-height: 28px; }
         h2 { font-size: 14px; line-height: 18px; }

@@ -5079,6 +5079,19 @@ a {
 #main h4 {
   text-transform: uppercase;
 }
+#main h1.new:after,
+#main h2.new:after,
+#main h3.new:after,
+#main h4.new:after {
+  content: 'Novità';
+  display: inline-block;
+  background-color: #d6df20;
+  margin-left: 2px;
+  padding: 0 6px;
+  line-height: 28px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
 #main header h1 {
   text-transform: none;
   font-size: 24px;
