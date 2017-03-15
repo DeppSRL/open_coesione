@@ -23,7 +23,7 @@ $(document).ready(function(){
         minSqPixToShow = 5000;
 
     /* This one is used to map colors and URL from L1 values in the .csv so modify it in case of top level domain */
-    var domainL1 = ["Fondi SIE", "CTE", "FEAD", "Programmi Complementari e PAC", "Fondo FSC"];
+    var domainL1 = ["Fondi SIE", "CTE", "FEAD", "Programmi Complementari e PAC", "Fondo Sviluppo e Coesione"];
 
     var color = d3.scale.ordinal()
         .domain(domainL1)
