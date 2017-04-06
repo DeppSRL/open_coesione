@@ -20,14 +20,7 @@ a {
         text-transform: uppercase;
 
         &.new:after {
-            content: 'Novità';
-            display: inline-block;
-            background-color: #d6df20;
-            margin-left: 2px;
-            padding: 0 6px;
-            line-height: 28px;
-            font-size: 12px;
-            text-transform: uppercase;
+            padding: 4px 6px;
         }
     }
 
@@ -35,6 +28,17 @@ a {
         h1 { text-transform: none; font-size: 24px; margin-bottom: 15px; line-height: 28px; }
         h2 { font-size: 14px; line-height: 18px; }
     }
+}
+
+.new:after {
+    content: 'Novità';
+    display: inline-block;
+    margin-left: 2px;
+    background-color: #d6df20;
+    color: @black;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 .bg-gray { background-color: #f7f6f1; }
@@ -918,13 +922,21 @@ body#tinymce {
     margin: 10px;
 }
 
-#menu li.bi-lingual {
-    line-height: 14px;
-    margin-top: 2px;
+#menu {
+    li {
+        &.bi-lingual {
+            line-height: 14px;
+            margin-top: 2px;
 
-    em {
-        font-size: 13px;
-        margin-left: 2px;
+            em {
+                font-size: 13px;
+                margin-left: 2px;
+            }
+        }
+
+        &.new:after {
+            padding: 0 4px;
+        }
     }
 }
 
