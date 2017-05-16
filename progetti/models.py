@@ -339,7 +339,9 @@ class Progetto(models.Model):
     codice_locale = models.CharField(max_length=100, unique=True, db_index=True, db_column='cod_locale_progetto')
 
     cup = models.CharField(max_length=15, blank=True)
+
     active_flag = models.BooleanField(default=True, db_index=True)
+    visualizzazione_flag = models.CharField(max_length=1, db_index=True)
 
     progetti_attuati = models.ManyToManyField('self', symmetrical=False, related_name='progetti_attuatori')
 

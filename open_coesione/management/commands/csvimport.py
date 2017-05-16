@@ -615,6 +615,7 @@ class Command(BaseCommand):
                 values['titolo_progetto'] = row['OC_TITOLO_PROGETTO']
 
                 values['active_flag'] = row['FLAG_ATTIVO']
+                values['visualizzazione_flag'] = row['OC_FLAG_VISUALIZZAZIONE']
                 values['cipe_flag'] = False
 
                 values['obiettivo_sviluppo'] = obiettivo_sviluppo
@@ -807,6 +808,7 @@ class Command(BaseCommand):
                 values['titolo_progetto'] = row['OC_TITOLO_PROGETTO']
 
                 values['active_flag'] = False
+                values['visualizzazione_flag'] = '0'
                 values['cipe_flag'] = True
 
                 values['programma_asse_obiettivo_id'] = '{}/{}/{}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO'])
