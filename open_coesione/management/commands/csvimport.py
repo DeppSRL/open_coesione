@@ -1209,7 +1209,7 @@ class Command(BaseCommand):
                 insert_list.append(
                     PagamentoProgetto(
                         progetto=progetto,
-                        data=self._get_value(row, 'OC_DATA_PAGAMENTI', 'date'),
+                        data=self._get_value(row, 'OC_DATA_PAGAMENTI', 'date') or self._get_value(row, 'OC_DATA_PAG', 'date'),
                         ammontare=importi_cumulati['TOT_PAGAMENTI'],
                         ammontare_fsc=importi_cumulati['OC_TOT_PAGAMENTI_FSC'],
                         ammontare_pac=importi_cumulati['OC_TOT_PAGAMENTI_PAC'],
