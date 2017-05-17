@@ -1195,7 +1195,7 @@ class Command(BaseCommand):
                 if progetto.codice_locale != row['COD_LOCALE_PROGETTO']:
                     progetto = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO'])
 
-                    importi_cumulati = {'TOT_PAGAMENTI': 0.0, 'OC_TOT_PAGAMENTI_FSC': 0.0, 'OC_TOT_PAGAMENTI_PAC': 0.0, 'OC_TOT_PAGAMENTI_RENDICONTAB_UE': 0.0}
+                    importi_cumulati = {'TOT_PAGAMENTI': 0, 'OC_TOT_PAGAMENTI_FSC': 0, 'OC_TOT_PAGAMENTI_PAC': 0, 'OC_TOT_PAGAMENTI_RENDICONTAB_UE': 0}
 
                     self.logger.debug(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
 
