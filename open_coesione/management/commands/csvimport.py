@@ -1180,7 +1180,7 @@ class Command(BaseCommand):
                 insert_list = []
 
     def _import_pagamenti(self, df):
-        df = df[df['TOT_PAGAMENTI'].str.strip() != '']
+        df = df[df['TOT_PAGAMENTI'].str.strip() != ''].sort(['COD_LOCALE_PROGETTO', 'OC_DATA_PAGAMENTI'], ascending=[True, True])
 
         df_count = len(df)
 
@@ -1195,20 +1195,25 @@ class Command(BaseCommand):
                 if progetto.codice_locale != row['COD_LOCALE_PROGETTO']:
                     progetto = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO'])
 
+                    importi_cumulati = {'TOT_PAGAMENTI': 0.0, 'OC_TOT_PAGAMENTI_FSC': 0.0, 'OC_TOT_PAGAMENTI_PAC': 0.0, 'OC_TOT_PAGAMENTI_RENDICONTAB_UE': 0.0}
+
                     self.logger.debug(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
 
             except ObjectDoesNotExist:
                 self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
 
             else:
+                for k in importi_cumulati:
+                    importi_cumulati[k] += self._get_value(row, k, 'decimal')
+
                 insert_list.append(
                     PagamentoProgetto(
                         progetto=progetto,
-                        data=self._get_value(row, 'DATA_AGGIORNAMENTO', 'date'),
-                        ammontare=self._get_value(row, 'TOT_PAGAMENTI', 'decimal'),
-                        ammontare_fsc=self._get_value(row, 'OC_TOT_PAGAMENTI_FSC', 'decimal'),
-                        ammontare_pac=self._get_value(row, 'OC_TOT_PAGAMENTI_PAC', 'decimal'),
-                        ammontare_rendicontabile_ue=self._get_value(row, 'OC_TOT_PAGAMENTI_RENDICONTAB_UE', 'decimal'),
+                        data=self._get_value(row, 'OC_DATA_PAGAMENTI', 'date'),
+                        ammontare=importi_cumulati['TOT_PAGAMENTI'],
+                        ammontare_fsc=importi_cumulati['OC_TOT_PAGAMENTI_FSC'],
+                        ammontare_pac=importi_cumulati['OC_TOT_PAGAMENTI_PAC'],
+                        ammontare_rendicontabile_ue=importi_cumulati['OC_TOT_PAGAMENTI_RENDICONTAB_UE'],
                     )
                 )
                 self.logger.info(u'{}/{} - Creato pagamento: {}'.format(n, df_count, insert_list[-1]))
