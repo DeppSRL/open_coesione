@@ -169,7 +169,7 @@ class Command(BaseCommand):
             'converters': None,
         },
         'corrispondenze-progetti': {
-            'files': ['corrispondenze_assegnazioni_progetti_{}.csv', 'retrospettivi_{}.csv'],
+            'files': ['corrispondenze_assegnazioni_progetti_{}.csv', 'duplicati_{}.csv', 'retrospettivi_{}.csv'],
             'import_method': '_import_corrispondenze_progetti',
             'converters': None,
         },
@@ -1270,7 +1270,7 @@ class Command(BaseCommand):
 
     @transaction.commit_on_success
     def _import_corrispondenze_progetti(self, df):
-        df[u'COD_LOCALE_PROGETTO_ATTUATO'] = df[[c for c in ['COD_DIPE', 'CLP_RETRO'] if c in df.columns]].apply(lambda x: ''.join(x), axis=1)
+        df[u'COD_LOCALE_PROGETTO_ATTUATO'] = df[[c for c in ['COD_DIPE', 'CLP_DUPLICATO', 'CLP_RETRO'] if c in df.columns]].apply(lambda x: ''.join(x), axis=1)
 
         df_count = len(df)
 
