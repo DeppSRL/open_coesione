@@ -42,6 +42,23 @@
                     <h3>Questo progetto <strong>non è più attivo</strong> e viene pertanto escluso da conteggi e ricerche.</h3>
                 {% endif %}
             </div>
+        {% elif progetto.visualizzazione_flag == '1' %}
+            <div class="alert alert-block text-center" style="margin-bottom: 0">
+                <h3>Questo progetto viene eliminato dalle visualizzazioni e dai conteggi poiché è una duplicazione del progetto:</h3>
+                <ul class="spaced" id="overlapping-projects">
+                    {% for progetto_attuatore in progetti_attuatori %}
+                        <li><a href="{{ progetto_attuatore.get_absolute_url }}">{{ progetto_attuatore.titolo_progetto }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% elif progetto.visualizzazione_flag == '2' %}
+            <div class="alert alert-block text-center" style="margin-bottom: 0">
+                <h3>Questo progetto viene eliminato dalle visualizzazioni e dai conteggi poiché rientra in un <a href="{% url 'faq-it' %}#cosa-sono-i-grandi-progetti-comunitari">Grande Progetto comunitario</a> ritirato o mai approvato</h3>
+            </div>
+        {% elif progetto.visualizzazione_flag == '3' %}
+            <div class="alert alert-block text-center" style="margin-bottom: 0">
+                <h3>Questo progetto viene eliminato dalle visualizzazioni e dai conteggi poiché mai avviato nel Programma Operativo del ciclo in chiusura</h3>
+            </div>
         {% endif %}
 
         <article id="progetto"  class="row">
