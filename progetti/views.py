@@ -80,47 +80,51 @@ class ProgettoSearchView(OCFacetedSearchView):
             },
         },
         'data_inizio': {
-            '00-2015': {
-                'qrange': '[2015-01-01T00:00:00Z TO *]',
+            '00-2016': {
+                'qrange': '[2016-01-01T00:00:00Z TO *]',
+                'label': '2016',
+            },
+            '01-2015': {
+                'qrange': '[2015-01-01T00:00:00Z TO 2015-12-31T23:59:59Z]',
                 'label': '2015',
             },
-            '01-2014': {
+            '02-2014': {
                 'qrange': '[2014-01-01T00:00:00Z TO 2014-12-31T23:59:59Z]',
                 'label': '2014',
             },
-            '02-2013': {
+            '03-2013': {
                 'qrange': '[2013-01-01T00:00:00Z TO 2013-12-31T23:59:59Z]',
                 'label': '2013',
             },
-            '03-2012': {
+            '04-2012': {
                 'qrange': '[2012-01-01T00:00:00Z TO 2012-12-31T23:59:59Z]',
                 'label': '2012',
             },
-            '04-2011': {
+            '05-2011': {
                 'qrange': '[2011-01-01T00:00:00Z TO 2011-12-31T23:59:59Z]',
                 'label': '2011',
             },
-            '05-2010': {
+            '06-2010': {
                 'qrange': '[2010-01-01T00:00:00Z TO 2010-12-31T23:59:59Z]',
                 'label': '2010',
             },
-            '06-2009': {
+            '07-2009': {
                 'qrange': '[2009-01-01T00:00:00Z TO 2009-12-31T23:59:59Z]',
                 'label': '2009',
             },
-            '07-2008': {
+            '08-2008': {
                 'qrange': '[2008-01-01T00:00:00Z TO 2008-12-31T23:59:59Z]',
                 'label': '2008',
             },
-            '08-2007': {
+            '09-2007': {
                 'qrange': '[2007-01-01T00:00:00Z TO 2007-12-31T23:59:59Z]',
                 'label': '2007',
             },
-            '09-early': {
+            '10-early': {
                 'qrange': '[1970-01-02T00:00:00Z TO 2006-12-31T23:59:59Z]',
                 'label': 'prima del 2007',
             },
-            '10-nd': {
+            '11-nd': {
                 'qrange': '[* TO 1970-01-01T00:00:00Z]',
                 'label': 'non disponibile',
             }
@@ -144,6 +148,23 @@ class ProgettoSearchView(OCFacetedSearchView):
             },
         },
     }
+
+    def __call__(self, request):
+        if not any(x.startswith('is_pubblicato') for x in request.GET.getlist('selected_facets')):
+            referer = request.META.get('HTTP_REFERER')
+            if referer:
+                from urlparse import urlparse
+                parsed_url = urlparse(referer)
+                redirect = not '{}{}'.format(parsed_url.netloc, parsed_url.path) == '{}{}'.format(request.get_host(), request.path)
+            else:
+                redirect = True
+
+            if redirect:
+                from django import http
+                uri = request.build_absolute_uri()
+                return http.HttpResponseRedirect('{}{}selected_facets=is_pubblicato:true'.format(uri, '&' if '?' in uri else '?'))
+
+        return super(ProgettoSearchView, self).__call__(request)
 
     @staticmethod
     def _get_objects_by_pk(pks):
@@ -212,6 +233,8 @@ class ProgettoSearchView(OCFacetedSearchView):
         if getattr(settings, 'PERC_PAY_FACETS_ENABLED', False):
             facets['perc_pagamento'] = self._build_range_facet_queries_info('perc_pagamento', 'Percentuali pagamento')
 
+        facets['is_pubblicato'] = self._build_facet_field_info('is_pubblicato', 'Visualizzazione', {'true': ('Progetti pubblicati', 'Progetti pubblicati'), 'false': ('Progetti esclusi', 'Progetti esclusi')})
+
         facets['stato_progetto']['values'] = sorted(facets['stato_progetto']['values'], key=lambda x: x['key'], reverse=True)
 
         if not extra['search_within_non_active']:
@@ -269,25 +292,32 @@ class ProgrammiView(BaseProgrammaView):
         context = super(ProgrammiView, self).get_cached_context_data(programmi=programmi)
 
         if self.kwargs.get('slug') in ('ue-fesr', 'ue-fse'):
+            import re
             from csvkit import convert
             from open_coesione.views import OpendataView
 
             data_pagamenti_per_programma = date(2015, 12, 31)
 
-            dotazioni_totali = list(csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Target_Certificato_Pagamenti.xls'), 'rb'), sheet='Target spesa cert ammessi va').splitlines()))
+            dotazioni_totali = csv.DictReader(convert.xls2csv(open(OpendataView.get_latest_localfile('Target_Certificato_Pagamenti.xls'), 'rb'), sheet='Target spesa cert ammessi va').splitlines())
+
+            pattern = re.compile('pagamenti ammessi (\d{4})1231')
+            anni = [m.group(1) for m in map(pattern.match, dotazioni_totali.fieldnames) if m is not None]
+
+            dotazioni_totali = list(dotazioni_totali)
 
             for trend in ('conv', 'cro'):
                 programmi_per_trend_codici = [programma.codice for programma in programmi if ' {} '.format(trend) in programma.descrizione.lower()]
 
-                progetti = Progetto.objects.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__codice__in=programmi_per_trend_codici)
-                valori_per_anno = OrderedDict([(x['data'].year, {'dotazioni_totali': 0.0, 'pagamenti': float(x['ammontare'])}) for x in PagamentoProgetto.objects.filter(progetto__in=progetti).values('data').annotate(ammontare=Sum('ammontare_rendicontabile_ue')).order_by('data') if x['data'].strftime('%m%d') == '1231' and x['data'].strftime('%Y') <= '2015'])
-                # valori_per_anno[2015] = valori_per_anno.pop(2016)  # i valori del 20160229 sono assegnati al 20151231
+                valori_per_anno = OrderedDict([(x, {'dotazioni_totali': 0.0, 'pagamenti': 0.0}) for x in anni])
 
                 for row in dotazioni_totali:
                     programma_codice = row['OC_CODICE_PROGRAMMA']
                     if programma_codice in programmi_per_trend_codici:
                         for anno in valori_per_anno:
-                            data = '{}1231'.format(max(anno, 2010))  # i dati delle dotazioni totali partono dal 2010; per gli anni precedenti valgono i dati del 2010
+                            data = '{}1231'.format(anno)
+
+                            valori_per_anno[anno]['pagamenti'] += float(row['pagamenti ammessi {}'.format(data)] or 0)
+
                             try:
                                 valore = row['DOTAZIONE TOTALE PROGRAMMA POST PAC {}'.format(data)]
                             except KeyError:
@@ -297,7 +327,7 @@ class ProgrammiView(BaseProgrammaView):
 
                 context['pagamenti_per_anno_{}'.format(trend)] = [{'year': anno, 'total_amount': valori['dotazioni_totali'], 'paid_amount': valori['pagamenti']} for anno, valori in valori_per_anno.items()]
 
-                programmi_per_trend = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__active_flag=True, codice__in=programmi_per_trend_codici).distinct().values('descrizione', 'codice').order_by('descrizione')
+                programmi_per_trend = ProgrammaAsseObiettivo.objects.filter(classificazione_set__classificazione_set__progetto_set__active_flag=True, classificazione_set__classificazione_set__progetto_set__visualizzazione_flag='0', codice__in=programmi_per_trend_codici).distinct().values('descrizione', 'codice').order_by('descrizione')
 
                 dotazioni_totali_per_programma = {}
                 pagamenti_per_programma = {}
@@ -316,7 +346,7 @@ class ProgrammiView(BaseProgrammaView):
 
                 context['pagamenti_per_programma_{}'.format(trend)] = [{'program': programma['descrizione'], 'total_amount': dotazioni_totali_per_programma[programma['codice']], 'paid_amount': pagamenti_per_programma[programma['codice']]} for programma in programmi_per_trend]
 
-            pagamenti_per_anno_tutti = {}
+            pagamenti_per_anno_tutti = OrderedDict()
             for item in context['pagamenti_per_anno_conv'] + context['pagamenti_per_anno_cro']:
                 if not item['year'] in pagamenti_per_anno_tutti:
                     pagamenti_per_anno_tutti[item['year']] = item.copy()
@@ -628,7 +658,7 @@ class ProgettoCSVSearchView(ProgettoSearchView):
         # columns = [{'FINANZ_STATO_FONDO_ROTAZIONE': u'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'FINANZ_STATO_PRIVATO': u'FINANZ_PRIVATO'}.get(c, c) for c in columns]
 
         # columns = ['COD_LOCALE_PROGETTO', 'CUP', 'OC_TITOLO_PROGETTO', 'QSN_FONDO_COMUNITARIO', 'OC_TEMA_SINTETICO', 'OC_DESCR_FONTE', 'OC_CODICE_PROGRAMMA', 'OC_DESCRIZIONE_PROGRAMMA', 'DESCR_STRUMENTO', 'DESCR_TIPO_STRUMENTO', 'DATA_APPROV_STRUMENTO', 'CUP_DESCR_NATURA', 'CUP_DESCR_SETTORE', 'CUP_DESCR_SOTTOSETTORE', 'CUP_DESCR_CATEGORIA', 'COD_ATECO', 'DESCRIZIONE_ATECO', 'OC_TIPO_PROGETTO', 'FINANZ_UE', 'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'FINANZ_STATO_FSC', 'FINANZ_STATO_PAC', 'FINANZ_STATO_ALTRI_PROVVEDIMENTI', 'FINANZ_REGIONE', 'FINANZ_PROVINCIA', 'FINANZ_COMUNE', 'FINANZ_RISORSE_LIBERATE', 'FINANZ_ALTRO_PUBBLICO', 'FINANZ_STATO_ESTERO', 'FINANZ_PRIVATO', 'FINANZ_DA_REPERIRE', 'FINANZ_TOTALE_PUBBLICO', 'COSTO_RENDICONTABILE_UE', 'IMPEGNI', 'TOT_PAGAMENTI', 'OC_TOT_PAGAMENTI_RENDICONTAB_UE', 'OC_DATA_INIZIO_PREVISTA', 'OC_DATA_FINE_PREVISTA', 'OC_DATA_INIZIO_EFFETTIVA', 'OC_DATA_FINE_EFFETTIVA', 'OC_STATO_PROGETTO', 'DESCR_PROCED_ATTIVAZIONE', 'DESCR_TIPO_PROCED_ATTIVAZIONE', 'DATA_PREVISTA_BANDO_PROC_ATTIV', 'DATA_EFFETTIVA_BANDO_PROC_ATTIV', 'DATA_PREVISTA_FINE_PROC_ATTIV', 'DATA_EFFETTIVA_FINE_PROC_ATTIV', 'DATA_AGGIORNAMENTO', 'SOGGETTI_PROGRAMMATORI', 'SOGGETTI_ATTUATORI', 'AMBITI_TERRITORIALI', 'TERRITORI']
-        columns = ['COD_LOCALE_PROGETTO', 'CUP', 'OC_TITOLO_PROGETTO', 'QSN_FONDO_COMUNITARIO', 'OC_TEMA_SINTETICO', 'OC_DESCR_FONTE', 'OC_CODICE_PROGRAMMA', 'OC_DESCRIZIONE_PROGRAMMA', 'DESCR_STRUMENTO', 'DESCR_TIPO_STRUMENTO', 'DATA_APPROV_STRUMENTO', 'CUP_DESCR_NATURA', 'CUP_DESCR_SETTORE', 'CUP_DESCR_SOTTOSETTORE', 'CUP_DESCR_CATEGORIA', 'COD_ATECO', 'DESCRIZIONE_ATECO', 'FINANZ_UE', 'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'FINANZ_STATO_FSC', 'FINANZ_STATO_PAC', 'FINANZ_STATO_ALTRI_PROVVEDIMENTI', 'FINANZ_REGIONE', 'FINANZ_PROVINCIA', 'FINANZ_COMUNE', 'FINANZ_RISORSE_LIBERATE', 'FINANZ_ALTRO_PUBBLICO', 'FINANZ_STATO_ESTERO', 'FINANZ_PRIVATO', 'FINANZ_DA_REPERIRE', 'FINANZ_TOTALE_PUBBLICO', 'COSTO_RENDICONTABILE_UE', 'IMPEGNI', 'TOT_PAGAMENTI', 'OC_TOT_PAGAMENTI_RENDICONTAB_UE', 'OC_DATA_INIZIO_PREVISTA', 'OC_DATA_FINE_PREVISTA', 'OC_DATA_INIZIO_EFFETTIVA', 'OC_DATA_FINE_EFFETTIVA', 'OC_STATO_PROGETTO', 'DESCR_PROCED_ATTIVAZIONE', 'DESCR_TIPO_PROCED_ATTIVAZIONE', 'DATA_PREVISTA_BANDO_PROC_ATTIV', 'DATA_EFFETTIVA_BANDO_PROC_ATTIV', 'DATA_PREVISTA_FINE_PROC_ATTIV', 'DATA_EFFETTIVA_FINE_PROC_ATTIV', 'DATA_AGGIORNAMENTO', 'SOGGETTI_PROGRAMMATORI', 'SOGGETTI_ATTUATORI', 'AMBITI_TERRITORIALI', 'TERRITORI']
+        columns = ['COD_LOCALE_PROGETTO', 'CUP', 'OC_TITOLO_PROGETTO', 'QSN_FONDO_COMUNITARIO', 'OC_TEMA_SINTETICO', 'OC_DESCR_FONTE', 'OC_CODICE_PROGRAMMA', 'OC_DESCRIZIONE_PROGRAMMA', 'DESCR_STRUMENTO', 'DESCR_TIPO_STRUMENTO', 'DATA_APPROV_STRUMENTO', 'CUP_DESCR_NATURA', 'CUP_DESCR_SETTORE', 'CUP_DESCR_SOTTOSETTORE', 'CUP_DESCR_CATEGORIA', 'COD_ATECO', 'DESCRIZIONE_ATECO', 'FINANZ_UE', 'FINANZ_STATO_FONDO_DI_ROTAZIONE', 'FINANZ_STATO_FSC', 'FINANZ_STATO_PAC', 'FINANZ_STATO_ALTRI_PROVVEDIMENTI', 'FINANZ_REGIONE', 'FINANZ_PROVINCIA', 'FINANZ_COMUNE', 'FINANZ_RISORSE_LIBERATE', 'FINANZ_ALTRO_PUBBLICO', 'FINANZ_STATO_ESTERO', 'FINANZ_PRIVATO', 'FINANZ_DA_REPERIRE', 'FINANZ_TOTALE_PUBBLICO', 'COSTO_RENDICONTABILE_UE', 'IMPEGNI', 'TOT_PAGAMENTI', 'OC_TOT_PAGAMENTI_RENDICONTAB_UE', 'OC_DATA_INIZIO_PREVISTA', 'OC_DATA_FINE_PREVISTA', 'OC_DATA_INIZIO_EFFETTIVA', 'OC_DATA_FINE_EFFETTIVA', 'OC_STATO_PROGETTO', 'DESCR_PROCED_ATTIVAZIONE', 'DESCR_TIPO_PROCED_ATTIVAZIONE', 'DATA_PREVISTA_BANDO_PROC_ATTIV', 'DATA_EFFETTIVA_BANDO_PROC_ATTIV', 'DATA_PREVISTA_FINE_PROC_ATTIV', 'DATA_EFFETTIVA_FINE_PROC_ATTIV', 'OC_FLAG_VISUALIZZAZIONE', 'DATA_AGGIORNAMENTO', 'SOGGETTI_PROGRAMMATORI', 'SOGGETTI_ATTUATORI', 'AMBITI_TERRITORIALI', 'TERRITORI']
 
         extra_columns = OrderedDict([
             # ('OC_TIPO_PROGETTO', 'get_tipo_progetto_display'),

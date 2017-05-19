@@ -125,8 +125,8 @@ class AggregatoMixin(object):
             args = filters
             kwargs = {}
 
-        # add filters on active projects, to avoid computation errors
-        kwargs.update({'progetto__active_flag': True})
+        # add filters on active and published projects, to avoid computation errors
+        kwargs.update({'progetto__active_flag': True, 'progetto__visualizzazione_flag': '0'})
 
         territori = Territorio.objects.comuni().filter(*args, **kwargs).values('pk', 'popolazione_totale').annotate(totale=Sum('progetto__fin_totale_pubblico')).filter(totale__isnull=False).order_by()
 
@@ -473,12 +473,12 @@ class OpendataView(TemplateView):
 
         context['raccordo_temi_sintetici_file'] = self.get_complete_localfile('raccordo_temi_sintetici.xls')
 
-        context['approfondimenti_1_1_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_beni_confiscati_20161031.csv')
+        context['approfondimenti_1_1_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_beni_confiscati_20161231.csv')
         context['approfondimenti_1_2_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_beni_confiscati_20151231.csv')
         context['approfondimenti_1_3_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_beni_confiscati_20141231.csv')
         context['approfondimenti_1_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_focus_beni_confiscati.xls')
 
-        context['approfondimenti_2_1_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole_20161031.zip')
+        context['approfondimenti_2_1_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole_20161231.zip')
         context['approfondimenti_2_2_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole_20160630.zip')
         context['approfondimenti_2_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_focus_scuole.xls')
 
