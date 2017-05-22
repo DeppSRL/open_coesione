@@ -380,9 +380,9 @@ class ProgrammaView(BaseProgrammaView):
 
     def get_object(self):
         try:
-            return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
-        except ProgrammaAsseObiettivo.DoesNotExist:
             return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
+        except ProgrammaAsseObiettivo.DoesNotExist:
+            return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
 
     def get_progetti_queryset(self):
         return Progetto.objects.con_programmi([self.get_object()])
