@@ -413,7 +413,7 @@ class ProgrammaView(BaseProgrammaView):
     def get_object(self):
         try:
             return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
-        except ProgrammaAsseObiettivo.DoesNotExist:
+        except ProgrammaLineaAzione.DoesNotExist:
             return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
 
     def get_progetti_queryset(self):
