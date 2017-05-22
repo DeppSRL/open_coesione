@@ -75,8 +75,8 @@
 {% endaddtoblock %}
 
 <table id="payments_chart_table" class="hide">
-    {% for pagamento in progetto.pagamenti %}
-        <tr><th>{{ pagamento.data|date:'SHORT_DATE_FORMAT' }}</th><td>{{ pagamento.ammontare|floatformat:'2' }}</td><td>{{ pagamento.percentuale|floatformat:'2' }}</td></tr>
+    {% for pagamento in pagamenti %}
+        <tr><th>{{ pagamento.data|date:'N Y' }}</th><td>{{ pagamento.ammontare|floatformat:'2' }}</td><td>{{ pagamento.percentuale|floatformat:'2' }}</td></tr>
     {% endfor %}
 </table>
 

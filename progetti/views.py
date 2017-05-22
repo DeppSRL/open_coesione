@@ -3,17 +3,16 @@ import csv
 import StringIO
 import zipfile
 from collections import OrderedDict
-from datetime import date
+from datetime import date, timedelta
 from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
-from django.db.models import Sum
 from django.http import HttpResponse, Http404
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from forms import DescrizioneProgettoForm
 from gruppo_programmi import GruppoProgrammi, split_by_type
-from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione, PagamentoProgetto,\
+from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione,\
     Ruolo, Tema, Fonte, SegnalazioneProgetto
 from oc_search.views import OCFacetedSearchView
 from open_coesione import utils
@@ -51,6 +50,39 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
         context['progetti_attuatori'] = Progetto.fullobjects.filter(progetti_attuati=self.object)
         context['progetti_attuati'] = False  # Progetto.fullobjects.filter(progetti_attuatori=self.object).order_by('-cipe_flag')
         context['MIUR_EXT_API_URL'] = settings.MIUR_EXT_API_URL
+
+        pagamenti = list(self.object.pagamenti)
+
+        data_iniziale = pagamenti[0].data
+
+        pagamenti.reverse()
+
+        data = date(2017, 02, 28)
+
+        pagamenti_bimestrali = []
+
+        while data >= data_iniziale:
+            month = data.month
+            year = data.year
+
+            month = month - 2 + month % 2
+            if month < 1:
+                month += 12
+                year -= 1
+
+            data = (data.replace(year=year, month=month, day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+            ammontare = 0
+            for pagamento in pagamenti:
+                if pagamento.data <= data:
+                    ammontare = float(pagamento.ammontare)
+                    break
+
+            percentuale = (ammontare / fin_totale_pubblico_netto) * 100 if fin_totale_pubblico_netto else 0.0
+
+            pagamenti_bimestrali.insert(0, {'data': data, 'ammontare': ammontare, 'percentuale': percentuale})
+
+        context['pagamenti'] = pagamenti_bimestrali
 
         return context
 
