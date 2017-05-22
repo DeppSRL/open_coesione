@@ -187,11 +187,11 @@ class ProgettoSearchView(OCFacetedSearchView):
         fonte_fin = self.request.GET.get('fonte_fin')
         if fonte_fin:
             try:
-                extra['fonte_fin'] = ProgrammaAsseObiettivo.objects.get(pk=fonte_fin)
-            except ProgrammaAsseObiettivo.DoesNotExist:
+                extra['fonte_fin'] = ProgrammaLineaAzione.objects.get(pk=fonte_fin)
+            except ProgrammaLineaAzione.DoesNotExist:
                 try:
-                    extra['fonte_fin'] = ProgrammaLineaAzione.objects.get(pk=fonte_fin)
-                except ProgrammaLineaAzione.DoesNotExist:
+                    extra['fonte_fin'] = ProgrammaAsseObiettivo.objects.get(pk=fonte_fin)
+                except ProgrammaAsseObiettivo.DoesNotExist:
                     pass
 
         programmi_slug = self.request.GET.get('gruppo_programmi')
