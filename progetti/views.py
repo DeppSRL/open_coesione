@@ -182,19 +182,10 @@ class ProgettoSearchView(OCFacetedSearchView):
     }
 
     def __call__(self, request):
-        if not any(x.startswith('is_pubblicato') for x in request.GET.getlist('selected_facets')):
-            referer = request.META.get('HTTP_REFERER')
-            if referer:
-                from urlparse import urlparse
-                parsed_url = urlparse(referer)
-                redirect = not '{}{}'.format(parsed_url.netloc, parsed_url.path) == '{}{}'.format(request.get_host(), request.path)
-            else:
-                redirect = True
-
-            if redirect:
-                from django import http
-                uri = request.build_absolute_uri()
-                return http.HttpResponseRedirect('{}{}selected_facets=is_pubblicato:true'.format(uri, '&' if '?' in uri else '?'))
+        if not any(x.startswith('is_pubblicato') for x in request.GET.getlist('selected_facets')) and not request.GET.get('r'):
+            from django import http
+            uri = request.build_absolute_uri()
+            return http.HttpResponseRedirect('{}{}selected_facets=is_pubblicato:true'.format(uri, '&' if '?' in uri else '?'))
 
         return super(ProgettoSearchView, self).__call__(request)
 
