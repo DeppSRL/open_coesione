@@ -82,9 +82,9 @@ class InfoView(JSONResponseMixin, TemplateView):
         programmi = None
         if self.filter == 'programmi':
             try:
-                programma = ProgrammaAsseObiettivo.objects.get(codice=kwargs['slug'])
-            except ProgrammaAsseObiettivo.DoesNotExist:
                 programma = ProgrammaLineaAzione.objects.get(codice=kwargs['slug'])
+            except ProgrammaAsseObiettivo.DoesNotExist:
+                programma = ProgrammaAsseObiettivo.objects.get(codice=kwargs['slug'])
 
             programmi = [programma]
 
