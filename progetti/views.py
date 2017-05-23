@@ -498,17 +498,18 @@ class ProgettoPagamentiCSVView(DetailView):
 
         writer = utils.UnicodeWriter(response, dialect=utils.excel_semicolon)
 
-        writer.writerow(['COD_LOCALE_PROGETTO', 'DATA_AGGIORNAMENTO', 'TOT_PAGAMENTI', 'OC_TOT_PAGAMENTI_RENDICONTAB_UE', 'OC_TOT_PAGAMENTI_FSC', 'OC_TOT_PAGAMENTI_PAC'])
+        writer.writerow(['COD_LOCALE_PROGETTO', 'OC_DATA_PAGAMENTI', 'TOT_PAGAMENTI'])
+
+        ammontare_cumulato = 0
 
         for pagamento in self.object.pagamenti:
             writer.writerow([
                 self.object.codice_locale,
                 pagamento.data.strftime('%x'),
-                locale.format('%.2f', pagamento.ammontare or 0, grouping=True),
-                locale.format('%.2f', pagamento.ammontare_rendicontabile_ue or 0, grouping=True),
-                locale.format('%.2f', pagamento.ammontare_fsc or 0, grouping=True),
-                locale.format('%.2f', pagamento.ammontare_pac or 0, grouping=True),
+                locale.format('%.2f', pagamento.ammontare - ammontare_cumulato, grouping=True),
             ])
+
+            ammontare_cumulato = pagamento.ammontare
 
         return response
 
