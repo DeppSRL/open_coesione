@@ -110,8 +110,6 @@ class ExtendedFacetedSearchView(SearchView):
             params['q'] = ''
         if 'page' in params:
             del(params['page'])
-        if 'r' in params:
-            del(params['r'])
 
         params.setlist('selected_facets', sorted(set(params.getlist('selected_facets'))))
 
