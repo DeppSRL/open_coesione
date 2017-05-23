@@ -462,10 +462,10 @@ class OpendataView(TemplateView):
         context['istat_metadata_file'] = self.get_complete_remotefile(istat_path.format('Metainformazione.xls'))
 
         cpt_path = 'http://www.agenziacoesione.gov.it/it/cpt/02_dati/01catalogo_open_cpt/datasets/{}'
-        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format('PA_E.zip'))
-        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format('PA_S.zip'))
-        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format('SPA_E.zip'))
-        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format('SPA_S.zip'))
+        context['cpt_pa_in_file'] = self.get_complete_remotefile(cpt_path.format('PA_ENTRATE_2000-2015.zip'))
+        context['cpt_pa_out_file'] = self.get_complete_remotefile(cpt_path.format('PA_SPESE_2000-2015.zip'))
+        context['cpt_spa_in_file'] = self.get_complete_remotefile(cpt_path.format('SPA_ENTRATE_2000-2015.zip'))
+        context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format('SPA_SPESE_2000-2015.zip'))
         context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('Metadati_flussi.xls'))
 
         context['indagine_data_file'] = self.get_complete_localfile('indagine_data.zip')
