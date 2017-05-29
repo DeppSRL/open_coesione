@@ -53,34 +53,35 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
 
         pagamenti = list(self.object.pagamenti)
 
-        data_iniziale = pagamenti[0].data
-
-        pagamenti.reverse()
-
-        data = date(2017, 02, 28)
-
         pagamenti_bimestrali = []
 
-        while data >= data_iniziale:
-            month = data.month
-            year = data.year
+        if pagamenti:
+            data_iniziale = pagamenti[0].data
 
-            month = month - 2 + month % 2
-            if month < 1:
-                month += 12
-                year -= 1
+            pagamenti.reverse()
 
-            data = (data.replace(year=year, month=month, day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+            data = date(2017, 02, 28)
 
-            ammontare = 0
-            for pagamento in pagamenti:
-                if pagamento.data <= data:
-                    ammontare = float(pagamento.ammontare)
-                    break
+            while data >= data_iniziale:
+                month = data.month
+                year = data.year
 
-            percentuale = (ammontare / fin_totale_pubblico_netto) * 100 if fin_totale_pubblico_netto else 0.0
+                month = month - 2 + month % 2
+                if month < 1:
+                    month += 12
+                    year -= 1
 
-            pagamenti_bimestrali.insert(0, {'data': data, 'ammontare': ammontare, 'percentuale': percentuale})
+                data = (data.replace(year=year, month=month, day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+                ammontare = 0
+                for pagamento in pagamenti:
+                    if pagamento.data <= data:
+                        ammontare = float(pagamento.ammontare)
+                        break
+
+                percentuale = (ammontare / fin_totale_pubblico_netto) * 100 if fin_totale_pubblico_netto else 0.0
+
+                pagamenti_bimestrali.insert(0, {'data': data, 'ammontare': ammontare, 'percentuale': percentuale})
 
         context['pagamenti'] = pagamenti_bimestrali
 
