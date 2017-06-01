@@ -8,6 +8,10 @@ import datetime
 class ProgettoIndex(SearchIndex):
     text = CharField(document=True, use_template=True, stored=False)
 
+    is_active = FacetBooleanField(model_attr='active_flag', stored=False)
+    is_scuola = FacetBooleanField(model_attr='scuola_flag', stored=False)
+    is_pubblicato = FacetBooleanField(stored=False)
+
     soggetto = FacetMultiValueField(stored=False)
 
     territorio_tipo = MultiValueField(stored=False)
@@ -18,9 +22,6 @@ class ProgettoIndex(SearchIndex):
     fonte_fin = MultiValueField(stored=False)
     classificazione_cup = CharField(stored=False)
 
-    is_scuola = FacetBooleanField(model_attr='scuola_flag', stored=False)
-    is_active = FacetBooleanField(model_attr='active_flag', stored=False)
-
     natura = FacetCharField(stored=False)
     tema = FacetCharField(stored=False)
     fonte = FacetMultiValueField(stored=False)
@@ -29,6 +30,9 @@ class ProgettoIndex(SearchIndex):
     data_inizio = FacetDateField(stored=False)
     costo = FacetFloatField(model_attr='fin_totale_pubblico', stored=False)
     perc_pagamento = FacetFloatField(stored=False)
+
+    def prepare_is_pubblicato(self, obj):
+        return obj.visualizzazione_flag == '0'
 
     def prepare_soggetto(self, obj):
         return ['{}|{}'.format(r['soggetto__slug'], r['ruolo']) for r in obj.ruolo_set.values('soggetto__slug', 'ruolo')]

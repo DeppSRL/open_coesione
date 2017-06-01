@@ -154,7 +154,7 @@ class ProgettoQuerySet(models.query.QuerySet):
 
 class ProgettoManager(models.Manager):
     def get_query_set(self):
-        return ProgettoQuerySet(self.model, using=self._db).filter(active_flag=True)
+        return ProgettoQuerySet(self.model, using=self._db).filter(active_flag=True, visualizzazione_flag='0')
 
     def no_privacy(self):
         return self.get_query_set().no_privacy()

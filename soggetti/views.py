@@ -87,7 +87,7 @@ class SoggettoView(XRobotsTagTemplateResponseMixin, AggregatoMixin, DetailView):
         totali_by_ruolo_by_progetto = defaultdict(dict)
 
         for ruolo in dict(Ruolo.RUOLO).keys():
-            for totali in Ruolo.objects.filter(soggetto=self.object, ruolo=ruolo, progetto__active_flag=True).values('progetto_id').annotate(totale_costi=Sum('progetto__fin_totale_pubblico'), totale_pagamenti=Sum('progetto__pagamento'), totale_progetti=Count('progetto')):
+            for totali in Ruolo.objects.filter(soggetto=self.object, ruolo=ruolo, progetto__active_flag=True, progetto__visualizzazione_flag='0').values('progetto_id').annotate(totale_costi=Sum('progetto__fin_totale_pubblico'), totale_pagamenti=Sum('progetto__pagamento'), totale_progetti=Count('progetto')):
                 totali_by_ruolo_by_progetto[totali.pop('progetto_id')][ruolo] = totali
 
         totali_by_ruolo = defaultdict(dict)

@@ -82,9 +82,9 @@ class InfoView(JSONResponseMixin, TemplateView):
         programmi = None
         if self.filter == 'programmi':
             try:
-                programma = ProgrammaAsseObiettivo.objects.get(codice=kwargs['slug'])
-            except ProgrammaAsseObiettivo.DoesNotExist:
                 programma = ProgrammaLineaAzione.objects.get(codice=kwargs['slug'])
+            except ProgrammaLineaAzione.DoesNotExist:
+                programma = ProgrammaAsseObiettivo.objects.get(codice=kwargs['slug'])
 
             programmi = [programma]
 
@@ -320,11 +320,11 @@ class BaseMapnikView(AggregatoMixin, TemplateView):
         # eventual filter on programma or gruppo_programmi
         if self.inner_filter == 'programma':
             try:
-                programma = ProgrammaAsseObiettivo.objects.get(pk=self.kwargs['codice'])
-            except ProgrammaAsseObiettivo.DoesNotExist:
+                programma = ProgrammaLineaAzione.objects.get(pk=self.kwargs['codice'])
+            except ProgrammaLineaAzione.DoesNotExist:
                 try:
-                    programma = ProgrammaLineaAzione.objects.get(pk=self.kwargs['codice'])
-                except ProgrammaLineaAzione.DoesNotExist:
+                    programma = ProgrammaAsseObiettivo.objects.get(pk=self.kwargs['codice'])
+                except ProgrammaAsseObiettivo.DoesNotExist:
                     raise Exception('Could not find appropriate programma')
             progetti = progetti.con_programmi([programma])
         elif self.inner_filter == 'gruppo_programmi':

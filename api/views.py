@@ -146,7 +146,7 @@ class ProgettoList(BaseSearchView):
         return self.paginate_by
 
     def get_queryset(self):
-        ret_sqs = progetti_sqs.filter(is_active=True)
+        ret_sqs = progetti_sqs.filter(is_active=True, is_pubblicato=True)
 
         natura_slug = self.request.QUERY_PARAMS.get('natura')
         if natura_slug:

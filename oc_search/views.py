@@ -94,6 +94,7 @@ class ExtendedFacetedSearchView(SearchView):
 
         if facet_key in params.getlist('selected_facets'):
             params.getlist('selected_facets').remove(facet_key)
+            params['r'] = '1'
             urls['remove_filter'] = params.urlencode(safe=':')
         else:
             params.getlist('selected_facets').append(facet_key)

@@ -169,7 +169,7 @@ class Command(BaseCommand):
             'converters': None,
         },
         'corrispondenze-progetti': {
-            'files': ['corrispondenze_assegnazioni_progetti_{}.csv', 'retrospettivi_{}.csv'],
+            'files': ['corrispondenze_assegnazioni_progetti_{}.csv', 'duplicati_{}.csv', 'retrospettivi_{}.csv'],
             'import_method': '_import_corrispondenze_progetti',
             'converters': None,
         },
@@ -615,6 +615,7 @@ class Command(BaseCommand):
                 values['titolo_progetto'] = row['OC_TITOLO_PROGETTO']
 
                 values['active_flag'] = row['FLAG_ATTIVO']
+                values['visualizzazione_flag'] = row['OC_FLAG_VISUALIZZAZIONE']
                 values['cipe_flag'] = False
 
                 values['obiettivo_sviluppo'] = obiettivo_sviluppo
@@ -807,6 +808,7 @@ class Command(BaseCommand):
                 values['titolo_progetto'] = row['OC_TITOLO_PROGETTO']
 
                 values['active_flag'] = False
+                values['visualizzazione_flag'] = '0'
                 values['cipe_flag'] = True
 
                 values['programma_asse_obiettivo_id'] = '{}/{}/{}'.format(row['OC_CODICE_PROGRAMMA'], row['PO_CODICE_ASSE'], row['PO_COD_OBIETTIVO_OPERATIVO'])
@@ -1178,7 +1180,7 @@ class Command(BaseCommand):
                 insert_list = []
 
     def _import_pagamenti(self, df):
-        df = df[df['TOT_PAGAMENTI'].str.strip() != '']
+        df = df[df['TOT_PAGAMENTI'].str.strip() != ''].sort(['COD_LOCALE_PROGETTO', 'OC_DATA_PAGAMENTI'], ascending=[True, True])
 
         df_count = len(df)
 
@@ -1193,20 +1195,25 @@ class Command(BaseCommand):
                 if progetto.codice_locale != row['COD_LOCALE_PROGETTO']:
                     progetto = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO'])
 
+                    importi_cumulati = {'TOT_PAGAMENTI': 0, 'OC_TOT_PAGAMENTI_FSC': 0, 'OC_TOT_PAGAMENTI_PAC': 0, 'OC_TOT_PAGAMENTI_RENDICONTAB_UE': 0}
+
                     self.logger.debug(u'{}/{} - Progetto: {}'.format(n, df_count, progetto))
 
             except ObjectDoesNotExist:
                 self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping.'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
 
             else:
+                for k in importi_cumulati:
+                    importi_cumulati[k] += self._get_value(row, k, 'decimal')
+
                 insert_list.append(
                     PagamentoProgetto(
                         progetto=progetto,
-                        data=self._get_value(row, 'DATA_AGGIORNAMENTO', 'date'),
-                        ammontare=self._get_value(row, 'TOT_PAGAMENTI', 'decimal'),
-                        ammontare_fsc=self._get_value(row, 'OC_TOT_PAGAMENTI_FSC', 'decimal'),
-                        ammontare_pac=self._get_value(row, 'OC_TOT_PAGAMENTI_PAC', 'decimal'),
-                        ammontare_rendicontabile_ue=self._get_value(row, 'OC_TOT_PAGAMENTI_RENDICONTAB_UE', 'decimal'),
+                        data=self._get_value(row, 'OC_DATA_PAGAMENTI', 'date') or self._get_value(row, 'OC_DATA_PAG', 'date'),
+                        ammontare=importi_cumulati['TOT_PAGAMENTI'],
+                        ammontare_fsc=importi_cumulati['OC_TOT_PAGAMENTI_FSC'],
+                        ammontare_pac=importi_cumulati['OC_TOT_PAGAMENTI_PAC'],
+                        ammontare_rendicontabile_ue=importi_cumulati['OC_TOT_PAGAMENTI_RENDICONTAB_UE'],
                     )
                 )
                 self.logger.info(u'{}/{} - Creato pagamento: {}'.format(n, df_count, insert_list[-1]))
@@ -1263,7 +1270,7 @@ class Command(BaseCommand):
 
     @transaction.commit_on_success
     def _import_corrispondenze_progetti(self, df):
-        df[u'COD_LOCALE_PROGETTO_ATTUATO'] = df[[c for c in ['COD_DIPE', 'CLP_RETRO'] if c in df.columns]].apply(lambda x: ''.join(x), axis=1)
+        df[u'COD_LOCALE_PROGETTO_ATTUATO'] = df[[c for c in ['COD_DIPE', 'CLP_DUPLICATO', 'CLP_RETRO'] if c in df.columns]].apply(lambda x: ''.join(x), axis=1)
 
         df_count = len(df)
 
