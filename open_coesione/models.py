@@ -8,6 +8,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from filebrowser.fields import FileBrowseField
+from solo.models import SingletonModel
 from tagging import models as tagging_models
 
 
@@ -131,8 +132,21 @@ class FAQ(models.Model):
         ordering = ['-priorita', 'id']
 
 
+class Bandi(SingletonModel):
+    titolo = models.CharField(max_length=200)
+    descrizione = models.TextField(max_length=1024, blank=True, null=True)
+    file = models.FileField(max_length=255, upload_to='files/')
+
+    def __unicode__(self):
+        return u'{}'.format(self.titolo)
+
+    class Meta:
+        verbose_name = u'Bandi'
+
+
 @receiver(models.signals.post_delete, sender=File)
 @receiver(models.signals.post_delete, sender=PressReview)
+@receiver(models.signals.post_delete, sender=Bandi)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
     """
     Deletes file from filesystem when corresponding sender object is deleted.
@@ -144,6 +158,7 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
 
 @receiver(models.signals.pre_save, sender=File)
 @receiver(models.signals.pre_save, sender=PressReview)
+@receiver(models.signals.pre_save, sender=Bandi)
 def auto_delete_file_on_change(sender, instance, **kwargs):
     """
     Deletes file from filesystem when corresponding sender object is changed.
