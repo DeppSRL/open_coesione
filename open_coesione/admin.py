@@ -4,10 +4,11 @@ from django.contrib.contenttypes import generic
 from django.contrib.flatpages.admin import FlatPageAdmin, FlatpageForm
 from django.contrib.flatpages.models import FlatPage
 from django.forms import ModelForm
-from models import ContactMessage, PressReview, Pillola, File, Link, FAQ
-from utils import export_select_fields_csv_action
+from models import ContactMessage, PressReview, Pillola, File, Link, FAQ, Bandi
+from solo.admin import SingletonModelAdmin
 from tagging.admin import TagInline
 from tinymce.widgets import TinyMCE
+from utils import export_select_fields_csv_action
 
 
 common_mce_attrs = {
@@ -56,6 +57,13 @@ class FAQAdminForm(TinyMCEEnabledForm):
         widgets = {
             'risposta_it': TinyMCE(mce_attrs=common_mce_attrs),
             'risposta_en': TinyMCE(mce_attrs=common_mce_attrs)
+        }
+
+
+class BandiAdminForm(TinyMCEEnabledForm):
+    class Meta:
+        widgets = {
+            'descrizione': TinyMCE(mce_attrs=common_mce_attrs)
         }
 
 
@@ -120,9 +128,15 @@ class FAQAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug_it': ('domanda_it',), 'slug_en': ('domanda_en',)}
     form = FAQAdminForm
 
+
+class BandiAdmin(SingletonModelAdmin):
+    form = BandiAdminForm
+
+
 admin.site.register(ContactMessage, MessagesAdmin)
 admin.site.register(PressReview, PressReviewAdmin)
 admin.site.register(Pillola, PillolaAdmin)
 admin.site.register(FAQ, FAQAdmin)
 admin.site.unregister(FlatPage)
 admin.site.register(FlatPage, OCFlatPageAdmin)
+admin.site.register(Bandi, BandiAdmin)

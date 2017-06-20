@@ -171,6 +171,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'api',
     'widgets',
+    'solo',
 )
 
 DEBUG_TOOLBAR_PANELS = (

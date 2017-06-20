@@ -13,7 +13,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from forms import ContactForm
 from mixins import DateFilterMixin
-from models import PressReview, Pillola, FAQ
+from models import PressReview, Pillola, FAQ, Bandi
 from progetti.models import Progetto, Tema, ClassificazioneAzione, DeliberaCIPE
 from soggetti.models import Soggetto
 from tagging.views import TagFilterMixin
@@ -642,6 +642,36 @@ class FAQListView(ListView):
         context = super(FAQListView, self).get_context_data(**kwargs)
 
         context['title'] = 'Frequently Asked Questions' if self.lang == 'en' else 'Domande frequenti'
+
+        return context
+
+
+class BandiDetailView(DetailView):
+    model = Bandi
+
+    def get_object(self, queryset=None):
+        return self.model.get_solo()
+
+    def get_context_data(self, **kwargs):
+        import csv
+        import datetime
+
+        context = super(BandiDetailView, self).get_context_data(**kwargs)
+
+        today = datetime.datetime.now().strftime('%Y%m%d')
+
+        context['bandi'] = OrderedDict([('aperti', []), ('chiusi', [])])
+
+        reader = csv.DictReader(open(os.path.join(settings.REPO_ROOT, self.object.file.url.strip('/')), 'rb'), delimiter=';')
+
+        for row in sorted(reader, key=lambda x: (x['DATA_SCADENZA'] or '@', x['DATA_PUBBLICAZIONE'])):
+            scaduto = row['DATA_SCADENZA'] and (row['DATA_SCADENZA'] < today)
+
+            for c in ('DATA_SCADENZA', 'DATA_PUBBLICAZIONE'):
+                row[c] = datetime.datetime.strptime(row[c], '%Y%m%d') if row[c] else ''
+            row['IMPORTO'] = float(row['IMPORTO'].replace('.', '').replace(',', '.')) if row['IMPORTO'] else ''
+
+            context['bandi']['chiusi' if scaduto else 'aperti'].append(row)
 
         return context
 

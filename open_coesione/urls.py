@@ -5,7 +5,7 @@ from django.contrib.gis import admin
 from django.views.generic.base import TemplateView
 from views import HomeView, FondiView, RisorsaView, ContactView, SpesaCertificataGraficiView,\
     OpendataView, OpendataRedirectView, PillolaListView, PillolaDetailView, DocumentsRedirectView, FAQListView,\
-    PressReviewListView, DatiISTATView, SpesaCertificataView, IndicatoriAccessoView
+    PressReviewListView, DatiISTATView, SpesaCertificataView, IndicatoriAccessoView, BandiDetailView
 from filebrowser.sites import site
 
 
@@ -49,6 +49,9 @@ urlpatterns = patterns('',
     # faq
     url(r'^faq/$', FAQListView.as_view(lang='it'), name='faq-it'),
     url(r'^faq/en/$', FAQListView.as_view(lang='en'), name='faq-en'),
+
+    # opportunita
+    url(r'^opportunita/$', BandiDetailView.as_view(), name='bandi'),
 
     # api
     url(r'^api/', include('api.urls')),
