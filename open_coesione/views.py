@@ -662,7 +662,7 @@ class BandiDetailView(DetailView):
 
         context['bandi'] = OrderedDict([('aperti', []), ('chiusi', [])])
 
-        reader = csv.DictReader(open(os.path.join(settings.REPO_ROOT, self.object.file.url.strip('/')), 'rb'), delimiter=';')
+        reader = csv.DictReader(open(self.object.file.path, 'rb'), delimiter=';')
 
         for row in sorted(reader, key=lambda x: (x['DATA_SCADENZA'] or '@', x['DATA_PUBBLICAZIONE'])):
             scaduto = row['DATA_SCADENZA'] and (row['DATA_SCADENZA'] < today)
