@@ -138,7 +138,7 @@ class Bandi(SingletonModel):
     file = models.FileField(max_length=255, upload_to='files/')
 
     def __unicode__(self):
-        return u'{}'.format(self.titolo)
+        return u'{}'.format(u'Bandi')
 
     class Meta:
         verbose_name = u'Bandi'

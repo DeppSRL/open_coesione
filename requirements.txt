@@ -56,4 +56,4 @@ requests==2.0.0
 csvkit==0.7.3
 pandas==0.14.1
 
-django-solo
+django-solo-grappelli
