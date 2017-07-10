@@ -660,7 +660,7 @@ class BandiDetailView(DetailView):
 
         today = datetime.datetime.now().strftime('%Y%m%d')
 
-        context['bandi'] = OrderedDict([('aperti', []), ('chiusi', [])])
+        context['opportunita'] = OrderedDict([('aperte', []), ('chiuse', [])])
 
         reader = csv.DictReader(open(self.object.file.path, 'rb'), delimiter=';')
 
@@ -671,7 +671,7 @@ class BandiDetailView(DetailView):
                 row[c] = datetime.datetime.strptime(row[c], '%Y%m%d') if row[c] else ''
             row['IMPORTO'] = float(row['IMPORTO'].replace('.', '').replace(',', '.')) if row['IMPORTO'] else ''
 
-            context['bandi']['chiusi' if scaduto else 'aperti'].append(row)
+            context['opportunita']['chiuse' if scaduto else 'aperte'].append(row)
 
         return context
 
