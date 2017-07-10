@@ -8,10 +8,10 @@ $(document).ready(function() {
             order: [[2, 'asc']],
             columns: [
                 null,
-                {searchable: false},
-                {searchable: false, orderData: [2, 1]},
+                {searchable: false, className: 'dt-body-center'},
+                {searchable: false, className: 'dt-body-center', orderData: [2, 1]},
                 null,
-                {searchable: false},
+                {searchable: false, className: 'dt-body-right'},
                 null
             ]
         });

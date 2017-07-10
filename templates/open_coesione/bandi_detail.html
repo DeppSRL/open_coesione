@@ -1,4 +1,4 @@
-{% extends 'base_one_column.html' %}
+{% extends 'base_two_columns.html' %}
 
 {% load sekizai_tags %}
 
@@ -10,45 +10,47 @@
 
         {{ object.descrizione|safe }}
 
-        <a href="{{ object.file.url }}">Scarica il CSV</a> ({{ object.file.name|slice:'-3:'|lower }}, {{ object.file.size|filesizeformat }})
+        <p><a href="{{ object.file.url }}">Scarica il CSV</a> ({{ object.file.name|slice:'-3:'|lower }}, {{ object.file.size|filesizeformat }})</p>
+    </div>
+{% endblock %}
 
-        <div id="bandi" class="tabbable boxed" style="margin-top: 30px">
-            <ul class="nav nav-tabs">
-                {% for key in bandi.keys %}
-                    <li{% if forloop.first %} class="active"{% endif %}><a href="#bandi-{{ key }}" data-toggle="tab">Bandi {{ key }}</a></li>
-                {% endfor %}
-            </ul>
+{% block subcontainer %}
+    <div id="bandi" class="container tabbable boxed" style="margin-top: 30px">
+        <ul class="nav nav-tabs">
+            {% for key in bandi.keys %}
+                <li{% if forloop.first %} class="active"{% endif %}><a href="#bandi-{{ key }}" data-toggle="tab">Bandi {{ key }}</a></li>
+            {% endfor %}
+        </ul>
 
-            <div class="tab-content">
-                {% for key, value in bandi.items %}
-                    <div class="tab-pane area{% if forloop.first %} active{% endif %}" id="bandi-{{ key }}" style="padding: 40px 20px">
-                        <table class="display" width="100%" cellspacing="0">
-                            <thead>
+        <div class="tab-content">
+            {% for key, value in bandi.items %}
+                <div class="tab-pane area{% if forloop.first %} active{% endif %}" id="bandi-{{ key }}" style="padding: 40px 20px">
+                    <table class="display" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>PROGRAMMA</th>
+                            <th>DATA PUBBLICAZIONE</th>
+                            <th>DATA SCADENZA</th>
+                            <th>OGGETTO</th>
+                            <th>IMPORTO</th>
+                            <th>TIPO OPPORTUNITA</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in value %}
                             <tr>
-                                <th>PROGRAMMA</th>
-                                <th>DATA PUBBLICAZIONE</th>
-                                <th>DATA SCADENZA</th>
-                                <th>OGGETTO</th>
-                                <th>IMPORTO</th>
-                                <th>TIPO OPPORTUNITA</th>
+                                <td>{{ row.PROGRAMMA }}</td>
+                                <td data-order="{{ row.DATA_PUBBLICAZIONE|date:'Ymd'|default:'@' }}">{{ row.DATA_PUBBLICAZIONE|date:'SHORT_DATE_FORMAT' }}</td>
+                                <td data-order="{{ row.DATA_SCADENZA|date:'Ymd'|default:'@' }}">{{ row.DATA_SCADENZA|date:'SHORT_DATE_FORMAT' }}</td>
+                                <td><a href="{{ row.LINK }}">{{ row.OGGETTO }}</a></td>
+                                <td data-order="{{ row.IMPORTO|safe }}">{{ row.IMPORTO|floatformat:2 }}</td>
+                                <td>{{ row.TIPO_OPPORTUNITA }}</td>
                             </tr>
-                            </thead>
-                            <tbody>
-                            {% for row in value %}
-                                <tr>
-                                    <td>{{ row.PROGRAMMA }}</td>
-                                    <td data-order="{{ row.DATA_PUBBLICAZIONE|date:'Ymd'|default:'@' }}">{{ row.DATA_PUBBLICAZIONE|date:'SHORT_DATE_FORMAT' }}</td>
-                                    <td data-order="{{ row.DATA_SCADENZA|date:'Ymd'|default:'@' }}">{{ row.DATA_SCADENZA|date:'SHORT_DATE_FORMAT' }}</td>
-                                    <td><a href="{{ row.LINK }}">{{ row.OGGETTO }}</a></td>
-                                    <td data-order="{{ row.IMPORTO|safe }}">{{ row.IMPORTO|floatformat:2 }}</td>
-                                    <td>{{ row.TIPO_OPPORTUNITA }}</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% endfor %}
-            </div>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
         </div>
     </div>
 
@@ -59,4 +61,19 @@
         <script src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
     {% endaddtoblock %}
     {% add_data 'js-data' 'js/oc-bandi.js' %}
+{% endblock %}
+
+{% block sidebar %}
+    <div class="flat_content">
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p><a href="/programmazione_2014_2020/">OpenCoesione nella programmazione 2014-2020</a></p>
+        <p><a href="/risorse_2014_2020/">Risorse</a></p>
+        <p><a href="/programmi_2014_2020/">Programmi</a></p>
+        <p><span>Opportunità</span></p>
+        <p><a href="/bandi_2014_2020/">Bandi</a></p>
+        <p><a href="/progetti_2014_2020/">Progetti</a></p>
+        <p><a href="/aiuti_2014_2020/">Aiuti</a></p>
+    </div>
 {% endblock %}
