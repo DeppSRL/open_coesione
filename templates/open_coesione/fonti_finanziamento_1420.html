@@ -1,6 +1,6 @@
 {% extends 'base_two_columns.html' %}
 
-{% load sekizai_tags humanize %}
+{% load sekizai_tags humanize menu1420 %}
 
 {% block page_title %}Fonti di finanziamento 2014-2020{% endblock %}
 
@@ -94,15 +94,6 @@
 
 {% block sidebar %}
     <div class="flat_content">
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p><a href="/programmazione_2014_2020/">OpenCoesione nella programmazione 2014-2020</a></p>
-        <p><span>Risorse</span></p>
-        <p><a href="/programmi_2014_2020/">Programmi</a></p>
-        <p><a href="/opportunita_2014_2020/">Opportunità</a></p>
-        <p><a href="/bandi_2014_2020/">Bandi</a></p>
-        <p><a href="/progetti_2014_2020/">Progetti</a></p>
-        <p><a href="/aiuti_2014_2020/">Aiuti</a></p>
+        {% menu1420 %}
     </div>
 {% endblock %}

@@ -1,0 +1,11 @@
+<ul id="menu-1420">
+    {% for item in items %}
+        <li>
+            {% if item.2 %}
+                <span>{{ item.0 }}</span>
+            {% else %}
+                <a href="{{ item.1 }}">{{ item.0 }}</a>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
