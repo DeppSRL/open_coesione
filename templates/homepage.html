@@ -7,14 +7,11 @@
 {% block banner %}
     <div id="banner-container">
         <div id="banner">
-            <a href="/programmazione_2014_2020/">Programmazione 2014-2020</a>
+            <a href="{{ SECTION1420_PAGES.0.url }}">Programmazione 2014-2020</a>
             <ul>
-                <li><a id="risorse" href="/risorse_2014_2020/">Risorse</a></li>
-                <li><a id="programmi" href="/programmi_2014_2020/">Programmi</a></li>
-                <li><a id="opportunita" href="/opportunita_2014_2020/">Opportunità</a></li>
-                <li><a id="bandi" href="/bandi_2014_2020/">Bandi</a></li>
-                <li><a id="progetti" href="/progetti_2014_2020/">Progetti</a></li>
-                <li><a id="aiuti" href="/aiuti_2014_2020/">Aiuti</a></li>
+                {% for page in SECTION1420_PAGES|slice:'1:' %}
+                    <li><a id="{{ page.name|slugify }}" href="{{ page.url }}">{{ page.name }}</a></li>
+                {% endfor %}
             </ul>
         </div>
     </div>

@@ -1,6 +1,6 @@
 {% extends 'base_two_columns.html' %}
 
-{% load sekizai_tags humanize menu1420 %}
+{% load sekizai_tags humanize %}
 
 {% block page_title %}Fonti di finanziamento 2014-2020{% endblock %}
 
@@ -94,6 +94,6 @@
 
 {% block sidebar %}
     <div class="flat_content">
-        {% menu1420 %}
+        {% include 'commons/menu1420.html' %}
     </div>
 {% endblock %}

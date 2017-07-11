@@ -660,18 +660,18 @@ class BandiDetailView(DetailView):
 
         today = datetime.datetime.now().strftime('%Y%m%d')
 
-        context['opportunita'] = OrderedDict([('aperte', []), ('chiuse', [])])
-
         reader = csv.DictReader(open(self.object.file.path, 'rb'), delimiter=';')
 
+        context['opportunita'] = OrderedDict([(False, []), (True, [])])
+
         for row in sorted(reader, key=lambda x: (x['DATA_SCADENZA'] or '@', x['DATA_PUBBLICAZIONE'])):
-            scaduto = row['DATA_SCADENZA'] and (row['DATA_SCADENZA'] < today)
+            is_expired = bool(row['DATA_SCADENZA'] and (row['DATA_SCADENZA'] < today))
 
             for c in ('DATA_SCADENZA', 'DATA_PUBBLICAZIONE'):
                 row[c] = datetime.datetime.strptime(row[c], '%Y%m%d') if row[c] else ''
             row['IMPORTO'] = float(row['IMPORTO'].replace('.', '').replace(',', '.')) if row['IMPORTO'] else ''
 
-            context['opportunita']['chiuse' if scaduto else 'aperte'].append(row)
+            context['opportunita'][is_expired].append(row)
 
         return context
 

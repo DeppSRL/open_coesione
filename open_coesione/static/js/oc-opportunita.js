@@ -17,7 +17,7 @@ $(document).ready(function() {
         });
     }
 
-    $('#bandi').on('shown.bs.tab', 'a', function () {
+    $('#opportunita').on('shown.bs.tab', 'a', function () {
         initDataTable();
     });
 
