@@ -1,10 +1,10 @@
 <ul id="menu-1420">
-    {% for item in items %}
+    {% for page in SECTION1420_PAGES %}
         <li>
-            {% if item.2 %}
-                <span>{{ item.0 }}</span>
+            {% if page.url == request.path %}
+                <span>{{ page.name }}</span>
             {% else %}
-                <a href="{{ item.1 }}">{{ item.0 }}</a>
+                <a href="{{ page.url }}">{{ page.name }}</a>
             {% endif %}
         </li>
     {% endfor %}

@@ -1,6 +1,6 @@
 {% extends 'base_two_columns.html' %}
 
-{% load sekizai_tags menu1420 %}
+{% load sekizai_tags %}
 
 {% block page_title %}{{ object.titolo }}{% endblock %}
 
@@ -17,14 +17,14 @@
 {% block subcontainer %}
     <div id="opportunita" class="container tabbable boxed" style="margin-top: 30px">
         <ul class="nav nav-tabs">
-            {% for key in opportunita.keys %}
-                <li{% if forloop.first %} class="active"{% endif %}><a href="#opportunita-{{ key }}" data-toggle="tab">Opportunità {{ key }}</a></li>
+            {% for is_expired in opportunita.keys %}
+                <li{% if forloop.first %} class="active"{% endif %}><a href="#opportunita-{{ forloop.counter }}" data-toggle="tab">Opportunità {% if is_expired %}chiuse{% else %}aperte{% endif %}</a></li>
             {% endfor %}
         </ul>
 
         <div class="tab-content">
-            {% for key, value in opportunita.items %}
-                <div class="tab-pane area{% if forloop.first %} active{% endif %}" id="opportunita-{{ key }}" style="padding: 40px 20px">
+            {% for rows in opportunita.values %}
+                <div class="tab-pane area{% if forloop.first %} active{% endif %}" id="opportunita-{{ forloop.counter }}" style="padding: 40px 20px">
                     <table class="display" width="100%" cellspacing="0">
                         <thead>
                         <tr>
@@ -37,7 +37,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for row in value %}
+                        {% for row in rows %}
                             <tr>
                                 <td>{{ row.PROGRAMMA }}</td>
                                 <td data-order="{{ row.DATA_PUBBLICAZIONE|date:'Ymd'|default:'@' }}">{{ row.DATA_PUBBLICAZIONE|date:'SHORT_DATE_FORMAT' }}</td>
@@ -65,6 +65,6 @@
 
 {% block sidebar %}
     <div class="flat_content">
-        {% menu1420 %}
+        {% include 'commons/menu1420.html' %}
     </div>
 {% endblock %}

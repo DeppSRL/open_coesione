@@ -42,6 +42,7 @@ def main_settings(request):
             'STATIC_URL': settings.STATIC_URL,
             'SITE_URL': 'http://{}'.format(host),
             'IS_PRODUCTION': all(h not in host for h in ('localhost', 'staging')),
+            'SECTION1420_PAGES': settings.SECTION1420_PAGES,
             'lista_regioni': regioni,
             'lista_classificazioni_principali': classificazioni,
             'lista_temi_principali': temi,

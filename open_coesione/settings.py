@@ -405,3 +405,34 @@ FILEBROWSER_SELECT_FORMATS = {
 }
 
 URLSHORTENER_DOMAIN = 'opencoesione.gov.it'
+
+SECTION1420_PAGES = (
+    {
+        'name': 'OpenCoesione nella programmazione 2014-2020',
+        'url': '/programmazione_2014_2020/',
+    },
+    {
+        'name': 'Risorse',
+        'url': '/risorse_2014_2020/',
+    },
+    {
+        'name': 'Programmi',
+        'url': '/programmi_2014_2020/',
+    },
+    {
+        'name': 'Opportunità',
+        'url': '/opportunita_2014_2020/',
+    },
+    {
+        'name': 'Bandi',
+        'url': '/bandi_2014_2020/',
+    },
+    {
+        'name': 'Progetti',
+        'url': '/progetti_2014_2020/',
+    },
+    {
+        'name': 'Aiuti',
+        'url': '/aiuti_2014_2020/',
+    },
+)
