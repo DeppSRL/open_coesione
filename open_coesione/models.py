@@ -132,33 +132,35 @@ class FAQ(models.Model):
         ordering = ['-priorita', 'id']
 
 
-class Bandi(SingletonModel):
+class Opportunita(SingletonModel):
     titolo = models.CharField(max_length=200)
     descrizione = models.TextField(max_length=1024, blank=True, null=True)
-    file = models.FileField(max_length=255, upload_to='files/')
+    file = models.FileField(u'File dati', max_length=255, upload_to='files')
+    file2 = models.FileField(u'File metadati', max_length=255, upload_to='files')
 
     def __unicode__(self):
-        return u'{}'.format(u'Bandi')
+        return u'{}'.format(u'Opportunità')
 
     class Meta:
-        verbose_name = u'Bandi'
+        verbose_name = u'opportunità'
 
 
 @receiver(models.signals.post_delete, sender=File)
 @receiver(models.signals.post_delete, sender=PressReview)
-@receiver(models.signals.post_delete, sender=Bandi)
+@receiver(models.signals.post_delete, sender=Opportunita)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
     """
     Deletes file from filesystem when corresponding sender object is deleted.
     """
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
+    for attr in (f.name for f in sender._meta.fields if isinstance(f, models.FileField)):
+        file = getattr(instance, attr, None)
+        if file and os.path.isfile(file.path):
+            os.remove(file.path)
 
 
 @receiver(models.signals.pre_save, sender=File)
 @receiver(models.signals.pre_save, sender=PressReview)
-@receiver(models.signals.pre_save, sender=Bandi)
+@receiver(models.signals.pre_save, sender=Opportunita)
 def auto_delete_file_on_change(sender, instance, **kwargs):
     """
     Deletes file from filesystem when corresponding sender object is changed.
@@ -166,15 +168,16 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if not instance.pk:
         return False
 
-    try:
-        old_file = sender.objects.get(pk=instance.pk).file
-    except sender.DoesNotExist:
-        return False
+    for attr in (f.name for f in sender._meta.fields if isinstance(f, models.FileField)):
+        try:
+            old_file = getattr(sender.objects.get(pk=instance.pk), attr, None)
+        except sender.DoesNotExist:
+            continue
 
-    if not hasattr(old_file, 'file'):
-        return False
+        if not hasattr(old_file, 'file'):
+            continue
 
-    new_file = instance.file
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+        new_file = getattr(instance, attr, None)
+        if not old_file == new_file:
+            if os.path.isfile(old_file.path):
+                os.remove(old_file.path)

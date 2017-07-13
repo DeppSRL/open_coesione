@@ -4,7 +4,7 @@ from django.contrib.contenttypes import generic
 from django.contrib.flatpages.admin import FlatPageAdmin, FlatpageForm
 from django.contrib.flatpages.models import FlatPage
 from django.forms import ModelForm
-from models import ContactMessage, PressReview, Pillola, File, Link, FAQ, Bandi
+from models import ContactMessage, PressReview, Pillola, File, Link, FAQ, Opportunita
 from solo.admin import SingletonModelAdmin
 from tagging.admin import TagInline
 from tinymce.widgets import TinyMCE
@@ -60,7 +60,7 @@ class FAQAdminForm(TinyMCEEnabledForm):
         }
 
 
-class BandiAdminForm(TinyMCEEnabledForm):
+class OpportunitaAdminForm(TinyMCEEnabledForm):
     class Meta:
         widgets = {
             'descrizione': TinyMCE(mce_attrs=common_mce_attrs)
@@ -129,8 +129,8 @@ class FAQAdmin(admin.ModelAdmin):
     form = FAQAdminForm
 
 
-class BandiAdmin(SingletonModelAdmin):
-    form = BandiAdminForm
+class OpportunitaAdmin(SingletonModelAdmin):
+    form = OpportunitaAdminForm
 
 
 admin.site.register(ContactMessage, MessagesAdmin)
@@ -139,4 +139,4 @@ admin.site.register(Pillola, PillolaAdmin)
 admin.site.register(FAQ, FAQAdmin)
 admin.site.unregister(FlatPage)
 admin.site.register(FlatPage, OCFlatPageAdmin)
-admin.site.register(Bandi, BandiAdmin)
+admin.site.register(Opportunita, OpportunitaAdmin)

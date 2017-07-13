@@ -445,6 +445,27 @@
 
         <h2 id="focus">Focus</h2>
 
+        <h3 id="opportunita-title" class="h3-switcher new" data-target="opportunita-content">
+            <a href="#">Opportunità di finanziamento dei Fondi SIE 2014-2020 <i></i></a>
+        </h3>
+
+        <div id="opportunita-content">
+            {% comment %}<p></p>{% endcomment %}
+
+            <table class="table">
+                <tr>
+                    <td class="label" style="width: 50%">Opportunità *</td>
+                    <td><a href="{{ opportunita_data_file.file_name }}">> [<i class="icon-download-alt"></i> {{ opportunita_data_file.file_ext }} {{ opportunita_data_file.file_size|filesizeformat }}]</a></td>
+                </tr>
+                <tr>
+                    <td class="label" style="width: 50%">Metadati</td>
+                    <td><a href="{{ opportunita_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ opportunita_metadata_file.file_ext }} {{ opportunita_metadata_file.file_size|filesizeformat }}]</a></td>
+                </tr>
+            </table>
+
+            <p>Ultimo aggiornamento dati al {{ opportunita_data_file.file_date|date:'SHORT_DATE_FORMAT' }}.<br/>* Dati non navigabili sul portale OpenCoesione.</p>
+        </div>
+
         <h3 id="indagine-title" class="h3-switcher" data-target="indagine-content">
             <a href="#">Indagine sulla trasparenza dei Fondi Strutturali in Europa <i></i></a>
         </h3>

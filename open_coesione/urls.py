@@ -5,7 +5,7 @@ from django.contrib.gis import admin
 from django.views.generic.base import TemplateView
 from views import HomeView, FondiView, RisorsaView, ContactView, SpesaCertificataGraficiView,\
     OpendataView, OpendataRedirectView, PillolaListView, PillolaDetailView, DocumentsRedirectView, FAQListView,\
-    PressReviewListView, DatiISTATView, SpesaCertificataView, IndicatoriAccessoView, BandiDetailView
+    PressReviewListView, DatiISTATView, SpesaCertificataView, IndicatoriAccessoView, OpportunitaDetailView
 from filebrowser.sites import site
 
 
@@ -83,7 +83,7 @@ urlpatterns = patterns('',
     url(r'^fonti-di-finanziamento/$', FondiView.as_view(template_name='open_coesione/fonti_finanziamento.html'), name='fonti-finanziamento'),
 
     url(r'^risorse_2014_2020/$', FondiView.as_view(template_name='open_coesione/fonti_finanziamento_1420.html'), name='fonti-finanziamento-1420'),
-    url(r'^opportunita_2014_2020/$', BandiDetailView.as_view(), name='bandi-1420'),
+    url(r'^opportunita_2014_2020/$', OpportunitaDetailView.as_view(), name='opportunita-1420'),
 
     url(r'^opendata/(?P<path>.+)$', OpendataRedirectView.as_view(), name='opendata_clean'),
     url(r'^opendata/$', OpendataView.as_view(template_name='open_coesione/opendata.html'), name='opendata'),
