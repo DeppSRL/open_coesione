@@ -13,7 +13,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from forms import ContactForm
 from mixins import DateFilterMixin
-from models import PressReview, Pillola, FAQ, Bandi
+from models import PressReview, Pillola, FAQ, Opportunita
 from progetti.models import Progetto, Tema, ClassificazioneAzione, DeliberaCIPE
 from soggetti.models import Soggetto
 from tagging.views import TagFilterMixin
@@ -468,6 +468,10 @@ class OpendataView(TemplateView):
         context['cpt_spa_out_file'] = self.get_complete_remotefile(cpt_path.format('SPA_SPESE_2000-2015.zip'))
         context['cpt_metadata_file'] = self.get_complete_remotefile(cpt_path.format('Metadati_flussi.xls'))
 
+        opportunita = Opportunita.get_solo()
+        context['opportunita_data_file'] = self.get_complete_objectfile(opportunita.file)
+        context['opportunita_metadata_file'] = self.get_complete_objectfile(opportunita.file2)
+
         context['indagine_data_file'] = self.get_complete_localfile('indagine_data.zip')
         context['indagine_metadata_file'] = self.get_complete_localfile('metadati_indagine_beneficiari_2007_2013.xls')
 
@@ -525,6 +529,15 @@ class OpendataView(TemplateView):
             'file_size': file_size,
             'file_date': file_date,
             'file_ext': cls.get_file_ext(file_name),
+        }
+
+    @classmethod
+    def get_complete_objectfile(cls, file_object):
+        return {
+            'file_name': file_object.url,
+            'file_size': file_object.size,
+            'file_date': file_object.storage.modified_time(file_object.name),
+            'file_ext': cls.get_file_ext(file_object.name),
         }
 
     @staticmethod
@@ -646,8 +659,8 @@ class FAQListView(ListView):
         return context
 
 
-class BandiDetailView(DetailView):
-    model = Bandi
+class OpportunitaDetailView(DetailView):
+    model = Opportunita
 
     def get_object(self, queryset=None):
         return self.model.get_solo()
@@ -656,7 +669,9 @@ class BandiDetailView(DetailView):
         import csv
         import datetime
 
-        context = super(BandiDetailView, self).get_context_data(**kwargs)
+        self.object.file.modified_time = self.object.file.storage.modified_time(self.object.file.name)
+
+        context = super(OpportunitaDetailView, self).get_context_data(**kwargs)
 
         today = datetime.datetime.now().strftime('%Y%m%d')
 

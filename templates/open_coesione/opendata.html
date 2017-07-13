@@ -24,7 +24,7 @@
 
         <h2 id="progetti">Attuazione delle politiche di coesione: progetti</h2>
 
-        <h3 id="oc0713-title" class="h3-switcher new" data-target="oc0713-content">
+        <h3 id="oc0713-title" class="h3-switcher" data-target="oc0713-content">
             <a href="#">Tutti i progetti di OpenCoesione <i></i></a>
         </h3>
 
@@ -445,33 +445,29 @@
 
         <h2 id="focus">Focus</h2>
 
-        <h3 id="spesa-title" class="h3-switcher new" data-target="spesa-content">
-            <a href="#">Spesa certificata dei Fondi Strutturali 2007/2013 <i></i></a>
+        <h3 id="opportunita-title" class="h3-switcher new" data-target="opportunita-content">
+            <a href="#">Opportunità di finanziamento dei Fondi SIE 2014-2020 <i></i></a>
         </h3>
 
-        <div id="spesa-content">
-            <p>
-                La <a href="{% url 'spesa-certificata' %}">spesa certificata all’UE</a> corrisponde alle richieste di rimborso delle spese sostenute che vengono presentate all'UE dalle Amministrazioni titolari dei Programmi cofinanziati dai Fondi Strutturali e accettate dalla Commissione Europea.
-                I dati vengono aggiornati in concomitanza all'adozione o all'aggiornamento di ciascun atto programmatorio e alle scadenze per la certificazione, e per tenere conto di eventuali certificazioni inviate e ancora in corso di trattamento.
-                Visualizza i <a href="{% url 'spesa-certificata-grafici' %}">grafici interattivi</a> per ciascun Programma Operativo.
-            </p>
+        <div id="opportunita-content">
+            {% comment %}<p></p>{% endcomment %}
 
             <table class="table">
                 <tr>
-                    <td class="label" style="width: 50%">Dati e metadati su dotazione finanziaria complessiva e spesa certificata alla UE *</td>
-                    <td><a href="{{ spesa_dotazione_file.file_name }}">> [<i class="icon-download-alt"></i> {{ spesa_dotazione_file.file_ext }} {{ spesa_dotazione_file.file_size|filesizeformat }}]</a></td>
+                    <td class="label" style="width: 50%">Opportunità *</td>
+                    <td><a href="{{ opportunita_data_file.file_name }}">> [<i class="icon-download-alt"></i> {{ opportunita_data_file.file_ext }} {{ opportunita_data_file.file_size|filesizeformat }}]</a></td>
                 </tr>
                 <tr>
-                    <td class="label" style="width: 50%">Dati e metadati su target di spesa certificata *</td>
-                    <td><a href="{{ spesa_target_file.file_name }}">> [<i class="icon-download-alt"></i> {{ spesa_target_file.file_ext }} {{ spesa_target_file.file_size|filesizeformat }}]</a></td>
+                    <td class="label" style="width: 50%">Metadati</td>
+                    <td><a href="{{ opportunita_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ opportunita_metadata_file.file_ext }} {{ opportunita_metadata_file.file_size|filesizeformat }}]</a></td>
                 </tr>
             </table>
 
-            <p>Ultimo aggiornamento: dati al {{ spesa_dotazione_file.file_date|date:'SHORT_DATE_FORMAT' }}.<br/>* Dati non navigabili sul portale OpenCoesione.</p>
+            <p>Ultimo aggiornamento dati al {{ opportunita_data_file.file_date|date:'SHORT_DATE_FORMAT' }}.<br/>* Dati non navigabili sul portale OpenCoesione.</p>
         </div>
 
         <h3 id="indagine-title" class="h3-switcher" data-target="indagine-content">
-            <a href="#">Indagine sulla trasparenza delle liste dei beneficiari dei Programmi Operativi 2007/2013 in Europa <i></i></a>
+            <a href="#">Indagine sulla trasparenza dei Fondi Strutturali in Europa <i></i></a>
         </h3>
 
         <div id="indagine-content">
@@ -495,7 +491,7 @@
             <p>Ultimo aggiornamento dati al 31/12/2015.<br/>* Dati non navigabili sul portale OpenCoesione.</p>
         </div>
 
-        <h3 id="approfondimenti-title" class="h3-switcher new" data-target="approfondimenti-content">
+        <h3 id="approfondimenti-title" class="h3-switcher" data-target="approfondimenti-content">
             <a href="#">Approfondimenti tematici sui progetti in attuazione <i></i></a>
         </h3>
 
@@ -568,6 +564,31 @@
             </div>
         </div>
 
+        <h3 id="spesa-title" class="h3-switcher" data-target="spesa-content">
+            <a href="#">Spesa certificata dei Fondi Strutturali 2007/2013 <i></i></a>
+        </h3>
+
+        <div id="spesa-content">
+            <p>
+                La <a href="{% url 'spesa-certificata' %}">spesa certificata all’UE</a> corrisponde alle richieste di rimborso delle spese sostenute che vengono presentate all'UE dalle Amministrazioni titolari dei Programmi cofinanziati dai Fondi Strutturali e accettate dalla Commissione Europea.
+                I dati vengono aggiornati in concomitanza all'adozione o all'aggiornamento di ciascun atto programmatorio e alle scadenze per la certificazione, e per tenere conto di eventuali certificazioni inviate e ancora in corso di trattamento.
+                Visualizza i <a href="{% url 'spesa-certificata-grafici' %}">grafici interattivi</a> per ciascun Programma Operativo.
+            </p>
+
+            <table class="table">
+                <tr>
+                    <td class="label" style="width: 50%">Dati e metadati su dotazione finanziaria complessiva e spesa certificata alla UE *</td>
+                    <td><a href="{{ spesa_dotazione_file.file_name }}">> [<i class="icon-download-alt"></i> {{ spesa_dotazione_file.file_ext }} {{ spesa_dotazione_file.file_size|filesizeformat }}]</a></td>
+                </tr>
+                <tr>
+                    <td class="label" style="width: 50%">Dati e metadati su target di spesa certificata *</td>
+                    <td><a href="{{ spesa_target_file.file_name }}">> [<i class="icon-download-alt"></i> {{ spesa_target_file.file_ext }} {{ spesa_target_file.file_size|filesizeformat }}]</a></td>
+                </tr>
+            </table>
+
+            <p>Ultimo aggiornamento: dati al {{ spesa_dotazione_file.file_date|date:'SHORT_DATE_FORMAT' }}.<br/>* Dati non navigabili sul portale OpenCoesione.</p>
+        </div>
+
         <h2 id="contesto">Contesto socio-economico</h2>
 
         <h3 id="istat-title" class="h3-switcher" data-target="istat-content">
@@ -596,7 +617,7 @@
             <p>Ultimo aggiornamento: {{ istat_data_file.file_date|date:'F Y' }}</p>
         </div>
 
-        <h3 id="cpt-title" class="h3-switcher new" data-target="cpt-content">
+        <h3 id="cpt-title" class="h3-switcher" data-target="cpt-content">
             <a href="#">Conti Pubblici Territoriali (CPT) <i></i></a>
         </h3>
 
