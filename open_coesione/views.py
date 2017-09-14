@@ -477,12 +477,12 @@ class OpendataView(TemplateView):
 
         context['raccordo_temi_sintetici_file'] = self.get_complete_localfile('raccordo_temi_sintetici.xls')
 
-        context['approfondimenti_1_1_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_beni_confiscati_20161231.csv')
+        context['approfondimenti_1_1_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_beni_confiscati_20170228.csv')
         context['approfondimenti_1_2_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_beni_confiscati_20151231.csv')
         context['approfondimenti_1_3_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_beni_confiscati_20141231.csv')
         context['approfondimenti_1_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_focus_beni_confiscati.xls')
 
-        context['approfondimenti_2_1_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole_20161231.zip')
+        context['approfondimenti_2_1_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole_20170228.zip')
         context['approfondimenti_2_2_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_scuole_20160630.zip')
         context['approfondimenti_2_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_focus_scuole.xls')
 
