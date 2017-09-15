@@ -406,22 +406,29 @@ class ProgrammiView(BaseProgrammaView):
 class ProgrammaView(BaseProgrammaView):
     template_name = 'progetti/programma_detail.html'
 
-    def get_object(self):
-        try:
-            return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
-        except ProgrammaLineaAzione.DoesNotExist:
-            return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
+    def get_objects(self):
+        objects = []
+        for model in (ProgrammaAsseObiettivo, ProgrammaLineaAzione):
+            objects += list(model.objects.filter(pk=self.kwargs.get('codice')))
+        return objects
+
+    # def get_object(self):
+    #     try:
+    #         return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
+    #     except ProgrammaLineaAzione.DoesNotExist:
+    #         return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
 
     def get_progetti_queryset(self):
-        return Progetto.objects.con_programmi([self.get_object()])
+        return Progetto.objects.con_programmi(self.get_objects())
 
     def get_context_data(self, **kwargs):
+        programmi = self.get_objects()
         try:
-            programma = self.get_object()
+            programma = programmi[0]
         except:
             raise Http404
 
-        context = super(ProgrammaView, self).get_context_data(programmi=[programma], **kwargs)
+        context = super(ProgrammaView, self).get_context_data(programmi=programmi, **kwargs)
 
         context['map_selector'] = 'programmi/{}/'.format(self.kwargs['codice'])
 
