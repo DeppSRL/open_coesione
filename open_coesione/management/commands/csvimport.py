@@ -1286,7 +1286,7 @@ class Command(BaseCommand):
                     self.logger.warning(u'{}/{} - Progetto attuato non trovato: {}. Skipping'.format(n, df_count, row['COD_LOCALE_PROGETTO_ATTUATO']))
                 else:
                     progetto_attuatore.progetti_attuati.add(progetto_attuato)
-                    progetto_attuato.active_flag = False
+                    progetto_attuato.active_flag = progetto_attuato.active_flag and (progetto_attuato.visualizzazione_flag == '1')
                     progetto_attuato.save()
 
                     self.logger.info(u'{}/{} - Creata corrispondenza {} --> {}' .format(n, df_count, progetto_attuato, progetto_attuatore))
