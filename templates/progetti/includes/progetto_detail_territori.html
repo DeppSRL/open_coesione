@@ -20,7 +20,7 @@
     <h1 class="title" id="map-header">
         <div>
             Territorio
-            {% for territorio in progetto.territori %}
+            {% for territorio in territori %}
                 <a href="{{ territorio.get_absolute_url }}" class="map-location" data-coords="{{ territorio.geom.centroid.coords|join:',' }}">{{ territorio.denominazione }}</a>{% if not forloop.last %}, {% endif %}
             {% endfor %}
         </div>

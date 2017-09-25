@@ -23,7 +23,7 @@ from territori.models import Territorio
 
 class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
     model = Progetto
-    queryset = Progetto.fullobjects.get_query_set()
+    queryset = Progetto.fullobjects.get_query_set().select_related('programma_asse_obiettivo__classificazione_superiore__classificazione_superiore', 'programma_linea_azione__classificazione_superiore__classificazione_superiore', 'classificazione_qsn__classificazione_superiore__classificazione_superiore', 'classificazione_azione__classificazione_superiore', 'tema__tema_superiore')
 
     def get_x_robots_tag(self):
         return 'noindex' if (self.object.privacy_flag or (not self.object.active_flag)) else False
@@ -31,27 +31,26 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(ProgettoView, self).get_context_data(**kwargs)
 
+        context['MIUR_EXT_API_URL'] = settings.MIUR_EXT_API_URL
+
+        self.object.progetti_attuatori_tutti = Progetto.fullobjects.filter(progetti_attuati=self.object)
+        self.object.progetti_attuati_tutti = False  # Progetto.fullobjects.filter(progetti_attuatori=self.object).order_by('-cipe_flag')
+
         if self.object.territori:
             numero_collaboratori = 5
             altri_progetti_nei_territori = Progetto.objects.exclude(codice_locale=self.object.codice_locale).nei_territori(self.object.territori).distinct().order_by('-fin_totale_pubblico')
-            context['progetti_stesso_tema'] = altri_progetti_nei_territori.con_tema(self.object.tema)[:numero_collaboratori]
-            context['progetti_stessa_natura'] = altri_progetti_nei_territori.con_natura(self.object.classificazione_azione)[:numero_collaboratori]
-            context['progetti_stessi_attuatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.attuatori)[:numero_collaboratori]
-            context['progetti_stessi_programmatori'] = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.programmatori)[:numero_collaboratori]
+            self.object.progetti_stesso_tema = altri_progetti_nei_territori.con_tema(self.object.tema)[:numero_collaboratori]
+            self.object.progetti_stessa_natura = altri_progetti_nei_territori.con_natura(self.object.classificazione_azione)[:numero_collaboratori]
+            self.object.progetti_stessi_attuatori = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.attuatori)[:numero_collaboratori]
+            self.object.progetti_stessi_programmatori = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.programmatori)[:numero_collaboratori]
 
-        context['total_cost'] = float(self.object.fin_totale_pubblico or 0)
-        context['total_cost_paid'] = float(self.object.pagamento or 0)
-        context['total_economie'] = float(self.object.economie_totali_pubbliche or 0)
+        self.object.pagamenti_bimestrali = self._get_pagamenti_bimestrali(self.object.pagamenti)
 
-        # calcolo della percentuale del finanziamento erogato
-        fin_totale_pubblico_netto = float(self.object.fin_totale_pubblico_netto or self.object.fin_totale_pubblico or 0)
-        context['cost_payments_ratio'] = '{:.0%}'.format(context['total_cost_paid'] / fin_totale_pubblico_netto if fin_totale_pubblico_netto > 0.0 else 0.0)
+        return context
 
-        context['progetti_attuatori'] = Progetto.fullobjects.filter(progetti_attuati=self.object)
-        context['progetti_attuati'] = False  # Progetto.fullobjects.filter(progetti_attuatori=self.object).order_by('-cipe_flag')
-        context['MIUR_EXT_API_URL'] = settings.MIUR_EXT_API_URL
-
-        pagamenti = list(self.object.pagamenti)
+    @staticmethod
+    def _get_pagamenti_bimestrali(pagamenti):
+        pagamenti = list(pagamenti)
 
         pagamenti_bimestrali = []
 
@@ -74,18 +73,16 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
                 data = (data.replace(year=year, month=month, day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)
 
                 ammontare = 0
+                percentuale = 0
                 for pagamento in pagamenti:
                     if pagamento.data <= data:
-                        ammontare = float(pagamento.ammontare)
+                        ammontare = pagamento.ammontare
+                        percentuale = pagamento.percentuale
                         break
-
-                percentuale = (ammontare / fin_totale_pubblico_netto) * 100 if fin_totale_pubblico_netto else 0.0
 
                 pagamenti_bimestrali.insert(0, {'data': data, 'ammontare': ammontare, 'percentuale': percentuale})
 
-        context['pagamenti'] = pagamenti_bimestrali
-
-        return context
+        return pagamenti_bimestrali
 
 
 class ProgettoSearchView(OCFacetedSearchView):

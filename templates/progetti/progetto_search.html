@@ -61,10 +61,10 @@
                                             <div><strong>Assegnazione CIPE</strong></div>
                                         </div>
                                     {% else %}
-                                        {% with percentuale_pagamenti=object.percentuale_pagamenti|default:'0'|floatformat:'0' %}
+                                        {% with percentuale_pagamenti=object.percentuale_pagamenti|floatformat:'0' %}
                                             <div class="block-chart block" title="{{ percentuale_pagamenti }}% del totale">
                                                 <strong>Pagamenti effettuati</strong>
-                                                <div class="bar-vertical"><span style="height:{{ percentuale_pagamenti }}%"></span></div>
+                                                <div class="bar-vertical"><span style="height: {{ percentuale_pagamenti }}%"></span></div>
                                                 <p>{{ percentuale_pagamenti }}%</p>
                                             </div>
                                         {% endwith %}
@@ -74,7 +74,7 @@
                                         <h3><a href="{{ object.get_absolute_url }}">{{ object.titolo_progetto }}</a></h3>
 
                                         <ul class="unstyled">
-                                            <li>Costo pubblico: <strong>{{ object.fin_totale_pubblico_netto|default:object.fin_totale_pubblico|default:'0' }}</strong> euro</li>
+                                            <li>Costo pubblico: <strong>{{ object.fin_totale_pubblico_netto_corretto }}</strong> euro</li>
                                             {% if not object.cipe_flag %}
                                                 <li>Pagamenti effettuati: <strong>{{ object.pagamento|default:'0' }}</strong> euro</li>
                                             {% endif %}

@@ -28,7 +28,7 @@
             <tr><th>Unione europea</th><td class="amount"><strong>{{ progetto.fin_ue|intcomma }}</strong> euro</td></tr>
         {% endif %}
         {% if progetto.fin_stato_fondo_rotazione %}
-            <tr><th>Fondo di Rotazione{% if progetto.is_fonte_fs_flag and progetto.fonte_fs_codice == 'FS0713' %} (Co-finanziamento nazionale){% endif %}</th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|intcomma }}</strong> euro</td></tr>
+            <tr><th>Fondo di Rotazione{% if progetto.fonte_fs and progetto.fonte_fs.codice == 'FS0713' %} (Co-finanziamento nazionale){% endif %}</th><td class="amount"><strong>{{ progetto.fin_stato_fondo_rotazione|intcomma }}</strong> euro</td></tr>
         {% endif %}
         {% if progetto.fin_stato_fsc %}
             <tr><th>Fondo per lo Sviluppo e la Coesione 2007-2013</th><td class="amount"><strong>{{ progetto.fin_stato_fsc|intcomma }}</strong> euro</td></tr>

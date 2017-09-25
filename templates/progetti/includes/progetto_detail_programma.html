@@ -1,0 +1,10 @@
+<dt>{{ programma.classificazione_superiore.classificazione_superiore.get_tipo_display }}</dt>
+<dd><a href="{{ programma.classificazione_superiore.classificazione_superiore.get_absolute_url }}">{{ programma.classificazione_superiore.classificazione_superiore.descrizione }}</a></dd>
+{% if programma.classificazione_superiore.descrizione %}
+    <dt>{{ programma.classificazione_superiore.get_tipo_display }}</dt>
+    <dd>{{ programma.classificazione_superiore.descrizione }}</dd>
+{% endif %}
+{% if programma.descrizione %}
+    <dt>{{ programma.get_tipo_display }}</dt>
+    <dd>{{ programma.descrizione }}</dd>
+{% endif %}
