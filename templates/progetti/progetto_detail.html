@@ -8,20 +8,20 @@
     <div class="container{% if not progetto.active_flag %} non_active{% endif %}" id="progetto-container">
         {% if not progetto.active_flag %}
             <div class="alert alert-block text-center" style="margin-bottom: 0">
-                {% if progetti_attuatori %}
+                {% if progetto.progetti_attuatori_tutti %}
                     {% if progetto.cipe_flag %}
                         <h3>Questa assegnazione CIPE viene conteggiata nel piano finanziario dei progetti in attuazione:</h3>
                     {% else %}
                         <h3>Questo progetto viene conteggiato nel piano finanziario dei progetti in attuazione [TESTO DA DEFINIRE]:</h3>
                     {% endif %}
                     <ul class="spaced" id="overlapping-projects">
-                        {% for progetto_attuatore in progetti_attuatori|slice:':5' %}
+                        {% for progetto_attuatore in progetto.progetti_attuatori_tutti|slice:':5' %}
                             <li><a href="{{ progetto_attuatore.get_absolute_url }}">{{ progetto_attuatore.titolo_progetto }}</a></li>
                         {% endfor %}
                     </ul>
-                    {% if progetti_attuatori.count > 5 %}
+                    {% if progetto.progetti_attuatori_tutti.count > 5 %}
                         <ul class="spaced" id="overlapping-projects-extra" style="padding-top: 2px">
-                            {% for progetto_attuatore in progetti_attuatori|slice:'5:' %}
+                            {% for progetto_attuatore in progetto.progetti_attuatori_tutti|slice:'5:' %}
                                 <li><a href="{{ progetto_attuatore.get_absolute_url }}">{{ progetto_attuatore.titolo_progetto }}</a></li>
                             {% endfor %}
                         </ul>
@@ -46,7 +46,7 @@
             <div class="alert alert-block text-center" style="margin-bottom: 0">
                 <h3>Questo progetto viene eliminato dalle visualizzazioni e dai conteggi poiché è una duplicazione del progetto:</h3>
                 <ul class="spaced" id="overlapping-projects">
-                    {% for progetto_attuatore in progetti_attuatori %}
+                    {% for progetto_attuatore in progetto.progetti_attuatori_tutti %}
                         <li><a href="{{ progetto_attuatore.get_absolute_url }}">{{ progetto_attuatore.titolo_progetto }}</a></li>
                     {% endfor %}
                 </ul>
@@ -61,7 +61,7 @@
             </div>
         {% endif %}
 
-        <article id="progetto"  class="row">
+        <article id="progetto" class="row">
             <div class="span6" id="content">
                 <header>
                     {% if progetto.cup and not progetto.cipe_flag %}
@@ -194,7 +194,7 @@
                 <hr class="big">
 
                 <section>
-                    {% include 'progetti/includes/progetto_detail_territori.html' %}
+                    {% include 'progetti/includes/progetto_detail_territori.html' with territori=progetto.territori SEKIZAI_CONTENT_HOLDER=SEKIZAI_CONTENT_HOLDER only %}
 
                     {% if not progetto.cipe_flag %}
                         <h3>Priorità QSN</h3>
@@ -253,189 +253,178 @@
                     </script>
                 </div>
 
-                 <div class="tab-content">
+                <div class="tab-content">
                     <div class="tab-pane active area" id="finanziamenti">
-                    
-                      <section class="clearfix">
-                       <div class="row">
-                        <div class="span3 text-center">
-                            {% if progetto.cipe_flag %}
-                                <h2 style="color: #4b6dbc">Assegnazione CIPE</h2>
-                            {% else %}
-                                <h2>Finanziamento</h2>
-                            {% endif %}
-                            <strong>{{ total_cost|floatformat:'2'|intcomma }}</strong> euro
-                        </div>
-
-                        {% if not progetto.cipe_flag %}
-                            <div class="span3 text-center">
-                                <h2>Pagamenti effettuati</h2>
-                                <strong>{{ total_cost_paid|floatformat:'2'|intcomma }}</strong> euro
-                            </div>
-                        {% endif %}
-                     </div>
-
-                     <div class="row" style="height: 150px">
-                        {% include 'progetti/includes/progetto_detail_finanziamento.html' %}
-
-                        <div class="span3">
-                            {% if not progetto.cipe_flag %}
-                                <div class="block-chart" title="{{ cost_payments_ratio }} del totale">
-                                    <div class="bar-vertical"><span style="height: {{ cost_payments_ratio }}"></span></div>
-                                    <p>{{ cost_payments_ratio }}</p>
-                                </div>
-                            {% endif %}
-
-                            {% if progetto.pagamenti or total_economie %}
-                                <table class="table" id="pagamenti_riassunto_chart_table" style="margin-left: 15px; width: 91%">
-                                    {% if progetto.pagamenti %}
-                                        <tr><td colspan="2"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></td></tr>
-                                        <tr><td colspan="2"><a href="{% url 'progetto_pagamenti' slug=progetto.slug %}">Scarica l'andamento dei pagamenti</a></td></tr>
-                                    {% endif %}
-                                    {% if total_economie %}
-                                        <tr><th>Economie</th><td class="amount"><strong>{{ total_economie|intcomma }}</strong> euro</td></tr>
-                                    {% endif %}
-                                </table>
-                                {% comment %}<p style="text-align: center"></p>{% endcomment %}
-
-                                {% if progetto.pagamenti %}
-                                    {% include 'progetti/includes/progetto_detail_pagamenti.html' %}
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                     </div>
-                     </section>
-                 <section>
-                    <dl class="data">
-                        {% if progetto.costo %}
-                            <dt>Costo</dt>
-                            <dd>{{ progetto.costo|floatformat:'2'|intcomma }} euro</dd>
-                        {% endif %}
-                        {% if not progetto.cipe_flag %}
-                            {% if progetto.is_fonte_fs_flag %}
-                                <dt>
-                                    {% if progetto.fondo_comunitario == 'fse' %}
-                                        Fondo Sociale Europeo (FSE)
-                                    {% elif progetto.fondo_comunitario == 'fesr' %}
-                                        Fondo Europeo di Sviluppo Regionale (FESR)
-                                    {% endif %}
-                                </dt>
-                                <dd>{{ progetto.fonte_fs_descrizione }}</dd>
-                                {% if progetto.is_fonte_pac_flag %}
-                                    <dt>{{ progetto.fonte_pac_label }}</dt>
-                                    {% if progetto.dps_flag_pac == '1' %}
-                                        <dd>{{ progetto.fonte_pac_descrizione }}</dd>
+                        <section class="clearfix">
+                            <div class="row">
+                                <div class="span3 text-center">
+                                    {% if progetto.cipe_flag %}
+                                        <h2 style="color: #4b6dbc">Assegnazione CIPE</h2>
                                     {% else %}
-                                        <dd>Piano d'Azione Coesione - Progetti nei Programmi Operativi</dd>
+                                        <h2>Finanziamento</h2>
                                     {% endif %}
-                                {% endif %}
-                                <dt>Programma</dt>
-                                <dd><a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.get_absolute_url }}">{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}</a></dd>
-                                <dt>Asse</dt>
-                                <dd>{{ progetto.programma_asse_obiettivo.classificazione_superiore.descrizione }}</dd>
-                                <dt>Obiettivo</dt>
-                                <dd>{{ progetto.programma_asse_obiettivo.descrizione }}</dd>
-                            {% endif %}
-                            {% if progetto.is_fonte_fsc_flag or progetto.is_fonte_pac_flag %}
-                                {% if progetto.is_fonte_fsc_flag %}
-                                    <dt>{{ progetto.fonte_fsc_label }}</dt>
-                                    <dd>{{ progetto.fonte_fsc_descrizione }}</dd>
-                                {% endif %}
-                                {% if progetto.is_fonte_pac_flag and not progetto.is_fonte_fs_flag %}
-                                    <dt>{{ progetto.fonte_pac_label }}</dt>
-                                    <dd>{{ progetto.fonte_pac_descrizione }}</dd>
-                                {% endif %}
-                                {% if progetto.programma_linea_azione %}
-                                    <dt>Programma</dt>
-                                    <dd><a href="{{ progetto.programma_linea_azione.classificazione_superiore.classificazione_superiore.get_absolute_url }}">{{ progetto.programma_linea_azione.classificazione_superiore.classificazione_superiore.descrizione }}</a></dd>
-                                    <dt>Linea</dt>
-                                    <dd>{{ progetto.programma_linea_azione.classificazione_superiore.descrizione }}</dd>
-                                    <dt>Azione</dt>
-                                    <dd>{{ progetto.programma_linea_azione.descrizione }}</dd>
-                                {% endif %}
-                            {% endif %}
-                        {% else %}
-                            <dt>{{ progetto.fonte.descrizione }}</dt>
-                            <dd><p id="claim">Questo progetto ha ricevuto un’assegnazione di risorse dal Fondo Sviluppo e Coesione tramite una delibera CIPE.</p></dd>
-                            <dt>Programma</dt>
-                            <dd><a href="{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.get_absolute_url }}">{{ progetto.programma_asse_obiettivo.classificazione_superiore.classificazione_superiore.descrizione }}</a></dd>
+                                    <strong>{{ progetto.fin_totale_pubblico|default_if_none:0|floatformat:'2'|intcomma }}</strong> euro
+                                </div>
 
-                            <table>
-                                <tr>
-                                    <td><dt>Delibere CIPE</dt></td>
-                                    <td style="padding-left: 0.5em">Assegnazioni</td>
-                                </tr>
-                                {% for assegnazione in progetto.assegnazioni_delibere %}
-                                    <tr>
-                                        <td><a href="{{ assegnazione.delibera.url }}">Numero {{ assegnazione.delibera.num }} del {{ assegnazione.delibera.anno }}, pubblicata sulla Gazz.U. del {{ assegnazione.delibera.data_pubblicazione|date:'SHORT_DATE_FORMAT' }}</a></td>
-                                        <td style="padding-left: 0.5em">{{ assegnazione.finanziamento|floatformat:'2' }} euro</td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
-                        {% endif %}
-                        {% if progetto.note or progetti_attuati %}
-                            <br/>
-                            <dt>Note</dt>
-                            <dd>
-                                {% if progetti_attuati %}
-                                    {% regroup progetti_attuati by cipe_flag as grouped_progetti_attuati %}
-                                    {% for progetti_attuati_group in grouped_progetti_attuati %}
-                                        {% if progetti_attuati_group.grouper %}
-                                            Questo progetto attua le assegnazioni CIPE:
-                                        {% else %}
-                                            Questo progetto prosegue l'attuazione iniziata nel precedente ciclo di programmazione che puoi vedere qui:
+                                {% if not progetto.cipe_flag %}
+                                    <div class="span3 text-center">
+                                        <h2>Pagamenti effettuati</h2>
+                                        <strong>{{ progetto.pagamento|default_if_none:0|floatformat:'2'|intcomma }}</strong> euro
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row" style="height: 150px">
+                                {% include 'progetti/includes/progetto_detail_finanziamento.html' %}
+
+                                <div class="span3">
+                                    {% if not progetto.cipe_flag %}
+                                        {% with percentuale_pagamenti=progetto.percentuale_pagamenti|floatformat:'0' %}
+                                            <div class="block-chart" title="{{ percentuale_pagamenti }}% del totale">
+                                                <div class="bar-vertical"><span style="height: {{ percentuale_pagamenti }}%"></span></div>
+                                                <p>{{ percentuale_pagamenti }}%</p>
+                                            </div>
+                                        {% endwith %}
+                                    {% endif %}
+
+                                    {% if progetto.pagamenti or progetto.economie_totali_pubbliche %}
+                                        <table class="table" id="pagamenti_riassunto_chart_table" style="margin-left: 15px; width: 91%">
+                                            {% if progetto.pagamenti %}
+                                                <tr><td colspan="2"><a href="#" id="payments_chart_link">Visualizza l'andamento dei pagamenti</a></td></tr>
+                                                <tr><td colspan="2"><a href="{% url 'progetto_pagamenti' slug=progetto.slug %}">Scarica l'andamento dei pagamenti</a></td></tr>
+                                            {% endif %}
+                                            {% if progetto.economie_totali_pubbliche %}
+                                                <tr><th>Economie</th><td class="amount"><strong>{{ progetto.economie_totali_pubbliche|floatformat:'2'|intcomma }}</strong> euro</td></tr>
+                                            {% endif %}
+                                        </table>
+
+                                        {% if progetto.pagamenti %}
+                                            {% include 'progetti/includes/progetto_detail_pagamenti.html' with pagamenti=progetto.pagamenti_bimestrali SEKIZAI_CONTENT_HOLDER=SEKIZAI_CONTENT_HOLDER only %}
                                         {% endif %}
-                                        <ul>
-                                            {% for progetto_attuato in progetti_attuati_group.list %}
-                                                <li><a href="{{ progetto_attuato.get_absolute_url }}">{{ progetto_attuato.titolo_progetto }}</a></li>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </section>
+                        <section>
+                            <dl class="data">
+                                {% if progetto.costo %}
+                                    <dt>Costo</dt>
+                                    <dd>{{ progetto.costo|floatformat:'2'|intcomma }} euro</dd>
+                                {% endif %}
+                                {% if not progetto.cipe_flag %}
+                                    {% if progetto.fonte_fs %}
+                                        <dt>
+                                            {% if progetto.fondo_comunitario == 'fse' %}
+                                                Fondo Sociale Europeo (FSE)
+                                            {% elif progetto.fondo_comunitario == 'fesr' %}
+                                                Fondo Europeo di Sviluppo Regionale (FESR)
+                                            {% endif %}
+                                        </dt>
+                                        <dd>{{ progetto.fonte_fs.descrizione }}</dd>
+                                        {% if progetto.fonte_pac %}
+                                            <dt>{{ progetto.fonte_pac.short_label }}</dt>
+                                            {% if progetto.dps_flag_pac == '1' %}
+                                                <dd>{{ progetto.fonte_pac.descrizione }}</dd>
+                                            {% else %}
+                                                <dd>Piano d'Azione Coesione - Progetti nei Programmi Operativi</dd>
+                                            {% endif %}
+                                        {% endif %}
+
+                                        {% include 'progetti/includes/progetto_detail_programma.html' with programma=progetto.programma_asse_obiettivo only %}
+                                    {% endif %}
+                                    {% if progetto.fonte_fsc or progetto.fonte_pac %}
+                                        {% if progetto.fonte_fsc %}
+                                            <dt>{{ progetto.fonte_fsc.short_label }}</dt>
+                                            <dd>{{ progetto.fonte_fsc.descrizione }}</dd>
+                                        {% endif %}
+                                        {% if progetto.fonte_pac and not progetto.fonte_fs %}
+                                            <dt>{{ progetto.fonte_pac.short_label }}</dt>
+                                            <dd>{{ progetto.fonte_pac.descrizione }}</dd>
+                                        {% endif %}
+                                        {% if progetto.programma_linea_azione %}
+                                            {% include 'progetti/includes/progetto_detail_programma.html' with programma=progetto.programma_linea_azione only %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% else %}
+                                    <dt>{{ progetto.fonti.0.descrizione }}</dt>
+                                    <dd style="color: #999999">Questo progetto ha ricevuto un’assegnazione di risorse dal Fondo Sviluppo e Coesione tramite una delibera CIPE.</dd>
+
+                                    {% include 'progetti/includes/progetto_detail_programma.html' with programma=progetto.programma_asse_obiettivo only %}
+
+                                    <table>
+                                        <tr>
+                                            <td style="color: #676462; font-weight: bold; text-transform: uppercase">Delibere CIPE</td>
+                                            <td style="padding-left: 0.5em">Assegnazioni</td>
+                                        </tr>
+                                        {% for assegnazione in progetto.assegnazioni_delibere %}
+                                            <tr>
+                                                <td><a href="{{ assegnazione.delibera.url }}">Numero {{ assegnazione.delibera.num }} del {{ assegnazione.delibera.anno }}, pubblicata sulla Gazz.U. del {{ assegnazione.delibera.data_pubblicazione|date:'SHORT_DATE_FORMAT' }}</a></td>
+                                                <td style="padding-left: 0.5em">{{ assegnazione.finanziamento|floatformat:'2' }} euro</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                {% endif %}
+                                {% if progetto.note or progetto.progetti_attuati_tutti %}
+                                    <br/>
+                                    <dt>Note</dt>
+                                    <dd>
+                                        {% if progetto.progetti_attuati_tutti %}
+                                            {% regroup progetto.progetti_attuati_tutti by cipe_flag as grouped_progetti_attuati %}
+                                            {% for progetti_attuati_group in grouped_progetti_attuati %}
+                                                {% if progetti_attuati_group.grouper %}
+                                                    Questo progetto attua le assegnazioni CIPE:
+                                                {% else %}
+                                                    Questo progetto prosegue l'attuazione iniziata nel precedente ciclo di programmazione che puoi vedere qui:
+                                                {% endif %}
+                                                <ul>
+                                                    {% for progetto_attuato in progetti_attuati_group.list %}
+                                                        <li><a href="{{ progetto_attuato.get_absolute_url }}">{{ progetto_attuato.titolo_progetto }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
                                             {% endfor %}
-                                        </ul>
-                                    {% endfor %}
+                                        {% endif %}
+                                        {% if progetto.note %}
+                                            <p>{{ progetto.note|linebreaks }}</p>
+                                        {% endif %}
+                                    </dd>
                                 {% endif %}
-                            </dd>
-                            {% if progetto.note %}
-                                <dd>{{ progetto.note|linebreaks }}</dd>
-                            {% endif %}
+                            </dl>
+                        </section>
+
+                        {% if progetto.fin_stato_estero or progetto.fin_privato or progetto.fin_da_reperire %}
+                            <section>
+                                <h1 class="title" style="margin-left: 25px"><span>Altre risorse</span></h1>
+
+                                <div style="margin: 0 25px">
+                                    <table class="table">
+                                        {% if progetto.fin_stato_estero %}
+                                            <tr>
+                                                <th>Stati Esteri</th>
+                                                <td class="amount"><strong>{{ progetto.fin_stato_estero|intcomma }}</strong> euro</td>
+                                            </tr>
+                                        {% endif %}
+                                        {% if progetto.fin_privato %}
+                                            <tr>
+                                                <th>Privati</th>
+                                                <td class="amount"><strong>{{ progetto.fin_privato|intcomma }}</strong> euro</td>
+                                            </tr>
+                                        {% endif %}
+                                        {% if progetto.fin_da_reperire %}
+                                            <tr>
+                                                <th>Da reperire</th>
+                                                <td class="amount"><strong>{{ progetto.fin_da_reperire|intcomma }}</strong> euro</td>
+                                            </tr>
+                                        {% endif %}
+                                    </table>
+                                </div>
+                            </section>
                         {% endif %}
-                    </dl>
-                </section>
-
-                {% if progetto.fin_stato_estero or progetto.fin_privato or progetto.fin_da_reperire %}
-                    <section>
-                        <h1 class="title" style="margin-left: 25px"><span>Altre risorse</span></h1>
-
-                        <div style="margin: 0 25px">
-                            <table class="table">
-                                {% if progetto.fin_stato_estero %}
-                                    <tr>
-                                        <th>Stati Esteri</th>
-                                        <td class="amount"><strong>{{ progetto.fin_stato_estero|intcomma }}</strong> euro</td>
-                                    </tr>
-                                {% endif %}
-                                {% if progetto.fin_privato %}
-                                    <tr>
-                                        <th>Privati</th>
-                                        <td class="amount"><strong>{{ progetto.fin_privato|intcomma }}</strong> euro</td>
-                                    </tr>
-                                {% endif %}
-                                {% if progetto.fin_da_reperire %}
-                                    <tr>
-                                        <th>Da reperire</th>
-                                        <td class="amount"><strong>{{ progetto.fin_da_reperire|intcomma }}</strong> euro</td>
-                                    </tr>
-                                {% endif %}
-                            </table>
-                        </div>
-                    </section>
-                {% endif %}
                     </div>
                     <div class="tab-pane area" id="indicatori">
-                      <div id="api_result">
-                      </div>
+                        <div id="api_result"></div>
                     </div>
-                 </div>
-
-           </aside>
+                </div>
+            </aside>
         </article>
 
         {% block comments %}
@@ -458,15 +447,15 @@
                 </div>
 
                 <div class="row">
-                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo='Stesso tema' progetti=progetti_stesso_tema only %}
-                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo='Stessi attuatori' progetti=progetti_stessi_attuatori only %}
+                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo='Stesso tema' progetti=progetto.progetti_stesso_tema only %}
+                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo='Stessi attuatori' progetti=progetto.progetti_stessi_attuatori only %}
                 </div>
 
                 <hr class="big">
 
                 <div class="row">
-                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo="Stessa natura dell'investimento" progetti=progetti_stessa_natura only %}
-                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo='Stessi programmatori' progetti=progetti_stessi_programmatori only %}
+                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo="Stessa natura dell'investimento" progetti=progetto.progetti_stessa_natura only %}
+                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo='Stessi programmatori' progetti=progetto.progetti_stessi_programmatori only %}
                 </div>
             </div>
         </div>

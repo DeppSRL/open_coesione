@@ -32,6 +32,10 @@ class ClassificazioneBase(models.Model):
     def progetti(self):
         return self.progetto_set
 
+    @property
+    def get_tipo_display(self):
+        return dict(self.TIPO)[self.tipo_classificazione]
+
     def __unicode__(self):
         return u'{} {}'.format(self.codice, self.descrizione)
 
@@ -70,9 +74,9 @@ class ProgrammaBase(ClassificazioneBase):
 
 class ProgrammaAsseObiettivo(ProgrammaBase):
     TIPO = Choices(
-        ('PROGRAMMA_FS', 'programma', u'Programma FS'),
+        ('PROGRAMMA_FS', 'programma', u'Programma'),
         ('ASSE', 'asse', u'Asse'),
-        ('OBIETTIVO_OPERATIVO', 'obiettivo', u'Obiettivo operativo'),
+        ('OBIETTIVO_OPERATIVO', 'obiettivo', u'Obiettivo'),
     )
 
     @property
@@ -445,77 +449,29 @@ class Progetto(models.Model):
         else:
             return self.TIPI_PROGETTO.progetto_monitorato
 
-    @property
+    @cached_property
     def fonti(self):
         return self.fonte_set.all()
 
-    def fonte_fs_qs(self):
-        return self.fonte_set.filter(tipo_fonte=Fonte.TIPO.fs)
-
-    def fonte_fsc_qs(self):
-        return self.fonte_set.filter(tipo_fonte=Fonte.TIPO.fsc)
-
-    def fonte_pac_qs(self):
-        return self.fonte_set.filter(tipo_fonte=Fonte.TIPO.pac)
+    def fonte_per_tipo(self, tipo):
+        try:
+            return [o for o in self.fonti if o.tipo_fonte == tipo][0]
+        except IndexError:
+            return None
 
     @property
-    def is_fonte_fs_flag(self):
-        return self.fonte_fs_qs().count() > 0
+    def fonte_fs(self):
+        return self.fonte_per_tipo(Fonte.TIPO.fs)
 
     @property
-    def is_fonte_fsc_flag(self):
-        return self.fonte_fsc_qs().count() > 0
+    def fonte_fsc(self):
+        return self.fonte_per_tipo(Fonte.TIPO.fsc)
 
     @property
-    def is_fonte_pac_flag(self):
-        return self.fonte_pac_qs().count() > 0
+    def fonte_pac(self):
+        return self.fonte_per_tipo(Fonte.TIPO.pac)
 
-    @property
-    def fonte_fs_descrizione(self):
-        if self.is_fonte_fs_flag:
-            return self.fonte_fs_qs()[0].descrizione
-
-    @property
-    def fonte_fs_label(self):
-        if self.is_fonte_fs_flag:
-            return self.fonte_fs_qs()[0].short_label
-
-    @property
-    def fonte_fsc_label(self):
-        if self.is_fonte_fsc_flag:
-            return self.fonte_fsc_qs()[0].short_label
-
-    @property
-    def fonte_fsc_descrizione(self):
-        if self.is_fonte_fsc_flag:
-            return self.fonte_fsc_qs()[0].descrizione
-
-    @property
-    def fonte_pac_label(self):
-        if self.is_fonte_pac_flag:
-            return self.fonte_pac_qs()[0].short_label
-
-    @property
-    def fonte_pac_descrizione(self):
-        if self.is_fonte_pac_flag:
-            return self.fonte_pac_qs()[0].descrizione
-
-    @property
-    def fonte_fs_codice(self):
-        if self.is_fonte_fs_flag:
-            return self.fonte_fs_qs()[0].codice
-
-    @property
-    def fonte_fsc_codice(self):
-        if self.is_fonte_fsc_flag:
-            return self.fonte_fsc_qs()[0].codice
-
-    @property
-    def fonte_pac_codice(self):
-        if self.is_fonte_pac_flag:
-            return self.fonte_pac_qs()[0].codice
-
-    @property
+    @cached_property
     def territori(self):
         return self.territorio_set.all()
 
@@ -557,10 +513,15 @@ class Progetto(models.Model):
         return max(self.data_aggiornamento, *[p.data for p in pagamenti])
 
     @property
+    def fin_totale_pubblico_netto_corretto(self):
+        return self.fin_totale_pubblico_netto or self.fin_totale_pubblico or 0
+
+    @property
     def percentuale_pagamenti(self):
-        if not self.fin_totale_pubblico_netto or not self.pagamento:
-            return 0.0
-        return (float(self.pagamento) or 0.0) / (float(self.fin_totale_pubblico_netto) or 0.0) * 100.0
+        return self.percentuale_su_finanziamentopubblico(self.pagamento)
+
+    def percentuale_su_finanziamentopubblico(self, pagamento):
+        return (pagamento or 0) / self.fin_totale_pubblico_netto_corretto * 100 if self.fin_totale_pubblico_netto_corretto else 0
 
     def delibere_cipe(self):
         return self.deliberacipe_set.all()
@@ -593,11 +554,6 @@ class Progetto(models.Model):
             fonti_fin.append(self.programma_linea_azione.programma)
 
         return fonti_fin
-
-    # @property
-    # def get_tipo_progetto_display(self):
-    #     # per csv
-    #     return dict(self.TIPI_PROGETTO)[self.tipo_progetto]
 
     @property
     def nomi_programmatori(self):
@@ -774,8 +730,7 @@ class PagamentoProgetto(models.Model):
 
     @property
     def percentuale(self):
-        fin_totale_pubblico_netto = self.progetto.fin_totale_pubblico_netto or self.progetto.fin_totale_pubblico or 0
-        return (self.ammontare / fin_totale_pubblico_netto) * Decimal(100) if fin_totale_pubblico_netto else 0.0
+        return self.progetto.percentuale_su_finanziamentopubblico(self.ammontare)
 
     def __unicode__(self):
         return u'Pagamento del progetto {} del {} di {}'.format(self.progetto, self.data, self.ammontare)
