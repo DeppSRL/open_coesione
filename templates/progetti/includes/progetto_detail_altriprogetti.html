@@ -1,9 +1,9 @@
 {% load humanize %}
 
 <div class="span6">
-    <h1 class="title"><span>{{ titolo }}</span></h1>
+    <h1 class="title"><span>{{ progetti.titolo }}</span></h1>
     <table>
-        {% for progetto in progetti  %}
+        {% for progetto in progetti.lista %}
             <tr>
                 <td class="span6"><a href="{{ progetto.get_absolute_url }}">{{ progetto.titolo_progetto }}</a></td>
                 <td class="amount"><strong>{{ progetto.fin_totale_pubblico|intcomma }}</strong> euro</td>

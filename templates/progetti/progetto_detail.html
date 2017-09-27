@@ -439,7 +439,7 @@
         {% endblock %}
     </div>
 
-    {% if progetto.territori %}
+    {% if progetto.altri_progetti_nei_territori %}
         <div class="area">
             <div class="container big-amounts">
                 <div class="row">
@@ -447,15 +447,12 @@
                 </div>
 
                 <div class="row">
-                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo='Stesso tema' progetti=progetto.progetti_stesso_tema only %}
-                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo='Stessi attuatori' progetti=progetto.progetti_stessi_attuatori only %}
-                </div>
-
-                <hr class="big">
-
-                <div class="row">
-                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo="Stessa natura dell'investimento" progetti=progetto.progetti_stessa_natura only %}
-                    {% include 'progetti/includes/progetto_detail_altriprogetti.html' with titolo='Stessi programmatori' progetti=progetto.progetti_stessi_programmatori only %}
+                    {% for progetti in progetto.altri_progetti_nei_territori %}
+                        {% include 'progetti/includes/progetto_detail_altriprogetti.html' with progetti=progetti only %}
+                        {% if forloop.counter|divisibleby:2 and not forloop.last %}
+                            <hr class="big span12">
+                        {% endif %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
