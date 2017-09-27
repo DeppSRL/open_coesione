@@ -38,11 +38,27 @@ class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
 
         if self.object.territori:
             numero_collaboratori = 5
-            altri_progetti_nei_territori = Progetto.objects.exclude(codice_locale=self.object.codice_locale).nei_territori(self.object.territori).distinct().order_by('-fin_totale_pubblico')
-            self.object.progetti_stesso_tema = altri_progetti_nei_territori.con_tema(self.object.tema)[:numero_collaboratori]
-            self.object.progetti_stessa_natura = altri_progetti_nei_territori.con_natura(self.object.classificazione_azione)[:numero_collaboratori]
-            self.object.progetti_stessi_attuatori = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.attuatori)[:numero_collaboratori]
-            self.object.progetti_stessi_programmatori = altri_progetti_nei_territori.filter(soggetto_set__in=self.object.programmatori)[:numero_collaboratori]
+            altri_progetti_nei_territori_qs = Progetto.objects.exclude(codice_locale=self.object.codice_locale).nei_territori(self.object.territori).distinct().order_by('-fin_totale_pubblico')
+            altri_progetti_nei_territori = [
+                {
+                    'titolo': 'Stesso tema',
+                    'lista': altri_progetti_nei_territori_qs.con_tema(self.object.tema)[:numero_collaboratori],
+                },
+                {
+                    'titolo': 'Stessi attuatori',
+                    'lista': altri_progetti_nei_territori_qs.filter(soggetto_set__in=self.object.attuatori)[:numero_collaboratori],
+                },
+                {
+                    'titolo': "Stessa natura dell'investimento",
+                    'lista': altri_progetti_nei_territori_qs.con_natura(self.object.classificazione_azione)[:numero_collaboratori],
+                },
+                {
+                    'titolo': 'Stessi programmatori',
+                    'lista': altri_progetti_nei_territori_qs.filter(soggetto_set__in=self.object.programmatori)[:numero_collaboratori],
+                },
+            ]
+
+            self.object.altri_progetti_nei_territori = [x for x in altri_progetti_nei_territori if x['lista']]
 
         self.object.pagamenti_bimestrali = self._get_pagamenti_bimestrali(self.object.pagamenti)
 
