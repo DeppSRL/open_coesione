@@ -183,8 +183,13 @@ class FondiView(RisorsaView):
         context = super(FondiView, self).get_context_data(**kwargs)
 
         context['delibere'] = DeliberaCIPE.objects.all()
+        for delibera in context['delibere']:
+            filename = delibera.url.split('?f=')[1]
+            delibera.url = 'http://ricerca-delibere.programmazioneeconomica.gov.it/media/docs/20{}/{}'.format(filename[1:3], filename)
+
         context['totale_fondi_assegnati'] = DeliberaCIPE.objects.aggregate(s=Sum('fondi_assegnati'))['s']
         context['tabella_risorse_1420'] = OpendataView.get_complete_localfile('risorse_coesione_2014_2020.xls')
+
         return context
 
 
