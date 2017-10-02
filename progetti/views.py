@@ -958,10 +958,9 @@ class SegnalaDescrizioneView(FormView):
             params['cup'] = self.request.GET.get('clp')
 
         if params:
-            try:
-                context['progetto'] = Progetto.objects.get(**params)
-            except (Progetto.DoesNotExist, Progetto.MultipleObjectsReturned):
-                pass
+            context['progetto'] = Progetto.objects.filter(**params).exists()
+        else:
+            context['progetto'] = False
 
         return context
 
