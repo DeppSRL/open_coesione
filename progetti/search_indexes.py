@@ -86,6 +86,13 @@ class ProgettoIndex(SearchIndex):
     def prepare_perc_pagamento(self, obj):
         return obj.percentuale_pagamenti
 
+    def prepare(self, obj):
+        self.prepared_data = super(ProgettoIndex, self).prepare(obj)
+
+        self.prepared_data['cup_s'] = obj.cup or ''
+
+        return self.prepared_data
+
     def index_queryset(self):
         related = ['territorio_set', 'programma_asse_obiettivo__classificazione_superiore__classificazione_superiore', 'programma_linea_azione__classificazione_superiore__classificazione_superiore', 'classificazione_azione', 'classificazione_oggetto', 'tema', 'fonte_set']
         return self.model.fullobjects.select_related(*related).prefetch_related(*related)

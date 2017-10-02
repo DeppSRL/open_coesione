@@ -42,19 +42,25 @@ class MultiSelectWithRangeFacetedSearchForm(SearchForm):
 
 
 class OCFacetedSearchForm(MultiSelectWithRangeFacetedSearchForm):
+    cup = forms.CharField(required=False)
     soggetto = forms.CharField(required=False)
     ruolo = forms.CharField(required=False)
+    gruppo_programmi = forms.CharField(required=False)
     territorio_tipo = forms.CharField(required=False)
     territorio_com = forms.IntegerField(required=False)
     territorio_prov = forms.IntegerField(required=False)
     territorio_reg = forms.IntegerField(required=False)
     fonte_fin = forms.CharField(required=False)
-    gruppo_programmi = forms.CharField(required=False)
 
     def search(self):
         sqs = super(OCFacetedSearchForm, self).search()
 
         if self.is_valid():
+            # aggiunge filtro cups, se presente
+            cups = self.cleaned_data.get('cup')
+            if cups:
+                sqs = sqs.filter(cup_s__in=cups.split('|'))
+
             # aggiunge filtro soggetto, se presente
             soggetto = self.cleaned_data.get('soggetto')
             if soggetto:
@@ -62,37 +68,32 @@ class OCFacetedSearchForm(MultiSelectWithRangeFacetedSearchForm):
 
                 codici_ruolo = dict(Ruolo.RUOLO).keys()
 
-                sqs = sqs.filter_and(soggetto__in=['{}|{}'.format(soggetto, r) for r in codici_ruolo])
+                sqs = sqs.filter(soggetto__in=['{}|{}'.format(soggetto, r) for r in codici_ruolo])
 
                 ruolo = self.cleaned_data.get('ruolo')
                 if ruolo:
                     for r in codici_ruolo:
                         condition = {'soggetto': '{}|{}'.format(soggetto, r)}
                         if r in ruolo:
-                            sqs = sqs.filter_and(**condition)
+                            sqs = sqs.filter(**condition)
                         else:
                             sqs = sqs.exclude(**condition)
 
-            # aggiunge filtri territorio, se presenti
-            if self.cleaned_data.get('territorio_tipo'):
-                sqs = sqs.filter_and(territorio_tipo=self.cleaned_data['territorio_tipo'])
-            if self.cleaned_data.get('territorio_com'):
-                sqs = sqs.filter_and(territorio_com=self.cleaned_data['territorio_com'])
-            if self.cleaned_data.get('territorio_prov'):
-                sqs = sqs.filter_and(territorio_prov=self.cleaned_data['territorio_prov'])
-            if self.cleaned_data.get('territorio_reg') or self.cleaned_data.get('territorio_reg') == 0:
-                sqs = sqs.filter_and(territorio_reg=self.cleaned_data['territorio_reg'])
-
-            # aggiunge filtro fonte_fin, se presente
-            if self.cleaned_data.get('fonte_fin'):
-                sqs = sqs.filter_and(fonte_fin=self.cleaned_data.get('fonte_fin'))
-
             # aggiunge filtro gruppo_programmi, se presente
-            if self.cleaned_data.get('gruppo_programmi'):
+            gruppo_programmi_codice = self.cleaned_data.get('gruppo_programmi')
+            if gruppo_programmi_codice:
                 from progetti.gruppo_programmi import GruppoProgrammi
                 try:
-                    sqs = sqs.filter_and(fonte_fin__in=[p.codice for p in GruppoProgrammi(codice=self.cleaned_data.get('gruppo_programmi')).programmi])
+                    gruppo_programmi = GruppoProgrammi(codice=gruppo_programmi_codice)
                 except:
                     pass
+                else:
+                    sqs = sqs.filter_(fonte_fin__in=[p.codice for p in gruppo_programmi.programmi])
+
+            # aggiunge filtri territorio e fonte_fin, se presenti
+            for fld in ('territorio_tipo', 'territorio_com', 'territorio_prov', 'territorio_reg', 'fonte_fin'):
+                val = self.cleaned_data.get(fld)
+                if val or val == 0:
+                    sqs = sqs.filter(**{fld: val})
 
         return sqs
