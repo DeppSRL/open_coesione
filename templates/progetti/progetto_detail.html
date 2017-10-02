@@ -312,6 +312,38 @@
                                     <dd>{{ progetto.costo|floatformat:'2'|intcomma }} euro</dd>
                                 {% endif %}
                                 {% if not progetto.cipe_flag %}
+                                    {% if progetto.programma_asse_obiettivo %}
+                                        <dt>
+                                            {% if progetto.fondo_comunitario == 'fse' %}
+                                                Fondo Sociale Europeo (FSE)
+                                            {% elif progetto.fondo_comunitario == 'fesr' %}
+                                                Fondo Europeo di Sviluppo Regionale (FESR)
+                                            {% endif %}
+                                        </dt>
+                                        <dd>{{ progetto.fonte_fs.descrizione }}</dd>
+
+                                        {% if progetto.dps_flag_pac == '2' and not progetto.programma_linea_azione %}
+                                            <dt>PIANO AZIONE e COESIONE</dt>
+                                        {% endif %}
+
+                                        {% include 'progetti/includes/progetto_detail_programma.html' with programma=progetto.programma_asse_obiettivo only %}
+                                    {% endif %}
+                                    {% if progetto.programma_linea_azione %}
+                                        {% if progetto.fonte_fsc %}
+                                            <dt>{{ progetto.fonte_fsc.short_label }}</dt>
+                                            <dd>{{ progetto.fonte_fsc.descrizione }}</dd>
+                                        {% elif progetto.fonte_pac %}
+                                            <dt>{{ progetto.fonte_pac.short_label }}</dt>
+                                            <dd>{{ progetto.fonte_pac.descrizione }}</dd>
+                                        {% endif %}
+
+                                        {% if progetto.dps_flag_pac == '2' and not progetto.programma_asse_obiettivo %}
+                                            <dt>PIANO AZIONE e COESIONE</dt>
+                                        {% endif %}
+
+                                        {% include 'progetti/includes/progetto_detail_programma.html' with programma=progetto.programma_linea_azione only %}
+                                    {% endif %}
+{% comment %}
                                     {% if progetto.fonte_fs %}
                                         <dt>
                                             {% if progetto.fondo_comunitario == 'fse' %}
@@ -345,6 +377,7 @@
                                             {% include 'progetti/includes/progetto_detail_programma.html' with programma=progetto.programma_linea_azione only %}
                                         {% endif %}
                                     {% endif %}
+{% endcomment %}
                                 {% else %}
                                     <dt>{{ progetto.fonti.0.descrizione }}</dt>
                                     <dd style="color: #999999">Questo progetto ha ricevuto un’assegnazione di risorse dal Fondo Sviluppo e Coesione tramite una delibera CIPE.</dd>
