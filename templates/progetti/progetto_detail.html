@@ -323,7 +323,8 @@
                                         <dd>{{ progetto.fonte_fs.descrizione }}</dd>
 
                                         {% if progetto.dps_flag_pac == '2' and not progetto.programma_linea_azione %}
-                                            <dt>PIANO AZIONE e COESIONE</dt>
+                                            <dt>{{ progetto.fonte_pac.short_label }}</dt>
+                                            <dd>Piano d'Azione Coesione - Progetti nei Programmi Operativi</dd>
                                         {% endif %}
 
                                         {% include 'progetti/includes/progetto_detail_programma.html' with programma=progetto.programma_asse_obiettivo only %}
@@ -338,7 +339,8 @@
                                         {% endif %}
 
                                         {% if progetto.dps_flag_pac == '2' and not progetto.programma_asse_obiettivo %}
-                                            <dt>PIANO AZIONE e COESIONE</dt>
+                                            <dt>{{ progetto.fonte_pac.short_label }}</dt>
+                                            <dd>Piano d'Azione Coesione - Progetti nei Programmi Operativi</dd>
                                         {% endif %}
 
                                         {% include 'progetti/includes/progetto_detail_programma.html' with programma=progetto.programma_linea_azione only %}
