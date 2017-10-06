@@ -118,7 +118,7 @@ class Command(BaseCommand):
 
     import_types = {
         'progetti': {
-            'files': ['totale/progetti_FSC0006_{}.zip', 'totale/progetti_FSC0713_{}.zip', 'totale/progetti_FS0713_{}.zip', 'totale/progetti_PAC_{}.zip', 'prog_inattivi_{}.zip'],
+            'files': ['totale/progetti_FSC0006_{}.zip', 'totale/progetti_FS0713_{}.zip', 'totale/progetti_FSC0713_{}.zip', 'totale/progetti_PAC_{}.zip', 'prog_inattivi_{}.zip'],
             'import_method': '_import_progetti',
             'converters': {
                 'CUP_COD_NATURA': convert_progetto_cup_cod_natura,
@@ -141,7 +141,7 @@ class Command(BaseCommand):
             },
         },
         'soggetti': {
-            'files': ['totale/soggetti_FSC0006_{}.zip', 'totale/soggetti_FSC0713_{}.zip', 'totale/soggetti_FS0713_{}.zip', 'totale/soggetti_PAC_{}.zip', 'totale/soggetti_CIPE.zip'],
+            'files': ['totale/soggetti_FSC0006_{}.zip', 'totale/soggetti_FS0713_{}.zip', 'totale/soggetti_FSC0713_{}.zip', 'totale/soggetti_PAC_{}.zip', 'totale/soggetti_CIPE.zip'],
             'import_method': '_import_soggetti',
             'converters': {
                 'OC_DENOMINAZIONE_SOGG': convert_soggetto_oc_denominazione_sogg,
@@ -149,12 +149,12 @@ class Command(BaseCommand):
             },
         },
         'localizzazioni': {
-            'files': ['totale/localizzazioni_FSC0006_{}.zip', 'totale/localizzazioni_FSC0713_{}.zip', 'totale/localizzazioni_FS0713_{}.zip', 'totale/localizzazioni_PAC_{}.zip', 'totale/localizzazioni_CIPE.zip', 'loc_inattivi_{}.zip'],
+            'files': ['totale/localizzazioni_FSC0006_{}.zip', 'totale/localizzazioni_FS0713_{}.zip', 'totale/localizzazioni_FSC0713_{}.zip', 'totale/localizzazioni_PAC_{}.zip', 'totale/localizzazioni_CIPE.zip', 'loc_inattivi_{}.zip'],
             'import_method': '_import_localizzazioni',
             'converters': None,
         },
         'pagamenti': {
-            'files': ['totale/pagamenti_FSC0006_{}.zip', 'totale/pagamenti_FSC0713_{}.zip', 'totale/pagamenti_FS0713_{}.zip', 'totale/pagamenti_PAC_{}.zip', 'pag_inattivi_{}.zip'],
+            'files': ['totale/pagamenti_FSC0006_{}.zip', 'totale/pagamenti_FS0713_{}.zip', 'totale/pagamenti_FSC0713_{}.zip', 'totale/pagamenti_PAC_{}.zip', 'pag_inattivi_{}.zip'],
             'import_method': '_import_pagamenti',
             'converters': None,
         },
