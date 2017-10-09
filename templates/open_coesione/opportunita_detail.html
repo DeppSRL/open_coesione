@@ -10,7 +10,7 @@
 
         {{ object.descrizione|safe }}
 
-        <p><a href="{{ object.file.url }}">Opportunità</a> ({{ object.file.name|slice:'-3:'|lower }}, {{ object.file.size|filesizeformat }}) {{ object.file.storage.modified_time }}</p>
+        <p><a href="{{ object.file.url }}">Opportunità</a> ({{ object.file.name|slice:'-3:'|lower }}, {{ object.file.size|filesizeformat }})</p>
         <p><a href="{{ object.file2.url }}">Metadati</a> ({{ object.file2.name|slice:'-3:'|lower }}, {{ object.file2.size|filesizeformat }})</p>
         <p>Ultimo aggiornamento dati al {{ object.file.modified_time|date:'SHORT_DATE_FORMAT' }}.</p>
     </div>
