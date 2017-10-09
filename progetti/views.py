@@ -106,7 +106,7 @@ class ProgettoSearchView(OCFacetedSearchView):
         'costo': {
             '0-0TO1K': {
                 'qrange': '[* TO 1000]',
-                'label': 'da 0 a 1.000 €',
+                'label': 'fino a 1.000 €',
             },
             '1-1KTO10K': {
                 'qrange': '[1000.01 TO 10000]',
@@ -116,11 +116,15 @@ class ProgettoSearchView(OCFacetedSearchView):
                 'qrange': '[10000.01 TO 100000]',
                 'label': 'da 10.000 a 100.000 €',
             },
-            '3-100KTO10M': {
-                'qrange': '[100000.01 TO 10000000]',
-                'label': 'da 100.000 a 10.000.000 €',
+            '3-100KTO1M': {
+                'qrange': '[100000.01 TO 1000000]',
+                'label': 'da 100.000 a 1.000.000 €',
             },
-            '4-10MTOINF': {
+            '4-1MTO10M': {
+                'qrange': '[1000001 TO 10000000]',
+                'label': 'da 1.000.000 a 10.000.000 €',
+            },
+            '5-10MTOINF': {
                 'qrange': '[10000001 TO *]',
                 'label': 'oltre 10.000.000 €',
             },
