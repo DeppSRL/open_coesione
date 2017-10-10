@@ -998,15 +998,12 @@ class SegnalazioneDetailView(DetailView):
 class MonitoraggioASOCListView(ListView):
     model = MonitoraggioASOC
 
-    def get_queryset(self):
-        return super(MonitoraggioASOCListView, self).get_queryset().order_by('-edizione_asoc').select_related('progetto', 'istituto_comune')
-
     def get_context_data(self, **kwargs):
         context = super(MonitoraggioASOCListView, self).get_context_data(**kwargs)
 
         context['data_file'] = OpendataView.get_complete_localfile('progetti_asoc.csv')
         context['metadata_file'] = OpendataView.get_complete_localfile('progetti_asoc.csv')
 
-        context['object_list'] = sorted(context['object_list'], key=lambda x: (x.istituto_regione.denominazione, x.istituto_provincia.denominazione, x.istituto_comune.denominazione, x.istituto_nome))
+        context['object_list'] = sorted(context['object_list'].select_related('progetto', 'istituto_comune').order_by('-edizione_asoc'), key=lambda x: (x.istituto_regione.denominazione, x.istituto_provincia.denominazione, x.istituto_comune.denominazione, x.istituto_nome))
 
         return context
