@@ -24,7 +24,7 @@
 
         <h2 id="progetti">Attuazione delle politiche di coesione: progetti</h2>
 
-        <h3 id="oc0713-title" class="h3-switcher" data-target="oc0713-content">
+        <h3 id="oc0713-title" class="h3-switcher new" data-target="oc0713-content">
             <a href="#">Tutti i progetti di OpenCoesione <i></i></a>
         </h3>
 
@@ -445,7 +445,7 @@
 
         <h2 id="focus">Focus</h2>
 
-        <h3 id="opportunita-title" class="h3-switcher new" data-target="opportunita-content">
+        <h3 id="opportunita-title" class="h3-switcher" data-target="opportunita-content">
             <a href="#">Opportunità di finanziamento dei Fondi SIE 2014-2020 <i></i></a>
         </h3>
 
@@ -491,7 +491,7 @@
             <p>Ultimo aggiornamento dati al 31/12/2015.<br/>* Dati non navigabili sul portale OpenCoesione.</p>
         </div>
 
-        <h3 id="approfondimenti-title" class="h3-switcher" data-target="approfondimenti-content">
+        <h3 id="approfondimenti-title" class="h3-switcher new" data-target="approfondimenti-content">
             <a href="#">Approfondimenti tematici sui progetti in attuazione <i></i></a>
         </h3>
 
@@ -502,9 +502,9 @@
                 i file csv con dati e metadati utilizzati per le analisi pubblicate e il file csv con dati e metadati all’ultimo aggiornamento del portale.
             </p>
 
-            <h4 class="switcher" data-target="approfondimenti-2-content" style="font-size: 16px; text-transform: none; margin-top: 8px"><a href="#">Scuole <i></i></a></h4>
+            <h4 class="switcher" data-target="approfondimenti-1-content" style="font-size: 16px; text-transform: none; margin-top: 8px"><a href="#">Scuole <i></i></a></h4>
 
-            <div id="approfondimenti-2-content">
+            <div id="approfondimenti-1-content">
                 <p>
                     I dati, navigabili anche nell’apposita sezione “<a href="{% url 'focus-scuole' %}">focus scuole</a>”,
                     offrono l’integrazione di quanto già pubblicato su OpenCoesione per progetti gestiti dal MIUR nelle scuole in Calabria, Campania, Puglia e Sicilia
@@ -516,23 +516,23 @@
 
                 <table class="table">
                     <tr>
-                        <td class="label">Progetti e interventi nelle scuole in Calabria, Campania, Puglia e Sicilia<br/>(aggiornamento {{ approfondimenti_2_1_file.file_date|date:'SHORT_DATE_FORMAT' }})</td>
-                        <td><a href="{{ approfondimenti_2_1_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_2_1_file.file_ext }} {{ approfondimenti_2_1_file.file_size|filesizeformat }}]</a></td>
+                        <td class="label">Progetti e interventi nelle scuole in Calabria, Campania, Puglia e Sicilia<br/>(aggiornamento {{ approfondimenti_1_1_file.file_date|date:'SHORT_DATE_FORMAT' }})</td>
+                        <td><a href="{{ approfondimenti_1_1_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_1_1_file.file_ext }} {{ approfondimenti_1_1_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                     <tr>
-                        <td class="label">Progetti e interventi nelle scuole in Calabria, Campania, Puglia e Sicilia<br/>(aggiornamento {{ approfondimenti_2_2_file.file_date|date:'SHORT_DATE_FORMAT' }} e <a href="/media/files/pillola-44/Pillola%20di%20OpenCoesione%20n_33_Focus%20scuole.pdf">Pillola n. 33</a>)</td>
-                        <td><a href="{{ approfondimenti_2_2_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_2_2_file.file_ext }} {{ approfondimenti_2_2_file.file_size|filesizeformat }}]</a></td>
+                        <td class="label">Progetti e interventi nelle scuole in Calabria, Campania, Puglia e Sicilia<br/>(aggiornamento {{ approfondimenti_1_2_file.file_date|date:'SHORT_DATE_FORMAT' }} e <a href="/media/files/pillola-44/Pillola%20di%20OpenCoesione%20n_33_Focus%20scuole.pdf">Pillola n. 33</a>)</td>
+                        <td><a href="{{ approfondimenti_1_2_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_1_2_file.file_ext }} {{ approfondimenti_1_2_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                     <tr>
                         <td class="label">Metadati</td>
-                        <td><a href="{{ approfondimenti_2_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_2_metadata_file.file_ext }} {{ approfondimenti_2_metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ approfondimenti_1_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_1_metadata_file.file_ext }} {{ approfondimenti_1_metadata_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                 </table>
             </div>
 
-            <h4 class="switcher" data-target="approfondimenti-1-content" style="font-size: 16px; text-transform: none; margin-top: 8px"><a href="#">Beni confiscati <i></i></a></h4>
+            <h4 class="switcher" data-target="approfondimenti-2-content" style="font-size: 16px; text-transform: none; margin-top: 8px"><a href="#">Beni confiscati <i></i></a></h4>
 
-            <div id="approfondimenti-1-content">
+            <div id="approfondimenti-2-content">
                 <p>
                     La valorizzazione socio-economica dei beni confiscati alla criminalità organizzata è una forma di intervento per lo sviluppo territoriale che, facendo leva su una originaria situazione di svantaggio,
                     trova sostegno nelle politiche di coesione per restituire alla collettività l’utilizzo di tali beni con finalità prevalentemente sociali.
@@ -545,20 +545,37 @@
 
                 <table class="table">
                     <tr>
-                        <td class="label">Progetti beni confiscati (aggiornamento {{ approfondimenti_1_1_file.file_date|date:'SHORT_DATE_FORMAT' }})</td>
-                        <td><a href="{{ approfondimenti_1_1_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_1_1_file.file_ext }} {{ approfondimenti_1_1_file.file_size|filesizeformat }}]</a></td>
+                        <td class="label">Progetti beni confiscati (aggiornamento {{ approfondimenti_2_1_file.file_date|date:'SHORT_DATE_FORMAT' }})</td>
+                        <td><a href="{{ approfondimenti_2_1_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_2_1_file.file_ext }} {{ approfondimenti_2_1_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                     <tr>
-                        <td class="label">Progetti beni confiscati (aggiornamento {{ approfondimenti_1_2_file.file_date|date:'SHORT_DATE_FORMAT' }} e <a href="/media/files/pillola-36/Pillola%20di%20OpenCoesione%20n%2027_politiche%20coesione%20beni%20confiscati_dati%20dicembre%202015.pdf">Pillola n. 27</a>)</td>
-                        <td><a href="{{ approfondimenti_1_2_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_1_2_file.file_ext }} {{ approfondimenti_1_2_file.file_size|filesizeformat }}]</a></td>
+                        <td class="label">Progetti beni confiscati (aggiornamento {{ approfondimenti_2_2_file.file_date|date:'SHORT_DATE_FORMAT' }} e <a href="/media/files/pillola-36/Pillola%20di%20OpenCoesione%20n%2027_politiche%20coesione%20beni%20confiscati_dati%20dicembre%202015.pdf">Pillola n. 27</a>)</td>
+                        <td><a href="{{ approfondimenti_2_2_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_2_2_file.file_ext }} {{ approfondimenti_2_2_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                     <tr>
-                        <td class="label">Progetti beni confiscati (aggiornamento {{ approfondimenti_1_3_file.file_date|date:'SHORT_DATE_FORMAT' }} e <a href="/media/files/pillola-22/Pillola_di_OpenCoesione_n_19_Politiche_di_coesione_e_beni_confiscati.pdf">Pillola n. 19</a>)</td>
-                        <td><a href="{{ approfondimenti_1_3_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_1_3_file.file_ext }} {{ approfondimenti_1_3_file.file_size|filesizeformat }}]</a></td>
+                        <td class="label">Progetti beni confiscati (aggiornamento {{ approfondimenti_2_3_file.file_date|date:'SHORT_DATE_FORMAT' }} e <a href="/media/files/pillola-22/Pillola_di_OpenCoesione_n_19_Politiche_di_coesione_e_beni_confiscati.pdf">Pillola n. 19</a>)</td>
+                        <td><a href="{{ approfondimenti_2_3_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_2_3_file.file_ext }} {{ approfondimenti_2_3_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                     <tr>
                         <td class="label">Metadati</td>
-                        <td><a href="{{ approfondimenti_1_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_1_metadata_file.file_ext }} {{ approfondimenti_1_metadata_file.file_size|filesizeformat }}]</a></td>
+                        <td><a href="{{ approfondimenti_2_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_2_metadata_file.file_ext }} {{ approfondimenti_2_metadata_file.file_size|filesizeformat }}]</a></td>
+                    </tr>
+                </table>
+            </div>
+
+            <h4 class="switcher" data-target="approfondimenti-3-content" style="font-size: 16px; text-transform: none; margin-top: 8px"><a href="#">Turismo <i></i></a></h4>
+
+            <div id="approfondimenti-3-content">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent iaculis in ex a placerat. Donec sed maximus augue. Integer tempus consequat lorem, in placerat mauris dignissim eget. Curabitur imperdiet rhoncus ultrices. Phasellus condimentum dui non nisi congue, vitae condimentum risus aliquam. Vestibulum a varius augue, vel varius justo. Vivamus et orci odio. Nunc a odio nec arcu vehicula aliquet.</p>
+
+                <table class="table">
+                    <tr>
+                        <td class="label">Progetti turismo (aggiornamento {{ approfondimenti_3_1_file.file_date|date:'SHORT_DATE_FORMAT' }})</td>
+                        <td><a href="{{ approfondimenti_3_1_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_3_1_file.file_ext }} {{ approfondimenti_3_1_file.file_size|filesizeformat }}]</a></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Metadati</td>
+                        <td><a href="{{ approfondimenti_3_metadata_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_3_metadata_file.file_ext }} {{ approfondimenti_3_metadata_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                 </table>
             </div>

@@ -7,23 +7,21 @@ from datetime import date, timedelta
 from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, Http404
-from django.views.generic.base import TemplateView
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView
+from django.views.generic import DetailView, ListView, TemplateView, FormView
 from forms import DescrizioneProgettoForm
 from gruppo_programmi import GruppoProgrammi, split_by_type
 from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione,\
-    Ruolo, Tema, Fonte, SegnalazioneProgetto
+    Ruolo, Tema, Fonte, SegnalazioneProgetto, MonitoraggioASOC
 from oc_search.views import OCFacetedSearchView
 from open_coesione import utils
-from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context
+from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context, OpendataView
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
 
 class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
     model = Progetto
-    queryset = Progetto.fullobjects.get_query_set().select_related('programma_asse_obiettivo__classificazione_superiore__classificazione_superiore', 'programma_linea_azione__classificazione_superiore__classificazione_superiore', 'classificazione_qsn__classificazione_superiore__classificazione_superiore', 'classificazione_azione__classificazione_superiore', 'tema__tema_superiore')
+    queryset = Progetto.fullobjects.get_query_set().select_related('programma_asse_obiettivo__classificazione_superiore__classificazione_superiore', 'programma_linea_azione__classificazione_superiore__classificazione_superiore', 'classificazione_qsn__classificazione_superiore__classificazione_superiore', 'classificazione_azione__classificazione_superiore', 'tema__tema_superiore', 'monitoraggioasoc')
 
     def get_x_robots_tag(self):
         return 'noindex' if (self.object.privacy_flag or (not self.object.active_flag)) else False
@@ -995,3 +993,24 @@ class SegnalazioneDetailView(DetailView):
     context_object_name = 'segnalazione'
     model = SegnalazioneProgetto
     template_name = 'segnalazione/singola.html'
+
+
+class MonitoraggioASOCListView(ListView):
+    model = MonitoraggioASOC
+
+    def get_queryset(self):
+        return super(MonitoraggioASOCListView, self).get_queryset().order_by('-edizione_asoc').select_related('progetto', 'istituto_comune')
+
+    def get_context_data(self, **kwargs):
+        context = super(MonitoraggioASOCListView, self).get_context_data(**kwargs)
+
+        context['data_file'] = OpendataView.get_complete_localfile('progetti_asoc.csv')
+        context['metadata_file'] = OpendataView.get_complete_localfile('progetti_asoc.csv')
+
+        for object in context['object_list']:
+            object.istituto_regione = Territorio.objects.regioni_by_cod[object.istituto_comune.cod_reg]
+            object.istituto_provincia = Territorio.objects.provincie_by_cod[object.istituto_comune.cod_prov]
+
+        context['object_list'] = sorted(context['object_list'], key=lambda x: (x.istituto_regione, x.istituto_provincia, x.istituto_comune, x.istituto_nome))
+
+        return context

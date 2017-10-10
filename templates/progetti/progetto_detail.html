@@ -125,6 +125,13 @@
                     {% endaddtoblock %}
                 {% endif %}
 
+                {% if progetto.monitoraggioasoc %}
+                    <a href="{{ progetto.monitoraggioasoc.blog_url }}" id="banner_monitoraggio_progetto" class="baloons-block">
+                        <i></i>
+                        <p><span>Questo progetto</span> è monitorato da "A Scuola di OpenCoesione".</p>
+                    </a>
+                {% endif %}
+
                 <a href="{% url 'progetti_segnalazione' %}?{% if progetto.cipe_flag %}clp={{ progetto.codice_locale }}{% else %}cup={{ progetto.cup }}{% endif %}" id="banner_segnalazione_progetto" class="baloons-block">
                     <i></i>
                     <p>Sei un protagonista di questo progetto? <span>Raccontacelo qui</span>.</p>

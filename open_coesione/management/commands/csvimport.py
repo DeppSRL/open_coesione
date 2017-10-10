@@ -15,7 +15,7 @@ from django.db.utils import DatabaseError, IntegrityError
 from optparse import make_option
 from progetti.models import Progetto, ProgettoDeliberaCIPE, DeliberaCIPE, Ruolo, Localizzazione, PagamentoProgetto,\
     ProgrammaAsseObiettivo, ProgrammaLineaAzione, ClassificazioneAzione, ClassificazioneOggetto, ClassificazioneQSN,\
-    Tema, Fonte
+    Tema, Fonte, MonitoraggioASOC
 from soggetti.models import Soggetto
 from territori.models import Territorio
 
@@ -176,6 +176,11 @@ class Command(BaseCommand):
         'sovrapposizioni-fonti': {
             'files': ['sovrapposizioni_{}.csv'],
             'import_method': '_import_sovrapposizioni_fonti',
+            'converters': None,
+        },
+        'monitoraggi-asoc': {
+            'files': ['progetti_asoc.csv'],
+            'import_method': '_import_progetti_asoc',
             'converters': None,
         },
     }
@@ -1316,6 +1321,39 @@ class Command(BaseCommand):
                 for codice in codici_attuali:
                     progetto.fonte_set.add(fonti_cod2obj[codice])
                 self.logger.debug(u' |-- Aggiunti codici attuali: {}'.format(','.join(codici_attuali)))
+
+    @transaction.commit_on_success
+    def _import_progetti_asoc(self, df):
+        df_count = len(df)
+
+        for n, (index, row) in enumerate(df.iterrows(), 1):
+            try:
+                progetto = Progetto.fullobjects.get(codice_locale=row['COD_LOCALE_PROGETTO'])
+            except ObjectDoesNotExist:
+                self.logger.warning(u'{}/{} - Progetto non trovato: {}. Skipping'.format(n, df_count, row['COD_LOCALE_PROGETTO']))
+            else:
+                provincia_den2cod = {o.denominazione: o.cod_prov for o in Territorio.objects.provincie()}
+
+                try:
+                    territorio = Territorio.objects.comuni().get(cod_prov=provincia_den2cod.get(row['PROVINCIA_ISTITUTO']), denominazione=row['COMUNE_ISTITUTO'])
+                except ObjectDoesNotExist:
+                    self.logger.warning(u'{}/{} - Territorio non trovato: {}/{}. Skipping'.format(n, df_count, row['PROVINCIA_ISTITUTO'], row['COMUNE_ISTITUTO']))
+                except MultipleObjectsReturned:
+                    self.logger.warning(u'{}/{} - Più di un territorio trovato: {}/{}. Skipping'.format(n, df_count, row['PROVINCIA_ISTITUTO'], row['COMUNE_ISTITUTO']))
+                else:
+                    MonitoraggioASOC.objects.create(
+                        progetto=progetto,
+                        titolo_progetto=self._get_value(row, 'OC_TITOLO_PROGETTO'),
+                        edizione_asoc=self._get_value(row, 'EDIZIONE_ASOC'),
+                        istituto_nome=self._get_value(row, 'ISTITUTO'),
+                        istituto_comune=territorio,
+                        team=self._get_value(row, 'TEAM_ASOC'),
+                        blog_url=self._get_value(row, 'LINK_BLOG'),
+                        monithon_url=self._get_value(row, 'LINK_MONITHON'),
+                        elaborato_url=self._get_value(row, 'LINK_ELABORATO'),
+                    )
+
+                    self.logger.info(u'{}/{} - Creato monitoraggio ASOC per il progetto: {}'.format(n, df_count, progetto))
 
     # def handle_prog(self, unicode_reader):
     #     ccodice = 'OC_CODICE_PROGRAMMA'

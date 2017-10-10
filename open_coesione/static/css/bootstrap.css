@@ -5805,7 +5805,7 @@ hr.medium.dark {
   display: inline-block;
   width: 30px;
   height: 30px;
-  background: transparent url('../img/icon-baloons-small.png') no-repeat left top;
+  background: transparent url('../img/icon-baloons-small.png') no-repeat left center;
   color: white;
   font-size: 12px;
   font-weight: bold;
@@ -5825,11 +5825,19 @@ hr.medium.dark {
 .baloons-block p a:hover {
   text-decoration: none;
 }
+#banner_monitoraggio_progetto.baloons-block:hover,
 #banner_segnalazione_progetto.baloons-block:hover {
   text-decoration: none;
 }
+#banner_monitoraggio_progetto.baloons-block span,
 #banner_segnalazione_progetto.baloons-block span {
   text-decoration: underline;
+}
+#banner_monitoraggio_progetto.baloons-block {
+  background-color: #F1F7F2;
+}
+#banner_monitoraggio_progetto.baloons-block i {
+  background-image: url('../img/icon-asoc.png');
 }
 #segnalazioni_progetto p {
   text-transform: none;
