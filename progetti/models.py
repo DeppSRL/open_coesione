@@ -797,3 +797,11 @@ class MonitoraggioASOC(models.Model):
     blog_url = models.URLField()
     monithon_url = models.URLField(blank=True, null=True)
     elaborato_url = models.URLField(blank=True, null=True)
+
+    @property
+    def istituto_regione(self):
+        return self.istituto_comune.regione
+
+    @property
+    def istituto_provincia(self):
+        return self.istituto_comune.provincia
