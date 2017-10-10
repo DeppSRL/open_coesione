@@ -785,3 +785,15 @@ class SegnalazioneProgetto(TimeStampedModel):
     class Meta:
         verbose_name = 'Segnalazione'
         verbose_name_plural = 'Segnalazioni'
+
+
+class MonitoraggioASOC(models.Model):
+    progetto = models.OneToOneField(Progetto)
+    titolo_progetto = models.TextField()
+    edizione_asoc = models.CharField(max_length=10)
+    istituto_nome = models.CharField(max_length=255)
+    istituto_comune = models.ForeignKey(Territorio)
+    team = models.CharField(max_length=255)
+    blog_url = models.URLField()
+    monithon_url = models.URLField(blank=True, null=True)
+    elaborato_url = models.URLField(blank=True, null=True)

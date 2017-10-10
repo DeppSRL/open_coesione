@@ -1,0 +1,62 @@
+{% extends 'base_one_column.html' %}
+
+{% load sekizai_tags %}
+
+{% block page_title %}Progetti ASOC{% endblock %}
+
+{% block content %}
+    <div class="flat_content">
+        <h1>Progetti ASOC</h1>
+
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent iaculis in ex a placerat. Donec sed maximus augue. Integer tempus consequat lorem, in placerat mauris dignissim eget. Curabitur imperdiet rhoncus ultrices. Phasellus condimentum dui non nisi congue, vitae condimentum risus aliquam. Vestibulum a varius augue, vel varius justo. Vivamus et orci odio. Nunc a odio nec arcu vehicula aliquet.</p>
+
+        <p><a href="{{ data_file.file_name }}">Progetti ASOC</a> ({{ data_file.file_ext }}, {{ data_file.file_size|filesizeformat }})</p>
+        <p><a href="{{ metadata_file.file_name }}">Metadati</a> ({{ metadata_file.file_ext }}, {{ metadata_file.file_size|filesizeformat }})</p>
+    </div>
+
+    <div id="asoc" class="container area" style="margin-top: 30px; padding: 40px 20px">
+        <table class="display" width="100%" cellspacing="0">
+            <thead>
+            <tr>
+                <th>EDIZIONE</th>
+                <th>PROGETTO</th>
+                <th>ISTITUTO</th>
+                <th>REGIONE</th>
+                <th>PROVINCIA</th>
+                <th>COMUNE</th>
+                <th>TEAM</th>
+                <th>RICERCA</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in object_list %}
+                <tr>
+                    <td>{{ object.edizione_asoc }}</td>
+                    <td><a href="{{ object.progetto.get_absolute_url }}">{{ object.titolo_progetto }}</a></td>
+                    <td>{{ object.istituto_nome }}</td>
+                    <td>{{ object.istituto_regione }}</td>
+                    <td>{{ object.istituto_provincia }}</td>
+                    <td><a href="{{ object.istituto_comune.get_absolute_url }}">{{ object.istituto_comune }}</a></td>
+                    <td><a href="{{ object.blog_url }}">{{ object.team }}</a></td>
+                    <td>
+                        {% if object.monithon_url %}
+                            <a href="{{ object.monithon_url }}">report monithon</a>
+                        {% endif %}
+                        {% if object.elaborato_url %}
+                            <a href="{{ object.elaborato_url }}">elaborato creativo</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% addtoblock 'css' strip %}
+        <link rel="stylesheet" href="//cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css" />
+    {% endaddtoblock %}
+    {% addtoblock 'js' strip %}
+        <script src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+    {% endaddtoblock %}
+    {% add_data 'js-data' 'js/oc-asoc.js' %}
+{% endblock %}

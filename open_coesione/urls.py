@@ -3,6 +3,7 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib.gis import admin
 from django.views.generic.base import TemplateView
+from progetti.views import MonitoraggioASOCListView
 from views import HomeView, FondiView, RisorsaView, ContactView, SpesaCertificataGraficiView,\
     OpendataView, OpendataRedirectView, PillolaListView, PillolaDetailView, DocumentsRedirectView, FAQListView,\
     PressReviewListView, DatiISTATView, SpesaCertificataView, IndicatoriAccessoView, OpportunitaDetailView
@@ -26,6 +27,7 @@ urlpatterns = patterns('',
 
     # progetti
     url(r'^progetti/', include('progetti.urls')),
+    url(r'^ASOC/$', MonitoraggioASOCListView.as_view(), name='monitoraggio-asoc'),
 
     # soggetti
     url(r'^soggetti/', include('soggetti.urls')),
