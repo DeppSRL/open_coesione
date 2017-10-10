@@ -1007,10 +1007,6 @@ class MonitoraggioASOCListView(ListView):
         context['data_file'] = OpendataView.get_complete_localfile('progetti_asoc.csv')
         context['metadata_file'] = OpendataView.get_complete_localfile('progetti_asoc.csv')
 
-        for object in context['object_list']:
-            object.istituto_regione = Territorio.objects.regioni_by_cod[object.istituto_comune.cod_reg]
-            object.istituto_provincia = Territorio.objects.provincie_by_cod[object.istituto_comune.cod_prov]
-
-        context['object_list'] = sorted(context['object_list'], key=lambda x: (x.istituto_regione, x.istituto_provincia, x.istituto_comune, x.istituto_nome))
+        context['object_list'] = sorted(context['object_list'], key=lambda x: (x.istituto_regione.denominazione, x.istituto_provincia.denominazione, x.istituto_comune.denominazione, x.istituto_nome))
 
         return context
