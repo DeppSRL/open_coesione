@@ -79,7 +79,7 @@ def convert_progetto_cup_cod_categoria(val):
     return val
 
 
-def convert_oc_tema_sintetico(val):
+def convert_progetto_oc_tema_sintetico(val):
     topic_map = {
         u'Rinnovamento urbano e rurale': u'Rinnovamento urbano  e rurale',
         u'Rafforzamento delle capacità della PA': u'Rafforzamento capacità della PA',
@@ -100,14 +100,14 @@ def convert_progetto_qsn_cod_tema_prioritario_ue(val):
     return val
 
 
-def convert_soggetto_oc_denominazione_sogg(val):
-    return re.sub('\s{2,}', u' ', val).strip()
-    # return val.encode('ascii', 'ignore').strip()
-
-
 def convert_progettocipe_cup(val):
     val = re.sub('[\s\n\r]+', '', val)
     return tuple(val.split(':::')) if val else ()
+
+
+def convert_soggetto_oc_denominazione_sogg(val):
+    return re.sub('\s{2,}', u' ', val).strip()
+    # return val.encode('ascii', 'ignore').strip()
 
 
 class Command(BaseCommand):
@@ -126,7 +126,7 @@ class Command(BaseCommand):
                 'CUP_COD_SETTORE': convert_progetto_cup_cod_settore,
                 'CUP_COD_SOTTOSETTORE': convert_progetto_cup_cod_sottosettore,
                 'CUP_COD_CATEGORIA': convert_progetto_cup_cod_categoria,
-                'OC_TEMA_SINTETICO': convert_oc_tema_sintetico,
+                'OC_TEMA_SINTETICO': convert_progetto_oc_tema_sintetico,
                 'QSN_COD_TEMA_PRIORITARIO_UE': convert_progetto_qsn_cod_tema_prioritario_ue,
             },
         },
