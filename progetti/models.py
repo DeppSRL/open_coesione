@@ -25,11 +25,12 @@ class ClassificazioneBase(models.Model):
     tipo_classificazione = models.CharField(max_length=32, choices=TIPO)
 
     @property
-    def classificazioni_figlie(self):
-        return self.classificazione_set
+    def is_root(self):
+        return self.classificazione_superiore_id is None
 
     @property
     def progetti(self):
+        raise Exception('PIPPO')
         return self.progetto_set
 
     @property
@@ -57,10 +58,6 @@ class ProgrammaBase(ClassificazioneBase):
         while p.classificazione_superiore is not None:
             p = p.classificazione_superiore
         return p
-
-    @property
-    def is_root(self):
-        return self.tipo_classificazione == self.TIPO.programma
 
     def get_absolute_url(self):
         return reverse('progetti_programma', kwargs={'codice': self.codice})
@@ -138,23 +135,6 @@ class ClassificazioneAzione(ClassificazioneBase):
 
     objects = ClassificazioneAzioneManager()
 
-    @property
-    def is_root(self):
-        return self.tipo_classificazione == self.TIPO.natura
-
-    def costo_totale(self, territorio=None):
-        if self.is_root:
-            prefix = 'progetto_set__'
-            query_set = self.classificazioni_figlie
-        else:
-            prefix = ''
-            query_set = self.progetti
-
-        if territorio:
-            query_set = query_set.filter(**territorio.get_cod_dict('{}territorio_set__'.format(prefix)))
-
-        return query_set.aggregate(totale=models.Sum('{}fin_totale_pubblico'.format(prefix)))['totale'] or 0.0
-
     def get_absolute_url(self):
         return reverse('progetti_tipologia', kwargs={'slug': self.slug})
 
@@ -207,16 +187,13 @@ class Tema(models.Model):
     objects = TemaManager()
 
     @property
-    def temi_figli(self):
-        return self.tema_set
+    def is_root(self):
+        return self.tema_superiore_id is None
 
     @property
     def progetti(self):
+        raise Exception('PIPPO')
         return self.progetto_set
-
-    @property
-    def is_root(self):
-        return self.tipo_tema == self.TIPO.sintetico
 
     def totale_pro_capite(self, territorio_or_popolazione):
         if isinstance(territorio_or_popolazione, (int, float)):
@@ -233,10 +210,10 @@ class Tema(models.Model):
         cache_key = ['costo_totale']
         if self.is_root:
             prefix = 'progetto_set__'
-            query_set = self.temi_figli
+            query_set = self.tema_set
         else:
             prefix = ''
-            query_set = self.progetti
+            query_set = self.progetto_set
         cache_key.append(str(self.codice))
 
         if territorio:
@@ -275,6 +252,7 @@ class Fonte(models.Model):
 
     @property
     def progetti(self):
+        raise Exception('PIPPO')
         return self.progetto_set
 
     def __unicode__(self):

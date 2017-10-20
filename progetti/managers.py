@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from django.db import models
-from territori.models import Territorio
 
 
 class ProgettoQuerySet(models.query.QuerySet):
@@ -35,16 +34,6 @@ class ProgettoQuerySet(models.query.QuerySet):
     #         conditions.add(models.Q(**{k: v[0]} if len(v) == 1 else {'{}__in'.format(k): v}), models.Q.OR)
     #     return self.filter(conditions).distinct()
 
-    def nei_territori(self, territori):
-        from itertools import groupby
-        from operator import itemgetter
-
-        conditions = models.Q()
-        for key, group in groupby(sorted([(k, v) for territorio in territori for k, v in territorio.get_cod_dict('territorio_set__').items()], key=itemgetter(0)), key=itemgetter(0)):
-            vals = map(itemgetter(1), group)
-            conditions.add(models.Q(**{key: vals[0]} if len(vals) == 1 else {'{}__in'.format(key): vals}), models.Q.OR)
-        return self.filter(conditions).distinct()
-
     # def nei_territori(self, territori):
     #     from itertools import groupby
     #     from operator import itemgetter
@@ -55,6 +44,16 @@ class ProgettoQuerySet(models.query.QuerySet):
     #         conditions.add(models.Q(**{key: vals[0]} if len(vals) == 1 else {'{}__in'.format(key): vals}), models.Q.OR)
     #
     #     return self.filter(territorio_set__pk__in=list(Territorio.objects.filter(conditions).values_list('pk', flat=True))).distinct()
+
+    def nei_territori(self, territori):
+        from itertools import groupby
+        from operator import itemgetter
+
+        conditions = models.Q()
+        for key, group in groupby(sorted([(k, v) for territorio in territori for k, v in territorio.get_cod_dict('territorio_set__').items()], key=itemgetter(0)), key=itemgetter(0)):
+            vals = map(itemgetter(1), group)
+            conditions.add(models.Q(**{key: vals[0]} if len(vals) == 1 else {'{}__in'.format(key): vals}), models.Q.OR)
+        return self.filter(conditions).distinct()
 
     def con_tema(self, tema):
         if tema.is_root:
@@ -77,40 +76,6 @@ class ProgettoQuerySet(models.query.QuerySet):
             models.Q(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore__in=programmi_splitted['programmi_asse_obiettivo']) |
             models.Q(programma_linea_azione__classificazione_superiore__classificazione_superiore__in=programmi_splitted['programmi_linea_azione'])
         )
-
-    # def myfilter(self, **kwargs):
-    #     queryset = self
-    #
-    #     soggetto = kwargs.pop('soggetto', None)
-    #     if soggetto:
-    #         queryset = queryset.del_soggetto(soggetto)
-    #
-    #     territori = kwargs.pop('territori', None)
-    #     if territori:
-    #         queryset = queryset.nei_territori(territori)
-    #
-    #     tema = kwargs.pop('tema', None)
-    #     if tema:
-    #         queryset = queryset.con_tema(tema)
-    #
-    #     classificazione = kwargs.pop('classificazione', None)
-    #     if classificazione:
-    #         queryset = queryset.con_natura(classificazione)
-    #
-    #     programmi = kwargs.pop('programmi', None)
-    #     if programmi:
-    #         queryset = queryset.con_programmi(programmi)
-    #
-    #     return queryset
-
-    # def totale_costi(self, **kwargs):
-    #     return self.myfilter(**kwargs).totali()['totale_costi']
-
-    # def totale_pagamenti(self, **kwargs):
-    #     return self.myfilter(**kwargs).totali()['totale_pagamenti']
-
-    # def totale_progetti(self, **kwargs):
-    #     return self.myfilter(**kwargs).totali()['totale_progetti']
 
     def totali(self):
         return self._totali()[0]
@@ -177,28 +142,11 @@ class ProgettoManager(models.Manager):
     def con_programmi(self, programmi):
         return self.get_query_set().con_programmi(programmi)
 
-    # def myfilter(self, **kwargs):
-    #     return self.get_query_set().myfilter(**kwargs)
-
     def totali(self):
         return self.get_query_set().totali()
 
     def totali_group_by(self, group_by):
         return self.get_query_set().totali_group_by(group_by)
-
-    # def totale_costi(self, **kwargs):
-    #     return self.get_query_set().totale_costi(**kwargs)
-
-    # def totale_pagamenti(self, **kwargs):
-    #     return self.get_query_set().totale_pagamenti(**kwargs)
-
-    # def totale_progetti(self, **kwargs):
-    #     return self.get_query_set().totale_progetti(**kwargs)
-
-    # def totale_costi_procapite(self, **kwargs):
-    #     from territori.models import Territorio
-    #     territorio = kwargs.setdefault('territorio', Territorio.objects.nazione())
-    #     return round(self.get_query_set().totale_costi(**kwargs) / territorio.popolazione_totale) if territorio.popolazione_totale else 0
 
 
 class FullProgettoManager(ProgettoManager):
@@ -206,21 +154,31 @@ class FullProgettoManager(ProgettoManager):
         return ProgettoQuerySet(self.model, using=self._db)
 
 
-class TemaManager(models.Manager):
+class TemaQuerySet(models.query.QuerySet):
     def principali(self):
-        return self.get_query_set().filter(tipo_tema=self.model.TIPO.sintetico).order_by('priorita')
+        return self.filter(tipo_tema=self.model.TIPO.sintetico).order_by('priorita')
 
-    def costo_totale(self):
-        return self.get_query_set().annotate(totale=models.Sum('progetto_set__fin_totale_pubblico'))
+
+class TemaManager(models.Manager):
+    def get_query_set(self):
+        return TemaQuerySet(self.model, using=self._db)
+
+    def principali(self):
+        return self.get_query_set().principali()
+
+
+class ClassificazioneAzioneQuerySet(models.query.QuerySet):
+    def nature(self):
+        # return self.filter(tipo_classificazione=self.model.TIPO.natura).filter(classificazione_set__progetto_set__active_flag=True).distinct().order_by('priorita')
+        return self.filter(tipo_classificazione=self.model.TIPO.natura).filter(priorita__gt=0).order_by('priorita')
 
 
 class ClassificazioneAzioneManager(models.Manager):
-    def nature(self):
-        # return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.natura).filter(classificazione_set__progetto_set__active_flag=True).distinct().order_by('priorita')
-        return self.get_query_set().filter(tipo_classificazione=self.model.TIPO.natura).filter(priorita__gt=0).order_by('priorita')
+    def get_query_set(self):
+        return ClassificazioneAzioneQuerySet(self.model, using=self._db)
 
-    def costo_totale(self):
-        return self.get_query_set().annotate(totale=models.Sum('progetto_set__fin_totale_pubblico'))
+    def nature(self):
+        return self.get_query_set().nature()
 
 
 class ProgrammaQuerySet(models.query.QuerySet):

@@ -423,9 +423,9 @@ class ProgrammaView(BaseProgrammaView):
 
     def get_object(self):
         try:
-            return ProgrammaLineaAzione.objects.get(pk=self.kwargs.get('codice'))
+            return ProgrammaLineaAzione.objects.programmi().get(pk=self.kwargs.get('codice'))
         except ProgrammaLineaAzione.DoesNotExist:
-            return ProgrammaAsseObiettivo.objects.get(pk=self.kwargs.get('codice'))
+            return ProgrammaAsseObiettivo.objects.programmi().get(pk=self.kwargs.get('codice'))
 
     def get_progetti_queryset(self):
         return Progetto.objects.con_programmi([self.get_object()])
@@ -477,6 +477,9 @@ class ClassificazioneAzioneView(AggregatoMixin, DetailView):
     context_object_name = 'natura'
     model = ClassificazioneAzione
 
+    def get_queryset(self):
+        return super(ClassificazioneAzioneView, self).get_queryset().nature()
+
     def get_progetti_queryset(self):
         return Progetto.objects.con_natura(self.object)
 
@@ -504,6 +507,9 @@ class ClassificazioneAzioneView(AggregatoMixin, DetailView):
 
 class TemaView(AggregatoMixin, DetailView):
     model = Tema
+
+    def get_queryset(self):
+        return super(TemaView, self).get_queryset().principali()
 
     def get_progetti_queryset(self):
         return Progetto.objects.con_tema(self.object)
