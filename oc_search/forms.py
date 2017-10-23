@@ -88,7 +88,7 @@ class OCFacetedSearchForm(MultiSelectWithRangeFacetedSearchForm):
                 except:
                     pass
                 else:
-                    sqs = sqs.filter_(fonte_fin__in=[p.codice for p in gruppo_programmi.programmi])
+                    sqs = sqs.filter(fonte_fin__in=[p.codice for p in gruppo_programmi.programmi])
 
             # aggiunge filtri territorio e fonte_fin, se presenti
             for fld in ('territorio_tipo', 'territorio_com', 'territorio_prov', 'territorio_reg', 'fonte_fin'):
