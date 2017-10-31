@@ -1324,6 +1324,8 @@ class Command(BaseCommand):
 
     @transaction.commit_on_success
     def _import_progetti_asoc(self, df):
+        MonitoraggioASOC.objects.all().delete()
+
         df_count = len(df)
 
         for n, (index, row) in enumerate(df.iterrows(), 1):
@@ -1335,7 +1337,7 @@ class Command(BaseCommand):
                 provincia_den2cod = {o.denominazione: o.cod_prov for o in Territorio.objects.provincie()}
 
                 try:
-                    territorio = Territorio.objects.comuni().get(cod_prov=provincia_den2cod.get(row['PROVINCIA_ISTITUTO']), denominazione=row['COMUNE_ISTITUTO'])
+                    territorio = Territorio.objects.comuni().get(cod_prov=provincia_den2cod.get(row['PROVINCIA_ISTITUTO']), denominazione__iexact=row['COMUNE_ISTITUTO'])
                 except ObjectDoesNotExist:
                     self.logger.warning(u'{}/{} - Territorio non trovato: {}/{}. Skipping'.format(n, df_count, row['PROVINCIA_ISTITUTO'], row['COMUNE_ISTITUTO']))
                 except MultipleObjectsReturned:

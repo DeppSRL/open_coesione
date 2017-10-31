@@ -766,7 +766,7 @@ class SegnalazioneProgetto(TimeStampedModel):
 
 
 class MonitoraggioASOC(models.Model):
-    progetto = models.OneToOneField(Progetto)
+    progetto = models.ForeignKey(Progetto, related_name='monitoraggi_asoc')
     titolo_progetto = models.TextField()
     edizione_asoc = models.CharField(max_length=10)
     istituto_nome = models.CharField(max_length=255)

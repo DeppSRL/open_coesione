@@ -125,12 +125,12 @@
                     {% endaddtoblock %}
                 {% endif %}
 
-                {% if progetto.monitoraggioasoc %}
-                    <a href="{{ progetto.monitoraggioasoc.blog_url }}" id="banner_monitoraggio_progetto" class="baloons-block">
+                {% for monitoraggio_asoc in progetto.monitoraggi_asoc.all %}
+                    <a href="{{ monitoraggio_asoc.blog_url }}" class="banner_monitoraggio_progetto baloons-block">
                         <i></i>
-                        <p><span>Questo progetto</span> è monitorato da "A Scuola di OpenCoesione".</p>
+                        <p><span>Questo progetto</span> è monitorato da "A Scuola di OpenCoesione" ({{ monitoraggio_asoc.istituto_nome }} / {{ monitoraggio_asoc.team }}).</p>
                     </a>
-                {% endif %}
+                {% endfor %}
 
                 <a href="{% url 'progetti_segnalazione' %}?{% if progetto.cipe_flag %}clp={{ progetto.codice_locale }}{% else %}cup={{ progetto.cup }}{% endif %}" id="banner_segnalazione_progetto" class="baloons-block">
                     <i></i>

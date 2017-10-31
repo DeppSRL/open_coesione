@@ -5825,18 +5825,18 @@ hr.medium.dark {
 .baloons-block p a:hover {
   text-decoration: none;
 }
-#banner_monitoraggio_progetto.baloons-block:hover,
+.banner_monitoraggio_progetto.baloons-block:hover,
 #banner_segnalazione_progetto.baloons-block:hover {
   text-decoration: none;
 }
-#banner_monitoraggio_progetto.baloons-block span,
+.banner_monitoraggio_progetto.baloons-block span,
 #banner_segnalazione_progetto.baloons-block span {
   text-decoration: underline;
 }
-#banner_monitoraggio_progetto.baloons-block {
+.banner_monitoraggio_progetto.baloons-block {
   background-color: #F1F7F2;
 }
-#banner_monitoraggio_progetto.baloons-block i {
+.banner_monitoraggio_progetto.baloons-block i {
   background-image: url('../img/icon-asoc.png');
 }
 #segnalazioni_progetto p {
