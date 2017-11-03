@@ -21,7 +21,7 @@ from territori.models import Territorio
 
 class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
     model = Progetto
-    queryset = Progetto.fullobjects.get_query_set().select_related('programma_asse_obiettivo__classificazione_superiore__classificazione_superiore', 'programma_linea_azione__classificazione_superiore__classificazione_superiore', 'classificazione_qsn__classificazione_superiore__classificazione_superiore', 'classificazione_azione__classificazione_superiore', 'tema__tema_superiore')
+    queryset = Progetto.fullobjects.get_query_set().select_related('programma_asse_obiettivo__classificazione_superiore__classificazione_superiore', 'programma_linea_azione__classificazione_superiore__classificazione_superiore', 'classificazione_qsn__classificazione_superiore__classificazione_superiore', 'classificazione_azione__classificazione_superiore', 'tema__tema_superiore').prefetch_related('monitoraggi_asoc__istituto_comune')
 
     def get_x_robots_tag(self):
         return 'noindex' if (self.object.privacy_flag or (not self.object.active_flag)) else False
