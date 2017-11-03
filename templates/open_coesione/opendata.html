@@ -563,14 +563,21 @@
                 </table>
             </div>
 
-            <h4 class="switcher" data-target="approfondimenti-3-content" style="font-size: 16px; text-transform: none; margin-top: 8px"><a href="#">Turismo <i></i></a></h4>
+            <h4 class="switcher" data-target="approfondimenti-3-content" style="font-size: 16px; text-transform: none; margin-top: 8px"><a href="#">Turismo, Cultura, Natura <i></i></a></h4>
 
             <div id="approfondimenti-3-content">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent iaculis in ex a placerat. Donec sed maximus augue. Integer tempus consequat lorem, in placerat mauris dignissim eget. Curabitur imperdiet rhoncus ultrices. Phasellus condimentum dui non nisi congue, vitae condimentum risus aliquam. Vestibulum a varius augue, vel varius justo. Vivamus et orci odio. Nunc a odio nec arcu vehicula aliquet.</p>
+                <p>
+                    Tra gli interventi per lo sviluppo territoriale, il miglioramento dell’attrattività turistica dei territori, dal carattere fortemente intersettoriale,
+                    viene perseguito attraverso la valorizzazione integrata degli asset naturali e culturali come fattori di contesto determinanti accanto a interventi specificamente rivolti al settore turistico.
+                    Il campo di osservazione comprende dunque interventi specifici per infrastrutture e servizi turistici (Turismo), interventi di tutela e valorizzazione delle risorse culturali (Cultura) e delle risorse naturali (Natura).
+                    Tale universo è oggetto delle analisi riportate nella “<a href="{% url 'pillola' 'pillola-n-38-politiche-di-coesione-e-turismo-focus-sullattuazione-del-ciclo-2007-2013-e-primi-elementi-della-programmazione-2014-2020' %}">Pillola n. 38 - Politiche di coesione e Turismo: focus sull’attuazione del ciclo 2007-2013</a>”,
+                    in cui si riportano anche primi elementi della programmazione 2014-2020 e, limitatamente ai Programmi Operativi cofinanziati con Fondi Strutturali,
+                    nella “<a href="{% url 'pillola' 'pillola-n-23-i-dati-al-30-giugno-2015-un-focus-sul-turismo' %}">Pillola n. 23 - L’attuazione delle politiche di coesione 2007-2013 al 30 giugno 2015: un focus sul turismo nelle politiche comunitarie in Italia</a>”.
+                </p>
 
                 <table class="table">
                     <tr>
-                        <td class="label">Progetti turismo (aggiornamento {{ approfondimenti_3_1_file.file_date|date:'SHORT_DATE_FORMAT' }})</td>
+                        <td class="label">Progetti turismo, cultura, natura (aggiornamento {{ approfondimenti_3_1_file.file_date|date:'SHORT_DATE_FORMAT' }} e <a href="/media/files/pillola-38/Pillola%20di%20OpenCoesione%20n.%2038%20-%20dati%20al%2030%20aprile%202017%20e%20focus%20sul%20Turismo.pdf">Pillola n. 38</a>)</td>
                         <td><a href="{{ approfondimenti_3_1_file.file_name }}">> [<i class="icon-download-alt"></i> {{ approfondimenti_3_1_file.file_ext }} {{ approfondimenti_3_1_file.file_size|filesizeformat }}]</a></td>
                     </tr>
                     <tr>
