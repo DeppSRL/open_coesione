@@ -179,7 +179,7 @@ class Command(BaseCommand):
             'converters': None,
         },
         'monitoraggi-asoc': {
-            'files': ['progetti_asoc.csv'],
+            'files': ['progetti_ASOC.csv'],
             'import_method': '_import_progetti_asoc',
             'converters': None,
         },

@@ -21,7 +21,7 @@ from territori.models import Territorio
 
 class ProgettoView(XRobotsTagTemplateResponseMixin, DetailView):
     model = Progetto
-    queryset = Progetto.fullobjects.get_query_set().select_related('programma_asse_obiettivo__classificazione_superiore__classificazione_superiore', 'programma_linea_azione__classificazione_superiore__classificazione_superiore', 'classificazione_qsn__classificazione_superiore__classificazione_superiore', 'classificazione_azione__classificazione_superiore', 'tema__tema_superiore', 'monitoraggioasoc')
+    queryset = Progetto.fullobjects.get_query_set().select_related('programma_asse_obiettivo__classificazione_superiore__classificazione_superiore', 'programma_linea_azione__classificazione_superiore__classificazione_superiore', 'classificazione_qsn__classificazione_superiore__classificazione_superiore', 'classificazione_azione__classificazione_superiore', 'tema__tema_superiore')
 
     def get_x_robots_tag(self):
         return 'noindex' if (self.object.privacy_flag or (not self.object.active_flag)) else False
@@ -1007,8 +1007,8 @@ class MonitoraggioASOCListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(MonitoraggioASOCListView, self).get_context_data(**kwargs)
 
-        context['data_file'] = OpendataView.get_complete_localfile('progetti_asoc.csv')
-        context['metadata_file'] = OpendataView.get_complete_localfile('progetti_asoc.csv')
+        context['data_file'] = OpendataView.get_complete_localfile('progetti_ASOC.csv')
+        context['metadata_file'] = OpendataView.get_complete_localfile('metadati_progetti_ASOC.xls')
 
         context['object_list'] = sorted(context['object_list'].select_related('progetto', 'istituto_comune').order_by('-edizione_asoc'), key=lambda x: (x.istituto_regione.denominazione, x.istituto_provincia.denominazione, x.istituto_comune.denominazione, x.istituto_nome))
 
