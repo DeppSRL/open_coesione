@@ -126,16 +126,24 @@
                 {% endif %}
 
                 {% for monitoraggio_asoc in progetto.monitoraggi_asoc.all %}
-                    <a href="{{ monitoraggio_asoc.blog_url }}" class="banner_monitoraggio_progetto baloons-block">
+                    <div class="banner_monitoraggio_progetto baloons-block">
                         <i></i>
-                        <p>A Scuola di OpenCoesione ha seguito questo progetto nell’edizione 20{{ monitoraggio_asoc.edizione_asoc|slice:'4:6' }}-{{ monitoraggio_asoc.edizione_asoc|slice:'6:8' }} con il <span>team “{{ monitoraggio_asoc.team }}”</span> dell’istituto “{{ monitoraggio_asoc.istituto_nome }}” di {{ monitoraggio_asoc.istituto_comune }}, {{ monitoraggio_asoc.istituto_provincia }}.</p>
-                    </a>
+                        <p>
+                            A Scuola di OpenCoesione ha seguito questo progetto nell’edizione 20{{ monitoraggio_asoc.edizione_asoc|slice:'4:6' }}-{{ monitoraggio_asoc.edizione_asoc|slice:'6:8' }} con il team <a href="{{ monitoraggio_asoc.blog_url }}">“{{ monitoraggio_asoc.team }}”</a> dell’istituto “{{ monitoraggio_asoc.istituto_nome }}” di {{ monitoraggio_asoc.istituto_comune }}, {{ monitoraggio_asoc.istituto_provincia }}.
+                            {% if monitoraggio_asoc.monithon_url %}
+                                <br/>Leggi il <a href="{{ monitoraggio_asoc.monithon_url }}">report Monithon</a>.
+                            {% endif %}
+                            {% if monitoraggio_asoc.elaborato_url %}
+                                <br/>Guarda l’<a href="{{ monitoraggio_asoc.elaborato_url }}">elaborato creativo</a>.
+                            {% endif %}
+                        </p>
+                    </div>
                 {% endfor %}
 
-                <a href="{% url 'progetti_segnalazione' %}?{% if progetto.cipe_flag %}clp={{ progetto.codice_locale }}{% else %}cup={{ progetto.cup }}{% endif %}" id="banner_segnalazione_progetto" class="baloons-block">
+                <div id="banner_segnalazione_progetto" class="baloons-block">
                     <i></i>
-                    <p>Sei un protagonista di questo progetto? <span>Raccontacelo qui</span>.</p>
-                </a>
+                    <p>Sei un protagonista di questo progetto? <a href="{% url 'progetti_segnalazione' %}?{% if progetto.cipe_flag %}clp={{ progetto.codice_locale }}{% else %}cup={{ progetto.cup }}{% endif %}">Raccontacelo qui</a>.</p>
+                </div>
 
                 {% if progetto.segnalazioni %}
                     <div id="segnalazioni_progetto" class="baloons-block">

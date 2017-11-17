@@ -767,19 +767,22 @@ hr.medium {
     }
 }
 
-.banner_monitoraggio_progetto.baloons-block,
-#banner_segnalazione_progetto.baloons-block {
-    &:hover {
-        text-decoration: none;
-    }
+#banner_segnalazione_progetto.baloons-block,
+.banner_monitoraggio_progetto.baloons-block {
+    p {
+        a {
+            text-decoration: none;
 
-    span {
-        text-decoration: underline;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
     }
 }
 
 .banner_monitoraggio_progetto.baloons-block {
     background-color: #F1F7F2;
+
     i {
         background-image: url('../img/icon-asoc.png');
     }

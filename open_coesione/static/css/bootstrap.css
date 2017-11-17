@@ -5825,12 +5825,12 @@ hr.medium.dark {
 .baloons-block p a:hover {
   text-decoration: none;
 }
-.banner_monitoraggio_progetto.baloons-block:hover,
-#banner_segnalazione_progetto.baloons-block:hover {
+#banner_segnalazione_progetto.baloons-block p a,
+.banner_monitoraggio_progetto.baloons-block p a {
   text-decoration: none;
 }
-.banner_monitoraggio_progetto.baloons-block span,
-#banner_segnalazione_progetto.baloons-block span {
+#banner_segnalazione_progetto.baloons-block p a:hover,
+.banner_monitoraggio_progetto.baloons-block p a:hover {
   text-decoration: underline;
 }
 .banner_monitoraggio_progetto.baloons-block {
