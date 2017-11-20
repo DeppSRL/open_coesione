@@ -5090,8 +5090,10 @@ a.block-chart {
   }
   #banner-container #banner ul li a#opportunita:after {
     position: absolute;
+    top: 100%;
     left: 50%;
-    top: 21px;
+    margin-top: -8px;
+    margin-left: -10px;
     height: 0;
     width: 0;
     content: ' ';
