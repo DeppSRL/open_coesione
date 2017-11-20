@@ -5004,8 +5004,7 @@ a.block-chart {
   text-align: center;
 }
 #banner-container #banner {
-  display: inline-block;
-  overflow: hidden;
+  display: table;
   margin: -25px auto 0 auto;
   text-transform: uppercase;
   color: #005652;
@@ -5025,31 +5024,34 @@ a.block-chart {
 #banner-container #banner a {
   display: block;
 }
-#banner-container #banner > a {
-  float: left;
-  margin-left: 20px;
+#banner-container #banner > div {
+  padding: 0 10px 8px 10px;
+}
+#banner-container #banner > div:first-of-type a {
+  margin-top: 8px;
   font-size: 22px;
-  line-height: 46px;
+  line-height: 30px;
   font-weight: bold;
   text-shadow: 0 1px 0 #ffffff;
 }
 #banner-container #banner ul {
   list-style: none;
-  float: right;
-  margin: 0 0 0 50px;
+  margin: 0;
+  overflow: hidden;
 }
 #banner-container #banner ul li {
   float: left;
+  margin-top: 8px;
+  margin-right: 10px;
 }
 #banner-container #banner ul li a {
-  border: 1px solid #c9c7c3;
+  font-size: 16px;
   line-height: 28px;
-  margin: 8px 10px 8px 0;
+  border: 1px solid #c9c7c3;
   padding: 0 10px 0 30px;
   background-color: #ffffff;
   background-position: 6px 50%;
   background-repeat: no-repeat;
-  font-size: 16px;
 }
 #banner-container #banner ul li a#risorse {
   background-image: url('../img/banner1420/risorse_ico.png');
@@ -5072,6 +5074,72 @@ a.block-chart {
 #banner-container #banner ul li a:hover {
   text-decoration: none;
   background-color: #eae9e5;
+}
+#banner-container #banner ul li:last-of-type {
+  margin-right: 0;
+}
+#banner-container #banner #opportunita-info {
+  display: none;
+}
+@media (min-width: 768px) {
+  #banner-container #banner ul {
+    padding-bottom: 10px;
+  }
+  #banner-container #banner ul li a#opportunita {
+    position: relative;
+  }
+  #banner-container #banner ul li a#opportunita:after {
+    position: absolute;
+    left: 50%;
+    top: 21px;
+    height: 0;
+    width: 0;
+    content: ' ';
+    border: 10px solid transparent;
+    border-bottom-color: #438B87;
+    pointer-events: none;
+  }
+  #banner-container #banner #opportunita-info {
+    display: block;
+    width: 100%;
+    padding: 3px 0;
+    background-color: #2f7d7a;
+    background-image: -moz-linear-gradient(top, #438b87, #116866);
+    background-image: -ms-linear-gradient(top, #438b87, #116866);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#438b87), to(#116866));
+    background-image: -webkit-linear-gradient(top, #438b87, #116866);
+    background-image: -o-linear-gradient(top, #438b87, #116866);
+    background-image: linear-gradient(top, #438b87, #116866);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#438b87', endColorstr='#116866', GradientType=0);
+  }
+  #banner-container #banner #opportunita-info li {
+    float: none;
+    display: table-cell;
+    width: 1%;
+    white-space: nowrap;
+    text-align: center;
+    color: #CCFFFF;
+    font-size: 11px;
+    font-weight: bold;
+  }
+  #banner-container #banner #opportunita-info li + li {
+    border-left: 1px solid #CCFFFF;
+  }
+  #banner-container #banner #opportunita-info li span {
+    color: #ffffff;
+    font-size: 16px;
+  }
+}
+@media (min-width: 1200px) {
+  #banner-container #banner > div {
+    display: table-cell;
+    vertical-align: top;
+    padding-left: 40px;
+  }
+  #banner-container #banner > div:first-of-type {
+    padding-left: 20px;
+  }
 }
 ul#menu-1420 {
   list-style: none;

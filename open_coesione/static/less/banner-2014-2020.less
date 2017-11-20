@@ -4,8 +4,7 @@
     text-align: center;
 
     #banner {
-        display: inline-block;
-        overflow: hidden;
+        display: table;
         margin: -25px auto 0 auto;
 
         text-transform: uppercase;
@@ -18,32 +17,38 @@
             display: block;
         }
 
-        > a {
-            float: left;
-            margin-left: 20px;
-            font-size: 22px;
-            line-height: 46px;
-            font-weight: bold;
-            text-shadow: 0 1px 0 @white;
+        > div {
+            padding: 0 10px 8px 10px;
+
+            &:first-of-type {
+                a {
+                    margin-top: 8px;
+                    font-size: 22px;
+                    line-height: 30px;
+                    font-weight: bold;
+                    text-shadow: 0 1px 0 @white;
+                }
+            }
         }
 
         ul {
             list-style: none;
-            float: right;
-            margin: 0 0 0 50px;
+            margin: 0;
+            overflow: hidden;
 
             li {
                 float: left;
+                margin-top: 8px;
+                margin-right: 10px;
 
                 a {
-                    border: 1px solid @gray;
+                    font-size: 16px;
                     line-height: 28px;
-                    margin: 8px 10px 8px 0;
+                    border: 1px solid @gray;
                     padding: 0 10px 0 30px;
                     background-color: @white;
                     background-position: 6px 50%;
                     background-repeat: no-repeat;
-                    font-size: 16px;
 
                     &#risorse {
                         background-image: url('../img/banner1420/risorse_ico.png');
@@ -68,6 +73,91 @@
                         text-decoration: none;
                         background-color: @grayLighter;
                     }
+                }
+
+                &:last-of-type {
+                    margin-right: 0;
+                }
+            }
+        }
+
+        #opportunita-info {
+            display: none;
+        }
+    }
+}
+
+@media (min-width: 768px) {
+    #banner-container {
+        #banner {
+            ul {
+                padding-bottom: 10px;
+
+                li {
+                    a {
+                        &#opportunita {
+                            position: relative;
+
+                            &:after {
+                                position: absolute;
+                                left: 50%;
+                                top: 21px;
+                                height: 0;
+                                width: 0;
+                                content: ' ';
+                                border: 10px solid transparent;
+                                border-bottom-color: #438B87;
+                                pointer-events: none;
+                            }
+                        }
+                    }
+                }
+            }
+
+            #opportunita-info {
+                display: block;
+                width: 100%;
+                padding: 3px 0;
+
+                #gradient > .vertical(#438B87, #116866);
+
+                li {
+                    float: none;
+
+                    display: table-cell;
+                    width: 1%;
+                    white-space: nowrap;
+
+                    text-align: center;
+                    color: #CCFFFF;
+                    font-size: 11px;
+                    font-weight: bold;
+
+                    + li {
+                        border-left: 1px solid #CCFFFF;
+                    }
+
+                    span {
+                        color: @white;
+                        font-size: 16px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (min-width: 1200px) {
+    #banner-container {
+        #banner {
+            > div {
+                display: table-cell;
+                vertical-align: top;
+
+                padding-left: 40px;
+
+                &:first-of-type {
+                    padding-left: 20px;
                 }
             }
         }

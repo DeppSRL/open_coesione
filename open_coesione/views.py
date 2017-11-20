@@ -166,7 +166,35 @@ class HomeView(AggregatoMixin, TemplateView):
 
         context['pillola'] = Pillola.objects.order_by('-published_at', '-id')[:1][0]
 
+        context['opportunita'] = self.get_opportunita_info()
+
         return context
+
+    @staticmethod
+    def get_opportunita_info():
+        import csv
+        import datetime
+        import decimal
+
+        today = datetime.date.today().strftime('%Y%m%d')
+        lastday = (datetime.date.today() + datetime.timedelta(days=7)).strftime('%Y%m%d')
+
+        opportunita_file = Opportunita.get_solo().file
+
+        opportunita = list(csv.DictReader(open(opportunita_file.path, 'rb'), delimiter=';'))
+        opportunita_incorso = filter(lambda x: not bool(x['DATA_SCADENZA'] and (x['DATA_SCADENZA'] < today)), opportunita)
+        opportunita_inscadenza = filter(lambda x: bool(x['DATA_SCADENZA'] and (x['DATA_SCADENZA'] <= lastday)), opportunita_incorso)
+
+        opportunita_info = {
+            'data_modifica': opportunita_file.storage.modified_time(opportunita_file.name),
+        }
+        for key, lst in [('incorso', opportunita_incorso), ('inscadenza', opportunita_inscadenza)]:
+            opportunita_info[key] = {
+                'totale': len(lst),
+                'importo': sum(decimal.Decimal(x['IMPORTO'].replace('.', '').replace(',', '.')) for x in lst if x['IMPORTO']),
+            }
+
+        return opportunita_info
 
 
 class RisorsaView(TemplateView):
@@ -676,12 +704,13 @@ class OpportunitaDetailView(DetailView):
     def get_context_data(self, **kwargs):
         import csv
         import datetime
+        import decimal
 
         self.object.file.modified_time = self.object.file.storage.modified_time(self.object.file.name)
 
         context = super(OpportunitaDetailView, self).get_context_data(**kwargs)
 
-        today = datetime.datetime.now().strftime('%Y%m%d')
+        today = datetime.date.today().strftime('%Y%m%d')
 
         reader = csv.DictReader(open(self.object.file.path, 'rb'), delimiter=';')
 
@@ -692,7 +721,7 @@ class OpportunitaDetailView(DetailView):
 
             for c in ('DATA_SCADENZA', 'DATA_PUBBLICAZIONE'):
                 row[c] = datetime.datetime.strptime(row[c], '%Y%m%d') if row[c] else ''
-            row['IMPORTO'] = float(row['IMPORTO'].replace('.', '').replace(',', '.')) if row['IMPORTO'] else ''
+            row['IMPORTO'] = decimal.Decimal(row['IMPORTO'].replace('.', '').replace(',', '.')) if row['IMPORTO'] else ''
 
             context['opportunita'][is_expired].append(row)
 

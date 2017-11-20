@@ -7,12 +7,18 @@
 {% block banner %}
     <div id="banner-container">
         <div id="banner">
-            <a href="{{ SECTION1420_PAGES.0.url }}">Programmazione 2014-2020</a>
-            <ul>
-                {% for page in SECTION1420_PAGES|slice:'1:' %}
-                    <li><a id="{{ page.name|slugify }}" href="{{ page.url }}">{{ page.name }}</a></li>
-                {% endfor %}
-            </ul>
+            <div><a href="{{ SECTION1420_PAGES.0.url }}">Programmazione 2014-2020</a></div>
+            <div>
+                <ul>
+                    {% for page in SECTION1420_PAGES|slice:'1:' %}
+                        <li><a id="{{ page.name|slugify }}" href="{{ page.url }}">{{ page.name }}</a></li>
+                    {% endfor %}
+                </ul>
+                <ul id="opportunita-info">
+                    <li>In corso: <span>{{ opportunita.incorso.totale|intcomma }} ({{ opportunita.incorso.importo|intword }} di euro)</span></li>
+                    <li>In scadenza nei prossimi 7 giorni: <span>{{ opportunita.inscadenza.totale|intcomma }} ({{ opportunita.inscadenza.importo|intword }} di euro)</span></li>
+                </ul>
+            </div>
         </div>
     </div>
 {% endblock %}

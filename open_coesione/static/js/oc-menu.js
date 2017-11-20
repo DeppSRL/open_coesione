@@ -1,7 +1,7 @@
 $(document).ready(function() {
     $('html').on('click.dropdown.data-api', function() {
         $('.submenu').children('ul').removeClass('submenu-show').addClass('submenu-hide');
-    })
+    });
 
     $('.submenu').on('click', function(e) {
         $('.submenu').not($(this).parents('.submenu')).children('ul').removeClass('submenu-show').addClass('submenu-hide');
