@@ -774,7 +774,7 @@ class MonitoraggioASOC(models.Model):
     team = models.CharField(max_length=255)
     blog_url = models.URLField()
     monithon_url = models.URLField(blank=True, null=True)
-    elaborato_url = models.URLField(blank=True, null=True)
+    elaborato_url = models.URLField(max_length=255, blank=True, null=True)
 
     @property
     def istituto_regione(self):
