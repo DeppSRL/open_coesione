@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import datetime
+import glob
 import json
 import logging
+import os
 import pandas as pd
 import re
 import zipfile
@@ -190,10 +192,10 @@ class Command(BaseCommand):
                     dest='csv_path',
                     default=None,
                     help='Select csv files path.'),
-        make_option('--csv-date',
-                    dest='csv_date',
-                    default=None,
-                    help='Date of data.'),
+        # make_option('--csv-date',
+        #             dest='csv_date',
+        #             default=None,
+        #             help='Date of data.'),
         make_option('--import-type',
                     dest='import_type',
                     default=None,
@@ -218,7 +220,7 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         csvpath = options['csv_path']
-        csvdate = options['csv_date']
+        # csvdate = options['csv_date']
         importtype = options['import_type']
         encoding = options['encoding']
 
@@ -230,7 +232,16 @@ class Command(BaseCommand):
 
         # read csv files
         for file in self.import_types[importtype]['files']:
-            csvfile = csvpath.rstrip('/') + '/' + file.format(csvdate)
+            # csvfile = csvpath.rstrip('/') + '/' + file.format(csvdate)
+            csvfile = csvpath.rstrip('/') + '/' + file.format('201?????')
+            csvfile = os.path.join(*csvfile.split('/'))
+
+            files = sorted(glob.glob(csvfile))
+            if files:
+                csvfile = files[-1]
+            else:
+                self.logger.error(u'It was impossible to open file {}'.format(csvfile))
+                continue
 
             try:
                 self.logger.info(u'Reading file {} ....'.format(csvfile))
@@ -277,7 +288,7 @@ class Command(BaseCommand):
         df.fillna('', inplace=True)
         df.drop_duplicates(inplace=True)
 
-        self.logger.info(u'Inizio import "{}" ({}).'.format(importtype, csvdate))
+        self.logger.info(u'Inizio import "{}" ({}).'.format(importtype, csvpath))
 
         start_time = datetime.datetime.now()
 
