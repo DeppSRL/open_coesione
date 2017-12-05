@@ -234,7 +234,7 @@ class Command(BaseCommand):
         for file in self.import_types[importtype]['files']:
             # csvfile = csvpath.rstrip('/') + '/' + file.format(csvdate)
             csvfile = csvpath.rstrip('/') + '/' + file.format('201?????')
-            csvfile = os.path.join(*csvfile.split('/'))
+            # csvfile = os.path.join(*csvfile.split('/'))
 
             files = sorted(glob.glob(csvfile))
             if files:
