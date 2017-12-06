@@ -54,10 +54,13 @@ class Config(object):
                     Q(descrizione__contains='ATTRATTORI CULTURALI') |
                     Q(descrizione__contains='RETI E MOBILITÀ') |
                     Q(descrizione__contains='SICUREZZA') |
-                    Q(descrizione__contains='CAMPANIA') |
                     Q(descrizione__contains='CALABRIA') |
+                    Q(descrizione__contains='CAMPANIA') |
+                    Q(descrizione__contains='PIEMONTE') |
+                    Q(descrizione__contains='PUGLIA') |
+                    Q(descrizione__contains='SARDEGNA') |
                     Q(descrizione__contains='SICILIA') |
-                    Q(descrizione__contains='SARDEGNA')
+                    Q(descrizione__contains='UMBRIA')
                 )
             )
             cache.set('programmi_pac_fesr', programmi_pac_fesr)
@@ -66,11 +69,11 @@ class Config(object):
         if programmi_pac_fse is None:
             programmi_pac_fse = programmi_asse_obiettivo.filter(
                 Q(descrizione__contains='CONV FSE') & (
-                    Q(descrizione__contains='CAMPANIA') |
+                    Q(descrizione__contains='BASILICATA') |
                     Q(descrizione__contains='CALABRIA') |
-                    Q(descrizione__contains='SICILIA') |
+                    Q(descrizione__contains='CAMPANIA') |
                     Q(descrizione__contains='PUGLIA') |
-                    Q(descrizione__contains='BASILICATA')
+                    Q(descrizione__contains='SICILIA')
                 )
             )
             cache.set('programmi_pac_fse', programmi_pac_fse)
