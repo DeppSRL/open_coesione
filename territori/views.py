@@ -81,12 +81,23 @@ class InfoView(JSONResponseMixin, TemplateView):
         gruppo_programmi = None
         programmi = None
         if self.filter == 'programmi':
-            try:
-                programma = ProgrammaLineaAzione.objects.get(codice=kwargs['slug'])
-            except ProgrammaLineaAzione.DoesNotExist:
-                programma = ProgrammaAsseObiettivo.objects.get(codice=kwargs['slug'])
+            # try:
+            #     programma = ProgrammaLineaAzione.objects.get(codice=kwargs['slug'])
+            # except ProgrammaLineaAzione.DoesNotExist:
+            #     programma = ProgrammaAsseObiettivo.objects.get(codice=kwargs['slug'])
 
-            programmi = [programma]
+            # programmi = [programma]
+
+            # territori = [(t.denominazione, t.get_progetti_search_url(programma=programma)) for t in territorio_hierarchy]
+
+            programmi = []
+            for model in (ProgrammaAsseObiettivo, ProgrammaLineaAzione):
+                programmi += list(model.objects.filter(pk=self.kwargs['slug']))
+
+            try:
+                programma = programmi[0]
+            except:
+                raise Http404
 
             territori = [(t.denominazione, t.get_progetti_search_url(programma=programma)) for t in territorio_hierarchy]
         elif self.filter == 'gruppo_programmi':
