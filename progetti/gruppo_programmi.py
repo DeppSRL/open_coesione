@@ -56,11 +56,8 @@ class Config(object):
                     Q(descrizione__contains='SICUREZZA') |
                     Q(descrizione__contains='CALABRIA') |
                     Q(descrizione__contains='CAMPANIA') |
-                    Q(descrizione__contains='PIEMONTE') |
-                    Q(descrizione__contains='PUGLIA') |
                     Q(descrizione__contains='SARDEGNA') |
-                    Q(descrizione__contains='SICILIA') |
-                    Q(descrizione__contains='UMBRIA')
+                    Q(descrizione__contains='SICILIA')
                 )
             )
             cache.set('programmi_pac_fesr', programmi_pac_fesr)
