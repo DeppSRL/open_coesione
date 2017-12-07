@@ -16,7 +16,8 @@ from models import Territorio
 from open_coesione.data_classification import DataClassifier
 from open_coesione.views import AggregatoMixin, cached_context
 from progetti.gruppo_programmi import GruppoProgrammi
-from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione
+from progetti.models import Progetto, Tema, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione, \
+    get_programmi_by_pk
 from progetti.views import BaseCSVView
 
 
@@ -89,20 +90,17 @@ class InfoView(JSONResponseMixin, TemplateView):
             # programmi = [programma]
 
             # territori = [(t.denominazione, t.get_progetti_search_url(programma=programma)) for t in territorio_hierarchy]
-
-            programmi = []
-            for model in (ProgrammaAsseObiettivo, ProgrammaLineaAzione):
-                programmi += list(model.objects.filter(pk=self.kwargs['slug']))
-
             try:
-                programma = programmi[0]
+                programmi = get_programmi_by_pk(self.kwargs['slug'])
             except:
                 raise Http404
+
+            programma = programmi[0]
 
             territori = [(t.denominazione, t.get_progetti_search_url(programma=programma)) for t in territorio_hierarchy]
         elif self.filter == 'gruppo_programmi':
             try:
-                gruppo_programmi = GruppoProgrammi(codice=self.kwargs.get('slug'))
+                gruppo_programmi = GruppoProgrammi(codice=self.kwargs['slug'])
             except:
                 raise Http404
 
@@ -338,10 +336,9 @@ class BaseMapnikView(AggregatoMixin, TemplateView):
             #     except ProgrammaAsseObiettivo.DoesNotExist:
             #         raise Exception('Could not find appropriate programma')
             # progetti = progetti.con_programmi([programma])
-            programmi = []
-            for model in (ProgrammaAsseObiettivo, ProgrammaLineaAzione):
-                programmi += list(model.objects.filter(pk=self.kwargs['codice']))
-            if not programmi:
+            try:
+                programmi = get_programmi_by_pk(self.kwargs['codice'])
+            except:
                 raise Exception('Could not find appropriate programma')
             else:
                 progetti = progetti.con_programmi(programmi)

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-import json
-from decimal import Decimal
 from django.contrib.contenttypes import generic
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -27,11 +26,6 @@ class ClassificazioneBase(models.Model):
     @property
     def is_root(self):
         return self.classificazione_superiore_id is None
-
-    @property
-    def progetti(self):
-        raise Exception('PIPPO')
-        return self.progetto_set
 
     @property
     def get_tipo_display(self):
@@ -190,11 +184,6 @@ class Tema(models.Model):
     def is_root(self):
         return self.tema_superiore_id is None
 
-    @property
-    def progetti(self):
-        raise Exception('PIPPO')
-        return self.progetto_set
-
     def totale_pro_capite(self, territorio_or_popolazione):
         if isinstance(territorio_or_popolazione, (int, float)):
             popolazione = territorio_or_popolazione
@@ -249,11 +238,6 @@ class Fonte(models.Model):
     codice = models.CharField(max_length=8, primary_key=True)
     descrizione = models.TextField()
     short_label = models.CharField(max_length=64, blank=True, null=True)
-
-    @property
-    def progetti(self):
-        raise Exception('PIPPO')
-        return self.progetto_set
 
     def __unicode__(self):
         return u'{} - {}'.format(self.codice, self.descrizione)
@@ -783,3 +767,14 @@ class MonitoraggioASOC(models.Model):
     @property
     def istituto_provincia(self):
         return self.istituto_comune.provincia
+
+
+def get_programmi_by_pk(pk):
+    programmi = []
+    for model in (ProgrammaAsseObiettivo, ProgrammaLineaAzione):
+        programmi += list(model.objects.filter(pk=pk))
+
+    if not programmi:
+        raise ObjectDoesNotExist('The requested programs do not exist')
+
+    return programmi

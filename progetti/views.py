@@ -10,8 +10,8 @@ from django.http import HttpResponse, Http404
 from django.views.generic import DetailView, ListView, TemplateView, FormView
 from forms import DescrizioneProgettoForm
 from gruppo_programmi import GruppoProgrammi, split_by_type
-from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, ProgrammaLineaAzione,\
-    Ruolo, Tema, Fonte, SegnalazioneProgetto, MonitoraggioASOC
+from models import Progetto, ClassificazioneAzione, ProgrammaAsseObiettivo, Ruolo, Tema, Fonte, SegnalazioneProgetto,\
+    MonitoraggioASOC, get_programmi_by_pk
 from oc_search.views import OCFacetedSearchView
 from open_coesione import utils
 from open_coesione.views import AggregatoMixin, XRobotsTagTemplateResponseMixin, cached_context, OpendataView
@@ -230,12 +230,9 @@ class ProgettoSearchView(OCFacetedSearchView):
         fonte_fin = self.request.GET.get('fonte_fin')
         if fonte_fin:
             try:
-                extra['fonte_fin'] = ProgrammaLineaAzione.objects.get(pk=fonte_fin)
-            except ProgrammaLineaAzione.DoesNotExist:
-                try:
-                    extra['fonte_fin'] = ProgrammaAsseObiettivo.objects.get(pk=fonte_fin)
-                except ProgrammaAsseObiettivo.DoesNotExist:
-                    pass
+                extra['fonte_fin'] = get_programmi_by_pk(fonte_fin)[0]
+            except:
+                pass
 
         programmi_slug = self.request.GET.get('gruppo_programmi')
         if programmi_slug:
@@ -449,18 +446,14 @@ class ProgrammaView(BaseProgrammaView):
     template_name = 'progetti/programma_detail.html'
 
     def get_objects(self):
-        objects = []
-        for model in (ProgrammaAsseObiettivo, ProgrammaLineaAzione):
-            objects += list(model.objects.filter(pk=self.kwargs.get('codice')))
-        return objects
+        return get_programmi_by_pk(self.kwargs.get('codice'))
 
     def get_progetti_queryset(self):
         return Progetto.objects.con_programmi(self.get_objects())
 
     def get_context_data(self, **kwargs):
-        programmi = self.get_objects()
         try:
-            programma = programmi[0]
+            programmi = self.get_objects()
         except:
             raise Http404
 
@@ -468,7 +461,7 @@ class ProgrammaView(BaseProgrammaView):
 
         context['map_selector'] = 'programmi/{}/'.format(self.kwargs['codice'])
 
-        context['programma'] = programma
+        context['programma'] = programmi[0]
 
         return context
 
