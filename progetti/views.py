@@ -418,59 +418,59 @@ class ProgrammiView(BaseProgrammaView):
         return context
 
 
-class ProgrammaView(BaseProgrammaView):
-    template_name = 'progetti/programma_detail.html'
-
-    def get_object(self):
-        try:
-            return ProgrammaLineaAzione.objects.programmi().get(pk=self.kwargs.get('codice'))
-        except ProgrammaLineaAzione.DoesNotExist:
-            return ProgrammaAsseObiettivo.objects.programmi().get(pk=self.kwargs.get('codice'))
-
-    def get_progetti_queryset(self):
-        return Progetto.objects.con_programmi([self.get_object()])
-
-    def get_context_data(self, **kwargs):
-        try:
-            programma = self.get_object()
-        except:
-            raise Http404
-
-        context = super(ProgrammaView, self).get_context_data(programmi=[programma], **kwargs)
-
-        context['map_selector'] = 'programmi/{}/'.format(self.kwargs['codice'])
-
-        context['programma'] = programma
-
-        return context
-
-
 # class ProgrammaView(BaseProgrammaView):
 #     template_name = 'progetti/programma_detail.html'
 #
-#     def get_objects(self):
-#         objects = []
-#         for model in (ProgrammaAsseObiettivo, ProgrammaLineaAzione):
-#             objects += list(model.objects.filter(pk=self.kwargs.get('codice')))
-#         return objects
+#     def get_object(self):
+#         try:
+#             return ProgrammaLineaAzione.objects.programmi().get(pk=self.kwargs.get('codice'))
+#         except ProgrammaLineaAzione.DoesNotExist:
+#             return ProgrammaAsseObiettivo.objects.programmi().get(pk=self.kwargs.get('codice'))
 #
 #     def get_progetti_queryset(self):
-#         return Progetto.objects.con_programmi(self.get_objects())
+#         return Progetto.objects.con_programmi([self.get_object()])
 #
 #     def get_context_data(self, **kwargs):
-#         programmi = self.get_objects()
 #         try:
-#             programma = programmi[0]
+#             programma = self.get_object()
 #         except:
 #             raise Http404
 #
-#         context = super(ProgrammaView, self).get_context_data(programmi=programmi, **kwargs)
+#         context = super(ProgrammaView, self).get_context_data(programmi=[programma], **kwargs)
 #
 #         context['map_selector'] = 'programmi/{}/'.format(self.kwargs['codice'])
 #
 #         context['programma'] = programma
 #
 #         return context
+
+
+class ProgrammaView(BaseProgrammaView):
+    template_name = 'progetti/programma_detail.html'
+
+    def get_objects(self):
+        objects = []
+        for model in (ProgrammaAsseObiettivo, ProgrammaLineaAzione):
+            objects += list(model.objects.filter(pk=self.kwargs.get('codice')))
+        return objects
+
+    def get_progetti_queryset(self):
+        return Progetto.objects.con_programmi(self.get_objects())
+
+    def get_context_data(self, **kwargs):
+        programmi = self.get_objects()
+        try:
+            programma = programmi[0]
+        except:
+            raise Http404
+
+        context = super(ProgrammaView, self).get_context_data(programmi=programmi, **kwargs)
+
+        context['map_selector'] = 'programmi/{}/'.format(self.kwargs['codice'])
+
+        context['programma'] = programma
+
+        return context
 
 
 class ClassificazioneAzioneView(AggregatoMixin, DetailView):
