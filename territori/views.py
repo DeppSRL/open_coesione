@@ -64,32 +64,22 @@ class InfoView(JSONResponseMixin, TemplateView):
 
         context['success'] = True
 
-        territorio_hierarchy = territorio.get_hierarchy()
-
-        territori = territorio.get_breadcrumbs()
+        territori = [(territorio.denominazione, territorio.get_absolute_url())]
 
         tema = None
         if self.filter == 'temi':
             tema = Tema.objects.get(slug=kwargs['slug'])
-            territori = [(t.denominazione, t.get_progetti_search_url(tema=tema)) for t in territorio_hierarchy]
+            territori = [(territorio.denominazione, territorio.get_progetti_search_url(tema=tema))]
 
         natura = None
         if self.filter == 'nature':
             natura = ClassificazioneAzione.objects.get(slug=kwargs['slug'])
-            territori = [(t.denominazione, t.get_progetti_search_url(natura=natura)) for t in territorio_hierarchy]
+            territori = [(territorio.denominazione, territorio.get_progetti_search_url(natura=natura))]
 
         programma = None
         gruppo_programmi = None
         programmi = None
         if self.filter == 'programmi':
-            # try:
-            #     programma = ProgrammaLineaAzione.objects.get(codice=kwargs['slug'])
-            # except ProgrammaLineaAzione.DoesNotExist:
-            #     programma = ProgrammaAsseObiettivo.objects.get(codice=kwargs['slug'])
-
-            # programmi = [programma]
-
-            # territori = [(t.denominazione, t.get_progetti_search_url(programma=programma)) for t in territorio_hierarchy]
             try:
                 programmi = get_programmi_by_pk(self.kwargs['slug'])
             except:
@@ -97,7 +87,7 @@ class InfoView(JSONResponseMixin, TemplateView):
 
             programma = programmi[0]
 
-            territori = [(t.denominazione, t.get_progetti_search_url(programma=programma)) for t in territorio_hierarchy]
+            territori = [(territorio.denominazione, territorio.get_progetti_search_url(programma=programma))]
         elif self.filter == 'gruppo_programmi':
             try:
                 gruppo_programmi = GruppoProgrammi(codice=self.kwargs['slug'])
@@ -106,7 +96,7 @@ class InfoView(JSONResponseMixin, TemplateView):
 
             programmi = gruppo_programmi.programmi
 
-            territori = [(t.denominazione, t.get_progetti_search_url(gruppo_programmi=gruppo_programmi)) for t in territorio_hierarchy]
+            territori = [(territorio.denominazione, territorio.get_progetti_search_url(gruppo_programmi=gruppo_programmi))]
 
         # prepare the cache key
         tema_key = tema.slug if tema is not None else 'na'
@@ -531,6 +521,8 @@ class AmbitoEsteroView(AggregatoMixin, ListView):
             context['territori'].append(territorio)
 
         context['territori'] = [t for t in context['territori'] if t.totali != {}]
+
+        context['tipo_territorio'] = self.tipo_territorio
 
         return context
 

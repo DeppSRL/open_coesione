@@ -147,6 +147,7 @@ class Territorio(models.Model):
 
     @property
     def code(self):
+        raise Exception('PIPPO')
         return self.get_cod_dict().values()[0]
 
     def get_cod_dict(self, prefix=''):
@@ -165,21 +166,6 @@ class Territorio(models.Model):
             return {'{}pk'.format(prefix): self.pk}
 
         raise Exception('Territorio non interrogabile {}'.format(self))
-
-    def get_hierarchy(self):
-        """
-        Returns the list of parent objects (self included)
-        """
-        hierarchy = [self]
-        if self.provincia:
-            hierarchy.insert(0, self.provincia)
-            if self.regione:
-                hierarchy.insert(0, self.regione)
-
-        return hierarchy
-
-    def get_breadcrumbs(self):
-        return [(territorio.denominazione, territorio.get_absolute_url()) for territorio in self.get_hierarchy()]
 
     def get_progetti_search_url(self, **kwargs):
         """
@@ -206,10 +192,9 @@ class Territorio(models.Model):
             gruppo_programmi = kwargs['gruppo_programmi']
             search_url += '&gruppo_programmi={}'.format(gruppo_programmi.codice)
 
-        for t in self.get_hierarchy():
-            d = t.get_cod_dict()
-            key = d.keys()[0]
-            search_url += '&territorio{}={}'.format(key[3:], d[key])
+        d = self.get_cod_dict()
+        key = d.keys()[0]
+        search_url += '&territorio{}={}'.format(key[3:], d[key])
 
         return search_url
 
