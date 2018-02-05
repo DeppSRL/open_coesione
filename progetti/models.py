@@ -298,7 +298,7 @@ class Progetto(models.Model):
         ('2', u"Il progetto appartiene al PAC ed è finanziato nell'ambito dei Programmi Operativi"),
     )
     STATO = Choices(
-        ('0', 'non_applicabile', u'Non applicabile'),
+        ('0', 'non_applicabile', u'Non determinabile'),
         ('1', 'non_avviato', u'Non avviato'),
         ('2', 'in_corso', u'In corso'),
         ('3', 'liquidato', u'Liquidato'),
