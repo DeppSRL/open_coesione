@@ -48,7 +48,6 @@ class ProgrammaBase(ClassificazioneBase):
 
     @property
     def programma(self):
-        raise Exception('PIPPO')
         p = self
         while p.classificazione_superiore is not None:
             p = p.classificazione_superiore
@@ -79,7 +78,6 @@ class ProgrammaAsseObiettivo(ProgrammaBase):
 
         It only works with root programmi.
         """
-        raise Exception('PIPPO')
         if self.is_root:
             return Progetto.objects.filter(programma_asse_obiettivo__classificazione_superiore__classificazione_superiore=self)
         else:
@@ -108,7 +106,6 @@ class ProgrammaLineaAzione(ProgrammaBase):
 
         It only works with root programmi.
         """
-        raise Exception('PIPPO')
         if self.is_root:
             return Progetto.objects.filter(programma_linea_azione__classificazione_superiore__classificazione_superiore=self)
         else:

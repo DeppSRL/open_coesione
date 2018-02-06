@@ -147,7 +147,6 @@ class Territorio(models.Model):
 
     @property
     def code(self):
-        raise Exception('PIPPO')
         return self.get_cod_dict().values()[0]
 
     def get_cod_dict(self, prefix=''):
