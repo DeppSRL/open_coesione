@@ -520,6 +520,7 @@ class OpendataView(TemplateView):
         context['approfondimenti_2_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_focus_beni_confiscati.xls')
 
         context['approfondimenti_3_1_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_turismo.zip')
+        context['approfondimenti_3_2_file'] = self.get_complete_localfile('approfondimenti/progetti_focus_turismo_20170630.zip')
         context['approfondimenti_3_metadata_file'] = self.get_complete_localfile('approfondimenti/metadati_focus_turismo.xls')
 
         return context
