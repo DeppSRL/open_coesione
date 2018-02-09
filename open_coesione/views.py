@@ -373,7 +373,6 @@ class OpendataView(TemplateView):
             ('imp', {
                 'name': 'impegni',
                 'complete_file': self.get_complete_localfile('impegni_OC.zip'),
-                'regional_files': self.get_regional_files('imp', 'OC'),
             }),
         ])
 
@@ -400,7 +399,6 @@ class OpendataView(TemplateView):
             }),
             ('imp', {
                 'name': 'impegnii',
-                'complete_file': self.get_complete_localfile('impegni_FS0713.zip'),
                 'regional_files': self.get_regional_files('imp', 'FS0713'),
             }),
         ])
@@ -421,10 +419,6 @@ class OpendataView(TemplateView):
             ('pag', {
                 'name': 'pagamenti',
                 'complete_file': self.get_complete_localfile('pagamenti_FSC0713.zip'),
-            }),
-            ('imp', {
-                'name': 'impegni',
-                'complete_file': self.get_complete_localfile('impegni_FSC0713.zip'),
             }),
         ])
 
@@ -463,10 +457,6 @@ class OpendataView(TemplateView):
             ('pag', {
                 'name': 'pagamenti',
                 'complete_file': self.get_complete_localfile('pagamenti_PAC.zip'),
-            }),
-            ('imp', {
-                'name': 'impegni',
-                'complete_file': self.get_complete_localfile('impegni_PAC.zip'),
             }),
         ])
 
