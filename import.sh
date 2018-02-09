@@ -37,6 +37,7 @@ then
     python manage.py csvimport --csv-path=${DATADIR} --verbosity=2 --import-type=privacy-soggetti
     python manage.py csvimport --csv-path=${DATADIR} --verbosity=2 --import-type=corrispondenze-progetti
     python manage.py csvimport --csv-path=${DATADIR} --verbosity=2 --import-type=sovrapposizioni-fonti
+    python manage.py csvimport --csv-path=${DATADIR} --verbosity=2 --import-type=monitoraggi-asoc
     python manage.py csvremoteimport --csv-file=http://www.ponrec.it/opendata/ponrec_opendata.csv --separator=, --verbosity=2 --import-type=descrizioni-ponrec
     python manage.py csvremoteimport --csv-file=http://www.agenziacoesione.gov.it/opencms/export/sites/dps/it/documentazione/pongat/Beneficiari/Beneficiari_PON_GAT_dati_31_10_2015.csv --encoding=latin1 --verbosity=2 --import-type=descrizioni-pongat
 fi
