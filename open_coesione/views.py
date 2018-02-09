@@ -370,6 +370,11 @@ class OpendataView(TemplateView):
                 'complete_file': self.get_complete_localfile('pagamenti_OC.zip'),
                 'regional_files': self.get_regional_files('pag', 'OC'),
             }),
+            ('imp', {
+                'name': 'impegni',
+                'complete_file': self.get_complete_localfile('impegni_OC.zip'),
+                'regional_files': self.get_regional_files('imp', 'OC'),
+            }),
         ])
 
         context['fs_sections'] = OrderedDict([
@@ -393,6 +398,11 @@ class OpendataView(TemplateView):
                 'complete_file': self.get_complete_localfile('pagamenti_FS0713.zip'),
                 'regional_files': self.get_regional_files('pag', 'FS0713'),
             }),
+            ('imp', {
+                'name': 'impegnii',
+                'complete_file': self.get_complete_localfile('impegni_FS0713.zip'),
+                'regional_files': self.get_regional_files('imp', 'FS0713'),
+            }),
         ])
 
         context['fsc_sections'] = OrderedDict([
@@ -411,6 +421,10 @@ class OpendataView(TemplateView):
             ('pag', {
                 'name': 'pagamenti',
                 'complete_file': self.get_complete_localfile('pagamenti_FSC0713.zip'),
+            }),
+            ('imp', {
+                'name': 'impegni',
+                'complete_file': self.get_complete_localfile('impegni_FSC0713.zip'),
             }),
         ])
 
@@ -449,6 +463,10 @@ class OpendataView(TemplateView):
             ('pag', {
                 'name': 'pagamenti',
                 'complete_file': self.get_complete_localfile('pagamenti_PAC.zip'),
+            }),
+            ('imp', {
+                'name': 'impegni',
+                'complete_file': self.get_complete_localfile('impegni_PAC.zip'),
             }),
         ])
 
