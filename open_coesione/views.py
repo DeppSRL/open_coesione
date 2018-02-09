@@ -480,7 +480,7 @@ class OpendataView(TemplateView):
         context['cipe_corrispondenze_metadata_file'] = self.get_complete_localfile('metadati_corrispondenze_assegnazioni_attuazione.xls')
 
         context['risorse0713_file'] = self.get_complete_localfile('Dotazioni_PO_2007-2013.xls')
-        context['risorse1420_file'] = self.get_complete_localfile('Dotazioni_PO_SIE_2014-2020.xls')
+        context['risorse1420_file'] = self.get_complete_localfile('Dotazioni_Programmi_SIE_2014-2020.xls')
         context['decisioni1420_file'] = self.get_complete_localfile('Decisioni_PO_SIE_2014-2020.xls')
         context['dotazionifsc1420_file'] = self.get_complete_localfile('Dotazioni_FSC_2014-2020.xls')
         context['decisionifsc1420_file'] = self.get_complete_localfile('Decisioni_FSC_2014-2020.xls')
