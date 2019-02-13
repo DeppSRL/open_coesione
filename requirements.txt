@@ -1,5 +1,6 @@
 BeautifulSoup
-Django<1.6.0
+Django>=1.11.19<2
+requests>=2.20.0
 Jinja2
 pillow
 PyYAML
